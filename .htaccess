@@ -1,0 +1,56 @@
+DirectoryIndex index.php
+
+<IfModule mod_setenvif.c>
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%1]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^koleksiyonlar/?$ koleksiyonlar.php [L,QSA,NC]
+RewriteRule ^koleksiyon/([^/]+)/?$ koleksiyon.php?slug=$1 [L,QSA,NC]
+RewriteRule ^urun/([^/]+)/?$ urun.php?slug=$1 [L,QSA,NC]
+RewriteRule ^sayfa/([^/]+)/?$ sayfa.php?slug=$1 [L,QSA,NC]
+RewriteRule ^sepet/?$ sepet.php [L,QSA,NC]
+RewriteRule ^odeme/?$ odeme.php [L,QSA,NC]
+RewriteRule ^arama/?$ arama.php [L,QSA,NC]
+RewriteRule ^search/suggest/?$ searchsuggest.php [L,QSA,NC]
+RewriteRule ^search/?$ arama.php [L,QSA,NC]
+RewriteRule ^siparis-tamam/?$ siparisonay.php [L,QSA,NC]
+RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA,NC]
+RewriteRule ^robots\.txt$ robots.php [L,QSA,NC]
+RewriteRule ^bulten/?$ bulten.php [L,QSA,NC]
+
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^urun\.php$ urun/%2? [R=301,L,QSD,NE]
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^koleksiyon\.php$ koleksiyon/%2? [R=301,L,QSD,NE]
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^sayfa\.php$ sayfa/%2? [R=301,L,QSD,NE]
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^product\.php$ urun/%2? [R=301,L,QSD,NE]
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^collection\.php$ koleksiyon/%2? [R=301,L,QSD,NE]
+RewriteCond %{QUERY_STRING} (^|&)slug=([^&]+) [NC]
+RewriteRule ^page\.php$ sayfa/%2? [R=301,L,QSD,NE]
+
+RewriteRule ^koleksiyonlar\.php$ koleksiyonlar [R=301,L,QSA,NE]
+RewriteRule ^sepet\.php$ sepet [R=301,L,QSA,NE]
+RewriteRule ^odeme\.php$ odeme [R=301,L,QSA,NE]
+RewriteRule ^arama\.php$ arama [R=301,L,QSA,NE]
+RewriteRule ^siparisonay\.php$ siparis-tamam [R=301,L,QSA,NE]
+RewriteRule ^collections\.php$ koleksiyonlar [R=301,L,QSA,NE]
+RewriteRule ^cart\.php$ sepet [R=301,L,QSA,NE]
+RewriteRule ^checkout\.php$ odeme [R=301,L,QSA,NE]
+RewriteRule ^search\.php$ arama [R=301,L,QSA,NE]
+RewriteRule ^order-success\.php$ siparis-tamam [R=301,L,QSA,NE]
+
+RewriteRule ^paytr-return\.php$ paytrdonus.php [R=301,L,QSA,NE]
+RewriteRule ^paytr-callback\.php$ paytrag.php [R=301,L,QSA,NE]
+</IfModule>
