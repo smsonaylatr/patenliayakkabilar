@@ -1094,6 +1094,11 @@ first.parentNode.insertBefore(script, first);
 </x-slideshow>
 
 </section><section id="shopify-section-template--22505045524730__collection-list" class="shopify-section shopify-section--collection-list"><style>
+  collection-list.collection-list {
+    display: grid !important;
+    grid: var(--collection-list-grid) !important;
+    gap: var(--grid-gutter, 20px) !important;
+  }
   #shopify-section-template--22505045524730__collection-list {
     --section-background-hash: 0;
   }
