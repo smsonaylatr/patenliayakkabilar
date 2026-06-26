@@ -7,9 +7,9 @@ return array (
   array (
     'host' => '127.0.0.1',
     'port' => 3306,
-    'name' => 'ded_shop',
-    'user' => 'root',
-    'pass' => '',
+    'name' => 'patenayakkabi',
+    'user' => 'kullanici_paten',
+    'pass' => 'O1o2o3o4**123',
     'charset' => 'utf8mb4',
   ),
 );
