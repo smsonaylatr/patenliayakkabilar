@@ -242,7 +242,6 @@ function ded_vue_home_replace_main(string $html, ?PDO $pdo = null): string
 {
     $boot = ded_vue_home_boot_json($pdo);
     $replacement = '<main role="main" id="main" class="anchor">'
-        . '<div class="shopify-section" style="display:none" aria-hidden="true"><div allow-transparent-header></div></div>'
         . '<div id="ded-vue-home"></div>'
         . '<script type="application/json" id="ded-vue-home-boot">' . $boot . '</script>'
         . '</main>';
