@@ -1,22 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 
-let app = null;
-
-function mountVue() {
-  const el = document.getElementById('ded-vue-home');
-  if (el) {
-    if (app) app.unmount();
-    app = createApp(App);
-    app.mount(el);
-  } else if (app) {
-    app.unmount();
-    app = null;
-  }
+const el = document.getElementById('ded-vue-home');
+if (el) {
+  createApp(App).mount(el);
 }
-
-// Initial load
-mountVue();
-
-// Hotwire Turbo support
-document.addEventListener('turbo:load', mountVue);
