@@ -765,7 +765,8 @@ first.parentNode.insertBefore(script, first);
       }
     }
   </style>
-<script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
+<script src="https://unpkg.com/swup@4"></script><script src="https://unpkg.com/@swup/scripts-plugin@3"></script><script>if(typeof window.swup==="undefined"){window.swup=new Swup({containers:["#main"],plugins:[new SwupScriptsPlugin({head:false,body:true})]});}</script><style>html.is-animating .transition-fade{opacity:0;transform:translateY(10px)}.transition-fade{transition:0.3s;opacity:1;transform:translateY(0)}</style>
 </head>
 
   <body class="page-transition zoom-image--enabled"><!-- DRAWER -->
@@ -1102,7 +1103,7 @@ first.parentNode.insertBefore(script, first);
   </form>
 </search-drawer>
 
-</div><main role="main" id="main" class="anchor">
+</div><main role="main" id="main" class="anchor transition-fade">
       <section id="shopify-section-template--22505045524730__slideshow" class="shopify-section shopify-section--slideshow"><style>#shopify-section-template--22505045524730__slideshow {
     --slideshow-background: linear-gradient(60deg, rgba(60, 65, 68, 1), rgba(23, 29, 33, 1) 98%);
     --slideshow-controls-background: ;

@@ -18,5 +18,5 @@ function mountVue() {
 // Initial load
 mountVue();
 
-// Hotwire Turbo support
-document.addEventListener('turbo:load', mountVue);
+// Swup SPA support
+document.addEventListener('swup:pageView', mountVue);

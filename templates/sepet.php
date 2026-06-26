@@ -718,7 +718,8 @@ first.parentNode.insertBefore(script, first);
   data-shs-logs-sample-rate="1"
   data-shs-beacon-endpoint="https://laykidsofficial.com.tr/api/collect"
 ></script>
-<script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
+<script src="https://unpkg.com/swup@4"></script><script src="https://unpkg.com/@swup/scripts-plugin@3"></script><script>if(typeof window.swup==="undefined"){window.swup=new Swup({containers:["#main"],plugins:[new SwupScriptsPlugin({head:false,body:true})]});}</script><style>html.is-animating .transition-fade{opacity:0;transform:translateY(10px)}.transition-fade{transition:0.3s;opacity:1;transform:translateY(0)}</style>
 </head>
 
   <body class="page-transition zoom-image--enabled"><!-- DRAWER -->
@@ -1054,7 +1055,7 @@ first.parentNode.insertBefore(script, first);
   </form>
 </search-drawer>
 
-</div><main role="main" id="main" class="anchor">
+</div><main role="main" id="main" class="anchor transition-fade">
       <section id="shopify-section-template--22505045229818__main" class="shopify-section shopify-section--main-cart"><div class="container"><div class="empty-state">
       <div class="empty-state__icon-wrapper"><svg role="presentation" stroke-width="1" focusable="false" width="32" height="32" class="icon icon-cart" viewBox="0 0 22 22">
         <path d="M11 7H3.577A2 2 0 0 0 1.64 9.497l2.051 8A2 2 0 0 0 5.63 19H16.37a2 2 0 0 0 1.937-1.503l2.052-8A2 2 0 0 0 18.422 7H11Zm0 0V1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>

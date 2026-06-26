@@ -718,7 +718,8 @@ first.parentNode.insertBefore(script, first);
   data-shs-logs-sample-rate="1"
   data-shs-beacon-endpoint="https://laykidsofficial.com.tr/api/collect"
 ></script>
-<script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js"></script>
+
+<script src="https://unpkg.com/swup@4"></script><script src="https://unpkg.com/@swup/scripts-plugin@3"></script><script>if(typeof window.swup==="undefined"){window.swup=new Swup({containers:["#main"],plugins:[new SwupScriptsPlugin({head:false,body:true})]});}</script><style>html.is-animating .transition-fade{opacity:0;transform:translateY(10px)}.transition-fade{transition:0.3s;opacity:1;transform:translateY(0)}</style>
 </head>
 
   <body class="page-transition zoom-image--enabled"><!-- DRAWER -->
@@ -863,7 +864,7 @@ first.parentNode.insertBefore(script, first);
   })();
 </script>
 
-</header><div id="shopify-section-newsletter-popup" class="shopify-section shopify-section--popup"></div><main role="main" id="main" class="anchor">
+</header><div id="shopify-section-newsletter-popup" class="shopify-section shopify-section--popup"></div><main role="main" id="main" class="anchor transition-fade">
       <section id="shopify-section-template--22505045819642__main" class="shopify-section shopify-section--main-search"><style>#shopify-section-template--22505045819642__main {
     --product-list-gap: var(--product-list-row-gap) var(--spacing-2);
     --product-list-items-per-row: 2;
