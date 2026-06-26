@@ -744,6 +744,27 @@ first.parentNode.insertBefore(script, first);
   data-shs-logs-sample-rate="1"
   data-shs-beacon-endpoint="https://laykidsofficial.com.tr/api/collect"
 ></script>
+  <style>
+    collection-list.collection-list {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 20px !important;
+    }
+    @media screen and (max-width: 999px) {
+      collection-list.collection-list {
+        grid-template-rows: auto !important;
+        grid-auto-flow: column !important;
+        grid-auto-columns: 73vw !important;
+        grid-template-columns: none !important;
+        overflow-x: auto !important;
+      }
+    }
+    @media screen and (min-width: 700px) and (max-width: 999px) {
+      collection-list.collection-list {
+        grid-auto-columns: 36vw !important;
+      }
+    }
+  </style>
 </head>
 
   <body class="page-transition zoom-image--enabled"><!-- DRAWER -->
