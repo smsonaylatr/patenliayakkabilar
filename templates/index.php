@@ -1096,8 +1096,23 @@ first.parentNode.insertBefore(script, first);
 </section><section id="shopify-section-template--22505045524730__collection-list" class="shopify-section shopify-section--collection-list"><style>
   collection-list.collection-list {
     display: grid !important;
-    grid: var(--collection-list-grid) !important;
-    gap: var(--grid-gutter, 20px) !important;
+    grid-template-rows: auto !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 73vw !important;
+    gap: 20px !important;
+    overflow-x: auto !important;
+  }
+  @media screen and (min-width: 700px) {
+    collection-list.collection-list {
+      grid-auto-columns: 36vw !important;
+    }
+  }
+  @media screen and (min-width: 1000px) {
+    collection-list.collection-list {
+      grid-template-columns: repeat(3, 1fr) !important;
+      grid-auto-flow: row !important;
+      overflow-x: visible !important;
+    }
   }
   #shopify-section-template--22505045524730__collection-list {
     --section-background-hash: 0;
