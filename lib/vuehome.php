@@ -241,14 +241,12 @@ function ded_vue_home_boot_json(?PDO $pdo = null): string
 function ded_vue_home_replace_main(string $html, ?PDO $pdo = null): string
 {
     $boot = ded_vue_home_boot_json($pdo);
-    $assets = ded_vue_home_asset_urls();
-    $jsScript = $assets ? '<script type="module" src="' . ded_attr($assets['js']) . '"></script>' : '';
-    $replacement = '<main role="main" id="main" class="anchor transition-fade">'
+    $replacement = '<main role="main" id="main" class="anchor">'
         . '<div class="shopify-section" style="display:none" aria-hidden="true"><div allow-transparent-header></div></div>'
         . '<div id="ded-vue-home"></div>'
         . '<script type="application/json" id="ded-vue-home-boot">' . $boot . '</script>'
-        . $jsScript
         . '</main>';
+
     $out = preg_replace('#<main\b[^>]*>.*?</main>#is', $replacement, $html, 1);
     return $out ?? $html;
 }
@@ -263,8 +261,9 @@ function ded_vue_home_inject_assets(string $html): string
     foreach ($assets['css'] as $href) {
         $tags .= '<link rel="stylesheet" href="' . ded_attr($href) . '">';
     }
-    if (preg_match('#</head>#i', $html)) {
-        return preg_replace('#</head>#i', $tags . '</head>', $html, 1) ?? $html;
+    $tags .= '<script type="module" src="' . ded_attr($assets['js']) . '"></script>';
+    if (preg_match('#</body>#i', $html)) {
+        return preg_replace('#</body>#i', $tags . '</body>', $html, 1) ?? $html;
     }
     return $html . $tags;
 }
