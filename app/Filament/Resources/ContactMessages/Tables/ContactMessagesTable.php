@@ -56,7 +56,7 @@ class ContactMessagesTable
                     ->action(fn ($record) => $record->update(['is_read' => false])),
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

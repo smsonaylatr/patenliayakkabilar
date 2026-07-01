@@ -193,7 +193,7 @@ class OrdersTable
                     })
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
