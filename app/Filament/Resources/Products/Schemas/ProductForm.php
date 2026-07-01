@@ -267,23 +267,18 @@ class ProductForm
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
-                                            ->maxSize(10240) // 10MB
+                                            ->maxSize(10240)
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                                             ->required(),
-                                        TextInput::make('sort_order')
-                                            ->label('Sıra')
-                                            ->numeric()
-                                            ->default(0)
-                                            ->minValue(0),
                                     ])
-                                    ->columns(1)
                                     ->defaultItems(0)
                                     ->addActionLabel('Görsel Ekle')
                                     ->reorderable()
                                     ->reorderableWithButtons()
+                                    ->orderColumn('sort_order')
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
-                                        isset($state['image_path']) && $state['image_path'] ? 'Görsel #' . ($state['sort_order'] ?? 0) : 'Yeni Görsel'
+                                        isset($state['image_path']) && $state['image_path'] ? 'Görsel' : 'Yeni Görsel'
                                     )
                                     ->columnSpanFull(),
                             ]),
