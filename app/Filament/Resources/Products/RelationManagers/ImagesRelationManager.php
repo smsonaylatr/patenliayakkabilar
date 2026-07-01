@@ -38,8 +38,8 @@ class ImagesRelationManager extends RelationManager
                         '4:3',
                         '16:9',
                     ])
-                    ->maxSize(5120) // 5MB
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(20480) // 20MB
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                     ->required()
                     ->columnSpanFull(),
                 TextInput::make('sort_order')
