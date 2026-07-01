@@ -13,6 +13,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class ImagesRelationManager extends RelationManager
@@ -32,21 +33,10 @@ class ImagesRelationManager extends RelationManager
                     ->disk('public')
                     ->directory('products')
                     ->visibility('public')
-                    ->imageEditor()
-                    ->imageEditorAspectRatios([
-                        '1:1',
-                        '4:3',
-                        '16:9',
-                    ])
                     ->maxSize(20480) // 20MB
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                     ->required()
                     ->columnSpanFull(),
-                TextInput::make('sort_order')
-                    ->label('Sıralama')
-                    ->numeric()
-                    ->default(0)
-                    ->minValue(0),
             ]);
     }
 
@@ -61,8 +51,9 @@ class ImagesRelationManager extends RelationManager
                     ->disk('public')
                     ->square()
                     ->size(80),
-                TextColumn::make('sort_order')
+                TextInputColumn::make('sort_order')
                     ->label('Sıra')
+                    ->type('number')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Eklenme')
@@ -71,10 +62,14 @@ class ImagesRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Görsel Ekle'),
+                    ->label('Görsel Ekle')
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $maxSort = $this->getOwnerRecord()->images()->max('sort_order') ?? -1;
+                        $data['sort_order'] = $maxSort + 1;
+                        return $data;
+                    }),
             ])
             ->actions([
-                EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
