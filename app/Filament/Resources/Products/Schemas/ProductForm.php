@@ -260,14 +260,16 @@ class ProductForm
                                     ->schema([
                                         FileUpload::make('image_path')
                                             ->label('Görsel')
-                                            ->image()
                                             ->disk('public')
                                             ->directory('products')
                                             ->visibility('public')
-                                            ->maxSize(20480)
+                                            ->image()
+                                            ->imageResizeMode('cover')
+                                            ->imageResizeTargetWidth('1200')
+                                            ->imageResizeTargetHeight('1200')
+                                            ->maxSize(10240) // 10MB
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                                            ->required()
-                                            ->columnSpanFull(),
+                                            ->required(),
                                         TextInput::make('sort_order')
                                             ->label('Sıra')
                                             ->numeric()
@@ -281,7 +283,7 @@ class ProductForm
                                     ->reorderableWithButtons()
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
-                                        isset($state['image_path']) ? 'Görsel #' . ($state['sort_order'] ?? 0) : 'Yeni Görsel'
+                                        isset($state['image_path']) && $state['image_path'] ? 'Görsel #' . ($state['sort_order'] ?? 0) : 'Yeni Görsel'
                                     )
                                     ->columnSpanFull(),
                             ]),
