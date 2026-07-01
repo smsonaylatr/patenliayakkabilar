@@ -264,6 +264,8 @@ class ProductForm
                                             ->directory('products')
                                             ->visibility('public')
                                             ->image()
+                                            ->imageEditor()
+                                            ->imageCropAspectRatio('1:1')
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
