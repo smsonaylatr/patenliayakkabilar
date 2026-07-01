@@ -24,7 +24,7 @@ class CampaignResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Kampanya Bilgileri')
+                \Filament\Schemas\Components\Section::make('Kampanya Bilgileri')
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('name')
                             ->label('Kampanya Adı')
@@ -53,7 +53,7 @@ class CampaignResource extends Resource
                             ->required()
                             ->columnSpanFull(),
                     ])->columns(2),
-                \Filament\Forms\Components\Section::make('Zamanlama ve Durum')
+                \Filament\Schemas\Components\Section::make('Zamanlama ve Durum')
                     ->schema([
                         \Filament\Forms\Components\Select::make('status')
                             ->label('Durum')
