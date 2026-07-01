@@ -2,11 +2,16 @@
 
 namespace App\Filament\Resources\Products\RelationManagers;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class VariantsRelationManager extends RelationManager
@@ -75,15 +80,15 @@ class VariantsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('color')
+                TextColumn::make('color')
                     ->label('Renk')
                     ->badge()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('size')
+                TextColumn::make('size')
                     ->label('Numara')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('wheel_type')
+                TextColumn::make('wheel_type')
                     ->label('Teker Tipi')
                     ->badge()
                     ->color('info')
@@ -94,30 +99,30 @@ class VariantsRelationManager extends RelationManager
                         'led' => 'LED Tekerlekli',
                         default => $state ?? '-',
                     }),
-                Tables\Columns\TextColumn::make('stock')
+                TextColumn::make('stock')
                     ->label('Stok')
                     ->sortable()
                     ->color(fn (int $state): string => $state <= 3 ? 'danger' : ($state <= 10 ? 'warning' : 'success'))
                     ->weight('bold'),
-                Tables\Columns\TextColumn::make('price_extra')
+                TextColumn::make('price_extra')
                     ->label('Fiyat Farkı')
                     ->getStateUsing(fn ($record) => $record->price_extra > 0 ? '+' . number_format($record->price_extra, 2) . ' ₺' : '-')
                     ->color(fn ($record) => $record->price_extra > 0 ? 'warning' : 'gray'),
-                Tables\Columns\TextColumn::make('sku')
+                TextColumn::make('sku')
                     ->label('SKU')
                     ->color('gray'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Varyant Ekle'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

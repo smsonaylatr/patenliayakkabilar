@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\ContactMessages\Schemas;
 
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ContactMessageInfolist
@@ -10,21 +13,21 @@ class ContactMessageInfolist
     {
         return $schema
             ->components([
-                \Filament\Infolists\Components\Section::make('Mesaj Detayları')
+                Section::make('Mesaj Detayları')
                     ->schema([
-                        \Filament\Infolists\Components\TextEntry::make('name')
+                        TextEntry::make('name')
                             ->label('Gönderen'),
-                        \Filament\Infolists\Components\TextEntry::make('email')
+                        TextEntry::make('email')
                             ->label('E-posta'),
-                        \Filament\Infolists\Components\TextEntry::make('subject')
+                        TextEntry::make('subject')
                             ->label('Konu'),
-                        \Filament\Infolists\Components\TextEntry::make('created_at')
+                        TextEntry::make('created_at')
                             ->label('Tarih')
                             ->dateTime('d M Y, H:i'),
-                        \Filament\Infolists\Components\TextEntry::make('message')
+                        TextEntry::make('message')
                             ->label('Mesaj İçeriği')
                             ->columnSpanFull(),
-                        \Filament\Infolists\Components\IconEntry::make('is_read')
+                        IconEntry::make('is_read')
                             ->label('Okundu mu?')
                             ->boolean(),
                     ])
