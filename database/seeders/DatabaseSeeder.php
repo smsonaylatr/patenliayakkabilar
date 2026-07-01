@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -89,7 +90,7 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($products as $p) {
+        foreach ($products as $index => $p) {
             $product = Product::firstOrCreate(['slug' => $p['slug']], $p);
             
             // Add variants
@@ -100,6 +101,24 @@ class DatabaseSeeder extends Seeder
                     ['stock' => 10, 'price_extra' => 0]
                 );
             }
+
+            // Add product image
+            $imageNumber = $index + 1;
+            $imagePath = "products/{$imageNumber}.webp";
+            
+            // Copy image from resources to storage if it exists
+            $source = resource_path("images/products/{$imageNumber}.webp");
+            $dest = storage_path("app/public/products/{$imageNumber}.webp");
+            
+            if (file_exists($source) && !file_exists($dest)) {
+                @mkdir(dirname($dest), 0775, true);
+                copy($source, $dest);
+            }
+
+            ProductImage::firstOrCreate(
+                ['product_id' => $product->id, 'image_path' => $imagePath],
+                ['sort_order' => 0]
+            );
         }
     }
 }
