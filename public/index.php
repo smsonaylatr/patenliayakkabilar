@@ -1,4 +1,5 @@
 <?php
+$_SERVER['SCRIPT_NAME'] = '/';
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
