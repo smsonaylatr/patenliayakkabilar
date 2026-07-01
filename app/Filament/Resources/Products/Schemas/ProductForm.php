@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Category;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Tabs;
@@ -184,6 +186,105 @@ class ProductForm
                                     ->columnSpanFull(),
                             ])
                             ->columns(2),
+
+                        Tab::make('Varyantlar')
+                            ->icon('heroicon-o-squares-2x2')
+                            ->schema([
+                                Repeater::make('variants')
+                                    ->relationship()
+                                    ->label('')
+                                    ->schema([
+                                        Select::make('color')
+                                            ->label('Renk')
+                                            ->options([
+                                                'Beyaz' => 'Beyaz',
+                                                'Siyah' => 'Siyah',
+                                                'Kırmızı' => 'Kırmızı',
+                                                'Mavi' => 'Mavi',
+                                                'Pembe' => 'Pembe',
+                                                'Yeşil' => 'Yeşil',
+                                                'Mor' => 'Mor',
+                                                'Turuncu' => 'Turuncu',
+                                                'Gri' => 'Gri',
+                                                'Lacivert' => 'Lacivert',
+                                            ])
+                                            ->searchable()
+                                            ->required(),
+                                        Select::make('size')
+                                            ->label('Numara')
+                                            ->options(
+                                                collect(range(28, 45))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
+                                            )
+                                            ->searchable()
+                                            ->required(),
+                                        Select::make('wheel_type')
+                                            ->label('Teker Tipi')
+                                            ->options([
+                                                'single' => 'Tek Teker',
+                                                'double' => 'Çift Teker',
+                                                'quad' => 'Dört Teker',
+                                                'led' => 'LED Tekerlekli',
+                                            ])
+                                            ->searchable(),
+                                        TextInput::make('stock')
+                                            ->label('Stok')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(0)
+                                            ->minValue(0),
+                                        TextInput::make('price_extra')
+                                            ->label('Fiyat Farkı (₺)')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->step(0.01),
+                                        TextInput::make('sku')
+                                            ->label('SKU'),
+                                    ])
+                                    ->columns(3)
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Varyant Ekle')
+                                    ->reorderable(false)
+                                    ->collapsible()
+                                    ->itemLabel(fn (array $state): ?string => 
+                                        ($state['color'] ?? '') . ' - ' . ($state['size'] ?? '') . ' (Stok: ' . ($state['stock'] ?? 0) . ')'
+                                    )
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make('Görseller')
+                            ->icon('heroicon-o-photo')
+                            ->schema([
+                                Repeater::make('images')
+                                    ->relationship()
+                                    ->label('')
+                                    ->schema([
+                                        FileUpload::make('image_path')
+                                            ->label('Görsel')
+                                            ->image()
+                                            ->disk('public')
+                                            ->directory('products')
+                                            ->visibility('public')
+                                            ->maxSize(20480)
+                                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        TextInput::make('sort_order')
+                                            ->label('Sıra')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->minValue(0),
+                                    ])
+                                    ->columns(1)
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Görsel Ekle')
+                                    ->reorderable()
+                                    ->reorderableWithButtons()
+                                    ->collapsible()
+                                    ->itemLabel(fn (array $state): ?string => 
+                                        isset($state['image_path']) ? 'Görsel #' . ($state['sort_order'] ?? 0) : 'Yeni Görsel'
+                                    )
+                                    ->columnSpanFull(),
+                            ]),
                     ])
                     ->columnSpanFull()
                     ->persistTabInQueryString(),
