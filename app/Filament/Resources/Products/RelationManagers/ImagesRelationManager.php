@@ -29,11 +29,17 @@ class ImagesRelationManager extends RelationManager
                 FileUpload::make('image_path')
                     ->label('Görsel')
                     ->image()
+                    ->disk('public')
                     ->directory('products')
-                    ->imageResizeMode('cover')
-                    ->imageCropAspectRatio('1:1')
-                    ->imageResizeTargetWidth('800')
-                    ->imageResizeTargetHeight('800')
+                    ->visibility('public')
+                    ->imageEditor()
+                    ->imageEditorAspectRatios([
+                        '1:1',
+                        '4:3',
+                        '16:9',
+                    ])
+                    ->maxSize(5120) // 5MB
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->required()
                     ->columnSpanFull(),
                 TextInput::make('sort_order')
@@ -52,6 +58,7 @@ class ImagesRelationManager extends RelationManager
             ->columns([
                 ImageColumn::make('image_path')
                     ->label('Görsel')
+                    ->disk('public')
                     ->square()
                     ->size(80),
                 TextColumn::make('sort_order')
