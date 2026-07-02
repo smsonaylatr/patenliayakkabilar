@@ -267,8 +267,7 @@ class ProductForm
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
-                                            ->imagePreviewHeight('150')
-                                            ->panelAspectRatio('1:1')
+                                            ->panelLayout('compact')
                                             ->maxSize(10240)
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                                             ->required(),
