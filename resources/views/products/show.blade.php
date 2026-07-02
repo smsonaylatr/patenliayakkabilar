@@ -1,3 +1,4 @@
+{{-- Product Detail Page --}}
 <x-layouts.app>
     <x-slot:title>{{ $product->name }} - Patenli Ayakkabılar</x-slot:title>
     <x-slot:description>{{ Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>

@@ -39,13 +39,6 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->darkMode()
             ->databaseNotifications()
-            ->renderHook('panels::head.end', fn () => new \Illuminate\Support\HtmlString('
-                <style>
-                    .filepond--image-preview-wrapper { aspect-ratio: 1/1 !important; }
-                    .filepond--image-preview { aspect-ratio: 1/1 !important; }
-                    .filepond--item { aspect-ratio: 1/1 !important; }
-                </style>
-            '))
             ->navigationGroups([
                 'Dashboard' => \Filament\Navigation\NavigationGroup::make()->label('Dashboard'),
                 'Katalog Yönetimi' => \Filament\Navigation\NavigationGroup::make()->label('Katalog Yönetimi'),
