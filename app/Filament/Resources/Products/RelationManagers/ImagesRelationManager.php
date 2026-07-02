@@ -31,7 +31,6 @@ class ImagesRelationManager extends RelationManager
                     ->disk('public')
                     ->directory('products')
                     ->visibility('public')
-                    ->storeFileNamesIn('original_name')
                     ->maxSize(20480)
                     ->acceptedFileTypes([
                         'image/jpeg',
