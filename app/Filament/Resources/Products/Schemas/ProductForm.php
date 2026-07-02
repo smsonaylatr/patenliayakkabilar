@@ -259,7 +259,7 @@ class ProductForm
                                     ->label('')
                                     ->schema([
                                         FileUpload::make('image_path')
-                                            ->label('Görsel')
+                                            ->label('')
                                             ->disk('public')
                                             ->directory('products')
                                             ->visibility('public')
@@ -267,19 +267,19 @@ class ProductForm
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
-                                            ->imagePreviewHeight('200')
-                                            ->panelAspectRatio('1:1')
-                                            ->panelLayout('integrated')
+                                            ->imagePreviewHeight('120')
                                             ->maxSize(10240)
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                                             ->required(),
                                     ])
+                                    ->grid(4)
                                     ->defaultItems(0)
                                     ->addActionLabel('Görsel Ekle')
                                     ->reorderable()
                                     ->reorderableWithButtons()
                                     ->orderColumn('sort_order')
                                     ->collapsible()
+                                    ->collapsed()
                                     ->itemLabel(fn (array $state): ?string => 
                                         isset($state['image_path']) && $state['image_path'] ? 'Görsel' : 'Yeni Görsel'
                                     )
