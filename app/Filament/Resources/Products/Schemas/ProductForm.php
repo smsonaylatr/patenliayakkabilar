@@ -251,45 +251,7 @@ class ProductForm
                                     ->columnSpanFull(),
                             ]),
 
-                        Tab::make('Görseller')
-                            ->icon('heroicon-o-photo')
-                            ->schema([
-                                Repeater::make('images')
-                                    ->relationship()
-                                    ->label('')
-                                    ->schema([
-                                        FileUpload::make('image_path')
-                                            ->hiddenLabel()
-                                            ->disk('public')
-                                            ->directory('products')
-                                            ->visibility('public')
-                                            ->panelLayout('compact')
-                                            ->maxSize(20480)
-                                            ->acceptedFileTypes([
-                                                'image/jpeg',
-                                                'image/pjpeg',
-                                                'image/png',
-                                                'image/webp',
-                                                'image/gif',
-                                                'image/bmp',
-                                                'image/avif',
-                                                'image/svg+xml',
-                                            ])
-                                            ->required(),
-                                    ])
-                                    ->grid(4)
-                                    ->defaultItems(0)
-                                    ->addActionLabel('Görsel Ekle')
-                                    ->reorderable()
-                                    ->reorderableWithButtons()
-                                    ->orderColumn('sort_order')
-                                    ->collapsible()
-                                    ->collapsed()
-                                    ->itemLabel(fn (array $state): ?string => 
-                                        isset($state['image_path']) && $state['image_path'] ? 'Görsel' : 'Yeni Görsel'
-                                    )
-                                    ->columnSpanFull(),
-                            ]),
+
                     ])
                     ->columnSpanFull()
                     ->persistTabInQueryString(),
