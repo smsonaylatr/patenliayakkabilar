@@ -259,7 +259,7 @@ class ProductForm
                                     ->label('')
                                     ->schema([
                                         FileUpload::make('image_path')
-                                            ->label('')
+                                            ->hiddenLabel()
                                             ->disk('public')
                                             ->directory('products')
                                             ->visibility('public')
@@ -267,7 +267,8 @@ class ProductForm
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
-                                            ->imagePreviewHeight('120')
+                                            ->imagePreviewHeight('150')
+                                            ->panelAspectRatio('1:1')
                                             ->maxSize(10240)
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                                             ->required(),
