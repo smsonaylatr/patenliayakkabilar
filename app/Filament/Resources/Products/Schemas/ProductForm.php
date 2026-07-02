@@ -264,8 +264,17 @@ class ProductForm
                                             ->directory('products')
                                             ->visibility('public')
                                             ->panelLayout('compact')
-                                            ->maxSize(10240)
-                                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                                            ->maxSize(20480)
+                                            ->acceptedFileTypes([
+                                                'image/jpeg',
+                                                'image/pjpeg',
+                                                'image/png',
+                                                'image/webp',
+                                                'image/gif',
+                                                'image/bmp',
+                                                'image/avif',
+                                                'image/svg+xml',
+                                            ])
                                             ->required(),
                                     ])
                                     ->grid(4)
