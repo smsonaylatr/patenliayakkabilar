@@ -12,6 +12,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ImagesRelationManager extends RelationManager
 {
@@ -29,7 +31,8 @@ class ImagesRelationManager extends RelationManager
                     ->disk('public')
                     ->directory('products')
                     ->visibility('public')
-                    ->maxSize(20480) // 20MB
+                    ->storeFileNamesIn('original_name')
+                    ->maxSize(20480)
                     ->acceptedFileTypes([
                         'image/jpeg',
                         'image/pjpeg',
@@ -39,6 +42,23 @@ class ImagesRelationManager extends RelationManager
                         'image/bmp',
                         'image/avif',
                     ])
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file) {
+                        // Bypass Livewire's broken move - manually copy the file
+                        $extension = $file->getClientOriginalExtension() ?: 'png';
+                        $filename = uniqid('img_', true) . '.' . $extension;
+                        $destination = 'products/' . $filename;
+                        
+                        // Read from temp and write to permanent storage
+                        $contents = $file->get();
+                        if ($contents && strlen($contents) > 100) {
+                            Storage::disk('public')->put($destination, $contents);
+                            return $destination;
+                        }
+                        
+                        // Fallback: try store method
+                        $path = $file->store('products', 'public');
+                        return $path;
+                    })
                     ->required()
                     ->columnSpanFull(),
             ]);
