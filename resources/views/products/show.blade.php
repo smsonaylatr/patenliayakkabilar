@@ -6,8 +6,8 @@
     <x-slot:schema>
         <script type="application/ld+json">
         {
-          "@context": "https://schema.org/",
-          "@type": "Product",
+          "@@context": "https://schema.org/",
+          "@@type": "Product",
           "name": "{{ $product->name }}",
           "image": [
             "{{ $product->images->first()?->image_path ? asset('storage/' . $product->images->first()->image_path) : asset('images/og-image.jpg') }}"
@@ -15,7 +15,7 @@
           "description": "{{ Str::limit(strip_tags($product->short_description), 200) }}",
           "sku": "{{ $product->sku ?? $product->id }}",
           "offers": {
-            "@type": "Offer",
+            "@@type": "Offer",
             "url": "{{ url()->current() }}",
             "priceCurrency": "TRY",
             "price": "{{ $product->discount_price ?? $product->price }}",
