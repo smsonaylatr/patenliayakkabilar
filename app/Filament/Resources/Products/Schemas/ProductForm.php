@@ -264,12 +264,12 @@ class ProductForm
                                             ->directory('products')
                                             ->visibility('public')
                                             ->image()
+                                            ->imagePreviewHeight('200')
                                             ->imageEditor()
                                             ->imageCropAspectRatio('1:1')
                                             ->imageResizeMode('cover')
                                             ->imageResizeTargetWidth('1200')
                                             ->imageResizeTargetHeight('1200')
-                                            ->imagePreviewHeight('200')
                                             ->maxSize(10240)
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                                             ->required(),
