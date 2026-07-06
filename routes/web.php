@@ -35,6 +35,8 @@ Route::get('/patenli-ayakkabilar', function () {
     return view('products.index');
 })->name('products.index');
 
+Route::redirect('/urunler', '/patenli-ayakkabilar', 301);
+
 Route::get('/urun/{slug}', function ($slug) {
     $product = \App\Models\Product::where('slug', $slug)->with(['variants', 'images'])->firstOrFail();
     return view('products.show', ['product' => $product]);
