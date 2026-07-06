@@ -147,6 +147,8 @@ class BannerSettings extends Page implements HasForms
             Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
 
+        \Illuminate\Support\Facades\Cache::forget('hero_settings');
+
         Notification::make()
             ->title('Başarılı')
             ->body('Banner ayarları başarıyla kaydedildi.')
