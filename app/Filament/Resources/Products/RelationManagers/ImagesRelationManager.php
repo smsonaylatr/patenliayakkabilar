@@ -41,23 +41,6 @@ class ImagesRelationManager extends RelationManager
                         'image/bmp',
                         'image/avif',
                     ])
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file) {
-                        // Bypass Livewire's broken move - manually copy the file
-                        $extension = $file->getClientOriginalExtension() ?: 'png';
-                        $filename = uniqid('img_', true) . '.' . $extension;
-                        $destination = 'products/' . $filename;
-                        
-                        // Read from temp and write to permanent storage
-                        $contents = $file->get();
-                        if ($contents && strlen($contents) > 100) {
-                            Storage::disk('public')->put($destination, $contents);
-                            return $destination;
-                        }
-                        
-                        // Fallback: try store method
-                        $path = $file->store('products', 'public');
-                        return $path;
-                    })
                     ->required()
                     ->columnSpanFull(),
             ]);
