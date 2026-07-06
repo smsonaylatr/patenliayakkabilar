@@ -91,7 +91,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                         <div class="col-span-2">
-                            <a href="{{ route('home') }}" class="text-3xl font-black text-white tracking-tighter mb-4 inline-block" wire:navigate>
+                            <a href="{{ route('home') }}" class="text-2xl font-black text-white tracking-tighter mb-4 inline-block" wire:navigate>
                                 PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                             </a>
                             <p class="text-gray-400 max-w-md">Çocukların eğlenirken güvende olması için ürün seçimini, kargo sürecini ve satış sonrası desteği kolaylaştırıyoruz.</p>
