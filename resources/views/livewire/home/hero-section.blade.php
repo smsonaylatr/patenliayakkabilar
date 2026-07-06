@@ -84,12 +84,12 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
 
       <div class="hero-stats">
         <div class="stat-item">
-          <span class="stat-val">500+</span>
+          <span class="stat-val">50+</span>
           <span class="stat-lbl">Model</span>
         </div>
         <div class="stat-sep"></div>
         <div class="stat-item">
-          <span class="stat-val">50K+</span>
+          <span class="stat-val">2K+</span>
           <span class="stat-lbl">Müşteri</span>
         </div>
         <div class="stat-sep"></div>
