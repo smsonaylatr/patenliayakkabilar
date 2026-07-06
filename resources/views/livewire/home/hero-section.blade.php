@@ -73,11 +73,11 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       </p>
 
       <div class="hero-actions">
-        <a href="{{ $btn1Link }}" class="btn-hero-primary">
+        <a href="{{ $btn1Link }}" class="btn-hero-primary" wire:navigate>
           {{ $btn1Text }}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="{{ $btn2Link }}" class="btn-hero-ghost">
+        <a href="{{ $btn2Link }}" class="btn-hero-ghost" wire:navigate>
           {{ $btn2Text }}
         </a>
       </div>
