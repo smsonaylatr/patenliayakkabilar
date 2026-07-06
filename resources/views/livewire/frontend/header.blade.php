@@ -30,14 +30,14 @@
                         </svg>
                     </button>
                     <a href="{{ route('home') }}" class="hidden md:block text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
-                        Patenli<span class="font-light">Ayakkabılar&reg;</span>
+                        PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                 </div>
 
                 <!-- CENTER (Logo on Mobile, Menu on Desktop) -->
                 <div class="flex flex-shrink-0 items-center justify-center">
                     <a href="{{ route('home') }}" class="md:hidden text-xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
-                        Patenli<span class="font-light">Ayakkabılar&reg;</span>
+                        PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                     <!-- Desktop Menu -->
                     <nav class="hidden md:flex space-x-6 lg:space-x-10 items-center">
