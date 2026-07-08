@@ -310,6 +310,7 @@ class ProductForm
                                     ->columns(4)
                                     ->defaultItems(1)
                                     ->addActionLabel('Varyant Ekle')
+                                    ->cloneable()
                                     ->reorderable(false)
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
