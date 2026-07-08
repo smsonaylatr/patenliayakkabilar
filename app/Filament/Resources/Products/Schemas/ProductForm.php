@@ -168,8 +168,8 @@ class ProductForm
                         Tab::make('SEO')
                             ->icon('heroicon-o-globe-alt')
                             ->schema([
-                                \Filament\Forms\Components\Actions::make([
-                                    \Filament\Forms\Components\Actions\Action::make('generate_seo')
+                                \Filament\Schemas\Components\Actions::make([
+                                    \Filament\Schemas\Components\Actions\Action::make('generate_seo')
                                         ->label('🤖 SEO Otomatik Üret')
                                         ->icon('heroicon-o-sparkles')
                                         ->color('success')
@@ -252,7 +252,7 @@ class ProductForm
                                         }),
                                 ])->columnSpanFull(),
 
-                                \Filament\Forms\Components\Placeholder::make('seo_preview')
+                                \Filament\Schemas\Components\Placeholder::make('seo_preview')
                                     ->label('🔍 Google Önizleme')
                                     ->content(function (\Filament\Schemas\Components\Utilities\Get $get) {
                                         $title = $get('meta_title') ?: $get('name') . ' - Patenli Ayakkabılar';
