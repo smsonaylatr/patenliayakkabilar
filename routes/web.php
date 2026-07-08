@@ -92,9 +92,43 @@ Route::get('/debug-images', function() {
         'memory_limit' => ini_get('memory_limit'),
     ];
     
-    // 5. livewire-tmp durumu
+    // 5. livewire-tmp dosyaları - detaylı
     $tmpFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('livewire-tmp');
-    $result['livewire_tmp_files'] = count($tmpFiles);
+    $result['livewire_tmp'] = collect($tmpFiles)->map(function($f) {
+        return [
+            'name' => $f,
+            'size' => \Illuminate\Support\Facades\Storage::disk('public')->size($f),
+        ];
+    })->values();
+    
+    // 6. Dizin izinleri
+    $productsDir = storage_path('app/public/products');
+    $result['permissions'] = [
+        'storage_app_public' => substr(sprintf('%o', fileperms(storage_path('app/public'))), -4),
+        'products_dir_exists' => is_dir($productsDir),
+        'products_dir_writable' => is_writable($productsDir),
+        'products_dir_perms' => is_dir($productsDir) ? substr(sprintf('%o', fileperms($productsDir)), -4) : 'N/A',
+        'storage_owner' => function_exists('posix_getpwuid') ? posix_getpwuid(fileowner(storage_path('app/public')))['name'] ?? 'unknown' : fileowner(storage_path('app/public')),
+        'current_user' => function_exists('posix_getpwuid') ? posix_getpwuid(posix_geteuid())['name'] ?? 'unknown' : get_current_user(),
+    ];
+    
+    // 7. Yazma testi
+    try {
+        $testFile = 'products/_write_test_' . time() . '.txt';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($testFile, 'test');
+        $writeOk = \Illuminate\Support\Facades\Storage::disk('public')->exists($testFile);
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($testFile);
+        $result['write_test'] = $writeOk ? 'SUCCESS' : 'FAILED';
+    } catch (\Exception $e) {
+        $result['write_test'] = 'ERROR: ' . $e->getMessage();
+    }
+
+    // 8. Livewire-tmp'den kurtarma denemesi — kırık görselleri bul ve eşleştir
+    $brokenImages = \App\Models\ProductImage::orderBy('id', 'desc')
+        ->get()
+        ->filter(fn($img) => !\Illuminate\Support\Facades\Storage::disk('public')->exists($img->image_path));
+    $result['broken_images_count'] = $brokenImages->count();
+    $result['broken_image_ids'] = $brokenImages->pluck('id')->values();
     
     return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
