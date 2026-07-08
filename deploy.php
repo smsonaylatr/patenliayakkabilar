@@ -95,14 +95,32 @@ if (is_dir($cacheDir)) {
     echo "✅ Application cache temizlendi\n";
 }
 
-// 6. Fix permissions
-@chmod($basePath . 'storage', 0775);
-@chmod($basePath . 'storage/logs', 0775);
-@chmod($basePath . 'storage/framework', 0775);
-@chmod($basePath . 'storage/framework/views', 0775);
-@chmod($basePath . 'storage/framework/cache', 0775);
-@chmod($basePath . 'storage/framework/sessions', 0775);
-@chmod($basePath . 'bootstrap/cache', 0775);
+// 6. Fix permissions — storage dizinleri
+$storageDirs = [
+    'storage',
+    'storage/logs',
+    'storage/framework',
+    'storage/framework/views',
+    'storage/framework/cache',
+    'storage/framework/sessions',
+    'storage/app',
+    'storage/app/public',
+    'storage/app/public/products',
+    'storage/app/public/livewire-tmp',
+    'storage/app/private',
+    'storage/app/private/livewire-tmp',
+    'bootstrap/cache',
+];
+
+foreach ($storageDirs as $dir) {
+    $fullPath = $basePath . $dir;
+    if (is_dir($fullPath)) {
+        @chmod($fullPath, 0775);
+    } elseif (!file_exists($fullPath)) {
+        @mkdir($fullPath, 0775, true);
+    }
+}
 echo "✅ İzinler düzeltildi\n";
 
 echo "\n✅ Deploy tamamlandı! " . date('Y-m-d H:i:s') . "\n";
+

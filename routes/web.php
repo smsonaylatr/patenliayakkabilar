@@ -133,8 +133,39 @@ Route::get('/debug-images', function() {
     return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
-// Geçici: Kırık görsel kayıtlarını temizle
+// Geçici: Kırık görsel kayıtlarını temizle + izinleri düzelt
 Route::get('/fix-broken-images', function() {
+    $result = [];
+    
+    // 1. Dizin izinlerini düzelt
+    $dirs = [
+        storage_path('app/public'),
+        storage_path('app/public/products'),
+        storage_path('app/public/livewire-tmp'),
+        storage_path('app/private'),
+        storage_path('app/private/livewire-tmp'),
+    ];
+    foreach ($dirs as $dir) {
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+            $result['dirs_created'][] = $dir;
+        }
+        @chmod($dir, 0775);
+    }
+    $result['permissions_fixed'] = true;
+    $result['products_writable_after'] = is_writable(storage_path('app/public/products'));
+    
+    // 2. Yazma testi
+    try {
+        $testFile = 'products/_test_' . time() . '.txt';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($testFile, 'test');
+        $result['write_test'] = \Illuminate\Support\Facades\Storage::disk('public')->exists($testFile) ? 'SUCCESS' : 'FAILED';
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($testFile);
+    } catch (\Exception $e) {
+        $result['write_test'] = 'ERROR: ' . $e->getMessage();
+    }
+    
+    // 3. Kırık kayıtları sil
     $broken = \App\Models\ProductImage::all()
         ->filter(fn($img) => !\Illuminate\Support\Facades\Storage::disk('public')->exists($img->image_path));
     
@@ -143,21 +174,20 @@ Route::get('/fix-broken-images', function() {
         $deleted[] = ['id' => $img->id, 'path' => $img->image_path, 'product_id' => $img->product_id];
         $img->delete();
     }
+    $result['deleted_records'] = $deleted;
     
-    // livewire-tmp temizle
-    $tmpFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('livewire-tmp');
-    foreach ($tmpFiles as $f) {
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($f);
+    // 4. livewire-tmp temizle
+    $tmpCount = 0;
+    foreach (['public', 'local'] as $disk) {
+        $tmpFiles = \Illuminate\Support\Facades\Storage::disk($disk)->files('livewire-tmp');
+        foreach ($tmpFiles as $f) {
+            \Illuminate\Support\Facades\Storage::disk($disk)->delete($f);
+            $tmpCount++;
+        }
     }
-    // local disk'teki livewire-tmp de temizle
-    $localTmpFiles = \Illuminate\Support\Facades\Storage::disk('local')->files('livewire-tmp');
-    foreach ($localTmpFiles as $f) {
-        \Illuminate\Support\Facades\Storage::disk('local')->delete($f);
-    }
+    $result['tmp_cleaned'] = $tmpCount;
     
-    return response()->json([
-        'deleted_records' => $deleted,
-        'tmp_cleaned' => count($tmpFiles) + count($localTmpFiles),
-        'message' => 'Kırık kayıtlar silindi. Şimdi yeniden görsel yükleyebilirsiniz.',
-    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    $result['message'] = 'İzinler düzeltildi, kırık kayıtlar silindi. Şimdi yeniden görsel yükleyin.';
+    
+    return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
