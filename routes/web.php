@@ -170,27 +170,37 @@ Route::get('/fix-broken-images', function() {
     }
     $result['write_tests'] = $writeTests;
     
-    // 2b. Eğer products/ yazılamazsa, yeniden oluştur
+    // 2b. products_old varsa (önceki çalışmadan kalmış), dosyaları products'a kopyala
     $productsDir = storage_path('app/public/products');
-    if (!is_writable($productsDir)) {
-        // products dizinini sil ve yeniden oluştur
-        @rename($productsDir, $productsDir . '_old');
+    $productsOld = $productsDir . '_old';
+    
+    // products_old varsa ama products yoksa → oluştur ve kopyala
+    if (is_dir($productsOld) && !is_dir($productsDir)) {
         @mkdir($productsDir, 0775, true);
-        
-        // Eski dosyaları geri kopyala
-        if (is_dir($productsDir . '_old')) {
-            $oldFiles = glob($productsDir . '_old/*');
-            foreach ($oldFiles as $f) {
-                @copy($f, $productsDir . '/' . basename($f));
-            }
-            // Eski dizini temizle
-            array_map('unlink', glob($productsDir . '_old/*'));
-            @rmdir($productsDir . '_old');
-        }
-        
-        $result['products_recreated'] = true;
-        $result['products_writable_after_recreate'] = is_writable($productsDir);
     }
+    
+    // products_old'dan kurtarma
+    if (is_dir($productsOld)) {
+        $oldFiles = glob($productsOld . '/*');
+        $copied = 0;
+        foreach ($oldFiles as $f) {
+            if (is_file($f)) {
+                @copy($f, $productsDir . '/' . basename($f));
+                $copied++;
+            }
+        }
+        $result['recovered_from_old'] = $copied;
+        // products_old'u silmeye çalışma — root dosyaları var, bırak
+    }
+    
+    // products yoksa oluştur
+    if (!is_dir($productsDir)) {
+        @mkdir($productsDir, 0775, true);
+    }
+    
+    // Yazılabilirlik testi
+    $result['products_writable_now'] = is_writable($productsDir);
+    $result['products_perms'] = substr(sprintf('%o', fileperms($productsDir)), -4);
     
     // 3. Kırık kayıtları sil
     $broken = \App\Models\ProductImage::all()
