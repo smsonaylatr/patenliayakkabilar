@@ -20,6 +20,9 @@ class Product extends Model
         parent::boot();
 
         static::creating(function (Product $product) {
+            // Fiyat/stok artık varyantlardan geliyor, varsayılan değerler
+            $product->price = $product->price ?: 0;
+            $product->stock = $product->stock ?: 0;
             static::autoFillContent($product);
             static::autoFillSeo($product);
         });
@@ -282,5 +285,31 @@ class Product extends Model
     {
         return $this->hasMany(Review::class);
     }
-}
 
+    /**
+     * Varyantlardan ürün fiyat/stok senkronizasyonu
+     */
+    public function syncFromVariants(): void
+    {
+        $variants = $this->variants()->get();
+
+        if ($variants->isEmpty()) {
+            return;
+        }
+
+        // En düşük fiyat
+        $minPrice = $variants->where('price', '>', 0)->min('price');
+        if ($minPrice) {
+            $this->price = $minPrice;
+        }
+
+        // En düşük indirimli fiyat
+        $minDiscount = $variants->whereNotNull('discount_price')->where('discount_price', '>', 0)->min('discount_price');
+        $this->discount_price = $minDiscount;
+
+        // Toplam stok
+        $this->stock = $variants->sum('stock');
+
+        $this->saveQuietly();
+    }
+}

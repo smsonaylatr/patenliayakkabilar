@@ -56,6 +56,12 @@ if (!is_link($publicStorage)) {
     echo "✅ Storage symlink zaten mevcut\n";
 }
 
+// 1b. Migration çalıştır
+echo "📦 Migration çalıştırılıyor...\n";
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan migrate --force 2>&1', $migrationOutput, $migrationCode);
+echo implode("\n", $migrationOutput) . "\n";
+echo $migrationCode === 0 ? "✅ Migration tamamlandı\n" : "⚠️ Migration hatası (kod: {$migrationCode})\n";
+
 // 2. Clear compiled views
 $viewsDir = $basePath . 'storage/framework/views/';
 if (is_dir($viewsDir)) {

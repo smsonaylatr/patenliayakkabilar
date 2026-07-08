@@ -84,40 +84,6 @@ class ProductForm
                             ])
                             ->columns(2),
 
-                        Tab::make('Fiyat & Stok')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->schema([
-                                TextInput::make('price')
-                                    ->label('Fiyat')
-                                    ->required()
-                                    ->numeric()
-                                    ->prefix('₺')
-                                    ->minValue(0)
-                                    ->step(0.01),
-
-                                TextInput::make('discount_price')
-                                    ->label('İndirimli Fiyat')
-                                    ->numeric()
-                                    ->prefix('₺')
-                                    ->minValue(0)
-                                    ->step(0.01)
-                                    ->default(null)
-                                    ->lt('price'),
-
-                                TextInput::make('stock')
-                                    ->label('Stok Miktarı')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->default(0),
-
-                                TextInput::make('sku')
-                                    ->label('SKU')
-                                    ->maxLength(100)
-                                    ->unique(ignoreRecord: true)
-                                    ->default(null),
-                            ])
-                            ->columns(2),
 
                         Tab::make('Özellikler')
                             ->icon('heroicon-o-adjustments-horizontal')
@@ -318,27 +284,38 @@ class ProductForm
                                                 'led' => 'LED Tekerlekli',
                                             ])
                                             ->searchable(),
+                                        TextInput::make('price')
+                                            ->label('Fiyat')
+                                            ->numeric()
+                                            ->required()
+                                            ->prefix('₺')
+                                            ->minValue(0)
+                                            ->step(0.01),
+                                        TextInput::make('discount_price')
+                                            ->label('İndirimli Fiyat')
+                                            ->numeric()
+                                            ->prefix('₺')
+                                            ->minValue(0)
+                                            ->step(0.01)
+                                            ->default(null),
                                         TextInput::make('stock')
                                             ->label('Stok')
                                             ->numeric()
                                             ->required()
                                             ->default(0)
                                             ->minValue(0),
-                                        TextInput::make('price_extra')
-                                            ->label('Fiyat Farkı (₺)')
-                                            ->numeric()
-                                            ->default(0)
-                                            ->step(0.01),
                                         TextInput::make('sku')
                                             ->label('SKU'),
                                     ])
-                                    ->columns(3)
-                                    ->defaultItems(0)
+                                    ->columns(4)
+                                    ->defaultItems(1)
                                     ->addActionLabel('Varyant Ekle')
                                     ->reorderable(false)
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
-                                        ($state['color'] ?? '') . ' - ' . ($state['size'] ?? '') . ' (Stok: ' . ($state['stock'] ?? 0) . ')'
+                                        ($state['color'] ?? '') . ' - ' . ($state['size'] ?? '') . 
+                                        ' | ' . number_format((float) ($state['price'] ?? 0), 0) . ' ₺' .
+                                        ' (Stok: ' . ($state['stock'] ?? 0) . ')'
                                     )
                                     ->columnSpanFull(),
                             ]),
