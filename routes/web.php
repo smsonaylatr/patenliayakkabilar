@@ -132,3 +132,32 @@ Route::get('/debug-images', function() {
     
     return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
+
+// Geçici: Kırık görsel kayıtlarını temizle
+Route::get('/fix-broken-images', function() {
+    $broken = \App\Models\ProductImage::all()
+        ->filter(fn($img) => !\Illuminate\Support\Facades\Storage::disk('public')->exists($img->image_path));
+    
+    $deleted = [];
+    foreach ($broken as $img) {
+        $deleted[] = ['id' => $img->id, 'path' => $img->image_path, 'product_id' => $img->product_id];
+        $img->delete();
+    }
+    
+    // livewire-tmp temizle
+    $tmpFiles = \Illuminate\Support\Facades\Storage::disk('public')->files('livewire-tmp');
+    foreach ($tmpFiles as $f) {
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($f);
+    }
+    // local disk'teki livewire-tmp de temizle
+    $localTmpFiles = \Illuminate\Support\Facades\Storage::disk('local')->files('livewire-tmp');
+    foreach ($localTmpFiles as $f) {
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($f);
+    }
+    
+    return response()->json([
+        'deleted_records' => $deleted,
+        'tmp_cleaned' => count($tmpFiles) + count($localTmpFiles),
+        'message' => 'Kırık kayıtlar silindi. Şimdi yeniden görsel yükleyebilirsiniz.',
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});

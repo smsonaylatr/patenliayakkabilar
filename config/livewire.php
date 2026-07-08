@@ -129,7 +129,7 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => 'local',
+        'disk' => 'public',
         'rules' => ['required', 'file', 'max:20480'], // 20MB
         'directory' => 'livewire-tmp',
         'middleware' => null,
