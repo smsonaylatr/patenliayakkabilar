@@ -169,7 +169,7 @@ class ProductForm
                             ->icon('heroicon-o-globe-alt')
                             ->schema([
                                 \Filament\Schemas\Components\Actions::make([
-                                    \Filament\Schemas\Components\Actions\Action::make('generate_seo')
+                                    \Filament\Actions\Action::make('generate_seo')
                                         ->label('🤖 SEO Otomatik Üret')
                                         ->icon('heroicon-o-sparkles')
                                         ->color('success')
@@ -252,22 +252,7 @@ class ProductForm
                                         }),
                                 ])->columnSpanFull(),
 
-                                \Filament\Schemas\Components\Placeholder::make('seo_preview')
-                                    ->label('🔍 Google Önizleme')
-                                    ->content(function (\Filament\Schemas\Components\Utilities\Get $get) {
-                                        $title = $get('meta_title') ?: $get('name') . ' - Patenli Ayakkabılar';
-                                        $desc = $get('meta_description') ?: 'Meta açıklama girilmedi...';
-                                        $slug = $get('slug') ?: 'urun-adi';
 
-                                        return new \Illuminate\Support\HtmlString(
-                                            '<div style="font-family: Arial, sans-serif; max-width: 600px; padding: 16px; background: #1a1a2e; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">' .
-                                            '<div style="font-size: 11px; color: #bdc1c6; margin-bottom: 4px;">patenliayakkabilar.com › urun › ' . e($slug) . '</div>' .
-                                            '<div style="font-size: 18px; color: #8ab4f8; margin-bottom: 6px; line-height: 1.3;">' . e(mb_substr($title, 0, 70)) . '</div>' .
-                                            '<div style="font-size: 13px; color: #bdc1c6; line-height: 1.5;">' . e(mb_substr($desc, 0, 160)) . '</div>' .
-                                            '</div>'
-                                        );
-                                    })
-                                    ->columnSpanFull(),
 
                                 TextInput::make('meta_title')
                                     ->label('Meta Başlık')
