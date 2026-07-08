@@ -20,15 +20,125 @@ class Product extends Model
         parent::boot();
 
         static::creating(function (Product $product) {
+            static::autoFillContent($product);
             static::autoFillSeo($product);
         });
 
         static::updating(function (Product $product) {
-            // SEO alanları boşsa veya ürün adı değiştiyse yeniden üret
+            if (empty($product->short_description) || empty($product->description) || $product->isDirty('name')) {
+                static::autoFillContent($product);
+            }
             if (empty($product->meta_title) || $product->isDirty('name')) {
                 static::autoFillSeo($product);
             }
         });
+    }
+
+    /**
+     * Kısa açıklama ve açıklamayı otomatik üret
+     */
+    protected static function autoFillContent(Product $product): void
+    {
+        $name = $product->name;
+        $category = $product->category?->name;
+        $brand = $product->brand;
+        $gender = $product->gender;
+        $ageGroup = $product->age_group;
+        $price = $product->discount_price ?? $product->price;
+
+        $genderLabel = match ($gender) {
+            'erkek'  => 'Erkek',
+            'kadin'  => 'Kadın',
+            'cocuk'  => 'Çocuk',
+            'unisex' => 'Unisex',
+            default  => null,
+        };
+
+        $ageLabel = match ($ageGroup) {
+            'cocuk'    => 'Çocuk',
+            'genc'     => 'Genç',
+            'yetiskin' => 'Yetişkin',
+            default    => null,
+        };
+
+        $hedefKitle = collect([$genderLabel, $ageLabel])->filter()->unique()->implode(' ');
+
+        // ========================================
+        // KISA AÇIKLAMA (max 500 karakter)
+        // ========================================
+        if (empty($product->short_description)) {
+            $parts = [];
+            $parts[] = $name;
+
+            if ($hedefKitle) {
+                $parts[] = $hedefKitle . ' için tasarlanmış';
+            }
+
+            if ($brand) {
+                $parts[] = $brand . ' marka';
+            }
+
+            $parts[] = 'patenli ayakkabı.';
+
+            if ($category) {
+                $parts[] = $category . ' kategorisinde.';
+            }
+
+            if ($price && $price > 0) {
+                $parts[] = number_format((float) $price, 0, ',', '.') . ' ₺ fiyatla.';
+            }
+
+            $parts[] = 'Ücretsiz kargo ve güvenli ödeme seçenekleriyle hemen sipariş verin.';
+
+            $product->short_description = mb_substr(implode(' ', $parts), 0, 500);
+        }
+
+        // ========================================
+        // AÇIKLAMA (HTML - detaylı ürün açıklaması)
+        // ========================================
+        if (empty($product->description)) {
+            $html = '<h2>' . e($name) . '</h2>';
+
+            // Giriş paragrafı
+            $intro = '<p>';
+            $intro .= '<strong>' . e($name) . '</strong>';
+            if ($hedefKitle) {
+                $intro .= ', ' . e($hedefKitle) . ' için özel olarak tasarlanmış';
+            }
+            if ($brand) {
+                $intro .= ' ' . e($brand) . ' marka';
+            }
+            $intro .= ' patenli ayakkabıdır.';
+            if ($category) {
+                $intro .= ' ' . e($category) . ' kategorisindeki bu model,';
+            }
+            $intro .= ' hem şık tasarımı hem de dayanıklı yapısıyla öne çıkmaktadır.</p>';
+            $html .= $intro;
+
+            // Özellikler listesi
+            $html .= '<h3>Ürün Özellikleri</h3>';
+            $html .= '<ul>';
+            $html .= '<li>🛞 Gizlenebilir tekerlek mekanizması</li>';
+            $html .= '<li>👟 Günlük kullanıma uygun şık tasarım</li>';
+            if ($genderLabel) {
+                $html .= '<li>👤 ' . e($genderLabel) . ' modeli</li>';
+            }
+            if ($brand) {
+                $html .= '<li>🏷️ ' . e($brand) . ' marka güvencesi</li>';
+            }
+            $html .= '<li>🔒 Anti-kayma taban teknolojisi</li>';
+            $html .= '<li>💡 LED ışıklı tekerlekler (modele göre)</li>';
+            $html .= '<li>🧱 Dayanıklı ve nefes alan üst malzeme</li>';
+            $html .= '</ul>';
+
+            // Kargo bilgisi
+            $html .= '<h3>Kargo & Teslimat</h3>';
+            $html .= '<p>✅ <strong>Ücretsiz kargo</strong> ile kapınıza kadar teslim. ';
+            $html .= 'Siparişleriniz 1-3 iş günü içinde kargoya verilir. ';
+            $html .= 'Güvenli ödeme seçenekleri ile gönül rahatlığıyla alışveriş yapabilirsiniz.</p>';
+
+            $product->description = $html;
+        }
     }
 
     /**
