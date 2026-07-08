@@ -35,13 +35,13 @@
                             <!-- Image -->
                             <div class="aspect-[4/5] bg-gray-100 relative overflow-hidden">
                                 @if($product->images->isNotEmpty())
-                                    <img src="{{ Storage::url($product->images->first()->image_path) }}" 
+                                    <img src="{{ $product->images->first()->image_url }}" 
                                          alt="{{ $product->name }}"
                                          loading="lazy"
                                          class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-700 ease-out" />
                                     
                                     @if($product->images->count() > 1)
-                                        <img src="{{ Storage::url($product->images->skip(1)->first()->image_path) }}" 
+                                        <img src="{{ $product->images->skip(1)->first()->image_url }}" 
                                              alt="{{ $product->name }} Alternate"
                                              loading="lazy"
                                              class="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 ease-in-out" />

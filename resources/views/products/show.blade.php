@@ -2,7 +2,7 @@
 <x-layouts.app>
     <x-slot:title>{{ $product->name }} - Patenli Ayakkabılar</x-slot:title>
     <x-slot:description>{{ Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
-    <x-slot:ogImage>{{ $product->images->first()?->image_path ? asset('storage/' . $product->images->first()->image_path) : asset('images/og-image.jpg') }}</x-slot:ogImage>
+    <x-slot:ogImage>{{ $product->images->first()?->image_url ?? asset('images/og-image.jpg') }}</x-slot:ogImage>
     <x-slot:schema>
         <script type="application/ld+json">
         {
@@ -10,7 +10,7 @@
           "@@type": "Product",
           "name": "{{ $product->name }}",
           "image": [
-            "{{ $product->images->first()?->image_path ? asset('storage/' . $product->images->first()->image_path) : asset('images/og-image.jpg') }}"
+            "{{ $product->images->first()?->image_url ?? asset('images/og-image.jpg') }}"
            ],
           "description": "{{ Str::limit(strip_tags($product->short_description), 200) }}",
           "sku": "{{ $product->sku ?? $product->id }}",

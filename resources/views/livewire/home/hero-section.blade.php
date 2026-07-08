@@ -106,17 +106,17 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       <!-- Main big card -->
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
-        <img src="{{ $mainProduct && $mainProduct->images->first() ? Storage::url($mainProduct->images->first()->image_path) : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90' }}" alt="{{ $mainProduct->name ?? 'Nike Air Max' }}" />
+        <img src="{{ $mainProduct && $mainProduct->images->first() ? $mainProduct->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90' }}" alt="{{ $mainProduct->name ?? 'Nike Air Max' }}" />
       </div>
 
       <!-- Floating card top-right -->
       <div class="card-3d card-sm card-float-1">
-        <img src="{{ $subProduct1 && $subProduct1->images->first() ? Storage::url($subProduct1->images->first()->image_path) : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80' }}" alt="{{ $subProduct1->name ?? 'Adidas' }}" />
+        <img src="{{ $subProduct1 && $subProduct1->images->first() ? $subProduct1->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80' }}" alt="{{ $subProduct1->name ?? 'Adidas' }}" />
       </div>
 
       <!-- Floating card bottom-left -->
       <div class="card-3d card-sm card-float-2">
-        <img src="{{ $subProduct2 && $subProduct2->images->first() ? Storage::url($subProduct2->images->first()->image_path) : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80' }}" alt="{{ $subProduct2->name ?? 'New Balance' }}" />
+        <img src="{{ $subProduct2 && $subProduct2->images->first() ? $subProduct2->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80' }}" alt="{{ $subProduct2->name ?? 'New Balance' }}" />
       </div>
 
       <!-- Rating badge floating -->

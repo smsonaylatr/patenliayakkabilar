@@ -1,7 +1,7 @@
 <div x-data="{ 
         images: [
             @forelse($product->images as $image)
-                '{{ asset('storage/' . $image->image_path) }}',
+                '{{ $image->image_url }}',
             @empty
                 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
             @endforelse
@@ -51,7 +51,7 @@
                     type="button" 
                     :class="currentIndex === {{ $index }} ? 'border-b-4 border-black shadow-sm opacity-100' : 'border border-transparent hover:border-gray-200 opacity-70 hover:opacity-100'"
                     class="relative flex-shrink-0 w-20 h-20 md:w-full md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden transition-all duration-200">
-                <img src="{{ asset('storage/' . $image->image_path) }}" alt="" class="h-full w-full object-contain p-0">
+                <img src="{{ $image->image_url }}" alt="" class="h-full w-full object-contain p-0">
             </button>
         @empty
             <button type="button" class="relative flex-shrink-0 w-20 h-20 md:w-full md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
@@ -71,7 +71,7 @@
          @touchmove="if(isZoomed) { $event.preventDefault(); updatePan($event); }"
          @touchend="touchEndX = $event.changedTouches[0].screenX; handleSwipe()"
          >
-        <img src="{{ $product->images->first() ? asset('storage/' . $product->images->first()->image_path) : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }}"
+        <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }}"
              :src="mainImage" 
              alt="{{ $product->name }}"
              fetchpriority="high"

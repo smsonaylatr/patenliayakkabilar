@@ -13,7 +13,9 @@ class ProductGallery extends Component
     public function mount(Product $product)
     {
         $this->product = $product;
-        $this->mainImage = $product->images->first() ? asset('storage/' . $product->images->first()->image_path) : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        $this->mainImage = $product->images->first()
+            ? $product->images->first()->image_url
+            : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
     }
 
     public function setMainImage($path)
