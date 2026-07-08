@@ -42,7 +42,21 @@ class ImagesRelationManager extends RelationManager
                         'image/avif',
                     ])
                     ->required()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file): string {
+                        $extension = $file->getClientOriginalExtension() ?: 'png';
+                        $filename = (string) \Illuminate\Support\Str::ulid() . '.' . $extension;
+                        $targetPath = 'products/' . $filename;
+                        
+                        // Dosya içeriğini oku ve doğrudan storage'a yaz
+                        $contents = $file->get();
+                        Storage::disk('public')->put($targetPath, $contents, 'public');
+                        
+                        // Temp dosyayı temizle
+                        $file->delete();
+                        
+                        return $targetPath;
+                    }),
             ]);
     }
 

@@ -155,14 +155,41 @@ Route::get('/fix-broken-images', function() {
     $result['permissions_fixed'] = true;
     $result['products_writable_after'] = is_writable(storage_path('app/public/products'));
     
-    // 2. Yazma testi
-    try {
-        $testFile = 'products/_test_' . time() . '.txt';
-        \Illuminate\Support\Facades\Storage::disk('public')->put($testFile, 'test');
-        $result['write_test'] = \Illuminate\Support\Facades\Storage::disk('public')->exists($testFile) ? 'SUCCESS' : 'FAILED';
-        \Illuminate\Support\Facades\Storage::disk('public')->delete($testFile);
-    } catch (\Exception $e) {
-        $result['write_test'] = 'ERROR: ' . $e->getMessage();
+    // 2. Yazma testi — kök ve products dizini
+    $writeTests = [];
+    foreach (['_root_test.txt' => '', 'products/_prod_test.txt' => 'products/'] as $testFile => $prefix) {
+        try {
+            $path = $prefix . '_test_' . time() . '.txt';
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, 'test');
+            $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+            $writeTests[$testFile] = $exists ? 'SUCCESS' : 'FAILED';
+        } catch (\Exception $e) {
+            $writeTests[$testFile] = 'ERROR: ' . $e->getMessage();
+        }
+    }
+    $result['write_tests'] = $writeTests;
+    
+    // 2b. Eğer products/ yazılamazsa, yeniden oluştur
+    $productsDir = storage_path('app/public/products');
+    if (!is_writable($productsDir)) {
+        // products dizinini sil ve yeniden oluştur
+        @rename($productsDir, $productsDir . '_old');
+        @mkdir($productsDir, 0775, true);
+        
+        // Eski dosyaları geri kopyala
+        if (is_dir($productsDir . '_old')) {
+            $oldFiles = glob($productsDir . '_old/*');
+            foreach ($oldFiles as $f) {
+                @copy($f, $productsDir . '/' . basename($f));
+            }
+            // Eski dizini temizle
+            array_map('unlink', glob($productsDir . '_old/*'));
+            @rmdir($productsDir . '_old');
+        }
+        
+        $result['products_recreated'] = true;
+        $result['products_writable_after_recreate'] = is_writable($productsDir);
     }
     
     // 3. Kırık kayıtları sil
