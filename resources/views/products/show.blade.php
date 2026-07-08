@@ -1,7 +1,7 @@
 {{-- Product Detail Page --}}
 <x-layouts.app>
-    <x-slot:title>{{ $product->name }} - Patenli Ayakkabılar</x-slot:title>
-    <x-slot:description>{{ Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
+    <x-slot:title>{{ $product->meta_title ?? $product->name . ' - Patenli Ayakkabılar' }}</x-slot:title>
+    <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
     <x-slot:ogImage>{{ $product->images->first()?->image_url ?? asset('images/og-image.jpg') }}</x-slot:ogImage>
     <x-slot:schema>
         <script type="application/ld+json">

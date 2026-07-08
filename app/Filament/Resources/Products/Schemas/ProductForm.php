@@ -168,11 +168,115 @@ class ProductForm
                         Tab::make('SEO')
                             ->icon('heroicon-o-globe-alt')
                             ->schema([
+                                \Filament\Forms\Components\Actions::make([
+                                    \Filament\Forms\Components\Actions\Action::make('generate_seo')
+                                        ->label('🤖 SEO Otomatik Üret')
+                                        ->icon('heroicon-o-sparkles')
+                                        ->color('success')
+                                        ->size('sm')
+                                        ->requiresConfirmation()
+                                        ->modalHeading('SEO Verileri Üretilsin mi?')
+                                        ->modalDescription('Ürün bilgilerine göre meta başlık ve açıklama otomatik oluşturulacak. Mevcut değerler değiştirilecek.')
+                                        ->action(function (Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
+                                            $name = $get('name');
+                                            $categoryId = $get('category_id');
+                                            $brand = $get('brand');
+                                            $gender = $get('gender');
+                                            $ageGroup = $get('age_group');
+                                            $price = $get('discount_price') ?: $get('price');
+                                            $shortDesc = $get('short_description');
+
+                                            $category = $categoryId ? \App\Models\Category::find($categoryId)?->name : null;
+
+                                            $genderLabel = match ($gender) {
+                                                'erkek'  => 'Erkek',
+                                                'kadin'  => 'Kadın',
+                                                'cocuk'  => 'Çocuk',
+                                                'unisex' => 'Unisex',
+                                                default  => null,
+                                            };
+
+                                            $ageLabel = match ($ageGroup) {
+                                                'cocuk'    => 'Çocuk',
+                                                'genc'     => 'Genç',
+                                                'yetiskin' => 'Yetişkin',
+                                                default    => null,
+                                            };
+
+                                            // Meta Title
+                                            $suffix = '- Patenli Ayakkabılar';
+                                            $middle = '';
+                                            if ($category) {
+                                                $middle = '| ' . $category . ' ';
+                                            } elseif ($genderLabel) {
+                                                $middle = '| ' . $genderLabel . ' Patenli Ayakkabı ';
+                                            }
+                                            $title = trim($name . ' ' . $middle . $suffix);
+                                            if (mb_strlen($title) > 70) {
+                                                $title = trim($name . ' ' . $suffix);
+                                            }
+                                            $set('meta_title', mb_substr($title, 0, 70));
+
+                                            // Meta Description
+                                            $parts = [];
+                                            $intro = $name;
+                                            if ($genderLabel) $intro .= ' ' . $genderLabel;
+                                            if ($ageLabel && $ageLabel !== $genderLabel) $intro .= ' ' . $ageLabel;
+                                            if ($brand) $intro .= ' ' . $brand;
+                                            $intro .= ' patenli ayakkabı.';
+                                            $parts[] = $intro;
+
+                                            if ($price && $price > 0) {
+                                                $parts[] = 'Fiyat: ' . number_format((float) $price, 0) . ' ₺.';
+                                            }
+
+                                            if ($shortDesc) {
+                                                $firstSentence = Str::before($shortDesc, '.');
+                                                if (mb_strlen($firstSentence) > 10 && mb_strlen($firstSentence) < 80) {
+                                                    $parts[] = trim($firstSentence) . '.';
+                                                }
+                                            }
+
+                                            $parts[] = '✅ Ücretsiz kargo, hızlı teslimat.';
+
+                                            $desc = '';
+                                            foreach ($parts as $part) {
+                                                $candidate = $desc ? $desc . ' ' . $part : $part;
+                                                if (mb_strlen($candidate) <= 160) {
+                                                    $desc = $candidate;
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                            $set('meta_description', $desc);
+                                        }),
+                                ])->columnSpanFull(),
+
+                                \Filament\Forms\Components\Placeholder::make('seo_preview')
+                                    ->label('🔍 Google Önizleme')
+                                    ->content(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                        $title = $get('meta_title') ?: $get('name') . ' - Patenli Ayakkabılar';
+                                        $desc = $get('meta_description') ?: 'Meta açıklama girilmedi...';
+                                        $slug = $get('slug') ?: 'urun-adi';
+
+                                        return new \Illuminate\Support\HtmlString(
+                                            '<div style="font-family: Arial, sans-serif; max-width: 600px; padding: 16px; background: #1a1a2e; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">' .
+                                            '<div style="font-size: 11px; color: #bdc1c6; margin-bottom: 4px;">patenliayakkabilar.com › urun › ' . e($slug) . '</div>' .
+                                            '<div style="font-size: 18px; color: #8ab4f8; margin-bottom: 6px; line-height: 1.3;">' . e(mb_substr($title, 0, 70)) . '</div>' .
+                                            '<div style="font-size: 13px; color: #bdc1c6; line-height: 1.5;">' . e(mb_substr($desc, 0, 160)) . '</div>' .
+                                            '</div>'
+                                        );
+                                    })
+                                    ->columnSpanFull(),
+
                                 TextInput::make('meta_title')
                                     ->label('Meta Başlık')
                                     ->maxLength(70)
-                                    ->hint(fn (?string $state): string => ($state ? strlen($state) : 0) . '/70 karakter')
+                                    ->hint(fn (?string $state): string => ($state ? mb_strlen($state) : 0) . '/70 karakter')
+                                    ->hintColor(fn (?string $state): string => ($state && mb_strlen($state) > 60) ? 'warning' : 'gray')
                                     ->live(onBlur: true)
+                                    ->placeholder('Boş bırakırsan kayıt sırasında otomatik üretilir')
+                                    ->helperText('İdeal: 50-60 karakter. Anahtar kelime başta olmalı.')
                                     ->default(null)
                                     ->columnSpanFull(),
 
@@ -180,8 +284,11 @@ class ProductForm
                                     ->label('Meta Açıklama')
                                     ->maxLength(160)
                                     ->rows(3)
-                                    ->hint(fn (?string $state): string => ($state ? strlen($state) : 0) . '/160 karakter')
+                                    ->hint(fn (?string $state): string => ($state ? mb_strlen($state) : 0) . '/160 karakter')
+                                    ->hintColor(fn (?string $state): string => ($state && mb_strlen($state) > 150) ? 'warning' : 'gray')
                                     ->live(onBlur: true)
+                                    ->placeholder('Boş bırakırsan kayıt sırasında otomatik üretilir')
+                                    ->helperText('İdeal: 120-155 karakter. Fiyat, özellik ve CTA içermeli.')
                                     ->default(null)
                                     ->columnSpanFull(),
                             ])
