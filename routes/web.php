@@ -52,3 +52,20 @@ Route::get('/sayfa/{slug}', function ($slug) {
 })->name('pages.show');
 
 Route::view('/lansman', 'lansman')->name('lansman');
+
+// Geçici: Migration çalıştır
+Route::get('/run-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'output' => $output,
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+});
