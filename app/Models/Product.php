@@ -419,26 +419,26 @@ class Product extends Model
     public function getTrustSignals(): array
     {
         $signals = [
-            ['icon' => 'truck', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
-            ['icon' => 'clock', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
-            ['icon' => 'lock-closed', 'text' => 'Güvenli Ödeme', 'color' => 'purple'],
-            ['icon' => 'arrow-uturn-left', 'text' => '14 Gün İade', 'color' => 'orange'],
+            ['icon' => '🚚', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
+            ['icon' => '⚡', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
+            ['icon' => '🔒', 'text' => 'Güvenli Ödeme', 'color' => 'purple'],
+            ['icon' => '↩️', 'text' => '14 Gün İade', 'color' => 'orange'],
         ];
 
         // İndirim rozeti
         if ($this->discount_price && $this->price > $this->discount_price) {
             $percent = round(($this->price - $this->discount_price) / $this->price * 100);
-            $signals[] = ['icon' => 'tag', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
+            $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
         }
 
         // Son stok uyarısı
         if ($this->stock > 0 && $this->stock <= 5) {
-            $signals[] = ['icon' => 'fire', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
+            $signals[] = ['icon' => '🔥', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
         }
 
         // Çok satan
         if ($this->best_seller) {
-            $signals[] = ['icon' => 'star', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
+            $signals[] = ['icon' => '⭐', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
         }
 
         return $signals;

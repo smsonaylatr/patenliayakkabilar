@@ -115,21 +115,41 @@
                          GÜVEN SİNYALLERİ
                     ======================================== --}}
                     @php $signals = $product->getTrustSignals(); @endphp
-                    <div class="mt-6 grid grid-cols-2 gap-2.5">
+                    <div class="mt-8 grid grid-cols-2 gap-3">
                         @foreach($signals as $signal)
-                            <div class="trust-badge flex items-center gap-2.5 px-4 py-3 rounded-2xl text-sm font-medium border
+                            <div class="trust-badge flex items-center gap-3 px-4 py-3.5 rounded-2xl
                                 @switch($signal['color'])
-                                    @case('green')  bg-emerald-50/80 text-emerald-700 border-emerald-100 @break
-                                    @case('blue')   bg-blue-50/80 text-blue-700 border-blue-100 @break
-                                    @case('purple') bg-violet-50/80 text-violet-700 border-violet-100 @break
-                                    @case('orange') bg-amber-50/80 text-amber-700 border-amber-100 @break
-                                    @case('red')    bg-red-50/80 text-red-700 border-red-100 @break
-                                    @case('yellow') bg-yellow-50/80 text-yellow-700 border-yellow-100 @break
-                                    @default        bg-gray-50/80 text-gray-700 border-gray-100
+                                    @case('green')  bg-emerald-50 border border-emerald-200/60 @break
+                                    @case('blue')   bg-blue-50 border border-blue-200/60 @break
+                                    @case('purple') bg-violet-50 border border-violet-200/60 @break
+                                    @case('orange') bg-amber-50 border border-amber-200/60 @break
+                                    @case('red')    bg-red-50 border border-red-200/60 @break
+                                    @case('yellow') bg-yellow-50 border border-yellow-200/60 @break
+                                    @default        bg-gray-50 border border-gray-200/60
                                 @endswitch
                             ">
-                                <span class="text-lg flex-shrink-0">{{ $signal['icon'] }}</span>
-                                <span class="leading-tight">{{ $signal['text'] }}</span>
+                                <span class="text-xl flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl
+                                    @switch($signal['color'])
+                                        @case('green')  bg-emerald-100 @break
+                                        @case('blue')   bg-blue-100 @break
+                                        @case('purple') bg-violet-100 @break
+                                        @case('orange') bg-amber-100 @break
+                                        @case('red')    bg-red-100 @break
+                                        @case('yellow') bg-yellow-100 @break
+                                        @default        bg-gray-100
+                                    @endswitch
+                                ">{{ $signal['icon'] }}</span>
+                                <span class="text-sm font-semibold leading-tight
+                                    @switch($signal['color'])
+                                        @case('green')  text-emerald-800 @break
+                                        @case('blue')   text-blue-800 @break
+                                        @case('purple') text-violet-800 @break
+                                        @case('orange') text-amber-800 @break
+                                        @case('red')    text-red-700 @break
+                                        @case('yellow') text-yellow-800 @break
+                                        @default        text-gray-800
+                                    @endswitch
+                                ">{{ $signal['text'] }}</span>
                             </div>
                         @endforeach
                     </div>
