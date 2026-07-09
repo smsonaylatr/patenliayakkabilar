@@ -71,48 +71,18 @@
                     <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 leading-tight">{{ $product->name }}</h1>
                     <div class="mt-4">
                         <h2 class="sr-only">Product information</h2>
-                        
-                        @php
-                            $hasDiscount = $product->discount_price > 0 && $product->discount_price != $product->price;
-                            $actual_price = $product->price;
-                            $actual_discount = $product->discount_price;
-                            
-                            // Hatalı veri girişi durumu için koruma
-                            if($hasDiscount && $actual_discount > $actual_price) {
-                                $temp = $actual_price;
-                                $actual_price = $actual_discount;
-                                $actual_discount = $temp;
-                            }
-                        @endphp
-
-                        @if($hasDiscount)
-                            <div class="flex flex-col gap-2 p-5 bg-white border-2 border-red-100 rounded-2xl shadow-[0_4px_20px_-4px_rgba(239,68,68,0.1)] relative overflow-hidden group hover:border-red-200 transition-all duration-300">
-                                <!-- Dekoratif arka plan -->
-                                <div class="absolute -right-6 -top-6 w-32 h-32 bg-gradient-to-br from-red-50 to-orange-50 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
-                                
-                                <div class="flex items-center gap-4 relative z-10">
-                                    <p class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-500">
-                                        {{ number_format($actual_discount, 2) }} ₺
-                                    </p>
-                                    <div class="flex flex-col justify-center">
-                                        <p class="text-xl text-gray-400 line-through decoration-red-300 decoration-2 font-medium">
-                                            {{ number_format($actual_price, 2) }} ₺
-                                        </p>
-                                        @php $percent = round(($actual_price - $actual_discount) / $actual_price * 100); @endphp
-                                        <span class="inline-flex items-center justify-center px-2.5 py-1 mt-0.5 rounded-lg text-xs font-bold bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-md shadow-red-500/20">
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                            %{{ $percent }} İNDİRİM
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-600 relative z-10 bg-emerald-50/50 w-fit px-3 py-1.5 rounded-lg border border-emerald-100/50">
-                                    <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span>Sınırlı Süreli Fırsat! Kazancınız: {{ number_format($actual_price - $actual_discount, 2) }} ₺</span>
-                                </div>
-                            </div>
-                        @else
-                            <p class="text-3xl md:text-4xl font-bold text-gray-900">{{ number_format($product->price, 2) }} ₺</p>
-                        @endif
+                        <div class="flex items-center gap-4">
+                            @if($product->discount_price)
+                                <p class="text-3xl md:text-4xl font-bold text-red-600">{{ number_format($product->discount_price, 2) }} ₺</p>
+                                <p class="text-xl text-gray-400 line-through decoration-gray-300">{{ number_format($product->price, 2) }} ₺</p>
+                                @php $percent = round(($product->price - $product->discount_price) / $product->price * 100); @endphp
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-700">
+                                    %{{ $percent }} İNDİRİM
+                                </span>
+                            @else
+                                <p class="text-3xl md:text-4xl font-bold text-gray-900">{{ number_format($product->price, 2) }} ₺</p>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="mt-6">
