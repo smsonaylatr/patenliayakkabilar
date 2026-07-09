@@ -30,33 +30,29 @@
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
             opacity: 0;
         }
         .accordion-content.open {
-            max-height: 800px;
+            max-height: 1000px;
             opacity: 1;
         }
-        .accordion-chevron {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .accordion-chevron.rotated {
-            transform: rotate(180deg);
+        .accordion-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .trust-badge {
             backdrop-filter: blur(8px);
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .trust-badge:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
         }
         .feature-card {
             transition: all 0.2s ease;
         }
         .feature-card:hover {
-            transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transform: translateY(-1px);
         }
     </style>
 
@@ -157,36 +153,42 @@
                     {{-- ========================================
                          AKORDİYON DETAY BÖLÜMLERİ
                     ======================================== --}}
-                    <div class="mt-10 border-t border-gray-100" x-data="{ openPanel: 'features' }">
+                    <div class="mt-10 space-y-3" x-data="{ openPanel: '' }">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp
                         @if(count($featureLabels) > 0)
-                        <div class="border-b border-gray-100">
+                        <div class="accordion-card rounded-2xl border border-gray-200/70 overflow-hidden transition-all duration-300"
+                             :class="openPanel === 'features' ? 'shadow-lg shadow-emerald-100/50 border-emerald-200' : 'hover:border-gray-300 hover:shadow-sm'">
                             <button
                                 @click="openPanel = openPanel === 'features' ? '' : 'features'"
-                                class="w-full flex items-center justify-between py-5 text-left group"
+                                class="w-full flex items-center justify-between px-5 py-4 text-left group bg-white"
                             >
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-200">
+                                        <span class="text-lg">✨</span>
                                     </div>
-                                    <span class="text-base font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">Öne Çıkan Özellikler</span>
-                                    <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{{ count($featureLabels) }} özellik</span>
+                                    <div>
+                                        <span class="text-[15px] font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">Öne Çıkan Özellikler</span>
+                                        <span class="ml-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">{{ count($featureLabels) }} özellik</span>
+                                    </div>
                                 </div>
-                                <svg class="w-5 h-5 text-gray-400 accordion-chevron" :class="openPanel === 'features' ? 'rotated' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"
+                                     :class="openPanel === 'features' ? 'bg-emerald-100 rotate-180' : 'bg-gray-100 group-hover:bg-gray-200'">
+                                    <svg class="w-4 h-4" :class="openPanel === 'features' ? 'text-emerald-600' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </button>
                             <div class="accordion-content" :class="openPanel === 'features' ? 'open' : ''">
-                                <div class="pb-6 grid grid-cols-1 gap-3">
+                                <div class="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-gradient-to-b from-white to-emerald-50/30">
                                     @foreach($featureLabels as $feature)
-                                        <div class="feature-card flex items-start gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100/80">
-                                            <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                        <div class="feature-card flex items-center gap-3 p-3.5 bg-white rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-sm transition-all">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                             <div class="min-w-0">
                                                 <span class="font-semibold text-sm text-gray-800">{{ $feature['label'] }}</span>
                                                 @if($feature['desc'])
-                                                    <p class="text-gray-500 text-xs mt-1 leading-relaxed">{{ $feature['desc'] }}</p>
+                                                    <p class="text-gray-400 text-[11px] mt-0.5 leading-snug line-clamp-1">{{ $feature['desc'] }}</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -199,27 +201,31 @@
                         {{-- 2. TEKNİK BİLGİLER --}}
                         @php $specs = $product->getSpecifications(); @endphp
                         @if(count($specs) > 0)
-                        <div class="border-b border-gray-100">
+                        <div class="accordion-card rounded-2xl border border-gray-200/70 overflow-hidden transition-all duration-300"
+                             :class="openPanel === 'specs' ? 'shadow-lg shadow-blue-100/50 border-blue-200' : 'hover:border-gray-300 hover:shadow-sm'">
                             <button
                                 @click="openPanel = openPanel === 'specs' ? '' : 'specs'"
-                                class="w-full flex items-center justify-between py-5 text-left group"
+                                class="w-full flex items-center justify-between px-5 py-4 text-left group bg-white"
                             >
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-sm shadow-blue-200">
+                                        <span class="text-lg">📋</span>
                                     </div>
-                                    <span class="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Teknik Bilgiler</span>
+                                    <span class="text-[15px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Teknik Bilgiler</span>
                                 </div>
-                                <svg class="w-5 h-5 text-gray-400 accordion-chevron" :class="openPanel === 'specs' ? 'rotated' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"
+                                     :class="openPanel === 'specs' ? 'bg-blue-100 rotate-180' : 'bg-gray-100 group-hover:bg-gray-200'">
+                                    <svg class="w-4 h-4" :class="openPanel === 'specs' ? 'text-blue-600' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </button>
                             <div class="accordion-content" :class="openPanel === 'specs' ? 'open' : ''">
-                                <div class="pb-6">
-                                    <div class="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100/80">
-                                        <dl class="divide-y divide-gray-100">
+                                <div class="px-5 pb-5">
+                                    <div class="bg-gradient-to-b from-gray-50 to-blue-50/30 rounded-xl overflow-hidden border border-gray-100">
+                                        <dl>
                                             @foreach($specs as $label => $value)
-                                                <div class="flex justify-between px-5 py-3.5 text-sm {{ $loop->even ? 'bg-white/60' : '' }}">
+                                                <div class="flex justify-between items-center px-4 py-3 text-sm {{ !$loop->last ? 'border-b border-gray-100' : '' }} {{ $loop->even ? 'bg-white/50' : '' }}">
                                                     <dt class="font-medium text-gray-500">{{ $label }}</dt>
-                                                    <dd class="text-gray-900 font-semibold">{{ $value }}</dd>
+                                                    <dd class="text-gray-900 font-bold text-right">{{ $value }}</dd>
                                                 </div>
                                             @endforeach
                                         </dl>
@@ -231,22 +237,26 @@
 
                         {{-- 3. ÜRÜN AÇIKLAMASI --}}
                         @if($product->description)
-                        <div class="border-b border-gray-100">
+                        <div class="accordion-card rounded-2xl border border-gray-200/70 overflow-hidden transition-all duration-300"
+                             :class="openPanel === 'description' ? 'shadow-lg shadow-violet-100/50 border-violet-200' : 'hover:border-gray-300 hover:shadow-sm'">
                             <button
                                 @click="openPanel = openPanel === 'description' ? '' : 'description'"
-                                class="w-full flex items-center justify-between py-5 text-left group"
+                                class="w-full flex items-center justify-between px-5 py-4 text-left group bg-white"
                             >
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-sm shadow-violet-200">
+                                        <span class="text-lg">📝</span>
                                     </div>
-                                    <span class="text-base font-semibold text-gray-900 group-hover:text-violet-600 transition-colors">Ürün Açıklaması</span>
+                                    <span class="text-[15px] font-bold text-gray-900 group-hover:text-violet-600 transition-colors">Ürün Açıklaması</span>
                                 </div>
-                                <svg class="w-5 h-5 text-gray-400 accordion-chevron" :class="openPanel === 'description' ? 'rotated' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"
+                                     :class="openPanel === 'description' ? 'bg-violet-100 rotate-180' : 'bg-gray-100 group-hover:bg-gray-200'">
+                                    <svg class="w-4 h-4" :class="openPanel === 'description' ? 'text-violet-600' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </button>
                             <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
-                                <div class="pb-6">
-                                    <div class="prose prose-sm prose-gray max-w-none text-gray-600 leading-relaxed bg-gray-50 rounded-2xl p-5 border border-gray-100/80">
+                                <div class="px-5 pb-5">
+                                    <div class="prose prose-sm prose-gray max-w-none text-gray-600 leading-relaxed bg-gradient-to-b from-gray-50 to-violet-50/20 rounded-xl p-5 border border-gray-100">
                                         {!! $product->description !!}
                                     </div>
                                 </div>
@@ -255,57 +265,59 @@
                         @endif
 
                         {{-- 4. KARGO & İADE --}}
-                        <div class="border-b border-gray-100">
+                        <div class="accordion-card rounded-2xl border border-gray-200/70 overflow-hidden transition-all duration-300"
+                             :class="openPanel === 'shipping' ? 'shadow-lg shadow-amber-100/50 border-amber-200' : 'hover:border-gray-300 hover:shadow-sm'">
                             <button
                                 @click="openPanel = openPanel === 'shipping' ? '' : 'shipping'"
-                                class="w-full flex items-center justify-between py-5 text-left group"
+                                class="w-full flex items-center justify-between px-5 py-4 text-left group bg-white"
                             >
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-sm shadow-amber-200">
+                                        <span class="text-lg">📦</span>
                                     </div>
-                                    <span class="text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">Kargo & İade</span>
+                                    <span class="text-[15px] font-bold text-gray-900 group-hover:text-amber-600 transition-colors">Kargo & İade</span>
                                 </div>
-                                <svg class="w-5 h-5 text-gray-400 accordion-chevron" :class="openPanel === 'shipping' ? 'rotated' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300"
+                                     :class="openPanel === 'shipping' ? 'bg-amber-100 rotate-180' : 'bg-gray-100 group-hover:bg-gray-200'">
+                                    <svg class="w-4 h-4" :class="openPanel === 'shipping' ? 'text-amber-600' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </button>
                             <div class="accordion-content" :class="openPanel === 'shipping' ? 'open' : ''">
-                                <div class="pb-6 space-y-4">
-                                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100/80 space-y-4">
-                                        <div class="flex items-start gap-3">
-                                            <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                                                <span class="text-base">🚚</span>
-                                            </div>
-                                            <div>
-                                                <p class="font-semibold text-sm text-gray-800">Ücretsiz Kargo</p>
-                                                <p class="text-xs text-gray-500 mt-0.5">Türkiye'nin her yerine ücretsiz kargo. Siparişiniz 1-3 iş günü içinde kargoya verilir.</p>
-                                            </div>
+                                <div class="px-5 pb-5 space-y-3">
+                                    <div class="flex items-start gap-3.5 p-4 bg-white rounded-xl border border-gray-100 hover:border-emerald-200 transition-colors">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-xl">🚚</span>
                                         </div>
-                                        <div class="flex items-start gap-3">
-                                            <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                                <span class="text-base">📦</span>
-                                            </div>
-                                            <div>
-                                                <p class="font-semibold text-sm text-gray-800">Güvenli Paketleme</p>
-                                                <p class="text-xs text-gray-500 mt-0.5">Ürünleriniz özel kutusunda, hasar görmeyecek şekilde paketlenerek gönderilir.</p>
-                                            </div>
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-800">Ücretsiz Kargo</p>
+                                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Türkiye'nin her yerine ücretsiz kargo. Siparişiniz 1-3 iş günü içinde kargoya verilir.</p>
                                         </div>
-                                        <div class="flex items-start gap-3">
-                                            <div class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                                <span class="text-base">↩️</span>
-                                            </div>
-                                            <div>
-                                                <p class="font-semibold text-sm text-gray-800">14 Gün İade Garantisi</p>
-                                                <p class="text-xs text-gray-500 mt-0.5">Ürünü teslim aldıktan sonra 14 gün içinde koşulsuz iade edebilirsiniz. Kullanılmamış ve orijinal ambalajında olmalıdır.</p>
-                                            </div>
+                                    </div>
+                                    <div class="flex items-start gap-3.5 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 transition-colors">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-xl">🛡️</span>
                                         </div>
-                                        <div class="flex items-start gap-3">
-                                            <div class="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                                                <span class="text-base">🔐</span>
-                                            </div>
-                                            <div>
-                                                <p class="font-semibold text-sm text-gray-800">Güvenli Ödeme</p>
-                                                <p class="text-xs text-gray-500 mt-0.5">256-bit SSL şifreleme ile kredi kartı bilgileriniz güvende. Kapıda ödeme seçeneği de mevcuttur.</p>
-                                            </div>
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-800">Güvenli Paketleme</p>
+                                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Ürünleriniz özel kutusunda, hasar görmeyecek şekilde paketlenerek gönderilir.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3.5 p-4 bg-white rounded-xl border border-gray-100 hover:border-amber-200 transition-colors">
+                                        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-xl">↩️</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-800">14 Gün İade Garantisi</p>
+                                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Ürünü teslim aldıktan sonra 14 gün içinde koşulsuz iade edebilirsiniz. Kullanılmamış ve orijinal ambalajında olmalıdır.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3.5 p-4 bg-white rounded-xl border border-gray-100 hover:border-violet-200 transition-colors">
+                                        <div class="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-xl">🔐</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-800">Güvenli Ödeme</p>
+                                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">256-bit SSL şifreleme ile kredi kartı bilgileriniz güvende. Kapıda ödeme seçeneği de mevcuttur.</p>
                                         </div>
                                     </div>
                                 </div>

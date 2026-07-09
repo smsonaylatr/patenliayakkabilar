@@ -41,11 +41,7 @@ class ProductForm
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(function (string $operation, ?string $state, Set $set) {
-                                        if ($operation === 'edit') {
-                                            return;
-                                        }
-
+                                    ->afterStateUpdated(function (?string $state, Set $set) {
                                         $set('slug', Str::slug($state));
                                     }),
 
@@ -54,7 +50,6 @@ class ProductForm
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
-                                    ->disabled(fn (string $operation): bool => $operation === 'edit')
                                     ->dehydrated(),
 
                                 Textarea::make('short_description')
