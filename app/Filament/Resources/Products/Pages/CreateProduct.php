@@ -8,4 +8,29 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // feature_keys form'dan çıkar (ayrı tabloya kaydedilecek)
+        unset($data['feature_keys']);
+        return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        $featureKeys = $this->data['feature_keys'] ?? [];
+
+        if (!empty($featureKeys)) {
+            $order = 0;
+            foreach ($featureKeys as $key) {
+                $this->record->features()->create([
+                    'feature_key' => $key,
+                    'sort_order'  => $order++,
+                ]);
+            }
+        } else {
+            // Otomatik tahmin et
+            $this->record->autoFillFeatures();
+        }
+    }
 }

@@ -118,21 +118,28 @@ class Product extends Model
             $intro .= ' hem şık tasarımı hem de dayanıklı yapısıyla öne çıkmaktadır.</p>';
             $html .= $intro;
 
-            // Özellikler listesi
-            $html .= '<h3>Ürün Özellikleri</h3>';
-            $html .= '<ul>';
-            $html .= '<li>🛞 Gizlenebilir tekerlek mekanizması</li>';
-            $html .= '<li>👟 Günlük kullanıma uygun şık tasarım</li>';
-            if ($genderLabel) {
-                $html .= '<li>👤 ' . e($genderLabel) . ' modeli</li>';
+            // Özellikler listesi (dinamik)
+            $featureKeys = $product->features()->pluck('feature_key')->toArray();
+            if (empty($featureKeys)) {
+                $featureKeys = static::guessFeatures($product);
             }
-            if ($brand) {
-                $html .= '<li>🏷️ ' . e($brand) . ' marka güvencesi</li>';
+
+            if (!empty($featureKeys)) {
+                $html .= '<h3>Ürün Özellikleri</h3>';
+                $html .= '<ul>';
+                foreach ($featureKeys as $key) {
+                    $label = ProductFeature::getLabel($key);
+                    $desc = ProductFeature::getDescription($key);
+                    $html .= '<li>' . e($label) . ($desc ? ' — ' . e($desc) : '') . '</li>';
+                }
+                if ($genderLabel) {
+                    $html .= '<li>👤 ' . e($genderLabel) . ' modeli</li>';
+                }
+                if ($brand) {
+                    $html .= '<li>🏷️ ' . e($brand) . ' marka güvencesi</li>';
+                }
+                $html .= '</ul>';
             }
-            $html .= '<li>🔒 Anti-kayma taban teknolojisi</li>';
-            $html .= '<li>💡 LED ışıklı tekerlekler (modele göre)</li>';
-            $html .= '<li>🧱 Dayanıklı ve nefes alan üst malzeme</li>';
-            $html .= '</ul>';
 
             // Kargo bilgisi
             $html .= '<h3>Kargo & Teslimat</h3>';
@@ -284,6 +291,192 @@ class Product extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function features()
+    {
+        return $this->hasMany(ProductFeature::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Özellik etiketlerini label olarak döndür
+     */
+    public function getFeatureLabels(): array
+    {
+        return $this->features
+            ->map(fn ($f) => [
+                'key'   => $f->feature_key,
+                'label' => ProductFeature::getLabel($f->feature_key),
+                'desc'  => ProductFeature::getDescription($f->feature_key),
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Ürün bilgilerinden akıllı özellik tahmini
+     */
+    public static function guessFeatures(Product $product): array
+    {
+        $features = [];
+        $name = mb_strtolower($product->name ?? '');
+        $category = mb_strtolower($product->category?->name ?? '');
+
+        // LED anahtar kelimeleri
+        if (str_contains($name, 'led') || str_contains($name, 'ışık') || str_contains($category, 'led')) {
+            $features[] = 'led_light';
+            $features[] = 'color_led';
+        }
+
+        // USB / Şarj
+        if (str_contains($name, 'usb') || str_contains($name, 'şarj')) {
+            $features[] = 'usb_charge';
+        }
+
+        // Tekerlek tipi
+        $wheelTypes = $product->variants?->pluck('wheel_type')->filter()->unique()->toArray() ?? [];
+        if (in_array('double', $wheelTypes)) {
+            $features[] = 'double_wheel';
+        } elseif (in_array('single', $wheelTypes)) {
+            $features[] = 'single_wheel';
+        }
+        if (in_array('led', $wheelTypes)) {
+            if (!in_array('led_light', $features)) {
+                $features[] = 'led_light';
+            }
+        }
+
+        // Her patenli ayakkabıda varsayılan özellikler
+        $features[] = 'hidden_wheel';
+        $features[] = 'anti_slip';
+        $features[] = 'lightweight';
+        $features[] = 'breathable';
+
+        // Su geçirmez
+        if (str_contains($name, 'waterproof') || str_contains($name, 'su geçirmez')) {
+            $features[] = 'waterproof';
+        }
+
+        // Ortopedik
+        if (str_contains($name, 'ortopedik') || str_contains($category, 'ortopedik')) {
+            $features[] = 'orthopedic';
+        }
+
+        return array_unique($features);
+    }
+
+    /**
+     * Ürün oluşturulduktan sonra özellikleri otomatik doldur
+     */
+    public function autoFillFeatures(): void
+    {
+        if ($this->features()->count() > 0) {
+            return;
+        }
+
+        $guessed = static::guessFeatures($this);
+        $order = 0;
+
+        foreach ($guessed as $key) {
+            $this->features()->create([
+                'feature_key' => $key,
+                'sort_order'  => $order++,
+            ]);
+        }
+    }
+
+    /**
+     * Güven sinyallerini hesapla (frontend için)
+     */
+    public function getTrustSignals(): array
+    {
+        $signals = [
+            ['icon' => '🚚', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
+            ['icon' => '⚡', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
+            ['icon' => '🔐', 'text' => '256-bit SSL Güvenli Ödeme', 'color' => 'purple'],
+            ['icon' => '↩️', 'text' => '14 Gün Kolay İade', 'color' => 'orange'],
+        ];
+
+        // İndirim rozeti
+        if ($this->discount_price && $this->price > $this->discount_price) {
+            $percent = round((($this->price - $this->discount_price) / $this->price) * 100);
+            $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
+        }
+
+        // Son stok uyarısı
+        if ($this->stock > 0 && $this->stock <= 5) {
+            $signals[] = ['icon' => '🔥', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
+        }
+
+        // Çok satan
+        if ($this->best_seller) {
+            $signals[] = ['icon' => '⭐', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
+        }
+
+        return $signals;
+    }
+
+    /**
+     * Spesifikasyon tablosu verilerini hesapla (frontend için)
+     */
+    public function getSpecifications(): array
+    {
+        $specs = [];
+
+        if ($this->brand) {
+            $specs['Marka'] = $this->brand;
+        }
+
+        if ($this->category?->name) {
+            $specs['Kategori'] = $this->category->name;
+        }
+
+        $genderLabel = match ($this->gender) {
+            'erkek'  => 'Erkek',
+            'kadin'  => 'Kadın',
+            'cocuk'  => 'Çocuk',
+            'unisex' => 'Unisex',
+            default  => null,
+        };
+        if ($genderLabel) {
+            $specs['Cinsiyet'] = $genderLabel;
+        }
+
+        $ageLabel = match ($this->age_group) {
+            'cocuk'    => 'Çocuk',
+            'genc'     => 'Genç',
+            'yetiskin' => 'Yetişkin',
+            default    => null,
+        };
+        if ($ageLabel) {
+            $specs['Yaş Grubu'] = $ageLabel;
+        }
+
+        // Varyantlardan numara aralığı
+        $sizes = $this->variants->pluck('size')->filter()->sort()->values();
+        if ($sizes->isNotEmpty()) {
+            $specs['Numara Aralığı'] = $sizes->first() . ' - ' . $sizes->last();
+        }
+
+        // Renkler
+        $colors = $this->variants->pluck('color')->filter()->unique()->values();
+        if ($colors->isNotEmpty()) {
+            $specs['Renkler'] = $colors->implode(', ');
+        }
+
+        // Teker tipleri
+        $wheelLabels = [
+            'single' => 'Tek Teker',
+            'double' => 'Çift Teker',
+            'quad'   => 'Dört Teker',
+            'led'    => 'LED Tekerlekli',
+        ];
+        $wheels = $this->variants->pluck('wheel_type')->filter()->unique()
+            ->map(fn ($w) => $wheelLabels[$w] ?? $w)->values();
+        if ($wheels->isNotEmpty()) {
+            $specs['Teker Tipi'] = $wheels->implode(', ');
+        }
+
+        return $specs;
     }
 
     /**
