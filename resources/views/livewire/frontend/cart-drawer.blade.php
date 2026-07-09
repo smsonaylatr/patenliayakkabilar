@@ -123,7 +123,7 @@
                                     Kargo ve vergiler ödeme adımında hesaplanır.
                                 </p>
                                 <div class="mt-4">
-                                    <a href="{{ route('checkout') }}" class="relative flex items-center justify-center w-full px-6 py-4 overflow-hidden font-bold text-white bg-black rounded-2xl group transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:-translate-y-1" wire:navigate>
+                                    <a href="{{ route('checkout') }}" @click="open = false" class="relative flex items-center justify-center w-full px-6 py-4 overflow-hidden font-bold text-white bg-black rounded-2xl group transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:-translate-y-1" wire:navigate>
                                         <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
                                         <span class="relative flex items-center gap-2">
                                             Siparişi Tamamla
