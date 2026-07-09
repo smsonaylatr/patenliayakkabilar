@@ -129,14 +129,6 @@ class ProductForm
                                     ->default(false)
                                     ->inline(false),
 
-                                TextInput::make('homepage_sort')
-                                    ->label('Anasayfa Sırası')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->hint('0 = sırasız, küçük sayı = üstte görünür')
-                                    ->helperText('Anasayfada ürünlerin gösterilme sırasını belirler.')
-                                    ->suffix('↕'),
 
                                 \Filament\Schemas\Components\Section::make('Ürün Özellikleri')
                                     ->icon('heroicon-o-sparkles')

@@ -23,6 +23,11 @@ class Product extends Model
             // Fiyat/stok artık varyantlardan geliyor, varsayılan değerler
             $product->price = $product->price ?: 0;
             $product->stock = $product->stock ?: 0;
+
+            // Yeni ürün en başa geçsin
+            static::where('homepage_sort', '>', 0)->increment('homepage_sort');
+            $product->homepage_sort = 1;
+
             static::autoFillContent($product);
             static::autoFillSeo($product);
         });

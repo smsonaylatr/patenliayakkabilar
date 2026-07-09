@@ -25,12 +25,6 @@ class ProductsTable
                 \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
             })
             ->columns([
-                TextColumn::make('homepage_sort')
-                    ->label('Sıra')
-                    ->badge()
-                    ->color(fn (int $state) => $state > 0 ? 'success' : 'gray')
-                    ->sortable()
-                    ->width(60),
                 ImageColumn::make('images.image_path')
                     ->label('')
                     ->disk('public')
