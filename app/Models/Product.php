@@ -307,6 +307,7 @@ class Product extends Model
             ->map(fn ($f) => [
                 'key'   => $f->feature_key,
                 'label' => ProductFeature::getLabel($f->feature_key),
+                'icon'  => ProductFeature::FEATURE_OPTIONS[$f->feature_key]['icon'] ?? 'check',
                 'desc'  => ProductFeature::getDescription($f->feature_key),
             ])
             ->toArray();
@@ -390,26 +391,26 @@ class Product extends Model
     public function getTrustSignals(): array
     {
         $signals = [
-            ['icon' => '🚚', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
-            ['icon' => '⚡', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
-            ['icon' => '🔐', 'text' => '256-bit SSL Güvenli Ödeme', 'color' => 'purple'],
-            ['icon' => '↩️', 'text' => '14 Gün Kolay İade', 'color' => 'orange'],
+            ['icon' => 'truck', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
+            ['icon' => 'clock', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
+            ['icon' => 'lock-closed', 'text' => 'Güvenli Ödeme', 'color' => 'purple'],
+            ['icon' => 'arrow-uturn-left', 'text' => '14 Gün İade', 'color' => 'orange'],
         ];
 
         // İndirim rozeti
         if ($this->discount_price && $this->price > $this->discount_price) {
-            $percent = round((($this->price - $this->discount_price) / $this->price) * 100);
-            $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
+            $percent = round(($this->price - $this->discount_price) / $this->price * 100);
+            $signals[] = ['icon' => 'tag', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
         }
 
         // Son stok uyarısı
         if ($this->stock > 0 && $this->stock <= 5) {
-            $signals[] = ['icon' => '🔥', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
+            $signals[] = ['icon' => 'fire', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
         }
 
         // Çok satan
         if ($this->best_seller) {
-            $signals[] = ['icon' => '⭐', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
+            $signals[] = ['icon' => 'star', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
         }
 
         return $signals;
@@ -498,7 +499,13 @@ class Product extends Model
 
         // En düşük indirimli fiyat
         $minDiscount = $variants->whereNotNull('discount_price')->where('discount_price', '>', 0)->min('discount_price');
-        $this->discount_price = $minDiscount;
+
+        // Güvenlik: discount_price, price'dan büyük veya eşitse indirim yok demektir
+        if ($minDiscount && $minDiscount >= $this->price) {
+            $this->discount_price = null;
+        } else {
+            $this->discount_price = $minDiscount;
+        }
 
         // Toplam stok
         $this->stock = $variants->sum('stock');

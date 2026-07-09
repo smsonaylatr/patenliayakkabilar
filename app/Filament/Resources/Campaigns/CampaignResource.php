@@ -19,6 +19,8 @@ class CampaignResource extends Resource
     protected static ?string $model = Campaign::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
+    protected static ?int $navigationSort = 3;
 
     public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {

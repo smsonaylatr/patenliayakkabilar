@@ -60,7 +60,7 @@
                             <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
                         </a>
                         
-                        @if($product->discount_price)
+                        @if($product->discount_price && $product->discount_price < $product->price)
                             <div class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/90 backdrop-blur-sm text-red-600 text-[9px] sm:text-[10px] font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full uppercase tracking-widest z-10 shadow-sm border border-white/50">İndirim</div>
                         @endif
                         
@@ -113,7 +113,7 @@
                     </a>
                 </h3>
                 <div class="mt-2 flex items-center justify-center gap-3">
-                    @if($product->discount_price)
+                    @if($product->discount_price && $product->discount_price < $product->price)
                         <span class="text-sm font-bold text-red-600">{{ number_format($product->discount_price, 2) }} ₺</span>
                         <span class="text-xs text-gray-400 line-through decoration-gray-300">{{ number_format($product->price, 2) }} ₺</span>
                     @else
