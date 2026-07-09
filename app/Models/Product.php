@@ -499,13 +499,7 @@ class Product extends Model
 
         // En düşük indirimli fiyat
         $minDiscount = $variants->whereNotNull('discount_price')->where('discount_price', '>', 0)->min('discount_price');
-
-        // Güvenlik: discount_price, price'dan büyük veya eşitse indirim yok demektir
-        if ($minDiscount && $minDiscount >= $this->price) {
-            $this->discount_price = null;
-        } else {
-            $this->discount_price = $minDiscount;
-        }
+        $this->discount_price = $minDiscount;
 
         // Toplam stok
         $this->stock = $variants->sum('stock');

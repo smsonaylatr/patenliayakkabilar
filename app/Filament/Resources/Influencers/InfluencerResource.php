@@ -10,14 +10,13 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use UnitEnum;
 use BackedEnum;
 
 class InfluencerResource extends Resource
 {
     protected static ?string $model = Influencer::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-megaphone';
-    protected static string|UnitEnum|null $navigationGroup = 'Pazarlama';
+    protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
     protected static ?string $navigationLabel = 'Influencer Yönetimi';
     protected static ?string $modelLabel = 'Influencer';
     protected static ?string $pluralModelLabel = 'Influencer\'lar';

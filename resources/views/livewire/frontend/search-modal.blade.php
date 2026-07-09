@@ -76,7 +76,7 @@
                                                 <div class="flex-1 min-w-0">
                                                     <h4 class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</h4>
                                                     <div class="mt-1 flex items-center gap-2">
-                                                        @if($product->discount_price && $product->discount_price < $product->price)
+                                                        @if($product->discount_price)
                                                             <span class="text-sm font-bold text-brand-orange">{{ number_format($product->discount_price, 2) }} ₺</span>
                                                             <span class="text-xs text-gray-400 line-through">{{ number_format($product->price, 2) }} ₺</span>
                                                         @else
