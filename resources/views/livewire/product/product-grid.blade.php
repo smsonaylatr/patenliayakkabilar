@@ -100,20 +100,20 @@
                              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                              x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
                              class="relative bg-white rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col border border-gray-100"
-                             style="width: 90%; max-width: 360px;">
+                             style="width: 90%; max-width: 420px;">
                             
                             <!-- Close Button -->
-                            <button @click.prevent="showSizeModal = false" class="absolute top-4 right-4 z-20 text-gray-400 hover:text-black transition-colors bg-white rounded-full p-2 hover:bg-gray-100 shadow-sm border border-gray-100" style="background: rgba(255,255,255,0.9);">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            <button @click.prevent="showSizeModal = false" class="absolute z-20 text-gray-400 hover:text-black transition-colors rounded-full flex items-center justify-center shadow-sm border border-gray-200" style="top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(255,255,255,0.95);">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
 
                             <!-- Header / Product Info -->
-                            <div class="flex items-center px-6 py-5 border-b border-gray-100" style="background-color: #f9fafb; gap: 16px;">
+                            <div class="flex items-center border-b border-gray-100" style="background-color: #f9fafb; padding: 24px; padding-right: 56px; gap: 16px;">
                                 <div class="rounded-xl overflow-hidden bg-white border border-gray-100 flex-shrink-0 shadow-sm" style="width: 64px; height: 64px;">
                                     <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80' }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                 </div>
-                                <div class="flex flex-col pr-8">
-                                    <h4 class="text-gray-900 font-bold text-sm leading-snug line-clamp-2" style="margin-bottom: 4px;">{{ $product->name }}</h4>
+                                <div class="flex flex-col">
+                                    <h4 class="text-gray-900 font-bold text-sm leading-snug line-clamp-2" style="margin-bottom: 6px;">{{ $product->name }}</h4>
                                     <div class="flex items-center" style="gap: 8px;">
                                         @php
                                             $modalPrice = $product->price;
@@ -134,8 +134,8 @@
                             </div>
                             
                             <!-- Body / Sizes -->
-                            <div class="p-6">
-                                <h5 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center" style="margin-bottom: 16px;">Bedeninizi Seçin</h5>
+                            <div style="padding: 24px;">
+                                <h5 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center" style="margin-bottom: 20px;">Bedeninizi Seçin</h5>
                                 <div class="flex flex-wrap justify-center" style="gap: 12px;">
                                     @foreach($product->variants as $variant)
                                         <button wire:click="addToCart({{ $product->id }}, {{ $variant->id }})" 
