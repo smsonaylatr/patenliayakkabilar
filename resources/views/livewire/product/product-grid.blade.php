@@ -55,12 +55,14 @@
 
                         <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                             @if($product->images->isNotEmpty())
-                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110">
                                 @if($product->images->count() > 1)
-                                    <img src="{{ $product->images->skip(1)->first()->image_url }}" alt="{{ $product->name }} Alternate" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 group-hover:opacity-100 transition-all duration-[1.5s] ease-out group-hover:scale-110">
+                                    <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
+                                    <img src="{{ $product->images->skip(1)->first()->image_url }}" alt="{{ $product->name }} Alternate" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out">
+                                @else
+                                    <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105">
                                 @endif
                             @else
-                                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110">
+                                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105">
                             @endif
                             
                             <!-- Dark overlay on hover for better button contrast -->
