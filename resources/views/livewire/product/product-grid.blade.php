@@ -48,10 +48,7 @@
                     <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden transition-opacity duration-300" 
                          :class="showSizeModal ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-200'">
                         
-                        <!-- 3D Glare Effect -->
-                        <div class="absolute inset-0 z-10 pointer-events-none transition-opacity duration-300 mix-blend-overlay rounded-2xl hidden md:block"
-                             :style="`opacity: ${opacity}; background: radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.9) 0%, transparent 60%);`">
-                        </div>
+
 
                         <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                             @if($product->images->isNotEmpty())
