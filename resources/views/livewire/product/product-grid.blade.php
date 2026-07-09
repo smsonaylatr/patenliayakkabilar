@@ -99,25 +99,47 @@
                              x-transition:leave="transition ease-in duration-200"
                              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                              x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
-                             class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden z-10 flex flex-col border border-gray-100">
-                            <!-- Header -->
-                            <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-                                <h4 class="text-gray-900 font-extrabold text-lg flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                                    Beden Seçin
-                                </h4>
-                                <button @click.prevent="showSizeModal = false" class="text-gray-400 hover:text-black transition-colors bg-white rounded-full p-1.5 hover:bg-gray-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
+                             class="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-[90%] max-w-sm overflow-hidden z-10 flex flex-col border border-gray-100">
+                            
+                            <!-- Close Button -->
+                            <button @click.prevent="showSizeModal = false" class="absolute top-4 right-4 z-20 text-gray-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-gray-100 shadow-sm border border-gray-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+
+                            <!-- Header / Product Info -->
+                            <div class="flex items-center gap-4 px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                                <div class="w-16 h-16 rounded-xl overflow-hidden bg-white border border-gray-100 flex-shrink-0 shadow-sm">
+                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80' }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex flex-col pr-8">
+                                    <h4 class="text-gray-900 font-bold text-sm leading-snug line-clamp-2">{{ $product->name }}</h4>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        @php
+                                            $modalPrice = $product->price;
+                                            $modalDiscount = $product->discount_price;
+                                            if ($modalDiscount && $modalPrice && $modalDiscount > $modalPrice) {
+                                                $modalPrice = $product->discount_price;
+                                                $modalDiscount = $product->price;
+                                            }
+                                        @endphp
+                                        @if($modalDiscount)
+                                            <span class="text-sm font-black text-red-600">{{ number_format($modalDiscount, 2) }} ₺</span>
+                                            <span class="text-xs text-gray-400 line-through">{{ number_format($modalPrice, 2) }} ₺</span>
+                                        @else
+                                            <span class="text-sm font-black text-gray-900">{{ number_format($modalPrice, 2) }} ₺</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Body -->
+                            <!-- Body / Sizes -->
                             <div class="p-6">
-                                <div class="grid grid-cols-4 gap-3">
+                                <h5 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest text-center">Bedeninizi Seçin</h5>
+                                <div class="flex flex-wrap justify-center gap-2.5">
                                     @foreach($product->variants as $variant)
                                         <button wire:click="addToCart({{ $product->id }}, {{ $variant->id }})" 
                                                 @click="showSizeModal = false" 
-                                                class="bg-white border border-gray-200 text-gray-800 font-bold text-sm py-3 rounded-xl hover:border-black hover:bg-black hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-sm">
+                                                class="w-[3.25rem] h-[3.25rem] flex items-center justify-center bg-white border-2 border-gray-200 text-gray-800 font-bold text-sm rounded-xl hover:border-black hover:bg-black hover:text-white transition-all transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0 shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2">
                                             {{ $variant->size }}
                                         </button>
                                     @endforeach
