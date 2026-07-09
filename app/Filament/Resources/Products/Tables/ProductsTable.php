@@ -78,8 +78,7 @@ class ProductsTable
                     ->label('Marka')
                     ->searchable()
                     ->badge()
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color('gray'),
                 IconColumn::make('status')
                     ->label('Aktif')
                     ->boolean(),
