@@ -35,6 +35,14 @@ class Product extends Model
                 static::autoFillSeo($product);
             }
         });
+
+        static::saving(function (Product $product) {
+            if ($product->discount_price && $product->price && $product->discount_price > $product->price) {
+                $temp = $product->price;
+                $product->price = $product->discount_price;
+                $product->discount_price = $temp;
+            }
+        });
     }
 
     /**

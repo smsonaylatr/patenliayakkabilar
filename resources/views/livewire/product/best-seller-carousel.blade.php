@@ -22,9 +22,17 @@
                                         Son {{ $product->stock }} Ürün
                                     </span>
                                 @endif
-                                @if($product->discount_price)
+                                @php
+                                    $displayPrice = $product->price;
+                                    $displayDiscount = $product->discount_price;
+                                    if ($displayDiscount && $displayPrice && $displayDiscount > $displayPrice) {
+                                        $displayPrice = $product->discount_price;
+                                        $displayDiscount = $product->price;
+                                    }
+                                @endphp
+                                @if($displayDiscount)
                                     @php
-                                        $discountPercent = round((($product->price - $product->discount_price) / $product->price) * 100);
+                                        $discountPercent = round((($displayPrice - $displayDiscount) / $displayPrice) * 100);
                                     @endphp
                                     <span class="bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
                                         %{{ $discountPercent }} İndirim
@@ -70,11 +78,11 @@
                                 
                                 <div class="flex items-center justify-between mt-auto">
                                     <div class="flex flex-col">
-                                        @if($product->discount_price)
-                                            <span class="text-xs text-gray-400 line-through font-medium">{{ number_format($product->price, 2) }} ₺</span>
-                                            <span class="text-lg font-black text-red-600 leading-none mt-0.5">{{ number_format($product->discount_price, 2) }} ₺</span>
+                                        @if($displayDiscount)
+                                            <span class="text-xs text-gray-400 line-through font-medium">{{ number_format($displayPrice, 2) }} ₺</span>
+                                            <span class="text-lg font-black text-red-600 leading-none mt-0.5">{{ number_format($displayDiscount, 2) }} ₺</span>
                                         @else
-                                            <span class="text-lg font-black text-gray-900 leading-none">{{ number_format($product->price, 2) }} ₺</span>
+                                            <span class="text-lg font-black text-gray-900 leading-none">{{ number_format($displayPrice, 2) }} ₺</span>
                                         @endif
                                     </div>
                                     <button class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-colors md:hidden border border-gray-100">

@@ -18,7 +18,7 @@
             "@@type": "Offer",
             "url": "{{ url()->current() }}",
             "priceCurrency": "TRY",
-            "price": "{{ $product->discount_price ?? $product->price }}",
+            "price": "{{ ($product->discount_price && $product->price && $product->discount_price > $product->price) ? $product->price : ($product->discount_price ?? $product->price) }}",
             "itemCondition": "https://schema.org/NewCondition",
             "availability": "https://schema.org/{{ $product->stock > 0 ? 'InStock' : 'OutOfStock' }}"
           }
@@ -72,15 +72,24 @@
                     <div class="mt-4">
                         <h2 class="sr-only">Product information</h2>
                         <div class="flex items-center gap-4">
-                            @if($product->discount_price)
-                                <p class="text-3xl md:text-4xl font-bold text-red-600">{{ number_format($product->discount_price, 2) }} ₺</p>
-                                <p class="text-xl text-gray-400 line-through decoration-gray-300">{{ number_format($product->price, 2) }} ₺</p>
-                                @php $percent = round(($product->price - $product->discount_price) / $product->price * 100); @endphp
+                            @php
+                                $displayPrice = $product->price;
+                                $displayDiscount = $product->discount_price;
+                                if ($displayDiscount && $displayPrice && $displayDiscount > $displayPrice) {
+                                    $displayPrice = $product->discount_price;
+                                    $displayDiscount = $product->price;
+                                }
+                            @endphp
+
+                            @if($displayDiscount)
+                                <p class="text-3xl md:text-4xl font-bold text-red-600">{{ number_format($displayDiscount, 2) }} ₺</p>
+                                <p class="text-xl text-gray-400 line-through decoration-gray-300">{{ number_format($displayPrice, 2) }} ₺</p>
+                                @php $percent = round(($displayPrice - $displayDiscount) / $displayPrice * 100); @endphp
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-700">
                                     %{{ $percent }} İNDİRİM
                                 </span>
                             @else
-                                <p class="text-3xl md:text-4xl font-bold text-gray-900">{{ number_format($product->price, 2) }} ₺</p>
+                                <p class="text-3xl md:text-4xl font-bold text-gray-900">{{ number_format($displayPrice, 2) }} ₺</p>
                             @endif
                         </div>
                     </div>

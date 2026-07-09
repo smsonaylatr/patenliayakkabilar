@@ -24,6 +24,15 @@ class ProductVariant extends Model
             }
         });
 
+        // Fiyatlar yanlış girildiyse (indirim > fiyat) yerlerini değiştir
+        static::saving(function (ProductVariant $variant) {
+            if ($variant->discount_price && $variant->price && $variant->discount_price > $variant->price) {
+                $temp = $variant->price;
+                $variant->price = $variant->discount_price;
+                $variant->discount_price = $temp;
+            }
+        });
+
         // Varyant kaydedildiğinde/silindiğinde ürün fiyat/stoğunu güncelle
         static::saved(function (ProductVariant $variant) {
             $variant->product?->syncFromVariants();

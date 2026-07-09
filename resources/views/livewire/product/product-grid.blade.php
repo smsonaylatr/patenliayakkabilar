@@ -113,11 +113,19 @@
                     </a>
                 </h3>
                 <div class="mt-2 flex items-center justify-center gap-3">
-                    @if($product->discount_price)
-                        <span class="text-sm font-bold text-red-600">{{ number_format($product->discount_price, 2) }} ₺</span>
-                        <span class="text-xs text-gray-400 line-through decoration-gray-300">{{ number_format($product->price, 2) }} ₺</span>
+                    @php
+                        $displayPrice = $product->price;
+                        $displayDiscount = $product->discount_price;
+                        if ($displayDiscount && $displayPrice && $displayDiscount > $displayPrice) {
+                            $displayPrice = $product->discount_price;
+                            $displayDiscount = $product->price;
+                        }
+                    @endphp
+                    @if($displayDiscount)
+                        <span class="text-sm font-bold text-red-600">{{ number_format($displayDiscount, 2) }} ₺</span>
+                        <span class="text-xs text-gray-400 line-through decoration-gray-300">{{ number_format($displayPrice, 2) }} ₺</span>
                     @else
-                        <span class="text-sm font-semibold text-gray-700">{{ number_format($product->price, 2) }} ₺</span>
+                        <span class="text-sm font-semibold text-gray-700">{{ number_format($displayPrice, 2) }} ₺</span>
                     @endif
                 </div>
             </div>
