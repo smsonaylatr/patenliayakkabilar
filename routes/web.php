@@ -54,9 +54,13 @@ Route::get('/sayfa/{slug}', function ($slug) {
 Route::view('/lansman', 'lansman')->name('lansman');
 
 // Geçici: Migration çalıştır
-Route::get('/run-migrate', function () {
+Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
     try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $params = ['--force' => true];
+        if ($request->query('path')) {
+            $params['--path'] = $request->query('path');
+        }
+        \Illuminate\Support\Facades\Artisan::call('migrate', $params);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
