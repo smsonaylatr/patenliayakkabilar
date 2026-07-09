@@ -96,10 +96,11 @@ class ProductForm
                                 Select::make('gender')
                                     ->label('Cinsiyet')
                                     ->options([
-                                        'erkek'   => 'Erkek',
-                                        'kadin'   => 'Kadın',
-                                        'unisex'  => 'Unisex',
-                                        'cocuk'   => 'Çocuk',
+                                        'erkek'       => 'Erkek',
+                                        'kadin'       => 'Kadın',
+                                        'erkek_cocuk' => 'Erkek Çocuk',
+                                        'kiz_cocuk'   => 'Kız Çocuk',
+                                        'unisex'      => 'Unisex',
                                     ])
                                     ->placeholder('Cinsiyet seçiniz')
                                     ->default(null),
@@ -189,11 +190,12 @@ class ProductForm
                                             $category = $categoryId ? \App\Models\Category::find($categoryId)?->name : null;
 
                                             $genderLabel = match ($gender) {
-                                                'erkek'  => 'Erkek',
-                                                'kadin'  => 'Kadın',
-                                                'cocuk'  => 'Çocuk',
-                                                'unisex' => 'Unisex',
-                                                default  => null,
+                                                'erkek'       => 'Erkek',
+                                                'kadin'       => 'Kadın',
+                                                'erkek_cocuk' => 'Erkek Çocuk',
+                                                'kiz_cocuk'   => 'Kız Çocuk',
+                                                'unisex'      => 'Unisex',
+                                                default       => null,
                                             };
 
                                             $ageLabel = match ($ageGroup) {

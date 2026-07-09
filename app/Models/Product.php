@@ -63,11 +63,12 @@ class Product extends Model
         $price = $product->discount_price ?? $product->price;
 
         $genderLabel = match ($gender) {
-            'erkek'  => 'Erkek',
-            'kadin'  => 'Kadın',
-            'cocuk'  => 'Çocuk',
-            'unisex' => 'Unisex',
-            default  => null,
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
         };
 
         $ageLabel = match ($ageGroup) {
@@ -178,11 +179,12 @@ class Product extends Model
 
         // Cinsiyet etiketi
         $genderLabel = match ($gender) {
-            'erkek'  => 'Erkek',
-            'kadin'  => 'Kadın',
-            'cocuk'  => 'Çocuk',
-            'unisex' => 'Unisex',
-            default  => null,
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
         };
 
         // Yaş grubu etiketi
@@ -445,11 +447,12 @@ class Product extends Model
         }
 
         $genderLabel = match ($this->gender) {
-            'erkek'  => 'Erkek',
-            'kadin'  => 'Kadın',
-            'cocuk'  => 'Çocuk',
-            'unisex' => 'Unisex',
-            default  => null,
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
         };
         if ($genderLabel) {
             $specs['Cinsiyet'] = $genderLabel;
