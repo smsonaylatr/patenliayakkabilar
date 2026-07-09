@@ -434,8 +434,9 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     .card-3d img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
+      padding: 8px;
     }
 
     .card-3d-overlay {
@@ -479,7 +480,7 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .card-main {
-      width: 100%;
+      width: 380px;
       max-width: 380px;
       height: 300px;
       top: 50%;
@@ -487,6 +488,7 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       transform: perspective(1000px) translateX(-50%) translateY(-50%);
       animation: float-main 7s ease-in-out infinite;
       transition: transform 0.1s ease;
+      background: #ffffff;
     }
     
     @keyframes float-main {
@@ -497,6 +499,7 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     .card-sm {
       width: 200px;
       height: 150px;
+      background: #ffffff;
     }
 
     .card-float-1 {

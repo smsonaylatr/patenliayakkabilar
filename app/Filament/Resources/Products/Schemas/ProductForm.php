@@ -136,21 +136,23 @@ class ProductForm
                                     ->description('Ürünün sahip olduğu özellikleri seçin. Boş bırakırsanız kayıt sırasında ürün adına göre otomatik tahmin edilir.')
                                     ->schema([
                                         \Filament\Schemas\Components\Actions::make([
-                                            \Filament\Actions\Action::make('guess_features')
-                                                ->label('🤖 Otomatik Tahmin Et')
-                                                ->icon('heroicon-o-sparkles')
+                                            \Filament\Actions\Action::make('auto_fill_features')
+                                                ->label('✅ Otomatik Doldur')
+                                                ->icon('heroicon-o-check-circle')
                                                 ->color('success')
                                                 ->size('sm')
-                                                ->action(function (Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
-                                                    $product = new \App\Models\Product();
-                                                    $product->name = $get('name');
-                                                    $categoryId = $get('category_id');
-                                                    $product->setRelation('category',
-                                                        $categoryId ? \App\Models\Category::find($categoryId) : null
-                                                    );
-
-                                                    $guessed = \App\Models\Product::guessFeatures($product);
-                                                    $set('feature_keys', $guessed);
+                                                ->action(function (Set $set) {
+                                                    $set('feature_keys', [
+                                                        'led_light',
+                                                        'anti_slip',
+                                                        'breathable',
+                                                        'orthopedic',
+                                                        'hidden_wheel',
+                                                        'double_wheel',
+                                                        'easy_remove',
+                                                        'lightweight',
+                                                        'rubber_sole',
+                                                    ]);
                                                 }),
                                         ])->columnSpanFull(),
 
