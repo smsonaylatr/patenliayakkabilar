@@ -39,7 +39,7 @@
         }
     </style>
 
-    <div class="py-10 bg-white">
+    <div class="pt-16 pb-10 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
                 <!-- Image gallery -->
