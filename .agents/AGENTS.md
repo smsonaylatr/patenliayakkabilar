@@ -24,6 +24,11 @@ Bu workspace kurallarını her zaman takip et.
 Analiz et → Karar ver → Uygula → Test et → Raporla → Devam et
 ```
 
+## Otomatik Push Kuralı
+- Her dosya değişikliğinden hemen sonra `git add -A; git commit -m "mesaj"; git push origin main` çalıştır.
+- Kullanıcıdan "pushla" demesini BEKLEME. Değişiklik bitince otomatik push yap.
+- Commit mesajı Türkçe, kısa ve açıklayıcı olsun.
+
 ## Referanslar
 - `.phoenix-core/` → Detaylı kurallar (13 dosya)
 - `.agents/skills/` → Özelleştirilmiş skill'ler (4 skill)
