@@ -21,6 +21,9 @@ class ProductsTable
     {
         return $table
             ->reorderable('homepage_sort')
+            ->afterReordering(function () {
+                \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+            })
             ->columns([
                 TextColumn::make('homepage_sort')
                     ->label('Sıra')
