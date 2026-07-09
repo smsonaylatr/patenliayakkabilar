@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Category;
+use App\Models\ProductVariant;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -295,18 +296,7 @@ class ProductForm
                                         ->form([
                                             Select::make('series_color')
                                                 ->label('Renk')
-                                                ->options([
-                                                    'Beyaz' => 'Beyaz',
-                                                    'Siyah' => 'Siyah',
-                                                    'Kırmızı' => 'Kırmızı',
-                                                    'Mavi' => 'Mavi',
-                                                    'Pembe' => 'Pembe',
-                                                    'Yeşil' => 'Yeşil',
-                                                    'Mor' => 'Mor',
-                                                    'Turuncu' => 'Turuncu',
-                                                    'Gri' => 'Gri',
-                                                    'Lacivert' => 'Lacivert',
-                                                ])
+                                                ->options(ProductVariant::COLOR_OPTIONS)
                                                 ->multiple()
                                                 ->searchable()
                                                 ->native(false)
@@ -401,18 +391,7 @@ class ProductForm
                                     ->schema([
                                         Select::make('color')
                                             ->label('Renk')
-                                            ->options([
-                                                'Beyaz' => 'Beyaz',
-                                                'Siyah' => 'Siyah',
-                                                'Kırmızı' => 'Kırmızı',
-                                                'Mavi' => 'Mavi',
-                                                'Pembe' => 'Pembe',
-                                                'Yeşil' => 'Yeşil',
-                                                'Mor' => 'Mor',
-                                                'Turuncu' => 'Turuncu',
-                                                'Gri' => 'Gri',
-                                                'Lacivert' => 'Lacivert',
-                                            ])
+                                            ->options(ProductVariant::COLOR_OPTIONS)
                                             ->multiple()
                                             ->searchable()
                                             ->native(false)

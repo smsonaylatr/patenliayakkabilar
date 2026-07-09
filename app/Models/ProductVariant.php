@@ -8,6 +8,33 @@ class ProductVariant extends Model
 {
     protected $guarded = [];
 
+    public const COLOR_OPTIONS = [
+        'Beyaz'       => 'Beyaz',
+        'Siyah'       => 'Siyah',
+        'Kırmızı'     => 'Kırmızı',
+        'Mavi'        => 'Mavi',
+        'Pembe'       => 'Pembe',
+        'Pudra'       => 'Pudra',
+        'Yeşil'       => 'Yeşil',
+        'Mor'         => 'Mor',
+        'Turuncu'     => 'Turuncu',
+        'Sarı'        => 'Sarı',
+        'Gri'         => 'Gri',
+        'Lacivert'    => 'Lacivert',
+        'Bej'         => 'Bej',
+        'Bordo'       => 'Bordo',
+        'Haki'        => 'Haki',
+        'Turkuaz'     => 'Turkuaz',
+        'Altın'       => 'Altın',
+        'Gümüş'       => 'Gümüş',
+        'Fuşya'       => 'Fuşya',
+        'Lila'        => 'Lila',
+        'Kahverengi'  => 'Kahverengi',
+        'Neon Yeşil'  => 'Neon Yeşil',
+        'Neon Pembe'  => 'Neon Pembe',
+        'Gökkuşağı'   => 'Gökkuşağı',
+    ];
+
     protected function casts(): array
     {
         return [

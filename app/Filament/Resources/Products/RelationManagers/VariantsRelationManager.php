@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\RelationManagers;
 
+use App\Models\ProductVariant;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -27,18 +28,7 @@ class VariantsRelationManager extends RelationManager
             ->components([
                 Select::make('color')
                     ->label('Renk')
-                    ->options([
-                        'Beyaz' => 'Beyaz',
-                        'Siyah' => 'Siyah',
-                        'Kırmızı' => 'Kırmızı',
-                        'Mavi' => 'Mavi',
-                        'Pembe' => 'Pembe',
-                        'Yeşil' => 'Yeşil',
-                        'Mor' => 'Mor',
-                        'Turuncu' => 'Turuncu',
-                        'Gri' => 'Gri',
-                        'Lacivert' => 'Lacivert',
-                    ])
+                    ->options(ProductVariant::COLOR_OPTIONS)
                     ->multiple()
                     ->searchable()
                     ->native(false)
