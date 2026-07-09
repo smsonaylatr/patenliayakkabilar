@@ -26,6 +26,7 @@ class ItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('variant.color')
                     ->label('Renk')
                     ->badge()
+                    ->formatStateUsing(fn ($state): string => is_array($state) ? implode(' / ', $state) : ($state ?? '-'))
                     ->default('-'),
                 Tables\Columns\TextColumn::make('variant.size')
                     ->label('Numara')

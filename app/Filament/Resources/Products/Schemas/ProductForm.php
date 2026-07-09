@@ -129,6 +129,15 @@ class ProductForm
                                     ->default(false)
                                     ->inline(false),
 
+                                TextInput::make('homepage_sort')
+                                    ->label('Anasayfa Sırası')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->hint('0 = sırasız, küçük sayı = üstte görünür')
+                                    ->helperText('Anasayfada ürünlerin gösterilme sırasını belirler.')
+                                    ->suffix('↕'),
+
                                 \Filament\Schemas\Components\Section::make('Ürün Özellikleri')
                                     ->icon('heroicon-o-sparkles')
                                     ->description('Ürünün sahip olduğu özellikleri seçin. Boş bırakırsanız kayıt sırasında ürün adına göre otomatik tahmin edilir.')
@@ -302,7 +311,11 @@ class ProductForm
                                                     'Gri' => 'Gri',
                                                     'Lacivert' => 'Lacivert',
                                                 ])
-                                                ->required(),
+                                                ->multiple()
+                                                ->searchable()
+                                                ->native(false)
+                                                ->required()
+                                                ->helperText('Birden fazla renk seçebilirsiniz'),
                                             Select::make('series_start')
                                                 ->label('Başlangıç Numara')
                                                 ->options(
@@ -351,7 +364,15 @@ class ProductForm
                                             $existing = $get('variants') ?? [];
                                             $slug = \Illuminate\Support\Str::slug($get('name') ?: 'URUN');
 
-                                            $colorCode = mb_strtoupper(mb_substr($data['series_color'], 0, 2));
+                                            // Çoklu renk desteği
+                                            $colors = $data['series_color'] ?? [];
+                                            if (is_string($colors)) {
+                                                $colors = [$colors];
+                                            }
+                                            $colorCode = collect($colors)
+                                                ->map(fn ($c) => mb_strtoupper(mb_substr($c, 0, 2)))
+                                                ->implode('-') ?: 'XX';
+
                                             $start = (int) $data['series_start'];
                                             $end = (int) $data['series_end'];
 
@@ -364,7 +385,7 @@ class ProductForm
                                                 $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
 
                                                 $newVariants[] = [
-                                                    'color'          => $data['series_color'],
+                                                    'color'          => $colors,
                                                     'size'           => (string) $size,
                                                     'wheel_type'     => $data['series_wheel'] ?? null,
                                                     'price'          => $data['series_price'],
@@ -396,8 +417,11 @@ class ProductForm
                                                 'Gri' => 'Gri',
                                                 'Lacivert' => 'Lacivert',
                                             ])
+                                            ->multiple()
                                             ->searchable()
-                                            ->required(),
+                                            ->native(false)
+                                            ->required()
+                                            ->helperText('Birden fazla renk seçebilirsiniz'),
                                         Select::make('size')
                                             ->label('Numara')
                                             ->options(
@@ -447,10 +471,11 @@ class ProductForm
                                     ->reorderable(false)
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
-                                        ($state['color'] ?? '') . ' - ' . ($state['size'] ?? '') . 
+                                        (is_array($state['color'] ?? null) ? implode(' / ', $state['color']) : ($state['color'] ?? '')) . 
+                                        ' - ' . ($state['size'] ?? '') . 
                                         ' | ' . number_format((float) ($state['price'] ?? 0), 0) . ' ₺' .
                                         ' (Stok: ' . ($state['stock'] ?? 0) . ')' .
-                                        ($state['sku'] ? ' [' . $state['sku'] . ']' : '')
+                                        (($state['sku'] ?? null) ? ' [' . $state['sku'] . ']' : '')
                                     )
                                     ->columnSpanFull(),
                             ]),

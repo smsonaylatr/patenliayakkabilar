@@ -20,7 +20,14 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->reorderable('homepage_sort')
             ->columns([
+                TextColumn::make('homepage_sort')
+                    ->label('Sıra')
+                    ->badge()
+                    ->color(fn (int $state) => $state > 0 ? 'success' : 'gray')
+                    ->sortable()
+                    ->width(60),
                 ImageColumn::make('images.image_path')
                     ->label('')
                     ->disk('public')
@@ -140,6 +147,6 @@ class ProductsTable
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('homepage_sort', 'asc');
     }
 }

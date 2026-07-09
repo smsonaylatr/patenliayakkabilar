@@ -8,6 +8,13 @@ class ProductVariant extends Model
 {
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'color' => 'array',
+        ];
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -18,7 +25,14 @@ class ProductVariant extends Model
                 $product = Product::find($variant->product_id);
                 if ($product) {
                     $slug = strtoupper(\Illuminate\Support\Str::slug($product->name));
-                    $colorCode = mb_strtoupper(mb_substr($variant->color ?? 'XX', 0, 2));
+                    // Birden fazla renk varsa ilk iki harflerini birleştir
+                    $colors = $variant->color ?? [];
+                    if (is_string($colors)) {
+                        $colors = [$colors];
+                    }
+                    $colorCode = collect($colors)
+                        ->map(fn ($c) => mb_strtoupper(mb_substr($c, 0, 2)))
+                        ->implode('-') ?: 'XX';
                     $variant->sku = $slug . '-' . $colorCode . '-' . ($variant->size ?? '00');
                 }
             }

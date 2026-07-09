@@ -466,8 +466,10 @@ class Product extends Model
             $specs['Numara Aralığı'] = $sizes->first() . ' - ' . $sizes->last();
         }
 
-        // Renkler
-        $colors = $this->variants->pluck('color')->filter()->unique()->values();
+        // Renkler (her varyantın color alanı artık array)
+        $colors = $this->variants->pluck('color')->filter()
+            ->flatMap(fn ($c) => is_array($c) ? $c : [$c])
+            ->unique()->values();
         if ($colors->isNotEmpty()) {
             $specs['Renkler'] = $colors->implode(', ');
         }

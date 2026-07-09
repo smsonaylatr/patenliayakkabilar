@@ -39,8 +39,11 @@ class VariantsRelationManager extends RelationManager
                         'Gri' => 'Gri',
                         'Lacivert' => 'Lacivert',
                     ])
+                    ->multiple()
                     ->searchable()
-                    ->required(),
+                    ->native(false)
+                    ->required()
+                    ->helperText('Birden fazla renk seçebilirsiniz'),
                 Select::make('size')
                     ->label('Numara')
                     ->options(
@@ -83,6 +86,7 @@ class VariantsRelationManager extends RelationManager
                 TextColumn::make('color')
                     ->label('Renk')
                     ->badge()
+                    ->formatStateUsing(fn ($state): string => is_array($state) ? implode(' / ', $state) : ($state ?? '-'))
                     ->searchable(),
                 TextColumn::make('size')
                     ->label('Numara')
