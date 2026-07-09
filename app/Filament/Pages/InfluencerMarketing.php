@@ -12,7 +12,7 @@ use Filament\Notifications\Notification;
 class InfluencerMarketing extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rocket-launch';
-    protected static ?string $navigationGroup = 'Pazarlama';
+    protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
     protected static ?string $navigationLabel = 'Pazarlama Merkezi';
     protected static ?string $title = 'YouTube Influencer Pazarlama Merkezi';
     protected static ?string $slug = 'influencer-marketing';

@@ -8,6 +8,7 @@ use App\Filament\Resources\Campaigns\Pages\ListCampaigns;
 use App\Filament\Resources\Campaigns\Schemas\CampaignForm;
 use App\Filament\Resources\Campaigns\Tables\CampaignsTable;
 use App\Models\Campaign;
+use UnitEnum;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,7 +20,7 @@ class CampaignResource extends Resource
     protected static ?string $model = Campaign::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
+    protected static string|UnitEnum|null $navigationGroup = 'Pazarlama';
     protected static ?int $navigationSort = 3;
 
     public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema

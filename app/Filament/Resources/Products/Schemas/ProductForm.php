@@ -427,7 +427,9 @@ class ProductForm
                                             ->prefix('₺')
                                             ->minValue(0)
                                             ->step(0.01)
-                                            ->default(null),
+                                            ->default(null)
+                                            ->lt('price')
+                                            ->helperText('Normal fiyattan düşük olmalıdır'),
                                         TextInput::make('stock')
                                             ->label('Stok')
                                             ->numeric()
