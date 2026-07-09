@@ -18,19 +18,22 @@ class CreateProduct extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $featureKeys = $this->data['feature_keys'] ?? [];
+        try {
+            $featureKeys = $this->data['feature_keys'] ?? [];
 
-        if (!empty($featureKeys)) {
-            $order = 0;
-            foreach ($featureKeys as $key) {
-                $this->record->features()->create([
-                    'feature_key' => $key,
-                    'sort_order'  => $order++,
-                ]);
+            if (!empty($featureKeys)) {
+                $order = 0;
+                foreach ($featureKeys as $key) {
+                    $this->record->features()->create([
+                        'feature_key' => $key,
+                        'sort_order'  => $order++,
+                    ]);
+                }
+            } else {
+                $this->record->autoFillFeatures();
             }
-        } else {
-            // Otomatik tahmin et
-            $this->record->autoFillFeatures();
+        } catch (\Exception $e) {
+            // product_features tablosu henüz oluşturulmamışsa sessizce geç
         }
     }
 }

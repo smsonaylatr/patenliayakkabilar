@@ -23,8 +23,11 @@ class EditProduct extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        // Mevcut özellikleri form'a yükle
-        $data['feature_keys'] = $this->record->features()->pluck('feature_key')->toArray();
+        try {
+            $data['feature_keys'] = $this->record->features()->pluck('feature_key')->toArray();
+        } catch (\Exception $e) {
+            $data['feature_keys'] = [];
+        }
         return $data;
     }
 
@@ -36,17 +39,19 @@ class EditProduct extends EditRecord
 
     protected function afterSave(): void
     {
-        $featureKeys = $this->data['feature_keys'] ?? [];
+        try {
+            $featureKeys = $this->data['feature_keys'] ?? [];
+            $this->record->features()->delete();
 
-        // Mevcut özellikleri temizle ve yeniden kaydet
-        $this->record->features()->delete();
-
-        $order = 0;
-        foreach ($featureKeys as $key) {
-            $this->record->features()->create([
-                'feature_key' => $key,
-                'sort_order'  => $order++,
-            ]);
+            $order = 0;
+            foreach ($featureKeys as $key) {
+                $this->record->features()->create([
+                    'feature_key' => $key,
+                    'sort_order'  => $order++,
+                ]);
+            }
+        } catch (\Exception $e) {
+            // product_features tablosu henüz oluşturulmamışsa sessizce geç
         }
     }
 }
