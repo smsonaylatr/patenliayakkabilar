@@ -48,6 +48,19 @@ class Product extends Model
                 $product->discount_price = $temp;
             }
         });
+
+        // Ürün değiştiğinde anasayfa cache'ini temizle
+        static::created(function () {
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+        });
+
+        static::updated(function () {
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+        });
     }
 
     /**

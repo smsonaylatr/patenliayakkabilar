@@ -80,12 +80,58 @@ class ImagesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->headerActions([
-                CreateAction::make()
+                \Filament\Actions\Action::make('upload_images')
                     ->label('Görsel Ekle')
-                    ->mutateFormDataUsing(function (array $data): array {
+                    ->icon('heroicon-o-photo')
+                    ->color('primary')
+                    ->form([
+                        FileUpload::make('images')
+                            ->label('Görseller')
+                            ->disk('public')
+                            ->directory('products')
+                            ->visibility('public')
+                            ->maxSize(20480)
+                            ->multiple()
+                            ->reorderable()
+                            ->maxFiles(20)
+                            ->acceptedFileTypes([
+                                'image/jpeg',
+                                'image/pjpeg',
+                                'image/png',
+                                'image/webp',
+                                'image/gif',
+                                'image/bmp',
+                                'image/avif',
+                            ])
+                            ->required()
+                            ->columnSpanFull()
+                            ->saveUploadedFileUsing(function (TemporaryUploadedFile $file): string {
+                                $extension = $file->getClientOriginalExtension() ?: 'png';
+                                $filename = (string) \Illuminate\Support\Str::ulid() . '.' . $extension;
+                                $targetPath = 'products/' . $filename;
+
+                                $contents = $file->get();
+                                Storage::disk('public')->put($targetPath, $contents, 'public');
+                                $file->delete();
+
+                                return $targetPath;
+                            })
+                            ->helperText('Birden fazla görsel seçebilirsiniz. Sürükleyerek sıralayabilirsiniz.'),
+                    ])
+                    ->modalHeading('📸 Görsel Yükle')
+                    ->modalDescription('Birden fazla görsel seçerek toplu yükleme yapabilirsiniz.')
+                    ->modalSubmitActionLabel('Yükle')
+                    ->action(function (array $data): void {
+                        $images = $data['images'] ?? [];
                         $maxSort = $this->getOwnerRecord()->images()->max('sort_order') ?? -1;
-                        $data['sort_order'] = $maxSort + 1;
-                        return $data;
+
+                        foreach ($images as $imagePath) {
+                            $maxSort++;
+                            $this->getOwnerRecord()->images()->create([
+                                'image_path' => $imagePath,
+                                'sort_order' => $maxSort,
+                            ]);
+                        }
                     }),
             ])
             ->actions([
