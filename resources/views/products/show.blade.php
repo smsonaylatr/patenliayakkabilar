@@ -117,7 +117,7 @@
                             ];
                         @endphp
                         @foreach($signals as $signal)
-                            <div class="flex items-center gap-2.5 px-3.5 py-3 rounded-lg border border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center gap-3.5 px-4 py-3 rounded-lg border border-gray-100 bg-gray-50/50">
                                 <i class="{{ $iconMap[$signal['icon']] ?? 'fa-solid fa-check' }} {{ $colorMap[$signal['color']] ?? 'text-gray-500' }} text-sm"></i>
                                 <span class="text-xs font-medium text-gray-700">{{ $signal['text'] }}</span>
                             </div>
@@ -137,7 +137,7 @@
                                 @click="openPanel = openPanel === 'features' ? '' : 'features'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <i class="fa-solid fa-list-check text-gray-400 text-sm w-5 text-center"></i>
                                     <span class="text-sm font-semibold text-gray-900">Öne Çıkan Özellikler</span>
                                     <span class="text-[11px] font-medium text-gray-400">{{ count($featureLabels) }}</span>
@@ -148,7 +148,7 @@
                             <div class="accordion-content" :class="openPanel === 'features' ? 'open' : ''">
                                 <div class="pb-4 grid grid-cols-2 gap-2">
                                     @foreach($featureLabels as $feature)
-                                        <div class="flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center gap-3.5 px-3.5 py-2.5 bg-gray-50 rounded-lg">
                                             <i class="fa-solid fa-check text-emerald-500 text-[10px]"></i>
                                             <span class="text-xs font-medium text-gray-700">{{ $feature['label'] }}</span>
                                         </div>
@@ -166,7 +166,7 @@
                                 @click="openPanel = openPanel === 'specs' ? '' : 'specs'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <i class="fa-solid fa-info-circle text-gray-400 text-sm w-5 text-center"></i>
                                     <span class="text-sm font-semibold text-gray-900">Teknik Bilgiler</span>
                                 </div>
@@ -197,7 +197,7 @@
                                 @click="openPanel = openPanel === 'description' ? '' : 'description'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <i class="fa-solid fa-file-lines text-gray-400 text-sm w-5 text-center"></i>
                                     <span class="text-sm font-semibold text-gray-900">Ürün Açıklaması</span>
                                 </div>
@@ -220,7 +220,7 @@
                                 @click="openPanel = openPanel === 'shipping' ? '' : 'shipping'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <i class="fa-solid fa-truck text-gray-400 text-sm w-5 text-center"></i>
                                     <span class="text-sm font-semibold text-gray-900">Kargo & İade</span>
                                 </div>
@@ -229,28 +229,28 @@
                             </button>
                             <div class="accordion-content" :class="openPanel === 'shipping' ? 'open' : ''">
                                 <div class="pb-4 space-y-3">
-                                    <div class="flex items-start gap-3">
+                                    <div class="flex items-start gap-4">
                                         <i class="fa-solid fa-truck-fast text-emerald-500 text-xs mt-0.5 w-4 text-center"></i>
                                         <div>
                                             <p class="text-xs font-semibold text-gray-800">Ücretsiz Kargo</p>
                                             <p class="text-[11px] text-gray-500 mt-0.5">Türkiye'nin her yerine ücretsiz kargo. 1-3 iş günü içinde kargoya verilir.</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-start gap-3">
+                                    <div class="flex items-start gap-4">
                                         <i class="fa-solid fa-shield-halved text-blue-500 text-xs mt-0.5 w-4 text-center"></i>
                                         <div>
                                             <p class="text-xs font-semibold text-gray-800">Güvenli Paketleme</p>
                                             <p class="text-[11px] text-gray-500 mt-0.5">Özel kutusunda, hasar görmeyecek şekilde paketlenir.</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-start gap-3">
+                                    <div class="flex items-start gap-4">
                                         <i class="fa-solid fa-rotate-left text-amber-500 text-xs mt-0.5 w-4 text-center"></i>
                                         <div>
                                             <p class="text-xs font-semibold text-gray-800">14 Gün İade Garantisi</p>
                                             <p class="text-[11px] text-gray-500 mt-0.5">Kullanılmamış ve orijinal ambalajında koşulsuz iade.</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-start gap-3">
+                                    <div class="flex items-start gap-4">
                                         <i class="fa-solid fa-lock text-violet-500 text-xs mt-0.5 w-4 text-center"></i>
                                         <div>
                                             <p class="text-xs font-semibold text-gray-800">Güvenli Ödeme</p>
