@@ -281,6 +281,103 @@ class ProductForm
                         Tab::make('Varyantlar')
                             ->icon('heroicon-o-squares-2x2')
                             ->schema([
+                                \Filament\Schemas\Components\Actions::make([
+                                    \Filament\Actions\Action::make('generate_series')
+                                        ->label('📦 Seri Oluştur')
+                                        ->icon('heroicon-o-squares-plus')
+                                        ->color('success')
+                                        ->size('lg')
+                                        ->form([
+                                            Select::make('series_color')
+                                                ->label('Renk')
+                                                ->options([
+                                                    'Beyaz' => 'Beyaz',
+                                                    'Siyah' => 'Siyah',
+                                                    'Kırmızı' => 'Kırmızı',
+                                                    'Mavi' => 'Mavi',
+                                                    'Pembe' => 'Pembe',
+                                                    'Yeşil' => 'Yeşil',
+                                                    'Mor' => 'Mor',
+                                                    'Turuncu' => 'Turuncu',
+                                                    'Gri' => 'Gri',
+                                                    'Lacivert' => 'Lacivert',
+                                                ])
+                                                ->required(),
+                                            Select::make('series_start')
+                                                ->label('Başlangıç Numara')
+                                                ->options(
+                                                    collect(range(26, 37))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                )
+                                                ->default('26')
+                                                ->required(),
+                                            Select::make('series_end')
+                                                ->label('Bitiş Numara')
+                                                ->options(
+                                                    collect(range(26, 37))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                )
+                                                ->default('34')
+                                                ->required(),
+                                            Select::make('series_wheel')
+                                                ->label('Teker Tipi')
+                                                ->options([
+                                                    'single' => 'Tek Teker',
+                                                    'double' => 'Çift Teker',
+                                                    'quad' => 'Dört Teker',
+                                                    'led' => 'LED Tekerlekli',
+                                                ]),
+                                            TextInput::make('series_price')
+                                                ->label('Fiyat (₺)')
+                                                ->numeric()
+                                                ->required()
+                                                ->prefix('₺')
+                                                ->default(0),
+                                            TextInput::make('series_discount')
+                                                ->label('İndirimli Fiyat (₺)')
+                                                ->numeric()
+                                                ->prefix('₺')
+                                                ->default(null),
+                                            TextInput::make('series_koli')
+                                                ->label('Koli Adedi')
+                                                ->numeric()
+                                                ->default(1)
+                                                ->required()
+                                                ->helperText('Her numara için stok = koli adedi. Örn: 2 koli = her numaradan 2 adet.')
+                                                ->minValue(1),
+                                        ])
+                                        ->modalHeading('📦 Varyant Serisi Oluştur')
+                                        ->modalDescription('Seçtiğiniz numara aralığında tüm varyantları otomatik oluşturur. SKU otomatik üretilir.')
+                                        ->modalSubmitActionLabel('Seriyi Oluştur')
+                                        ->action(function (array $data, Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
+                                            $existing = $get('variants') ?? [];
+                                            $slug = \Illuminate\Support\Str::slug($get('name') ?: 'URUN');
+
+                                            $colorCode = mb_strtoupper(mb_substr($data['series_color'], 0, 2));
+                                            $start = (int) $data['series_start'];
+                                            $end = (int) $data['series_end'];
+
+                                            if ($start > $end) {
+                                                [$start, $end] = [$end, $start];
+                                            }
+
+                                            $newVariants = [];
+                                            for ($size = $start; $size <= $end; $size++) {
+                                                $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
+
+                                                $newVariants[] = [
+                                                    'color'          => $data['series_color'],
+                                                    'size'           => (string) $size,
+                                                    'wheel_type'     => $data['series_wheel'] ?? null,
+                                                    'price'          => $data['series_price'],
+                                                    'discount_price' => $data['series_discount'] ?: null,
+                                                    'stock'          => (int) ($data['series_koli'] ?? 1),
+                                                    'sku'            => $sku,
+                                                ];
+                                            }
+
+                                            $set('variants', array_merge($existing, $newVariants));
+                                        }),
+                                ])->columnSpanFull(),
+
                                 Repeater::make('variants')
                                     ->relationship()
                                     ->label('')
@@ -304,7 +401,7 @@ class ProductForm
                                         Select::make('size')
                                             ->label('Numara')
                                             ->options(
-                                                collect(range(28, 45))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
+                                                collect(range(26, 37))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
                                             )
                                             ->searchable()
                                             ->required(),
@@ -338,18 +435,22 @@ class ProductForm
                                             ->default(0)
                                             ->minValue(0),
                                         TextInput::make('sku')
-                                            ->label('SKU'),
+                                            ->label('SKU')
+                                            ->disabled()
+                                            ->dehydrated()
+                                            ->helperText('Otomatik üretilir'),
                                     ])
                                     ->columns(4)
-                                    ->defaultItems(1)
-                                    ->addActionLabel('Varyant Ekle')
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Tek Varyant Ekle')
                                     ->cloneable()
                                     ->reorderable(false)
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
                                         ($state['color'] ?? '') . ' - ' . ($state['size'] ?? '') . 
                                         ' | ' . number_format((float) ($state['price'] ?? 0), 0) . ' ₺' .
-                                        ' (Stok: ' . ($state['stock'] ?? 0) . ')'
+                                        ' (Stok: ' . ($state['stock'] ?? 0) . ')' .
+                                        ($state['sku'] ? ' [' . $state['sku'] . ']' : '')
                                     )
                                     ->columnSpanFull(),
                             ]),

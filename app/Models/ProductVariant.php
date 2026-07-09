@@ -12,6 +12,18 @@ class ProductVariant extends Model
     {
         parent::boot();
 
+        // SKU otomatik üret
+        static::creating(function (ProductVariant $variant) {
+            if (empty($variant->sku) && $variant->product_id) {
+                $product = Product::find($variant->product_id);
+                if ($product) {
+                    $slug = strtoupper(\Illuminate\Support\Str::slug($product->name));
+                    $colorCode = mb_strtoupper(mb_substr($variant->color ?? 'XX', 0, 2));
+                    $variant->sku = $slug . '-' . $colorCode . '-' . ($variant->size ?? '00');
+                }
+            }
+        });
+
         // Varyant kaydedildiğinde/silindiğinde ürün fiyat/stoğunu güncelle
         static::saved(function (ProductVariant $variant) {
             $variant->product?->syncFromVariants();
