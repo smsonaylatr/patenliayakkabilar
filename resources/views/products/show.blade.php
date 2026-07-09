@@ -18,7 +18,7 @@
             "@@type": "Offer",
             "url": "{{ url()->current() }}",
             "priceCurrency": "TRY",
-            "price": "{{ ($product->discount_price && $product->discount_price < $product->price) ? $product->discount_price : $product->price }}",
+            "price": "{{ $product->discount_price ?? $product->price }}",
             "itemCondition": "https://schema.org/NewCondition",
             "availability": "https://schema.org/{{ $product->stock > 0 ? 'InStock' : 'OutOfStock' }}"
           }
