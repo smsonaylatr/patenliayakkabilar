@@ -57,6 +57,7 @@ class CategoryForm
                                 FileUpload::make('image')
                                     ->label('Kategori Görseli')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('categories')
                                     ->columnSpanFull(),
                             ])->columns(2),
@@ -84,6 +85,7 @@ class CategoryForm
                                 FileUpload::make('og_image')
                                     ->label('Paylaşım Görseli (OG Image)')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('categories/og'),
                                 RichEditor::make('seo_content')
                                     ->label('Kategori SEO Metni')

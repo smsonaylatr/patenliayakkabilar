@@ -287,6 +287,7 @@ class ProductForm
                                 FileUpload::make('og_image')
                                     ->label('Paylaşım Görseli (OG Image)')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('products/og')
                                     ->helperText('Sosyal medya paylaşımında kullanılır. Boşsa ilk ürün görseli kullanılır.'),
 

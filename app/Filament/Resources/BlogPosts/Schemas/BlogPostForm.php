@@ -54,6 +54,7 @@ class BlogPostForm
                                 FileUpload::make('image_path')
                                     ->label('Kapak Görseli')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('blog'),
                                 TextInput::make('author_name')
                                     ->label('Yazar Adı')
@@ -86,6 +87,7 @@ class BlogPostForm
                                 FileUpload::make('og_image')
                                     ->label('Paylaşım Görseli (OG Image)')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('blog/og'),
                                 Toggle::make('is_indexable')
                                     ->label('Arama motorlarında indekslensin')

@@ -252,5 +252,51 @@ Route::get('/deploy-helper', function () {
     return '<html><head><title>Deploy Helper</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:14px;line-height:1.8;">'
          . '<h1 style="color:#0d9488;">🚀 Deploy Helper - Tam Teşhis</h1>'
          . '<pre style="white-space:pre-wrap;word-break:break-all;">' . implode("\n", $results) . '</pre>'
+         . '<br><a href="/deploy-fix-storage" style="color:#0d9488;font-size:16px;">👉 Görselleri private → public taşı</a>'
+         . '</body></html>';
+})->middleware('auth');
+
+// Dosyaları private → public taşı
+Route::get('/deploy-fix-storage', function () {
+    $results = [];
+    $privatePath = storage_path('app/private');
+    $publicPath = storage_path('app/public');
+
+    if (!is_dir($privatePath)) {
+        return 'private klasörü yok, taşınacak dosya bulunamadı.';
+    }
+
+    $iterator = new \RecursiveIteratorIterator(
+        new \RecursiveDirectoryIterator($privatePath, \RecursiveDirectoryIterator::SKIP_DOTS),
+        \RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $relativePath = str_replace($privatePath . DIRECTORY_SEPARATOR, '', $item->getPathname());
+        $targetPath = $publicPath . DIRECTORY_SEPARATOR . $relativePath;
+
+        if ($item->isDir()) {
+            if (!is_dir($targetPath)) {
+                mkdir($targetPath, 0755, true);
+                $results[] = "📁 Klasör oluşturuldu: {$relativePath}";
+            }
+        } else {
+            $targetDir = dirname($targetPath);
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            copy($item->getPathname(), $targetPath);
+            $results[] = "✅ Taşındı: {$relativePath} (" . round($item->getSize() / 1024) . " KB)";
+        }
+    }
+
+    if (empty($results)) {
+        $results[] = 'Taşınacak dosya bulunamadı.';
+    }
+
+    return '<html><head><title>Storage Fix</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:14px;line-height:1.8;">'
+         . '<h1 style="color:#0d9488;">📦 Private → Public Taşıma</h1>'
+         . '<pre>' . implode("\n", $results) . '</pre>'
+         . '<br><a href="/deploy-helper" style="color:#0d9488;">← Teşhis sayfasına dön</a>'
          . '</body></html>';
 })->middleware('auth');

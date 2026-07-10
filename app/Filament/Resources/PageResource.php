@@ -104,6 +104,7 @@ class PageResource extends Resource
                                 Forms\Components\FileUpload::make('og_image')
                                     ->label('Paylaşım Görseli (OG Image)')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('pages/og'),
                                 Forms\Components\Toggle::make('is_indexable')
                                     ->label('Arama motorlarında indekslensin')
