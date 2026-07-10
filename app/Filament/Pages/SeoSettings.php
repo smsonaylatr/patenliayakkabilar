@@ -304,19 +304,6 @@ class SeoSettings extends FilamentPage implements HasForms
                                             ->helperText('Tag Manager → Çalışma Alanı → Konteyner kimliği'),
                                     ]),
                             ]),
-
-                        // ==========================================
-                        // TAB 4: HIZLI LİNKLER
-                        // ==========================================
-                        Tab::make('SEO Araçları')
-                            ->icon('heroicon-o-wrench-screwdriver')
-                            ->schema([
-                                Section::make('Faydalı Linkler')
-                                    ->description('SEO yönetimi için sık kullanılan araçlar.')
-                                    ->schema([
-                                        \Filament\Schemas\Components\View::make('filament.pages.partials.seo-tools'),
-                                    ]),
-                            ]),
                     ]),
             ])
             ->statePath('data');
