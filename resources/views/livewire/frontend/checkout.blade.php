@@ -141,7 +141,7 @@
                                     @if($item->variant)
                                         <span class="text-xs text-gray-500 mt-0.5">Beden/Seçenek: {{ $item->variant->name }}</span>
                                     @endif
-                                    <div class="text-sm font-bold text-brand-orange mt-1">
+                                    <div class="text-sm font-bold text-red-600 mt-1">
                                         {{ number_format($item->price, 2) }} ₺
                                     </div>
                                 </div>
@@ -163,7 +163,7 @@
                         </div>
                         <div class="flex justify-between text-lg font-black text-gray-900 pt-3 border-t border-gray-100 mt-3">
                             <span>Toplam</span>
-                            <span class="text-brand-orange">{{ number_format($grandTotal, 2) }} ₺</span>
+                            <span class="text-red-600">{{ number_format($grandTotal, 2) }} ₺</span>
                         </div>
                     </div>
 
