@@ -304,6 +304,67 @@ class SeoSettings extends FilamentPage implements HasForms
                                             ->helperText('Tag Manager → Çalışma Alanı → Konteyner kimliği'),
                                     ]),
                             ]),
+
+                        // ==========================================
+                        // TAB 4: SEO ARAÇLARI
+                        // ==========================================
+                        Tab::make('SEO Araçları')
+                            ->icon('heroicon-o-wrench-screwdriver')
+                            ->schema([
+                                Section::make('Site Dosyaları')
+                                    ->description('Sitenizin SEO dosyalarını kontrol edin.')
+                                    ->schema([
+                                        Grid::make(4)->schema([
+                                            \Filament\Forms\Components\Placeholder::make('sitemap_link')
+                                                ->label('Sitemap.xml')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="' . url('/sitemap.xml') . '" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Sitemap\'i Aç</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('merchant_link')
+                                                ->label('Merchant Feed')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="' . url('/feeds/google-merchant.xml') . '" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Feed\'i Aç</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('robots_link')
+                                                ->label('robots.txt')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="' . url('/robots.txt') . '" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ robots.txt Aç</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('llms_link')
+                                                ->label('llms.txt')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="' . url('/llms.txt') . '" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ llms.txt Aç</a>'
+                                                )),
+                                        ]),
+                                    ]),
+
+                                Section::make('Google Araçları')
+                                    ->description('SEO performansınızı test edin ve takip edin.')
+                                    ->schema([
+                                        Grid::make(4)->schema([
+                                            \Filament\Forms\Components\Placeholder::make('gsc_link')
+                                                ->label('Search Console')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Aç</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('rich_results_link')
+                                                ->label('Rich Results Test')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="https://search.google.com/test/rich-results?url=' . urlencode(config('app.url')) . '" target="_blank" rel="noopener" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Schema Test</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('pagespeed_link')
+                                                ->label('PageSpeed Insights')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="https://pagespeed.web.dev/analysis?url=' . urlencode(config('app.url')) . '" target="_blank" rel="noopener" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Hız Testi</a>'
+                                                )),
+                                            \Filament\Forms\Components\Placeholder::make('merchant_center_link')
+                                                ->label('Merchant Center')
+                                                ->content(new \Illuminate\Support\HtmlString(
+                                                    '<a href="https://merchants.google.com" target="_blank" rel="noopener" class="text-primary-600 dark:text-primary-400 hover:underline font-medium">→ Aç</a>'
+                                                )),
+                                        ]),
+                                    ]),
+                            ]),
                     ]),
             ])
             ->statePath('data');
