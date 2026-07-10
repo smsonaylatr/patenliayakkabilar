@@ -50,7 +50,7 @@
                  fetchpriority="high">
             <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.4) 50%, transparent 100%);"></div>
             <div style="position:absolute;bottom:0;left:0;right:0;padding:2rem 1rem 2.5rem;">
-                <div style="max-width:720px;margin:0 auto;">
+                <div style="max-width:960px;margin:0 auto;">
                     <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:12px;">
                         <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}">
                             {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
@@ -69,7 +69,7 @@
     @endif
 
     <div style="background:#fff;min-height:60vh;">
-        <div style="max-width:720px;margin:0 auto;padding:2.5rem 1rem 4rem;">
+        <div style="max-width:960px;margin:0 auto;padding:2.5rem 1.5rem 4rem;">
 
             {{-- Breadcrumb --}}
             <div style="margin-bottom:2rem;">
