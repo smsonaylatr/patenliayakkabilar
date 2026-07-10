@@ -50,13 +50,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
-                                <input type="text" wire:model="shipping_city" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black transition-colors" placeholder="Örn: İstanbul">
+                                <select wire:model.live="shipping_city" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black transition-colors">
+                                    <option value="">İl Seçiniz</option>
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city }}">{{ $city }}</option>
+                                    @endforeach
+                                </select>
                                 @error('shipping_city') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
-                                <input type="text" wire:model="shipping_district" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black transition-colors" placeholder="Örn: Kadıköy">
+                                <select wire:model="shipping_district" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
+                                    <option value="">İlçe Seçiniz</option>
+                                    @foreach($districts as $district)
+                                        <option value="{{ $district }}">{{ $district }}</option>
+                                    @endforeach
+                                </select>
                                 @error('shipping_district') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             

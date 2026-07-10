@@ -21,6 +21,9 @@ class Checkout extends Component
     
     public $payment_method = 'cash_on_delivery';
 
+    public $cities = [];
+    public $districts = [];
+
     protected $rules = [
         'customer_name' => 'required|string|max:255',
         'customer_email' => 'required|email|max:255',
@@ -30,6 +33,32 @@ class Checkout extends Component
         'shipping_address' => 'required|string',
         'payment_method' => 'required|in:cash_on_delivery,wire_transfer',
     ];
+
+    public function mount()
+    {
+        if (file_exists(storage_path('app/cities.json'))) {
+            $json = json_decode(file_get_contents(storage_path('app/cities.json')), true);
+            if (isset($json['data'])) {
+                $this->cities = collect($json['data'])->pluck('name')->toArray();
+            }
+        }
+    }
+
+    public function updatedShippingCity($value)
+    {
+        $this->shipping_district = null;
+        $this->districts = [];
+
+        if ($value && file_exists(storage_path('app/cities.json'))) {
+            $json = json_decode(file_get_contents(storage_path('app/cities.json')), true);
+            if (isset($json['data'])) {
+                $cityData = collect($json['data'])->firstWhere('name', $value);
+                if ($cityData && isset($cityData['districts'])) {
+                    $this->districts = collect($cityData['districts'])->pluck('name')->toArray();
+                }
+            }
+        }
+    }
 
     public function placeOrder(CartService $cartService)
     {

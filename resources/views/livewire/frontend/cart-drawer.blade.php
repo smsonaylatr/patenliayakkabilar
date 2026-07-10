@@ -70,7 +70,7 @@
                                                             <h3>
                                                                 <a href="{{ route('products.show', $item->product->slug) }}" class="hover:text-blue-600 transition-colors" wire:navigate>{{ $item->product->name }}</a>
                                                             </h3>
-                                                            <p class="ml-4 font-bold">{{ number_format($item->price * $item->quantity, 2) }} ₺</p>
+                                                            <p class="ml-4 font-bold text-red-600 whitespace-nowrap">{{ number_format($item->price * $item->quantity, 2) }} ₺</p>
                                                         </div>
                                                         @if($item->variant)
                                                             <p class="mt-1 text-sm text-gray-500 bg-gray-100 inline-block px-2 py-0.5 rounded-md">Beden: <span class="font-medium">{{ $item->variant->size }}</span></p>
@@ -116,7 +116,7 @@
                             <div class="border-t border-gray-100 bg-gray-50 px-6 py-6 sm:px-8 rounded-bl-[2rem] pb-10 md:pb-6">
                                 <div class="flex justify-between text-lg font-bold text-gray-900 mb-2">
                                     <p>Ara Toplam</p>
-                                    <p>{{ number_format($total, 2) }} ₺</p>
+                                    <p class="text-red-600 whitespace-nowrap">{{ number_format($total, 2) }} ₺</p>
                                 </div>
                                 <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
                                     <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
