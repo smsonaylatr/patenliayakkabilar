@@ -4,7 +4,7 @@
     <x-slot:ogType>article</x-slot:ogType>
     <x-slot:canonical>{{ url('/blog/' . $post->slug) }}</x-slot:canonical>
     @if($post->image_path)
-        <x-slot:ogImage>{{ asset('storage/' . $post->image_path) }}</x-slot:ogImage>
+        <x-slot:ogImage>{{ Storage::disk('public')->url($post->image_path) }}</x-slot:ogImage>
     @endif
     @if(isset($post->is_indexable) && !$post->is_indexable)
         <x-slot:robots>noindex, follow</x-slot:robots>
@@ -15,27 +15,52 @@
         @endif
     </x-slot:schema>
 
+    <style>
+        .blog-content { font-size: 17px; line-height: 1.8; color: #374151; }
+        .blog-content h1 { font-size: 2rem; font-weight: 800; color: #111827; margin: 2.5rem 0 1rem; line-height: 1.3; }
+        .blog-content h2 { font-size: 1.6rem; font-weight: 800; color: #111827; margin: 2.5rem 0 0.8rem; padding-bottom: 0.6rem; border-bottom: 2px solid #f3f4f6; line-height: 1.3; }
+        .blog-content h3 { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 2rem 0 0.6rem; line-height: 1.4; }
+        .blog-content h4 { font-size: 1.1rem; font-weight: 700; color: #1f2937; margin: 1.5rem 0 0.5rem; }
+        .blog-content p { margin: 0 0 1.2rem; }
+        .blog-content a { color: #2563eb; font-weight: 500; text-decoration: none; }
+        .blog-content a:hover { text-decoration: underline; }
+        .blog-content strong, .blog-content b { color: #111827; font-weight: 700; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0 1.5rem 1.5rem; }
+        .blog-content ul { list-style-type: disc; }
+        .blog-content ol { list-style-type: decimal; }
+        .blog-content li { margin-bottom: 0.4rem; line-height: 1.7; }
+        .blog-content blockquote { margin: 1.5rem 0; padding: 1rem 1.5rem; border-left: 4px solid #3b82f6; background: #eff6ff; border-radius: 0 12px 12px 0; color: #1e40af; font-style: normal; }
+        .blog-content img { max-width: 100%; height: auto; border-radius: 16px; margin: 1.5rem 0; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .blog-content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
+        .blog-content pre { background: #1f2937; color: #e5e7eb; padding: 1.2rem; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; }
+        .blog-content pre code { background: none; padding: 0; color: inherit; }
+        .blog-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .blog-content th, .blog-content td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
+        .blog-content th { background: #f9fafb; font-weight: 700; color: #111827; }
+        .blog-content hr { border: none; border-top: 2px solid #f3f4f6; margin: 2rem 0; }
+    </style>
+
     {{-- Hero kapak görseli --}}
     @if($post->image_path)
-        <div class="relative w-full bg-gray-900" style="max-height: 480px; overflow: hidden;">
-            <img src="{{ asset('storage/' . $post->image_path) }}" 
+        <div class="relative w-full overflow-hidden" style="max-height: 500px; background: #111827;">
+            <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
                  alt="{{ $post->title }}" 
-                 class="w-full h-full object-cover opacity-40"
-                 style="max-height: 480px;"
+                 class="w-full object-cover"
+                 style="max-height: 500px; opacity: 0.35;"
                  fetchpriority="high">
-            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-8 sm:p-12">
-                <div class="max-w-3xl mx-auto">
-                    <div class="flex items-center gap-3 text-white/70 text-sm mb-4">
+            <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.4) 50%, transparent 100%);"></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:2rem 1rem 2.5rem;">
+                <div style="max-width:720px;margin:0 auto;">
+                    <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:12px;">
                         <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}">
                             {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
                         </time>
                         @if($post->author_name)
-                            <span class="w-1 h-1 bg-white/50 rounded-full"></span>
+                            <span style="width:4px;height:4px;background:rgba(255,255,255,0.4);border-radius:50%;display:inline-block;"></span>
                             <span>{{ $post->author_name }}</span>
                         @endif
                     </div>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    <h1 style="font-size:2.2rem;font-weight:800;color:#fff;line-height:1.25;margin:0;">
                         {{ $post->title }}
                     </h1>
                 </div>
@@ -43,11 +68,11 @@
         </div>
     @endif
 
-    <div class="bg-white">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div style="background:#fff;min-height:60vh;">
+        <div style="max-width:720px;margin:0 auto;padding:2.5rem 1rem 4rem;">
 
             {{-- Breadcrumb --}}
-            <div class="mb-8">
+            <div style="margin-bottom:2rem;">
                 <x-breadcrumb :items="[
                     ['name' => 'Ana Sayfa', 'url' => route('home')],
                     ['name' => 'Rehber Merkezi', 'url' => route('blog.index')],
@@ -55,53 +80,41 @@
                 ]" />
             </div>
 
-            {{-- Kapak görseli yoksa başlığı burada göster --}}
+            {{-- Kapak görseli yoksa başlık burada --}}
             @if(!$post->image_path)
-                <div class="mb-8">
-                    <div class="flex items-center gap-3 text-gray-500 text-sm mb-4">
+                <div style="margin-bottom:2rem;">
+                    <div style="display:flex;align-items:center;gap:10px;color:#6b7280;font-size:14px;margin-bottom:12px;">
                         <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}">
                             {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
                         </time>
                         @if($post->author_name)
-                            <span class="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            <span style="width:4px;height:4px;background:#9ca3af;border-radius:50%;display:inline-block;"></span>
                             <span>{{ $post->author_name }}</span>
                         @endif
                     </div>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                    <h1 style="font-size:2.2rem;font-weight:800;color:#111827;line-height:1.25;margin:0;">
                         {{ $post->title }}
                     </h1>
                 </div>
             @endif
 
             {{-- İçerik --}}
-            <article class="
-                prose prose-lg prose-gray max-w-none
-                prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-gray-900
-                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-100
-                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                prose-p:text-gray-600 prose-p:leading-relaxed prose-p:text-[17px]
-                prose-li:text-gray-600 prose-li:text-[17px] prose-li:leading-relaxed
-                prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-gray-900 prose-strong:font-bold
-                prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-gray-700
-                prose-img:rounded-2xl prose-img:shadow-md
-                prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono
-                prose-ul:space-y-1 prose-ol:space-y-1
-            ">
+            <article class="blog-content">
                 {!! $post->content !!}
             </article>
 
-            {{-- Alt bilgi çizgisi --}}
-            <div class="mt-14 pt-8 border-t border-gray-100">
+            {{-- Alt bilgi --}}
+            <div style="margin-top:3.5rem;padding-top:2rem;border-top:2px solid #f3f4f6;">
+                
                 {{-- Yazar kartı --}}
                 @if($post->author_name)
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:2rem;">
+                        <div style="width:48px;height:48px;background:linear-gradient(135deg,#1f2937,#4b5563);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;">
                             {{ mb_substr($post->author_name, 0, 1) }}
                         </div>
                         <div>
-                            <p class="font-bold text-gray-900">{{ $post->author_name }}</p>
-                            <p class="text-sm text-gray-500">
+                            <p style="font-weight:700;color:#111827;margin:0;">{{ $post->author_name }}</p>
+                            <p style="font-size:14px;color:#6b7280;margin:4px 0 0;">
                                 {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }} tarihinde yayınlandı
                             </p>
                         </div>
@@ -109,14 +122,14 @@
                 @endif
 
                 {{-- CTA --}}
-                <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 sm:p-10 text-center">
-                    <div class="text-3xl mb-3">👟</div>
-                    <h3 class="text-xl font-bold text-white mb-2">Patenli ayakkabı modellerini keşfedin</h3>
-                    <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto">En popüler patenli ayakkabı modellerini incelemek ve fiyatları görmek için ürünlerimize göz atın.</p>
+                <div style="background:linear-gradient(135deg,#111827,#1f2937);border-radius:16px;padding:2.5rem;text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;">👟</div>
+                    <h3 style="font-size:1.25rem;font-weight:700;color:#fff;margin:0 0 0.5rem;">Patenli ayakkabı modellerini keşfedin</h3>
+                    <p style="color:#9ca3af;font-size:14px;margin:0 auto 1.5rem;max-width:400px;">En popüler patenli ayakkabı modellerini incelemek ve fiyatları görmek için ürünlerimize göz atın.</p>
                     <a href="{{ route('products.index') }}" wire:navigate 
-                       class="inline-flex items-center gap-2 px-7 py-3 bg-white text-gray-900 font-bold text-sm rounded-full hover:bg-gray-100 transition-colors">
+                       style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:#fff;color:#111827;font-weight:700;font-size:14px;border-radius:999px;text-decoration:none;transition:background 0.2s;">
                         Ürünleri İncele
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 </div>
             </div>
@@ -130,27 +143,27 @@
                     ->get();
             @endphp
             @if($relatedPosts->count())
-                <div class="mt-14">
-                    <h2 class="text-2xl font-extrabold text-gray-900 mb-6">Diğer Yazılar</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div style="margin-top:3.5rem;">
+                    <h2 style="font-size:1.5rem;font-weight:800;color:#111827;margin:0 0 1.5rem;">Diğer Yazılar</h2>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:1.2rem;">
                         @foreach($relatedPosts as $related)
                             <a href="{{ url('/blog/' . $related->slug) }}" wire:navigate 
-                               class="group block bg-gray-50 rounded-2xl overflow-hidden hover:shadow-md transition-all duration-300">
+                               style="display:block;background:#f9fafb;border-radius:16px;overflow:hidden;text-decoration:none;transition:box-shadow 0.3s;">
                                 @if($related->image_path)
-                                    <div class="aspect-video overflow-hidden">
-                                        <img src="{{ asset('storage/' . $related->image_path) }}" 
+                                    <div style="aspect-ratio:16/9;overflow:hidden;">
+                                        <img src="{{ Storage::disk('public')->url($related->image_path) }}" 
                                              alt="{{ $related->title }}"
-                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                             style="width:100%;height:100%;object-fit:cover;"
                                              loading="lazy">
                                     </div>
                                 @else
-                                    <div class="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                                    <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#e5e7eb,#d1d5db);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="32" height="32" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
                                     </div>
                                 @endif
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500 mb-1">{{ ($related->published_at ?? $related->created_at)->translatedFormat('d M Y') }}</p>
-                                    <h3 class="font-bold text-gray-900 text-sm leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                                <div style="padding:12px 14px;">
+                                    <p style="font-size:12px;color:#6b7280;margin:0 0 4px;">{{ ($related->published_at ?? $related->created_at)->translatedFormat('d M Y') }}</p>
+                                    <h3 style="font-weight:700;color:#111827;font-size:14px;line-height:1.4;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
                                         {{ $related->title }}
                                     </h3>
                                 </div>
