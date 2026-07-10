@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
+    protected static ?string $modelLabel = 'Kurumsal Sayfa';
+    protected static ?string $pluralModelLabel = 'Kurumsal Sayfalar';
 
     public static function getNavigationIcon(): ?string
     {

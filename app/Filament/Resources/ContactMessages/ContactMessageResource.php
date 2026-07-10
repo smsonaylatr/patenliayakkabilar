@@ -19,6 +19,8 @@ use Filament\Tables\Table;
 class ContactMessageResource extends Resource
 {
     protected static ?string $model = ContactMessage::class;
+    protected static ?string $modelLabel = 'Gelen Mesaj';
+    protected static ?string $pluralModelLabel = 'Gelen Mesajlar';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
     

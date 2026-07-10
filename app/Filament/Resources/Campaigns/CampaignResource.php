@@ -17,6 +17,8 @@ use Filament\Tables\Table;
 class CampaignResource extends Resource
 {
     protected static ?string $model = Campaign::class;
+    protected static ?string $modelLabel = 'Kampanya';
+    protected static ?string $pluralModelLabel = 'Kampanyalar';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
