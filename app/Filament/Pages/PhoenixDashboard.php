@@ -12,7 +12,7 @@ use Filament\Actions\Action;
 class PhoenixDashboard extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-sparkles';
-    protected static string|\UnitEnum|null $navigationGroup = 'Müşteri İstihbaratı';
+    protected static string|\UnitEnum|null $navigationGroup = 'Müşteriler';
     protected static ?string $navigationLabel = 'Phoenix AI (Beta)';
     protected static ?string $title = 'Phoenix AI Marketing Assistant';
     protected static ?string $slug = 'phoenix-ai';
