@@ -300,3 +300,97 @@ Route::get('/deploy-fix-storage', function () {
          . '<br><a href="/deploy-helper" style="color:#0d9488;">← Teşhis sayfasına dön</a>'
          . '</body></html>';
 })->middleware('auth');
+
+// Sayfaları canlı sunucuda oluşturmak için
+Route::get('/deploy-add-pages', function () {
+    $bedenRehberi = '<div class="space-y-6 text-gray-700 leading-relaxed">
+    <h2>Doğru Bedeni Seçmek Neden Önemli?</h2>
+    <p>Patenli ayakkabılarda doğru bedeni seçmek, hem çocuğunuzun ayak sağlığı hem de sürüş güvenliği açısından büyük önem taşır. Ayakkabının çok bol veya çok dar olması, denge kaybına ve rahatsızlığa neden olabilir.</p>
+
+    <h3>Ayak Ölçümü Nasıl Yapılır?</h3>
+    <ol class="list-decimal pl-5 space-y-2">
+        <li>Çocuğunuzun topuğunu düz bir duvara dayayarak temiz bir kağıdın üzerine bastırın.</li>
+        <li>En uzun parmağının ucunu kağıt üzerinde işaretleyin.</li>
+        <li>Duvar ile işaretlediğiniz nokta arasındaki mesafeyi bir cetvel yardımıyla ölçün (cm cinsinden).</li>
+    </ol>
+
+    <div class="bg-blue-50 p-4 rounded-lg my-6 border border-blue-100">
+        <strong>💡 Önemli İpucu:</strong> Patenli ayakkabılarda kalın çorap kullanımı ve ayak şişme payı göz önüne alınarak, ölçtüğünüz ayak uzunluğuna <strong>0.5 cm - 1 cm ekleyerek</strong> beden seçimi yapmanızı tavsiye ederiz. Genellikle normal spor ayakkabı numarasından <strong>1 numara büyük</strong> tercih edilmesi önerilir.
+    </div>
+
+    <h3>Örnek Beden Tablosu</h3>
+    <div class="overflow-x-auto my-4">
+        <table class="min-w-full bg-white border border-gray-200 text-sm">
+            <thead>
+                <tr class="bg-gray-50">
+                    <th class="py-3 px-4 border-b text-left font-semibold text-gray-600">Ayak Uzunluğu (cm)</th>
+                    <th class="py-3 px-4 border-b text-left font-semibold text-gray-600">Önerilen Beden (EU)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="py-2 px-4 border-b">17.5 cm - 18.0 cm</td><td class="py-2 px-4 border-b">28</td></tr>
+                <tr><td class="py-2 px-4 border-b">18.1 cm - 18.7 cm</td><td class="py-2 px-4 border-b">29</td></tr>
+                <tr><td class="py-2 px-4 border-b">18.8 cm - 19.3 cm</td><td class="py-2 px-4 border-b">30</td></tr>
+                <tr><td class="py-2 px-4 border-b">19.4 cm - 20.0 cm</td><td class="py-2 px-4 border-b">31</td></tr>
+                <tr><td class="py-2 px-4 border-b">20.1 cm - 20.6 cm</td><td class="py-2 px-4 border-b">32</td></tr>
+                <tr><td class="py-2 px-4 border-b">20.7 cm - 21.3 cm</td><td class="py-2 px-4 border-b">33</td></tr>
+                <tr><td class="py-2 px-4 border-b">21.4 cm - 22.0 cm</td><td class="py-2 px-4 border-b">34</td></tr>
+                <tr><td class="py-2 px-4 border-b">22.1 cm - 22.6 cm</td><td class="py-2 px-4 border-b">35</td></tr>
+                <tr><td class="py-2 px-4 border-b">22.7 cm - 23.3 cm</td><td class="py-2 px-4 border-b">36</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>';
+
+    $guvenlikEkipmanlari = '<div class="space-y-6 text-gray-700 leading-relaxed">
+    <h2>Güvenli Bir Sürüş İçin Olmazsa Olmazlar</h2>
+    <p>Patenli ayakkabı kullanırken, özellikle öğrenme aşamasında çocukların düşmesi veya dengelerini kaybetmesi son derece doğaldır. Olası yaralanmaların önüne geçmek ve çocukların korkmadan eğlenebilmesini sağlamak için doğru güvenlik ekipmanlarının kullanılması şarttır.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-teal-600 mb-2">🛡️ Kask</h3>
+            <p class="text-sm">En kritik koruyucu ekipmandır. Düşme anında baş bölgesini darbelere karşı korur. Kaskın çocuğun kafasına tam oturduğundan ve çene altı kayışının sıkıca bağlandığından emin olun.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-teal-600 mb-2">🧤 Bileklik (Avuç İçi Koruyucu)</h3>
+            <p class="text-sm">Düşerken refleks olarak ilk ellerimizi yere koyarız. Bileklikler, bilek burkulmalarını ve avuç içi yaralanmalarını önleyen sert plastik desteklere sahiptir.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-teal-600 mb-2">🦵 Dizlik</h3>
+            <p class="text-sm">Diz kapakları düşmelerde en çok darbe alan bölgelerden biridir. Sünger destekli ve sert plastik dış yüzeyli dizlikler, dizleri sürtünme ve çarpmalardan korur.</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-teal-600 mb-2">💪 Dirseklik</h3>
+            <p class="text-sm">Denge kaybında geriye veya yana düşmelerde dirsekler zarar görebilir. Dirseklikler, hareket kabiliyetini kısıtlamadan eklem bölgesini güvende tutar.</p>
+        </div>
+    </div>
+
+    <h3>Ekipman Seçiminde Dikkat Edilmesi Gerekenler</h3>
+    <ul class="list-disc pl-5 space-y-2">
+        <li><strong>Beden Uyumu:</strong> Koruyucular vücudu çok sıkmamalı ama aynı zamanda kayıp düşmeyecek kadar tam oturmalıdır.</li>
+        <li><strong>CE Sertifikası:</strong> Ürünlerin Avrupa güvenlik standartlarına (CE) uygun olduğunu kontrol edin.</li>
+        <li><strong>Havalandırma:</strong> Terlemeyi önlemek için hava alabilen malzemeden üretilmiş koruyucuları tercih edin.</li>
+    </ul>
+
+    <div class="bg-red-50 text-red-700 p-4 rounded-lg my-6 border border-red-100">
+        <strong>Uyarı:</strong> Çocuklar patenli ayakkabılarını sürüş modunda (tekerlekleri açıkken) mutlaka düz, güvenli ve trafiğe kapalı alanlarda, yetişkin gözetiminde kullanmalıdır.
+    </div>
+</div>';
+
+    \App\Models\Page::firstOrCreate(
+        ['slug' => 'beden-rehberi'],
+        ['title' => 'Patenli Ayakkabı Beden Rehberi', 'content' => $bedenRehberi, 'is_active' => true]
+    );
+
+    \App\Models\Page::firstOrCreate(
+        ['slug' => 'guvenlik-ekipmanlari'],
+        ['title' => 'Patenli Ayakkabı Güvenlik Ekipmanları', 'content' => $guvenlikEkipmanlari, 'is_active' => true]
+    );
+
+    return '<html><head><title>Sayfalar Eklendi</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;">'
+         . '<h1 style="color:#0d9488;">✅ Sayfalar Veritabanına Eklendi!</h1>'
+         . '<p>Artık admin panelinden "Kurumsal Sayfalar" sekmesine girip kontrol edebilirsiniz.</p>'
+         . '<br><a href="/admin/pages" style="color:#0d9488;font-size:16px;">👉 Admin Panele Git</a>'
+         . '</body></html>';
+})->middleware('auth');
+
