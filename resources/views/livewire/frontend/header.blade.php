@@ -116,7 +116,7 @@
              class="absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-lg md:hidden"
              style="display: none;">
             <div class="px-4 pt-2 pb-6 space-y-1">
-                <a href="{{ route('home') }}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Ana Sayfa</a>
+                <a href="{{ route('home') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Ana Sayfa</a>
                 
                 <!-- Mobile Catalog Dropdown -->
                 <div x-data="{ open: false }" class="space-y-1">
@@ -129,14 +129,14 @@
                          x-transition:enter-start="opacity-0 -translate-y-2"
                          x-transition:enter-end="opacity-100 translate-y-0">
                         @foreach($categories as $category)
-                            <a href="{{ route('products.index') }}?category={{ $category->slug }}" class="block px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>- {{ $category->name }}</a>
+                            <a href="{{ route('products.index') }}?category={{ $category->slug }}" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>- {{ $category->name }}</a>
                         @endforeach
                     </div>
                 </div>
 
-                <a href="{{ route('order.tracking') }}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Sipariş Takip</a>
-                <a href="{{ route('contact') }}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>İletişim</a>
-                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Hesabım</a>
+                <a href="{{ route('order.tracking') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Sipariş Takip</a>
+                <a href="{{ route('contact') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>İletişim</a>
+                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Hesabım</a>
             </div>
         </div>
     </header>
