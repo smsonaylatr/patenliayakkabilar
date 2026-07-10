@@ -1,42 +1,54 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="tr" dir="ltr">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
         
-        <title>{{ $title ?? 'Patenli Ayakkabılar | Eğlence Bir Adım Uzağında' }}</title>
-        <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Ücretsiz kargo ve kapıda ödeme fırsatıyla.' }}">
-        <meta name="robots" content="index, follow">
+        <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}</title>
+        <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
+        <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+
+        <!-- Locale -->
+        <meta property="og:locale" content="tr_TR">
+        <meta property="og:site_name" content="Patenli Ayakkabılar">
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
         <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar | Eğlence Bir Adım Uzağında' }}">
-        <meta property="og:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Ücretsiz kargo ve kapıda ödeme fırsatıyla.' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('images/og-image.jpg') }}">
+        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}">
+        <meta property="og:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('favicon.png') }}">
 
         <!-- Twitter -->
-        <meta property="twitter:card" content="summary_large_image">
-        <meta property="twitter:url" content="{{ url()->current() }}">
-        <meta property="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar | Eğlence Bir Adım Uzağında' }}">
-        <meta property="twitter:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Ücretsiz kargo ve kapıda ödeme fırsatıyla.' }}">
-        <meta property="twitter:image" content="{{ $ogImage ?? asset('images/og-image.jpg') }}">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:url" content="{{ url()->current() }}">
+        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}">
+        <meta name="twitter:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
+        <meta name="twitter:image" content="{{ $ogImage ?? asset('favicon.png') }}">
 
         <!-- Structured Data -->
         @if(isset($schema))
             {!! $schema !!}
+        @endif
+        {{-- Global Organization + WebSite schema (tüm sayfalarda) --}}
+        @if(app()->bound(\App\Services\SchemaService::class))
+            {!! app(\App\Services\SchemaService::class)->organization() !!}
+            {!! app(\App\Services\SchemaService::class)->website() !!}
         @else
             <script type="application/ld+json">
-            {
-              "@@context": "https://schema.org",
-              "@@type": "Store",
-              "name": "Patenli Ayakkabılar",
-              "url": "{{ url('/') }}",
-              "logo": "{{ asset('images/logo.png') }}"
-            }
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'Organization',
+                'name' => 'Patenli Ayakkabılar',
+                'url' => url('/'),
+                'logo' => asset('favicon.png'),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
             </script>
         @endif
+
+        <!-- Analytics -->
+        <x-analytics />
 
         <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,10 +125,10 @@
                         <div>
                             <h4 class="text-lg font-bold mb-4">Hızlı Menü</h4>
                             <ul class="space-y-2 text-sm text-gray-400">
-                                <li><a href="#" class="hover:text-brand-orange transition-colors">Ana Sayfa</a></li>
-                                <li><a href="#" class="hover:text-brand-orange transition-colors">Çok Satanlar</a></li>
-                                <li><a href="#" class="hover:text-brand-orange transition-colors">Sipariş Takip</a></li>
-                                <li><a href="#" class="hover:text-brand-orange transition-colors">İletişim</a></li>
+                                <li><a href="{{ route('home') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Ana Sayfa</a></li>
+                                <li><a href="{{ route('products.index') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Tüm Ürünler</a></li>
+                                <li><a href="{{ route('order.tracking') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Sipariş Takip</a></li>
+                                <li><a href="{{ route('contact') }}" class="hover:text-brand-orange transition-colors" wire:navigate>İletişim</a></li>
                             </ul>
                         </div>
 

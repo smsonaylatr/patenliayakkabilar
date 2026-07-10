@@ -1,4 +1,8 @@
 <x-layouts.app>
+    <x-slot:title>Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları</x-slot:title>
+    <x-slot:description>Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.</x-slot:description>
+    <x-slot:canonical>{{ url('/') }}</x-slot:canonical>
+
     @include('livewire.home.hero-section')
     
 
