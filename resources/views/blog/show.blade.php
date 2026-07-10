@@ -101,9 +101,14 @@
                 ]" />
             </div>
 
-            {{-- İçerik --}}
+            {{-- İçerik (ilk başlık hero'da gösterildiği için kaldırılır) --}}
             <article class="blog-content">
-                {!! $post->content !!}
+                @php
+                    $content = $post->content;
+                    // İçerikteki ilk h1 veya h2'yi kaldır (hero'da zaten gösteriliyor)
+                    $content = preg_replace('/^\s*<h[12][^>]*>.*?<\/h[12]>\s*/is', '', $content, 1);
+                @endphp
+                {!! $content !!}
             </article>
 
             {{-- Alt bilgi --}}
