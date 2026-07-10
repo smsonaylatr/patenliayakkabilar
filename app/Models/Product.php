@@ -48,19 +48,27 @@ class Product extends Model
                 $product->discount_price = $temp;
             }
         });
-
-        // Ürün değiştiğinde anasayfa cache'ini temizle
         static::created(function () {
-            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+            static::clearProductCaches();
         });
 
         static::updated(function () {
-            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+            static::clearProductCaches();
         });
 
         static::deleted(function () {
-            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+            static::clearProductCaches();
         });
+    }
+
+    public static function clearProductCaches()
+    {
+        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+        
+        $categories = \App\Models\Category::pluck('slug');
+        foreach ($categories as $slug) {
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug);
+        }
     }
 
     /**
