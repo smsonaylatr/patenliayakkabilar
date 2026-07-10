@@ -103,27 +103,45 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     <!-- Right: 3D floating product cards -->
     <div class="hero-3d-stage" id="hero-3d-stage"
       :style="`transform: translate(${mx * 12}px, ${my * 8}px); transition: transform ${mx === 0 ? '0.8s ease' : '0.15s ease'}`">
-      <!-- Main big card -->
+      
+      <!-- Floating card bottom-left (White/Grayish) -->
+      <div class="card-3d card-sm card-float-2">
+        <div class="card-bg" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); position: absolute; inset: 0;"></div>
+        <img src="{{ $subProduct2 && $subProduct2->images->first() ? $subProduct2->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80' }}" alt="{{ $subProduct2->name ?? 'New Balance' }}" style="position:relative; z-index:1; transform: scale(1.1) translateY(-10px);" />
+        <div class="card-3d-overlay" style="z-index: 2;">
+          <div class="card-3d-brand" style="color: #3b82f6;">{{ strtoupper($subProduct2->brand ?? 'NEW BALANCE') }}</div>
+          <div class="card-3d-name" style="color: #0f172a;">{{ mb_strimwidth($subProduct2->name ?? '990v5', 0, 25, '...') }}</div>
+        </div>
+      </div>
+
+      <!-- Main big card (Red Gradient) -->
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
-        <img src="{{ $mainProduct && $mainProduct->images->first() ? $mainProduct->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90' }}" alt="{{ $mainProduct->name ?? 'Nike Air Max' }}" />
+        <div class="card-bg" style="background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); position: absolute; inset: 0;"></div>
+        <img src="{{ $mainProduct && $mainProduct->images->first() ? $mainProduct->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90' }}" alt="{{ $mainProduct->name ?? 'Nike Air Max' }}" style="position:relative; z-index:1; transform: scale(1.2) translateY(-10px) translateX(20px);" />
+        <div class="card-3d-overlay" style="z-index: 2; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);">
+          <div class="card-3d-brand">{{ strtoupper($mainProduct->brand ?? 'NIKE') }}</div>
+          <div class="card-3d-name">{{ $mainProduct->name ?? 'Air Max Vision' }}</div>
+          <div class="card-3d-price">₺{{ number_format($mainProduct->price ?? 2199, 2) }}</div>
+        </div>
+        <!-- YENİ Badge attached to the main card -->
+        <div class="badge-new-attached" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.5); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; z-index: 3; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+          YENİ
+        </div>
       </div>
 
-      <!-- Floating card top-right -->
+      <!-- Floating card top-right (Green Gradient) -->
       <div class="card-3d card-sm card-float-1">
-        <img src="{{ $subProduct1 && $subProduct1->images->first() ? $subProduct1->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80' }}" alt="{{ $subProduct1->name ?? 'Adidas' }}" />
+        <div class="card-bg" style="background: linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%); position: absolute; inset: 0;"></div>
+        <img src="{{ $subProduct1 && $subProduct1->images->first() ? $subProduct1->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80' }}" alt="{{ $subProduct1->name ?? 'Adidas' }}" style="position:relative; z-index:1; transform: scale(1.1) translateY(-5px);" />
+        <div class="card-3d-overlay" style="z-index: 2; padding-bottom: 12px; background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);">
+          <div class="card-3d-brand" style="color: #fbbf24;">{{ strtoupper($subProduct1->brand ?? 'ADIDAS') }}</div>
+          <div class="card-3d-name" style="font-size: 0.85rem;">{{ mb_strimwidth($subProduct1->name ?? 'Ultraboost 22', 0, 20, '...') }}</div>
+        </div>
       </div>
 
-      <!-- Floating card bottom-left -->
-      <div class="card-3d card-sm card-float-2">
-        <img src="{{ $subProduct2 && $subProduct2->images->first() ? $subProduct2->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80' }}" alt="{{ $subProduct2->name ?? 'New Balance' }}" />
-      </div>
-
-      <!-- Rating badge floating -->
+      <!-- Rating badge floating upper-left -->
       <div class="badge-float badge-rating">⭐ 4.9 / 5.0</div>
-
-      <!-- New badge floating -->
-      <div class="badge-float badge-new">YENİ</div>
 
       <!-- Ambient glow under cards -->
       <div class="stage-glow"></div>
@@ -480,15 +498,15 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .card-main {
-      width: 380px;
-      max-width: 380px;
-      height: 300px;
+      width: 440px;
+      max-width: 90vw;
+      height: 280px;
       top: 65%;
-      left: 70%;
+      left: 60%;
       transform: perspective(1000px) translateX(-50%) translateY(-50%);
       animation: float-main 7s ease-in-out infinite;
       transition: transform 0.1s ease;
-      background: #ffffff;
+      background: transparent;
     }
     
     @keyframes float-main {
@@ -497,20 +515,22 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .card-sm {
-      width: 200px;
-      height: 150px;
-      background: #ffffff;
+      background: transparent;
     }
 
     .card-float-1 {
-      top: 5%;
-      right: 5%;
+      width: 220px;
+      height: 180px;
+      top: 10%;
+      right: -5%;
       animation: float 9s ease-in-out infinite reverse;
     }
 
     .card-float-2 {
-      bottom: 15%;
-      left: 5%;
+      width: 220px;
+      height: 160px;
+      top: 60%;
+      left: 0%;
       animation: float 11s ease-in-out infinite 1s;
     }
 
@@ -528,21 +548,12 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .badge-rating {
-      top: 30%;
-      left: 15%;
-      background: rgba(15, 23, 42, 0.6);
-      color: #ffffff;
+      top: 20%;
+      left: 5%;
+      background: rgba(15, 23, 42, 0.8);
+      color: #fbbf24; /* Star and text color like the ref */
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: float 6s ease-in-out infinite 0.5s;
-    }
-
-    .badge-new {
-      bottom: 30%;
-      right: 2%;
-      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-      border: none;
-      color: #ffffff;
-      animation: float 8s ease-in-out infinite reverse 1s;
     }
 
     .stage-glow {
