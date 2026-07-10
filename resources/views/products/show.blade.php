@@ -1,29 +1,36 @@
 {{-- Product Detail Page --}}
 <x-layouts.app>
-    <x-slot:title>{{ $product->meta_title ?? $product->name . ' - Patenli Ayakkabılar' }}</x-slot:title>
+    <x-slot:title>{{ $product->meta_title ?? $product->name . ' | Patenli Ayakkabılar' }}</x-slot:title>
     <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
-    <x-slot:ogImage>{{ $product->images->first()?->image_url ?? asset('images/og-image.jpg') }}</x-slot:ogImage>
+    <x-slot:ogType>product</x-slot:ogType>
+    <x-slot:ogImage>{{ $product->images->first()?->image_url ?? asset('favicon.png') }}</x-slot:ogImage>
+    <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
+    @if(isset($product->is_indexable) && !$product->is_indexable)
+        <x-slot:robots>noindex, follow</x-slot:robots>
+    @endif
     <x-slot:schema>
-        <script type="application/ld+json">
-        {
-          "@@context": "https://schema.org/",
-          "@@type": "Product",
-          "name": "{{ $product->name }}",
-          "image": [
-            "{{ $product->images->first()?->image_url ?? asset('images/og-image.jpg') }}"
-           ],
-          "description": "{{ Str::limit(strip_tags($product->short_description), 200) }}",
-          "sku": "{{ $product->sku ?? $product->id }}",
-          "offers": {
-            "@@type": "Offer",
-            "url": "{{ url()->current() }}",
-            "priceCurrency": "TRY",
-            "price": "{{ ($product->discount_price && $product->price && $product->discount_price > $product->price) ? $product->price : ($product->discount_price ?? $product->price) }}",
-            "itemCondition": "https://schema.org/NewCondition",
-            "availability": "https://schema.org/{{ $product->stock > 0 ? 'InStock' : 'OutOfStock' }}"
-          }
-        }
-        </script>
+        @if(app()->bound(\App\Services\SchemaService::class))
+            {!! app(\App\Services\SchemaService::class)->product($product) !!}
+        @else
+            <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org/',
+                '@type' => 'Product',
+                'name' => $product->name,
+                'image' => [$product->images->first()?->image_url ?? asset('favicon.png')],
+                'description' => Str::limit(strip_tags($product->short_description), 200),
+                'sku' => $product->sku ?? (string)$product->id,
+                'offers' => [
+                    '@type' => 'Offer',
+                    'url' => url()->current(),
+                    'priceCurrency' => 'TRY',
+                    'price' => number_format((float)($product->discount_price ?? $product->price), 2, '.', ''),
+                    'itemCondition' => 'https://schema.org/NewCondition',
+                    'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                ],
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+            </script>
+        @endif
     </x-slot:schema>
 
     <style>
@@ -41,6 +48,15 @@
 
     <div class="pt-16 pb-10 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Breadcrumb --}}
+            <div class="mb-6">
+                <x-breadcrumb :items="[
+                    ['name' => 'Ana Sayfa', 'url' => route('home')],
+                    ['name' => 'Patenli Ayakkabılar', 'url' => route('products.index')],
+                    ...($product->category ? [['name' => $product->category->name, 'url' => url('/kategori/' . $product->category->slug)]] : []),
+                    ['name' => $product->name],
+                ]" />
+            </div>
             <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
                 <!-- Image gallery -->
                 <livewire:product.product-gallery :product="$product" />
