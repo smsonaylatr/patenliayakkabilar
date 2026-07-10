@@ -52,7 +52,7 @@
         @else
             {{-- Görselsiz dekoratif arka plan --}}
             <div style="position:absolute;inset:0;background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0d9488 100%);"></div>
-            <div style="position:absolute;inset:0;opacity:0.07;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><circle cx=%2230%22 cy=%2230%22 r=%222%22 fill=%22white%22/></svg>');background-size:60px 60px;"></div>
+            <div style="position:absolute;inset:0;opacity:0.08;background-image:radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px);background-size:30px 30px;"></div>
             <div style="position:absolute;top:50%;right:-60px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,0.08);transform:translateY(-50%);"></div>
             <div style="position:absolute;top:50%;right:40px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.06);transform:translateY(-50%);"></div>
         @endif
