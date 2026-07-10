@@ -276,6 +276,24 @@ class ProductForm
                                     ->helperText('İdeal: 120-155 karakter. Fiyat, özellik ve CTA içermeli.')
                                     ->default(null)
                                     ->columnSpanFull(),
+
+                                TextInput::make('canonical_url')
+                                    ->label('Canonical URL')
+                                    ->placeholder('Varsayılan: /urun/{slug}')
+                                    ->helperText('Farklı bir URL\'de canonical göstermek istiyorsanız doldurun.')
+                                    ->url()
+                                    ->columnSpanFull(),
+
+                                FileUpload::make('og_image')
+                                    ->label('Paylaşım Görseli (OG Image)')
+                                    ->image()
+                                    ->directory('products/og')
+                                    ->helperText('Sosyal medya paylaşımında kullanılır. Boşsa ilk ürün görseli kullanılır.'),
+
+                                Toggle::make('is_indexable')
+                                    ->label('Arama motorlarında indekslensin')
+                                    ->default(true)
+                                    ->helperText('Kapatırsanız bu ürün Google\'da görünmez.'),
                             ])
                             ->columns(2),
 

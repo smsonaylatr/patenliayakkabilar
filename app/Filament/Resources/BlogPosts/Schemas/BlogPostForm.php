@@ -2,11 +2,16 @@
 
 namespace App\Filament\Resources\BlogPosts\Schemas;
 
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class BlogPostForm
 {
@@ -14,25 +19,78 @@ class BlogPostForm
     {
         return $schema
             ->components([
-                TextInput::make('title')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Textarea::make('excerpt')
-                    ->default(null)
-                    ->columnSpanFull(),
-                Textarea::make('content')
-                    ->required()
-                    ->columnSpanFull(),
-                FileUpload::make('image_path')
-                    ->image(),
-                TextInput::make('meta_title')
-                    ->default(null),
-                Textarea::make('meta_description')
-                    ->default(null)
-                    ->columnSpanFull(),
-                Toggle::make('status')
-                    ->required(),
+                Tabs::make('Blog Yazısı')
+                    ->tabs([
+                        Tabs\Tab::make('İçerik')
+                            ->icon('heroicon-o-document-text')
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label('Başlık')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (string $operation, $state, \Filament\Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                                TextInput::make('slug')
+                                    ->label('URL (Slug)')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique(ignoreRecord: true),
+                                Textarea::make('excerpt')
+                                    ->label('Özet')
+                                    ->hint('Kısa özet - listede görünür')
+                                    ->maxLength(500)
+                                    ->default(null)
+                                    ->columnSpanFull(),
+                                RichEditor::make('content')
+                                    ->label('İçerik')
+                                    ->required()
+                                    ->columnSpanFull()
+                                    ->toolbarButtons([
+                                        'bold', 'italic', 'underline', 'link',
+                                        'h2', 'h3', 'bulletList', 'orderedList',
+                                        'blockquote', 'codeBlock',
+                                    ]),
+                                FileUpload::make('image_path')
+                                    ->label('Kapak Görseli')
+                                    ->image()
+                                    ->directory('blog'),
+                                TextInput::make('author_name')
+                                    ->label('Yazar Adı')
+                                    ->maxLength(255),
+                                DateTimePicker::make('published_at')
+                                    ->label('Yayın Tarihi')
+                                    ->default(now())
+                                    ->native(false),
+                                Toggle::make('status')
+                                    ->label('Yayında')
+                                    ->default(true),
+                            ])->columns(2),
+
+                        Tabs\Tab::make('SEO')
+                            ->icon('heroicon-o-magnifying-glass')
+                            ->schema([
+                                TextInput::make('meta_title')
+                                    ->label('SEO Başlık')
+                                    ->maxLength(70)
+                                    ->helperText(fn ($state) => 'Karakter: ' . mb_strlen($state ?? '') . '/70')
+                                    ->hint('Boş bırakılırsa otomatik üretilir')
+                                    ->live(onBlur: true),
+                                Textarea::make('meta_description')
+                                    ->label('SEO Açıklama')
+                                    ->maxLength(160)
+                                    ->helperText(fn ($state) => 'Karakter: ' . mb_strlen($state ?? '') . '/160')
+                                    ->hint('Boş bırakılırsa otomatik üretilir')
+                                    ->live(onBlur: true)
+                                    ->columnSpanFull(),
+                                FileUpload::make('og_image')
+                                    ->label('Paylaşım Görseli (OG Image)')
+                                    ->image()
+                                    ->directory('blog/og'),
+                                Toggle::make('is_indexable')
+                                    ->label('Arama motorlarında indekslensin')
+                                    ->default(true),
+                            ])->columns(2),
+                    ])->columnSpanFull(),
             ]);
     }
 }

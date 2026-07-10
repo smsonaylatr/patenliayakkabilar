@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Page extends Model
 {
-    protected $fillable = ['title', 'slug', 'content', 'is_active'];
+    protected $fillable = [
+        'title', 'slug', 'content', 'is_active',
+        'meta_title', 'meta_description', 'og_image', 'is_indexable',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_indexable' => 'boolean',
+    ];
 }

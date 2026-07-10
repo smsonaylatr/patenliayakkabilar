@@ -41,46 +41,75 @@ class PageResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Sayfa Detayları')
-                    ->schema([
-                        Forms\Components\TextInput::make('title')
-                            ->label('Sayfa Başlığı')
-                            ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
-                        
-                        Forms\Components\TextInput::make('slug')
-                            ->label('URL Adresi (Slug)')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(Page::class, 'slug', ignoreRecord: true),
-                            
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Yayında')
-                            ->default(true),
-                            
-                        Forms\Components\RichEditor::make('content')
-                            ->label('Sayfa İçeriği')
-                            ->columnSpanFull()
-                            ->fileAttachmentsDirectory('pages')
-                            ->toolbarButtons([
-                                'attachFiles',
-                                'blockquote',
-                                'bold',
-                                'bulletList',
-                                'codeBlock',
-                                'h2',
-                                'h3',
-                                'italic',
-                                'link',
-                                'orderedList',
-                                'redo',
-                                'strike',
-                                'underline',
-                                'undo',
-                            ]),
-                    ])->columns(2)
+                Forms\Components\Tabs::make('Sayfa')
+                    ->tabs([
+                        Forms\Components\Tabs\Tab::make('İçerik')
+                            ->icon('heroicon-o-document-text')
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Sayfa Başlığı')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                                
+                                Forms\Components\TextInput::make('slug')
+                                    ->label('URL Adresi (Slug)')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique(Page::class, 'slug', ignoreRecord: true),
+                                    
+                                Forms\Components\Toggle::make('is_active')
+                                    ->label('Yayında')
+                                    ->default(true),
+                                    
+                                Forms\Components\RichEditor::make('content')
+                                    ->label('Sayfa İçeriği')
+                                    ->columnSpanFull()
+                                    ->fileAttachmentsDirectory('pages')
+                                    ->toolbarButtons([
+                                        'attachFiles',
+                                        'blockquote',
+                                        'bold',
+                                        'bulletList',
+                                        'codeBlock',
+                                        'h2',
+                                        'h3',
+                                        'italic',
+                                        'link',
+                                        'orderedList',
+                                        'redo',
+                                        'strike',
+                                        'underline',
+                                        'undo',
+                                    ]),
+                            ])->columns(2),
+
+                        Forms\Components\Tabs\Tab::make('SEO')
+                            ->icon('heroicon-o-magnifying-glass')
+                            ->schema([
+                                Forms\Components\TextInput::make('meta_title')
+                                    ->label('SEO Başlık')
+                                    ->maxLength(70)
+                                    ->helperText(fn ($state) => 'Karakter: ' . mb_strlen($state ?? '') . '/70')
+                                    ->hint('Boş bırakılırsa sayfa başlığı kullanılır')
+                                    ->live(onBlur: true),
+                                Forms\Components\Textarea::make('meta_description')
+                                    ->label('SEO Açıklama')
+                                    ->maxLength(160)
+                                    ->helperText(fn ($state) => 'Karakter: ' . mb_strlen($state ?? '') . '/160')
+                                    ->hint('Boş bırakılırsa içerikten türetilir')
+                                    ->live(onBlur: true)
+                                    ->columnSpanFull(),
+                                Forms\Components\FileUpload::make('og_image')
+                                    ->label('Paylaşım Görseli (OG Image)')
+                                    ->image()
+                                    ->directory('pages/og'),
+                                Forms\Components\Toggle::make('is_indexable')
+                                    ->label('Arama motorlarında indekslensin')
+                                    ->default(true),
+                            ])->columns(2),
+                    ])->columnSpanFull(),
             ]);
     }
 
