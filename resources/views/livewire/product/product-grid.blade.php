@@ -57,9 +57,6 @@
                         <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
                     </a>
                     
-                    @if($product->discount_price)
-                        <div class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/90 backdrop-blur-sm text-red-600 text-[9px] sm:text-[10px] font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full uppercase tracking-widest z-10 shadow-sm border border-white/50">İndirim</div>
-                    @endif
                     
                     <!-- Premium Quick Add Button -->
                     <div class="absolute inset-x-0 bottom-3 sm:bottom-6 flex justify-center z-20 opacity-0 translate-y-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)">
