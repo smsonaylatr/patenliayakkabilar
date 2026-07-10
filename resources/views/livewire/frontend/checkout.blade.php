@@ -158,12 +158,12 @@
                             <span>{{ number_format($subtotal, 2) }} ₺</span>
                         </div>
                         <div class="flex justify-between text-sm text-gray-600">
-                            <span>Kargo</span>
-                            <span class="text-green-600 font-medium">Ücretsiz</span>
+                            <span>Kargo <span class="text-[10px] text-gray-400 ml-1">(Ürün Başı 1 ₺)</span></span>
+                            <span class="text-gray-900 font-medium">{{ number_format($shippingPrice, 2) }} ₺</span>
                         </div>
                         <div class="flex justify-between text-lg font-black text-gray-900 pt-3 border-t border-gray-100 mt-3">
                             <span>Toplam</span>
-                            <span class="text-brand-orange">{{ number_format($subtotal, 2) }} ₺</span>
+                            <span class="text-brand-orange">{{ number_format($grandTotal, 2) }} ₺</span>
                         </div>
                     </div>
 

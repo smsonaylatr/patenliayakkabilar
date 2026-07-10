@@ -43,7 +43,8 @@ class Checkout extends Component
         }
 
         $subtotal = $cartService->getTotal();
-        $shippingPrice = 0; // Kargo şimdilik ücretsiz
+        $totalItems = $cart->items->sum('quantity');
+        $shippingPrice = 1 * $totalItems;
         $grandTotal = $subtotal + $shippingPrice;
         $orderNumber = 'PATEN-' . strtoupper(Str::random(6));
 
@@ -94,9 +95,17 @@ class Checkout extends Component
 
     public function render(CartService $cartService)
     {
+        $cart = $cartService->getCart();
+        $subtotal = $cartService->getTotal();
+        $totalItems = $cart->items->sum('quantity');
+        $shippingPrice = 1 * $totalItems;
+        $grandTotal = $subtotal + $shippingPrice;
+
         return view('livewire.frontend.checkout', [
-            'cartItems' => $cartService->getCart()->items,
-            'subtotal' => $cartService->getTotal(),
+            'cartItems' => $cart->items,
+            'subtotal' => $subtotal,
+            'shippingPrice' => $shippingPrice,
+            'grandTotal' => $grandTotal,
         ])->layout('components.layouts.app');
     }
 }
