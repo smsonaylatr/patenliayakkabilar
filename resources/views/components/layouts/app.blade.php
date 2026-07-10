@@ -9,6 +9,20 @@
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
+        {{-- Arama Motoru Doğrulama --}}
+        @php
+            $verifications = \App\Models\Setting::whereIn('key', ['seo_google_verification', 'seo_yandex_verification', 'seo_bing_verification'])->pluck('value', 'key');
+        @endphp
+        @if($verifications->get('seo_google_verification'))
+            <meta name="google-site-verification" content="{{ $verifications->get('seo_google_verification') }}">
+        @endif
+        @if($verifications->get('seo_yandex_verification'))
+            <meta name="yandex-verification" content="{{ $verifications->get('seo_yandex_verification') }}">
+        @endif
+        @if($verifications->get('seo_bing_verification'))
+            <meta name="msvalidate.01" content="{{ $verifications->get('seo_bing_verification') }}">
+        @endif
+
         <!-- Locale -->
         <meta property="og:locale" content="tr_TR">
         <meta property="og:site_name" content="Patenli Ayakkabılar">
