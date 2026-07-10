@@ -4,17 +4,17 @@
             <span class="mx-6 sm:mx-12">KAPIDA ÖDEME FIRSATI</span>
             <span class="mx-6 sm:mx-12">%100 İADE GARANTİSİ</span>
             <span class="mx-6 sm:mx-12">VADESİZ 3 TAKSİT</span>
-            <span class="mx-6 sm:mx-12">SABİT 1 TL KARGO</span>
+            <span class="mx-6 sm:mx-12">HIZLI TESLİMAT</span>
             
             <span class="mx-6 sm:mx-12">KAPIDA ÖDEME FIRSATI</span>
             <span class="mx-6 sm:mx-12">%100 İADE GARANTİSİ</span>
             <span class="mx-6 sm:mx-12">VADESİZ 3 TAKSİT</span>
-            <span class="mx-6 sm:mx-12">SABİT 1 TL KARGO</span>
+            <span class="mx-6 sm:mx-12">HIZLI TESLİMAT</span>
             
             <span class="mx-6 sm:mx-12">KAPIDA ÖDEME FIRSATI</span>
             <span class="mx-6 sm:mx-12">%100 İADE GARANTİSİ</span>
             <span class="mx-6 sm:mx-12">VADESİZ 3 TAKSİT</span>
-            <span class="mx-6 sm:mx-12">SABİT 1 TL KARGO</span>
+            <span class="mx-6 sm:mx-12">HIZLI TESLİMAT</span>
         </div>
     </div>
 

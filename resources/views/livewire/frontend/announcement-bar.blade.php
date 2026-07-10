@@ -9,7 +9,7 @@
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">💳 VADESİZ 3 TAKSİT</span>
                 <span class="mx-4 text-brand-orange">•</span>
-                <span class="mx-4">📦 SABİT 1 TL KARGO</span>
+                <span class="mx-4">📦 HIZLI TESLİMAT</span>
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">⚡ 24 SAATTE KARGO</span>
                 <span class="mx-4 text-brand-orange">•</span>
@@ -24,7 +24,7 @@
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">💳 VADESİZ 3 TAKSİT</span>
                 <span class="mx-4 text-brand-orange">•</span>
-                <span class="mx-4">📦 SABİT 1 TL KARGO</span>
+                <span class="mx-4">📦 HIZLI TESLİMAT</span>
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">⚡ 24 SAATTE KARGO</span>
                 <span class="mx-4 text-brand-orange">•</span>
