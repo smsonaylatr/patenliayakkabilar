@@ -130,3 +130,66 @@ if (app()->environment('local')) {
         }
     });
 }
+
+// ========================
+// DEPLOY HELPER (Sunucu komutları)
+// ========================
+Route::get('/deploy-helper', function () {
+    $results = [];
+
+    // 1. Storage Link
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        $results[] = '✅ storage:link başarılı';
+    } catch (\Exception $e) {
+        $results[] = '⚠️ storage:link: ' . $e->getMessage();
+    }
+
+    // 2. Config Cache temizle
+    try {
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        $results[] = '✅ config:clear başarılı';
+    } catch (\Exception $e) {
+        $results[] = '⚠️ config:clear: ' . $e->getMessage();
+    }
+
+    // 3. View Cache temizle
+    try {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        $results[] = '✅ view:clear başarılı';
+    } catch (\Exception $e) {
+        $results[] = '⚠️ view:clear: ' . $e->getMessage();
+    }
+
+    // 4. Route Cache temizle
+    try {
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        $results[] = '✅ route:clear başarılı';
+    } catch (\Exception $e) {
+        $results[] = '⚠️ route:clear: ' . $e->getMessage();
+    }
+
+    // 5. Symlink kontrol
+    $symlinkPath = public_path('storage');
+    if (is_link($symlinkPath) || is_dir($symlinkPath)) {
+        $results[] = '✅ public/storage symlink mevcut';
+    } else {
+        $results[] = '❌ public/storage symlink YOK!';
+    }
+
+    // 6. Blog dosya kontrol
+    $blogDir = storage_path('app/public/blog');
+    if (is_dir($blogDir)) {
+        $files = scandir($blogDir);
+        $count = count(array_diff($files, ['.', '..']));
+        $results[] = "✅ storage/app/public/blog/ → {$count} dosya var";
+    } else {
+        $results[] = '❌ storage/app/public/blog/ klasörü YOK!';
+    }
+
+    return '<html><head><title>Deploy Helper</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;">'
+         . '<h1 style="color:#0d9488;">🚀 Deploy Helper</h1>'
+         . '<pre>' . implode("\n", $results) . '</pre>'
+         . '<br><p style="color:#666;">Bu sayfayı deploy sonrası bir kez ziyaret edin, sonra silebilirsiniz.</p>'
+         . '</body></html>';
+})->middleware('auth');
