@@ -444,4 +444,60 @@ class SeoSettings extends FilamentPage implements HasForms
             ->success()
             ->send();
     }
+
+    /**
+     * Tüm sayfaların SEO verilerini otomatik üret
+     */
+    public function regenerateAllPageSeo(): void
+    {
+        $pages = Page::where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('meta_title')->orWhere('meta_title', '');
+            })
+            ->get();
+
+        $count = 0;
+        foreach ($pages as $page) {
+            $page->meta_title = null;
+            $page->meta_description = null;
+            $page->save();
+            $count++;
+        }
+
+        $this->calculateSeoHealth();
+
+        Notification::make()
+            ->title('SEO Verileri Üretildi')
+            ->body("{$count} sayfanın meta verileri otomatik oluşturuldu.")
+            ->success()
+            ->send();
+    }
+
+    /**
+     * Tüm blog yazılarının SEO verilerini otomatik üret
+     */
+    public function regenerateAllBlogSeo(): void
+    {
+        $posts = BlogPost::where('status', true)
+            ->where(function ($q) {
+                $q->whereNull('meta_title')->orWhere('meta_title', '');
+            })
+            ->get();
+
+        $count = 0;
+        foreach ($posts as $post) {
+            $post->meta_title = null;
+            $post->meta_description = null;
+            $post->save();
+            $count++;
+        }
+
+        $this->calculateSeoHealth();
+
+        Notification::make()
+            ->title('SEO Verileri Üretildi')
+            ->body("{$count} blog yazısının meta verileri otomatik oluşturuldu.")
+            ->success()
+            ->send();
+    }
 }

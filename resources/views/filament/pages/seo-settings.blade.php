@@ -63,6 +63,12 @@
                 <span class="text-sm text-gray-400 mb-1">/ {{ $this->totalPages }}</span>
             </div>
             <p class="text-xs text-gray-500 mt-1">Meta başlıklı sayfa</p>
+            @if($this->pagesWithoutMeta > 0)
+                <button wire:click="regenerateAllPageSeo" wire:confirm="{{ $this->pagesWithoutMeta }} sayfanın meta verileri otomatik üretilecek. Devam?"
+                        class="mt-3 w-full text-xs font-semibold text-center py-1.5 px-3 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50 transition-colors">
+                    🤖 {{ $this->pagesWithoutMeta }} Sayfa İçin Üret
+                </button>
+            @endif
         </div>
 
         {{-- Blog --}}
@@ -80,6 +86,12 @@
                 <span class="text-sm text-gray-400 mb-1">/ {{ $this->totalBlogPosts }}</span>
             </div>
             <p class="text-xs text-gray-500 mt-1">Meta başlıklı blog yazısı</p>
+            @if($this->blogPostsWithoutMeta > 0)
+                <button wire:click="regenerateAllBlogSeo" wire:confirm="{{ $this->blogPostsWithoutMeta }} blog yazısının meta verileri otomatik üretilecek. Devam?"
+                        class="mt-3 w-full text-xs font-semibold text-center py-1.5 px-3 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50 transition-colors">
+                    🤖 {{ $this->blogPostsWithoutMeta }} Blog İçin Üret
+                </button>
+            @endif
         </div>
     </div>
 
