@@ -16,7 +16,7 @@
     </x-slot:schema>
 
     <style>
-        .blog-content { font-size: 17px; line-height: 1.8; color: #374151; }
+        .blog-content { font-size: 17px; line-height: 1.8; color: #374151; text-align: justify; }
         .blog-content h1 { font-size: 2rem; font-weight: 800; color: #111827; margin: 2.5rem 0 1rem; line-height: 1.3; }
         .blog-content h2 { font-size: 1.6rem; font-weight: 800; color: #111827; margin: 2.5rem 0 0.8rem; padding-bottom: 0.6rem; border-bottom: 2px solid #f3f4f6; line-height: 1.3; }
         .blog-content h3 { font-size: 1.3rem; font-weight: 700; color: #1f2937; margin: 2rem 0 0.6rem; line-height: 1.4; }
