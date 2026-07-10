@@ -28,12 +28,12 @@ class ProductsTable
                 ImageColumn::make('images.image_path')
                     ->label('')
                     ->disk('public')
-                    ->circular()
+                    ->square()
                     ->stacked()
                     ->limit(1)
                     ->defaultImageUrl(fn () => 'https://placehold.co/80x80/f1f5f9/94a3b8?text=Ürün')
-                    ->width(40)
-                    ->height(40),
+                    ->width(80)
+                    ->height(80),
                 TextColumn::make('name')
                     ->label('Ürün Adı')
                     ->searchable()
