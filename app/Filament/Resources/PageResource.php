@@ -41,9 +41,9 @@ class PageResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Tabs::make('Sayfa')
+                \Filament\Schemas\Components\Tabs::make('Sayfa')
                     ->tabs([
-                        Forms\Components\Tabs\Tab::make('İçerik')
+                        \Filament\Schemas\Components\Tabs\Tab::make('İçerik')
                             ->icon('heroicon-o-document-text')
                             ->schema([
                                 Forms\Components\TextInput::make('title')
@@ -85,7 +85,7 @@ class PageResource extends Resource
                                     ]),
                             ])->columns(2),
 
-                        Forms\Components\Tabs\Tab::make('SEO')
+                        \Filament\Schemas\Components\Tabs\Tab::make('SEO')
                             ->icon('heroicon-o-magnifying-glass')
                             ->schema([
                                 Forms\Components\TextInput::make('meta_title')
