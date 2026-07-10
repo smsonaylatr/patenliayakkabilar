@@ -21,6 +21,7 @@ class CategoriesTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Görsel')
+                    ->disk('public')
                     ->circular()
                     ->size(40)
                     ->toggleable(),

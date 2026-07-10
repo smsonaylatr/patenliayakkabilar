@@ -21,6 +21,7 @@ class BlogPostsTable
             ->columns([
                 ImageColumn::make('image_path')
                     ->label('Kapak')
+                    ->disk('public')
                     ->circular()
                     ->size(40),
                 TextColumn::make('title')
