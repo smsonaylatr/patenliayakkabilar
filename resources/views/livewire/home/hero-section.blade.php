@@ -644,12 +644,6 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
         animation: none;
         backdrop-filter: none;
       }
-      .badge-rating {
-        background: #ffffff;
-      }
-      .badge-new {
-        background: #eff6ff;
-      }
       .hero-text {
         transition: none !important;
         transform: none !important;
@@ -720,7 +714,7 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       }
       .badge-new {
         bottom: 10%;
-        right: -5%;
+        right: 0%;
       }
     }
   </style>
