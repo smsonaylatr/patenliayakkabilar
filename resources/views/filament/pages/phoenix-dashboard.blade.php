@@ -4,7 +4,7 @@
         <div class="bg-gray-900 dark:bg-black rounded-3xl p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between border border-gray-800">
             <div>
                 <h2 class="text-3xl font-black tracking-tight mb-2 flex items-center gap-2">
-                    @svg('heroicon-s-sparkles', 'w-8 h-8 text-yellow-400')
+                    <x-filament::icon icon="heroicon-s-sparkles" class="text-yellow-400" style="width: 2rem; height: 2rem; color: #facc15;" />
                     Phoenix AI
                 </h2>
                 <p class="text-gray-400 max-w-xl text-sm leading-relaxed">
@@ -21,7 +21,7 @@
 
         @if($recommendations->isEmpty())
             <div class="bg-white dark:bg-gray-900 rounded-2xl p-12 text-center border border-gray-200 dark:border-gray-800 shadow-sm">
-                @svg('heroicon-o-check-badge', 'w-16 h-16 mx-auto text-emerald-500 mb-4')
+                <x-filament::icon icon="heroicon-o-check-badge" class="mx-auto text-emerald-500 mb-4" style="width: 4rem; height: 4rem; color: #10b981;" />
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">Harika iş! Yapılacak hiçbir şey yok.</h3>
                 <p class="text-gray-500 dark:text-gray-400 mt-2">Mağazanız şu an mükemmel durumda. Tüm önerileri tamamladınız veya şu an için yeni bir analiz sonucu yok.</p>
             </div>
@@ -51,7 +51,7 @@
                         
                         <div class="flex items-start justify-between mb-4">
                             <div class="p-2.5 rounded-xl bg-white dark:bg-gray-800 shadow-sm">
-                                @svg($icon, 'w-6 h-6')
+                                <x-filament::icon icon="{{ $icon }}" style="width: 1.5rem; height: 1.5rem;" />
                             </div>
                             <span class="text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-full bg-white/50 dark:bg-black/50">
                                 {{ strtoupper($rec->priority) }}
@@ -66,7 +66,7 @@
                                 Tamamla
                             </button>
                             <button wire:click="dismissRecommendation({{ $rec->id }})" class="p-2.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors" title="Yoksay">
-                                @svg('heroicon-o-x-mark', 'w-5 h-5')
+                                <x-filament::icon icon="heroicon-o-x-mark" style="width: 1.25rem; height: 1.25rem;" />
                             </button>
                         </div>
                     </div>
