@@ -36,8 +36,8 @@ class Checkout extends Component
 
     public function mount()
     {
-        if (file_exists(storage_path('app/cities.json'))) {
-            $json = json_decode(file_get_contents(storage_path('app/cities.json')), true);
+        if (file_exists(database_path('data/cities.json'))) {
+            $json = json_decode(file_get_contents(database_path('data/cities.json')), true);
             if (isset($json['data'])) {
                 $this->cities = collect($json['data'])->pluck('name')->toArray();
             }
@@ -49,8 +49,8 @@ class Checkout extends Component
         $this->shipping_district = null;
         $this->districts = [];
 
-        if ($value && file_exists(storage_path('app/cities.json'))) {
-            $json = json_decode(file_get_contents(storage_path('app/cities.json')), true);
+        if ($value && file_exists(database_path('data/cities.json'))) {
+            $json = json_decode(file_get_contents(database_path('data/cities.json')), true);
             if (isset($json['data'])) {
                 $cityData = collect($json['data'])->firstWhere('name', $value);
                 if ($cityData && isset($cityData['districts'])) {
