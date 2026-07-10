@@ -7,6 +7,9 @@ use App\Models\Product;
 
 class ProductGrid extends Component
 {
+    #[\Livewire\Attributes\Url]
+    public $category = '';
+
     public function addToCart(\App\Services\CartService $cartService, $productId, $variantId = null)
     {
         $product = Product::findOrFail($productId);
@@ -24,13 +27,22 @@ class ProductGrid extends Component
 
     public function render()
     {
-        $products = \Illuminate\Support\Facades\Cache::remember('home_product_grid_v2', 3600, function () {
-            return Product::where('status', true)
-                ->with(['category', 'images'])
-                ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+        $cacheKey = 'home_product_grid_v2' . ($this->category ? '_cat_' . $this->category : '');
+        
+        $products = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
+            $query = Product::where('status', true)->with(['category', 'images']);
+            
+            if ($this->category) {
+                $categoryModel = \App\Models\Category::where('slug', $this->category)->first();
+                if ($categoryModel) {
+                    $query->where('category_id', $categoryModel->id);
+                }
+            }
+
+            return $query->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
                 ->orderBy('homepage_sort', 'asc')
                 ->orderBy('id', 'desc')
-                ->take(12)
+                ->take(36)
                 ->get();
         });
         

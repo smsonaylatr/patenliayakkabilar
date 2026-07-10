@@ -63,7 +63,7 @@
                                 <div class="rounded-3xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] bg-white/70 backdrop-blur-2xl border border-white/60 p-3 relative z-10">
                                     <div class="flex flex-col gap-1">
                                         @foreach($categories as $category)
-                                            <a href="{{ route('home') }}?category={{ $category->slug }}" class="group flex items-center px-5 py-3.5 text-[13px] text-gray-600 hover:bg-white/60 hover:text-gray-900 rounded-2xl font-bold uppercase tracking-widest transition-all duration-300" wire:navigate>
+                                            <a href="{{ route('products.index') }}?category={{ $category->slug }}" class="group flex items-center px-5 py-3.5 text-[13px] text-gray-600 hover:bg-white/60 hover:text-gray-900 rounded-2xl font-bold uppercase tracking-widest transition-all duration-300" wire:navigate>
                                                 <span class="flex-1 whitespace-nowrap mr-6">{{ $category->name }}</span>
                                                 <div class="w-8 h-8 rounded-full bg-white/80 shadow-sm border border-white/60 flex-shrink-0 flex items-center justify-center opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                                                     <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
@@ -129,7 +129,7 @@
                          x-transition:enter-start="opacity-0 -translate-y-2"
                          x-transition:enter-end="opacity-100 translate-y-0">
                         @foreach($categories as $category)
-                            <a href="{{ route('home') }}?category={{ $category->slug }}" class="block px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>- {{ $category->name }}</a>
+                            <a href="{{ route('products.index') }}?category={{ $category->slug }}" class="block px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>- {{ $category->name }}</a>
                         @endforeach
                     </div>
                 </div>

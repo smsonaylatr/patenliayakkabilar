@@ -31,8 +31,9 @@ Route::get('/checkout', App\Livewire\Frontend\Checkout::class)->name('checkout')
 Route::get('/order/success/{order_number}', App\Livewire\Frontend\OrderSuccess::class)->name('order.success');
 Route::get('/iletisim', App\Livewire\Frontend\Contact::class)->name('contact');
 
-Route::get('/patenli-ayakkabilar', function () {
-    return view('products.index');
+Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
+    $category = $request->has('category') ? \App\Models\Category::where('slug', $request->category)->first() : null;
+    return view('products.index', compact('category'));
 })->name('products.index');
 
 Route::redirect('/urunler', '/patenli-ayakkabilar', 301);
