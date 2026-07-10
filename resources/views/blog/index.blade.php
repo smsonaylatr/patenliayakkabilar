@@ -25,7 +25,7 @@
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 group">
                             @if($post->image_path)
                                 <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-video overflow-hidden">
-                                    <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
+                                    <img src="{{ asset('storage/' . $post->image_path) }}" 
                                          alt="{{ $post->title }}" 
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                          loading="lazy">
