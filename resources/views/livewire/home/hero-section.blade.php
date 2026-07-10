@@ -503,7 +503,7 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .card-float-1 {
-      top: 5%;
+      top: -8%;
       right: 5%;
       animation: float 9s ease-in-out infinite reverse;
     }
