@@ -41,32 +41,53 @@
     </style>
 
     {{-- Hero kapak görseli --}}
-    @if($post->image_path)
-        <div class="relative w-full overflow-hidden" style="max-height: 500px; background: #111827;">
+    {{-- HERO — her zaman gösterilir --}}
+    <div class="relative w-full overflow-hidden" style="min-height:280px;background:#111827;">
+        @if($post->image_path)
             <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
                  alt="{{ $post->title }}" 
                  class="w-full object-cover"
-                 style="max-height: 500px; opacity: 0.35;"
+                 style="max-height:500px;opacity:0.3;position:absolute;inset:0;width:100%;height:100%;"
                  fetchpriority="high">
-            <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.4) 50%, transparent 100%);"></div>
-            <div style="position:absolute;bottom:0;left:0;right:0;padding:2rem 1rem 2.5rem;">
-                <div style="max-width:1100px;margin:0 auto;">
-                    <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:12px;">
-                        <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}">
-                            {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
-                        </time>
-                        @if($post->author_name)
-                            <span style="width:4px;height:4px;background:rgba(255,255,255,0.4);border-radius:50%;display:inline-block;"></span>
-                            <span>{{ $post->author_name }}</span>
-                        @endif
+        @else
+            {{-- Görselsiz dekoratif arka plan --}}
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0d9488 100%);"></div>
+            <div style="position:absolute;inset:0;opacity:0.07;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><circle cx=%2230%22 cy=%2230%22 r=%222%22 fill=%22white%22/></svg>');background-size:60px 60px;"></div>
+            <div style="position:absolute;top:50%;right:-60px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,0.08);transform:translateY(-50%);"></div>
+            <div style="position:absolute;top:50%;right:40px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.06);transform:translateY(-50%);"></div>
+        @endif
+
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.3) 60%, rgba(17,24,39,0.1) 100%);"></div>
+
+        <div style="position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:5rem 1.5rem 3rem;display:flex;flex-direction:column;justify-content:flex-end;min-height:280px;">
+            {{-- Kategori etiketi --}}
+            <div style="margin-bottom:1rem;">
+                <span style="display:inline-block;padding:4px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);border-radius:999px;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">
+                    📝 Rehber
+                </span>
+            </div>
+
+            <h1 style="font-size:2.4rem;font-weight:800;color:#fff;line-height:1.2;margin:0 0 1rem;max-width:800px;">
+                {{ $post->title }}
+            </h1>
+
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                @if($post->author_name)
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;">
+                            {{ mb_substr($post->author_name, 0, 1) }}
+                        </div>
+                        <span style="color:rgba(255,255,255,0.85);font-size:14px;font-weight:500;">{{ $post->author_name }}</span>
                     </div>
-                    <h1 style="font-size:2.2rem;font-weight:800;color:#fff;line-height:1.25;margin:0;">
-                        {{ $post->title }}
-                    </h1>
-                </div>
+                    <span style="width:4px;height:4px;background:rgba(255,255,255,0.3);border-radius:50%;display:inline-block;"></span>
+                @endif
+                <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}" 
+                      style="color:rgba(255,255,255,0.6);font-size:14px;">
+                    {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
+                </time>
             </div>
         </div>
-    @endif
+    </div>
 
     <div style="background:#fff;min-height:60vh;">
         <div style="max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem 4rem;">
@@ -79,24 +100,6 @@
                     ['name' => $post->title],
                 ]" />
             </div>
-
-            {{-- Kapak görseli yoksa başlık burada --}}
-            @if(!$post->image_path)
-                <div style="margin-bottom:2rem;">
-                    <div style="display:flex;align-items:center;gap:10px;color:#6b7280;font-size:14px;margin-bottom:12px;">
-                        <time datetime="{{ ($post->published_at ?? $post->created_at)->toW3cString() }}">
-                            {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }}
-                        </time>
-                        @if($post->author_name)
-                            <span style="width:4px;height:4px;background:#9ca3af;border-radius:50%;display:inline-block;"></span>
-                            <span>{{ $post->author_name }}</span>
-                        @endif
-                    </div>
-                    <h1 style="font-size:2.2rem;font-weight:800;color:#111827;line-height:1.25;margin:0;">
-                        {{ $post->title }}
-                    </h1>
-                </div>
-            @endif
 
             {{-- İçerik --}}
             <article class="blog-content">
