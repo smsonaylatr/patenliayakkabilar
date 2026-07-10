@@ -303,6 +303,8 @@ Route::get('/deploy-fix-storage', function () {
 
 // Sayfaları canlı sunucuda oluşturmak için
 Route::get('/deploy-add-pages', function () {
+    // --- 1. KURUMSAL SAYFALAR ---
+    
     $bedenRehberi = '<div class="space-y-6 text-gray-700 leading-relaxed">
     <h2>Doğru Bedeni Seçmek Neden Önemli?</h2>
     <p>Patenli ayakkabılarda doğru bedeni seçmek, hem çocuğunuzun ayak sağlığı hem de sürüş güvenliği açısından büyük önem taşır. Ayakkabının çok bol veya çok dar olması, denge kaybına ve rahatsızlığa neden olabilir.</p>
@@ -377,20 +379,70 @@ Route::get('/deploy-add-pages', function () {
     </div>
 </div>';
 
-    \App\Models\Page::firstOrCreate(
+    $kargoIade = '<div class="space-y-6 text-gray-700 leading-relaxed">
+    <h2>Kargo Teslimat Süreçleri</h2>
+    <p>Siparişleriniz onaylandıktan sonra en geç <strong>2 iş günü</strong> içerisinde özenle paketlenerek anlaşmalı kargo firmamıza teslim edilir. Kargo takip numaranız, paketiniz yola çıktığında SMS ve E-posta yoluyla size bildirilir.</p>
+    
+    <ul class="list-disc pl-5 space-y-2">
+        <li>Standart teslimat süresi, bulunduğunuz şehre bağlı olarak 1-3 iş günüdür.</li>
+        <li>Hafta sonu (Cumartesi - Pazar) ve resmi tatillerde verilen siparişler, takip eden ilk iş günü işleme alınır.</li>
+    </ul>
+
+    <h2 class="mt-8">İade ve Değişim Koşulları</h2>
+    <p>Müşteri memnuniyeti bizim için önceliktir. Satın aldığınız ürünü, teslimat tarihinden itibaren <strong>14 gün içerisinde</strong> iade edebilir veya beden/renk değişimi talep edebilirsiniz.</p>
+    
+    <div class="bg-orange-50 p-4 rounded-lg my-6 border border-orange-100">
+        <h4 class="font-bold text-orange-800 mb-2">İade ve Değişim Şartları:</h4>
+        <ul class="list-decimal pl-5 space-y-2 text-sm text-orange-900">
+            <li>Ürünün kullanılmamış, etiketleri koparılmamış ve orijinal kutusu/ambalajı bozulmamış olmalıdır.</li>
+            <li>Patenli ayakkabı tekerleklerinde sürüş kaynaklı aşınma olmamasına dikkat edilmelidir. Ürünleri dışarıda (asfalt vs.) test etmeden önce ev içinde halı üzerinde denemenizi rica ederiz.</li>
+            <li>İade kargo masrafları, tarafımızca sağlanan anlaşmalı kargo kodu ile gönderildiğinde firmamıza aittir.</li>
+        </ul>
+    </div>
+    
+    <h3>Nasıl İade Edebilirim?</h3>
+    <p>İade veya değişim talebinizi oluşturmak için <a href="/iletisim" class="text-teal-600 underline">iletişim sayfamızdan</a> veya WhatsApp destek hattımızdan bize ulaşabilirsiniz. Size verilecek kargo kodu ile ürünü en yakın şubeye teslim etmeniz yeterlidir.</p>
+</div>';
+
+    \App\Models\Page::updateOrCreate(
         ['slug' => 'beden-rehberi'],
         ['title' => 'Patenli Ayakkabı Beden Rehberi', 'content' => $bedenRehberi, 'is_active' => true]
     );
 
-    \App\Models\Page::firstOrCreate(
+    \App\Models\Page::updateOrCreate(
         ['slug' => 'guvenlik-ekipmanlari'],
         ['title' => 'Patenli Ayakkabı Güvenlik Ekipmanları', 'content' => $guvenlikEkipmanlari, 'is_active' => true]
     );
 
-    return '<html><head><title>Sayfalar Eklendi</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;">'
-         . '<h1 style="color:#0d9488;">✅ Sayfalar Veritabanına Eklendi!</h1>'
-         . '<p>Artık admin panelinden "Kurumsal Sayfalar" sekmesine girip kontrol edebilirsiniz.</p>'
-         . '<br><a href="/admin/pages" style="color:#0d9488;font-size:16px;">👉 Admin Panele Git</a>'
+    \App\Models\Page::updateOrCreate(
+        ['slug' => 'kargo-ve-iade-kosullari'],
+        ['title' => 'Kargo ve İade Koşulları', 'content' => $kargoIade, 'is_active' => true]
+    );
+
+    // --- 2. KATEGORİLER ---
+
+    \App\Models\Category::updateOrCreate(
+        ['slug' => 'patenli-ayakkabi-modelleri'],
+        ['name' => 'Patenli Ayakkabı Modelleri', 'status' => true]
+    );
+
+    \App\Models\Category::updateOrCreate(
+        ['slug' => 'cocuk-patenli-ayakkabi-modelleri'],
+        ['name' => 'Çocuk Patenli Ayakkabı Modelleri', 'status' => true]
+    );
+
+    return '<html><head><title>İçerikler Eklendi</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;">'
+         . '<h1 style="color:#0d9488;">✅ Sayfalar ve Kategoriler Başarıyla Eklendi!</h1>'
+         . '<p>Şu anda aşağıdaki içerikler sisteme dahil edildi:</p>'
+         . '<ul style="padding-left:20px;margin:20px 0;">'
+         . '<li>Sayfa: Patenli Ayakkabı Beden Rehberi</li>'
+         . '<li>Sayfa: Patenli Ayakkabı Güvenlik Ekipmanları</li>'
+         . '<li>Sayfa: Kargo ve İade Koşulları</li>'
+         . '<li>Kategori: Patenli Ayakkabı Modelleri</li>'
+         . '<li>Kategori: Çocuk Patenli Ayakkabı Modelleri</li>'
+         . '</ul>'
+         . '<br><a href="/admin/pages" style="color:#0d9488;font-size:16px;margin-right:20px;">👉 Admin Sayfalar</a>'
+         . '<a href="/admin/categories" style="color:#0d9488;font-size:16px;">👉 Admin Kategoriler</a>'
          . '</body></html>';
 })->middleware('auth');
 
