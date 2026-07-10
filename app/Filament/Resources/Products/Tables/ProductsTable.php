@@ -40,11 +40,14 @@ class ProductsTable
                     ->weight('bold')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
-                TextColumn::make('category.name')
+                \Filament\Tables\Columns\SelectColumn::make('category_id')
                     ->label('Kategori')
-                    ->badge()
-                    ->color('info')
-                    ->sortable(),
+                    ->options(fn () => \App\Models\Category::pluck('name', 'id'))
+                    ->searchable()
+                    ->sortable()
+                    ->afterStateUpdated(function () {
+                        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+                    }),
                 TextColumn::make('price')
                     ->label('Fiyat')
                     ->getStateUsing(function ($record) {
