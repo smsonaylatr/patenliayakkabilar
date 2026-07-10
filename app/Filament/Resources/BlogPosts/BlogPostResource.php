@@ -20,9 +20,10 @@ class BlogPostResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'İçerik';
+    protected static string|\UnitEnum|null $navigationGroup = 'İçerik Yönetimi';
     protected static ?string $modelLabel = 'Blog Yazısı';
     protected static ?string $pluralModelLabel = 'Blog Yazıları';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -34,6 +35,16 @@ class BlogPostResource extends Resource
     public static function table(Table $table): Table
     {
         return BlogPostsTable::configure($table);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::where('status', true)->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
     }
 
     public static function getRelations(): array

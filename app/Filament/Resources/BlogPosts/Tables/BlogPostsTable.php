@@ -8,6 +8,8 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class BlogPostsTable
@@ -15,27 +17,71 @@ class BlogPostsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
+                ImageColumn::make('image_path')
+                    ->label('Kapak')
+                    ->circular()
+                    ->size(40),
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
-                ImageColumn::make('image_path'),
-                TextColumn::make('meta_title')
-                    ->searchable(),
-                IconColumn::make('status')
-                    ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Başlık')
+                    ->searchable()
                     ->sortable()
+                    ->limit(50)
+                    ->tooltip(fn ($record) => $record->title),
+                TextColumn::make('slug')
+                    ->label('URL')
+                    ->searchable()
+                    ->color('gray')
+                    ->copyable()
+                    ->copyMessage('Kopyalandı')
+                    ->prefix('/blog/')
+                    ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
+                TextColumn::make('author_name')
+                    ->label('Yazar')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->toggleable(),
+                IconColumn::make('status')
+                    ->label('Durum')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                TextColumn::make('meta_title')
+                    ->label('SEO Başlık')
+                    ->limit(40)
+                    ->placeholder('⚠️ Eksik')
+                    ->color(fn ($state) => $state ? 'gray' : 'warning')
+                    ->toggleable(),
+                TextColumn::make('published_at')
+                    ->label('Yayın Tarihi')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable()
+                    ->placeholder('—'),
+                TextColumn::make('created_at')
+                    ->label('Oluşturulma')
+                    ->dateTime('d.m.Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                TernaryFilter::make('status')
+                    ->label('Durum')
+                    ->placeholder('Tümü')
+                    ->trueLabel('Yayında')
+                    ->falseLabel('Taslak'),
+                TernaryFilter::make('seo_durumu')
+                    ->label('SEO Durumu')
+                    ->placeholder('Tümü')
+                    ->queries(
+                        true: fn ($query) => $query->whereNotNull('meta_title')->where('meta_title', '!=', ''),
+                        false: fn ($query) => $query->where(fn ($q) => $q->whereNull('meta_title')->orWhere('meta_title', '')),
+                    )
+                    ->trueLabel('SEO Tam')
+                    ->falseLabel('SEO Eksik'),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -44,6 +90,9 @@ class BlogPostsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('Henüz blog yazısı yok')
+            ->emptyStateDescription('İlk blog yazınızı ekleyin ve SEO ile organik trafik kazanın.')
+            ->emptyStateIcon('heroicon-o-document-text');
     }
 }

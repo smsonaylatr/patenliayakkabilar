@@ -23,6 +23,7 @@ class CategoryResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Katalog Yönetimi';
     protected static ?string $modelLabel = 'Kategori';
     protected static ?string $pluralModelLabel = 'Kategoriler';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -34,6 +35,11 @@ class CategoryResource extends Resource
     public static function table(Table $table): Table
     {
         return CategoriesTable::configure($table);
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) static::getModel()::where('status', true)->count();
     }
 
     public static function getRelations(): array

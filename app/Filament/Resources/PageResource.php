@@ -120,21 +120,41 @@ class PageResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->label('Başlık')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold'),
                 Tables\Columns\TextColumn::make('slug')
                     ->label('URL')
-                    ->searchable(),
+                    ->searchable()
+                    ->color('gray')
+                    ->copyable()
+                    ->copyMessage('Kopyalandı')
+                    ->prefix('/sayfa/')
+                    ->limit(30),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Durum')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
+                Tables\Columns\TextColumn::make('meta_title')
+                    ->label('SEO')
+                    ->limit(30)
+                    ->placeholder('⚠️ Eksik')
+                    ->color(fn ($state) => $state ? 'gray' : 'warning')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Oluşturulma')
-                    ->dateTime('d M Y')
+                    ->dateTime('d.m.Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Durum')
+                    ->placeholder('Tümü')
+                    ->trueLabel('Yayında')
+                    ->falseLabel('Taslak'),
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),
@@ -143,7 +163,9 @@ class PageResource extends Resource
                 \Filament\Actions\BulkActionGroup::make([
                     \Filament\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('Henüz kurumsal sayfa yok')
+            ->emptyStateDescription('Hakkımızda, KVKK, İade Politikası gibi sayfaları buradan ekleyin.');
     }
 
     public static function getRelations(): array
