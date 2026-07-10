@@ -152,7 +152,7 @@ if (app()->environment('local')) {
 }
 
 // ========================
-// DEPLOY HELPER (Sunucu komutları)
+// DEPLOY HELPER (Sunucu komutları + teşhis)
 // ========================
 Route::get('/deploy-helper', function () {
     $results = [];
@@ -165,51 +165,92 @@ Route::get('/deploy-helper', function () {
         $results[] = '⚠️ storage:link: ' . $e->getMessage();
     }
 
-    // 2. Config Cache temizle
+    // 2. Cache temizle
     try {
         \Illuminate\Support\Facades\Artisan::call('config:clear');
-        $results[] = '✅ config:clear başarılı';
-    } catch (\Exception $e) {
-        $results[] = '⚠️ config:clear: ' . $e->getMessage();
-    }
-
-    // 3. View Cache temizle
-    try {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
-        $results[] = '✅ view:clear başarılı';
-    } catch (\Exception $e) {
-        $results[] = '⚠️ view:clear: ' . $e->getMessage();
-    }
-
-    // 4. Route Cache temizle
-    try {
         \Illuminate\Support\Facades\Artisan::call('route:clear');
-        $results[] = '✅ route:clear başarılı';
+        $results[] = '✅ config + view + route cache temizlendi';
     } catch (\Exception $e) {
-        $results[] = '⚠️ route:clear: ' . $e->getMessage();
+        $results[] = '⚠️ cache: ' . $e->getMessage();
     }
 
-    // 5. Symlink kontrol
+    // 3. Symlink kontrol
     $symlinkPath = public_path('storage');
-    if (is_link($symlinkPath) || is_dir($symlinkPath)) {
-        $results[] = '✅ public/storage symlink mevcut';
+    if (is_link($symlinkPath)) {
+        $target = readlink($symlinkPath);
+        $results[] = "✅ public/storage → symlink → {$target}";
+    } elseif (is_dir($symlinkPath)) {
+        $results[] = '⚠️ public/storage → gerçek klasör (symlink değil)';
     } else {
-        $results[] = '❌ public/storage symlink YOK!';
+        $results[] = '❌ public/storage YOK!';
     }
 
-    // 6. Blog dosya kontrol
-    $blogDir = storage_path('app/public/blog');
-    if (is_dir($blogDir)) {
-        $files = scandir($blogDir);
-        $count = count(array_diff($files, ['.', '..']));
-        $results[] = "✅ storage/app/public/blog/ → {$count} dosya var";
+    // 4. Storage yolları
+    $results[] = '';
+    $results[] = '=== YOLLAR ===';
+    $results[] = 'storage_path: ' . storage_path();
+    $results[] = 'storage/app/public: ' . storage_path('app/public');
+    $results[] = 'public_path: ' . public_path();
+    $results[] = 'public/storage var mı: ' . (file_exists(public_path('storage')) ? 'EVET' : 'HAYIR');
+
+    // 5. Disk config
+    $results[] = '';
+    $results[] = '=== FILESYSTEM ===';
+    $defaultDisk = config('filesystems.default');
+    $results[] = 'Default disk: ' . $defaultDisk;
+    $publicRoot = config('filesystems.disks.public.root');
+    $results[] = 'Public disk root: ' . ($publicRoot ?? 'TANIMLANMAMIŞ');
+
+    // 6. Storage içeriği
+    $results[] = '';
+    $results[] = '=== STORAGE İÇERİĞİ ===';
+    $storagePub = storage_path('app/public');
+    if (is_dir($storagePub)) {
+        $dirs = array_filter(scandir($storagePub), fn($f) => $f !== '.' && $f !== '..');
+        foreach ($dirs as $d) {
+            $full = $storagePub . '/' . $d;
+            if (is_dir($full)) {
+                $fileCount = count(array_diff(scandir($full), ['.', '..']));
+                $results[] = "📁 {$d}/ → {$fileCount} dosya";
+            } else {
+                $results[] = "📄 {$d} → " . filesize($full) . ' byte';
+            }
+        }
     } else {
-        $results[] = '❌ storage/app/public/blog/ klasörü YOK!';
+        $results[] = '❌ storage/app/public YOK!';
     }
 
-    return '<html><head><title>Deploy Helper</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;">'
-         . '<h1 style="color:#0d9488;">🚀 Deploy Helper</h1>'
-         . '<pre>' . implode("\n", $results) . '</pre>'
-         . '<br><p style="color:#666;">Bu sayfayı deploy sonrası bir kez ziyaret edin, sonra silebilirsiniz.</p>'
+    // 7. Blog post teşhis
+    $results[] = '';
+    $results[] = '=== BLOG POST TEŞHİS ===';
+    $posts = \App\Models\BlogPost::all(['id', 'title', 'image_path']);
+    foreach ($posts as $p) {
+        $results[] = "Post #{$p->id}: {$p->title}";
+        $results[] = "  image_path: " . ($p->image_path ?: '(BOŞ)');
+        if ($p->image_path) {
+            $diskPath = storage_path('app/public/' . $p->image_path);
+            $exists = file_exists($diskPath);
+            $results[] = "  Dosya yolu: {$diskPath}";
+            $results[] = "  Dosya var mı: " . ($exists ? '✅ EVET (' . filesize($diskPath) . ' byte)' : '❌ HAYIR');
+            $results[] = "  URL: " . \Storage::disk('public')->url($p->image_path);
+        }
+    }
+
+    // 8. Livewire-tmp kontrol
+    $tmpDir = storage_path('app/public/livewire-tmp');
+    if (is_dir($tmpDir)) {
+        $tmpFiles = array_diff(scandir($tmpDir), ['.', '..']);
+        $results[] = '';
+        $results[] = '=== LIVEWIRE-TMP ===';
+        $results[] = count($tmpFiles) . ' geçici dosya var';
+        foreach (array_slice($tmpFiles, 0, 5) as $f) {
+            $results[] = "  {$f}";
+        }
+    }
+
+    return '<html><head><title>Deploy Helper</title></head><body style="font-family:monospace;padding:40px;background:#111;color:#eee;font-size:14px;line-height:1.8;">'
+         . '<h1 style="color:#0d9488;">🚀 Deploy Helper - Tam Teşhis</h1>'
+         . '<pre style="white-space:pre-wrap;word-break:break-all;">' . implode("\n", $results) . '</pre>'
          . '</body></html>';
 })->middleware('auth');
