@@ -1,0 +1,11 @@
+/* TEAM */
+Site: Patenli Ayakkabılar
+URL: https://patenliayakkabilar.com
+Konum: Türkiye
+
+/* TECHNOLOGY */
+Framework: Laravel 12
+Frontend: Livewire 4, Alpine.js, Tailwind CSS 4
+Admin: Filament v5.6
+Server: RoadRunner (Octane)
+Database: MySQL

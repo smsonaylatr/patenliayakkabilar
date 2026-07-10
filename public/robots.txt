@@ -1,2 +1,26 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Admin paneli
+Disallow: /admin
+Disallow: /admin/*
+
+# Kullanıcı sayfaları
+Disallow: /checkout
+Disallow: /hesabim
+Disallow: /hesabim/*
+Disallow: /login
+Disallow: /register
+Disallow: /auth/*
+
+# Teknik
+Disallow: /livewire/*
+Disallow: /run-migrate
+Disallow: /order/success/*
+
+# Parametreler
+Disallow: /*?sort=
+Disallow: /*?filter=
+
+# Sitemap
+Sitemap: https://patenliayakkabilar.com/sitemap.xml
