@@ -8,6 +8,26 @@ use App\Livewire\Account\Dashboard;
 use App\Livewire\Account\Profile;
 use App\Livewire\Account\Orders;
 
+// ========================
+// STORAGE FILE SERVE (RoadRunner symlink desteği olmadığı için)
+// ========================
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($fullPath);
+    $size = filesize($fullPath);
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Content-Length' => $size,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*');
+
 Route::get('/', function () {
     return view('home');
 })->name('home');
