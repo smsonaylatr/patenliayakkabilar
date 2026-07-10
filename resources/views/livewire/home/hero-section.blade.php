@@ -483,8 +483,8 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       width: 380px;
       max-width: 380px;
       height: 300px;
-      top: 50%;
-      left: 50%;
+      top: 65%;
+      left: 70%;
       transform: perspective(1000px) translateX(-50%) translateY(-50%);
       animation: float-main 7s ease-in-out infinite;
       transition: transform 0.1s ease;
@@ -503,14 +503,14 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .card-float-1 {
-      top: 6%;
-      right: 0;
+      top: 5%;
+      right: 5%;
       animation: float 9s ease-in-out infinite reverse;
     }
 
     .card-float-2 {
-      bottom: 8%;
-      left: 0;
+      bottom: 15%;
+      left: 5%;
       animation: float 11s ease-in-out infinite 1s;
     }
 
@@ -528,20 +528,20 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
     }
 
     .badge-rating {
-      top: 18%;
-      left: 5%;
-      background: #ffffff;
-      color: #0f172a;
-      border: 1px solid rgba(15, 23, 42, 0.05);
+      top: 30%;
+      left: 15%;
+      background: rgba(15, 23, 42, 0.6);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       animation: float 6s ease-in-out infinite 0.5s;
     }
 
     .badge-new {
-      bottom: 22%;
+      bottom: 30%;
       right: 2%;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #2563eb;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+      border: none;
+      color: #ffffff;
       animation: float 8s ease-in-out infinite reverse 1s;
     }
 
