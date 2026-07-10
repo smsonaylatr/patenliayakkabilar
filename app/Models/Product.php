@@ -455,9 +455,6 @@ class Product extends Model
             $specs['Marka'] = $this->brand;
         }
 
-        if ($this->category?->name) {
-            $specs['Kategori'] = $this->category->name;
-        }
 
         $genderLabel = match ($this->gender) {
             'erkek'       => 'Erkek',
