@@ -3,7 +3,7 @@ $settings = \Illuminate\Support\Facades\Cache::remember('hero_settings', 86400, 
     return \App\Models\Setting::whereIn('key', [
         'banner_pill_text', 'banner_title_1', 'banner_title_2', 'banner_title_3',
         'banner_desc', 'banner_btn1_text', 'banner_btn1_link', 'banner_btn2_text', 'banner_btn2_link',
-        'banner_product_1_id', 'banner_product_2_id', 'banner_product_3_id', 'banner_bg_color_1', 'banner_bg_color_2',
+        'banner_image_1', 'banner_image_2', 'banner_image_3', 'banner_bg_color_1', 'banner_bg_color_2',
     ])->pluck('value', 'key')->toArray();
 });
 
@@ -20,16 +20,17 @@ $btn1Link = $settings['banner_btn1_link'] ?? route('products.index');
 $btn2Text = $settings['banner_btn2_text'] ?? 'İndirimleri Gör';
 $btn2Link = $settings['banner_btn2_link'] ?? route('products.index') . '?indirim=true';
 
-$p1_id = $settings['banner_product_1_id'] ?? null;
-$p2_id = $settings['banner_product_2_id'] ?? null;
-$p3_id = $settings['banner_product_3_id'] ?? null;
+$img1 = $settings['banner_image_1'] ?? null;
+$img2 = $settings['banner_image_2'] ?? null;
+$img3 = $settings['banner_image_3'] ?? null;
 
 $heroProducts = \Illuminate\Support\Facades\Cache::remember('hero_random_products', 3600, function () {
     return \App\Models\Product::with('images')->where('status', true)->inRandomOrder()->take(3)->get();
 });
-$mainProduct = $p1_id ? \App\Models\Product::with('images')->find($p1_id) : $heroProducts->get(0);
-$subProduct1 = $p2_id ? \App\Models\Product::with('images')->find($p2_id) : ($heroProducts->get(1) ?? $mainProduct);
-$subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($heroProducts->get(2) ?? $mainProduct);
+
+$mainImgUrl = $img1 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img1) : ($heroProducts->get(0) && $heroProducts->get(0)->images->first() ? $heroProducts->get(0)->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90');
+$subImgUrl1 = $img2 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img2) : ($heroProducts->get(1) && $heroProducts->get(1)->images->first() ? $heroProducts->get(1)->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80');
+$subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img3) : ($heroProducts->get(2) && $heroProducts->get(2)->images->first() ? $heroProducts->get(2)->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80');
 ?>
 <section class="hero" id="larcivert-hero"
     x-data="{ mx: 0, my: 0, isMobile: window.innerWidth < 1024 }"
@@ -106,17 +107,17 @@ $subProduct2 = $p3_id ? \App\Models\Product::with('images')->find($p3_id) : ($he
       <!-- Main big card -->
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
-        <img src="{{ $mainProduct && $mainProduct->images->first() ? $mainProduct->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90' }}" alt="{{ $mainProduct->name ?? 'Nike Air Max' }}" />
+        <img src="{{ $mainImgUrl }}" alt="Ana Kampanya Görseli" />
       </div>
 
       <!-- Floating card top-right -->
       <div class="card-3d card-sm card-float-1">
-        <img src="{{ $subProduct1 && $subProduct1->images->first() ? $subProduct1->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80' }}" alt="{{ $subProduct1->name ?? 'Adidas' }}" />
+        <img src="{{ $subImgUrl1 }}" alt="Kampanya Görseli 2" />
       </div>
 
       <!-- Floating card bottom-left -->
       <div class="card-3d card-sm card-float-2">
-        <img src="{{ $subProduct2 && $subProduct2->images->first() ? $subProduct2->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80' }}" alt="{{ $subProduct2->name ?? 'New Balance' }}" />
+        <img src="{{ $subImgUrl2 }}" alt="Kampanya Görseli 3" />
       </div>
 
       <!-- Rating badge floating -->

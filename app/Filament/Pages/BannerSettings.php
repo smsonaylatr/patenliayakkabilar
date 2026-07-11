@@ -57,9 +57,9 @@ class BannerSettings extends Page implements HasForms
             'banner_btn1_link',
             'banner_btn2_text',
             'banner_btn2_link',
-            'banner_product_1_id',
-            'banner_product_2_id',
-            'banner_product_3_id',
+            'banner_image_1',
+            'banner_image_2',
+            'banner_image_3',
             'banner_bg_color_1',
             'banner_bg_color_2',
         ])->pluck('value', 'key')->toArray();
@@ -74,9 +74,9 @@ class BannerSettings extends Page implements HasForms
             'banner_btn1_link' => $settings['banner_btn1_link'] ?? '/patenli-ayakkabilar',
             'banner_btn2_text' => $settings['banner_btn2_text'] ?? 'İndirimleri Gör',
             'banner_btn2_link' => $settings['banner_btn2_link'] ?? '/patenli-ayakkabilar?indirim=true',
-            'banner_product_1_id' => $settings['banner_product_1_id'] ?? null,
-            'banner_product_2_id' => $settings['banner_product_2_id'] ?? null,
-            'banner_product_3_id' => $settings['banner_product_3_id'] ?? null,
+            'banner_image_1' => $settings['banner_image_1'] ?? null,
+            'banner_image_2' => $settings['banner_image_2'] ?? null,
+            'banner_image_3' => $settings['banner_image_3'] ?? null,
             'banner_bg_color_1' => $settings['banner_bg_color_1'] ?? '#ffffff',
             'banner_bg_color_2' => $settings['banner_bg_color_2'] ?? '#f8fafc',
         ]);
@@ -118,21 +118,24 @@ class BannerSettings extends Page implements HasForms
                     ]),
 
                 Section::make('Görsel Ayarları (Uçan Kartlar)')
-                    ->description('Boş bırakırsanız sistem rastgele aktif ürünleri getirecektir.')
+                    ->description('Buraya yüklediğiniz görseller ana sayfadaki 3 boyutlu uçan kartlarda gösterilir. Boş bırakırsanız rastgele ürün görselleri gelir.')
                     ->schema([
                         Grid::make(3)->schema([
-                            Select::make('banner_product_1_id')
-                                ->label('1. Kart Ürünü (Ana Büyük)')
-                                ->options(Product::where('status', true)->pluck('name', 'id'))
-                                ->searchable(),
-                            Select::make('banner_product_2_id')
-                                ->label('2. Kart Ürünü (Sağ Üst)')
-                                ->options(Product::where('status', true)->pluck('name', 'id'))
-                                ->searchable(),
-                            Select::make('banner_product_3_id')
-                                ->label('3. Kart Ürünü (Sol Alt)')
-                                ->options(Product::where('status', true)->pluck('name', 'id'))
-                                ->searchable(),
+                            \Filament\Forms\Components\FileUpload::make('banner_image_1')
+                                ->label('1. Kart Görseli (Ana Büyük)')
+                                ->image()
+                                ->directory('hero-banners')
+                                ->disk('public'),
+                            \Filament\Forms\Components\FileUpload::make('banner_image_2')
+                                ->label('2. Kart Görseli (Sağ Üst)')
+                                ->image()
+                                ->directory('hero-banners')
+                                ->disk('public'),
+                            \Filament\Forms\Components\FileUpload::make('banner_image_3')
+                                ->label('3. Kart Görseli (Sol Alt)')
+                                ->image()
+                                ->directory('hero-banners')
+                                ->disk('public'),
                         ]),
                     ]),
             ])
