@@ -48,7 +48,7 @@
                         });
                         $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
                         ?>
-                        <div class="absolute -top-4 -left-4 sm:-top-5 sm:-left-5 z-30 w-24 h-24 sm:w-[120px] sm:h-[120px] drop-shadow-lg transform transition-transform hover:scale-110">
+                        <div class="absolute top-1 left-1 sm:top-2 sm:left-2 z-30 w-24 h-24 sm:w-[120px] sm:h-[120px] drop-shadow-lg transform transition-transform hover:scale-110">
                             <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
                         </div>
                     @endif
