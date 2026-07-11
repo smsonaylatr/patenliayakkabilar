@@ -151,6 +151,8 @@
                             <ul class="space-y-2 text-sm text-gray-400">
                                 <li><a href="{{ route('pages.show', 'hakkimizda') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Hakkımızda</a></li>
                                 <li><a href="{{ route('pages.show', 'sikca-sorulan-sorular') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Sıkça Sorulan Sorular</a></li>
+                                <li><a href="{{ route('pages.show', 'beden-rehberi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Beden Rehberi</a></li>
+                                <li><a href="{{ route('pages.show', 'guvenlik-ekipmanlari') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Güvenlik Ekipmanları</a></li>
                                 <li><a href="{{ route('pages.show', 'iade-ve-degisim') }}" class="hover:text-brand-orange transition-colors" wire:navigate>İade ve Değişim</a></li>
                                 <li><a href="{{ route('pages.show', 'mesafeli-satis-sozlesmesi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Mesafeli Satış Sözleşmesi</a></li>
                                 <li><a href="{{ route('pages.show', 'gizlilik-politikasi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Gizlilik Politikası</a></li>
