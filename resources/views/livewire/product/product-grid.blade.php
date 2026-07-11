@@ -43,7 +43,7 @@
                     
                     @if($product->best_seller)
                         <div class="absolute top-2 left-2 z-30 w-12 h-12 sm:w-16 sm:h-16 drop-shadow-md transform transition-transform hover:scale-110">
-                            <img src="/img/en-cok-satan.svg" alt="En Çok Satan" class="w-full h-full object-contain">
+                            <img src="/img/en-cok-satan.svg?v=red" alt="En Çok Satan" class="w-full h-full object-contain">
                         </div>
                     @endif
 
