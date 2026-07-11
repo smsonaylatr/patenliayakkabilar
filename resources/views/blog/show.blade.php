@@ -126,6 +126,9 @@
                                 {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }} tarihinde yayınlandı
                             </p>
                         </div>
+                    </div>
+                @endif
+
                 {{-- Yatay Banner CTA --}}
                 <style>
                     .split-cta-container {
