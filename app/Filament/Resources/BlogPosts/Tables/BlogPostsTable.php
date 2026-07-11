@@ -28,7 +28,7 @@ class BlogPostsTable
                     ->label('Başlık')
                     ->searchable()
                     ->sortable()
-                    ->limit(50)
+                    ->wrap()
                     ->tooltip(fn ($record) => $record->title),
                 TextColumn::make('slug')
                     ->label('URL')
