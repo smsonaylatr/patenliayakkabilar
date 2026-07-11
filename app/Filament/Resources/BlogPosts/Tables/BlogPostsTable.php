@@ -39,11 +39,7 @@ class BlogPostsTable
                     ->prefix('/blog/')
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('author_name')
-                    ->label('Yazar')
-                    ->searchable()
-                    ->placeholder('—')
-                    ->toggleable(),
+
                 IconColumn::make('status')
                     ->label('Durum')
                     ->boolean()
@@ -51,12 +47,7 @@ class BlogPostsTable
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                TextColumn::make('meta_title')
-                    ->label('SEO Başlık')
-                    ->limit(40)
-                    ->placeholder('⚠️ Eksik')
-                    ->color(fn ($state) => $state ? 'gray' : 'warning')
-                    ->toggleable(),
+
                 TextColumn::make('published_at')
                     ->label('Yayın Tarihi')
                     ->dateTime('d.m.Y H:i')
