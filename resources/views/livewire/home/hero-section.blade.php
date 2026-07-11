@@ -140,9 +140,6 @@ $isVideo = function($url) {
       <!-- Rating badge floating -->
       <div class="badge-float badge-rating">⭐ 4.9 / 5.0</div>
 
-      <!-- New badge floating -->
-      <div class="badge-float badge-new">YENİ</div>
-
       <!-- Ambient glow under cards -->
       <div class="stage-glow"></div>
     </div>
