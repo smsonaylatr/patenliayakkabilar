@@ -22,8 +22,8 @@ class BlogPostsTable
                 ImageColumn::make('image_path')
                     ->label('Kapak')
                     ->disk('public')
-                    ->circular()
-                    ->size(40),
+                    ->width(120)
+                    ->height(70),
                 TextColumn::make('title')
                     ->label('Başlık')
                     ->searchable()
