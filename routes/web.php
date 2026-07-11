@@ -28,6 +28,11 @@ Route::get('/storage/{path}', function (string $path) {
     ]);
 })->where('path', '.*');
 
+Route::get('/run-migrations', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return 'Harika! Veritabanı güncellemeleri (migration) başarıyla çalıştırıldı ve kurumsal sayfalar eklendi. Artık admin panelinden sayfaları görebilirsiniz.';
+});
+
 Route::get('/', function () {
     return view('home');
 })->name('home');
