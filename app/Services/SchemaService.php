@@ -364,20 +364,22 @@ class SchemaService
      * @param Category $category Kategori modeli
      * @param \Illuminate\Support\Collection|array $products Ürün koleksiyonu
      */
-    public function categoryPage(Category $category, $products): string
+    public function categoryPage(Category $category, $products = []): string
     {
         $appUrl = config('app.url');
 
         $listItems = [];
         $position = 1;
 
-        foreach ($products as $product) {
-            $listItems[] = [
-                '@type'    => 'ListItem',
-                'position' => $position++,
-                'url'      => $appUrl . '/urun/' . $product->slug,
-                'name'     => $product->name,
-            ];
+        if (!empty($products)) {
+            foreach ($products as $product) {
+                $listItems[] = [
+                    '@type'    => 'ListItem',
+                    'position' => $position++,
+                    'url'      => $appUrl . '/urun/' . $product->slug,
+                    'name'     => $product->name,
+                ];
+            }
         }
 
         $data = [
