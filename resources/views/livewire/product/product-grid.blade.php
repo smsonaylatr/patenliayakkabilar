@@ -39,19 +39,20 @@
             <div class="relative w-full aspect-square bg-transparent rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
                 
                 <!-- ================= CARD FACE ================= -->
+                
+                @if($product->best_seller)
+                    <?php
+                    $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
+                        return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
+                    });
+                    $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
+                    ?>
+                    <div class="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 z-40 w-20 h-20 sm:w-[100px] sm:h-[100px] drop-shadow-lg transform transition-transform hover:scale-110">
+                        <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
+                    </div>
+                @endif
+
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
-                    
-                    @if($product->best_seller)
-                        <?php
-                        $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
-                            return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
-                        });
-                        $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
-                        ?>
-                        <div class="absolute top-0 left-0 sm:top-0 sm:left-0 z-30 w-24 h-24 sm:w-[120px] sm:h-[120px] drop-shadow-lg transform transition-transform hover:scale-110">
-                            <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
-                        </div>
-                    @endif
 
                     <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
