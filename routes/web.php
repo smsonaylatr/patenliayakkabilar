@@ -28,6 +28,13 @@ Route::get('/storage/{path}', function (string $path) {
     ]);
 })->where('path', '.*');
 
+Route::get('/clear-cache', function () {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    return 'Harika! Sitenin tüm önbelleği (cache ve görünümler) başarıyla temizlendi. Lütfen ana sayfaya dönüp CTRL+F5 ile yenileyin.';
+});
+
 Route::get('/run-migrations', function () {
     $pages = [
         'hakkimizda' => [
