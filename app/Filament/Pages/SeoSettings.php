@@ -402,8 +402,9 @@ class SeoSettings extends FilamentPage implements HasForms
 
         $count = 0;
         foreach ($products as $product) {
-            $product->meta_title = null;
-            $product->meta_description = null;
+            $product->meta_title = '';
+            $product->meta_description = '';
+            $product->updated_at = now();
             $product->save();
             $count++;
         }
@@ -430,8 +431,9 @@ class SeoSettings extends FilamentPage implements HasForms
 
         $count = 0;
         foreach ($categories as $category) {
-            $category->meta_title = null;
-            $category->meta_description = null;
+            $category->meta_title = '';
+            $category->meta_description = '';
+            $category->updated_at = now();
             $category->save();
             $count++;
         }
@@ -458,8 +460,9 @@ class SeoSettings extends FilamentPage implements HasForms
 
         $count = 0;
         foreach ($pages as $page) {
-            $page->meta_title = null;
-            $page->meta_description = null;
+            $page->meta_title = '';
+            $page->meta_description = '';
+            $page->updated_at = now();
             $page->save();
             $count++;
         }
@@ -486,8 +489,9 @@ class SeoSettings extends FilamentPage implements HasForms
 
         $count = 0;
         foreach ($posts as $post) {
-            $post->meta_title = null;
-            $post->meta_description = null;
+            $post->meta_title = '';
+            $post->meta_description = '';
+            $post->updated_at = now();
             $post->save();
             $count++;
         }
