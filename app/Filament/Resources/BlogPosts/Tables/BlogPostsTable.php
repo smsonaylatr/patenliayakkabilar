@@ -22,9 +22,8 @@ class BlogPostsTable
                 ImageColumn::make('image_path')
                     ->label('Kapak')
                     ->disk('public')
-                    ->square()
-                    ->size(64)
-                    ->extraImgAttributes(['class' => 'rounded-md shadow-sm']),
+                    ->circular()
+                    ->size(40),
                 TextColumn::make('title')
                     ->label('Başlık')
                     ->searchable()
