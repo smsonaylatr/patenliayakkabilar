@@ -126,31 +126,77 @@
                                 {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }} tarihinde yayınlandı
                             </p>
                         </div>
+                {{-- Yatay Banner CTA --}}
+                <style>
+                    .split-cta-container {
+                        background: linear-gradient(to right, #ffffff, #eff6ff);
+                        border-radius: 16px; border: 1px solid #dbeafe;
+                        display: flex; align-items: center; justify-content: space-between;
+                        padding: 3rem 4rem; margin: 3rem 0;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                    }
+                    .split-cta-content {
+                        flex: 1; padding-right: 3rem;
+                    }
+                    .split-cta-badge {
+                        display: inline-block; padding: 6px 14px; background: #dbeafe; color: #1d4ed8;
+                        font-size: 0.85rem; font-weight: 700; border-radius: 999px;
+                        margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;
+                    }
+                    .split-cta-title {
+                        font-size: 1.8rem; font-weight: 800; color: #1e3a8a; margin: 0 0 1rem; line-height: 1.3;
+                    }
+                    .split-cta-text {
+                        color: #475569; font-size: 1.1rem; margin: 0 0 1.8rem; max-width: 500px; line-height: 1.6;
+                    }
+                    .split-cta-btn {
+                        display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px;
+                        background: #2563eb; color: #fff !important; font-weight: 600; font-size: 1.05rem;
+                        border-radius: 12px; text-decoration: none !important; transition: all 0.2s ease;
+                    }
+                    .split-cta-btn:hover {
+                        background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+                    }
+                    .split-cta-visual {
+                        flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                        width: 160px; height: 160px; background: #bfdbfe; border-radius: 50%;
+                        border: 10px solid #ffffff; color: #2563eb; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
+                    }
+                    .split-cta-icon {
+                        font-size: 64px;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        .split-cta-container {
+                            flex-direction: column-reverse; text-align: center; padding: 2.5rem 1.5rem;
+                        }
+                        .split-cta-content {
+                            padding-right: 0;
+                        }
+                        .split-cta-visual {
+                            margin-bottom: 2rem; width: 120px; height: 120px; border-width: 6px;
+                        }
+                        .split-cta-icon {
+                            font-size: 48px !important;
+                        }
+                        .split-cta-text {
+                            margin-left: auto; margin-right: auto;
+                        }
+                    }
+                </style>
+                <div class="split-cta-container">
+                    <div class="split-cta-content">
+                        <span class="split-cta-badge">Koleksiyonu Keşfet</span>
+                        <h3 class="split-cta-title">Patenli Ayakkabı Modelleri</h3>
+                        <p class="split-cta-text">Çocuklarınız için en eğlenceli ve güvenli tekerlekli ayakkabı modellerimizi inceleyin. Hemen sipariş verin, kapınıza gelsin!</p>
+                        <a href="{{ route('products.index') }}" wire:navigate class="split-cta-btn">
+                            Tüm Ürünleri Gör
+                            <i class="fa-solid fa-arrow-right" style="font-size: 14px;"></i>
+                        </a>
                     </div>
-                @endif
-
-                {{-- Ultra Minimal CTA --}}
-                <div style="background: #f9fafb; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; border: 1px solid #e5e7eb; margin: 2rem 0;">
-                    
-                    <div style="margin-bottom: 1rem; color: #2F80ED;">
-                        <i class="fa-solid fa-shoe-prints" style="font-size: 24px;"></i>
+                    <div class="split-cta-visual">
+                        <i class="fa-solid fa-gift split-cta-icon"></i>
                     </div>
-                    
-                    <h3 style="font-size: 1.4rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem; line-height: 1.3;">
-                        Patenli Ayakkabı Modellerini Keşfedin
-                    </h3>
-                    
-                    <p style="color: #4b5563; font-size: 1rem; margin: 0 auto 1.5rem; max-width: 480px; line-height: 1.5;">
-                        En popüler ışıklı ve tekerlekli ayakkabı modellerimizi hemen inceleyin.
-                    </p>
-                    
-                    <a href="{{ route('products.index') }}" wire:navigate 
-                       style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: #2F80ED; color: #fff; font-weight: 600; font-size: 1rem; border-radius: 8px; text-decoration: none; transition: opacity 0.2s ease;"
-                       onmouseover="this.style.opacity='0.9';"
-                       onmouseout="this.style.opacity='1';">
-                        Modelleri İncele
-                        <i class="fa-solid fa-arrow-right" style="font-size: 14px;"></i>
-                    </a>
                 </div>
             </div>
 
