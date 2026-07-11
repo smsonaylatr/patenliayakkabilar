@@ -42,8 +42,14 @@
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
                     
                     @if($product->best_seller)
+                        <?php
+                        $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
+                            return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
+                        });
+                        $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
+                        ?>
                         <div class="absolute -top-3 -left-3 z-30 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-md transform transition-transform hover:scale-110">
-                            <img src="/img/en-cok-satan.svg?v=big" alt="En Çok Satan" class="w-full h-full object-contain">
+                            <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
                         </div>
                     @endif
 

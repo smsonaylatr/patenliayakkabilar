@@ -62,6 +62,7 @@ class BannerSettings extends Page implements HasForms
             'banner_image_3',
             'banner_bg_color_1',
             'banner_bg_color_2',
+            'best_seller_badge',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -79,6 +80,7 @@ class BannerSettings extends Page implements HasForms
             'banner_image_3' => $settings['banner_image_3'] ?? null,
             'banner_bg_color_1' => $settings['banner_bg_color_1'] ?? '#ffffff',
             'banner_bg_color_2' => $settings['banner_bg_color_2'] ?? '#f8fafc',
+            'best_seller_badge' => $settings['best_seller_badge'] ?? null,
         ]);
     }
 
@@ -138,6 +140,16 @@ class BannerSettings extends Page implements HasForms
                                 ->disk('public'),
                         ]),
                     ]),
+                Section::make('Ürün Kartı Ayarları')
+                    ->description('Ürün listeleme ekranlarındaki özel etiket görsellerini buradan değiştirebilirsiniz.')
+                    ->schema([
+                        \Filament\Forms\Components\FileUpload::make('best_seller_badge')
+                            ->label('Çok Satan Rozeti Görseli')
+                            ->image()
+                            ->directory('badges')
+                            ->disk('public')
+                            ->helperText('Boş bırakırsanız varsayılan tasarım kullanılır. (PNG, SVG veya JPG)'),
+                    ]),
             ])
             ->statePath('data');
     }
@@ -151,6 +163,7 @@ class BannerSettings extends Page implements HasForms
         }
 
         \Illuminate\Support\Facades\Cache::forget('hero_settings');
+        \Illuminate\Support\Facades\Cache::forget('best_seller_badge_setting');
 
         Notification::make()
             ->title('Başarılı')
