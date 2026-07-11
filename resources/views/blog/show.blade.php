@@ -129,30 +129,27 @@
                     </div>
                 @endif
 
-                {{-- Brand Match CTA --}}
-                <div style="background:#fff; border-radius: 24px; padding: 3rem 2rem; text-align: center; box-shadow: 0 10px 40px -10px rgba(47, 128, 237, 0.15); border: 1px solid rgba(47, 128, 237, 0.1); position: relative; overflow: hidden; margin: 2rem 0;">
+                {{-- Ultra Minimal CTA --}}
+                <div style="background: #f9fafb; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; border: 1px solid #e5e7eb; margin: 2rem 0;">
                     
-                    {{-- Şık üst çizgi (Sadece Mavi) --}}
-                    <div style="position:absolute; top:0; left:0; width:100%; height:6px; background: #2F80ED;"></div>
-                    
-                    {{-- İkon çemberi (Marka Mavisi) --}}
-                    <div style="width: 80px; height: 80px; background: rgba(47, 128, 237, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #2F80ED;">
-                        <i class="fa-solid fa-shoe-prints" style="font-size: 32px; transform: rotate(-15deg);"></i>
+                    <div style="margin-bottom: 1rem; color: #2F80ED;">
+                        <i class="fa-solid fa-shoe-prints" style="font-size: 24px;"></i>
                     </div>
                     
-                    <h3 style="font-size: 1.8rem; font-weight: 800; color: #111111; margin: 0 0 1rem; line-height: 1.3;">Patenli Ayakkabı Modellerini Keşfedin</h3>
+                    <h3 style="font-size: 1.4rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem; line-height: 1.3;">
+                        Patenli Ayakkabı Modellerini Keşfedin
+                    </h3>
                     
-                    <p style="color: #6b7280; font-size: 1.1rem; margin: 0 auto 2rem; max-width: 500px; line-height: 1.6;">
-                        En popüler ışıklı ve tekerlekli ayakkabı modellerimizi hemen inceleyin. Eğlenceli bir sürpriz yapmak için ürünlerimize göz atın!
+                    <p style="color: #4b5563; font-size: 1rem; margin: 0 auto 1.5rem; max-width: 480px; line-height: 1.5;">
+                        En popüler ışıklı ve tekerlekli ayakkabı modellerimizi hemen inceleyin.
                     </p>
                     
-                    {{-- Marka Mavisi Buton --}}
                     <a href="{{ route('products.index') }}" wire:navigate 
-                       style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 36px; background: #2F80ED; color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(47, 128, 237, 0.3);"
-                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(47, 128, 237, 0.4)';"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(47, 128, 237, 0.3)';">
+                       style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: #2F80ED; color: #fff; font-weight: 600; font-size: 1rem; border-radius: 8px; text-decoration: none; transition: opacity 0.2s ease;"
+                       onmouseover="this.style.opacity='0.9';"
+                       onmouseout="this.style.opacity='1';">
                         Modelleri İncele
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <i class="fa-solid fa-arrow-right" style="font-size: 14px;"></i>
                     </a>
                 </div>
             </div>
