@@ -129,95 +129,31 @@
                     </div>
                 @endif
 
-                {{-- Modern CTA --}}
-                <style>
-                    .modern-cta {
-                        position: relative; overflow: hidden;
-                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                        border-radius: 24px; padding: 4rem 2rem; text-align: center;
-                        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
-                        border: 1px solid rgba(255,255,255,0.08);
-                        transition: transform 0.4s ease, box-shadow 0.4s ease;
-                        margin-bottom: 1rem;
-                    }
-                    .modern-cta:hover {
-                        transform: translateY(-5px);
-                        box-shadow: 0 30px 50px -15px rgba(0,0,0,0.3);
-                    }
-                    .modern-cta-glow-1 {
-                        position: absolute; top: -50%; left: -20%; width: 300px; height: 300px;
-                        background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
-                        border-radius: 50%; filter: blur(40px); pointer-events: none;
-                        transition: all 0.7s ease; opacity: 0.5;
-                    }
-                    .modern-cta:hover .modern-cta-glow-1 { opacity: 0.8; transform: scale(1.2); }
-                    .modern-cta-glow-2 {
-                        position: absolute; bottom: -40%; right: -10%; width: 250px; height: 250px;
-                        background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%);
-                        border-radius: 50%; filter: blur(40px); pointer-events: none;
-                        transition: all 0.7s ease; opacity: 0.5;
-                    }
-                    .modern-cta:hover .modern-cta-glow-2 { opacity: 0.8; transform: scale(1.2); }
-                    .modern-cta-icon {
-                        width: 76px; height: 76px; background: rgba(255,255,255,0.04);
-                        border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
-                        display: flex; align-items: center; justify-content: center;
-                        font-size: 2.5rem; margin: 0 auto 1.5rem;
-                        box-shadow: 0 10px 20px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05);
-                        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                    }
-                    .modern-cta:hover .modern-cta-icon {
-                        transform: scale(1.15) translateY(-8px) rotate(5deg);
-                    }
-                    .modern-cta-title {
-                        font-size: 2rem; font-weight: 800; color: #ffffff; margin: 0 0 1rem;
-                        letter-spacing: -0.02em; line-height: 1.2;
-                    }
-                    .modern-cta-desc {
-                        color: #94a3b8; font-size: 1.15rem; margin: 0 auto 2.5rem;
-                        max-width: 500px; line-height: 1.6; font-weight: 400;
-                    }
-                    .modern-cta-btn {
-                        position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 12px;
-                        padding: 16px 36px; background: linear-gradient(90deg, #3b82f6, #0ea5e9);
-                        color: #ffffff !important; font-weight: 700; font-size: 1.1rem;
-                        border-radius: 9999px; text-decoration: none !important;
-                        box-shadow: 0 10px 25px -5px rgba(59,130,246,0.4); transition: all 0.3s ease;
-                    }
-                    .modern-cta-btn:hover {
-                        box-shadow: 0 15px 35px -5px rgba(59,130,246,0.6);
-                        transform: translateY(-2px);
-                    }
-                    .modern-cta-btn-shine {
-                        position: absolute; inset: 0;
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-                        transform: translateX(-100%); transition: transform 0.6s ease;
-                    }
-                    .modern-cta-btn:hover .modern-cta-btn-shine {
-                        transform: translateX(100%);
-                    }
-                    .modern-cta-btn-icon {
-                        transition: transform 0.3s ease; position: relative; z-index: 1;
-                    }
-                    .modern-cta-btn:hover .modern-cta-btn-icon {
-                        transform: translateX(6px);
-                    }
-                </style>
-                <div class="modern-cta">
-                    <div class="modern-cta-glow-1"></div>
-                    <div class="modern-cta-glow-2"></div>
-                    <div style="position:relative; z-index:10;">
-                        <div class="modern-cta-icon">🚀</div>
-                        <h3 class="modern-cta-title">Patenli Ayakkabı Modellerini Keşfedin</h3>
-                        <p class="modern-cta-desc">Hemen şimdi en trend patenli ayakkabı modellerini inceleyin. Eğlence dolu, güvenli bir sürüş deneyimine ilk adımı atın!</p>
-                        <a href="{{ route('products.index') }}" wire:navigate class="modern-cta-btn">
-                            <span class="modern-cta-btn-shine"></span>
-                            <span style="position:relative; z-index:1;">Modelleri İncele</span>
-                            <svg class="modern-cta-btn-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
-                            </svg>
-                        </a>
+                {{-- Brand Match CTA --}}
+                <div style="background:#fff; border-radius: 24px; padding: 3rem 2rem; text-align: center; box-shadow: 0 10px 40px -10px rgba(47, 128, 237, 0.15); border: 1px solid rgba(47, 128, 237, 0.1); position: relative; overflow: hidden; margin: 2rem 0;">
+                    
+                    {{-- Şık üst çizgi (Mavi - Turuncu Gradient) --}}
+                    <div style="position:absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, #2F80ED, #FF7A1A);"></div>
+                    
+                    {{-- İkon çemberi (Marka Mavisi) --}}
+                    <div style="width: 80px; height: 80px; background: rgba(47, 128, 237, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #2F80ED;">
+                        <i class="fa-solid fa-shoe-prints" style="font-size: 32px; transform: rotate(-15deg);"></i>
                     </div>
+                    
+                    <h3 style="font-size: 1.8rem; font-weight: 800; color: #111111; margin: 0 0 1rem; line-height: 1.3;">Patenli Ayakkabı Modellerini Keşfedin</h3>
+                    
+                    <p style="color: #6b7280; font-size: 1.1rem; margin: 0 auto 2rem; max-width: 500px; line-height: 1.6;">
+                        En popüler ışıklı ve tekerlekli ayakkabı modellerimizi hemen inceleyin. Eğlenceli bir sürpriz yapmak için ürünlerimize göz atın!
+                    </p>
+                    
+                    {{-- Marka Turuncusu Buton --}}
+                    <a href="{{ route('products.index') }}" wire:navigate 
+                       style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 36px; background: #FF7A1A; color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 122, 26, 0.3);"
+                       onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(255, 122, 26, 0.4)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 122, 26, 0.3)';">
+                        Modelleri İncele
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
 
