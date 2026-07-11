@@ -61,20 +61,9 @@ class ProductForm
 
                                 RichEditor::make('description')
                                     ->label('Açıklama')
-                                    ->toolbarButtons([
-                                        'blockquote',
-                                        'bold',
-                                        'bulletList',
-                                        'h2',
-                                        'h3',
-                                        'italic',
-                                        'link',
-                                        'orderedList',
-                                        'redo',
-                                        'strike',
-                                        'underline',
-                                        'undo',
-                                    ])
+                                    ->fileAttachmentsDisk('public')
+                                    ->fileAttachmentsDirectory('product-descriptions')
+                                    ->fileAttachmentsVisibility('public')
                                     ->default(null)
                                     ->columnSpanFull(),
                             ])

@@ -222,7 +222,7 @@
                             </button>
                             <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
-                                    <div class="prose prose-sm prose-gray max-w-none text-gray-600 leading-relaxed text-xs">
+                                    <div class="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                                         {!! $product->description !!}
                                     </div>
                                 </div>
