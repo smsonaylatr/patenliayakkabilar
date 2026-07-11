@@ -124,10 +124,7 @@ Route::get('/siparis-takip', function () {
 // ========================
 // KURUMSAL SAYFALAR
 // ========================
-Route::get('/sayfa/{slug}', function ($slug) {
-    $page = \App\Models\Page::where('slug', $slug)->where('is_active', true)->firstOrFail();
-    return view('pages.show', ['page' => $page]);
-})->name('pages.show');
+// (Kurumsal sayfalar rotası seo açısından en alta taşındı)
 
 // ========================
 // BLOG / REHBER MERKEZİ
@@ -483,3 +480,10 @@ Route::get('/deploy-add-pages', function () {
          . '</body></html>';
 })->middleware('auth');
 
+// ========================
+// DİNAMİK KURUMSAL SAYFALAR (Catch-all)
+// ========================
+Route::get('/{slug}', function ($slug) {
+    $page = \App\Models\Page::where('slug', $slug)->where('is_active', true)->firstOrFail();
+    return view('pages.show', ['page' => $page]);
+})->name('pages.show');

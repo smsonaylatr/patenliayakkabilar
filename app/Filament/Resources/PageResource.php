@@ -129,7 +129,7 @@ class PageResource extends Resource
                     ->color('gray')
                     ->copyable()
                     ->copyMessage('Kopyalandı')
-                    ->prefix('/sayfa/')
+                    ->prefix('/')
                     ->limit(30),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Durum')
