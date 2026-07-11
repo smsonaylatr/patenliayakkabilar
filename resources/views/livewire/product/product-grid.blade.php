@@ -42,8 +42,8 @@
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
                     
                     @if($product->best_seller)
-                        <div class="absolute top-3 left-3 z-30 bg-white/90 backdrop-blur-sm text-gray-500 text-[10px] sm:text-[11px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-widest shadow-sm flex items-center gap-1.5 border border-gray-100">
-                            <span class="text-xs">🔥</span> ÇOK SATAN
+                        <div class="absolute -top-2 -left-2 z-30 w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg transform transition-transform hover:scale-110">
+                            <img src="/img/en-cok-satan.png" alt="En Çok Satan" class="w-full h-full object-contain">
                         </div>
                     @endif
 
