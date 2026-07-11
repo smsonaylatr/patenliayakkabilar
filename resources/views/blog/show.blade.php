@@ -47,7 +47,7 @@
             <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
                  alt="{{ $post->title }}" 
                  class="w-full object-cover"
-                 style="max-height:500px;opacity:0.3;position:absolute;inset:0;width:100%;height:100%;"
+                 style="max-height:500px;opacity:0.55;position:absolute;inset:0;width:100%;height:100%;"
                  fetchpriority="high">
         @else
             {{-- Görselsiz dekoratif arka plan --}}
@@ -57,7 +57,7 @@
             <div style="position:absolute;top:50%;right:40px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.06);transform:translateY(-50%);"></div>
         @endif
 
-        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.3) 60%, rgba(17,24,39,0.1) 100%);"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.85) 0%, rgba(17,24,39,0.2) 60%, rgba(17,24,39,0) 100%);"></div>
 
         <div style="position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:5rem 1.5rem 3rem;display:flex;flex-direction:column;justify-content:flex-end;min-height:280px;">
             {{-- Kategori etiketi --}}
