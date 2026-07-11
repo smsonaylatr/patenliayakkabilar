@@ -118,22 +118,22 @@ class BannerSettings extends Page implements HasForms
                     ]),
 
                 Section::make('Görsel Ayarları (Uçan Kartlar)')
-                    ->description('Buraya yüklediğiniz görseller ana sayfadaki 3 boyutlu uçan kartlarda gösterilir. Boş bırakırsanız rastgele ürün görselleri gelir.')
+                    ->description('Buraya yüklediğiniz görseller veya VİDEOLAR ana sayfadaki 3 boyutlu uçan kartlarda gösterilir. Boş bırakırsanız rastgele ürün görselleri gelir.')
                     ->schema([
                         Grid::make(3)->schema([
                             \Filament\Forms\Components\FileUpload::make('banner_image_1')
-                                ->label('1. Kart Görseli (Ana Büyük)')
-                                ->image()
+                                ->label('1. Kart Görseli / Videosu (Ana Büyük)')
+                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm', 'video/quicktime'])
                                 ->directory('hero-banners')
                                 ->disk('public'),
                             \Filament\Forms\Components\FileUpload::make('banner_image_2')
-                                ->label('2. Kart Görseli (Sağ Üst)')
-                                ->image()
+                                ->label('2. Kart Görseli / Videosu (Sağ Üst)')
+                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm', 'video/quicktime'])
                                 ->directory('hero-banners')
                                 ->disk('public'),
                             \Filament\Forms\Components\FileUpload::make('banner_image_3')
-                                ->label('3. Kart Görseli (Sol Alt)')
-                                ->image()
+                                ->label('3. Kart Görseli / Videosu (Sol Alt)')
+                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm', 'video/quicktime'])
                                 ->directory('hero-banners')
                                 ->disk('public'),
                         ]),

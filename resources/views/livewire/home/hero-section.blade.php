@@ -104,20 +104,37 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     <!-- Right: 3D floating product cards -->
     <div class="hero-3d-stage" id="hero-3d-stage"
       :style="`transform: translate(${mx * 12}px, ${my * 8}px); transition: transform ${mx === 0 ? '0.8s ease' : '0.15s ease'}`">
+<?php
+$isVideo = function($url) {
+    return preg_match('/\.(mp4|webm|mov|ogg)$/i', $url);
+};
+?>
       <!-- Main big card -->
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
-        <img src="{{ $mainImgUrl }}" alt="Ana Kampanya Görseli" />
+        @if($isVideo($mainImgUrl))
+            <video src="{{ $mainImgUrl }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+        @else
+            <img src="{{ $mainImgUrl }}" alt="Ana Kampanya Görseli" />
+        @endif
       </div>
 
       <!-- Floating card top-right -->
       <div class="card-3d card-sm card-float-1">
-        <img src="{{ $subImgUrl1 }}" alt="Kampanya Görseli 2" />
+        @if($isVideo($subImgUrl1))
+            <video src="{{ $subImgUrl1 }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+        @else
+            <img src="{{ $subImgUrl1 }}" alt="Kampanya Görseli 2" />
+        @endif
       </div>
 
       <!-- Floating card bottom-left -->
       <div class="card-3d card-sm card-float-2">
-        <img src="{{ $subImgUrl2 }}" alt="Kampanya Görseli 3" />
+        @if($isVideo($subImgUrl2))
+            <video src="{{ $subImgUrl2 }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+        @else
+            <img src="{{ $subImgUrl2 }}" alt="Kampanya Görseli 3" />
+        @endif
       </div>
 
       <!-- Rating badge floating -->
