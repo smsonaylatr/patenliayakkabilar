@@ -1,9 +1,8 @@
 <x-filament-panels::page>
 
     {{-- SEO SAĞLIK DASHBOARD --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         
-        {{-- Ürünler --}}
         @php
             $productPercent = $this->totalProducts > 0 ? round((($this->totalProducts - $this->productsWithoutMeta) / $this->totalProducts) * 100) : 0;
             $catPercent = $this->totalCategories > 0 ? round((($this->totalCategories - $this->categoriesWithoutMeta) / $this->totalCategories) * 100) : 0;
@@ -11,94 +10,91 @@
             $blogPercent = $this->totalBlogPosts > 0 ? round((($this->totalBlogPosts - $this->blogPostsWithoutMeta) / $this->totalBlogPosts) * 100) : 0;
         @endphp
 
+        {{-- Ürünler --}}
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-5 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                            <x-heroicon-o-shopping-bag class="w-5 h-5 text-blue-600 dark:text-blue-400"/>
-                        </div>
-                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Ürünler</h3>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">🛍️</span>
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-200" style="margin:0;">Ürünler</h3>
                     </div>
                     @if($this->productsWithoutMeta === 0 && $this->totalProducts > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">
-                            <x-heroicon-s-check-circle class="w-4 h-4"/> Kusursuz
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #d1fae5; color: #065f46;">
+                            ✓ Kusursuz
                         </span>
                     @elseif($this->productsWithoutMeta > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-400">
-                            <x-heroicon-s-exclamation-triangle class="w-4 h-4"/> {{ $this->productsWithoutMeta }} Eksik
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #ffe4e6; color: #9f1239;">
+                            ⚠️ {{ $this->productsWithoutMeta }} Eksik
                         </span>
                     @endif
                 </div>
                 
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1.5">
-                        <span class="text-gray-500 dark:text-gray-400">SEO Uyumu</span>
-                        <span class="font-bold text-gray-700 dark:text-gray-300">%{{ $productPercent }}</span>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                        <span style="color: #6b7280;">SEO Uyumu</span>
+                        <span style="font-weight: bold;">%{{ $productPercent }}</span>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 dark:bg-gray-800">
-                        <div class="{{ $productPercent == 100 ? 'bg-emerald-500' : 'bg-blue-500' }} h-2.5 rounded-full transition-all duration-500" style="width: {{ $productPercent }}%"></div>
+                    <div style="width: 100%; background: #f3f4f6; border-radius: 999px; height: 8px; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 999px; transition: width 0.5s; background: {{ $productPercent == 100 ? '#10b981' : '#3b82f6' }}; width: {{ $productPercent }}%;"></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                        Toplam <strong>{{ $this->totalProducts }}</strong> üründen <strong>{{ $this->totalProducts - $this->productsWithoutMeta }}</strong> tanesinde SEO ayarları tam.
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 10px; line-height: 1.5;">
+                        Toplam <strong>{{ $this->totalProducts }}</strong> üründen <strong>{{ $this->totalProducts - $this->productsWithoutMeta }}</strong> tanesinin SEO ayarları tam.
                     </p>
                 </div>
             </div>
 
             @if($this->productsWithoutMeta > 0)
                 <button wire:click="regenerateAllProductSeo" wire:confirm="{{ $this->productsWithoutMeta }} ürünün SEO başlık ve açıklamaları yapay zeka ile üretilecek. Onaylıyor musunuz?"
-                        class="mt-2 w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-lg bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors shadow-sm">
+                        style="margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #111827; color: white; cursor: pointer; border: none;">
                     🤖 Yapay Zeka ile Doldur
                 </button>
             @else
-                <div class="mt-2 w-full text-center py-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
-                    Tüm ürünler optimize edildi 🎉
+                <div style="margin-top: 10px; width: 100%; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; color: #059669; background: #ecfdf5; border-radius: 8px;">
+                    Tüm ürünler optimize 🎉
                 </div>
             @endif
         </div>
 
         {{-- Kategoriler --}}
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-5 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                            <x-heroicon-o-rectangle-group class="w-5 h-5 text-indigo-600 dark:text-indigo-400"/>
-                        </div>
-                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Kategoriler</h3>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📁</span>
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-200" style="margin:0;">Kategoriler</h3>
                     </div>
                     @if($this->categoriesWithoutMeta === 0 && $this->totalCategories > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">
-                            <x-heroicon-s-check-circle class="w-4 h-4"/> Kusursuz
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #d1fae5; color: #065f46;">
+                            ✓ Kusursuz
                         </span>
                     @elseif($this->categoriesWithoutMeta > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
-                            <x-heroicon-s-exclamation-triangle class="w-4 h-4"/> {{ $this->categoriesWithoutMeta }} Eksik
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #ffe4e6; color: #9f1239;">
+                            ⚠️ {{ $this->categoriesWithoutMeta }} Eksik
                         </span>
                     @endif
                 </div>
                 
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1.5">
-                        <span class="text-gray-500 dark:text-gray-400">SEO Uyumu</span>
-                        <span class="font-bold text-gray-700 dark:text-gray-300">%{{ $catPercent }}</span>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                        <span style="color: #6b7280;">SEO Uyumu</span>
+                        <span style="font-weight: bold;">%{{ $catPercent }}</span>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 dark:bg-gray-800">
-                        <div class="{{ $catPercent == 100 ? 'bg-emerald-500' : 'bg-indigo-500' }} h-2.5 rounded-full transition-all duration-500" style="width: {{ $catPercent }}%"></div>
+                    <div style="width: 100%; background: #f3f4f6; border-radius: 999px; height: 8px; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 999px; transition: width 0.5s; background: {{ $catPercent == 100 ? '#10b981' : '#6366f1' }}; width: {{ $catPercent }}%;"></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                        Toplam <strong>{{ $this->totalCategories }}</strong> kategoriden <strong>{{ $this->totalCategories - $this->categoriesWithoutMeta }}</strong> tanesinde SEO ayarları tam.
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 10px; line-height: 1.5;">
+                        Toplam <strong>{{ $this->totalCategories }}</strong> kategoriden <strong>{{ $this->totalCategories - $this->categoriesWithoutMeta }}</strong> tanesinin SEO ayarları tam.
                     </p>
                 </div>
             </div>
 
             @if($this->categoriesWithoutMeta > 0)
                 <button wire:click="regenerateAllCategorySeo" wire:confirm="{{ $this->categoriesWithoutMeta }} kategorinin SEO verileri yapay zeka ile üretilecek. Onaylıyor musunuz?"
-                        class="mt-2 w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-lg bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors shadow-sm">
+                        style="margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #111827; color: white; cursor: pointer; border: none;">
                     🤖 Yapay Zeka ile Doldur
                 </button>
             @else
-                <div class="mt-2 w-full text-center py-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
+                <div style="margin-top: 10px; width: 100%; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; color: #059669; background: #ecfdf5; border-radius: 8px;">
                     Tüm kategoriler optimize 🎉
                 </div>
             @endif
@@ -106,46 +102,44 @@
 
         {{-- Sayfalar --}}
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-5 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                            <x-heroicon-o-document-text class="w-5 h-5 text-purple-600 dark:text-purple-400"/>
-                        </div>
-                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Sayfalar</h3>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📄</span>
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-200" style="margin:0;">Sayfalar</h3>
                     </div>
                     @if($this->pagesWithoutMeta === 0 && $this->totalPages > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">
-                            <x-heroicon-s-check-circle class="w-4 h-4"/> Kusursuz
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #d1fae5; color: #065f46;">
+                            ✓ Kusursuz
                         </span>
                     @elseif($this->pagesWithoutMeta > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
-                            <x-heroicon-s-exclamation-triangle class="w-4 h-4"/> {{ $this->pagesWithoutMeta }} Eksik
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #ffe4e6; color: #9f1239;">
+                            ⚠️ {{ $this->pagesWithoutMeta }} Eksik
                         </span>
                     @endif
                 </div>
                 
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1.5">
-                        <span class="text-gray-500 dark:text-gray-400">SEO Uyumu</span>
-                        <span class="font-bold text-gray-700 dark:text-gray-300">%{{ $pagePercent }}</span>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                        <span style="color: #6b7280;">SEO Uyumu</span>
+                        <span style="font-weight: bold;">%{{ $pagePercent }}</span>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 dark:bg-gray-800">
-                        <div class="{{ $pagePercent == 100 ? 'bg-emerald-500' : 'bg-purple-500' }} h-2.5 rounded-full transition-all duration-500" style="width: {{ $pagePercent }}%"></div>
+                    <div style="width: 100%; background: #f3f4f6; border-radius: 999px; height: 8px; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 999px; transition: width 0.5s; background: {{ $pagePercent == 100 ? '#10b981' : '#a855f7' }}; width: {{ $pagePercent }}%;"></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                        Toplam <strong>{{ $this->totalPages }}</strong> kurumsal sayfadan <strong>{{ $this->totalPages - $this->pagesWithoutMeta }}</strong> tanesinde SEO ayarları tam.
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 10px; line-height: 1.5;">
+                        Toplam <strong>{{ $this->totalPages }}</strong> sayfadan <strong>{{ $this->totalPages - $this->pagesWithoutMeta }}</strong> tanesinin SEO ayarları tam.
                     </p>
                 </div>
             </div>
 
             @if($this->pagesWithoutMeta > 0)
                 <button wire:click="regenerateAllPageSeo" wire:confirm="{{ $this->pagesWithoutMeta }} sayfanın SEO verileri yapay zeka ile üretilecek. Onaylıyor musunuz?"
-                        class="mt-2 w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-lg bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors shadow-sm">
+                        style="margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #111827; color: white; cursor: pointer; border: none;">
                     🤖 Yapay Zeka ile Doldur
                 </button>
             @else
-                <div class="mt-2 w-full text-center py-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
+                <div style="margin-top: 10px; width: 100%; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; color: #059669; background: #ecfdf5; border-radius: 8px;">
                     Tüm sayfalar optimize 🎉
                 </div>
             @endif
@@ -153,47 +147,45 @@
 
         {{-- Blog --}}
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-5 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-pink-50 dark:bg-pink-900/30 rounded-lg">
-                            <x-heroicon-o-pencil-square class="w-5 h-5 text-pink-600 dark:text-pink-400"/>
-                        </div>
-                        <h3 class="font-semibold text-gray-800 dark:text-gray-200">Blog</h3>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📝</span>
+                        <h3 class="font-semibold text-gray-800 dark:text-gray-200" style="margin:0;">Blog</h3>
                     </div>
                     @if($this->blogPostsWithoutMeta === 0 && $this->totalBlogPosts > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400">
-                            <x-heroicon-s-check-circle class="w-4 h-4"/> Kusursuz
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #d1fae5; color: #065f46;">
+                            ✓ Kusursuz
                         </span>
                     @elseif($this->blogPostsWithoutMeta > 0)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
-                            <x-heroicon-s-exclamation-triangle class="w-4 h-4"/> {{ $this->blogPostsWithoutMeta }} Eksik
+                        <span style="display:inline-flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background: #ffe4e6; color: #9f1239;">
+                            ⚠️ {{ $this->blogPostsWithoutMeta }} Eksik
                         </span>
                     @endif
                 </div>
                 
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-1.5">
-                        <span class="text-gray-500 dark:text-gray-400">SEO Uyumu</span>
-                        <span class="font-bold text-gray-700 dark:text-gray-300">%{{ $blogPercent }}</span>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+                        <span style="color: #6b7280;">SEO Uyumu</span>
+                        <span style="font-weight: bold;">%{{ $blogPercent }}</span>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 dark:bg-gray-800">
-                        <div class="{{ $blogPercent == 100 ? 'bg-emerald-500' : 'bg-pink-500' }} h-2.5 rounded-full transition-all duration-500" style="width: {{ $blogPercent }}%"></div>
+                    <div style="width: 100%; background: #f3f4f6; border-radius: 999px; height: 8px; overflow: hidden;">
+                        <div style="height: 100%; border-radius: 999px; transition: width 0.5s; background: {{ $blogPercent == 100 ? '#10b981' : '#ec4899' }}; width: {{ $blogPercent }}%;"></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                        Toplam <strong>{{ $this->totalBlogPosts }}</strong> blog yazısından <strong>{{ $this->totalBlogPosts - $this->blogPostsWithoutMeta }}</strong> tanesinde SEO ayarları tam.
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 10px; line-height: 1.5;">
+                        Toplam <strong>{{ $this->totalBlogPosts }}</strong> blog yazısından <strong>{{ $this->totalBlogPosts - $this->blogPostsWithoutMeta }}</strong> tanesinin SEO ayarları tam.
                     </p>
                 </div>
             </div>
 
             @if($this->blogPostsWithoutMeta > 0)
                 <button wire:click="regenerateAllBlogSeo" wire:confirm="{{ $this->blogPostsWithoutMeta }} blog yazısının SEO verileri yapay zeka ile üretilecek. Onaylıyor musunuz?"
-                        class="mt-2 w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-4 rounded-lg bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-500 transition-colors shadow-sm">
+                        style="margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; background: #111827; color: white; cursor: pointer; border: none;">
                     🤖 Yapay Zeka ile Doldur
                 </button>
             @else
-                <div class="mt-2 w-full text-center py-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
-                    Tüm yazılar optimize 🎉
+                <div style="margin-top: 10px; width: 100%; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; color: #059669; background: #ecfdf5; border-radius: 8px;">
+                    Tüm blog yazıları optimize 🎉
                 </div>
             @endif
         </div>
