@@ -42,11 +42,8 @@
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
                     
                     @if($product->best_seller)
-                        <div class="absolute -top-2 -left-2 z-30 w-[4.5rem] h-[4.5rem] sm:w-[5rem] sm:h-[5rem] rounded-full bg-gradient-to-b from-gray-200 via-gray-400 to-gray-500 p-1 shadow-[0_4px_10px_rgba(0,0,0,0.5)] transform transition-transform hover:scale-110 rotate-[-10deg]">
-                            <div class="w-full h-full rounded-full bg-gradient-to-br from-gray-500 to-gray-800 border-[3px] border-gray-300/50 flex flex-col items-center justify-center shadow-inner">
-                                <span class="text-white font-black text-[11px] sm:text-[12px] leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] tracking-wide">EN ÇOK</span>
-                                <span class="text-white font-black text-[13px] sm:text-[15px] leading-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] tracking-wide">SATAN</span>
-                            </div>
+                        <div class="absolute top-2 left-2 z-30 w-12 h-12 sm:w-16 sm:h-16 drop-shadow-md transform transition-transform hover:scale-110">
+                            <img src="/img/en-cok-satan.png" alt="En Çok Satan" class="w-full h-full object-contain">
                         </div>
                     @endif
 
