@@ -34,7 +34,7 @@
             x-transition:leave="transition ease-in duration-75"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="absolute z-50 mt-2 w-full rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-2 max-h-60 overflow-auto focus:outline-none"
+            class="mt-2 w-full rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-2 max-h-60 overflow-auto focus:outline-none"
             style="display: none;"
         >
             <template x-for="variant in variants" :key="variant.id">
