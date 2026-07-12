@@ -18,7 +18,7 @@
                 <span class="text-sm text-gray-400 hidden sm:inline-block">({{ $totalReviews }} Değerlendirme)</span>
             </div>
         </div>
-        <button @click="showReviewModal = true" class="hidden sm:flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+        <button type="button" @click="showReviewModal = true" class="hidden sm:flex relative z-10 cursor-pointer items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
             Yorum Yap <i class="fa-solid fa-arrow-right"></i>
         </button>
     </div>
