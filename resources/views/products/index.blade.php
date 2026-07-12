@@ -42,7 +42,7 @@
                 </p>
             </div>
 
-            <livewire:product.product-grid />
+            <livewire:product.product-grid :category="isset($category) && $category ? $category->slug : ''" />
             
             {{-- Kategori SEO metni --}}
             @if(isset($category) && $category && $category->seo_content)
