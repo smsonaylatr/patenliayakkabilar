@@ -16,9 +16,8 @@ class AddToCartButton extends Component
     public function mount(Product $product)
     {
         $this->product = $product;
-        // Eğer varyantı varsa ilk varyantı varsayılan seç
         if ($this->product->variants->count() > 0) {
-            $this->variantId = $this->product->variants->first()->id;
+            $this->variantId = '';
         }
     }
 

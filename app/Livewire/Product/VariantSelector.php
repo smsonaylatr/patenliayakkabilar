@@ -14,7 +14,7 @@ class VariantSelector extends Component
     {
         $this->product = $product;
         if ($this->product->variants->count() > 0) {
-            $this->selectedVariantId = $this->product->variants->first()->id;
+            $this->selectedVariantId = '';
         }
     }
 
