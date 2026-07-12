@@ -8,6 +8,10 @@ class Review extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class);

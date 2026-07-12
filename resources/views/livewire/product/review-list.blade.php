@@ -58,6 +58,20 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 leading-relaxed">{{ $review->comment }}</p>
+                
+                @if(!empty($review->images) && is_array($review->images))
+                    <div class="mt-4 flex gap-2 overflow-x-auto pb-2" style="scrollbar-width: none;">
+                        @foreach($review->images as $media)
+                            @if(\Illuminate\Support\Str::endsWith(strtolower($media), ['.mp4', '.mov']))
+                                <video src="{{ Storage::url($media) }}" class="h-24 w-24 object-cover rounded-lg border border-gray-200" controls></video>
+                            @else
+                                <a href="{{ Storage::url($media) }}" target="_blank" class="flex-shrink-0 block cursor-zoom-in">
+                                    <img src="{{ Storage::url($media) }}" class="h-24 w-24 object-cover rounded-lg border border-gray-200 hover:opacity-90 transition-opacity">
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
             </div>
         @empty
             <div class="text-center py-8 text-gray-500 text-sm">
@@ -167,6 +181,48 @@
                             <label class="block text-sm font-bold text-gray-700 mb-2">Yorumunuz</label>
                             <textarea wire:model="comment" rows="4" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm px-4 py-3.5 transition-all resize-none" placeholder="Ürün hakkında ne düşünüyorsunuz? Deneyiminizi diğer ebeveynlerle paylaşın..."></textarea>
                             @error('comment') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                        </div>
+
+                        <!-- Fotoğraf / Video Yükleme -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Fotoğraf veya Video <span class="text-gray-400 font-normal text-xs">(İsteğe Bağlı)</span></label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-emerald-500 transition-colors bg-gray-50/50">
+                                <div class="space-y-1 text-center">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-emerald-500 mb-3 block"></i>
+                                    <div class="flex text-sm text-gray-600 justify-center">
+                                        <label for="file-upload" class="relative cursor-pointer rounded-md font-medium text-emerald-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 hover:text-emerald-500">
+                                            <span>Dosya Seçin</span>
+                                            <input id="file-upload" wire:model="media_files" type="file" multiple accept="image/*,video/mp4,video/quicktime" class="sr-only">
+                                        </label>
+                                        <p class="pl-1">veya sürükleyip bırakın</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, MP4 (Maks. 20MB)</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Yükleniyor Uyarısı -->
+                            <div wire:loading wire:target="media_files" class="mt-3 text-sm text-emerald-600 font-medium flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Dosyalar yükleniyor...
+                            </div>
+
+                            @error('media_files.*') <p class="text-sm text-red-500 mt-2 font-medium">{{ $message }}</p> @enderror
+
+                            <!-- Önizleme -->
+                            @if($media_files)
+                                <div class="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-3">
+                                    @foreach($media_files as $index => $file)
+                                        <div class="relative rounded-lg overflow-hidden border border-gray-200 aspect-square shadow-sm">
+                                            @if(str_contains($file->getMimeType(), 'image'))
+                                                <img src="{{ $file->temporaryUrl() }}" class="object-cover w-full h-full">
+                                            @else
+                                                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                    <i class="fa-solid fa-video text-gray-400 text-2xl"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
 
