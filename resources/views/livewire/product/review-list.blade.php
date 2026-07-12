@@ -111,7 +111,7 @@
              @click="showReviewModal = false"
              aria-hidden="true"></div>
 
-        <div class="flex min-h-[100dvh] items-center justify-center p-4 text-center sm:p-0">
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <!-- Modal Panel -->
             <div x-show="showReviewModal" 
                  x-transition:enter="ease-out duration-300"
@@ -120,7 +120,7 @@
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
-                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-md border border-gray-100">
+                 class="relative my-auto transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-md border border-gray-100">
                 
                 <form wire:submit="submitReview" x-on:review-submitted.window="showReviewModal = false">
                     
