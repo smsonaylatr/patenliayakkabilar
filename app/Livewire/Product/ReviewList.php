@@ -89,7 +89,7 @@ class ReviewList extends Component
     {
         $reviews = $this->product->reviews()
             ->where('status', 1) // Only approved
-            ->latest()
+            ->latest('id')
             ->take(5)
             ->get();
 
