@@ -49,7 +49,7 @@
         }
     </style>
 
-    <div class="pt-16 pb-10 bg-white">
+    <div class="pt-4 lg:pt-16 pb-10 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Breadcrumb --}}
             <div class="mb-6">
