@@ -49,7 +49,7 @@
         }
     </style>
 
-    <div class="pt-4 lg:pt-16 pb-10 bg-white">
+    <div class="pt-4 lg:pt-16 pb-10 bg-white" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Breadcrumb --}}
             <div class="mb-6">
@@ -60,7 +60,7 @@
                     ['name' => $product->name],
                 ]" />
             </div>
-            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
+            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;">
                 <!-- 1. Image gallery (Left Column, Top) -->
                 <div class="order-1 lg:col-span-1 lg:row-span-1">
                     <livewire:product.product-gallery :product="$product" />
@@ -297,17 +297,18 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 4. TANITIM İÇERİĞİ (Masaüstü Tam Genişlik) -->
-            @if($product->description)
-            <div id="full-width-description" class="hidden lg:block mt-12 border-t border-gray-100 px-4 sm:px-0 relative z-10 accordion-content" :class="openPanel === 'description' ? 'open' : ''">
-                <div class="pt-10">
-                    <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
-                        {!! $product->description !!}
-                    </div>
+        <!-- 4. TANITIM İÇERİĞİ (Masaüstü Tam Genişlik Edge-to-Edge) -->
+        @if($product->description)
+        <div id="full-width-description" class="hidden lg:block mt-12 border-t border-gray-100 relative z-10 accordion-content" :class="openPanel === 'description' ? 'open' : ''">
+            <div class="pt-10 w-full">
+                <!-- Sadece görselleri ekrandan ekrana yayan, yazıları ise ortada (max-w-7xl) tutan gelişmiş Tailwind CSS kurgusu -->
+                <div class="prose prose-lg prose-gray max-w-none w-full text-gray-700 leading-relaxed prose-img:rounded-none prose-img:w-full prose-img:m-0 prose-headings:font-bold prose-a:text-emerald-600 [&>p]:max-w-7xl [&>p]:mx-auto [&>p]:px-4 [&>h1]:max-w-7xl [&>h1]:mx-auto [&>h1]:px-4 [&>h2]:max-w-7xl [&>h2]:mx-auto [&>h2]:px-4 [&>h3]:max-w-7xl [&>h3]:mx-auto [&>h3]:px-4 [&>ul]:max-w-7xl [&>ul]:mx-auto [&>ul]:px-4 [&>p:has(img)]:max-w-none [&>p:has(img)]:px-0 [&>figure]:max-w-none [&>figure]:px-0">
+                    {!! $product->description !!}
                 </div>
             </div>
-            @endif
         </div>
+        @endif
     </div>
 </x-layouts.app>
