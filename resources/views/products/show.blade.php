@@ -148,7 +148,7 @@
                     {{-- ========================================
                          AKORDİYON — Minimalist
                     ======================================== --}}
-                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: '' }">
+                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp
