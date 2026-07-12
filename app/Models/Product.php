@@ -105,30 +105,7 @@ class Product extends Model
         // KISA AÇIKLAMA (max 500 karakter)
         // ========================================
         if (empty($product->short_description)) {
-            $parts = [];
-            $parts[] = $name;
-
-            if ($hedefKitle) {
-                $parts[] = $hedefKitle . ' için tasarlanmış';
-            }
-
-            if ($brand) {
-                $parts[] = $brand . ' marka';
-            }
-
-            $parts[] = 'patenli ayakkabı.';
-
-            if ($category) {
-                $parts[] = $category . ' kategorisinde.';
-            }
-
-            if ($price && $price > 0) {
-                $parts[] = number_format((float) $price, 0, ',', '.') . ' ₺ fiyatla.';
-            }
-
-            $parts[] = 'Ücretsiz kargo ve güvenli ödeme seçenekleriyle hemen sipariş verin.';
-
-            $product->short_description = mb_substr(implode(' ', $parts), 0, 500);
+            $product->short_description = "Işıklı tasarım, sportif stil ve paten keyfi bir arada! {$name}, çocukların her adımını daha eğlenceli hale getirirken konforlu yapısıyla günlük kullanıma da uyum sağlar.";
         }
 
         // ========================================
