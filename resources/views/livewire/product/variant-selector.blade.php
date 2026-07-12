@@ -4,19 +4,19 @@
         <a href="#" class="text-sm text-gray-500 hover:text-gray-900 underline decoration-gray-300 hover:decoration-gray-900 transition-colors">Beden Tablosu</a>
     </div>
 
-    <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 sm:gap-3">
-        @foreach($product->variants as $variant)
-            <button 
-                @click="selectedId = {{ $variant->id }}"
-                type="button" 
-                class="flex items-center justify-center border-2 py-3 w-full rounded-xl text-sm font-semibold transition-all duration-150 {{ $variant->stock <= 0 ? 'opacity-40 cursor-not-allowed line-through' : '' }}"
-                :class="selectedId == {{ $variant->id }} 
-                    ? 'border-gray-900 bg-gray-900 text-white shadow-md transform scale-105' 
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'"
-                {{ $variant->stock <= 0 ? 'disabled' : '' }}
-            >
-                {{ $variant->size }}
-            </button>
-        @endforeach
+    <div class="relative mt-2">
+        <select 
+            x-model="selectedId" 
+            class="block w-full appearance-none rounded-xl border border-gray-300 bg-white py-3.5 pl-4 pr-10 text-base font-medium text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:text-sm transition-colors cursor-pointer"
+        >
+            @foreach($product->variants as $variant)
+                <option value="{{ $variant->id }}" {{ $variant->stock <= 0 ? 'disabled' : '' }}>
+                    {{ $variant->size }} Numarası {{ $variant->stock <= 0 ? '- Stokta Yok' : '' }}
+                </option>
+            @endforeach
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+            <i class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+        </div>
     </div>
 </div>

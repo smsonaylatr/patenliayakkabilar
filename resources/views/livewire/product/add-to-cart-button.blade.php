@@ -1,5 +1,17 @@
-<div class="w-full">
-    <button wire:click="addToCart" wire:loading.attr="disabled" type="button" class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] disabled:cursor-not-allowed disabled:opacity-70">
+<div class="w-full flex items-center gap-3" x-data="{ qty: @entangle('quantity') }">
+    <!-- Adet Seçici (- 1 +) -->
+    <div class="flex items-center justify-between border-2 border-gray-200 rounded-xl h-14 px-2 sm:px-4 min-w-[110px] bg-white">
+        <button type="button" @click="qty > 1 ? qty-- : null" class="text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg focus:outline-none w-8 h-8 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-minus text-xs"></i>
+        </button>
+        <span class="text-base font-bold text-gray-900 w-8 text-center" x-text="qty"></span>
+        <button type="button" @click="qty++" class="text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg focus:outline-none w-8 h-8 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-plus text-xs"></i>
+        </button>
+    </div>
+
+    <!-- Sepete Ekle Butonu -->
+    <button wire:click="addToCart" wire:loading.attr="disabled" type="button" class="group relative flex flex-1 h-14 items-center justify-center gap-3 overflow-hidden rounded-xl bg-gray-900 px-4 sm:px-8 text-base font-bold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] disabled:cursor-not-allowed disabled:opacity-70">
         <!-- Shine effect on hover -->
         <div class="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
             <div class="relative h-full w-8 bg-white/20"></div>
