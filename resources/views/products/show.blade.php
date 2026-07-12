@@ -262,7 +262,7 @@
                         @if($product->description)
                         <div>
                             <button
-                                @click="window.innerWidth >= 1024 ? ($dispatch('toggle-tanitim'), setTimeout(() => { if (document.getElementById('tanitim-bolumu')) document.getElementById('tanitim-bolumu').scrollIntoView({behavior: 'smooth'}) }, 50)) : (openPanel = openPanel === 'description' ? '' : 'description')"
+                                @click="window.innerWidth >= 1024 ? $dispatch('toggle-tanitim') : (openPanel = openPanel === 'description' ? '' : 'description')"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
                                 <div class="flex items-center gap-4">
@@ -270,7 +270,7 @@
                                     <span class="text-sm font-semibold text-gray-900">Ürün Tanıtımı</span>
                                 </div>
                                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                                   :class="(openPanel === 'description' && window.innerWidth < 1024) || (window.innerWidth >= 1024 && document.getElementById('tanitim-bolumu') && document.getElementById('tanitim-bolumu').style.display !== 'none') ? 'rotate-180' : ''"
+                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"
                                    @toggle-tanitim.window="$el.classList.toggle('rotate-180')"></i>
                             </button>
                             <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
@@ -301,10 +301,12 @@
 
             <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
             @if($product->description)
-            <div x-data="{ showTanitim: false }" @toggle-tanitim.window="showTanitim = !showTanitim">
-                <div id="tanitim-bolumu" x-show="showTanitim" style="display: none;" x-transition.opacity.duration.300ms class="hidden lg:block mt-0 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
-                    <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
-                        {!! $product->description !!}
+            <div x-data="{ showTanitim: false }" @toggle-tanitim.window="showTanitim = !showTanitim; if(showTanitim) { setTimeout(() => { $el.scrollIntoView({behavior: 'smooth'}) }, 250) }">
+                <div id="tanitim-bolumu" class="hidden lg:block mt-0 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10 accordion-content" :class="showTanitim ? 'open' : ''">
+                    <div>
+                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600 pb-10">
+                            {!! $product->description !!}
+                        </div>
                     </div>
                 </div>
             </div>
