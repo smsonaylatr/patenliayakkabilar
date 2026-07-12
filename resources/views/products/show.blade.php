@@ -260,19 +260,19 @@
 
                         {{-- 4. TANITIM (ÜRÜN AÇIKLAMASI) --}}
                         @if($product->description)
-                        <div class="lg:hidden">
+                        <div>
                             <button
-                                @click="openPanel = openPanel === 'description' ? '' : 'description'"
+                                @click="window.innerWidth >= 1024 ? document.getElementById('tanitim-bolumu').scrollIntoView({behavior: 'smooth'}) : (openPanel = openPanel === 'description' ? '' : 'description')"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
                                 <div class="flex items-center gap-4">
                                     <i class="fa-solid fa-file-lines text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
-                                    <span class="text-sm font-semibold text-gray-900">Tanıtım</span>
+                                    <span class="text-sm font-semibold text-gray-900">Ürün Tanıtımı</span>
                                 </div>
                                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                                   :class="openPanel === 'description' ? 'rotate-180' : ''"></i>
+                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"></i>
                             </button>
-                            <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
+                            <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
                                     <div class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                                         {!! $product->description !!}
@@ -300,7 +300,7 @@
 
             <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
             @if($product->description)
-            <div class="hidden lg:block mt-16 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
+            <div id="tanitim-bolumu" class="hidden lg:block mt-16 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
                 <div class="flex items-center gap-4 mb-8">
                     <i class="fa-solid fa-file-lines text-gray-400 text-xl w-8 flex-shrink-0 text-center"></i>
                     <h2 class="text-2xl font-bold text-gray-900">Ürün Tanıtımı</h2>
