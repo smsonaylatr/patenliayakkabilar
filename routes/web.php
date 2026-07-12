@@ -495,6 +495,32 @@ Route::get('/deploy-add-pages', function () {
          . '</body></html>';
 })->middleware('auth');
 
+// Canlı sunucuya (veya lokale) sahte yorumları eklemek için
+Route::get('/deploy-add-reviews', function () {
+    $products = \App\Models\Product::all();
+    $count = 0;
+    foreach ($products as $product) {
+        if ($product->reviews()->count() == 0) {
+            $product->reviews()->create([
+                'name' => 'Ayşe Y.',
+                'rating' => 5,
+                'comment' => 'Kızım bayıldı! Artık dışarı çıkmak için can atıyor. Tekerlekleri gizleyip okulda da giyebiliyor olması harika.',
+                'status' => 1,
+                'created_at' => \Carbon\Carbon::parse('2026-07-12 10:00:00')
+            ]);
+            $product->reviews()->create([
+                'name' => 'Mehmet K.',
+                'rating' => 5,
+                'comment' => 'Kargolama çok hızlıydı ve ürün görseldeki ile birebir aynı. Kesinlikle tavsiye ederim. Satıcıya ilgisinden dolayı teşekkürler.',
+                'status' => 1,
+                'created_at' => \Carbon\Carbon::parse('2026-07-05 14:30:00')
+            ]);
+            $count += 2;
+        }
+    }
+    return "Harika! Toplam {$count} adet sahte yorum, yorumu olmayan ürünlere eklendi. Artık ürün sayfalarını yenilediğinizde görebilirsiniz.";
+})->middleware('auth');
+
 // ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================
