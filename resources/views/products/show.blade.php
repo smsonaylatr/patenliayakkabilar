@@ -301,10 +301,22 @@
 
             <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
             @if($product->description)
+            <style>
+                @media (min-width: 1024px) {
+                    #tanitim-bolumu .prose img,
+                    #tanitim-bolumu .prose video {
+                        margin-left: 6rem !important;
+                        border-radius: 1rem;
+                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                        width: calc(100% - 6rem);
+                        max-width: 100%;
+                    }
+                }
+            </style>
             <div x-data="{ showTanitim: false }" @toggle-tanitim.window="showTanitim = !showTanitim; if(showTanitim) { setTimeout(() => { $el.scrollIntoView({behavior: 'smooth'}) }, 250) }">
                 <div id="tanitim-bolumu" class="hidden lg:block mt-0 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10 accordion-content" :class="showTanitim ? 'open' : ''">
                     <div>
-                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-img:ml-24 prose-video:rounded-2xl prose-video:w-full prose-video:shadow-sm prose-video:ml-24 prose-headings:font-bold prose-a:text-emerald-600 pb-10">
+                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-headings:font-bold prose-a:text-emerald-600 pb-10">
                             {!! $product->description !!}
                         </div>
                     </div>
