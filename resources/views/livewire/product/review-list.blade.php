@@ -120,103 +120,103 @@
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 class="relative transform overflow-hidden rounded-[1.5rem] bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
                 
                 <form wire:submit="submitReview" x-on:review-submitted.window="showReviewModal = false">
                     
                     <!-- Header -->
-                    <div class="bg-emerald-50 px-5 py-4 sm:px-6 flex justify-between items-center border-b border-emerald-100/50">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                                <i class="fa-solid fa-star text-sm"></i>
+                    <div class="bg-emerald-50 px-4 py-3 sm:px-5 flex justify-between items-center border-b border-emerald-100/50">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                <i class="fa-solid fa-star text-xs"></i>
                             </div>
-                            <h3 class="text-lg font-extrabold text-gray-900" id="modal-title">Ürünü Değerlendir</h3>
+                            <h3 class="text-base font-extrabold text-gray-900" id="modal-title">Ürünü Değerlendir</h3>
                         </div>
-                        <button type="button" @click="showReviewModal = false" class="text-emerald-600 hover:text-emerald-800 transition-colors bg-white w-7 h-7 rounded-full flex items-center justify-center shadow-sm">
-                            <i class="fa-solid fa-xmark"></i>
+                        <button type="button" @click="showReviewModal = false" class="text-emerald-600 hover:text-emerald-800 transition-colors bg-white w-6 h-6 rounded-full flex items-center justify-center shadow-sm">
+                            <i class="fa-solid fa-xmark text-sm"></i>
                         </button>
                     </div>
 
                     <!-- Body -->
-                    <div class="px-5 py-5 sm:px-6 space-y-5">
+                    <div class="px-4 py-4 sm:px-5 space-y-4">
                         <!-- Puan -->
                         <div class="text-center">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Ürüne Puanınız</label>
-                            <div class="flex justify-center gap-1.5 text-2xl text-yellow-400">
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Ürüne Puanınız</label>
+                            <div class="flex justify-center gap-1 text-xl text-yellow-400">
                                 @for($i = 1; $i <= 5; $i++)
                                     <button type="button" wire:click="$set('rating', {{ $i }})" class="focus:outline-none transition-transform hover:scale-110 active:scale-95">
                                         <i class="fa-{{ $rating >= $i ? 'solid' : 'regular' }} fa-star drop-shadow-sm"></i>
                                     </button>
                                 @endfor
                             </div>
-                            @error('rating') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                            @error('rating') <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- İsim ve E-posta -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1.5">Adınız Soyadınız</label>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Adınız Soyadınız</label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fa-regular fa-user text-sm"></i>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fa-regular fa-user text-xs"></i>
                                     </div>
-                                    <input type="text" wire:model="name" style="padding-left: 2.25rem;" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pr-3 py-2.5 transition-all" placeholder="Örn: Ayşe Yılmaz">
+                                    <input type="text" wire:model="name" style="padding-left: 2rem;" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-xs pr-3 py-2 transition-all" placeholder="Örn: Ayşe Y.">
                                 </div>
-                                @error('name') <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                                @error('name') <p class="text-[11px] text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1.5">E-posta <span class="text-gray-400 font-normal text-[10px]">(Gizli)</span></label>
+                                <label class="block text-[11px] font-bold text-gray-700 mb-1">E-posta <span class="text-gray-400 font-normal text-[9px]">(Gizli)</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                                        <i class="fa-regular fa-envelope text-sm"></i>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fa-regular fa-envelope text-xs"></i>
                                     </div>
-                                    <input type="email" wire:model="email" style="padding-left: 2.25rem;" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pr-3 py-2.5 transition-all" placeholder="E-posta">
+                                    <input type="email" wire:model="email" style="padding-left: 2rem;" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-xs pr-3 py-2 transition-all" placeholder="E-posta">
                                 </div>
-                                @error('email') <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                                @error('email') <p class="text-[11px] text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
                         <!-- Yorum -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Yorumunuz</label>
-                            <textarea wire:model="comment" rows="3" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm px-3.5 py-2.5 transition-all resize-none" placeholder="Ürün hakkında ne düşünüyorsunuz?"></textarea>
-                            @error('comment') <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Yorumunuz</label>
+                            <textarea wire:model="comment" rows="2" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-xs px-3 py-2 transition-all resize-none" placeholder="Ürün hakkında ne düşünüyorsunuz?"></textarea>
+                            @error('comment') <p class="text-[11px] text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                         </div>
 
                         <!-- Fotoğraf / Video Yükleme -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5">Fotoğraf veya Video <span class="text-gray-400 font-normal text-[10px]">(İsteğe Bağlı)</span></label>
-                            <div class="mt-1 flex justify-center px-4 pt-4 pb-4 border-2 border-gray-300 border-dashed rounded-lg hover:border-emerald-500 transition-colors bg-gray-50/50">
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Fotoğraf/Video <span class="text-gray-400 font-normal text-[9px]">(İsteğe Bağlı)</span></label>
+                            <div class="mt-1 flex justify-center px-3 pt-3 pb-3 border-2 border-gray-300 border-dashed rounded-lg hover:border-emerald-500 transition-colors bg-gray-50/50">
                                 <div class="space-y-1 text-center">
-                                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-emerald-500 mb-2 block"></i>
-                                    <div class="flex text-xs text-gray-600 justify-center">
+                                    <i class="fa-solid fa-cloud-arrow-up text-xl text-emerald-500 mb-1 block"></i>
+                                    <div class="flex text-[11px] text-gray-600 justify-center">
                                         <label for="file-upload" class="relative cursor-pointer rounded-md font-medium text-emerald-600 hover:text-emerald-500">
                                             <span>Dosya Seçin</span>
                                             <input id="file-upload" wire:model="media_files" type="file" multiple accept="image/*,video/mp4,video/quicktime" class="sr-only">
                                         </label>
                                         <p class="pl-1">veya sürükleyin</p>
                                     </div>
-                                    <p class="text-[10px] text-gray-500">PNG, JPG, MP4 (Maks. 20MB)</p>
+                                    <p class="text-[9px] text-gray-500">Maks. 20MB</p>
                                 </div>
                             </div>
                             
                             <!-- Yükleniyor Uyarısı -->
-                            <div wire:loading wire:target="media_files" class="mt-2 text-xs text-emerald-600 font-medium flex items-center justify-center gap-1.5">
+                            <div wire:loading wire:target="media_files" class="mt-1 text-[11px] text-emerald-600 font-medium flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-circle-notch fa-spin"></i> Dosyalar yükleniyor...
                             </div>
 
-                            @error('media_files.*') <p class="text-xs text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
+                            @error('media_files.*') <p class="text-[11px] text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
 
                             <!-- Önizleme -->
                             @if($media_files)
-                                <div class="mt-3 grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                <div class="mt-2 grid grid-cols-5 sm:grid-cols-6 gap-1.5">
                                     @foreach($media_files as $index => $file)
                                         <div class="relative rounded-md overflow-hidden border border-gray-200 aspect-square shadow-sm">
                                             @if(str_contains($file->getMimeType(), 'image'))
                                                 <img src="{{ $file->temporaryUrl() }}" class="object-cover w-full h-full">
                                             @else
                                                 <div class="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                    <i class="fa-solid fa-video text-gray-400 text-xl"></i>
+                                                    <i class="fa-solid fa-video text-gray-400 text-sm"></i>
                                                 </div>
                                             @endif
                                         </div>
@@ -227,12 +227,12 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="bg-gray-50 px-5 py-4 sm:px-6 flex flex-col sm:flex-row-reverse gap-2 border-t border-gray-100">
-                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95">
+                    <div class="bg-gray-50 px-4 py-3 sm:px-5 flex flex-col sm:flex-row-reverse gap-2 border-t border-gray-100">
+                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95">
                             <i class="fa-regular fa-paper-plane"></i>
-                            Yorumu Gönder
+                            Gönder
                         </button>
-                        <button type="button" @click="showReviewModal = false" class="w-full sm:w-auto inline-flex justify-center rounded-lg bg-white px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all active:scale-95">
+                        <button type="button" @click="showReviewModal = false" class="w-full sm:w-auto inline-flex justify-center rounded-lg bg-white px-5 py-2 text-xs font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all active:scale-95">
                             İptal
                         </button>
                     </div>
