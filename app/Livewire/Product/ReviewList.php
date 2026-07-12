@@ -57,6 +57,8 @@ class ReviewList extends Component
             $this->reset(['name', 'email']);
         }
 
+        $this->dispatch('review-submitted');
+        
         session()->flash('success', 'Yorumunuz başarıyla alındı. Onaylandıktan sonra yayınlanacaktır.');
     }
 
