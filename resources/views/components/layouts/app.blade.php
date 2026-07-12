@@ -80,11 +80,11 @@
         <style>
             @keyframes pageSlideHorizontal {
                 0% { opacity: 0; transform: translateX(30px); }
-                100% { opacity: 1; transform: translateX(0); }
+                100% { opacity: 1; transform: none; }
             }
             .page-transition-effect {
-                animation: pageSlideHorizontal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-                will-change: transform, opacity;
+                animation: pageSlideHorizontal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+                will-change: opacity;
             }
         </style>
     </head>
