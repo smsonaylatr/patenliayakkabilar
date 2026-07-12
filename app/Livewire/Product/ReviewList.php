@@ -90,7 +90,7 @@ class ReviewList extends Component
         $reviews = $this->product->reviews()
             ->where('status', 1) // Only approved
             ->latest('id')
-            ->take(5)
+            ->take(2)
             ->get();
 
         $averageRating = $this->product->reviews()->where('status', 1)->avg('rating') ?? 5.0;
