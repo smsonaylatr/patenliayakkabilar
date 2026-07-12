@@ -121,6 +121,14 @@ Route::get('/urun/{slug}', function ($slug) {
     return view('products.show', ['product' => $product]);
 })->name('products.show');
 
+// Ürün Yorumları (Tümünü Gör)
+Route::get('/urun/{slug}/yorumlar', function ($slug) {
+    $product = \App\Models\Product::where('slug', $slug)->firstOrFail();
+    $reviews = $product->reviews()->where('status', true)->latest()->paginate(20);
+    $averageRating = $product->reviews()->where('status', true)->avg('rating') ?? 5.0;
+    
+    return view('products.reviews', compact('product', 'reviews', 'averageRating'));
+})->name('products.reviews');
 // ========================
 // SİPARİŞ TAKİP
 // ========================

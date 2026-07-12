@@ -15,25 +15,23 @@ class ReviewsTable
     {
         return $table
             ->columns([
-                TextColumn::make('product_id')
-                    
+                TextColumn::make('product.name')
+                    ->label('Ürün')
+                    ->searchable()
                     ->sortable(),
-                TextColumn::make('user_id')
-                    
+                TextColumn::make('name')
+                    ->label('Yorum Yapan')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('rating')
-                    
+                    ->label('Puan')
                     ->sortable(),
-                IconColumn::make('status')
-                    ->boolean(),
+                \Filament\Tables\Columns\ToggleColumn::make('status')
+                    ->label('Yayında'),
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Tarih')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable(),
             ])
             ->filters([
                 //

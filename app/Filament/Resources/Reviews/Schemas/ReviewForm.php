@@ -13,20 +13,34 @@ class ReviewForm
     {
         return $schema
             ->components([
-                TextInput::make('product_id')
+                \Filament\Forms\Components\Select::make('product_id')
+                    ->relationship('product', 'name')
+                    ->label('Ürün')
                     ->required()
-                    ,
-                TextInput::make('user_id')
-                    
+                    ->searchable()
+                    ->preload(),
+                TextInput::make('name')
+                    ->label('Müşteri Adı')
+                    ->maxLength(255)
+                    ->default(null),
+                TextInput::make('email')
+                    ->label('E-posta')
+                    ->email()
+                    ->maxLength(255)
                     ->default(null),
                 TextInput::make('rating')
-                    ->required()
-                    ,
+                    ->label('Puan')
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(5)
+                    ->required(),
+                Toggle::make('status')
+                    ->label('Yayında')
+                    ->required(),
                 Textarea::make('comment')
+                    ->label('Yorum')
                     ->default(null)
                     ->columnSpanFull(),
-                Toggle::make('status')
-                    ->required(),
             ]);
     }
 }

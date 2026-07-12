@@ -293,7 +293,7 @@
                         <div class="hidden md:block w-full md:w-24 lg:w-28 flex-shrink-0"></div>
                         <!-- Reviews Container aligned with main image -->
                         <div class="flex-1">
-                            @include('livewire.product.review-list', ['product' => $product])
+                            @livewire('product.review-list', ['product' => $product])
                         </div>
                     </div>
                 </div>
