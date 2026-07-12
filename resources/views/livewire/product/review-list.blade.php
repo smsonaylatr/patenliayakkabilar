@@ -143,20 +143,20 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Adınız Soyadınız</label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                                         <i class="fa-regular fa-user"></i>
                                     </div>
-                                    <input type="text" wire:model="name" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pl-10 pr-4 py-3.5 transition-all" placeholder="Örn: Ayşe Yılmaz">
+                                    <input type="text" wire:model="name" style="padding-left: 2.75rem;" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pr-4 py-3.5 transition-all" placeholder="Örn: Ayşe Yılmaz">
                                 </div>
                                 @error('name') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">E-posta <span class="text-gray-400 font-normal text-xs">(Gizli tutulur)</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                                         <i class="fa-regular fa-envelope"></i>
                                     </div>
-                                    <input type="email" wire:model="email" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pl-10 pr-4 py-3.5 transition-all" placeholder="E-posta adresiniz">
+                                    <input type="email" wire:model="email" style="padding-left: 2.75rem;" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pr-4 py-3.5 transition-all" placeholder="E-posta adresiniz">
                                 </div>
                                 @error('email') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
