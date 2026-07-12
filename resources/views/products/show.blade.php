@@ -260,7 +260,7 @@
 
                         {{-- 4. TANITIM (ÜRÜN AÇIKLAMASI) --}}
                         @if($product->description)
-                        <div class="lg:hidden">
+                        <div>
                             <button
                                 @click="openPanel = openPanel === 'description' ? '' : 'description'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
@@ -274,7 +274,7 @@
                             </button>
                             <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
-                                    <div class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
+                                    <div class="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                                         {!! $product->description !!}
                                     </div>
                                 </div>
@@ -297,30 +297,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
-            @if($product->description)
-            <div class="hidden lg:block mt-16 border-t border-gray-100 px-4 sm:px-0 relative z-10" x-data="{ openPanel: '' }">
-                <button
-                    @click="openPanel = openPanel === 'description' ? '' : 'description'"
-                    class="w-full flex items-center justify-between py-4 text-left group"
-                >
-                    <div class="flex items-center gap-4">
-                        <i class="fa-solid fa-file-lines text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
-                        <span class="text-sm font-semibold text-gray-900">Tanıtım</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                       :class="openPanel === 'description' ? 'rotate-180' : ''"></i>
-                </button>
-                <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
-                    <div class="pb-10 pt-4">
-                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
-                            {!! $product->description !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 </x-layouts.app>
