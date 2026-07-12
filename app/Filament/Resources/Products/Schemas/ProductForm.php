@@ -60,7 +60,7 @@ class ProductForm
                                     ->columnSpanFull(),
 
                                 RichEditor::make('description')
-                                    ->label('Açıklama')
+                                    ->label('Tanıtım')
                                     ->fileAttachmentsDisk('public')
                                     ->fileAttachmentsDirectory('product-descriptions')
                                     ->fileAttachmentsVisibility('public')
