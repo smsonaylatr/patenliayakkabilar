@@ -2,7 +2,7 @@
     <div class="relative">
         <select 
             x-model="selectedId" 
-            class="block w-full appearance-none rounded-xl border border-gray-200 bg-white py-4 pl-5 pr-10 text-base font-medium text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:text-sm transition-colors cursor-pointer"
+            class="block w-full h-14 appearance-none rounded-full border border-gray-200 bg-white px-5 pr-10 text-base font-medium text-gray-900 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:text-sm transition-colors cursor-pointer"
         >
             <option value="">Beden</option>
             @foreach($product->variants as $variant)
