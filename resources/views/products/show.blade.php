@@ -286,7 +286,7 @@
                 
                 <!-- 3. Product Reviews (Left Column, Bottom on Desktop | Bottom on Mobile) -->
                 <div class="order-3 lg:col-span-1 lg:row-span-1 mt-12 px-4 sm:px-0 lg:pr-12">
-                    <livewire:product.review-list :product="$product" />
+                    @include('livewire.product.review-list', ['product' => $product])
                 </div>
             </div>
         </div>
