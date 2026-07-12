@@ -49,7 +49,7 @@
         }
     </style>
 
-    <div class="pt-4 lg:pt-16 pb-10 bg-white" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
+    <div class="pt-4 lg:pt-16 pb-10 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Breadcrumb --}}
             <div class="mb-6">
@@ -148,7 +148,7 @@
                     {{-- ========================================
                          AKORDİYON — Minimalist
                     ======================================== --}}
-                    <div class="mt-8 divide-y divide-gray-100">
+                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp
@@ -260,9 +260,9 @@
 
                         {{-- 4. TANITIM (ÜRÜN AÇIKLAMASI) --}}
                         @if($product->description)
-                        <div>
+                        <div class="lg:hidden">
                             <button
-                                @click="openPanel = openPanel === 'description' ? '' : 'description'; if(openPanel === 'description' && window.innerWidth >= 1024) setTimeout(() => document.getElementById('full-width-description').scrollIntoView({behavior: 'smooth', block: 'start'}), 100)"
+                                @click="openPanel = openPanel === 'description' ? '' : 'description'"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
                                 <div class="flex items-center gap-4">
@@ -272,9 +272,9 @@
                                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
                                    :class="openPanel === 'description' ? 'rotate-180' : ''"></i>
                             </button>
-                            <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
+                            <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
-                                    <div class="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
+                                    <div class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                                         {!! $product->description !!}
                                     </div>
                                 </div>
@@ -297,18 +297,19 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 4. TANITIM İÇERİĞİ (Masaüstü Tam Genişlik Edge-to-Edge) -->
-        @if($product->description)
-        <div id="full-width-description" class="hidden lg:block mt-12 border-t border-gray-100 relative z-10 accordion-content" :class="openPanel === 'description' ? 'open' : ''">
-            <div class="pt-10 w-full">
-                <!-- Sadece görselleri ekrandan ekrana yayan, yazıları ise ortada (max-w-7xl) tutan gelişmiş Tailwind CSS kurgusu -->
-                <div class="prose prose-lg prose-gray max-w-none w-full text-gray-700 leading-relaxed prose-img:rounded-none prose-img:w-full prose-img:m-0 prose-headings:font-bold prose-a:text-emerald-600 [&>p]:max-w-7xl [&>p]:mx-auto [&>p]:px-4 [&>h1]:max-w-7xl [&>h1]:mx-auto [&>h1]:px-4 [&>h2]:max-w-7xl [&>h2]:mx-auto [&>h2]:px-4 [&>h3]:max-w-7xl [&>h3]:mx-auto [&>h3]:px-4 [&>ul]:max-w-7xl [&>ul]:mx-auto [&>ul]:px-4 [&>p:has(img)]:max-w-none [&>p:has(img)]:px-0 [&>figure]:max-w-none [&>figure]:px-0">
+            <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
+            @if($product->description)
+            <div class="hidden lg:block mt-16 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
+                <div class="flex items-center gap-4 mb-8">
+                    <i class="fa-solid fa-file-lines text-gray-400 text-xl w-8 flex-shrink-0 text-center"></i>
+                    <h2 class="text-2xl font-bold text-gray-900">Ürün Tanıtımı</h2>
+                </div>
+                <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                     {!! $product->description !!}
                 </div>
             </div>
+            @endif
         </div>
-        @endif
     </div>
 </x-layouts.app>
