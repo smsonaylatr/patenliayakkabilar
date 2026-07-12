@@ -60,7 +60,7 @@
                     ['name' => $product->name],
                 ]" />
             </div>
-            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;">
+            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
                 <!-- 1. Image gallery (Left Column, Top) -->
                 <div class="order-1 lg:col-span-1 lg:row-span-1">
                     <livewire:product.product-gallery :product="$product" />
@@ -148,7 +148,7 @@
                     {{-- ========================================
                          AKORDİYON — Minimalist
                     ======================================== --}}
-                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
+                    <div class="mt-8 divide-y divide-gray-100">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp
@@ -262,7 +262,7 @@
                         @if($product->description)
                         <div>
                             <button
-                                @click="openPanel = openPanel === 'description' ? '' : 'description'"
+                                @click="openPanel = openPanel === 'description' ? '' : 'description'; if(openPanel === 'description' && window.innerWidth >= 1024) setTimeout(() => document.getElementById('full-width-description').scrollIntoView({behavior: 'smooth', block: 'start'}), 100)"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
                                 <div class="flex items-center gap-4">
@@ -272,7 +272,7 @@
                                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
                                    :class="openPanel === 'description' ? 'rotate-180' : ''"></i>
                             </button>
-                            <div class="accordion-content" :class="openPanel === 'description' ? 'open' : ''">
+                            <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
                                     <div class="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                                         {!! $product->description !!}
@@ -297,6 +297,17 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 4. TANITIM İÇERİĞİ (Masaüstü Tam Genişlik) -->
+            @if($product->description)
+            <div id="full-width-description" class="hidden lg:block mt-12 border-t border-gray-100 px-4 sm:px-0 relative z-10 accordion-content" :class="openPanel === 'description' ? 'open' : ''">
+                <div class="pt-10">
+                    <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
+                        {!! $product->description !!}
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </x-layouts.app>
