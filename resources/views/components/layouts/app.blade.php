@@ -84,7 +84,6 @@
             }
             .page-transition-effect {
                 animation: pageSlideHorizontal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-                will-change: opacity;
             }
         </style>
     </head>
@@ -102,7 +101,7 @@
             <livewire:frontend.search-modal />
         @endpersist
         
-        <main class="flex-grow page-transition-effect relative z-30">
+        <main class="flex-grow page-transition-effect">
             {{ $slot }}
         </main>
 
