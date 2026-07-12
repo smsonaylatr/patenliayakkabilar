@@ -77,62 +77,111 @@
         Yorum Yap
     </button>
 
-    <!-- Review Modal -->
-    <template x-teleport="body">
-        <div x-show="showReviewModal" x-on:review-submitted.window="showReviewModal = false" style="display: none;" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="showReviewModal" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" aria-hidden="true" @click="showReviewModal = false"></div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div x-show="showReviewModal" x-transition.scale class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                    <form wire:submit.prevent="submitReview" class="p-6 sm:p-8">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-900" id="modal-title">Ürünü Değerlendir</h3>
-                            <button type="button" @click="showReviewModal = false" class="text-gray-400 hover:text-gray-500">
-                                <i class="fa-solid fa-xmark text-xl"></i>
-                            </button>
+    <!-- REVIEW MODAL (YENİ TASARIM) -->
+    <div x-show="showReviewModal" 
+         style="display: none;" 
+         class="fixed inset-0 z-[9999] overflow-y-auto" 
+         aria-labelledby="modal-title" 
+         role="dialog" 
+         aria-modal="true">
+        
+        <!-- Backdrop -->
+        <div x-show="showReviewModal" 
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+             @click="showReviewModal = false"
+             aria-hidden="true"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <!-- Modal Panel -->
+            <div x-show="showReviewModal" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative transform overflow-hidden rounded-[2rem] bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-gray-100">
+                
+                <form wire:submit="submitReview" x-on:review-submitted.window="showReviewModal = false">
+                    
+                    <!-- Header -->
+                    <div class="bg-emerald-50 px-6 py-5 sm:px-8 flex justify-between items-center border-b border-emerald-100/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-gray-900" id="modal-title">Ürünü Değerlendir</h3>
+                        </div>
+                        <button type="button" @click="showReviewModal = false" class="text-emerald-600 hover:text-emerald-800 transition-colors bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-6 sm:px-8 space-y-6">
+                        <!-- Puan -->
+                        <div class="text-center">
+                            <label class="block text-sm font-bold text-gray-700 mb-3">Ürüne Puanınız</label>
+                            <div class="flex justify-center gap-2 text-3xl text-yellow-400">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <button type="button" wire:click="$set('rating', {{ $i }})" class="focus:outline-none transition-transform hover:scale-110 active:scale-95">
+                                        <i class="fa-{{ $rating >= $i ? 'solid' : 'regular' }} fa-star drop-shadow-sm"></i>
+                                    </button>
+                                @endfor
+                            </div>
+                            @error('rating') <p class="text-sm text-red-500 mt-2 font-medium">{{ $message }}</p> @enderror
                         </div>
 
-                        <div class="space-y-4">
-                            <!-- Rating -->
+                        <!-- İsim ve E-posta -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Puanınız</label>
-                                <div class="flex gap-2 text-2xl text-yellow-400 cursor-pointer">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i wire:click="$set('rating', {{ $i }})" class="fa-{{ $rating >= $i ? 'solid' : 'regular' }} fa-star hover:scale-110 transition-transform"></i>
-                                    @endfor
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Adınız Soyadınız</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fa-regular fa-user"></i>
+                                    </div>
+                                    <input type="text" wire:model="name" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pl-10 pr-4 py-3.5 transition-all" placeholder="Örn: Ayşe Yılmaz">
                                 </div>
-                                @error('rating') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
+                                @error('name') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
-
-                            <!-- Name & Email -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Adınız Soyadınız</label>
-                                    <input type="text" wire:model="name" class="w-full rounded-xl border-gray-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm px-4 py-3" placeholder="Örn: Ayşe Yılmaz">
-                                    @error('name') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">E-posta (Gizli kalacak)</label>
-                                    <input type="email" wire:model="email" class="w-full rounded-xl border-gray-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm px-4 py-3" placeholder="Örn: ayse@email.com">
-                                    @error('email') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-
-                            <!-- Comment -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Yorumunuz</label>
-                                <textarea wire:model="comment" rows="4" class="w-full rounded-xl border-gray-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm px-4 py-3" placeholder="Ürün hakkında ne düşünüyorsunuz?"></textarea>
-                                @error('comment') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
+                                <label class="block text-sm font-bold text-gray-700 mb-2">E-posta <span class="text-gray-400 font-normal text-xs">(Gizli tutulur)</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fa-regular fa-envelope"></i>
+                                    </div>
+                                    <input type="email" wire:model="email" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm pl-10 pr-4 py-3.5 transition-all" placeholder="E-posta adresiniz">
+                                </div>
+                                @error('email') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                             </div>
                         </div>
 
-                        <div class="mt-8 flex gap-3">
-                            <button type="button" @click="showReviewModal = false" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 transition-colors">İptal</button>
-                            <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">Gönder</button>
+                        <!-- Yorum -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Yorumunuz</label>
+                            <textarea wire:model="comment" rows="4" class="w-full rounded-xl border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-sm px-4 py-3.5 transition-all resize-none" placeholder="Ürün hakkında ne düşünüyorsunuz? Deneyiminizi diğer ebeveynlerle paylaşın..."></textarea>
+                            @error('comment') <p class="text-sm text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 px-6 py-5 sm:px-8 flex flex-col sm:flex-row-reverse gap-3 border-t border-gray-100">
+                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-xl bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-200 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all active:scale-95">
+                            <i class="fa-regular fa-paper-plane"></i>
+                            Yorumu Gönder
+                        </button>
+                        <button type="button" @click="showReviewModal = false" class="w-full sm:w-auto inline-flex justify-center rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all active:scale-95">
+                            İptal
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </template>
+    </div>
 </div>
