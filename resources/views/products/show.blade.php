@@ -302,7 +302,7 @@
             <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
             @if($product->description)
             <div x-data="{ showTanitim: false }" @toggle-tanitim.window="showTanitim = !showTanitim">
-                <div id="tanitim-bolumu" x-show="showTanitim" style="display: none;" x-transition.opacity.duration.300ms class="hidden lg:block mt-16 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
+                <div id="tanitim-bolumu" x-show="showTanitim" style="display: none;" x-transition.opacity.duration.300ms class="hidden lg:block mt-0 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10">
                     <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
                         {!! $product->description !!}
                     </div>
