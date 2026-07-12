@@ -35,14 +35,17 @@
 
     <style>
         .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease, opacity 0.3s ease;
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s ease, opacity 0.3s ease;
             opacity: 0;
         }
         .accordion-content.open {
-            max-height: 1000px;
+            grid-template-rows: 1fr;
             opacity: 1;
+        }
+        .accordion-content > div {
+            overflow: hidden;
         }
     </style>
 
