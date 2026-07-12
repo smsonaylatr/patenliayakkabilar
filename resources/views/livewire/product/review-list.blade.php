@@ -111,7 +111,7 @@
              @click="showReviewModal = false"
              aria-hidden="true"></div>
 
-        <div class="flex min-h-[100dvh] items-center justify-center px-4 pt-4 pb-[80px] md:p-0 text-center">
+        <div class="flex min-h-[100dvh] items-center justify-center p-4 text-center sm:p-0">
             <!-- Modal Panel -->
             <div x-show="showReviewModal" 
                  x-transition:enter="ease-out duration-300"
