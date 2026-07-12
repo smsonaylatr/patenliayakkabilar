@@ -102,7 +102,7 @@
             <livewire:frontend.search-modal />
         @endpersist
         
-        <main class="flex-grow page-transition-effect">
+        <main class="flex-grow page-transition-effect relative z-30">
             {{ $slot }}
         </main>
 
