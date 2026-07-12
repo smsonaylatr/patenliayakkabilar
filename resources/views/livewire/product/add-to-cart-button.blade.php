@@ -14,7 +14,7 @@
     </div>
 
     <!-- Sepete Ekle Butonu -->
-    <button wire:click="addToCart" wire:loading.attr="disabled" {{ $product->variants->count() > 0 && empty($variantId) ? 'disabled' : '' }} type="button" class="group relative flex w-full h-14 items-center justify-center gap-3 overflow-hidden rounded-full bg-gray-900 px-4 sm:px-8 text-base font-bold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] disabled:cursor-not-allowed disabled:opacity-70">
+    <button wire:click="addToCart" wire:loading.attr="disabled" type="button" class="group relative flex w-full h-14 items-center justify-center gap-3 overflow-hidden rounded-full bg-gray-900 px-4 sm:px-8 text-base font-bold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] disabled:cursor-not-allowed disabled:opacity-70">
         <!-- Shine effect on hover -->
         <div class="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
             <div class="relative h-full w-8 bg-white/20"></div>

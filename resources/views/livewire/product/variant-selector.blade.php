@@ -11,7 +11,7 @@
             let v = this.variants.find(v => v.id == this.selectedId);
             return v ? v.size : 'Beden';
         }
-    }" @click.away="open = false">
+    }" @click.away="open = false" @open-variant-selector.window="open = true; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'center'}), 100)">
         
         <!-- Dropdown Butonu -->
         <button 
