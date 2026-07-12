@@ -109,7 +109,7 @@
                     @endif
 
                     {{-- Sepete Ekle --}}
-                    <div class="mt-6">
+                    <div class="mt-3">
                         <livewire:product.add-to-cart-button :product="$product" />
                     </div>
 
