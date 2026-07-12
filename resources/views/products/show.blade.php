@@ -287,7 +287,14 @@
                 
                 <!-- 3. Product Reviews (Left Column, Bottom on Desktop | Bottom on Mobile) -->
                 <div class="order-3 lg:col-span-1 lg:row-span-1 mt-6 px-4 sm:px-0">
-                    @include('livewire.product.review-list', ['product' => $product])
+                    <div class="flex flex-col md:flex-row gap-4 lg:gap-6">
+                        <!-- Spacer to align with thumbnails -->
+                        <div class="hidden md:block w-full md:w-24 lg:w-28 flex-shrink-0"></div>
+                        <!-- Reviews Container aligned with main image -->
+                        <div class="flex-1">
+                            @include('livewire.product.review-list', ['product' => $product])
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
