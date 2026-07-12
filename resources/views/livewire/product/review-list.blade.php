@@ -111,15 +111,15 @@
              @click="showReviewModal = false"
              aria-hidden="true"></div>
 
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="flex min-h-[100dvh] items-center justify-center p-4 text-center sm:p-0">
             <!-- Modal Panel -->
             <div x-show="showReviewModal" 
                  x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-start="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:leave-end="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
                  class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-md border border-gray-100">
                 
                 <form wire:submit="submitReview" x-on:review-submitted.window="showReviewModal = false">
@@ -228,7 +228,7 @@
 
                     <!-- Footer -->
                     <div class="bg-gray-50 px-4 py-3 sm:px-5 flex flex-col sm:flex-row-reverse gap-2 border-t border-gray-100">
-                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95">
+                        <button type="submit" style="background-color: #059669; color: white; border: none;" class="w-full sm:w-auto inline-flex justify-center items-center gap-1.5 rounded-lg px-5 py-2 text-xs font-bold shadow-md shadow-emerald-200 hover:opacity-90 transition-all active:scale-95">
                             <i class="fa-regular fa-paper-plane"></i>
                             Gönder
                         </button>
