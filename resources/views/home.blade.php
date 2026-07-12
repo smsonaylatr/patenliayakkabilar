@@ -13,9 +13,6 @@
         </div>
     </div>
     
-    <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-all duration-1000 ease-out">
-        <livewire:product.review-list />
-    </div>
-    
+
     <livewire:frontend.newsletter-form />
 </x-layouts.app>
