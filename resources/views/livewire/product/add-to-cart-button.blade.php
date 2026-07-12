@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col gap-3" x-data="{ qty: @entangle('quantity') }">
+<div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity') }">
     <!-- Adet Seçici Kutusu (Shopier Style) -->
     <div class="flex items-center justify-between border border-gray-200 rounded-full h-14 px-5 bg-white">
         <span class="text-base font-medium text-gray-900">Adet</span>
