@@ -60,12 +60,14 @@
                     ['name' => $product->name],
                 ]" />
             </div>
-            <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
-                <!-- Image gallery -->
-                <livewire:product.product-gallery :product="$product" />
+            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+                <!-- 1. Image gallery (Left Column, Top) -->
+                <div class="order-1 lg:col-span-1 lg:row-span-1">
+                    <livewire:product.product-gallery :product="$product" />
+                </div>
 
-                <!-- Product info -->
-                <div class="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
+                <!-- 2. Product info (Right Column, spans both rows) -->
+                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
                     <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
 
                     {{-- Fiyat --}}
@@ -280,7 +282,11 @@
                             </div>
                         </div>
 
-                    </div>
+                </div>
+                
+                <!-- 3. Product Reviews (Left Column, Bottom on Desktop | Bottom on Mobile) -->
+                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-12 px-4 sm:px-0 lg:pr-12">
+                    <livewire:product.review-list :product="$product" />
                 </div>
             </div>
         </div>
