@@ -60,7 +60,7 @@
                     ['name' => $product->name],
                 ]" />
             </div>
-            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;">
                 <!-- 1. Image gallery (Left Column, Top) -->
                 <div class="order-1 lg:col-span-1 lg:row-span-1">
                     <livewire:product.product-gallery :product="$product" />
