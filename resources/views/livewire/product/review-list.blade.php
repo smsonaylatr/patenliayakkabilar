@@ -1,4 +1,4 @@
-<div class="mt-12 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: @entangle('showForm') }">
+<div class="mt-12 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: false }">
     <div class="flex items-center justify-between mb-8">
         <div>
             <h2 class="text-2xl font-bold text-gray-900">Müşteri Yorumları</h2>
@@ -79,7 +79,7 @@
 
     <!-- Review Modal -->
     <template x-teleport="body">
-        <div x-data="{ showReviewModal: @entangle('showForm') }" x-show="showReviewModal" x-on:review-submitted.window="showReviewModal = false" style="display: none;" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div x-show="showReviewModal" x-on:review-submitted.window="showReviewModal = false" style="display: none;" class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div x-show="showReviewModal" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" aria-hidden="true" @click="showReviewModal = false"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
