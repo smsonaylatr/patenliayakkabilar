@@ -169,6 +169,8 @@ class OrdersTable
                     ->requiresConfirmation()
                     ->modalHeading('Siparişi İptal Et')
                     ->modalDescription('Siparişi iptal etmek istediğinize emin misiniz? Müşteriye bildirim gidecek ve stoklar geri yüklenecektir.')
+                    ->modalSubmitActionLabel('Evet, İptal Et')
+                    ->modalCancelActionLabel('Vazgeç')
                     ->action(function (Order $record): void {
                         $record->update(['status' => 'cancelled']);
                         
