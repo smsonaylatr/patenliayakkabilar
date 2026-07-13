@@ -49,6 +49,8 @@ class OrdersTable
                     ->action(
                         Action::make('updateStatus')
                             ->modalHeading('Durumu Güncelle')
+                            ->modalSubmitActionLabel('Kaydet')
+                            ->modalCancelActionLabel('Vazgeç')
                             ->form([
                                 \Filament\Forms\Components\Select::make('status')
                                     ->label('Durum')
@@ -86,6 +88,8 @@ class OrdersTable
                     ->action(
                         Action::make('updatePaymentStatus')
                             ->modalHeading('Ödeme Durumunu Güncelle')
+                            ->modalSubmitActionLabel('Kaydet')
+                            ->modalCancelActionLabel('Vazgeç')
                             ->form([
                                 \Filament\Forms\Components\Select::make('payment_status')
                                     ->label('Ödeme Durumu')

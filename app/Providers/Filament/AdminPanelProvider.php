@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode()
             ->databaseNotifications()
             ->navigationGroups([
-                'Dashboard' => \Filament\Navigation\NavigationGroup::make()->label('Dashboard'),
+                'Dashboard' => \Filament\Navigation\NavigationGroup::make()->label('Ana Sayfa'),
                 'Katalog Yönetimi' => \Filament\Navigation\NavigationGroup::make()->label('Katalog Yönetimi'),
                 'Satışlar' => \Filament\Navigation\NavigationGroup::make()->label('Satışlar'),
                 'Müşteriler' => \Filament\Navigation\NavigationGroup::make()->label('Müşteri İstihbaratı'),
