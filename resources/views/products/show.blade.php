@@ -79,7 +79,10 @@
                                 100% { transform: translate3d(-50%, 0, 0); }
                             }
                             .animate-marquee-mobile {
-                                animation: marquee-mobile 18s linear infinite;
+                                animation: marquee-mobile 25s linear infinite;
+                                will-change: transform;
+                                backface-visibility: hidden;
+                                -webkit-backface-visibility: hidden;
                             }
                         </style>
                         <div class="flex w-max animate-marquee-mobile">
