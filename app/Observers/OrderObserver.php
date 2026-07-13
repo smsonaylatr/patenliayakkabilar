@@ -30,8 +30,10 @@ class OrderObserver
             // Audit Log: Durum değişikliği
             \App\Models\OrderStatusHistory::create([
                 'order_id' => $order->id,
-                'status' => $order->status,
-                'notes' => 'Sipariş durumu sistem veya yetkili tarafından güncellendi.',
+                'old_status' => $order->getOriginal('status'),
+                'new_status' => $order->status,
+                'changed_by' => auth()->id(),
+                'note' => 'Sipariş durumu sistem veya yetkili tarafından güncellendi.',
             ]);
 
             if ($order->status === 'cancelled') {
