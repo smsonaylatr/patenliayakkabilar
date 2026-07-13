@@ -75,7 +75,7 @@
                     <div class="md:hidden marquee-container w-full">
                         <div class="marquee-content" style="animation-duration: 18s;">
                             @for($i = 0; $i < 4; $i++)
-                                <h1 class="inline-block text-[28px] leading-tight font-bold tracking-tight text-gray-900 pr-12">
+                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-12">
                                     {{ $product->name }}
                                 </h1>
                             @endfor
