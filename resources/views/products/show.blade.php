@@ -72,12 +72,34 @@
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
                     <!-- Mobile Marquee Title -->
-                    <div class="md:hidden w-full overflow-hidden pb-2">
-                        <marquee scrollamount="5" scrolldelay="0" class="text-3xl font-bold tracking-tight text-gray-900 whitespace-nowrap pt-1">
-                            @for($i = 0; $i < 10; $i++)
-                                {{ $product->name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            @endfor
-                        </marquee>
+                    <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative">
+                        <style>
+                            @keyframes marquee-mobile {
+                                0% { transform: translate3d(0, 0, 0); }
+                                100% { transform: translate3d(-50%, 0, 0); }
+                            }
+                            .animate-marquee-mobile {
+                                animation: marquee-mobile 18s linear infinite;
+                            }
+                        </style>
+                        <div class="flex w-max animate-marquee-mobile">
+                            <!-- Grup 1 -->
+                            <div class="flex shrink-0">
+                                @for($i = 0; $i < 3; $i++)
+                                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 pr-[140px]">
+                                        {{ $product->name }}
+                                    </h1>
+                                @endfor
+                            </div>
+                            <!-- Grup 2 (Grup 1'in birebir kopyası) -->
+                            <div class="flex shrink-0" aria-hidden="true">
+                                @for($i = 0; $i < 3; $i++)
+                                    <h1 class="text-3xl font-bold tracking-tight text-gray-900 pr-[140px]">
+                                        {{ $product->name }}
+                                    </h1>
+                                @endfor
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Fiyat --}}
