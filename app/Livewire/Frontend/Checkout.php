@@ -118,6 +118,8 @@ class Checkout extends Component
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
                 'product_variant_id' => $item->product_variant_id,
+                'product_name' => $item->product ? $item->product->name : 'Bilinmeyen Ürün',
+                'variant_info' => $item->variant ? 'Beden: ' . $item->variant->size : null,
                 'quantity' => $item->quantity,
                 'unit_price' => $item->price,
                 'total_price' => $item->price * $item->quantity,
