@@ -20,7 +20,7 @@
             </div>
 
             @if($posts->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-10">
                     @foreach($posts as $post)
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 group">
                             @if($post->image_path)
