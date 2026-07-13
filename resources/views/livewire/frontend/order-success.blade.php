@@ -15,7 +15,7 @@
             
             <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
                 <p class="text-sm text-gray-500 mb-1">Sipariş Numaranız</p>
-                <p class="text-2xl font-black text-brand-orange">{{ $order_number }}</p>
+                <p class="text-2xl font-black text-blue-900">{{ $order_number }}</p>
                 
                 <div class="mt-4 pt-4 border-t border-gray-200">
                     <p class="text-sm text-gray-600">Siparişinizin durumunu "Sipariş Takip" sayfasından veya e-posta adresinize gönderilen linkten takip edebilirsiniz.</p>
