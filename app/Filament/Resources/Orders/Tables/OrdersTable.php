@@ -87,7 +87,7 @@ class OrdersTable
                         'cash_on_delivery' => 'Kapıda Ödeme',
                         default => $state ?? '-',
                     })
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('shipping_city')
                     ->label('Şehir')
                     ->toggleable(isToggledHiddenByDefault: true),
