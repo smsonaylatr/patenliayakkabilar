@@ -68,7 +68,19 @@
 
                 <!-- 2. Product info (Right Column, spans both rows) -->
                 <div class="order-2 lg:col-span-1 lg:row-span-2 mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
-                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
+                    <!-- Desktop Title -->
+                    <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
+                    
+                    <!-- Mobile Marquee Title -->
+                    <div class="md:hidden marquee-container w-full">
+                        <div class="marquee-content" style="animation-duration: 18s;">
+                            @for($i = 0; $i < 4; $i++)
+                                <h1 class="inline-block text-[28px] leading-tight font-bold tracking-tight text-gray-900 pr-12">
+                                    {{ $product->name }}
+                                </h1>
+                            @endfor
+                        </div>
+                    </div>
 
                     {{-- Fiyat --}}
                     <div class="mt-4">
