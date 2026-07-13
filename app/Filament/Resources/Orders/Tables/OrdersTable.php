@@ -173,7 +173,7 @@ class OrdersTable
                     ]),
             ])
             ->actions([
-                EditAction::make(),
+                EditAction::make()->label('Düzenle'),
                 Action::make('addCargo')
                     ->label('Kargo Gir')
                     ->icon('heroicon-o-truck')
