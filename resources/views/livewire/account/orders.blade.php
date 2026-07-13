@@ -70,10 +70,42 @@
                                 </div>
                                 
                                 @if($order->cargo_company && $order->cargo_tracking_code)
-                                    <div class="text-right bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Kargo Takip</p>
-                                        <p class="text-sm font-black text-gray-900">{{ $order->cargo_company }}</p>
-                                        <p class="text-sm text-gray-600">{{ $order->cargo_tracking_code }}</p>
+                                    @php
+                                        $cargoName = $order->cargo_company;
+                                        if (strtolower($cargoName) === 'aras') {
+                                            $cargoName = 'Aras Kargo';
+                                        } elseif (strtolower($cargoName) === 'yurtici' || strtolower($cargoName) === 'yurtiçi') {
+                                            $cargoName = 'Yurtiçi Kargo';
+                                        }
+                                        
+                                        $trackingUrl = '#';
+                                        if (strtolower($cargoName) === 'aras kargo') {
+                                            $trackingUrl = 'https://www.araskargo.com.tr/kargo-takip';
+                                        } elseif (strtolower($cargoName) === 'yurtiçi kargo') {
+                                            $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . $order->cargo_tracking_code;
+                                        }
+                                    @endphp
+                                    <div class="mt-6 sm:mt-0 bg-blue-50/50 rounded-2xl p-5 border border-blue-100/50 w-full sm:w-auto">
+                                        <div class="flex items-start justify-between gap-8">
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                                                    </div>
+                                                    <p class="text-xs font-bold text-blue-900 uppercase tracking-widest">{{ $cargoName }}</p>
+                                                </div>
+                                                <div class="flex items-center gap-3">
+                                                    <p class="text-lg font-black text-gray-900 font-mono tracking-tight">{{ $order->cargo_tracking_code }}</p>
+                                                    <button onclick="navigator.clipboard.writeText('{{ $order->cargo_tracking_code }}'); alert('Kargo takip kodu başarıyla kopyalandı!');" class="text-gray-400 hover:text-black transition-colors focus:outline-none" title="Kodu Kopyala">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <a href="{{ $trackingUrl }}" target="_blank" class="shrink-0 flex items-center justify-center w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-200 text-gray-700 hover:text-white hover:bg-black hover:border-black transition-all" title="Kargo Firmasının Sayfasında Görüntüle">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            </a>
+                                        </div>
                                     </div>
                                 @endif
                             </div>
