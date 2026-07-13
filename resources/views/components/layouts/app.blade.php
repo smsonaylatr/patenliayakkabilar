@@ -141,6 +141,7 @@
                                 <li><a href="{{ route('home') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Ana Sayfa</a></li>
                                 <li><a href="{{ route('products.index') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Tüm Ürünler</a></li>
                                 <li><a href="{{ route('order.tracking') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Sipariş Takip</a></li>
+                                <li><a href="{{ route('blog.index') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Rehber Merkezi</a></li>
                                 <li><a href="{{ route('contact') }}" class="hover:text-brand-orange transition-colors" wire:navigate>İletişim</a></li>
                             </ul>
                         </div>
