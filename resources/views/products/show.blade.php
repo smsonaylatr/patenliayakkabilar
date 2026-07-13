@@ -72,32 +72,12 @@
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
                     <!-- Mobile Marquee Title -->
-                    <div class="md:hidden w-full overflow-hidden flex whitespace-nowrap bg-white pb-2 relative">
-                        <style>
-                            @keyframes scroll-left {
-                                0% { transform: translateX(0); }
-                                100% { transform: translateX(-100%); }
-                            }
-                            .animate-scroll-left {
-                                animation: scroll-left 20s linear infinite;
-                            }
-                        </style>
-                        
-                        <div class="flex shrink-0 animate-scroll-left">
-                            @for($i = 0; $i < 3; $i++)
-                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-40">
-                                    {{ $product->name }}
-                                </h1>
+                    <div class="md:hidden w-full overflow-hidden pb-2">
+                        <marquee scrollamount="5" scrolldelay="0" class="text-3xl font-bold tracking-tight text-gray-900 whitespace-nowrap pt-1">
+                            @for($i = 0; $i < 10; $i++)
+                                {{ $product->name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             @endfor
-                        </div>
-                        
-                        <div class="flex shrink-0 animate-scroll-left" aria-hidden="true">
-                            @for($i = 0; $i < 3; $i++)
-                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-40">
-                                    {{ $product->name }}
-                                </h1>
-                            @endfor
-                        </div>
+                        </marquee>
                     </div>
 
                     {{-- Fiyat --}}
