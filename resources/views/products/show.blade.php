@@ -86,7 +86,7 @@
                             <!-- Grup 1 -->
                             <div class="flex shrink-0">
                                 @for($i = 0; $i < 3; $i++)
-                                    <h1 class="text-3xl font-bold tracking-tight text-gray-900" style="margin-right: 140px;">
+                                    <h1 class="text-4xl font-bold tracking-tight text-gray-900" style="margin-right: 140px;">
                                         {{ $product->name }}
                                     </h1>
                                 @endfor
@@ -94,7 +94,7 @@
                             <!-- Grup 2 (Grup 1'in birebir kopyası) -->
                             <div class="flex shrink-0" aria-hidden="true">
                                 @for($i = 0; $i < 3; $i++)
-                                    <h1 class="text-3xl font-bold tracking-tight text-gray-900" style="margin-right: 140px;">
+                                    <h1 class="text-4xl font-bold tracking-tight text-gray-900" style="margin-right: 140px;">
                                         {{ $product->name }}
                                     </h1>
                                 @endfor
