@@ -149,7 +149,7 @@
                                 <div class="flex-1 flex flex-col justify-center">
                                     <h4 class="text-sm font-bold text-gray-900 line-clamp-1">{{ $item->product ? $item->product->name : 'Bilinmeyen Ürün' }}</h4>
                                     @if($item->variant)
-                                        <span class="text-xs text-gray-500 mt-0.5">Beden/Seçenek: {{ $item->variant->name }}</span>
+                                        <span class="text-xs text-gray-500 mt-0.5">Beden/Seçenek: {{ $item->variant->size }}</span>
                                     @endif
                                     <div class="text-sm font-bold text-red-600 mt-1">
                                         {{ number_format($item->price, 2) }} ₺
