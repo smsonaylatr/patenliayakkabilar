@@ -34,6 +34,16 @@ class Checkout extends Component
         'payment_method' => 'required|in:cash_on_delivery,wire_transfer',
     ];
 
+    protected $messages = [
+        'customer_name.required' => 'Lütfen adınızı ve soyadınızı giriniz.',
+        'customer_email.required' => 'Lütfen e-posta adresinizi giriniz.',
+        'customer_email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
+        'customer_phone.required' => 'Lütfen telefon numaranızı giriniz.',
+        'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
+        'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
+        'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
+    ];
+
     public function mount()
     {
         if (file_exists(database_path('data/cities.json'))) {
