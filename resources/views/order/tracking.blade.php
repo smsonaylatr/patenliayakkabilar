@@ -37,7 +37,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-500 text-sm">Toplam Tutar:</span>
-                                <span class="font-bold text-brand-orange text-sm">{{ number_format($order->grand_total, 2) }} ₺</span>
+                                <span class="font-bold text-red-600 text-sm">{{ number_format($order->grand_total, 2) }} ₺</span>
                             </div>
                             <div class="flex justify-between items-center border-t border-gray-200 pt-3 mt-3">
                                 <span class="text-gray-500 text-sm">Sipariş Durumu:</span>
