@@ -27,23 +27,81 @@ class OrdersTable
                     ->label('Müşteri')
                     ->searchable()
                     ->limit(25),
-                \Filament\Tables\Columns\SelectColumn::make('status')
+                TextColumn::make('status')
                     ->label('Durum')
-                    ->options([
+                    ->badge()
+                    ->color(fn (string $state) => match ($state) {
+                        'pending' => 'warning',
+                        'processing' => 'info',
+                        'shipped' => 'primary',
+                        'delivered' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state) => match ($state) {
                         'pending' => 'Beklemede',
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
                         'cancelled' => 'İptal',
-                    ]),
-                \Filament\Tables\Columns\SelectColumn::make('payment_status')
+                        default => $state,
+                    })
+                    ->action(
+                        \Filament\Tables\Actions\Action::make('updateStatus')
+                            ->modalHeading('Durumu Güncelle')
+                            ->form([
+                                \Filament\Forms\Components\Select::make('status')
+                                    ->label('Durum')
+                                    ->options([
+                                        'pending' => 'Beklemede',
+                                        'processing' => 'Hazırlanıyor',
+                                        'shipped' => 'Kargoda',
+                                        'delivered' => 'Teslim Edildi',
+                                        'cancelled' => 'İptal',
+                                    ])
+                                    ->default(fn (Order $record) => $record->status)
+                                    ->required(),
+                            ])
+                            ->action(function (Order $record, array $data): void {
+                                $record->update(['status' => $data['status']]);
+                            })
+                    ),
+                TextColumn::make('payment_status')
                     ->label('Ödeme')
-                    ->options([
+                    ->badge()
+                    ->color(fn (string $state) => match ($state) {
+                        'pending' => 'warning',
+                        'paid' => 'success',
+                        'refunded' => 'info',
+                        'failed' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state) => match ($state) {
                         'pending' => 'Beklemede',
                         'paid' => 'Ödendi',
                         'refunded' => 'İade',
                         'failed' => 'Başarısız',
-                    ]),
+                        default => $state,
+                    })
+                    ->action(
+                        \Filament\Tables\Actions\Action::make('updatePaymentStatus')
+                            ->modalHeading('Ödeme Durumunu Güncelle')
+                            ->form([
+                                \Filament\Forms\Components\Select::make('payment_status')
+                                    ->label('Ödeme Durumu')
+                                    ->options([
+                                        'pending' => 'Beklemede',
+                                        'paid' => 'Ödendi',
+                                        'refunded' => 'İade',
+                                        'failed' => 'Başarısız',
+                                    ])
+                                    ->default(fn (Order $record) => $record->payment_status)
+                                    ->required(),
+                            ])
+                            ->action(function (Order $record, array $data): void {
+                                $record->update(['payment_status' => $data['payment_status']]);
+                            })
+                    ),
                 TextColumn::make('grand_total')
                     ->label('Toplam')
                     ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')
