@@ -132,8 +132,19 @@ Route::get('/urun/{slug}/yorumlar', function ($slug) {
 // ========================
 // SİPARİŞ TAKİP
 // ========================
-Route::get('/siparis-takip', function () {
-    return view('order.tracking');
+Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
+    $order = null;
+    $error = null;
+    
+    if ($request->has('order_number')) {
+        $orderNumber = trim($request->input('order_number'));
+        $order = \App\Models\Order::where('order_number', $orderNumber)->first();
+        if (!$order) {
+            $error = 'Girdiğiniz sipariş numarasına ait bir kayıt bulunamadı.';
+        }
+    }
+    
+    return view('order.tracking', compact('order', 'error'));
 })->name('order.tracking');
 
 // ========================

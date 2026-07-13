@@ -85,7 +85,7 @@ class Checkout extends Component
         $totalItems = $cart->items->sum('quantity');
         $shippingPrice = 1 * $totalItems;
         $grandTotal = $subtotal + $shippingPrice;
-        $orderNumber = (string) mt_rand(100000, 999999);
+        $orderNumber = 'TR' . mt_rand(100000, 999999);
 
         // Create Order
         $order = Order::create([
