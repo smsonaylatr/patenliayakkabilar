@@ -71,15 +71,26 @@
          @touchmove="if(isZoomed) { $event.preventDefault(); updatePan($event); }"
          @touchend="touchEndX = $event.changedTouches[0].screenX; handleSwipe()"
          >
-        <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }}"
-             :src="mainImage" 
-             alt="{{ $product->name }}"
-             fetchpriority="high"
-             loading="eager"
-             decoding="sync"
-             class="h-full w-full object-contain p-0 transition-transform duration-300 ease-out"
-             :style="isZoomed ? `transform: scale(2.5); transform-origin: ${zoomX}% ${zoomY}%;` : 'transform: scale(1); transform-origin: center center;'"
-        >
+        @forelse($product->images as $index => $image)
+            <img src="{{ $image->image_url }}" 
+                 alt="{{ $product->name }}"
+                 x-show="currentIndex === {{ $index }}"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="absolute inset-0 h-full w-full object-contain p-0 origin-center"
+                 :class="isZoomed && currentIndex === {{ $index }} ? 'transition-none' : 'transition-transform duration-300 ease-out'"
+                 :style="isZoomed && currentIndex === {{ $index }} ? `transform: scale(2.5); transform-origin: ${zoomX}% ${zoomY}%;` : 'transform: scale(1);'"
+                 {{ $index === 0 ? 'fetchpriority=high loading=eager' : 'loading=lazy' }}
+                 @if($index !== 0) x-cloak @endif
+            >
+        @empty
+            <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                 class="absolute inset-0 h-full w-full object-contain p-0">
+        @endforelse
 
         <!-- Instruction Overlay (Appears briefly or on hover before click) -->
         <div x-show="!isZoomed" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
