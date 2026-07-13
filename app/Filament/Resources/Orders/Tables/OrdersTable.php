@@ -61,6 +61,7 @@ class OrdersTable
                                         'delivered' => 'Teslim Edildi',
                                         'cancelled' => 'İptal',
                                     ])
+                                    ->placeholder('Seçiniz')
                                     ->default(fn (Order $record) => $record->status)
                                     ->required(),
                             ])
@@ -99,6 +100,7 @@ class OrdersTable
                                         'refunded' => 'İade',
                                         'failed' => 'Başarısız',
                                     ])
+                                    ->placeholder('Seçiniz')
                                     ->default(fn (Order $record) => $record->payment_status)
                                     ->required(),
                             ])
