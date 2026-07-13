@@ -85,7 +85,7 @@
                         
                         <div class="flex shrink-0 animate-scroll-left">
                             @for($i = 0; $i < 3; $i++)
-                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-32">
+                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-40">
                                     {{ $product->name }}
                                 </h1>
                             @endfor
@@ -93,7 +93,7 @@
                         
                         <div class="flex shrink-0 animate-scroll-left" aria-hidden="true">
                             @for($i = 0; $i < 3; $i++)
-                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-32">
+                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-40">
                                     {{ $product->name }}
                                 </h1>
                             @endfor
