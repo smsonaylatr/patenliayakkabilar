@@ -80,7 +80,7 @@
                                         
                                         $trackingUrl = '#';
                                         if (strtolower($cargoName) === 'aras kargo') {
-                                            $trackingUrl = 'https://www.araskargo.com.tr/kargo-takip?kargo_takip_no=' . $order->cargo_tracking_code;
+                                            $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . $order->cargo_tracking_code;
                                         } elseif (strtolower($cargoName) === 'yurtiçi kargo') {
                                             $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . $order->cargo_tracking_code;
                                         }
