@@ -27,42 +27,23 @@ class OrdersTable
                     ->label('Müşteri')
                     ->searchable()
                     ->limit(25),
-                TextColumn::make('status')
+                \Filament\Tables\Columns\SelectColumn::make('status')
                     ->label('Durum')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'pending' => 'warning',
-                        'processing' => 'info',
-                        'shipped' => 'primary',
-                        'delivered' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
+                    ->options([
                         'pending' => 'Beklemede',
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
                         'cancelled' => 'İptal',
-                        default => $state,
-                    }),
-                TextColumn::make('payment_status')
+                    ]),
+                \Filament\Tables\Columns\SelectColumn::make('payment_status')
                     ->label('Ödeme')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'pending' => 'warning',
-                        'paid' => 'success',
-                        'refunded' => 'info',
-                        'failed' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
+                    ->options([
                         'pending' => 'Beklemede',
                         'paid' => 'Ödendi',
                         'refunded' => 'İade',
                         'failed' => 'Başarısız',
-                        default => $state,
-                    }),
+                    ]),
                 TextColumn::make('grand_total')
                     ->label('Toplam')
                     ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')
