@@ -47,7 +47,7 @@ class OrdersTable
                         default => $state,
                     })
                     ->action(
-                        \Filament\Tables\Actions\Action::make('updateStatus')
+                        Action::make('updateStatus')
                             ->modalHeading('Durumu Güncelle')
                             ->form([
                                 \Filament\Forms\Components\Select::make('status')
@@ -84,7 +84,7 @@ class OrdersTable
                         default => $state,
                     })
                     ->action(
-                        \Filament\Tables\Actions\Action::make('updatePaymentStatus')
+                        Action::make('updatePaymentStatus')
                             ->modalHeading('Ödeme Durumunu Güncelle')
                             ->form([
                                 \Filament\Forms\Components\Select::make('payment_status')
