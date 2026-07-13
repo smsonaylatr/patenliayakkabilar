@@ -185,8 +185,8 @@
             @php
                 $relatedPosts = \App\Models\BlogPost::where('status', true)
                     ->where('id', '!=', $post->id)
-                    ->latest('published_at')
-                    ->take(3)
+                    ->inRandomOrder()
+                    ->take(4)
                     ->get();
             @endphp
             @if($relatedPosts->count())
