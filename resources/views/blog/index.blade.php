@@ -20,14 +20,14 @@
             </div>
 
             @if($posts->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($posts as $post)
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 group">
                             @if($post->image_path)
-                                <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-video overflow-hidden">
+                                <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-video overflow-hidden bg-gray-50">
                                     <img src="{{ asset('storage/' . $post->image_path) }}" 
                                          alt="{{ $post->title }}" 
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                         class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                                          loading="lazy">
                                 </a>
                             @endif
