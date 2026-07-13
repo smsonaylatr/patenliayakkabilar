@@ -119,12 +119,12 @@
                             @endphp
 
                             @if($displayDiscount)
-                                <p class="text-3xl font-bold text-gray-900">{{ number_format($displayDiscount, 2) }} ₺</p>
+                                <p class="text-3xl font-bold text-red-600">{{ number_format($displayDiscount, 2) }} ₺</p>
                                 <p class="text-lg text-gray-400 line-through">{{ number_format($displayPrice, 2) }} ₺</p>
                                 @php $percent = round(($displayPrice - $displayDiscount) / $displayPrice * 100); @endphp
                                 <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-red-500 text-white">%{{ $percent }}</span>
                             @else
-                                <p class="text-3xl font-bold text-gray-900">{{ number_format($displayPrice, 2) }} ₺</p>
+                                <p class="text-3xl font-bold text-red-600">{{ number_format($displayPrice, 2) }} ₺</p>
                             @endif
                         </div>
                     </div>
