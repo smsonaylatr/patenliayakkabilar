@@ -133,7 +133,7 @@
                     <h2 class="text-lg font-bold text-gray-900 mb-6 border-b pb-4">Sipariş Özeti</h2>
                     
                     <!-- Ürünler -->
-                    <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div class="space-y-4 max-h-[300px] overflow-y-auto pr-3 pt-2 custom-scrollbar">
                         @forelse($cartItems as $item)
                             <div class="flex gap-4">
                                 <div class="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 border border-gray-200 relative">
