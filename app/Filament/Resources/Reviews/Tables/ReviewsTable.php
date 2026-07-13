@@ -15,32 +15,38 @@ class ReviewsTable
     {
         return $table
             ->columns([
-                TextColumn::make('product.name')
-                    ->label('Ürün')
-                    ->searchable()
+                TextColumn::make('product_id')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('user_id')
+                    ->numeric()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->label('Yorum Yapan')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
+                TextColumn::make('email')
+                    ->label('Email address')
+                    ->searchable(),
                 TextColumn::make('rating')
-                    ->label('Puan')
+                    ->numeric()
                     ->sortable(),
-                \Filament\Tables\Columns\ToggleColumn::make('status')
-                    ->label('Yayında'),
+                IconColumn::make('status')
+                    ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Tarih')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->defaultSort('id', 'desc')
             ->recordActions([
                 EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
