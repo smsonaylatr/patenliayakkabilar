@@ -72,10 +72,28 @@
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
                     <!-- Mobile Marquee Title -->
-                    <div class="md:hidden marquee-container w-full">
-                        <div class="marquee-content" style="animation-duration: 18s;">
-                            @for($i = 0; $i < 4; $i++)
-                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-12">
+                    <div class="md:hidden w-full overflow-hidden flex whitespace-nowrap bg-white pb-2 relative">
+                        <style>
+                            @keyframes scroll-left {
+                                0% { transform: translateX(0); }
+                                100% { transform: translateX(-100%); }
+                            }
+                            .animate-scroll-left {
+                                animation: scroll-left 20s linear infinite;
+                            }
+                        </style>
+                        
+                        <div class="flex shrink-0 animate-scroll-left">
+                            @for($i = 0; $i < 3; $i++)
+                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-32">
+                                    {{ $product->name }}
+                                </h1>
+                            @endfor
+                        </div>
+                        
+                        <div class="flex shrink-0 animate-scroll-left" aria-hidden="true">
+                            @for($i = 0; $i < 3; $i++)
+                                <h1 class="inline-block text-3xl font-bold tracking-tight text-gray-900 pr-32">
                                     {{ $product->name }}
                                 </h1>
                             @endfor
