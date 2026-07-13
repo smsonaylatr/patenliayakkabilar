@@ -45,16 +45,16 @@
     class="flex flex-col md:flex-row gap-4 lg:gap-6 items-start relative z-10">
     
     <!-- Thumbnails (Bottom on Mobile, Left on Desktop) -->
-    <div class="order-2 md:order-1 flex md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 hide-scrollbar w-full md:w-24 lg:w-28 flex-shrink-0">
+    <div class="order-2 md:order-1 grid grid-cols-5 md:flex md:flex-col gap-2 md:gap-3 w-full md:w-24 lg:w-28 flex-shrink-0">
         @forelse($product->images as $index => $image)
             <button @click="currentIndex = {{ $index }}; isZoomed = false;" 
                     type="button" 
                     :class="currentIndex === {{ $index }} ? 'border-b-4 border-black shadow-sm opacity-100' : 'border border-transparent hover:border-gray-200 opacity-70 hover:opacity-100'"
-                    class="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-full md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden transition-all duration-200">
+                    class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden transition-all duration-200">
                 <img src="{{ $image->image_url }}" alt="" class="h-full w-full object-contain p-0">
             </button>
         @empty
-            <button type="button" class="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-full md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
+            <button type="button" class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
                 <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="" class="h-full w-full object-contain p-0">
             </button>
         @endforelse
