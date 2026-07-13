@@ -61,7 +61,7 @@
     </div>
 
     <!-- Main Image (Top on Mobile, Right on Desktop) -->
-    <div class="order-1 md:order-2 flex-1 relative overflow-hidden rounded-2xl bg-gray-50 aspect-square flex items-center justify-center select-none"
+    <div class="order-1 md:order-2 flex-1 w-full relative overflow-hidden rounded-2xl bg-gray-50 aspect-square flex items-center justify-center select-none"
          :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
          x-ref="mainImageContainer"
          @click="toggleZoom($event)"
