@@ -47,7 +47,7 @@
                     });
                     $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
                     ?>
-                    <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[85px] h-[85px] sm:w-[110px] sm:h-[110px] drop-shadow-lg transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
+                    <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-20 h-20 sm:w-[110px] sm:h-[110px] drop-shadow-lg transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
                         <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
                     </div>
                 @endif
