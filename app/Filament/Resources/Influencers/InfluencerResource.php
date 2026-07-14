@@ -262,52 +262,50 @@ class InfluencerResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                \Filament\Tables\Actions\ActionGroup::make([
-                    \Filament\Tables\Actions\Action::make('ai_proposal')
-                        ->label('AI Teklif Oluştur')
-                        ->icon('heroicon-o-sparkles')
-                        ->color('warning')
-                        ->requiresConfirmation()
-                        ->modalHeading('AI ile Teklif Oluştur')
-                        ->modalDescription(fn (Influencer $record) => "{$record->channel_name} kanalı için AI destekli kişisel teklif oluşturulacak.")
-                        ->action(function (Influencer $record) {
-                            $service = app(InfluencerMarketingAIService::class);
-                            $campaign = $service->generateProposal($record);
-                            Notification::make()
-                                ->title('Teklif oluşturuldu!')
-                                ->body("{$record->channel_name} için {$campaign->package_type} paketi hazırlandı.")
-                                ->success()
-                                ->send();
-                        }),
-                    \Filament\Tables\Actions\Action::make('send_message')
-                        ->label('Mesaj Gönder')
-                        ->icon('heroicon-o-envelope')
-                        ->color('info')
-                        ->form([
-                            \Filament\Forms\Components\Select::make('channel')
-                                ->label('Kanal')
-                                ->options([
-                                    'email' => 'E-posta',
-                                    'dm' => 'DM (Instagram/YouTube)',
-                                    'whatsapp' => 'WhatsApp',
-                                ])
-                                ->default('email')
-                                ->required()
-                                ->native(false),
-                        ])
-                        ->action(function (Influencer $record, array $data) {
-                            $service = app(InfluencerMarketingAIService::class);
-                            $log = $service->generateOutreachMessage($record, $data['channel']);
-                            $record->update(['status' => 'contacted']);
-                            Notification::make()
-                                ->title('Mesaj oluşturuldu!')
-                                ->body("İletişim kaydı oluşturuldu. Mesajı kopyalayıp gönderebilirsiniz.")
-                                ->success()
-                                ->send();
-                        }),
-                    \Filament\Tables\Actions\EditAction::make(),
-                    \Filament\Tables\Actions\DeleteAction::make(),
-                ]),
+                \Filament\Tables\Actions\Action::make('ai_proposal')
+                    ->label('AI Teklif Oluştur')
+                    ->icon('heroicon-o-sparkles')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('AI ile Teklif Oluştur')
+                    ->modalDescription(fn (Influencer $record) => "{$record->channel_name} kanalı için AI destekli kişisel teklif oluşturulacak.")
+                    ->action(function (Influencer $record) {
+                        $service = app(InfluencerMarketingAIService::class);
+                        $campaign = $service->generateProposal($record);
+                        Notification::make()
+                            ->title('Teklif oluşturuldu!')
+                            ->body("{$record->channel_name} için {$campaign->package_type} paketi hazırlandı.")
+                            ->success()
+                            ->send();
+                    }),
+                \Filament\Tables\Actions\Action::make('send_message')
+                    ->label('Mesaj Gönder')
+                    ->icon('heroicon-o-envelope')
+                    ->color('info')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('channel')
+                            ->label('Kanal')
+                            ->options([
+                                'email' => 'E-posta',
+                                'dm' => 'DM (Instagram/YouTube)',
+                                'whatsapp' => 'WhatsApp',
+                            ])
+                            ->default('email')
+                            ->required()
+                            ->native(false),
+                    ])
+                    ->action(function (Influencer $record, array $data) {
+                        $service = app(InfluencerMarketingAIService::class);
+                        $log = $service->generateOutreachMessage($record, $data['channel']);
+                        $record->update(['status' => 'contacted']);
+                        Notification::make()
+                            ->title('Mesaj oluşturuldu!')
+                            ->body("İletişim kaydı oluşturuldu. Mesajı kopyalayıp gönderebilirsiniz.")
+                            ->success()
+                            ->send();
+                    }),
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 \Filament\Tables\Actions\BulkActionGroup::make([
