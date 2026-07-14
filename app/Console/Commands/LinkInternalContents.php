@@ -192,19 +192,23 @@ class LinkInternalContents extends Command
 
             foreach ($links as $keyword => $url) {
                 // Regex açıklaması:
-                // (?!(?:[^<]+>|[^>]+<\/a>)) -> <a> veya başka HTML etiketleri içinde değilsek
-                // (?<![\p{L}\p{N}]) -> Kelime başlangıcı (harf veya rakam öncesi olmamalı)
-                // (keyword) -> Aranacak tam kelime
-                // (?![\p{L}\p{N}]) -> Kelime bitişi (harf veya rakam sonrası olmamalı)
+                // 1ci grup: (<h[1-6][^>]*>.*?<\/h[1-6]>) -> Başlık etiketlerini komple yakala (dokunmamak için)
+                // 2ci grup: Aranacak kelime
+                // (?!(?:[^<]+>|[^>]+<\/a>)) -> <a> veya HTML tag içinde değilsek
                 
                 $escapedKeyword = preg_quote($keyword, '/');
-                $pattern = '/(?!(?:[^<]+>|[^>]+<\/a>))(?<![\p{L}\p{N}])(' . $escapedKeyword . ')(?![\p{L}\p{N}])/iu';
+                $pattern = '/(<h[1-6][^>]*>.*?<\/h[1-6]>)|(?!(?:[^<]+>|[^>]+<\/a>))(?<![\p{L}\p{N}])(' . $escapedKeyword . ')(?![\p{L}\p{N}])/ius';
                 
                 $newContent = preg_replace_callback($pattern, function($matches) use ($url) {
-                    $matchedText = $matches[1];
+                    if (!empty($matches[1])) {
+                        // Eğer başlık (h1..h6) ile eşleştiyse hiçbir değişiklik yapmadan geri döndür.
+                        return $matches[0];
+                    }
+
+                    $matchedText = $matches[2];
                     // Link oluştur
                     return '<a href="' . $url . '" class="text-teal-600 font-semibold hover:underline" title="' . e($matchedText) . '">' . $matchedText . '</a>';
-                }, $content, -1); // Tüm eşleşmeleri linkle
+                }, $content, -1); // Tüm eşleşmeleri kontrol et
                 
                 if ($newContent !== null && $newContent !== $content) {
                     $content = $newContent;
