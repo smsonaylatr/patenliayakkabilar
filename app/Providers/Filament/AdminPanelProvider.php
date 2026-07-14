@@ -27,6 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->authGuard('admin')
             ->brandName('Patenli Ayakkabılar')
             ->favicon(asset('favicon.ico'))
             ->font('Outfit')
