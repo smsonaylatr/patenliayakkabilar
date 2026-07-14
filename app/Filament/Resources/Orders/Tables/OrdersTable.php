@@ -26,6 +26,7 @@ class OrdersTable
                 TextColumn::make('customer_name')
                     ->label('Müşteri')
                     ->searchable()
+                    ->description(fn (Order $record) => $record->user ? 'Hesap: ' . $record->user->name : 'Misafir')
                     ->limit(25),
                 TextColumn::make('status')
                     ->label('Durum')
