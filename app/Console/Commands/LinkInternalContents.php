@@ -33,13 +33,15 @@ class LinkInternalContents extends Command
 
         $links = [];
 
-        // 1. Her zaman aktif olan statik rotalar ve eşanlamlılar
-        $links['patenli ayakkabı modelleri'] = '/patenli-ayakkabilar';
-        $links['patenli ayakkabı'] = '/patenli-ayakkabilar';
-        $links['tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
-        $links['ışıklı patenli ayakkabı'] = '/patenli-ayakkabilar';
-        $links['ışıklı tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
-        $links['iletişim'] = '/iletisim';
+        // 1. Her zaman aktif olan statik rotalar ve genişletilmiş eşanlamlılar
+        $baseKeywords = [
+            'patenli ayakkabı modelleri', 'patenli ayakkabılar', 'patenli ayakkabı', 'tekerlekli ayakkabı', 
+            'ışıklı patenli ayakkabı', 'ışıklı tekerlekli ayakkabı', 'ledli paten', 'çocuk pateni', 
+            'iki tekerlekli ayakkabı', 'tek tekerlekli ayakkabı', 'tekerlekli spor ayakkabı'
+        ];
+        foreach($baseKeywords as $kw) {
+            $links[$kw] = '/patenli-ayakkabilar';
+        }
 
         // 2. Sadece aktif Kategoriler
         $categories = Category::where('status', true)->get();
@@ -49,10 +51,12 @@ class LinkInternalContents extends Command
             $links[mb_strtolower($cat->name)] = '/kategori/' . $cat->slug;
             
             // Kategori varyasyonları
-            if ($cat->slug === 'cocuk-patenli-ayakkabi-modelleri') {
+            if (str_contains($cat->slug, 'cocuk-patenli')) {
                 $links['çocuk patenli ayakkabı modelleri'] = '/kategori/' . $cat->slug;
                 $links['çocuk patenli ayakkabı'] = '/kategori/' . $cat->slug;
                 $links['çocuk tekerlekli ayakkabı'] = '/kategori/' . $cat->slug;
+                $links['kız çocuk paten'] = '/kategori/' . $cat->slug;
+                $links['erkek çocuk paten'] = '/kategori/' . $cat->slug;
             }
         }
 
@@ -62,13 +66,32 @@ class LinkInternalContents extends Command
             $links[mb_strtolower($page->title)] = '/' . $page->slug;
             
             // Sayfa varyasyonları
-            if ($page->slug === 'beden-rehberi') {
-                $links['patenli ayakkabı beden rehberi'] = '/' . $page->slug;
+            if (str_contains($page->slug, 'beden')) {
+                $links['beden rehberi'] = '/' . $page->slug;
+                $links['beden tablosu'] = '/' . $page->slug;
+                $links['ayak uzunluğu'] = '/' . $page->slug;
+                $links['doğru beden'] = '/' . $page->slug;
+                $links['beden ölçüsü'] = '/' . $page->slug;
             }
-            if ($page->slug === 'guvenlik-ekipmanlari') {
-                $links['patenli ayakkabı güvenlik ekipmanları'] = '/' . $page->slug;
-                $links['güvenlik ekipmanı'] = '/' . $page->slug;
+            if (str_contains($page->slug, 'guvenlik')) {
                 $links['güvenlik ekipmanları'] = '/' . $page->slug;
+                $links['güvenlik ekipmanı'] = '/' . $page->slug;
+                $links['kask'] = '/' . $page->slug;
+                $links['dizlik'] = '/' . $page->slug;
+                $links['dirseklik'] = '/' . $page->slug;
+                $links['koruyucu set'] = '/' . $page->slug;
+            }
+            if (str_contains($page->slug, 'iletisim')) {
+                $links['iletişim'] = '/' . $page->slug;
+                $links['bize ulaşın'] = '/' . $page->slug;
+                $links['iletişime geçin'] = '/' . $page->slug;
+            }
+            if (str_contains($page->slug, 'iade')) {
+                $links['iade ve değişim'] = '/' . $page->slug;
+                $links['iade koşulları'] = '/' . $page->slug;
+                $links['değişim'] = '/' . $page->slug;
+                $links['iade politikası'] = '/' . $page->slug;
+                $links['iade garantisi'] = '/' . $page->slug;
             }
         }
 
@@ -82,6 +105,23 @@ class LinkInternalContents extends Command
         $blogPosts = BlogPost::where('status', true)->get();
         foreach ($blogPosts as $post) {
             $links[mb_strtolower($post->title)] = '/blog/' . $post->slug;
+            
+            // Zenginleştirilmiş Blog Varyasyonları
+            if (str_contains($post->slug, 'nasil-temizlenir')) {
+                $links['nasıl temizlenir'] = '/blog/' . $post->slug;
+                $links['paten bakımı'] = '/blog/' . $post->slug;
+                $links['tekerlek temizliği'] = '/blog/' . $post->slug;
+                $links['rulman temizliği'] = '/blog/' . $post->slug;
+            }
+            if (str_contains($post->slug, 'guvenli-mi')) {
+                $links['güvenli mi'] = '/blog/' . $post->slug;
+                $links['güvenlik kuralları'] = '/blog/' . $post->slug;
+                $links['güvenli kullanım'] = '/blog/' . $post->slug;
+            }
+            if (str_contains($post->slug, 'hata-ve-dogru-secim')) {
+                $links['doğru seçim'] = '/blog/' . $post->slug;
+                $links['sık yapılan hatalar'] = '/blog/' . $post->slug;
+            }
         }
 
         // Anahtar kelimeleri uzunluklarına göre azalan şekilde sırala 
