@@ -46,7 +46,7 @@
         @if($post->image_path)
             <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
                  alt="{{ $post->title }}" 
-                 class="w-full object-cover"
+                 class="w-full object-cover object-[80%_center] md:object-center"
                  style="max-height:500px;opacity:0.55;position:absolute;inset:0;width:100%;height:100%;"
                  fetchpriority="high">
         @else
