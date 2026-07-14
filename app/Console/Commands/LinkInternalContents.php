@@ -72,6 +72,7 @@ class LinkInternalContents extends Command
                 $links['ayak uzunluğu'] = '/' . $page->slug;
                 $links['doğru beden'] = '/' . $page->slug;
                 $links['beden ölçüsü'] = '/' . $page->slug;
+                $links['numara seçimi'] = '/' . $page->slug;
             }
             if (str_contains($page->slug, 'guvenlik')) {
                 $links['güvenlik ekipmanları'] = '/' . $page->slug;
@@ -80,11 +81,13 @@ class LinkInternalContents extends Command
                 $links['dizlik'] = '/' . $page->slug;
                 $links['dirseklik'] = '/' . $page->slug;
                 $links['koruyucu set'] = '/' . $page->slug;
+                $links['koruyucu ekipman'] = '/' . $page->slug;
             }
             if (str_contains($page->slug, 'iletisim')) {
                 $links['iletişim'] = '/' . $page->slug;
                 $links['bize ulaşın'] = '/' . $page->slug;
                 $links['iletişime geçin'] = '/' . $page->slug;
+                $links['müşteri hizmetleri'] = '/' . $page->slug;
             }
             if (str_contains($page->slug, 'iade')) {
                 $links['iade ve değişim'] = '/' . $page->slug;
@@ -92,6 +95,21 @@ class LinkInternalContents extends Command
                 $links['değişim'] = '/' . $page->slug;
                 $links['iade politikası'] = '/' . $page->slug;
                 $links['iade garantisi'] = '/' . $page->slug;
+                $links['kargo ve iade koşulları'] = '/' . $page->slug;
+                $links['kargo ve iade'] = '/' . $page->slug;
+                $links['garanti bilgisi'] = '/' . $page->slug;
+                $links['garanti şartları'] = '/' . $page->slug;
+                $links['teslimat'] = '/' . $page->slug;
+            }
+            if (str_contains($page->slug, 'sorular')) {
+                $links['sıkça sorulan sorular'] = '/' . $page->slug;
+                $links['sss'] = '/' . $page->slug;
+                $links['merak edilenler'] = '/' . $page->slug;
+                $links['sık sorulan sorular'] = '/' . $page->slug;
+            }
+            if (str_contains($page->slug, 'hakkimizda')) {
+                $links['hakkımızda'] = '/' . $page->slug;
+                $links['biz kimiz'] = '/' . $page->slug;
             }
         }
 
