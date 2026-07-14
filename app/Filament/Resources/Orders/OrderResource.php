@@ -29,7 +29,7 @@ class OrderResource extends Resource
         return static::getModel()::where('status', 'pending')->count() ?: null;
     }
 
-    public static function getNavigationBadgeColor(): ?string|array
+    public static function getNavigationBadgeColor(): ?string
     {
         return 'warning';
     }
