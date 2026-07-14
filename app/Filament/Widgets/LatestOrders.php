@@ -37,6 +37,14 @@ class LatestOrders extends BaseWidget
                         'delivered' => 'success',
                         'cancelled' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'pending' => 'Beklemede',
+                        'processing' => 'Hazırlanıyor',
+                        'shipped' => 'Kargoda',
+                        'delivered' => 'Teslim Edildi',
+                        'cancelled' => 'İptal',
+                        default => $state,
                     }),
                 Tables\Columns\TextColumn::make('grand_total')
                     ->label('Tutar')
