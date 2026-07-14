@@ -6,7 +6,7 @@
     <section class="min-h-[70vh] flex items-center justify-center bg-gray-50 px-4 py-16 sm:py-24">
         <div class="max-w-2xl mx-auto text-center">
             {{-- 404 Gradient Başlık --}}
-            <h1 class="text-[10rem] sm:text-[12rem] font-black leading-none tracking-tight bg-gradient-to-br from-brand-orange via-orange-400 to-amber-500 bg-clip-text text-transparent select-none">
+            <h1 class="text-[10rem] sm:text-[12rem] font-black leading-none tracking-tight bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 bg-clip-text text-transparent select-none">
                 404
             </h1>
 
@@ -22,8 +22,8 @@
             <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {{-- Ana Sayfa --}}
                 <a href="{{ route('home') }}" wire:navigate
-                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-brand-orange/30">
-                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-brand-orange/10 text-brand-orange transition group-hover:bg-brand-orange group-hover:text-white">
+                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-blue-900/30">
+                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-900/10 text-blue-900 transition group-hover:bg-blue-900 group-hover:text-white">
                         <i class="fa-solid fa-house text-lg"></i>
                     </span>
                     <span class="text-sm font-semibold text-gray-900">Ana Sayfa</span>
@@ -31,8 +31,8 @@
 
                 {{-- Ürünler --}}
                 <a href="{{ route('products.index') }}" wire:navigate
-                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-brand-orange/30">
-                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-brand-orange/10 text-brand-orange transition group-hover:bg-brand-orange group-hover:text-white">
+                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-blue-900/30">
+                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-900/10 text-blue-900 transition group-hover:bg-blue-900 group-hover:text-white">
                         <i class="fa-solid fa-bag-shopping text-lg"></i>
                     </span>
                     <span class="text-sm font-semibold text-gray-900">Ürünler</span>
@@ -40,8 +40,8 @@
 
                 {{-- İletişim --}}
                 <a href="{{ route('contact') }}" wire:navigate
-                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-brand-orange/30">
-                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-brand-orange/10 text-brand-orange transition group-hover:bg-brand-orange group-hover:text-white">
+                   class="group flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:shadow-md hover:ring-blue-900/30">
+                    <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-900/10 text-blue-900 transition group-hover:bg-blue-900 group-hover:text-white">
                         <i class="fa-solid fa-envelope text-lg"></i>
                     </span>
                     <span class="text-sm font-semibold text-gray-900">İletişim</span>
@@ -53,7 +53,7 @@
                 <button type="button"
                         x-data
                         @click="$dispatch('open-search')"
-                        class="inline-flex items-center gap-2 text-sm font-medium text-brand-orange hover:text-orange-600 transition-colors cursor-pointer">
+                        class="inline-flex items-center gap-2 text-sm font-medium text-blue-900 hover:text-blue-700 transition-colors cursor-pointer">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     Ürünlerimizde arama yapmak için tıklayın
                 </button>
