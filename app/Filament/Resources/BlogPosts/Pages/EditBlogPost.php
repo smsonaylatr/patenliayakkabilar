@@ -13,6 +13,10 @@ class EditBlogPost extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('save')
+                ->label('Değişiklikleri Kaydet')
+                ->action('save')
+                ->color('primary'),
             DeleteAction::make(),
         ];
     }
