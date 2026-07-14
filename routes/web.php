@@ -533,6 +533,17 @@ Route::get('/deploy-add-reviews', function () {
 })->middleware('auth');
 
 // ========================
+// SEO TOOLS
+// ========================
+Route::get('/run-seo-links', function () {
+    if (!auth()->check()) {
+        return 'Giriş yapmalısınız.';
+    }
+    \Illuminate\Support\Facades\Artisan::call('seo:link-content');
+    return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+})->middleware('auth');
+
+// ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================
 Route::get('/{slug}', function ($slug) {
