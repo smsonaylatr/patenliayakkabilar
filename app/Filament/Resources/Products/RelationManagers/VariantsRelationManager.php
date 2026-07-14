@@ -107,7 +107,7 @@ class VariantsRelationManager extends RelationManager
                     ->color('gray'),
             ])
             ->headerActions([
-                CreateAction::make()
+                CreateAction::make()->label('Yeni Varyant')
                     ->label('Varyant Ekle'),
             ])
             ->actions([
