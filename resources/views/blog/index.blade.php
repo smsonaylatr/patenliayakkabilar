@@ -7,8 +7,8 @@
     <x-slot:schema>
         <script type="application/ld+json">
         {
-            "@context": "https://schema.org",
-            "@type": "Blog",
+            "@@context": "https://schema.org",
+            "@@type": "Blog",
             "name": "Patenli Ayakkabılar Rehber Merkezi",
             "description": "Patenli ayakkabı rehberleri, kullanım kılavuzları, güvenlik ipuçları ve satın alma tavsiyeleri.",
             "url": "{{ url('/blog') }}"
