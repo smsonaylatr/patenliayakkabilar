@@ -262,7 +262,7 @@ class InfluencerResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                \Filament\Tables\Actions\Action::make('ai_proposal')
+                \Filament\Actions\Action::make('ai_proposal')
                     ->label('AI Teklif Oluştur')
                     ->icon('heroicon-o-sparkles')
                     ->color('warning')
@@ -278,7 +278,7 @@ class InfluencerResource extends Resource
                             ->success()
                             ->send();
                     }),
-                \Filament\Tables\Actions\Action::make('send_message')
+                \Filament\Actions\Action::make('send_message')
                     ->label('Mesaj Gönder')
                     ->icon('heroicon-o-envelope')
                     ->color('info')
@@ -304,12 +304,12 @@ class InfluencerResource extends Resource
                             ->success()
                             ->send();
                     }),
-                \Filament\Tables\Actions\EditAction::make(),
-                \Filament\Tables\Actions\DeleteAction::make(),
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
