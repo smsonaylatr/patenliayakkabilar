@@ -24,6 +24,16 @@ class OrderResource extends Resource
     protected static ?string $modelLabel = 'Sipariş';
     protected static ?string $pluralModelLabel = 'Siparişler';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'pending')->count() ?: null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string|array
+    {
+        return 'warning';
+    }
+
     protected static ?string $recordTitleAttribute = 'order_number';
 
     public static function getGloballySearchableAttributes(): array
