@@ -126,17 +126,22 @@ class LinkInternalContents extends Command
             
             // Zenginleştirilmiş Blog Varyasyonları
             if (str_contains($post->slug, 'nasil-temizlenir')) {
+                $links['patenli ayakkabı nasıl temizlenir?'] = '/blog/' . $post->slug;
+                $links['patenli ayakkabı nasıl temizlenir'] = '/blog/' . $post->slug;
                 $links['nasıl temizlenir'] = '/blog/' . $post->slug;
                 $links['paten bakımı'] = '/blog/' . $post->slug;
                 $links['tekerlek temizliği'] = '/blog/' . $post->slug;
                 $links['rulman temizliği'] = '/blog/' . $post->slug;
             }
             if (str_contains($post->slug, 'guvenli-mi')) {
+                $links['patenli ayakkabı güvenli mi?'] = '/blog/' . $post->slug;
+                $links['patenli ayakkabı güvenli mi'] = '/blog/' . $post->slug;
                 $links['güvenli mi'] = '/blog/' . $post->slug;
                 $links['güvenlik kuralları'] = '/blog/' . $post->slug;
                 $links['güvenli kullanım'] = '/blog/' . $post->slug;
             }
             if (str_contains($post->slug, 'hata-ve-dogru-secim')) {
+                $links['patenli ayakkabı alırken en sık yapılan 12 hata ve doğru seçim rehberi'] = '/blog/' . $post->slug;
                 $links['doğru seçim'] = '/blog/' . $post->slug;
                 $links['sık yapılan hatalar'] = '/blog/' . $post->slug;
             }
