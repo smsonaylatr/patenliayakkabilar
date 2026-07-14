@@ -117,9 +117,12 @@ class LinkInternalContents extends Command
 
             $modified = false;
 
-            // Önceki yanlış eklenmiş kategori linklerini düzelt
-            $newContent = str_replace('/kategori/patenli-ayakkabi-modelleri', '/patenli-ayakkabilar', $content);
-            if ($newContent !== $content) {
+            // Önceki script çalışmalarından kalan otomatik eklenmiş TÜM linkleri temizle (sadece bizim eklediğimiz class'a sahip olanları)
+            // Böylece sadece text kalır ve aşağıda güncel aktif listeye göre yeniden linklenir.
+            $cleanPattern = '/<a href="[^"]*" class="text-teal-600 font-semibold hover:underline" title="[^"]*">(.*?)<\/a>/ui';
+            $newContent = preg_replace($cleanPattern, '$1', $content);
+            
+            if ($newContent !== null && $newContent !== $content) {
                 $content = $newContent;
                 $modified = true;
             }
