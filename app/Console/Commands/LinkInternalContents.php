@@ -31,43 +31,57 @@ class LinkInternalContents extends Command
     {
         $this->info('İç bağlantı ekleme işlemi başlatılıyor...');
 
-        // Sabit anahtar kelime eşleşmeleri
-        $links = [
-            'patenli ayakkabı beden rehberi' => '/beden-rehberi',
-            'patenli ayakkabı güvenlik ekipmanları' => '/guvenlik-ekipmanlari',
-            'çocuk patenli ayakkabı modelleri' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
-            'patenli ayakkabı modelleri' => '/patenli-ayakkabilar',
-            'çocuk patenli ayakkabı' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
-            'çocuk tekerlekli ayakkabı' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
-            'patenli ayakkabı' => '/patenli-ayakkabilar',
-            'tekerlekli ayakkabı' => '/patenli-ayakkabilar',
-            'ışıklı patenli ayakkabı' => '/patenli-ayakkabilar',
-            'ışıklı tekerlekli ayakkabı' => '/patenli-ayakkabilar',
-            'erkek çocuk' => '/kategori/erkek-cocuk',
-            'kız çocuk' => '/kategori/kiz-cocuk',
-            'beden rehberi' => '/beden-rehberi',
-            'güvenlik ekipmanları' => '/guvenlik-ekipmanlari',
-            'güvenlik ekipmanı' => '/guvenlik-ekipmanlari',
-            'iade ve değişim' => '/iade-ve-degisim',
-            'hakkımızda' => '/hakkimizda',
-            'sıkça sorulan sorular' => '/sikca-sorulan-sorular',
-            'iletişim' => '/iletisim',
-        ];
+        $links = [];
 
-        // Ürünleri dinamik ekle
-        $products = Product::pluck('slug', 'name');
-        foreach ($products as $name => $slug) {
-            $links[mb_strtolower($name)] = '/urun/' . $slug;
+        // 1. Her zaman aktif olan statik rotalar ve eşanlamlılar
+        $links['patenli ayakkabı modelleri'] = '/patenli-ayakkabilar';
+        $links['patenli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['ışıklı patenli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['ışıklı tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['iletişim'] = '/iletisim';
+
+        // 2. Sadece aktif Kategoriler
+        $categories = Category::where('status', true)->get();
+        foreach ($categories as $cat) {
+            if ($cat->slug === 'patenli-ayakkabi-modelleri') continue;
+            
+            $links[mb_strtolower($cat->name)] = '/kategori/' . $cat->slug;
+            
+            // Kategori varyasyonları
+            if ($cat->slug === 'cocuk-patenli-ayakkabi-modelleri') {
+                $links['çocuk patenli ayakkabı modelleri'] = '/kategori/' . $cat->slug;
+                $links['çocuk patenli ayakkabı'] = '/kategori/' . $cat->slug;
+                $links['çocuk tekerlekli ayakkabı'] = '/kategori/' . $cat->slug;
+            }
         }
 
-        // Kategorileri dinamik ekle
-        $categories = Category::pluck('slug', 'name');
-        foreach ($categories as $name => $slug) {
-            if ($slug === 'patenli-ayakkabi-modelleri') {
-                $links[mb_strtolower($name)] = '/patenli-ayakkabilar';
-            } else {
-                $links[mb_strtolower($name)] = '/kategori/' . $slug;
+        // 3. Sadece aktif Sayfalar
+        $pages = Page::where('is_active', true)->get();
+        foreach ($pages as $page) {
+            $links[mb_strtolower($page->title)] = '/' . $page->slug;
+            
+            // Sayfa varyasyonları
+            if ($page->slug === 'beden-rehberi') {
+                $links['patenli ayakkabı beden rehberi'] = '/' . $page->slug;
             }
+            if ($page->slug === 'guvenlik-ekipmanlari') {
+                $links['patenli ayakkabı güvenlik ekipmanları'] = '/' . $page->slug;
+                $links['güvenlik ekipmanı'] = '/' . $page->slug;
+                $links['güvenlik ekipmanları'] = '/' . $page->slug;
+            }
+        }
+
+        // 4. Sadece aktif Ürünler
+        $products = Product::where('status', true)->get();
+        foreach ($products as $prod) {
+            $links[mb_strtolower($prod->name)] = '/urun/' . $prod->slug;
+        }
+
+        // 5. Sadece aktif Blog Yazıları (Kendi aralarında linklemeleri için)
+        $blogPosts = BlogPost::where('status', true)->get();
+        foreach ($blogPosts as $post) {
+            $links[mb_strtolower($post->title)] = '/blog/' . $post->slug;
         }
 
         // Anahtar kelimeleri uzunluklarına göre azalan şekilde sırala 
