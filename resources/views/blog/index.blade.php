@@ -2,6 +2,19 @@
     <x-slot:title>Rehber Merkezi | Patenli Ayakkabılar</x-slot:title>
     <x-slot:description>Patenli ayakkabı rehberleri, kullanım kılavuzları, güvenlik ipuçları ve satın alma tavsiyeleri. Çocuğunuz için doğru patenli ayakkabıyı seçin.</x-slot:description>
     <x-slot:canonical>{{ url('/blog') }}</x-slot:canonical>
+    <x-slot:ogType>website</x-slot:ogType>
+    <x-slot:ogImage>{{ asset('images/logo.png') }}</x-slot:ogImage>
+    <x-slot:schema>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "Patenli Ayakkabılar Rehber Merkezi",
+            "description": "Patenli ayakkabı rehberleri, kullanım kılavuzları, güvenlik ipuçları ve satın alma tavsiyeleri.",
+            "url": "{{ url('/blog') }}"
+        }
+        </script>
+    </x-slot:schema>
 
     <div class="bg-gray-50 py-12 min-h-[60vh]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,7 +37,7 @@
                     @foreach($posts as $post)
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-300 group">
                             @if($post->image_path)
-                                <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-[4/1] overflow-hidden">
+                                <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-[16/9] overflow-hidden">
                                     <img src="{{ asset('storage/' . $post->image_path) }}" 
                                          alt="{{ $post->title }}" 
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -59,6 +72,24 @@
                     <p class="text-gray-500 mt-2">Çok yakında patenli ayakkabı rehberleri burada olacak.</p>
                 </div>
             @endif
+
+            {{-- SEO Zenginleştirme Metni (Sayfa Altı) --}}
+            <div class="mt-16 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Neden Patenli Ayakkabı Rehberini Okumalısınız?</h2>
+                <div class="prose prose-blue max-w-none text-gray-600">
+                    <p>Çocuklar ve gençler için son dönemin en popüler eğlence aracı olan <strong>patenli ayakkabılar</strong>, doğru seçildiğinde ve güvenli kullanıldığında harika bir fiziksel aktivitedir. Ancak ister <strong>ışıklı tekerlekli ayakkabı</strong> ister <strong>klasik çocuk patenli ayakkabı modelleri</strong> arıyor olun, doğru bedeni seçmek, tekerlek bakımını yapmak ve güvenlik ekipmanlarını doğru kullanmak hayati önem taşır.</p>
+                    
+                    <p class="mt-4">Rehber Merkezimizdeki içeriklerimiz, uzmanlar ve tecrübeli ebeveynlerin görüşleri doğrultusunda özel olarak hazırlanmaktadır. Blog yazılarımızda şu konuları bulabilirsiniz:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-2">
+                        <li>Patenli ayakkabı ile ilk sürüş teknikleri ve denge kurma pratikleri</li>
+                        <li>Tekerlek bakımı, temizliği ve rulmanların uzun ömürlü kullanımı</li>
+                        <li>Güvenli sürüş alanları ve dikkat edilmesi gereken risk faktörleri</li>
+                        <li>Çocuğunuzun ayak gelişimini destekleyecek doğru ayakkabı seçimi (Ortopedik detaylar)</li>
+                    </ul>
+                    <p class="mt-4 text-sm text-gray-500">Düzenli olarak güncellenen blog içeriklerimizle hem sizin hem de çocuğunuzun daha güvenli ve keyifli bir sürüş deneyimi yaşamasını hedefliyoruz.</p>
+                </div>
+            </div>
+
         </div>
     </div>
 </x-layouts.app>
