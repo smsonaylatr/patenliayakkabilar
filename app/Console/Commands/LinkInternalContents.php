@@ -36,13 +36,13 @@ class LinkInternalContents extends Command
             'patenli ayakkabı beden rehberi' => '/beden-rehberi',
             'patenli ayakkabı güvenlik ekipmanları' => '/guvenlik-ekipmanlari',
             'çocuk patenli ayakkabı modelleri' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
-            'patenli ayakkabı modelleri' => '/kategori/patenli-ayakkabi-modelleri',
+            'patenli ayakkabı modelleri' => '/patenli-ayakkabilar',
             'çocuk patenli ayakkabı' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
             'çocuk tekerlekli ayakkabı' => '/kategori/cocuk-patenli-ayakkabi-modelleri',
-            'patenli ayakkabı' => '/kategori/patenli-ayakkabi-modelleri',
-            'tekerlekli ayakkabı' => '/kategori/patenli-ayakkabi-modelleri',
-            'ışıklı patenli ayakkabı' => '/kategori/patenli-ayakkabi-modelleri',
-            'ışıklı tekerlekli ayakkabı' => '/kategori/patenli-ayakkabi-modelleri',
+            'patenli ayakkabı' => '/patenli-ayakkabilar',
+            'tekerlekli ayakkabı' => '/patenli-ayakkabilar',
+            'ışıklı patenli ayakkabı' => '/patenli-ayakkabilar',
+            'ışıklı tekerlekli ayakkabı' => '/patenli-ayakkabilar',
             'erkek çocuk' => '/kategori/erkek-cocuk',
             'kız çocuk' => '/kategori/kiz-cocuk',
             'beden rehberi' => '/beden-rehberi',
@@ -60,10 +60,14 @@ class LinkInternalContents extends Command
             $links[mb_strtolower($name)] = '/urun/' . $slug;
         }
 
-        // Kategorileri dinamik ekle (zaten yukarıda genel olanlar var ama özel isimler için)
+        // Kategorileri dinamik ekle
         $categories = Category::pluck('slug', 'name');
         foreach ($categories as $name => $slug) {
-            $links[mb_strtolower($name)] = '/kategori/' . $slug;
+            if ($slug === 'patenli-ayakkabi-modelleri') {
+                $links[mb_strtolower($name)] = '/patenli-ayakkabilar';
+            } else {
+                $links[mb_strtolower($name)] = '/kategori/' . $slug;
+            }
         }
 
         // Anahtar kelimeleri uzunluklarına göre azalan şekilde sırala 
@@ -98,6 +102,13 @@ class LinkInternalContents extends Command
             }
 
             $modified = false;
+
+            // Önceki yanlış eklenmiş kategori linklerini düzelt
+            $newContent = str_replace('/kategori/patenli-ayakkabi-modelleri', '/patenli-ayakkabilar', $content);
+            if ($newContent !== $content) {
+                $content = $newContent;
+                $modified = true;
+            }
 
             foreach ($links as $keyword => $url) {
                 // Regex açıklaması:
