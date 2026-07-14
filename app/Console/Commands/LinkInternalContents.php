@@ -204,7 +204,7 @@ class LinkInternalContents extends Command
                     $matchedText = $matches[1];
                     // Link oluştur
                     return '<a href="' . $url . '" class="text-teal-600 font-semibold hover:underline" title="' . e($matchedText) . '">' . $matchedText . '</a>';
-                }, $content, 1); // 1 eşleşme ile sınırla
+                }, $content, -1); // Tüm eşleşmeleri linkle
                 
                 if ($newContent !== null && $newContent !== $content) {
                     $content = $newContent;
