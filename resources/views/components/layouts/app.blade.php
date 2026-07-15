@@ -270,7 +270,7 @@
                     </button>
                     <div>
                         <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">KOLEKSİYON / {{ date('Y') }}</p>
-                        <h2 class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter">Kategoriler</h2>
+                        <h2 class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter">Katalog</h2>
                     </div>
                     <div class="mt-4">
                         <a href="{{ route('products.index') }}" @click="open = false" wire:navigate class="inline-flex text-[11px] font-black text-gray-900 uppercase tracking-[0.2em] items-center gap-1.5 border-b-2 border-gray-900 pb-0.5 hover:text-brand-orange hover:border-brand-orange transition-colors">
