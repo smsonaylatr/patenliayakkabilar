@@ -17,7 +17,7 @@
         <div class="bg-white pt-10 pb-16">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-y-12">
                 @foreach($featuredCategories as $category)
-                    <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-all duration-1000 ease-out">
+                    <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-[opacity,transform] duration-700 ease-out">
                         <div class="relative mb-5">
                             <div class="flex items-center justify-between gap-3">
                                 <h2 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
