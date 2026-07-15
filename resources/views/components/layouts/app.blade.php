@@ -242,7 +242,7 @@
         <div x-data="{ open: false }" 
              @open-catalog.window="open = true" 
              @keydown.escape.window="open = false"
-             class="relative z-[10000]" 
+             class="relative z-[9998]" 
              style="display: none;" 
              x-show="open">
             
