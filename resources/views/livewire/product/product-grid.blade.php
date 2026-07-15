@@ -33,7 +33,7 @@
             }"
             @mousemove="handleMove"
             @mouseleave="handleLeave"
-            class="group relative flex flex-col transition-all duration-300 ease-out"
+            class="group relative flex flex-col transition-all duration-300 ease-out will-change-transform"
             :style="`transform: rotateX(${rotateX}deg) rotateY(${rotateY}deg);`"
         >
             <div class="relative w-full aspect-square bg-transparent rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
