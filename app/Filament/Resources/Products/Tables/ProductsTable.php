@@ -87,8 +87,7 @@ class ProductsTable
                     ->boolean(),
                 \Filament\Tables\Columns\ToggleColumn::make('featured')
                     ->label('Öne Çıkan')
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
                 IconColumn::make('best_seller')
                     ->label('Çok Satan')
                     ->boolean()
