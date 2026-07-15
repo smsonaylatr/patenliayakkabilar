@@ -36,28 +36,24 @@ class ProductGrid extends Component
 
     public function render()
     {
-        $cacheKey = 'home_product_grid_v2' . ($this->category ? '_cat_' . $this->category : '') . '_feat_' . ($this->isFeaturedOnly ? '1' : '0');
+        $query = Product::where('status', true)->with(['category', 'images', 'variants']);
         
-        $products = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
-            $query = Product::where('status', true)->with(['category', 'images', 'variants']);
-            
-            if ($this->isFeaturedOnly) {
-                $query->where('featured', true);
-            }
+        if ($this->isFeaturedOnly) {
+            $query->where('featured', true);
+        }
 
-            if ($this->category) {
-                $categoryModel = \App\Models\Category::where('slug', $this->category)->first();
-                if ($categoryModel) {
-                    $query->where('category_id', $categoryModel->id);
-                }
+        if ($this->category) {
+            $categoryModel = \App\Models\Category::where('slug', $this->category)->first();
+            if ($categoryModel) {
+                $query->where('category_id', $categoryModel->id);
             }
+        }
 
-            return $query->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
-                ->orderBy('homepage_sort', 'asc')
-                ->orderBy('id', 'desc')
-                ->take($this->limit)
-                ->get();
-        });
+        $products = $query->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+            ->orderBy('homepage_sort', 'asc')
+            ->orderBy('id', 'desc')
+            ->take($this->limit)
+            ->get();
         
         return view('livewire.product.product-grid', compact('products'));
     }
