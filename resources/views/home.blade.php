@@ -18,12 +18,14 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
                 @foreach($featuredCategories as $category)
                     <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-all duration-1000 ease-out">
-                        <div class="relative mb-8 border-b border-gray-100 pb-2">
-                            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-                                <h2 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">{{ $category->name }}</h2>
-                                <a href="{{ route('products.index', ['category' => $category->slug]) }}" wire:navigate class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-gray-500 hover:text-black transition-colors uppercase tracking-wider self-start sm:self-auto mb-1">
+                        <div class="relative mb-6">
+                            <div class="flex items-center justify-between gap-3">
+                                <h2 class="text-3xl md:text-[2.5rem] font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
+                                <a href="{{ route('products.index', ['category' => $category->slug]) }}" wire:navigate class="group inline-flex items-center gap-2 text-sm sm:text-[15px] font-medium text-gray-800 hover:text-black transition-colors shrink-0">
                                     Daha Fazla 
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <span class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-200 text-gray-600 group-hover:bg-gray-300 transition-colors">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-[1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                    </span>
                                 </a>
                             </div>
                         </div>
