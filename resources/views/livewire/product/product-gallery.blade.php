@@ -8,26 +8,36 @@
         ],
         currentIndex: 0,
         get mainImage() { return this.images[this.currentIndex]; },
-        touchStartX: 0,
-        touchEndX: 0,
+        dragStartX: 0,
+        dragEndX: 0,
         isZoomed: false,
         zoomX: 50,
         zoomY: 50,
-        handleSwipe() {
-            if (this.isZoomed) return; // Disable swiping between images when zoomed in
-            let swipeDistance = this.touchEndX - this.touchStartX;
-            if (swipeDistance > 50) {
-                this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1;
-            } else if (swipeDistance < -50) {
-                this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0;
+        
+        startDrag(e) {
+            this.dragStartX = e.clientX ?? (e.touches ? e.touches[0].clientX : 0);
+        },
+        
+        endDrag(e) {
+            this.dragEndX = e.clientX ?? (e.changedTouches ? e.changedTouches[0].clientX : 0);
+            let swipeDistance = this.dragEndX - this.dragStartX;
+            
+            if (!this.isZoomed) {
+                if (swipeDistance > 50) {
+                    this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.images.length - 1;
+                } else if (swipeDistance < -50) {
+                    this.currentIndex = this.currentIndex < this.images.length - 1 ? this.currentIndex + 1 : 0;
+                } else if (Math.abs(swipeDistance) < 10) {
+                    this.isZoomed = true;
+                    this.updatePan(e);
+                }
+            } else {
+                if (Math.abs(swipeDistance) < 10) {
+                    this.isZoomed = false;
+                }
             }
         },
-        toggleZoom(e) {
-            this.isZoomed = !this.isZoomed;
-            if(this.isZoomed) {
-                this.updatePan(e);
-            }
-        },
+
         updatePan(e) {
             if (!this.isZoomed) return;
             const clientX = e.clientX ?? (e.touches ? e.touches[0].clientX : null);
@@ -64,12 +74,13 @@
     <div class="order-1 md:order-2 flex-1 w-full relative overflow-hidden rounded-2xl bg-white aspect-square flex items-center justify-center select-none group"
          :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
          x-ref="mainImageContainer"
-         @click="isZoomed = !isZoomed; if(isZoomed) updatePan($event)"
+         @mousedown="startDrag($event)"
+         @mouseup="endDrag($event)"
+         @touchstart="startDrag($event)"
+         @touchend="endDrag($event)"
          @mousemove="if(isZoomed) updatePan($event)"
-         @mouseleave="isZoomed = false"
-         @touchstart="touchStartX = $event.changedTouches[0].screenX"
          @touchmove="if(isZoomed) { $event.preventDefault(); updatePan($event); }"
-         @touchend="touchEndX = $event.changedTouches[0].screenX; handleSwipe()"
+         @mouseleave="isZoomed = false"
          >
          
         <!-- Zoom Wrapper -->
@@ -77,19 +88,24 @@
              :style="isZoomed ? 'transform: scale(2.5); transform-origin: ' + zoomX + '% ' + zoomY + '%;' : 'transform: scale(1); transform-origin: center center;'"
              :class="isZoomed ? 'transition-none' : 'transition-transform duration-300 ease-out'">
              
-            @forelse($product->images as $index => $image)
-                <img src="{{ $image->image_url }}" 
-                     alt="{{ $product->name }}"
-                     x-show="currentIndex === {{ $index }}"
-                     x-transition.opacity.duration.300ms
-                     class="absolute inset-0 h-full w-full object-contain p-0"
-                     {{ $index === 0 ? 'fetchpriority=high loading=eager' : 'loading=lazy' }}
-                     @if($index !== 0) x-cloak @endif
-                >
-            @empty
-                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                     class="absolute inset-0 h-full w-full object-contain p-0">
-            @endforelse
+             <!-- Sliding Track -->
+             <div class="flex w-full h-full transition-transform duration-500 ease-in-out will-change-transform"
+                  :style="'transform: translateX(-' + (currentIndex * 100) + '%);'">
+                @forelse($product->images as $index => $image)
+                    <div class="w-full h-full flex-shrink-0 relative">
+                        <img src="{{ $image->image_url }}" 
+                             alt="{{ $product->name }}"
+                             class="absolute inset-0 h-full w-full object-contain p-0 pointer-events-none"
+                             {{ $index === 0 ? 'fetchpriority=high loading=eager' : 'loading=lazy' }}
+                        >
+                    </div>
+                @empty
+                    <div class="w-full h-full flex-shrink-0 relative">
+                        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                             class="absolute inset-0 h-full w-full object-contain p-0 pointer-events-none">
+                    </div>
+                @endforelse
+             </div>
         </div>
 
         <!-- Navigation Arrows (Desktop) -->
