@@ -308,14 +308,14 @@ class ProductForm
                                             Select::make('series_start')
                                                 ->label('Başlangıç Numara')
                                                 ->options(
-                                                    collect(range(26, 37))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                    collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
                                                 )
                                                 ->default('26')
                                                 ->required(),
                                             Select::make('series_end')
                                                 ->label('Bitiş Numara')
                                                 ->options(
-                                                    collect(range(26, 37))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                    collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
                                                 )
                                                 ->default('34')
                                                 ->required(),
@@ -403,7 +403,7 @@ class ProductForm
                                         Select::make('size')
                                             ->label('Numara')
                                             ->options(
-                                                collect(range(26, 37))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
+                                                collect(range(26, 44))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
                                             )
                                             ->searchable()
                                             ->required(),
