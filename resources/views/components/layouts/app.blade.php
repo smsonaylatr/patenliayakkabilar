@@ -206,10 +206,10 @@
                     <span class="text-[10px] font-medium leading-none tracking-wide mt-1">Ana Sayfa</span>
                 </a>
                 
-                <a href="{{ route('products.index') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
+                <button x-data @click="$dispatch('open-catalog')" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
                     <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     <span class="text-[10px] font-medium leading-none tracking-wide mt-1">Katalog</span>
-                </a>
+                </button>
                 
                 <!-- Center Floating Button (Sepet) -->
                 <div class="relative w-full flex justify-center h-full pointer-events-none">
@@ -237,6 +237,73 @@
         <x-frontend.toast-notification />
         
         <livewire:frontend.site-popup />
+
+        <!-- Mobile Catalog Modal -->
+        <div x-data="{ open: false }" 
+             @open-catalog.window="open = true" 
+             @keydown.escape.window="open = false"
+             class="relative z-[10000]" 
+             style="display: none;" 
+             x-show="open">
+            
+            <div x-show="open" 
+                 x-transition.opacity 
+                 class="fixed inset-0 bg-black/60 backdrop-blur-sm" 
+                 @click="open = false"></div>
+                 
+            <div x-show="open" 
+                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter-start="translate-y-full"
+                 x-transition:enter-end="translate-y-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="translate-y-0"
+                 x-transition:leave-end="translate-y-full"
+                 class="fixed inset-x-0 bottom-0 top-[10vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden">
+                 
+                 <div class="px-6 py-8 border-b border-gray-100 flex flex-col justify-between relative">
+                    <button @click="open = false" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div>
+                        <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">KOLEKSİYON / {{ date('Y') }}</p>
+                        <h2 class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter">Kategoriler</h2>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ route('products.index') }}" @click="open = false" wire:navigate class="inline-flex text-[11px] font-black text-gray-900 uppercase tracking-[0.2em] items-center gap-1.5 border-b-2 border-gray-900 pb-0.5 hover:text-brand-orange hover:border-brand-orange transition-colors">
+                            TÜM ÜRÜNLER
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                 </div>
+                 
+                 <div class="flex-1 overflow-y-auto px-6 py-2 pb-24">
+                    @php
+                        $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories', 3600, function () {
+                            return \App\Models\Category::withCount(['products' => function($q) {
+                                $q->where('status', true);
+                            }])->orderBy('sort_order')->get();
+                        });
+                    @endphp
+                    
+                    <ul class="flex flex-col">
+                        @foreach($categories as $index => $category)
+                        <li class="border-b border-gray-100 last:border-0">
+                            <a href="{{ route('products.index', ['category' => $category->slug]) }}" @click="open = false" wire:navigate class="flex items-center justify-between py-6 group">
+                                <div class="flex items-center gap-5 sm:gap-8">
+                                    <span class="text-sm font-bold text-gray-300 w-6">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="text-3xl sm:text-4xl font-black text-gray-900 group-hover:text-brand-orange transition-colors tracking-tight">{{ $category->name }}</span>
+                                </div>
+                                <div class="flex items-center gap-3 sm:gap-4">
+                                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap">{{ $category->products_count }} ÜRÜN</span>
+                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-brand-orange transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </div>
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
+                 </div>
+            </div>
+        </div>
         
         @livewireScripts
     </body>
