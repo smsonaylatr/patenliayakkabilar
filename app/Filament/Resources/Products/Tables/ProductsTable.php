@@ -40,14 +40,12 @@ class ProductsTable
                     ->weight('bold')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
-                \Filament\Tables\Columns\SelectColumn::make('category_id')
+                TextColumn::make('category.name')
                     ->label('Kategori')
-                    ->options(fn () => \App\Models\Category::pluck('name', 'id'))
                     ->searchable()
                     ->sortable()
-                    ->afterStateUpdated(function () {
-                        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
-                    }),
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('price')
                     ->label('Fiyat')
                     ->getStateUsing(function ($record) {
@@ -81,7 +79,8 @@ class ProductsTable
                     ->label('Marka')
                     ->searchable()
                     ->badge()
-                    ->color('gray'),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('status')
                     ->label('Aktif')
                     ->boolean(),
