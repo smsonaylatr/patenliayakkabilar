@@ -15,6 +15,11 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('save')
+                ->label('Değişiklikleri Kaydet')
+                ->action('save')
+                ->color('primary')
+                ->icon('heroicon-o-check'),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
