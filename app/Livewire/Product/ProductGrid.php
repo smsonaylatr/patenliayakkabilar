@@ -12,6 +12,11 @@ class ProductGrid extends Component
 
     public bool $isFeaturedOnly = false;
 
+    public function mount($isFeaturedOnly = false)
+    {
+        $this->isFeaturedOnly = filter_var($isFeaturedOnly, FILTER_VALIDATE_BOOLEAN);
+    }
+
     public function addToCart(\App\Services\CartService $cartService, $productId, $variantId = null)
     {
         $product = Product::findOrFail($productId);

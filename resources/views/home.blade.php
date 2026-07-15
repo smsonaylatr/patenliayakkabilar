@@ -9,7 +9,7 @@
     
     <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="pt-4 pb-16 bg-white transition-all duration-1000 ease-out">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <livewire:product.product-grid :is-featured-only="true" />
+            <livewire:product.product-grid isFeaturedOnly="true" />
         </div>
     </div>
     
