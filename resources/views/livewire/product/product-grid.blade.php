@@ -76,7 +76,7 @@
                                 <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
                             @endif
                         @else
-                            <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
+                            <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
                         @endif
                         
                         <!-- Dark overlay on hover for better button contrast -->
@@ -133,7 +133,7 @@
                             <!-- Header / Product Info -->
                             <div class="flex items-center border-b border-gray-100" style="background-color: #f9fafb; padding: 24px; padding-right: 56px; gap: 16px;">
                                 <div class="rounded-xl overflow-hidden bg-white border border-gray-100 flex-shrink-0 shadow-sm" style="width: 64px; height: 64px;">
-                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=150&q=80' }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex flex-col">
                                     <h4 class="text-gray-900 font-bold text-sm leading-snug line-clamp-2" style="margin-bottom: 6px;">{{ $product->name }}</h4>

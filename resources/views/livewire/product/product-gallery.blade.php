@@ -3,7 +3,7 @@
             @forelse($product->images as $image)
                 '{{ $image->image_url }}',
             @empty
-                'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                asset('img/placeholder.svg')
             @endforelse
         ],
         currentIndex: 0,
@@ -55,7 +55,7 @@
             </button>
         @empty
             <button type="button" class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
-                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="" class="h-full w-full object-contain p-0">
+                <img src="{{ asset('img/placeholder.svg') }}" alt="" class="h-full w-full object-contain p-0">
             </button>
         @endforelse
     </div>
@@ -87,7 +87,7 @@
                      @if($index !== 0) x-cloak @endif
                 >
             @empty
-                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                <img src="{{ asset('img/placeholder.svg') }}"
                      class="absolute inset-0 h-full w-full object-contain p-0">
             @endforelse
         </div>

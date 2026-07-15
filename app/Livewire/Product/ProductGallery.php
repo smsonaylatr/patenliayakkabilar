@@ -15,7 +15,7 @@ class ProductGallery extends Component
         $this->product = $product;
         $this->mainImage = $product->images->first()
             ? $product->images->first()->image_url
-            : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+            : asset('img/placeholder.svg');
     }
 
     public function setMainImage($path)

@@ -61,7 +61,7 @@
                                         @forelse($items as $item)
                                             <li class="flex py-6 group">
                                                 <div class="h-28 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-50 shadow-sm transition-transform duration-300 group-hover:scale-105">
-                                                    <img src="{{ $item->product->images->first() ? $item->product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80' }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover object-center">
+                                                    <img src="{{ $item->product->images->first() ? $item->product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover object-center">
                                                 </div>
 
                                                 <div class="ml-4 flex flex-1 flex-col justify-between">

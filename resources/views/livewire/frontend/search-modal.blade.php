@@ -71,7 +71,7 @@
                                         <li>
                                             <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="flex items-center gap-4 rounded-xl p-2 hover:bg-gray-50 transition-colors group">
                                                 <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80' }}" alt="{{ $product->name }}" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <h4 class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</h4>
