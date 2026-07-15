@@ -240,6 +240,10 @@
 
         <!-- Mobile Catalog Modal -->
         <div x-data="{ open: false }" 
+             x-init="$watch('open', value => {
+                 if (value) document.body.classList.add('overflow-hidden');
+                 else document.body.classList.remove('overflow-hidden');
+             })"
              @toggle-catalog.window="open = !open" 
              @keydown.escape.window="open = false"
              class="relative z-40" 
