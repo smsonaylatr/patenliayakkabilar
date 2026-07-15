@@ -31,7 +31,7 @@
                         </div>
 
                         <!-- Kategoriye Ait Öne Çıkan Ürünler -->
-                        <livewire:product.product-grid :category="$category->slug" isFeaturedOnly="true" :key="'featured-cat-'.$category->id" />
+                        <livewire:product.product-grid :category="$category->slug" isFeaturedOnly="true" :limit="4" :key="'featured-cat-'.$category->id" />
                     </div>
                 @endforeach
             </div>
