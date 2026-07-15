@@ -242,23 +242,23 @@
         <div x-data="{ open: false }" 
              @open-catalog.window="open = true" 
              @keydown.escape.window="open = false"
-             class="relative z-[9998]" 
+             class="relative z-40" 
              style="display: none;" 
              x-show="open">
             
             <div x-show="open" 
                  x-transition.opacity 
-                 class="fixed inset-0 bg-black/60 backdrop-blur-sm" 
+                 class="fixed inset-0 bg-black/60 backdrop-blur-sm" style="z-index: 9995;" 
                  @click="open = false"></div>
                  
             <div x-show="open" 
-                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="translate-y-full"
                  x-transition:enter-end="translate-y-0"
                  x-transition:leave="transition ease-in duration-300"
                  x-transition:leave-start="translate-y-0"
                  x-transition:leave-end="translate-y-full"
-                 class="fixed inset-x-0 bottom-0 top-[10vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden">
+                 class="fixed inset-x-0 bottom-0 top-[10vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden" style="z-index: 9996;">
                  
                  <div class="px-6 py-8 border-b border-gray-100 flex flex-col justify-between relative">
                     <button @click="open = false" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
