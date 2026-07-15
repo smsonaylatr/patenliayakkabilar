@@ -85,10 +85,10 @@ class ProductsTable
                 IconColumn::make('status')
                     ->label('Aktif')
                     ->boolean(),
-                IconColumn::make('featured')
+                \Filament\Tables\Columns\ToggleColumn::make('featured')
                     ->label('Öne Çıkan')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable()
+                    ->toggleable(),
                 IconColumn::make('best_seller')
                     ->label('Çok Satan')
                     ->boolean()
