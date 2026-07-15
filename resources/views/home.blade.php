@@ -7,8 +7,8 @@
     
 
     @php
-        $featuredCategories = \App\Models\Category::where('is_featured', true)
-                                ->where('status', true)
+        $featuredCategories = \App\Models\Category::where('is_featured', 1)
+                                ->where('status', 1)
                                 ->orderBy('sort_order')
                                 ->get();
     @endphp
@@ -34,22 +34,6 @@
                         <livewire:product.product-grid :category="$category->slug" isFeaturedOnly="true" :key="'featured-cat-'.$category->id" />
                     </div>
                 @endforeach
-            </div>
-        </div>
-    @else
-        <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="pt-10 pb-16 bg-white transition-all duration-1000 ease-out">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="relative mb-10 overflow-hidden" style="border-radius: 4px;">
-                    <div class="absolute inset-0 bg-yellow-300 transform -skew-x-12 scale-110 origin-left"></div>
-                    <div class="relative z-10 flex items-center justify-between px-8 py-4">
-                        <h2 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Haftanın Favorileri</h2>
-                        <a href="{{ route('products.index') }}" wire:navigate class="inline-flex items-center gap-1 text-sm font-bold text-gray-900 hover:text-black transition-colors uppercase tracking-wider">
-                            Tümünü Gör 
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                </div>
-                <livewire:product.product-grid isFeaturedOnly="true" />
             </div>
         </div>
     @endif
