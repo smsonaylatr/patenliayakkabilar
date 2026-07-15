@@ -15,12 +15,12 @@
 
     @if($featuredCategories->count() > 0)
         <div class="bg-white pt-10 pb-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-y-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-y-12">
                 @foreach($featuredCategories as $category)
                     <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-all duration-1000 ease-out">
-                        <div class="relative mb-6">
+                        <div class="relative mb-5">
                             <div class="flex items-center justify-between gap-3">
-                                <h2 class="text-3xl md:text-[2.5rem] font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
+                                <h2 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
                                 <a href="{{ route('products.index', ['category' => $category->slug]) }}" wire:navigate class="group inline-flex items-center gap-2 text-sm sm:text-[15px] font-medium text-gray-800 hover:text-black transition-colors shrink-0">
                                     Daha Fazla 
                                     <span class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-200 text-gray-600 group-hover:bg-gray-300 transition-colors">
