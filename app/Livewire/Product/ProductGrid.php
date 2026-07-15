@@ -10,6 +10,8 @@ class ProductGrid extends Component
     #[\Livewire\Attributes\Url]
     public $category = '';
 
+    public bool $isFeaturedOnly = false;
+
     public function addToCart(\App\Services\CartService $cartService, $productId, $variantId = null)
     {
         $product = Product::findOrFail($productId);
@@ -27,11 +29,15 @@ class ProductGrid extends Component
 
     public function render()
     {
-        $cacheKey = 'home_product_grid_v2' . ($this->category ? '_cat_' . $this->category : '');
+        $cacheKey = 'home_product_grid_v2' . ($this->category ? '_cat_' . $this->category : '') . '_feat_' . ($this->isFeaturedOnly ? '1' : '0');
         
         $products = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
             $query = Product::where('status', true)->with(['category', 'images']);
             
+            if ($this->isFeaturedOnly) {
+                $query->where('featured', true);
+            }
+
             if ($this->category) {
                 $categoryModel = \App\Models\Category::where('slug', $this->category)->first();
                 if ($categoryModel) {
