@@ -61,31 +61,36 @@
     </div>
 
     <!-- Main Image (Top on Mobile, Right on Desktop) -->
-    <div class="order-1 md:order-2 flex-1 w-full relative overflow-hidden rounded-2xl bg-gray-50 aspect-square flex items-center justify-center select-none group"
+    <div class="order-1 md:order-2 flex-1 w-full relative overflow-hidden rounded-2xl bg-white aspect-square flex items-center justify-center select-none group"
          :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
          x-ref="mainImageContainer"
-         @click="toggleZoom($event)"
-         @mousemove="updatePan($event)"
+         @click="isZoomed = !isZoomed; if(isZoomed) updatePan($event)"
+         @mousemove="if(isZoomed) updatePan($event)"
          @mouseleave="isZoomed = false"
          @touchstart="touchStartX = $event.changedTouches[0].screenX"
          @touchmove="if(isZoomed) { $event.preventDefault(); updatePan($event); }"
          @touchend="touchEndX = $event.changedTouches[0].screenX; handleSwipe()"
          >
-        @forelse($product->images as $index => $image)
-            <img src="{{ $image->image_url }}" 
-                 alt="{{ $product->name }}"
-                 x-show="currentIndex === {{ $index }}"
-                 x-transition.opacity.duration.300ms
-                 class="absolute inset-0 h-full w-full object-contain p-0 origin-center"
-                 :class="isZoomed && currentIndex === {{ $index }} ? 'transition-none' : 'transition-transform duration-300 ease-out'"
-                 :style="isZoomed && currentIndex === {{ $index }} ? `transform: scale(2.5); transform-origin: ${zoomX}% ${zoomY}%;` : 'transform: scale(1);'"
-                 {{ $index === 0 ? 'fetchpriority=high loading=eager' : 'loading=lazy' }}
-                 @if($index !== 0) x-cloak @endif
-            >
-        @empty
-            <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                 class="absolute inset-0 h-full w-full object-contain p-0">
-        @endforelse
+         
+        <!-- Zoom Wrapper -->
+        <div class="w-full h-full relative will-change-transform"
+             :style="isZoomed ? 'transform: scale(2.5); transform-origin: ' + zoomX + '% ' + zoomY + '%;' : 'transform: scale(1); transform-origin: center center;'"
+             :class="isZoomed ? 'transition-none' : 'transition-transform duration-300 ease-out'">
+             
+            @forelse($product->images as $index => $image)
+                <img src="{{ $image->image_url }}" 
+                     alt="{{ $product->name }}"
+                     x-show="currentIndex === {{ $index }}"
+                     x-transition.opacity.duration.300ms
+                     class="absolute inset-0 h-full w-full object-contain p-0"
+                     {{ $index === 0 ? 'fetchpriority=high loading=eager' : 'loading=lazy' }}
+                     @if($index !== 0) x-cloak @endif
+                >
+            @empty
+                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                     class="absolute inset-0 h-full w-full object-contain p-0">
+            @endforelse
+        </div>
 
         <!-- Navigation Arrows (Desktop) -->
         <button type="button" x-show="images.length > 1 && !isZoomed" @click.stop="currentIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1" 
