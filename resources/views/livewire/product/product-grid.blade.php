@@ -1,10 +1,42 @@
-<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12">
+<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12" style="perspective: 1200px;">
     @forelse($products as $product)
         <div 
-            x-data="{ showSizeModal: false }"
+            x-data="{
+                rotateX: 0,
+                rotateY: 0,
+                glareX: 50,
+                glareY: 50,
+                opacity: 0,
+                showSizeModal: false,
+                handleMove(e) {
+                    // Only apply 3D tilt on non-touch devices (width > 768px as a simple heuristic)
+                    if (window.innerWidth < 768) return;
+                    
+                    const rect = this.$el.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    this.rotateY = ((x - centerX) / centerX) * 10; 
+                    this.rotateX = -((y - centerY) / centerY) * 10;
+                    
+                    this.glareX = (x / rect.width) * 100;
+                    this.glareY = (y / rect.height) * 100;
+                    this.opacity = 1;
+                },
+                handleLeave() {
+                    this.rotateX = 0;
+                    this.rotateY = 0;
+                    this.opacity = 0;
+                }
+            }"
+            @mousemove="handleMove"
+            @mouseleave="handleLeave"
             class="group relative flex flex-col transition-all duration-300 ease-out"
+            :style="`transform: rotateX(${rotateX}deg) rotateY(${rotateY}deg);`"
         >
-            <div class="relative w-full aspect-square bg-transparent rounded-2xl shadow-sm transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]">
+            <div class="relative w-full aspect-square bg-transparent rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
                 
                 <!-- ================= CARD FACE ================= -->
                 
