@@ -45,7 +45,7 @@
                                 $sizes = $product->variants->pluck('size')->filter()->sort()->values();
                             @endphp
                             @if($sizes->isNotEmpty())
-                                <div class="absolute top-4 right-4 z-10 bg-white/70 backdrop-blur-md text-gray-700 text-[11px] font-bold tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover/card:opacity-0">
+                                <div class="absolute top-4 right-4 z-10 bg-white/70 backdrop-blur-md text-gray-500 text-[11px] font-medium tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover/card:opacity-0">
                                     @if($sizes->first() == $sizes->last())
                                         {{ $sizes->first() }}
                                     @else
