@@ -3,10 +3,8 @@
 namespace App\Livewire\Product;
 
 use Livewire\Component;
-use Livewire\Attributes\Lazy;
 use App\Models\Product;
 
-#[Lazy]
 class ProductGrid extends Component
 {
     #[\Livewire\Attributes\Url]
@@ -19,18 +17,6 @@ class ProductGrid extends Component
     {
         $this->isFeaturedOnly = filter_var($isFeaturedOnly, FILTER_VALIDATE_BOOLEAN);
         $this->limit = (int) $limit;
-    }
-
-    public function placeholder()
-    {
-        return <<<'HTML'
-        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12 animate-pulse">
-            <div class="aspect-square bg-gray-200 rounded-2xl w-full"></div>
-            <div class="aspect-square bg-gray-200 rounded-2xl w-full"></div>
-            <div class="aspect-square bg-gray-200 rounded-2xl w-full hidden lg:block"></div>
-            <div class="aspect-square bg-gray-200 rounded-2xl w-full hidden lg:block"></div>
-        </div>
-        HTML;
     }
 
     public function addToCart(\App\Services\CartService $cartService, $productId, $variantId = null)
