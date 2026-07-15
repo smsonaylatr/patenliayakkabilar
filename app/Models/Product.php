@@ -63,11 +63,13 @@ class Product extends Model
 
     public static function clearProductCaches()
     {
-        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
+        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_feat_0');
+        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_feat_1');
         
         $categories = \App\Models\Category::pluck('slug');
         foreach ($categories as $slug) {
-            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug);
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug . '_feat_0');
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug . '_feat_1');
         }
     }
 
