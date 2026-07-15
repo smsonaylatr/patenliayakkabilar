@@ -15,7 +15,7 @@
 
     @if($featuredCategories->count() > 0)
         <div class="bg-white pt-10 pb-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-y-20">
                 @foreach($featuredCategories as $category)
                     <div x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'" class="transition-all duration-1000 ease-out">
                         <div class="relative mb-6">
