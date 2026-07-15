@@ -12,6 +12,7 @@ class Category extends Model
     protected $casts = [
         'is_indexable' => 'boolean',
         'status' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     protected static function boot()

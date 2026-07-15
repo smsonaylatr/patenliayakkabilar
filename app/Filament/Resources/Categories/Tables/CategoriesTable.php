@@ -57,6 +57,10 @@ class CategoriesTable
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured')
+                    ->label('Vitrinde')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('meta_title')
                     ->label('SEO')
                     ->limit(30)

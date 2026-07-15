@@ -54,6 +54,9 @@ class CategoryForm
                                 Toggle::make('status')
                                     ->label('Aktif')
                                     ->default(true),
+                                Toggle::make('is_featured')
+                                    ->label('Ana Sayfa Vitrininde Göster')
+                                    ->default(false),
                                 FileUpload::make('image')
                                     ->label('Kategori Görseli')
                                     ->image()
