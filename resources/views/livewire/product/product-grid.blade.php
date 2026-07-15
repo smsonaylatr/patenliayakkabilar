@@ -52,6 +52,19 @@
                     </div>
                 @endif
 
+                @php
+                    $sizes = $product->variants->pluck('size')->filter()->sort()->values();
+                @endphp
+                @if($sizes->isNotEmpty())
+                    <div class="absolute top-2 right-2 z-40 bg-white/70 backdrop-blur-md text-gray-900 text-[11px] font-black tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover:opacity-0">
+                        @if($sizes->first() == $sizes->last())
+                            {{ $sizes->first() }}
+                        @else
+                            {{ $sizes->first() }}-{{ $sizes->last() }}
+                        @endif
+                    </div>
+                @endif
+
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
 
                     <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">

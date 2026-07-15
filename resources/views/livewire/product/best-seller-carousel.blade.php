@@ -40,6 +40,20 @@
                                 @endif
                             </div>
 
+                            <!-- Size Range Badge -->
+                            @php
+                                $sizes = $product->variants->pluck('size')->filter()->sort()->values();
+                            @endphp
+                            @if($sizes->isNotEmpty())
+                                <div class="absolute top-4 right-4 z-10 bg-white/70 backdrop-blur-md text-gray-900 text-[11px] font-black tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover/card:opacity-0">
+                                    @if($sizes->first() == $sizes->last())
+                                        {{ $sizes->first() }}
+                                    @else
+                                        {{ $sizes->first() }}-{{ $sizes->last() }}
+                                    @endif
+                                </div>
+                            @endif
+
                             <!-- Image -->
                             <div class="aspect-[4/5] bg-gray-100 relative overflow-hidden">
                                 @if($product->images->isNotEmpty())

@@ -37,7 +37,7 @@ class ProductGrid extends Component
         $cacheKey = 'home_product_grid_v2' . ($this->category ? '_cat_' . $this->category : '') . '_feat_' . ($this->isFeaturedOnly ? '1' : '0');
         
         $products = \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
-            $query = Product::where('status', true)->with(['category', 'images']);
+            $query = Product::where('status', true)->with(['category', 'images', 'variants']);
             
             if ($this->isFeaturedOnly) {
                 $query->where('featured', true);
