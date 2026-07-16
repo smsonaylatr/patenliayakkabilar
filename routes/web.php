@@ -506,12 +506,99 @@ Route::get('/deploy-add-pages', function () {
 
 // Canlı sunucuya (veya lokale) sahte yorumları eklemek için
 Route::get('/deploy-add-reviews', function () {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RealisticReviewSeeder']);
-    $output = \Illuminate\Support\Facades\Artisan::output();
+    $products = \App\Models\Product::all();
+    if ($products->count() === 0) {
+        return "Ürün bulunamadı.";
+    }
+
+    $names = [
+        'Ayşe Yılmaz', 'Fatma Kaya', 'Zeynep Demir', 'Elif Çelik', 'Merve Şahin', 'Esra Yıldız', 'Büşra Yıldırım', 'Ceren Öztürk', 'Selin Aydın', 'Tuğba Özdemir',
+        'Gizem Arslan', 'Berna Doğan', 'Gamze Kılıç', 'Derya Aslan', 'Bahar Çetin', 'Yasemin Kara', 'Dilek Koç', 'Burcu Kurt', 'Aylin Özkan', 'Cansu Şimşek',
+        'Melis Polat', 'Ece Öz', 'Hande Korkmaz', 'İrem Çakır', 'Pelin Erdoğan', 'Sedef Yavuz', 'Tuğçe Can', 'Pınar Acar', 'Özge Yalçın', 'Sibel Güneş',
+        'Mehmet Kaya', 'Mustafa Demir', 'Ahmet Çelik', 'Ali Şahin', 'Hüseyin Yıldız', 'Hasan Yıldırım', 'İbrahim Öztürk', 'Murat Aydın', 'Volkan Özdemir', 'Emre Arslan',
+        'Burak Doğan', 'Gökhan Kılıç', 'Fatih Aslan', 'Hakan Çetin', 'Tolga Kara', 'Oğuzhan Koç', 'Kemal Kurt', 'Enes Özkan', 'Yasin Şimşek', 'Serkan Polat'
+    ];
+
+    $comments = [
+        "Kızım bayıldı, ayağından çıkarmak istemiyor. Renkleri de görseldeki gibi çok canlı.",
+        "Tekerlek mekanizması çok pratik. Çocuğum tek hamlede patenden ayakkabıya çevirebiliyor.",
+        "Oğlum için aldım. Kargolama hızı çok iyiydi. Teşekkür ederiz.",
+        "Ayakkabının kalitesi beklediğimden çok daha iyi çıktı. Sadece kalıpları biraz dar, 1 numara büyük alınabilir.",
+        "Hem ayakkabı hem paten olması harika bir tasarım. AVM'lerde gezerken çok pratik oluyor.",
+        "Işıkları çok canlı yanıyor. Akşamları parkta kullanırken hem çok eğlenceli hem de güvenli.",
+        "Kızımın doğum günü için hediye almıştım. Hayatında aldığı en güzel hediye olduğunu söyledi. Satıcıya çok teşekkürler.",
+        "Ürün elime iki günde ulaştı. Paketleme özenliydi. Kullanımı da anlatıldığı kadar kolaymış.",
+        "Tekerlekler gayet sağlam. Asfaltta sürerken hiç sarsmıyor.",
+        "Dışarıda paten olarak, okulda ayakkabı olarak kullanıyor. Gerçekten tam bir fiyat performans ürünü.",
+        "Beklediğimizden biraz daha ağır ama sanırım paten mekanizmasından kaynaklı. Oğlum çok sevdi.",
+        "Rengi ve modeli fotoğraftakinden daha güzel duruyor canlıda. Tavsiye ederim.",
+        "Alırken biraz tereddüt etmiştim ama geldiğinde kalitesini görünce iyiki almışım dedim.",
+        "İç astarı yumuşacık, çocuğun ayağını vurmuyor. Konforlu bir ayakkabı.",
+        "Yeğenime hediye aldım. Paketi açar açmaz evin içinde sürmeye başladı. Çok eğlenceli.",
+        "Kargolama inanılmaz hızlıydı. Siparişimin ertesi günü elimdeydi.",
+        "Biraz pratik yapmak gerekiyor tabi ama tekerlek sistemi çok sağlam. Güvenle kullanıyoruz.",
+        "Kızım o kadar çok sevdi ki yatağa bile bunlarla girmek istiyor. Kesinlikle her çocuğun hayali.",
+        "Malzeme kalitesi muazzam. Daha önce başka bir marka denemiştik, hemen bozulmuştu. Bu çok dayanıklı.",
+        "Çocuklar için inanılmaz bir eğlence aracı. Herkese tavsiye ediyorum.",
+        "Ağırlığı bir tık fazla gibi ama çocuklar alıştığında sorun olmuyor. Işıkları şahane.",
+        "Kalıpları tam, çocuğunuzun tam ayak numarasını alabilirsiniz.",
+        "Düğmesine basıp tekerleği içeri sokmak çok zevkli. Çok havalı duruyor.",
+        "Görselliği ve ışıkları çok dikkat çekiyor. Sokakta gören herkes nereden aldığımızı soruyor.",
+        "Oğlumun paten kullanmayı öğrenmesi için harika bir başlangıç oldu. Çok dengeli.",
+        "İki çocuğuma da birer tane aldım. İkisi de çok memnun. Kesinlikle pişman olmazsınız.",
+        "Paten kısmı biraz ses yapıyor ama rahatsız edici boyutta değil. Kullanımı kolay.",
+        "Satıcı sorularıma anında dönüş yaptı, çok ilgililer. Ürün de efsane.",
+        "Hızlı kargo, özenli paketleme, kaliteli ürün. Başka söze gerek yok.",
+        "Tabanı kalın olduğu için ayakları da üşütmüyor. Malzemesi tok duruyor.",
+        "Ayakkabı kısmı biraz sert ilk giyildiğinde ama sonradan yumuşadı. Gayet rahat.",
+        "Mekanizması hiç takılmıyor, yağ gibi kayıyor. Tekerlekler çok kaliteli.",
+        "Çocukları dışarı çıkarmak için harika bir bahane oldu, sürekli kaymak istiyorlar.",
+        "Bence piyasadaki en kaliteli ışıklı paten ayakkabısı. Diğer uyduruk ürünlerle kıyaslamayın.",
+        "Güvenlik önlemi olarak sadece düz ve pürüzsüz zeminlerde kullanılmasını tavsiye ederim."
+    ];
+
+    shuffle($names);
+    shuffle($comments);
+
+    $nameIndex = 0;
+    $commentIndex = 0;
+    $totalAdded = 0;
+
+    foreach ($products as $product) {
+        $existingCount = $product->reviews()->count();
+        $neededReviews = 5 - $existingCount;
+
+        if ($neededReviews <= 0) {
+            continue;
+        }
+
+        for ($i = 0; $i < $neededReviews; $i++) {
+            $rating = rand(1, 100) > 20 ? 5 : 4;
+            $createdAt = \Carbon\Carbon::now()->subDays(rand(1, 180))->subHours(rand(1, 24));
+
+            $product->reviews()->create([
+                'user_id' => null,
+                'name' => $names[$nameIndex % count($names)],
+                'email' => 'customer' . $nameIndex . '@example.com',
+                'rating' => $rating,
+                'comment' => $comments[$commentIndex % count($comments)],
+                'status' => 1,
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ]);
+
+            $nameIndex++;
+            $commentIndex++;
+            $totalAdded++;
+        }
+    }
+
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+
     return "<html><head><title>Yorumlar Eklendi</title></head><body style=\"font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;\">
             <h1 style=\"color:#0d9488;\">✅ Gerçekçi Yorumlar Başarıyla Üretildi!</h1>
-            <p>Veritabanındaki her ürüne (isimleri ve yorumları tamamen farklı olan) 5'er adet çok gerçekçi yorum eklendi.</p>
-            <pre style=\"color:#888; margin-top:20px;\">{$output}</pre>
+            <p>Eksik olan toplam <b>{$totalAdded}</b> adet yeni yorum eklendi. Cache temizlendi.</p>
             <br><a href=\"/\" style=\"color:#0d9488;font-size:16px;margin-right:20px;\">👉 Ana Sayfaya Dön</a>
             </body></html>";
 })->middleware('auth');
