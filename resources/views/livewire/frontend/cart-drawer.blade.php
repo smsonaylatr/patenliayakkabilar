@@ -3,6 +3,7 @@
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
     @keydown.escape.window="open = false"
+    x-cloak
     class="relative z-[65]" 
     aria-labelledby="slide-over-title" 
     role="dialog" 

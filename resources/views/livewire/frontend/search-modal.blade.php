@@ -8,6 +8,7 @@
     aria-modal="true"
     style="display: none;"
     x-show="open"
+    x-cloak
 >
     <!-- Backdrop -->
     <div 

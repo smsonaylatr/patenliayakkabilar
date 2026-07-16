@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="tr" dir="ltr">
     <head>
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-MTHFWWCB');</script>
+        <!-- End Google Tag Manager -->
+        
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
         
@@ -78,6 +86,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
         <style>
+            [x-cloak] { display: none !important; }
             @keyframes pageSlideHorizontal {
                 0% { opacity: 0; transform: translateX(30px); }
                 100% { opacity: 1; transform: none; }
@@ -88,6 +97,10 @@
         </style>
     </head>
     <body class="bg-brand-light text-brand-dark font-sans antialiased flex flex-col min-h-screen overflow-x-hidden">
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MTHFWWCB"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
         
         @persist('header-wrapper')
             <livewire:frontend.header />
@@ -247,7 +260,7 @@
              @toggle-catalog.window="open = !open" 
              @keydown.escape.window="open = false"
              class="relative z-40" 
-             style="display: none;" 
+             x-cloak
              x-show="open">
             
             <div x-show="open" 
