@@ -1,9 +1,9 @@
-<div class="mt-0 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: false }">
-    <div class="flex items-center justify-between gap-2 mb-6 sm:mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-xl lg:text-lg xl:text-2xl font-bold text-gray-900 leading-tight truncate">Müşteri Yorumları</h2>
-            <div class="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2">
-                <div class="flex text-yellow-400 text-xs sm:text-sm lg:text-xs xl:text-sm flex-shrink-0">
+<div class="mt-0 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-5 sm:p-6 lg:p-5 xl:p-6" x-data="{ showReviewModal: false }">
+    <div class="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+        <div class="flex-1 min-w-0 pr-2">
+            <h2 class="text-lg sm:text-xl lg:text-lg xl:text-xl font-bold text-gray-900 leading-tight truncate">Müşteri Yorumları</h2>
+            <div class="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5">
+                <div class="flex text-yellow-400 text-[10px] sm:text-xs lg:text-[10px] xl:text-xs flex-shrink-0">
                     @for($i = 1; $i <= 5; $i++)
                         @if($i <= floor($averageRating))
                             <i class="fa-solid fa-star"></i>
@@ -14,13 +14,13 @@
                         @endif
                     @endfor
                 </div>
-                <div class="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-[11px] xl:text-sm truncate">
+                <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs lg:text-[10px] xl:text-xs truncate">
                     <span class="font-medium text-gray-700 whitespace-nowrap">{{ number_format((float)$averageRating, 1) }} / 5.0</span>
                     <span class="text-gray-400 whitespace-nowrap truncate">({{ $totalReviews }} Değerlendirme)</span>
                 </div>
             </div>
         </div>
-        <button type="button" @click="showReviewModal = true" class="hidden sm:flex flex-shrink-0 relative z-10 cursor-pointer items-center gap-1.5 text-xs sm:text-sm lg:text-xs xl:text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+        <button type="button" @click="showReviewModal = true" class="hidden sm:flex flex-shrink-0 relative z-10 cursor-pointer items-center gap-1 text-[11px] sm:text-xs lg:text-[11px] xl:text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
             Yorum Yap <i class="fa-solid fa-arrow-right"></i>
         </button>
     </div>
