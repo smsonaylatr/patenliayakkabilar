@@ -1,4 +1,4 @@
-<div class="mt-2 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: false }">
+<div class="mt-0 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: false }">
     <div class="flex items-center justify-between mb-8">
         <div>
             <h2 class="text-2xl font-bold text-gray-900">Müşteri Yorumları</h2>
