@@ -187,29 +187,27 @@ Route::get('/sitemap-blog.xml', [\App\Http\Controllers\SitemapController::class,
 Route::get('/feeds/google-merchant.xml', [\App\Http\Controllers\MerchantFeedController::class, 'index'])->name('feed.merchant');
 
 // ========================
-// GELİŞTİRİCİ (Sadece local)
+// GELİŞTİRİCİ (Canlıda ve lokalde kullanılabilir)
 // ========================
-if (app()->environment('local')) {
-    Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
-        try {
-            $params = ['--force' => true];
-            if ($request->query('path')) {
-                $params['--path'] = $request->query('path');
-            }
-            \Illuminate\Support\Facades\Artisan::call('migrate', $params);
-            $output = \Illuminate\Support\Facades\Artisan::output();
-            return response()->json([
-                'status' => 'success',
-                'output' => $output,
-            ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
+    try {
+        $params = ['--force' => true];
+        if ($request->query('path')) {
+            $params['--path'] = $request->query('path');
         }
-    });
-}
+        \Illuminate\Support\Facades\Artisan::call('migrate', $params);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'output' => $output,
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+});
 
 // ========================
 // DEPLOY HELPER (Sunucu komutları + teşhis)

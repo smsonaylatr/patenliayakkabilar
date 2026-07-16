@@ -148,12 +148,14 @@ class RealisticReviewSeeder extends Seeder
         $commentIndex = 0;
 
         foreach ($products as $product) {
-            // Sadece hiç yorumu olmayan ürünlere eklensin ki link defalarca tıklandığında aynı ürüne yüzlerce yorum yığılmasın.
-            if ($product->reviews()->count() > 0) {
+            $existingCount = $product->reviews()->count();
+            $neededReviews = 5 - $existingCount;
+
+            if ($neededReviews <= 0) {
                 continue;
             }
 
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < $neededReviews; $i++) {
                 
                 // Rating mostly 5, some 4. e.g. 80% chance of 5 stars, 20% of 4 stars.
                 $rating = rand(1, 100) > 20 ? 5 : 4;
