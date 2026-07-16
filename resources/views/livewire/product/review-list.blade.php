@@ -1,9 +1,9 @@
 <div class="mt-0 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 sm:p-8" x-data="{ showReviewModal: false }">
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Müşteri Yorumları</h2>
-            <div class="flex items-center gap-2 mt-2">
-                <div class="flex text-yellow-400 text-sm">
+    <div class="flex flex-wrap items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div class="flex-1 min-w-[240px]">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">Müşteri Yorumları</h2>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2">
+                <div class="flex text-yellow-400 text-sm flex-shrink-0">
                     @for($i = 1; $i <= 5; $i++)
                         @if($i <= floor($averageRating))
                             <i class="fa-solid fa-star"></i>
@@ -14,12 +14,14 @@
                         @endif
                     @endfor
                 </div>
-                <span class="text-sm font-medium text-gray-700">{{ $averageRating }} / 5.0</span>
-                <span class="text-sm text-gray-400 hidden sm:inline-block">({{ $totalReviews }} Değerlendirme)</span>
+                <div class="flex items-center gap-2 flex-wrap text-sm">
+                    <span class="font-medium text-gray-700 whitespace-nowrap">{{ number_format((float)$averageRating, 1) }} / 5.0</span>
+                    <span class="text-gray-400 whitespace-nowrap">({{ $totalReviews }} Değerlendirme)</span>
+                </div>
             </div>
         </div>
-        <button type="button" @click="showReviewModal = true" class="hidden sm:flex relative z-10 cursor-pointer items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
-            Yorum Yap <i class="fa-solid fa-arrow-right"></i>
+        <button type="button" @click="showReviewModal = true" class="hidden sm:flex flex-shrink-0 relative z-10 cursor-pointer items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+            Yorum Yap <i class="fa-solid fa-arrow-right whitespace-nowrap"></i>
         </button>
     </div>
 
@@ -32,7 +34,7 @@
     <div class="space-y-6">
         @forelse($reviews as $review)
             <div class="border-b border-gray-50 pb-6 last:border-0 last:pb-0">
-                <div class="flex justify-between items-start mb-3">
+                <div class="flex flex-wrap justify-between items-start gap-y-2 gap-x-4 mb-3">
                     <div class="flex items-center gap-3">
                         @php
                             $initials = collect(explode(' ', $review->name ?? 'Müşteri'))
@@ -40,18 +42,18 @@
                                 ->take(2)
                                 ->implode('');
                         @endphp
-                        <div class="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-sm uppercase">
+                        <div class="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-sm uppercase flex-shrink-0">
                             {{ $initials }}
                         </div>
-                        <div>
-                            <div class="font-bold text-sm text-gray-900 flex items-center gap-1.5">
-                                {{ $review->name ?? 'Gizli Müşteri' }}
-                                <i class="fa-solid fa-circle-check text-emerald-500 text-xs" title="Doğrulanmış Alıcı"></i>
+                        <div class="min-w-0">
+                            <div class="font-bold text-sm text-gray-900 flex items-center gap-1.5 flex-wrap">
+                                <span class="truncate">{{ $review->name ?? 'Gizli Müşteri' }}</span>
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-xs flex-shrink-0" title="Doğrulanmış Alıcı"></i>
                             </div>
-                            <div class="text-xs text-gray-400 mt-0.5">{{ $review->created_at->translatedFormat('d F Y') }}</div>
+                            <div class="text-xs text-gray-400 mt-0.5 whitespace-nowrap">{{ $review->created_at->translatedFormat('d F Y') }}</div>
                         </div>
                     </div>
-                    <div class="flex text-yellow-400 text-xs tracking-widest">
+                    <div class="flex text-yellow-400 text-xs tracking-widest flex-shrink-0">
                         @for($i = 1; $i <= 5; $i++)
                             <i class="fa-{{ $i <= $review->rating ? 'solid' : 'regular' }} fa-star"></i>
                         @endfor
