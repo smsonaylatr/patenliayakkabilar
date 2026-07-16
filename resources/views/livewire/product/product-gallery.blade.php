@@ -120,7 +120,7 @@
         </div>
         
         <!-- Desktop/Tablet Reviews -->
-        <div class="hidden md:block w-full pointer-events-auto -mt-2 lg:-mt-4 relative z-20">
+        <div class="hidden md:block w-full pointer-events-auto -mt-4 lg:-mt-8 relative z-20">
             @livewire('product.review-list', ['product' => $product], key('desktop-reviews-'.$product->id))
         </div>
 
