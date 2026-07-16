@@ -512,11 +512,11 @@ Route::get('/deploy-add-reviews', function () {
     }
 
     $names = [
-        'Ayşe Yılmaz', 'Fatma Kaya', 'Zeynep Demir', 'Elif Çelik', 'Merve Şahin', 'Esra Yıldız', 'Büşra Yıldırım', 'Ceren Öztürk', 'Selin Aydın', 'Tuğba Özdemir',
-        'Gizem Arslan', 'Berna Doğan', 'Gamze Kılıç', 'Derya Aslan', 'Bahar Çetin', 'Yasemin Kara', 'Dilek Koç', 'Burcu Kurt', 'Aylin Özkan', 'Cansu Şimşek',
-        'Melis Polat', 'Ece Öz', 'Hande Korkmaz', 'İrem Çakır', 'Pelin Erdoğan', 'Sedef Yavuz', 'Tuğçe Can', 'Pınar Acar', 'Özge Yalçın', 'Sibel Güneş',
-        'Mehmet Kaya', 'Mustafa Demir', 'Ahmet Çelik', 'Ali Şahin', 'Hüseyin Yıldız', 'Hasan Yıldırım', 'İbrahim Öztürk', 'Murat Aydın', 'Volkan Özdemir', 'Emre Arslan',
-        'Burak Doğan', 'Gökhan Kılıç', 'Fatih Aslan', 'Hakan Çetin', 'Tolga Kara', 'Oğuzhan Koç', 'Kemal Kurt', 'Enes Özkan', 'Yasin Şimşek', 'Serkan Polat'
+        'Ayşe Y.', 'Fatma K.', 'Zeynep D.', 'Elif Ç.', 'Merve Ş.', 'Esra Y.', 'Büşra Y.', 'Ceren Ö.', 'Selin A.', 'Tuğba Ö.',
+        'Gizem A.', 'Berna D.', 'Gamze K.', 'Derya A.', 'Bahar Ç.', 'Yasemin K.', 'Dilek K.', 'Burcu K.', 'Aylin Ö.', 'Cansu Ş.',
+        'Melis P.', 'Ece Ö.', 'Hande K.', 'İrem Ç.', 'Pelin E.', 'Sedef Y.', 'Tuğçe C.', 'Pınar A.', 'Özge Y.', 'Sibel G.',
+        'Mehmet K.', 'Mustafa D.', 'Ahmet Ç.', 'Ali Ş.', 'Hüseyin Y.', 'Hasan Y.', 'İbrahim Ö.', 'Murat A.', 'Volkan Ö.', 'Emre A.',
+        'Burak D.', 'Gökhan K.', 'Fatih A.', 'Hakan Ç.', 'Tolga K.', 'Oğuzhan K.', 'Kemal K.', 'Enes Ö.', 'Yasin Ş.', 'Serkan P.'
     ];
 
     $comments = [
@@ -612,6 +612,30 @@ Route::get('/run-seo-links', function () {
     }
     \Illuminate\Support\Facades\Artisan::call('seo:link-content');
     return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+})->middleware('auth');
+
+// Mevcut yorumlardaki soyisimleri baş harf + nokta (Örn: Ayşe Y.) formatına çevirmek için
+Route::get('/deploy-fix-names', function () {
+    $reviews = \App\Models\Review::all();
+    $count = 0;
+    foreach ($reviews as $review) {
+        $parts = explode(' ', trim($review->name));
+        if (count($parts) >= 2) {
+            $lastName = array_pop($parts);
+            if (strpos($lastName, '.') === false) {
+                $lastNameInitial = mb_strtoupper(mb_substr($lastName, 0, 1, 'UTF-8'), 'UTF-8') . '.';
+                $parts[] = $lastNameInitial;
+                $review->name = implode(' ', $parts);
+                $review->save();
+                $count++;
+            }
+        }
+    }
+    return "<html><head><title>İsimler Güncellendi</title></head><body style=\"font-family:monospace;padding:40px;background:#111;color:#eee;font-size:16px;line-height:2;\">
+            <h1 style=\"color:#0d9488;\">✅ Soyisimler Başarıyla Gizlendi!</h1>
+            <p>Veritabanındaki toplam <b>{$count}</b> adet yorum güncellendi. Artık soyisimler tam okunmayacak (Örn: Ayşe Y.).</p>
+            <br><a href=\"/\" style=\"color:#0d9488;font-size:16px;margin-right:20px;\">👉 Ana Sayfaya Dön</a>
+            </body></html>";
 })->middleware('auth');
 
 // ========================
