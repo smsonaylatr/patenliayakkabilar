@@ -103,8 +103,8 @@
         </button>
 
         <!-- Instruction Overlay (Appears briefly or on hover before click) -->
-        <div x-show="!isZoomed" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
-            Büyütmek için tıklayın
+        <div x-show="!isZoomed" class="absolute top-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity z-30">
+            <i class="fa-solid fa-magnifying-glass-plus mr-1"></i> Büyütmek için tıklayın
         </div>
 
         <!-- Mobile Swipe Indicators (Dots) -->
