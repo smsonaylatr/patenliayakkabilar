@@ -321,15 +321,10 @@
                 </div>
                 </div>
                 
-                <!-- 3. Product Reviews (Left Column, Bottom on Desktop | Bottom on Mobile) -->
-                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-0 lg:-mt-50 px-4 sm:px-0 static lg:relative lg:z-20 pointer-events-none">
-                    <div class="flex flex-col md:flex-row gap-4 lg:gap-6">
-                        <!-- Spacer to align with thumbnails -->
-                        <div class="hidden md:block w-full md:w-24 lg:w-28 flex-shrink-0"></div>
-                        <!-- Reviews Container aligned with main image -->
-                        <div class="flex-1 pointer-events-auto">
-                            @livewire('product.review-list', ['product' => $product])
-                        </div>
+                <!-- 3. Product Reviews (Mobile Only) -->
+                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-8 px-4 sm:px-0 md:hidden relative z-20">
+                    <div class="w-full pointer-events-auto">
+                        @livewire('product.review-list', ['product' => $product], key('mobile-reviews-'.$product->id))
                     </div>
                 </div>
             </div>
