@@ -45,7 +45,7 @@
     class="flex flex-col md:flex-row gap-4 lg:gap-6 items-start relative z-10">
     
     <!-- Thumbnails (Bottom on Mobile, Left on Desktop) -->
-    <div class="order-2 md:order-1 grid grid-cols-5 md:flex md:flex-col gap-2 md:gap-3 w-full md:w-24 lg:w-28 flex-shrink-0">
+    <div class="order-2 md:order-1 grid grid-cols-5 md:flex md:flex-col gap-2 md:gap-3 w-full md:w-24 lg:w-28 flex-shrink-0 lg:min-h-[608px]">
         @forelse($product->images as $index => $image)
             <button @click="currentIndex = {{ $index }}; isZoomed = false;" 
                     type="button" 
