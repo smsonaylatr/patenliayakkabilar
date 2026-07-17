@@ -145,12 +145,19 @@
                     </div>
 
                     <!-- Mobil İçin Buton (Sadece Mobilde Görünür) -->
-                    <div class="lg:hidden">
-                        <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                            <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
-                            <span wire:loading wire:target="placeOrder">İşleniyor...</span>
-                            <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                        </button>
+                    <div class="mt-6">
+                        @if($paytr_token)
+                            <div class="w-full bg-gray-100 text-gray-500 font-bold text-base py-4 px-6 rounded-xl text-center flex flex-col items-center justify-center gap-1">
+                                <svg class="w-6 h-6 animate-pulse text-brand-orange mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                Lütfen Kart Bilgilerinizi Girin
+                            </div>
+                        @else
+                            <button type="submit" onclick="document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true}))" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
+                                <span wire:loading wire:target="placeOrder">İşleniyor...</span>
+                                <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                            </button>
+                        @endif
                     </div>
 
                 </form>
@@ -209,11 +216,18 @@
 
                     <!-- Desktop İçin Buton -->
                     <div class="mt-8 hidden lg:block">
-                        <button wire:click="placeOrder" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                            <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
-                            <span wire:loading wire:target="placeOrder">İşleniyor...</span>
-                            <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                        </button>
+                        @if($paytr_token)
+                            <div class="w-full bg-gray-100 text-gray-500 font-bold text-base py-4 px-6 rounded-xl text-center flex flex-col items-center justify-center gap-1">
+                                <svg class="w-6 h-6 animate-pulse text-brand-orange mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                Lütfen Kart Bilgilerinizi Girin
+                            </div>
+                        @else
+                            <button wire:click="placeOrder" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
+                                <span wire:loading wire:target="placeOrder">İşleniyor...</span>
+                                <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                            </button>
+                        @endif
                     </div>
                     
                     <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
