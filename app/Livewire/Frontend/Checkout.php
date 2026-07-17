@@ -13,13 +13,13 @@ class Checkout extends Component
     public $customer_name;
     public $customer_email;
     public $customer_phone;
-    public $customer_note;
+    public $customer_note = '';
     
     public $shipping_city;
     public $shipping_district;
     public $shipping_address;
     
-    public $payment_method = 'cash_on_delivery';
+    public $payment_method = 'credit_card';
 
     public $cities = [];
     public $districts = [];
