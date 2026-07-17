@@ -15,7 +15,7 @@ class OrderObserver
         // Send a database notification to admins when a new order is placed.
         Notification::make()
             ->title('Yeni Sipariş Geldi')
-            ->body("{$order->user->name} adlı müşteri {$order->grand_total} ₺ tutarında yeni bir sipariş verdi (Sipariş No: {$order->order_number}).")
+            ->body("{$order->customer_name} adlı müşteri {$order->grand_total} ₺ tutarında yeni bir sipariş verdi (Sipariş No: {$order->order_number}).")
             ->icon('heroicon-o-shopping-bag')
             ->color('success')
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
