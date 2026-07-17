@@ -128,10 +128,11 @@ class Checkout extends Component
             ]);
         }
 
+        // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet (Sepet boşaltma vs. için)
+        session(['last_order_number' => $order->order_number]);
+
         // IF KREDI KARTI, PAYTR TOKEN AL
         if ($this->payment_method === 'credit_card') {
-            session(['last_order_number' => $order->order_number]);
-            
             $this->paytr_token = $this->getPaytrToken($order, $cart->items);
             
             if (!$this->paytr_token) {
@@ -142,17 +143,9 @@ class Checkout extends Component
                 return;
             }
             
-            // Başarılıysa sepeti şimdi boşaltabiliriz
-            $cart->items()->delete();
-            $this->dispatch('cart-updated');
-
-            // Render kısmında iframe açılacak. Yönlendirme YAPMIYORUZ.
+            // Render kısmında iframe açılacak. Yönlendirme YAPMIYORUZ. Sepeti BURADA BOŞALTMIYORUZ.
             return;
         }
-
-        // Sepeti boşalt (Havale veya Kapıda Ödeme)
-        $cart->items()->delete();
-        $this->dispatch('cart-updated');
 
         // Redirect to success page (Havale veya Kapıda ödeme)
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
