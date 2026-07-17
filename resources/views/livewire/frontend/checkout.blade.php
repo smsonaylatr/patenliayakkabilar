@@ -17,9 +17,7 @@
                         <p class="text-gray-500 mb-6 text-sm">Lütfen kredi kartı bilgilerinizi aşağıdaki güvenli alana girerek ödemenizi tamamlayın.</p>
                         
                         <!-- PayTR Iframe -->
-                        <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
-                        <iframe src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%;"></iframe>
-                        <script>iFrameResize({},'#paytriframe');</script>
+                        <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 650px;"></iframe>
                     </div>
                 @else
                 <form wire:submit.prevent="placeOrder" class="space-y-8">
