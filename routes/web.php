@@ -95,6 +95,11 @@ Route::get('/checkout', App\Livewire\Frontend\Checkout::class)->name('checkout')
 Route::get('/order/success/{order_number}', App\Livewire\Frontend\OrderSuccess::class)->name('order.success');
 Route::get('/iletisim', App\Livewire\Frontend\Contact::class)->name('contact');
 
+// PayTR Ödeme Rotaları
+Route::post('/payment/paytr/success', [\App\Http\Controllers\Payment\PaytrWebhookController::class, 'success'])->name('payment.paytr.success');
+Route::post('/payment/paytr/fail', [\App\Http\Controllers\Payment\PaytrWebhookController::class, 'fail'])->name('payment.paytr.fail');
+Route::post('/payment/paytr/webhook', [\App\Http\Controllers\Payment\PaytrWebhookController::class, 'webhook'])->name('payment.paytr.webhook');
+
 // ========================
 // ÜRÜN & KATEGORİ SAYFALARI
 // ========================

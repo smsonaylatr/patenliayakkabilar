@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\TrackCustomerActivity::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'payment/paytr/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

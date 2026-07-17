@@ -24,6 +24,8 @@ class Checkout extends Component
     public $cities = [];
     public $districts = [];
 
+    public $paytr_token = null;
+
     protected $rules = [
         'customer_name' => 'required|string|max:255',
         'customer_email' => 'required|email|max:255',
@@ -31,7 +33,7 @@ class Checkout extends Component
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
         'shipping_address' => 'required|string',
-        'payment_method' => 'required|in:cash_on_delivery,wire_transfer',
+        'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
     ];
 
     protected $messages = [
@@ -130,8 +132,108 @@ class Checkout extends Component
         $cart->items()->delete();
         $this->dispatch('cart-updated');
 
-        // Redirect to success page
+        // IF KREDI KARTI, PAYTR TOKEN AL
+        if ($this->payment_method === 'credit_card') {
+            session(['last_order_number' => $order->order_number]);
+            
+            $this->paytr_token = $this->getPaytrToken($order, $cart->items);
+            
+            if (!$this->paytr_token) {
+                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı.', type: 'error');
+                return;
+            }
+            
+            // Render kısmında iframe açılacak. Yönlendirme YAPMIYORUZ.
+            return;
+        }
+
+        // Redirect to success page (Havale veya Kapıda ödeme)
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
+    }
+
+    private function getPaytrToken(Order $order, $cartItems)
+    {
+        $merchant_id    = config('services.paytr.merchant_id');
+        $merchant_key   = config('services.paytr.merchant_key');
+        $merchant_salt  = config('services.paytr.merchant_salt');
+
+        $email = $order->customer_email;
+        $payment_amount = $order->grand_total * 100; // kuruş cinsinden
+        $merchant_oid = $order->order_number;
+        $user_name = $order->customer_name;
+        $user_address = $order->shipping_address . ' ' . $order->shipping_district . '/' . $order->shipping_city;
+        $user_phone = $order->customer_phone;
+        $merchant_ok_url = route('payment.paytr.success');
+        $merchant_fail_url = route('payment.paytr.fail');
+
+        // Sepet içeriklerini PayTR formatına dönüştür
+        $user_basket = [];
+        foreach ($cartItems as $item) {
+            $user_basket[] = [
+                $item->product ? $item->product->name : 'Ürün',
+                $item->price,
+                $item->quantity
+            ];
+        }
+        $user_basket = base64_encode(json_encode($user_basket));
+
+        $user_ip = request()->ip();
+        $timeout_limit = "30";
+        $debug_on = 1;
+        $test_mode = app()->environment('production') ? 0 : 1;
+        $no_installment = 0;
+        $max_installment = 0;
+        $currency = "TL";
+
+        $hash_str = $merchant_id .$user_ip .$merchant_oid .$email .$payment_amount .$user_basket .$no_installment .$max_installment .$currency .$test_mode;
+        $paytr_token = base64_encode(hash_hmac('sha256', $hash_str.$merchant_salt, $merchant_key, true));
+
+        $post_vals = [
+            'merchant_id' => $merchant_id,
+            'user_ip' => $user_ip,
+            'merchant_oid' => $merchant_oid,
+            'email' => $email,
+            'payment_amount' => $payment_amount,
+            'paytr_token' => $paytr_token,
+            'user_basket' => $user_basket,
+            'debug_on' => $debug_on,
+            'no_installment' => $no_installment,
+            'max_installment' => $max_installment,
+            'user_name' => $user_name,
+            'user_address' => $user_address,
+            'user_phone' => $user_phone,
+            'merchant_ok_url' => $merchant_ok_url,
+            'merchant_fail_url' => $merchant_fail_url,
+            'timeout_limit' => $timeout_limit,
+            'currency' => $currency,
+            'test_mode' => $test_mode
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.paytr.com/odeme/api/get-token");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_vals);
+        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+        $result = @curl_exec($ch);
+
+        if(curl_errno($ch)) {
+            \Illuminate\Support\Facades\Log::error('PayTR Curl Error: ' . curl_error($ch));
+            return null;
+        }
+
+        curl_close($ch);
+
+        $result = json_decode($result, 1);
+
+        if($result['status'] == 'success') {
+            return $result['token'];
+        } else {
+            \Illuminate\Support\Facades\Log::error('PayTR Token Error: ' . $result['reason']);
+            return null;
+        }
     }
 
     public function render(CartService $cartService)

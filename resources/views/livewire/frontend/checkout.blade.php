@@ -10,6 +10,18 @@
         <div class="flex flex-col lg:flex-row gap-10">
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
+                @if($paytr_token)
+                    <!-- Gömülü PayTR Ödeme Formu (iFrame) -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h2 class="text-xl font-black text-gray-900 mb-4">Güvenli Ödeme Ekranı</h2>
+                        <p class="text-gray-500 mb-6 text-sm">Lütfen kredi kartı bilgilerinizi aşağıdaki güvenli alana girerek ödemenizi tamamlayın.</p>
+                        
+                        <!-- PayTR Iframe -->
+                        <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+                        <iframe src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%;"></iframe>
+                        <script>iFrameResize({},'#paytriframe');</script>
+                    </div>
+                @else
                 <form wire:submit.prevent="placeOrder" class="space-y-8">
                     
                     <!-- İletişim Bilgileri -->
@@ -91,6 +103,23 @@
                         </h2>
                         
                         <div class="space-y-3">
+                            <!-- Kredi Kartı Seçeneği (PayTR) -->
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'credit_card' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
+                                <div class="flex items-center h-5">
+                                    <input wire:model.live="payment_method" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="block text-sm font-bold text-gray-900">Kredi / Banka Kartı</span>
+                                        <div class="flex gap-1">
+                                            <i class="fa-brands fa-cc-visa text-xl text-blue-800"></i>
+                                            <i class="fa-brands fa-cc-mastercard text-xl text-red-600"></i>
+                                        </div>
+                                    </div>
+                                    <span class="block text-xs text-gray-500 mt-0.5">PayTR güvencesiyle 256-bit SSL şifreli ödeme. (Taksit İmkanı)</span>
+                                </div>
+                            </label>
+
                             <!-- Kapıda Ödeme Seçeneği -->
                             <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
                                 <div class="flex items-center h-5">
@@ -125,6 +154,7 @@
                     </div>
 
                 </form>
+                @endif
             </div>
 
             <!-- Sağ Taraf: Sipariş Özeti -->
