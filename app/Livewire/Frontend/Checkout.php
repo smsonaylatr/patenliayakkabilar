@@ -128,10 +128,6 @@ class Checkout extends Component
             ]);
         }
 
-        // Empty Cart
-        $cart->items()->delete();
-        $this->dispatch('cart-updated');
-
         // IF KREDI KARTI, PAYTR TOKEN AL
         if ($this->payment_method === 'credit_card') {
             session(['last_order_number' => $order->order_number]);
@@ -139,13 +135,24 @@ class Checkout extends Component
             $this->paytr_token = $this->getPaytrToken($order, $cart->items);
             
             if (!$this->paytr_token) {
-                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı.', type: 'error');
+                // Token alınamadıysa siparişi silip (veya hata verip) sepeti boşaltmıyoruz ki kullanıcı tekrar deneyebilsin.
+                $order->items()->delete();
+                $order->delete();
+                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı. Lütfen mağaza yöneticisinin PayTR API ayarlarını yapmasını bekleyin.', type: 'error');
                 return;
             }
             
+            // Başarılıysa sepeti şimdi boşaltabiliriz
+            $cart->items()->delete();
+            $this->dispatch('cart-updated');
+
             // Render kısmında iframe açılacak. Yönlendirme YAPMIYORUZ.
             return;
         }
+
+        // Sepeti boşalt (Havale veya Kapıda Ödeme)
+        $cart->items()->delete();
+        $this->dispatch('cart-updated');
 
         // Redirect to success page (Havale veya Kapıda ödeme)
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
