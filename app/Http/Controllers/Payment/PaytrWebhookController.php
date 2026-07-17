@@ -31,7 +31,7 @@ class PaytrWebhookController extends Controller
     {
         return view('payment.paytr-result', [
             'status' => 'error',
-            'reason' => $request->post('reason') ?? 'Bilinmeyen hata'
+            'reason' => $request->input('reason') ?? 'Bilinmeyen hata'
         ]);
     }
 
