@@ -45,7 +45,7 @@
     <div class="relative w-full overflow-hidden" style="min-height:280px;background:#111827;">
         @if($post->image_path)
             <img src="{{ Storage::disk('public')->url($post->image_path) }}" 
-                 alt="{{ $post->title }}" 
+                 alt="{{ $post->image_alt ?? $post->title }}" 
                  class="w-full object-cover object-[80%_center] md:object-center"
                  style="max-height:500px;opacity:0.55;position:absolute;inset:0;width:100%;height:100%;"
                  fetchpriority="high">
@@ -199,8 +199,8 @@
                                 @if($related->image_path)
                                     <div style="aspect-ratio:16/9;overflow:hidden;">
                                         <img src="{{ Storage::disk('public')->url($related->image_path) }}" 
-                                             alt="{{ $related->title }}"
-                                             style="width:100%;height:100%;object-fit:cover;"
+                                             alt="{{ $related->image_alt ?? $related->title }}"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                              loading="lazy">
                                     </div>
                                 @else

@@ -56,6 +56,10 @@ class BlogPostForm
                                     ->image()
                                     ->disk('public')
                                     ->directory('blog'),
+                                TextInput::make('image_alt')
+                                    ->label('Kapak Görseli Alt Metni')
+                                    ->hint('Erişilebilirlik ve SEO için önemlidir')
+                                    ->maxLength(255),
                                 TextInput::make('author_name')
                                     ->label('Yazar Adı')
                                     ->maxLength(255),

@@ -39,7 +39,7 @@
                             @if($post->image_path)
                                 <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-[16/9] overflow-hidden">
                                     <img src="{{ asset('storage/' . $post->image_path) }}" 
-                                         alt="{{ $post->title }}" 
+                                         alt="{{ $post->image_alt ?? $post->title }}" 
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                          loading="lazy">
                                 </a>
