@@ -46,7 +46,7 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Telefon Numarası</label>
-                                <input type="tel" wire:model="customer_phone" class="w-full px-4 py-3 text-base rounded-xl border-gray-200 focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
+                                <input type="tel" wire:model="customer_phone" x-mask="0 (999) 999 99 99" class="w-full px-4 py-3 text-base rounded-xl border-gray-200 focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
                                 @error('customer_phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
