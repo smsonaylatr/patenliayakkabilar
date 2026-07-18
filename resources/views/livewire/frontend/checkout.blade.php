@@ -234,39 +234,27 @@
 
         </div>
     </div>
-</div>
 
-<script>
-    window.addEventListener('validation-failed', () => {
-        let attempts = 0;
-        let checkInterval = setInterval(() => {
-            attempts++;
-            const firstError = document.querySelector('.text-red-500');
-            
-            if (firstError) {
-                clearInterval(checkInterval);
-                
-                const inputEl = firstError.previousElementSibling;
-                
-                if (inputEl && (inputEl.tagName === 'INPUT' || inputEl.tagName === 'SELECT' || inputEl.tagName === 'TEXTAREA')) {
-                    // Odaklanma işlemi mobilde otomatik klavyeyi açar ve o alana zıplar
-                    inputEl.focus();
-                    
-                    // Yine de biraz yukarı kaydırarak görünürlüğü netleştirelim
-                    setTimeout(() => {
-                        const y = inputEl.getBoundingClientRect().top + window.scrollY - 100;
-                        window.scrollTo({ top: y, behavior: 'smooth' });
-                    }, 50);
-                } else {
-                    const y = firstError.getBoundingClientRect().top + window.scrollY - 100;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
-                }
-            }
-            
-            // 2 saniye (40 deneme * 50ms) sonunda hata çıkmazsa döngüyü kır
-            if (attempts > 40) {
-                clearInterval(checkInterval);
-            }
-        }, 50);
-    });
-</script>
+    @if($errors->any())
+        <div x-data x-init="
+            $nextTick(() => {
+                setTimeout(() => {
+                    const firstError = document.querySelector('.text-red-500');
+                    if (firstError) {
+                        const inputEl = firstError.previousElementSibling;
+                        if (inputEl && ['INPUT', 'SELECT', 'TEXTAREA'].includes(inputEl.tagName)) {
+                            inputEl.focus();
+                            setTimeout(() => {
+                                const y = inputEl.getBoundingClientRect().top + window.scrollY - 100;
+                                window.scrollTo({ top: y, behavior: 'smooth' });
+                            }, 50);
+                        } else {
+                            const y = firstError.getBoundingClientRect().top + window.scrollY - 100;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                    }
+                }, 100);
+            });
+        "></div>
+    @endif
+</div>
