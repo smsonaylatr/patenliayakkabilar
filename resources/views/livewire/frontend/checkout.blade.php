@@ -13,8 +13,6 @@
                 @if($paytr_token)
                     <!-- Gömülü PayTR Ödeme Formu (iFrame) -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <h2 class="text-xl font-black text-gray-900 mb-4">Güvenli Ödeme Ekranı</h2>
-                        <p class="text-gray-500 mb-6 text-sm">Lütfen kredi kartı bilgilerinizi aşağıdaki güvenli alana girerek ödemenizi tamamlayın.</p>
                         
                         <!-- PayTR Iframe -->
                         <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 650px;"></iframe>
