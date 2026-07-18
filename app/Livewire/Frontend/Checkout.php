@@ -157,7 +157,10 @@ class Checkout extends Component
         if ($orderNumber) {
             $order = Order::where('order_number', $orderNumber)->first();
             if ($order && $order->payment_status === 'paid') {
-                return redirect()->route('order.success', ['order_number' => $orderNumber]);
+                // Iframe'i ve polling'i anında yok et
+                $this->paytr_token = null;
+                // Frontend'e loading ekranı gösterip yönlendirmesi için event fırlat
+                $this->dispatch('payment-successful', url: route('order.success', ['order_number' => $orderNumber]));
             }
         }
     }
