@@ -151,6 +151,17 @@ class Checkout extends Component
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
     }
 
+    public function checkPaymentStatus()
+    {
+        $orderNumber = session('last_order_number');
+        if ($orderNumber) {
+            $order = Order::where('order_number', $orderNumber)->first();
+            if ($order && $order->payment_status === 'paid') {
+                return redirect()->route('order.success', ['order_number' => $orderNumber]);
+            }
+        }
+    }
+
     private function getPaytrToken(Order $order, $cartItems)
     {
         $merchant_id    = config('services.paytr.merchant_id');
