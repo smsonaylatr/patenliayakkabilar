@@ -151,20 +151,6 @@ class Checkout extends Component
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
     }
 
-    public function checkPaymentStatus()
-    {
-        $orderNumber = session('last_order_number');
-        if ($orderNumber) {
-            $order = Order::where('order_number', $orderNumber)->first();
-            if ($order && $order->payment_status === 'paid') {
-                // Iframe'i ve polling'i anında yok et
-                $this->paytr_token = null;
-                // Frontend'e loading ekranı gösterip yönlendirmesi için event fırlat
-                $this->dispatch('payment-successful', url: route('order.success', ['order_number' => $orderNumber]));
-            }
-        }
-    }
-
     private function getPaytrToken(Order $order, $cartItems)
     {
         $merchant_id    = config('services.paytr.merchant_id');
