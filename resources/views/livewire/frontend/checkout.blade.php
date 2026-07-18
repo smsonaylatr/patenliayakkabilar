@@ -11,11 +11,10 @@
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
                 @if($paytr_token)
-                    <!-- Gömülü PayTR Ödeme Formu (iFrame) -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100">
                         
                         <!-- PayTR Iframe -->
-                        <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 650px;"></iframe>
+                        <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
                     </div>
                 @else
                 <form wire:submit.prevent="placeOrder" class="space-y-8">
