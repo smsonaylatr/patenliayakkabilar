@@ -235,3 +235,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    let isCheckoutSubmitting = false;
+    document.addEventListener('submit', (e) => {
+        if (e.target.closest('form[wire\\:submit\\.prevent="placeOrder"]')) {
+            isCheckoutSubmitting = true;
+        }
+    });
+
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.hook('commit', ({ succeed }) => {
+            succeed(() => {
+                if (isCheckoutSubmitting) {
+                    setTimeout(() => {
+                        const firstError = document.querySelector('.text-red-500');
+                        if (firstError) {
+                            // Biraz daha yukarı kaydırmak için offset ayarlaması
+                            const y = firstError.getBoundingClientRect().top + window.scrollY - 150;
+                            window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                        isCheckoutSubmitting = false;
+                    }, 100);
+                }
+            });
+        });
+    });
+</script>
