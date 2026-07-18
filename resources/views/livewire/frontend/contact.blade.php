@@ -7,17 +7,6 @@
             </p>
         </div>
 
-        <!-- Contact Info Box -->
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-10 text-center">
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Telefon</h3>
-            <p class="text-gray-600 mb-6"><a href="tel:08503073164" class="hover:text-brand-orange transition-colors">0850 307 31 64</a></p>
-            
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Adres</h3>
-            <p class="text-gray-600">
-                YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130 İÇ KAPI NO: 3<br>
-                EYÜPSULTAN / İSTANBUL
-            </p>
-        </div>
 
         <div class="w-full">
             @if($isSuccess)
@@ -58,6 +47,26 @@
                     </span>
                 </button>
             </form>
+        </div>
+        </div>
+        
+        <!-- Contact Info & Map Below Form -->
+        <div class="mt-16 bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Telefon</h3>
+                    <p class="text-gray-600 mb-6"><a href="tel:08503073164" class="hover:text-brand-orange transition-colors">0850 307 31 64</a></p>
+                    
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Adres</h3>
+                    <p class="text-gray-600">
+                        YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130 İÇ KAPI NO: 3<br>
+                        EYÜPSULTAN / İSTANBUL
+                    </p>
+                </div>
+                <div class="w-full h-64 md:h-full min-h-[250px] rounded-lg overflow-hidden border border-gray-200">
+                    <iframe src="https://maps.google.com/maps?q=Yeşilpınar%20Mah.%20Çiçeksuyu%20Cad.%20No:130%20Eyüpsultan%2Fİstanbul&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; min-height: 250px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
         </div>
     </div>
 </div>
