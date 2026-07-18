@@ -11,8 +11,7 @@
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
                 @if($paytr_token)
-                    <!-- PayTR formunun devasa uzamasını engellemek için max-w-[500px] eklendi -->
-                    <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100" style="width: 100%; max-width: 500px;">
+                    <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100">
                         <!-- PayTR Iframe -->
                         <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
                     </div>
