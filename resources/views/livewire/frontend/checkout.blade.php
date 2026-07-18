@@ -236,7 +236,7 @@
     </div>
 
     @if($errors->any())
-        <div x-data x-init="
+        <div wire:key="error-scroller-{{ Str::random() }}" x-data x-init="
             $nextTick(() => {
                 setTimeout(() => {
                     const firstError = document.querySelector('.text-red-500');
