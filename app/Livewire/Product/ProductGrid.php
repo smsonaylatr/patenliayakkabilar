@@ -31,7 +31,6 @@ class ProductGrid extends Component
         
         $this->dispatch('cart-updated');
         $this->dispatch('open-cart');
-        $this->dispatch('notify', message: 'Ürün sepete eklendi!', type: 'success');
     }
 
     public function render()
