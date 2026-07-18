@@ -1,13 +1,13 @@
 <div class="min-h-screen bg-gray-50 pt-8 pb-24">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">Güvenli Ödeme</h1>
-            <p class="text-sm text-gray-500 mt-1">Siparişinizi tamamlamak için lütfen bilgilerinizi girin.</p>
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Güvenli Ödeme</h1>
+            <p class="text-gray-500 mt-1">Siparişinizi tamamlamak için lütfen bilgilerinizi girin.</p>
         </div>
 
-        <div class="flex flex-col-reverse lg:flex-row gap-8 lg:gap-12">
+        <div class="flex flex-col-reverse lg:flex-row gap-10">
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
                 @if($paytr_token)
