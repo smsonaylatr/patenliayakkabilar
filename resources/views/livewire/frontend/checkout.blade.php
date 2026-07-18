@@ -7,7 +7,7 @@
             <p class="text-gray-500 mt-1">Siparişinizi tamamlamak için lütfen bilgilerinizi girin.</p>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-10">
+        <div class="flex flex-col-reverse lg:flex-row gap-10">
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
                 @if($paytr_token)
