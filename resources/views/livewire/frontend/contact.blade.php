@@ -51,23 +51,27 @@
         </div>
         
         <!-- Contact Info & Map Below Form -->
-        <div class="mt-16 border-t border-gray-200 pt-12 text-center">
-            <div class="mb-8 space-y-6">
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-1">Müşteri Hizmetleri</h3>
-                    <p class="text-slate-600 text-lg"><a href="tel:08503073164" class="hover:text-brand-orange transition-colors">0850 307 31 64</a></p>
+        <div class="mt-12 bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left">
+                <!-- Info -->
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Müşteri Hizmetleri</h3>
+                        <p class="text-slate-600"><a href="tel:08503073164" class="hover:text-brand-orange transition-colors font-medium">0850 307 31 64</a></p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Merkez Ofis</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130 İÇ KAPI NO: 3<br>
+                            EYÜPSULTAN / İSTANBUL
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-1">Merkez Ofis</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130 İÇ KAPI NO: 3<br>
-                        EYÜPSULTAN / İSTANBUL
-                    </p>
+                
+                <!-- Map -->
+                <div class="w-full h-48 md:h-56 rounded border border-gray-200 overflow-hidden shadow-sm">
+                    <iframe src="https://maps.google.com/maps?q=Yeşilpınar%20Mah.%20Çiçeksuyu%20Cad.%20No:130%20Eyüpsultan%2Fİstanbul&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
-            </div>
-
-            <div class="w-full h-[350px] rounded-md overflow-hidden border border-gray-200 shadow-sm">
-                <iframe src="https://maps.google.com/maps?q=Yeşilpınar%20Mah.%20Çiçeksuyu%20Cad.%20No:130%20Eyüpsultan%2Fİstanbul&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </div>
