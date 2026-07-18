@@ -238,13 +238,35 @@
 
 <script>
     window.addEventListener('validation-failed', () => {
-        setTimeout(() => {
+        let attempts = 0;
+        let checkInterval = setInterval(() => {
+            attempts++;
             const firstError = document.querySelector('.text-red-500');
+            
             if (firstError) {
-                // Biraz daha yukarı kaydırmak için offset ayarlaması
-                const y = firstError.getBoundingClientRect().top + window.scrollY - 150;
-                window.scrollTo({ top: y, behavior: 'smooth' });
+                clearInterval(checkInterval);
+                
+                const inputEl = firstError.previousElementSibling;
+                
+                if (inputEl && (inputEl.tagName === 'INPUT' || inputEl.tagName === 'SELECT' || inputEl.tagName === 'TEXTAREA')) {
+                    // Odaklanma işlemi mobilde otomatik klavyeyi açar ve o alana zıplar
+                    inputEl.focus();
+                    
+                    // Yine de biraz yukarı kaydırarak görünürlüğü netleştirelim
+                    setTimeout(() => {
+                        const y = inputEl.getBoundingClientRect().top + window.scrollY - 100;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                    }, 50);
+                } else {
+                    const y = firstError.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
             }
-        }, 100);
+            
+            // 2 saniye (40 deneme * 50ms) sonunda hata çıkmazsa döngüyü kır
+            if (attempts > 40) {
+                clearInterval(checkInterval);
+            }
+        }, 50);
     });
 </script>
