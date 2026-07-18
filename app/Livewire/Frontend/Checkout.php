@@ -74,7 +74,12 @@ class Checkout extends Component
 
     public function placeOrder(CartService $cartService)
     {
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->dispatch('validation-failed');
+            throw $e;
+        }
 
         $cart = $cartService->getCart();
         
