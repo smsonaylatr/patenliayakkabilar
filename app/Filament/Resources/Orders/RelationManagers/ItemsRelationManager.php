@@ -18,6 +18,15 @@ class ItemsRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('product.images.image_path')
+                    ->label('')
+                    ->disk('public')
+                    ->square()
+                    ->stacked()
+                    ->limit(1)
+                    ->defaultImageUrl(fn () => 'https://placehold.co/40x40/f1f5f9/94a3b8?text=Görsel')
+                    ->width(40)
+                    ->height(40),
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Ürün')
                     ->searchable()
