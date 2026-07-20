@@ -68,7 +68,7 @@
                     <div>
                         <h3 class="text-lg font-bold text-slate-900 mb-1">Merkez Ofis</h3>
                         <p class="text-slate-600 text-sm leading-relaxed">
-                            YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130 İÇ KAPI NO: 3<br>
+                            YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130/3<br>
                             EYÜPSULTAN / İSTANBUL
                         </p>
                     </div>
