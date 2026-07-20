@@ -12,6 +12,13 @@ class Product extends Model
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'is_cod_active' => 'boolean',
+        ];
+    }
+
     /**
      * Boot: SEO alanlarını otomatik doldur
      */

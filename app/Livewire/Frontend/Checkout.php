@@ -46,8 +46,24 @@ class Checkout extends Component
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
     ];
 
-    public function mount()
+    public $isCodAllowed = true;
+
+    public function mount(CartService $cartService)
     {
+        $cart = $cartService->getCart();
+        if ($cart) {
+            foreach ($cart->items as $item) {
+                if ($item->product && !$item->product->is_cod_active) {
+                    $this->isCodAllowed = false;
+                    break;
+                }
+            }
+        }
+
+        if (!$this->isCodAllowed && $this->payment_method === 'cash_on_delivery') {
+            $this->payment_method = 'credit_card';
+        }
+
         if (file_exists(database_path('data/cities.json'))) {
             $json = json_decode(file_get_contents(database_path('data/cities.json')), true);
             if (isset($json['data'])) {

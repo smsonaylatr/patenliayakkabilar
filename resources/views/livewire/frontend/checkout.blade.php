@@ -114,6 +114,7 @@
                                 </div>
                             </label>
 
+                            @if($isCodAllowed)
                             <!-- Kapıda Ödeme Seçeneği -->
                             <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
                                 <div class="flex items-center h-5">
@@ -124,6 +125,7 @@
                                     <span class="block text-xs text-gray-500 mt-0.5">Ürünü teslim alırken nakit veya kredi kartı ile ödeyin.</span>
                                 </div>
                             </label>
+                            @endif
 
                             <!-- Havale/EFT Seçeneği -->
                             <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-black bg-gray-50' : 'border-gray-200' }}">

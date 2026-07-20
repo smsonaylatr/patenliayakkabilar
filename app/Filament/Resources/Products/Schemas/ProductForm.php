@@ -115,6 +115,12 @@ class ProductForm
                                     ->default(false)
                                     ->inline(false),
 
+                                Toggle::make('is_cod_active')
+                                    ->label('Kapıda Ödeme')
+                                    ->helperText('Bu ürün sepetindeyse kapıda ödeme seçeneği aktif/pasif olur.')
+                                    ->default(true)
+                                    ->inline(false),
+
 
                                 \Filament\Schemas\Components\Section::make('Ürün Özellikleri')
                                     ->icon('heroicon-o-sparkles')
