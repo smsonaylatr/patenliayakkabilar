@@ -128,6 +128,8 @@ class Checkout extends Component
             'billing_city' => $this->shipping_city,
             'billing_district' => $this->shipping_district,
             'billing_address' => $this->shipping_address,
+
+            'ip_address' => request()->ip(),
         ]);
 
         // Create Order Items

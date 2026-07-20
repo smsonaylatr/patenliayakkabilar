@@ -58,7 +58,13 @@ class OrderForm
                                 'bank_transfer' => 'Havale/EFT',
                                 'cash_on_delivery' => 'Kapıda Ödeme',
                             ])
+                            ->required()
                             ->native(false),
+
+                        TextInput::make('ip_address')
+                            ->label('IP Adresi')
+                            ->disabled()
+                            ->columnSpan('full'),
                     ]),
 
                 Section::make('Kargo Bilgileri')

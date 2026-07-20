@@ -19,6 +19,9 @@ class OrderInfolist
                 TextEntry::make('payment_status'),
                 TextEntry::make('payment_method')
                     ->placeholder('-'),
+                TextEntry::make('ip_address')
+                    ->label('IP Adresi')
+                    ->placeholder('-'),
                 TextEntry::make('cargo_company')
                     ->placeholder('-'),
                 TextEntry::make('cargo_tracking_code')
