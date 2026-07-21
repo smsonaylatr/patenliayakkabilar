@@ -2,6 +2,7 @@
     @media (max-width: 1023px) {
         .mobile-auth-spacing {
             padding-top: 50px !important;
+            padding-bottom: 50px !important;
             align-items: flex-start !important;
         }
     }
