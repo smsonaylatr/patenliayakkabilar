@@ -340,11 +340,39 @@
             </div>
         </div>
         <!-- Telefonla Arama Widget'ı -->
-        <a href="tel:08503073164" class="fixed z-50 flex items-center justify-center text-white shadow-2xl hover:scale-110 hover:brightness-125 transition-all duration-300 group" style="background-color: #0B132B; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%;" aria-label="Bizi Arayın">
+        <style>
+            .call-widget {
+                position: fixed;
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #0B132B;
+                color: white;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                right: 20px;
+                bottom: 85px; /* Mobilde alt menünün üstünde durması için */
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+            }
+            @media (min-width: 768px) {
+                .call-widget {
+                    bottom: 24px;
+                    right: 24px;
+                }
+            }
+            .call-widget:hover {
+                transform: scale(1.1);
+                filter: brightness(1.25);
+            }
+        </style>
+        <a href="tel:08503073164" class="call-widget group" aria-label="Bizi Arayın">
             <svg class="w-6 h-6 animate-[pulse_2s_ease-in-out_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
             
             <!-- Tooltip -->
-            <span class="absolute top-1/2 -translate-y-1/2 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-xl pointer-events-none tracking-wide" style="background-color: #0B132B; right: 70px;">
+            <span class="absolute top-1/2 -translate-y-1/2 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-xl pointer-events-none tracking-wide hidden md:block" style="background-color: #0B132B; right: 70px;">
                 Bizi Arayın
             </span>
         </a>
