@@ -1,5 +1,13 @@
-<div class="min-h-screen bg-brand-light pt-20 pb-24 lg:py-24 flex items-start lg:items-center justify-center">
-    <div class="container mx-auto px-4 max-w-md mt-8 lg:mt-0">
+<style>
+    @media (max-width: 1023px) {
+        .mobile-auth-spacing {
+            padding-top: 130px !important;
+            align-items: flex-start !important;
+        }
+    }
+</style>
+<div class="min-h-screen bg-brand-light pb-24 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
+    <div class="container mx-auto px-4 max-w-md">
         
         <div class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
             <!-- Decorative element -->
