@@ -48,12 +48,14 @@ class PopupSettings extends Page implements HasForms
             'popup_active',
             'popup_image',
             'popup_link',
+            'call_widget_active',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
             'popup_active' => (bool) ($settings['popup_active'] ?? false),
             'popup_image' => $settings['popup_image'] ?? null,
             'popup_link' => $settings['popup_link'] ?? '',
+            'call_widget_active' => (bool) ($settings['call_widget_active'] ?? true),
         ]);
     }
 
@@ -61,6 +63,14 @@ class PopupSettings extends Page implements HasForms
     {
         return $schema
             ->schema([
+                Section::make('Telefonla Arama Widget')
+                    ->description('Sayfanın sağ alt köşesinde bulunan telefonla arama butonunu yönetin.')
+                    ->schema([
+                        Toggle::make('call_widget_active')
+                            ->label('Arama Widget Aktif Mi?')
+                            ->default(true),
+                    ]),
+
                 Section::make('Pop-up İçeriği')
                     ->description('Siteye ilk girişte kullanıcılara gösterilecek pop-up görselini ayarlayın.')
                     ->schema([
@@ -99,9 +109,11 @@ class PopupSettings extends Page implements HasForms
             Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
 
+        \Illuminate\Support\Facades\Cache::forget('setting_call_widget_active');
+
         Notification::make()
             ->title('Başarılı')
-            ->body('Pop-up ayarları başarıyla kaydedildi.')
+            ->body('Ayarlar başarıyla kaydedildi.')
             ->success()
             ->send();
     }

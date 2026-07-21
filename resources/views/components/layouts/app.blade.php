@@ -340,6 +340,13 @@
             </div>
         </div>
         <!-- Telefonla Arama Widget'ı -->
+        @php
+            $callWidgetActive = \Illuminate\Support\Facades\Cache::remember('setting_call_widget_active', 3600, function() {
+                return \App\Models\Setting::where('key', 'call_widget_active')->value('value') ?? '1';
+            });
+        @endphp
+        
+        @if($callWidgetActive === '1')
         <style>
             .call-widget {
                 position: fixed;
@@ -376,6 +383,7 @@
                 Bizi Arayın
             </span>
         </a>
+        @endif
 
         @livewireScripts
     </body>
