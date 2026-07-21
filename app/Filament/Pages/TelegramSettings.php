@@ -38,7 +38,7 @@ class TelegramSettings extends Page implements HasForms
         return 'Telegram Sipariş Bildirimleri';
     }
 
-    protected static string $view = 'filament.pages.telegram-settings';
+    protected string $view = 'filament.pages.telegram-settings';
 
     public ?array $data = [];
 
