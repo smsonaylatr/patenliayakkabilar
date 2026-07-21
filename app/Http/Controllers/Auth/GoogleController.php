@@ -53,7 +53,9 @@ class GoogleController extends Controller
             return redirect()->intended(route('account.dashboard'));
 
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Google ile giriş yaparken bir hata oluştu. Lütfen tekrar deneyin.');
+            // Temporarily show the exact error for debugging
+            dd('GOOGLE OAUTH HATASI: ' . $e->getMessage(), $e->getTraceAsString());
+            // return redirect()->route('login')->with('error', 'Google ile giriş yaparken bir hata oluştu. Lütfen tekrar deneyin.');
         }
     }
 }
