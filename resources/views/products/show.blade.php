@@ -129,6 +129,23 @@
                         </div>
                     </div>
 
+                    {{-- Taksit Bilgisi --}}
+                    @if($product->has_installments)
+                        <div class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
+                            <div class="text-emerald-500 mt-0.5">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                @php
+                                    $finalPriceForInstallment = $displayDiscount ?? $displayPrice;
+                                    $installmentPrice = $finalPriceForInstallment / 3;
+                                @endphp
+                                <h4 class="text-emerald-800 font-bold text-sm">Vade Farksız 3 Taksit Fırsatı!</h4>
+                                <p class="text-emerald-700 text-sm mt-0.5">Bu ürünü tüm kartlara <strong>{{ number_format($installmentPrice, 2) }} ₺ x 3 Ay</strong> ödemeyle, peşin fiyatına alabilirsiniz.</p>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Kısa açıklama --}}
                     @if($product->short_description)
                     <div class="mt-5">

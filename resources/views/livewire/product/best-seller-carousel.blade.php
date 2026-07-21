@@ -62,6 +62,25 @@
                                          loading="lazy"
                                          class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-700 ease-out" />
                                     
+                                    @if($product->best_seller)
+                                        <?php
+                                        $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
+                                            return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
+                                        });
+                                        $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
+                                        ?>
+                                        <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[65px] h-[65px] sm:w-[85px] sm:h-[85px] drop-shadow-lg transition-transform duration-500 ease-in-out group-hover:scale-105">
+                                            <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
+                                        </div>
+                                    @endif
+
+                                    @if($product->has_installments)
+                                        <div class="absolute bottom-2 left-2 z-40 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-[10px] sm:text-xs font-bold tracking-wide px-2 py-1 rounded-md shadow-md border border-white/20 pointer-events-none transition-all duration-300 group-hover:opacity-0 flex items-center gap-1">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                            3 Taksit
+                                        </div>
+                                    @endif
+
                                     @if($product->images->count() > 1)
                                         <img src="{{ $product->images->skip(1)->first()->image_url }}" 
                                              alt="{{ $product->name }} Alternate"

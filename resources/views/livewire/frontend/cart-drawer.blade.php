@@ -119,11 +119,19 @@
                                     <p>Ara Toplam</p>
                                     <p class="text-red-600 whitespace-nowrap">{{ number_format($total, 2) }} ₺</p>
                                 </div>
-                                <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
+                                <p class="text-sm text-gray-500 mb-4 flex items-center gap-1">
                                     <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     Kargo ve vergiler ödeme adımında hesaplanır.
                                 </p>
-                                <div class="mt-4">
+                                
+                                @if($items->contains(fn($item) => $item->product->has_installments))
+                                <div class="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    <p class="text-xs font-semibold text-emerald-800">Sepetinizde vade farksız 3 taksit imkanı olan ürün(ler) var!</p>
+                                </div>
+                                @endif
+
+                                <div class="mt-2">
                                     <a href="{{ route('checkout') }}" @click="open = false" class="relative flex items-center justify-center w-full px-6 py-4 overflow-hidden font-bold text-white bg-black rounded-2xl group transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:-translate-y-1" wire:navigate>
                                         <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
                                         <span class="relative flex items-center gap-2">

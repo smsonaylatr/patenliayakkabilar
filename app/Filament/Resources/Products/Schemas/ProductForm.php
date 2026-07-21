@@ -121,6 +121,12 @@ class ProductForm
                                     ->default(true)
                                     ->inline(false),
 
+                                Toggle::make('has_installments')
+                                    ->label('3 Taksit Fırsatı')
+                                    ->helperText('Üründe vade farksız 3 taksit olduğunu vurgular.')
+                                    ->default(false)
+                                    ->inline(false),
+
 
                                 \Filament\Schemas\Components\Section::make('Ürün Özellikleri')
                                     ->icon('heroicon-o-sparkles')
