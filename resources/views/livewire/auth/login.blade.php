@@ -22,7 +22,7 @@
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between ml-1">
                         <label for="password" class="text-xs font-bold text-gray-700">Şifre</label>
-                        <a href="#" class="text-xs text-brand-blue hover:underline">Şifremi Unuttum</a>
+                        <a wire:navigate href="{{ route('password.request') }}" class="text-xs text-brand-blue hover:underline">Şifremi Unuttum</a>
                     </div>
                     <input wire:model="password" type="password" id="password" class="w-full text-sm bg-gray-50 border @error('password') border-red-300 ring-1 ring-red-300 @else border-gray-200 @enderror rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="••••••••">
                     @error('password') <span class="text-red-500 text-xs font-bold ml-1">{{ $message }}</span> @enderror

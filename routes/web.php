@@ -79,6 +79,8 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
     Route::get('/register', Register::class)->name('register');
+    Route::get('/sifremi-unuttum', \App\Livewire\Auth\ForgotPassword::class)->name('password.request');
+    Route::get('/sifreyi-sifirla/{token}', \App\Livewire\Auth\ResetPassword::class)->name('password.reset');
     
     // Google OAuth Routes
     Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
