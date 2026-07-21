@@ -22,7 +22,8 @@
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-        
+        <!-- Tarayıcı sekmesi -->
+        <link rel="icon" type="image/png" href="/favicon.png">
         <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
@@ -49,16 +50,18 @@
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
         <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}">
-        <meta property="og:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('favicon.png') }}">
+        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
+        <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:url" content="{{ url()->current() }}">
-        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}">
-        <meta name="twitter:description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
-        <meta name="twitter:image" content="{{ $ogImage ?? asset('favicon.png') }}">
+        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
+        <meta name="twitter:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
+        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
 
         <!-- Structured Data -->
         @if(isset($schema))
