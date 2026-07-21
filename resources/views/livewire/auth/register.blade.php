@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-brand-light pt-12 pb-24 lg:py-24 flex items-start lg:items-center justify-center">
+<div class="min-h-screen bg-brand-light pt-20 pb-24 lg:py-24 flex items-start lg:items-center justify-center">
     <div class="container mx-auto px-4 max-w-md mt-8 lg:mt-0">
         
         <div class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
