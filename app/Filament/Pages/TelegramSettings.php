@@ -57,7 +57,7 @@ class TelegramSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(Form $form): Form
+    public function form($form)
     {
         return $form
             ->schema([
