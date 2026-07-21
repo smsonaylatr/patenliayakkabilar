@@ -19,7 +19,46 @@ class OrderObserver
             ->icon('heroicon-o-shopping-bag')
             ->color('success')
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
+
+        // Send Telegram Notification
+        $this->sendTelegramNotification($order);
     }
+
+    private function sendTelegramNotification(Order $order): void
+    {
+        $isActive = filter_var(\App\Models\Setting::where('key', 'telegram_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
+        $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
+        $chatId = \App\Models\Setting::where('key', 'telegram_chat_id')->value('value');
+
+        if ($isActive && !empty($token) && !empty($chatId)) {
+            $paymentMethods = [
+                'credit_card' => 'Kredi Kartı',
+                'cash_on_delivery' => 'Kapıda Ödeme',
+                'bank_transfer' => 'Havale / EFT'
+            ];
+            
+            $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
+            
+            $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
+            $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
+            $message .= "👤 *Müşteri:* {$order->customer_name}\n";
+            $message .= "💰 *Tutar:* " . number_format($order->grand_total, 2) . " ₺\n";
+            $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
+            $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
+
+            try {
+                \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                    'chat_id' => $chatId,
+                    'text' => $message,
+                    'parse_mode' => 'Markdown'
+                ]);
+            } catch (\Exception $e) {
+                // Sessizce hatayı yutalım, sipariş akışını bozmamak için
+                \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
+            }
+        }
+    }
+
 
     /**
      * Handle the Order "updated" event.
