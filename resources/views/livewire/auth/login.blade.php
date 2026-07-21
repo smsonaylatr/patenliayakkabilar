@@ -1,7 +1,7 @@
 <style>
     @media (max-width: 1023px) {
         .mobile-auth-spacing {
-            padding-top: 130px !important;
+            padding-top: 5px !important;
             align-items: flex-start !important;
         }
     }
