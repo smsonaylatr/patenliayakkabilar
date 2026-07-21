@@ -7,7 +7,7 @@
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">🔄 %100 İADE GARANTİSİ</span>
                 <span class="mx-4 text-brand-orange">•</span>
-                <span class="mx-4">💳 KREDİ KARTINA TAKSİT İMKANI</span>
+                <span class="mx-4">💳 VADESİZ 3 TAKSİT</span>
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">📦 HIZLI TESLİMAT</span>
                 <span class="mx-4 text-brand-orange">•</span>
@@ -22,7 +22,7 @@
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">🔄 %100 İADE GARANTİSİ</span>
                 <span class="mx-4 text-brand-orange">•</span>
-                <span class="mx-4">💳 KREDİ KARTINA TAKSİT İMKANI</span>
+                <span class="mx-4">💳 VADESİZ 3 TAKSİT</span>
                 <span class="mx-4 text-brand-orange">•</span>
                 <span class="mx-4">📦 HIZLI TESLİMAT</span>
                 <span class="mx-4 text-brand-orange">•</span>

@@ -1,6 +1,15 @@
 <?php
-$dsn = "mysql:host=127.0.0.1;port=3306;dbname=patenli_db;charset=utf8mb4";
-$pdo = new PDO($dsn, "root", "");
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
-$res = $pdo->query('SELECT id, name, price, discount_price FROM products');
-print_r($res->fetchAll(PDO::FETCH_ASSOC));
+Schema::table('orders', function (Blueprint $table) {
+    if (!Schema::hasColumn('orders', 'ip_address')) {
+        $table->string('ip_address', 45)->nullable()->after('status');
+    }
+});
+
+Schema::table('products', function (Blueprint $table) {
+    if (!Schema::hasColumn('products', 'is_cod_active')) {
+        $table->boolean('is_cod_active')->default(true);
+    }
+});
