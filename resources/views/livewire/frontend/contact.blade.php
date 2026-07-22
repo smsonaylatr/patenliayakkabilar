@@ -83,6 +83,16 @@
                             EYÜPSULTAN / İSTANBUL
                         </p>
                     </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">E-Posta</h3>
+                        <div class="flex items-center gap-3">
+                            <p class="text-slate-600 font-medium text-lg">patenliayakkabilar@gmail.com</p>
+                            <a href="mailto:patenliayakkabilar@gmail.com" class="inline-flex items-center justify-center bg-black hover:bg-gray-800 text-white text-xs font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                Mail Gönder
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Map -->
