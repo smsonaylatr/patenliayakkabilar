@@ -40,7 +40,7 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Telefon Numarası</label>
-                                <input type="tel" wire:model="customer_phone" autocomplete="tel" x-mask="0 (999) 999 99 99" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
+                                <input type="tel" wire:model="customer_phone" autocomplete="tel" x-mask:dynamic="$input.startsWith('+') ? '+99 (999) 999 99 99' : ($input.startsWith('9') ? '99 (999) 999 99 99' : '0 (999) 999 99 99')" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
                                 @error('customer_phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
