@@ -34,19 +34,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Ad Soyad</label>
-                                <input type="text" wire:model="customer_name" autocomplete="name" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Adınız ve Soyadınız">
+                                <input type="text" wire:model.blur="customer_name" autocomplete="name" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Adınız ve Soyadınız">
                                 @error('customer_name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
-                                <input type="email" wire:model="customer_email" autocomplete="email" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="ornek@email.com">
+                                <input type="email" wire:model.blur="customer_email" autocomplete="email" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="ornek@email.com">
                                 @error('customer_email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Telefon Numarası</label>
-                                <input type="tel" wire:model="customer_phone" autocomplete="tel" x-mask:dynamic="$input.startsWith('+') ? '+99 (999) 999 99 99' : ($input.startsWith('9') ? '99 (999) 999 99 99' : '0 (999) 999 99 99')" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
+                                <input type="tel" wire:model.blur="customer_phone" autocomplete="tel" x-mask:dynamic="$input.startsWith('+') ? '+99 (999) 999 99 99' : ($input.startsWith('9') ? '99 (999) 999 99 99' : '0 (999) 999 99 99')" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="0 (5XX) XXX XX XX">
                                 @error('customer_phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
@@ -73,7 +73,7 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
-                                <select wire:model="shipping_district" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
+                                <select wire:model.live="shipping_district" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
                                     <option value="">İlçe Seçiniz</option>
                                     @foreach($districts as $district)
                                         <option value="{{ $district }}">{{ $district }}</option>
@@ -84,13 +84,13 @@
                             
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Açık Adres</label>
-                                <textarea wire:model="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Mahalle, sokak, bina ve daire no..."></textarea>
+                                <textarea wire:model.blur="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Mahalle, sokak, bina ve daire no..."></textarea>
                                 @error('shipping_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Sipariş Notu (Opsiyonel)</label>
-                                <textarea wire:model="customer_note" rows="2" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Kuryeye veya mağazaya iletmek istedikleriniz..."></textarea>
+                                <textarea wire:model.blur="customer_note" rows="2" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Kuryeye veya mağazaya iletmek istedikleriniz..."></textarea>
                             </div>
                         </div>
                     </div>

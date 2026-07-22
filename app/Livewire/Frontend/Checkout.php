@@ -71,6 +71,36 @@ class Checkout extends Component
                 $this->cities = collect($json['data'])->pluck('name')->toArray();
             }
         }
+
+        $this->customer_name = session('co_name', $this->customer_name);
+        $this->customer_email = session('co_email', $this->customer_email);
+        $this->customer_phone = session('co_phone', $this->customer_phone);
+        $this->shipping_city = session('co_city', $this->shipping_city);
+        
+        if ($this->shipping_city) {
+            $this->updatedShippingCity($this->shipping_city);
+            $this->shipping_district = session('co_district', $this->shipping_district);
+        }
+        
+        $this->shipping_address = session('co_address', $this->shipping_address);
+        $this->customer_note = session('co_note', $this->customer_note);
+    }
+
+    public function updated($propertyName)
+    {
+        $map = [
+            'customer_name' => 'co_name',
+            'customer_email' => 'co_email',
+            'customer_phone' => 'co_phone',
+            'shipping_city' => 'co_city',
+            'shipping_district' => 'co_district',
+            'shipping_address' => 'co_address',
+            'customer_note' => 'co_note',
+        ];
+
+        if (isset($map[$propertyName])) {
+            session([$map[$propertyName] => $this->$propertyName]);
+        }
     }
 
     public function updatedShippingCity($value)
