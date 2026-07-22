@@ -77,13 +77,6 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-1">Merkez Ofis</h3>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130/3<br>
-                            EYÜPSULTAN / İSTANBUL
-                        </p>
-                    </div>
-                    <div>
                         <h3 class="text-lg font-bold text-slate-900 mb-1">E-Posta</h3>
                         <div class="flex items-center gap-3">
                             <p class="text-slate-600 font-medium text-lg">patenliayakkabilar@gmail.com</p>
@@ -92,6 +85,13 @@
                                 Mail Gönder
                             </a>
                         </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1">Merkez Ofis</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            YEŞİLPINAR MAH. ÇİÇEKSUYU CAD. NO: 130/3<br>
+                            EYÜPSULTAN / İSTANBUL
+                        </p>
                     </div>
                 </div>
                 
