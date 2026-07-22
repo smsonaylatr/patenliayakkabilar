@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-white py-16 lg:py-24">
-    <div class="container mx-auto px-4 max-w-3xl">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
             <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">İletişime Geçin</h1>
             <p class="text-slate-500 text-lg md:text-xl font-medium max-w-2xl mx-auto">
@@ -49,9 +49,11 @@
             </form>
         </div>
         </div>
+    </div>
         
-        <!-- Contact Info & Map Below Form -->
-        <div class="mt-12 bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
+    <!-- Contact Info & Map Below Form -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left">
                 <!-- Info -->
                 <div class="space-y-6">
