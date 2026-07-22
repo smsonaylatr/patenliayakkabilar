@@ -282,7 +282,7 @@
                                         <i class="fa-solid fa-truck-fast text-emerald-500 text-sm mt-0.5 w-5 flex-shrink-0 text-center"></i>
                                         <div>
                                             <p class="text-xs font-semibold text-gray-800">Sabit 1 TL Kargo</p>
-                                            <p class="text-[11px] text-gray-500 mt-0.5">Ürün başı kargo ücreti sadece 1 TL. Türkiye'nin her yerine 1-3 iş günü içinde kargoya verilir.</p>
+                                            <p class="text-[11px] text-gray-500 mt-0.5">Ürün başı kargo ücreti sadece 1 TL. Türkiye'nin her yerine {{ $product->delivery_time ?? '1-3 iş günü içinde' }} kargoya verilir.</p>
                                         </div>
                                     </div>
                                     <div class="flex items-start gap-4">

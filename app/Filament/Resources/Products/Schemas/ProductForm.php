@@ -99,6 +99,13 @@ class ProductForm
                                     ])
                                     ->placeholder('Yaş grubu seçiniz')
                                     ->default(null),
+                                    
+                                TextInput::make('delivery_time')
+                                    ->label('Teslimat Süresi')
+                                    ->placeholder('Örn: 10-26 gün arası')
+                                    ->helperText('Boş bırakırsanız varsayılan olarak "1-3 iş günü" gösterilir.')
+                                    ->maxLength(255)
+                                    ->default(null),
 
                                 Toggle::make('status')
                                     ->label('Aktif')

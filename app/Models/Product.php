@@ -413,9 +413,11 @@ class Product extends Model
      */
     public function getTrustSignals(): array
     {
+        $deliveryText = $this->delivery_time ? $this->delivery_time . ' Teslimat' : '1-3 İş Günü Teslimat';
+        
         $signals = [
             ['icon' => '🚚', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
-            ['icon' => '⚡', 'text' => '1-3 İş Günü Teslimat', 'color' => 'blue'],
+            ['icon' => '⚡', 'text' => $deliveryText, 'color' => 'blue'],
             ['icon' => '🔒', 'text' => 'Güvenli Ödeme', 'color' => 'purple'],
             ['icon' => '↩️', 'text' => '14 Gün İade', 'color' => 'orange'],
         ];
