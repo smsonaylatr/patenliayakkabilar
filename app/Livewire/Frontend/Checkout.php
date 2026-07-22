@@ -29,7 +29,7 @@ class Checkout extends Component
     protected $rules = [
         'customer_name' => 'required|string|max:255',
         'customer_email' => 'required|email|max:255',
-        'customer_phone' => 'required|string|max:20',
+        'customer_phone' => 'required|string|regex:/^05[0-9]{9}$/',
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
         'shipping_address' => 'required|string',
@@ -41,6 +41,7 @@ class Checkout extends Component
         'customer_email.required' => 'Lütfen e-posta adresinizi giriniz.',
         'customer_email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
         'customer_phone.required' => 'Lütfen telefon numaranızı giriniz.',
+        'customer_phone.regex' => 'Lütfen başında 0 olacak şekilde 11 haneli geçerli bir numara giriniz (Örn: 05551234567).',
         'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
         'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
