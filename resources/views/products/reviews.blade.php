@@ -2,7 +2,7 @@
     <x-slot:title>{{ $product->name }} Yorumları | Patenli Ayakkabılar</x-slot:title>
 
     <div class="pt-4 lg:pt-16 pb-20 bg-gray-50 min-h-screen">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Breadcrumb --}}
             <div class="mb-8">
                 <x-breadcrumb :items="[
@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     
-                    <a href="{{ route('products.show', $product->slug) }}#tanitim-bolumu" class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors">
+                    <a href="{{ route('products.show', $product->slug) }}#tanitim-bolumu" class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap flex-shrink-0">
                         Ürüne Dön
                     </a>
                 </div>
