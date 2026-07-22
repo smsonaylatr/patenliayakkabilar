@@ -175,7 +175,8 @@ class OrdersTable
             ])
             ->actions([
                 Action::make('createInvoice')
-                    ->label('Fatura Kes')
+                    ->hiddenLabel()
+                    ->tooltip('Fatura Kes')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
                     ->requiresConfirmation()
@@ -219,9 +220,12 @@ class OrdersTable
                                 ->send();
                         }
                     }),
-                EditAction::make()->label('Düzenle'),
+                EditAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Düzenle'),
                 Action::make('addCargo')
-                    ->label('Kargo Gir')
+                    ->hiddenLabel()
+                    ->tooltip('Kargo Gir')
                     ->icon('heroicon-o-truck')
                     ->color('info')
                     ->form([
@@ -254,7 +258,8 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
 
                 Action::make('cancelOrder')
-                    ->label('İptal Et')
+                    ->hiddenLabel()
+                    ->tooltip('İptal Et')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
