@@ -137,7 +137,7 @@
                             </div>
                             <div>
                                 @php
-                                    $finalPriceForInstallment = $displayDiscount ?? $displayPrice;
+                                    $finalPriceForInstallment = ($displayDiscount ?? $displayPrice) + 1;
                                     $installmentPrice = $finalPriceForInstallment / 3;
                                 @endphp
                                 <h4 class="text-emerald-800 font-bold text-sm">Vade Farksız 3 Taksit Fırsatı!</h4>
