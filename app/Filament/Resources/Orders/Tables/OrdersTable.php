@@ -176,7 +176,7 @@ class OrdersTable
             ->actions([
                 Action::make('createInvoice')
                     ->iconButton()
-                    ->size(\Filament\Support\Enums\ActionSize::Large)
+                    ->size('lg')
                     ->tooltip('Fatura Kes')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
@@ -223,11 +223,11 @@ class OrdersTable
                     }),
                 EditAction::make()
                     ->iconButton()
-                    ->size(\Filament\Support\Enums\ActionSize::Large)
+                    ->size('lg')
                     ->tooltip('Düzenle'),
                 Action::make('addCargo')
                     ->iconButton()
-                    ->size(\Filament\Support\Enums\ActionSize::Large)
+                    ->size('lg')
                     ->tooltip('Kargo Gir')
                     ->icon('heroicon-o-truck')
                     ->color('info')
@@ -262,7 +262,7 @@ class OrdersTable
 
                 Action::make('cancelOrder')
                     ->iconButton()
-                    ->size(\Filament\Support\Enums\ActionSize::Large)
+                    ->size('lg')
                     ->tooltip('İptal Et')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
