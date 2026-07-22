@@ -646,6 +646,11 @@ Route::get('/deploy-fix-names', function () {
 })->middleware('auth');
 
 // ========================
+// N8N Webhook (AI Blog Oto-Yayınlama)
+// ========================
+Route::post('api/n8n/blog-publish', [\App\Http\Controllers\N8nWebhookController::class, 'publishBlog']);
+
+// ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================
 Route::get('/{slug}', function ($slug) {
