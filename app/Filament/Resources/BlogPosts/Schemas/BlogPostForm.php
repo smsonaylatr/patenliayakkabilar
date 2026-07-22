@@ -62,6 +62,7 @@ class BlogPostForm
                                     ->maxLength(255),
                                 TextInput::make('author_name')
                                     ->label('Yazar Adı')
+                                    ->default('Patenli Ayakkabılar Editör Ekibi')
                                     ->maxLength(255),
                                 DateTimePicker::make('published_at')
                                     ->label('Yayın Tarihi')

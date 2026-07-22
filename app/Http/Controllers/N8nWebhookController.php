@@ -50,6 +50,7 @@ class N8nWebhookController extends Controller
                 'slug' => Str::slug($validated['title']),
                 'content' => $validated['content'],
                 'excerpt' => $validated['excerpt'] ?? null,
+                'author_name' => 'Patenli Ayakkabılar Editör Ekibi',
                 'meta_title' => $validated['meta_title'] ?? null,
                 'meta_description' => $validated['meta_description'] ?? null,
                 'image_path' => $imagePath,
