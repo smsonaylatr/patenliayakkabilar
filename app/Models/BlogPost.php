@@ -53,5 +53,9 @@ class BlogPost extends Model
         if (empty($post->image_alt)) {
             $post->image_alt = mb_substr($post->title, 0, 255);
         }
+
+        if (empty($post->og_image) && !empty($post->image_path)) {
+            $post->og_image = $post->image_path;
+        }
     }
 }

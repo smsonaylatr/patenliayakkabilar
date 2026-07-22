@@ -91,6 +91,7 @@ class BlogPostForm
                                     ->columnSpanFull(),
                                 FileUpload::make('og_image')
                                     ->label('Paylaşım Görseli (OG Image)')
+                                    ->hint('Boş bırakılırsa ana kapak görseli kullanılır')
                                     ->image()
                                     ->disk('public')
                                     ->directory('blog/og'),
