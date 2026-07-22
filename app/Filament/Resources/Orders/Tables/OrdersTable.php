@@ -175,7 +175,8 @@ class OrdersTable
             ])
             ->actions([
                 Action::make('createInvoice')
-                    ->hiddenLabel()
+                    ->iconButton()
+                    ->size(\Filament\Support\Enums\ActionSize::Large)
                     ->tooltip('Fatura Kes')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
@@ -221,10 +222,12 @@ class OrdersTable
                         }
                     }),
                 EditAction::make()
-                    ->hiddenLabel()
+                    ->iconButton()
+                    ->size(\Filament\Support\Enums\ActionSize::Large)
                     ->tooltip('Düzenle'),
                 Action::make('addCargo')
-                    ->hiddenLabel()
+                    ->iconButton()
+                    ->size(\Filament\Support\Enums\ActionSize::Large)
                     ->tooltip('Kargo Gir')
                     ->icon('heroicon-o-truck')
                     ->color('info')
@@ -258,7 +261,8 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
 
                 Action::make('cancelOrder')
-                    ->hiddenLabel()
+                    ->iconButton()
+                    ->size(\Filament\Support\Enums\ActionSize::Large)
                     ->tooltip('İptal Et')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
