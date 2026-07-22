@@ -175,7 +175,7 @@ class OrdersTable
             ])
             ->actions([
                 Action::make('createInvoice')
-                    ->label('Fatura Kes (Paraşüt)')
+                    ->label('Fatura Kes')
                     ->icon('heroicon-o-document-currency-dollar')
                     ->color('success')
                     ->requiresConfirmation()
