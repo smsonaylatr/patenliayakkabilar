@@ -21,10 +21,13 @@ class OrderObserver
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
 
         // Send Telegram Notification after request finishes so items are definitely attached
-        app()->terminating(function () use ($order) {
-            $order->refresh();
-            $this->sendTelegramNotification($order);
-        });
+        // Kredi kartı ödemelerinde, ödeme PayTR üzerinden tamamlanana kadar (webhook gelene kadar) bildirim göndermiyoruz
+        if ($order->payment_method !== 'credit_card') {
+            app()->terminating(function () use ($order) {
+                $order->refresh();
+                $this->sendTelegramNotification($order);
+            });
+        }
     }
 
     private function sendTelegramNotification(Order $order): void
@@ -94,6 +97,14 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
+        // Kredi kartı ödemesi PayTR tarafından onaylanıp "paid" statüsüne geçince Telegram bildirimi gönder
+        if ($order->isDirty('payment_status') && $order->payment_status === 'paid' && $order->payment_method === 'credit_card') {
+            app()->terminating(function () use ($order) {
+                $order->refresh();
+                $this->sendTelegramNotification($order);
+            });
+        }
+
         if ($order->isDirty('status')) {
             // Audit Log: Durum değişikliği
             \App\Models\OrderStatusHistory::create([
