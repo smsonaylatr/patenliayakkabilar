@@ -25,7 +25,7 @@ class EInvoiceSettings extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return 'E-Fatura & SMTP Ayarları';
+        return 'Entegrasyon Ayarları';
     }
 
     public static function getNavigationGroup(): ?string
@@ -35,7 +35,7 @@ class EInvoiceSettings extends Page implements HasForms
 
     public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
-        return 'E-Fatura ve Mail (SMTP) Ayarları';
+        return 'Sistem & Entegrasyon Ayarları';
     }
 
     protected string $view = 'filament.pages.e-invoice-settings';
@@ -55,7 +55,8 @@ class EInvoiceSettings extends Page implements HasForms
             'smtp_username',
             'smtp_password',
             'smtp_from_address',
-            'smtp_from_name'
+            'smtp_from_name',
+            'n8n_api_token'
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -70,6 +71,7 @@ class EInvoiceSettings extends Page implements HasForms
             'smtp_password' => $settings['smtp_password'] ?? '',
             'smtp_from_address' => $settings['smtp_from_address'] ?? '',
             'smtp_from_name' => $settings['smtp_from_name'] ?? 'Patenli Ayakkabılar',
+            'n8n_api_token' => $settings['n8n_api_token'] ?? 'patenli_n8n_secret_123',
         ]);
     }
 
@@ -128,6 +130,17 @@ class EInvoiceSettings extends Page implements HasForms
                             ->default('Patenli Ayakkabılar')
                             ->required(),
                     ])->columns(2),
+
+                Section::make('N8N & Yapay Zeka Otomasyon Ayarları')
+                    ->description('Dış sistemlerin (n8n, ChatGPT vb.) sitenize veri gönderebilmesi için güvenlik anahtarı.')
+                    ->schema([
+                        TextInput::make('n8n_api_token')
+                            ->label('N8N Güvenlik Tokenı')
+                            ->helperText('N8N workflow dosyanızdaki PATENLI_N8N_TOKEN değişkeni ile buradaki değer aynı olmalıdır.')
+                            ->password()
+                            ->revealable()
+                            ->required(),
+                    ]),
             ])
             ->statePath('data');
     }

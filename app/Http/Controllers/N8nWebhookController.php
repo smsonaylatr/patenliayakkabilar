@@ -14,8 +14,10 @@ class N8nWebhookController extends Controller
     public function publishBlog(Request $request)
     {
         try {
-            // Check API Key
-            $apiKey = env('N8N_API_KEY', 'patenli_n8n_secret_123'); // Varsayılan bir key
+            // Check API Key from Settings
+            $setting = \App\Models\Setting::where('key', 'n8n_api_token')->first();
+            $apiKey = $setting ? $setting->value : 'patenli_n8n_secret_123';
+            
             if ($request->header('Authorization') !== 'Bearer ' . $apiKey && $request->input('api_key') !== $apiKey) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
