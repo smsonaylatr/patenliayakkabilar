@@ -255,6 +255,11 @@ class Checkout extends Component
         }
     }
 
+    public function editInformation()
+    {
+        $this->paytr_token = null;
+    }
+
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
