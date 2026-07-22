@@ -35,8 +35,7 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <a href="{{ route('products.show', $product->slug) }}#tanitim-bolumu" class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap flex-shrink-0">
+                    <a href="{{ route('products.show', $product->slug) }}" class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors whitespace-nowrap flex-shrink-0">
                         Ürüne Dön
                     </a>
                 </div>
