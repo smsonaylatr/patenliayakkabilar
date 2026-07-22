@@ -42,16 +42,37 @@ class OrderObserver
             $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
             $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
             $message .= "👤 *Müşteri:* {$order->customer_name}\n";
+            $message .= "📞 *Telefon:* {$order->customer_phone}\n";
             $message .= "💰 *Tutar:* " . number_format($order->grand_total, 2) . " ₺\n";
             $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
+            $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
             $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
+            $imageUrl = null;
+            $firstItem = $order->items()->first();
+            if ($firstItem && $firstItem->product && $firstItem->product->images->count() > 0) {
+                // Telegram'ın fotoğrafı indirebilmesi için tam URL olması gerekir
+                $imageUrl = $firstItem->product->images->first()->image_url;
+                if (!str_starts_with($imageUrl, 'http')) {
+                    $imageUrl = asset($imageUrl);
+                }
+            }
+
             try {
-                \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
-                    'chat_id' => $chatId,
-                    'text' => $message,
-                    'parse_mode' => 'Markdown'
-                ]);
+                if ($imageUrl) {
+                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                        'chat_id' => $chatId,
+                        'photo' => $imageUrl,
+                        'caption' => $message,
+                        'parse_mode' => 'Markdown'
+                    ]);
+                } else {
+                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text' => $message,
+                        'parse_mode' => 'Markdown'
+                    ]);
+                }
             } catch (\Exception $e) {
                 // Sessizce hatayı yutalım, sipariş akışını bozmamak için
                 \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
