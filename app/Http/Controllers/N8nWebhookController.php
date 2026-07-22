@@ -45,9 +45,17 @@ class N8nWebhookController extends Controller
                 }
             }
 
+            $slug = Str::slug($validated['title']);
+            $originalSlug = $slug;
+            $counter = 1;
+            while (BlogPost::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+
             $post = BlogPost::create([
                 'title' => $validated['title'],
-                'slug' => Str::slug($validated['title']),
+                'slug' => $slug,
                 'content' => $validated['content'],
                 'excerpt' => $validated['excerpt'] ?? null,
                 'author_name' => 'Patenli Ayakkabılar Editör Ekibi',
