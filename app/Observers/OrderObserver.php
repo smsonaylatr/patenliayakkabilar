@@ -20,8 +20,11 @@ class OrderObserver
             ->color('success')
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
 
-        // Send Telegram Notification
-        $this->sendTelegramNotification($order);
+        // Send Telegram Notification after request finishes so items are definitely attached
+        app()->terminating(function () use ($order) {
+            $order->refresh();
+            $this->sendTelegramNotification($order);
+        });
     }
 
     private function sendTelegramNotification(Order $order): void
@@ -46,6 +49,11 @@ class OrderObserver
             $message .= "💰 *Tutar:* " . number_format($order->grand_total, 2) . " ₺\n";
             $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
             $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
+            
+            if (!empty($order->customer_note)) {
+                $message .= "📝 *Sipariş Notu:*\n{$order->customer_note}\n\n";
+            }
+            
             $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
             $imageUrl = null;
