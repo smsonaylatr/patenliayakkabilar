@@ -48,7 +48,6 @@
                 </button>
             </form>
         </div>
-        </div>
     </div>
         
     <!-- Contact Info & Map Below Form -->
