@@ -106,6 +106,7 @@ class OrderForm
                         TextInput::make('customer_phone')
                             ->label('Telefon')
                             ->tel()
+                            ->telRegex('/^[0-9\s\+\-\(\)]+$/')
                             ->maxLength(255),
 
                         TextInput::make('customer_email')
