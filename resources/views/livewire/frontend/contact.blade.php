@@ -70,7 +70,7 @@
                         <h3 class="text-lg font-bold text-slate-900 mb-1">WhatsApp İletişim</h3>
                         <div class="flex items-center gap-3">
                             <p class="text-slate-600 font-medium text-lg">+90 (850) 307 31 64</p>
-                            <a href="https://wa.me/908503073164" target="_blank" class="inline-flex items-center justify-center bg-[#25D366] hover:bg-[#1da851] text-white text-xs font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors gap-1.5">
+                            <a href="https://wa.me/908503073164" target="_blank" class="inline-flex items-center justify-center bg-black hover:bg-gray-800 text-white text-xs font-bold py-1.5 px-4 rounded-full shadow-sm transition-colors gap-1.5">
                                 <i class="fa-brands fa-whatsapp text-sm"></i>
                                 Mesaj At
                             </a>
