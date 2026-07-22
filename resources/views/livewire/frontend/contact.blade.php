@@ -82,7 +82,7 @@
                 </div>
                 
                 <!-- Map -->
-                <div class="w-full sm:w-64 sm:h-64 md:w-72 md:h-72 ml-auto rounded-xl border border-gray-200 overflow-hidden shadow-sm aspect-square">
+                <div class="w-full max-w-[380px] ml-auto rounded-xl border border-gray-200 overflow-hidden shadow-sm aspect-square">
                     <iframe src="https://maps.google.com/maps?q=Yeşilpınar%20Mah.%20Çiçeksuyu%20Cad.%20No:130%20Eyüpsultan%2Fİstanbul&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
