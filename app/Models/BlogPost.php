@@ -49,5 +49,9 @@ class BlogPost extends Model
             $source = $post->excerpt ?: strip_tags($post->content ?? '');
             $post->meta_description = mb_substr(Str::limit($source, 155), 0, 160);
         }
+
+        if (empty($post->image_alt)) {
+            $post->image_alt = mb_substr($post->title, 0, 255);
+        }
     }
 }
