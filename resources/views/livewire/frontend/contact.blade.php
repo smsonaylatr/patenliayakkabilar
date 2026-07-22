@@ -53,7 +53,7 @@
     <!-- Contact Info & Map Below Form -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 md:p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch text-left">
                 <!-- Info -->
                 <div class="space-y-6">
                     <div>
@@ -102,7 +102,7 @@
                 </div>
                 
                 <!-- Map -->
-                <div class="w-full max-w-[380px] ml-auto rounded-xl border border-gray-200 overflow-hidden shadow-sm aspect-square">
+                <div class="w-full h-full min-h-[300px] rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                     <iframe src="https://maps.google.com/maps?q=Yeşilpınar%20Mah.%20Çiçeksuyu%20Cad.%20No:130%20Eyüpsultan%2Fİstanbul&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
