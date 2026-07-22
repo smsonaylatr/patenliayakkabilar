@@ -29,7 +29,7 @@ class Checkout extends Component
     protected $rules = [
         'customer_name' => 'required|string|max:255',
         'customer_email' => 'required|email|max:255',
-        'customer_phone' => 'required|string|regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/',
+        'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
         'shipping_address' => 'required|string',
