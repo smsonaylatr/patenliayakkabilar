@@ -45,8 +45,11 @@ class EInvoiceSettings extends Page implements HasForms
     public function mount(): void
     {
         $settings = Setting::whereIn('key', [
-            'gib_username',
-            'gib_password',
+            'parasut_company_id',
+            'parasut_client_id',
+            'parasut_client_secret',
+            'parasut_username',
+            'parasut_password',
             'smtp_host',
             'smtp_port',
             'smtp_username',
@@ -56,8 +59,11 @@ class EInvoiceSettings extends Page implements HasForms
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
-            'gib_username' => $settings['gib_username'] ?? '',
-            'gib_password' => $settings['gib_password'] ?? '',
+            'parasut_company_id' => $settings['parasut_company_id'] ?? '',
+            'parasut_client_id' => $settings['parasut_client_id'] ?? '',
+            'parasut_client_secret' => $settings['parasut_client_secret'] ?? '',
+            'parasut_username' => $settings['parasut_username'] ?? '',
+            'parasut_password' => $settings['parasut_password'] ?? '',
             'smtp_host' => $settings['smtp_host'] ?? '',
             'smtp_port' => $settings['smtp_port'] ?? '587',
             'smtp_username' => $settings['smtp_username'] ?? '',
@@ -71,14 +77,24 @@ class EInvoiceSettings extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('GİB E-Arşiv Portal Ayarları')
-                    ->description('Ücretsiz GİB portalı giriş bilgilerinizi buraya girin.')
+                Section::make('Paraşüt E-Fatura API Ayarları')
+                    ->description('Paraşüt Ayarlar > Uygulamalar > API Erişim Bilgileri bölümünden alabilirsiniz.')
                     ->schema([
-                        TextInput::make('gib_username')
-                            ->label('GİB Kullanıcı Adı')
+                        TextInput::make('parasut_company_id')
+                            ->label('Firma ID (Company ID)')
                             ->required(),
-                        TextInput::make('gib_password')
-                            ->label('GİB Şifresi')
+                        TextInput::make('parasut_username')
+                            ->label('Paraşüt Kullanıcı Adı')
+                            ->required(),
+                        TextInput::make('parasut_password')
+                            ->label('Paraşüt Şifresi')
+                            ->password()
+                            ->required(),
+                        TextInput::make('parasut_client_id')
+                            ->label('Client ID')
+                            ->required(),
+                        TextInput::make('parasut_client_secret')
+                            ->label('Client Secret')
                             ->password()
                             ->required(),
                     ])->columns(2),
