@@ -413,7 +413,12 @@ class Product extends Model
      */
     public function getTrustSignals(): array
     {
-        $deliveryText = $this->delivery_time ? $this->delivery_time . ' Teslimat' : '1-3 İş Günü Teslimat';
+        $deliveryText = '1-3 İş Günü Teslimat';
+        if ($this->delivery_time) {
+            $deliveryText = stripos($this->delivery_time, 'gün') === false 
+                ? $this->delivery_time . ' İş Günü Teslimat' 
+                : $this->delivery_time . ' Teslimat';
+        }
         
         $signals = [
             ['icon' => '🚚', 'text' => 'Ücretsiz Kargo', 'color' => 'green'],
