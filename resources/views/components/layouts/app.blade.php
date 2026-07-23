@@ -396,7 +396,7 @@
         <style>
             .call-widget {
                 position: fixed;
-                z-index: 99999;
+                z-index: 50;
                 display: flex;
                 align-items: center;
                 justify-content: center;
