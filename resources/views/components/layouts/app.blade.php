@@ -52,9 +52,9 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
         <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
+        <meta property="og:image" content="{{ $ogImage ?? asset('og-square.png?v=' . time()) }}">
+        <meta property="og:image:width" content="800">
+        <meta property="og:image:height" content="800">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
