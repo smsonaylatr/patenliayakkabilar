@@ -84,7 +84,7 @@ class PoregoApiService
                 ]);
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Porego API Sipariş Gönderim İstisnası. Sipariş No: {$order->order_number}", [
                 'error' => $e->getMessage()
             ]);
@@ -141,7 +141,7 @@ class PoregoApiService
                     'message' => 'Fatura kesilirken hata oluştu: ' . ($response->json('message') ?? $response->status())
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Porego QNB E-Fatura İstisnası. Sipariş No: {$order->order_number}", [
                 'error' => $e->getMessage()
             ]);

@@ -35,45 +35,45 @@ class OrderObserver
 
     private function sendTelegramNotification(Order $order): void
     {
-        $isActive = filter_var(\App\Models\Setting::where('key', 'telegram_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
-        $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
-        $chatId = \App\Models\Setting::where('key', 'telegram_chat_id')->value('value');
+        try {
+            $isActive = filter_var(\App\Models\Setting::where('key', 'telegram_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
+            $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
+            $chatId = \App\Models\Setting::where('key', 'telegram_chat_id')->value('value');
 
-        if ($isActive && !empty($token) && !empty($chatId)) {
-            $paymentMethods = [
-                'credit_card' => 'Kredi Kartı',
-                'cash_on_delivery' => 'Kapıda Ödeme',
-                'wire_transfer' => 'Havale / EFT'
-            ];
-            
-            $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
-            
-            $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
-            $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
-            $message .= "👤 *Müşteri:* {$order->customer_name}\n";
-            $message .= "📞 *Telefon:* {$order->customer_phone}\n";
-            $message .= "💰 *Tutar:* " . number_format($order->grand_total, 2) . " ₺\n";
-            $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
-            $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
-            
-            if (!empty($order->customer_note)) {
-                $message .= "📝 *Sipariş Notu:*\n{$order->customer_note}\n\n";
-            }
-            
-            $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
-
-            $imageUrl = null;
-            $firstItem = $order->items()->first();
-            if ($firstItem && $firstItem->product && $firstItem->product->images->count() > 0) {
-                // Telegram'ın fotoğrafı indirebilmesi için tam URL olması gerekir
-                $imageUrl = $firstItem->product->images->first()->image_url;
-                if (!str_starts_with($imageUrl, 'http')) {
-                    $imageUrl = asset($imageUrl);
+            if ($isActive && !empty($token) && !empty($chatId)) {
+                $paymentMethods = [
+                    'credit_card' => 'Kredi Kartı',
+                    'cash_on_delivery' => 'Kapıda Ödeme',
+                    'wire_transfer' => 'Havale / EFT'
+                ];
+                
+                $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
+                
+                $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
+                $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
+                $message .= "👤 *Müşteri:* {$order->customer_name}\n";
+                $message .= "📞 *Telefon:* {$order->customer_phone}\n";
+                $message .= "💰 *Tutar:* " . number_format((float)$order->grand_total, 2) . " ₺\n";
+                $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
+                $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
+                
+                if (!empty($order->customer_note)) {
+                    $message .= "📝 *Sipariş Notu:*\n{$order->customer_note}\n\n";
                 }
-            }
+                
+                $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
-            try {
-                if ($imageUrl) {
+                $imageUrl = null;
+                $firstItem = $order->items()->first();
+                if ($firstItem && $firstItem->product && $firstItem->product->images->count() > 0) {
+                    // Telegram'ın fotoğrafı indirebilmesi için tam URL olması gerekir
+                    $imageUrl = $firstItem->product->images->first()->image_url;
+                    if (!empty($imageUrl) && !str_starts_with($imageUrl, 'http')) {
+                        $imageUrl = asset($imageUrl);
+                    }
+                }
+
+                if (!empty($imageUrl)) {
                     \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendPhoto", [
                         'chat_id' => $chatId,
                         'photo' => $imageUrl,
@@ -87,10 +87,10 @@ class OrderObserver
                         'parse_mode' => 'Markdown'
                     ]);
                 }
-            } catch (\Exception $e) {
-                // Sessizce hatayı yutalım, sipariş akışını bozmamak için
-                \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
             }
+        } catch (\Throwable $e) {
+            // Sessizce hatayı yutalım, sipariş akışını ve Porego entegrasyonunu bozmamak için
+            \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
         }
     }
 
