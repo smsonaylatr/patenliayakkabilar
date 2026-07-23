@@ -106,7 +106,7 @@
             </button>
 
             <!-- Instruction Overlay (Appears briefly or on hover before click) -->
-            <div x-show="!isZoomed" class="absolute bottom-4 lg:bottom-16 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
+            <div x-show="!isZoomed" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
                 Büyütmek için tıklayın
             </div>
 
