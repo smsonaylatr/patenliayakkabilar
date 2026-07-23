@@ -21,8 +21,8 @@ class OrderObserver
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
 
         // Send Telegram Notification after request finishes so items are definitely attached
-        // Kredi kartı ödemelerinde, ödeme PayTR üzerinden tamamlanana kadar (webhook gelene kadar) bildirim göndermiyoruz
-        if ($order->payment_method !== 'credit_card') {
+        // Kredi kartı ve Havale/EFT ödemelerinde, ödeme PayTR üzerinden tamamlanana kadar (webhook gelene kadar) bildirim göndermiyoruz
+        if (!in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
             app()->terminating(function () use ($order) {
                 $order->refresh();
                 $this->sendTelegramNotification($order);
@@ -40,7 +40,7 @@ class OrderObserver
             $paymentMethods = [
                 'credit_card' => 'Kredi Kartı',
                 'cash_on_delivery' => 'Kapıda Ödeme',
-                'bank_transfer' => 'Havale / EFT'
+                'wire_transfer' => 'Havale / EFT'
             ];
             
             $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
@@ -97,15 +97,15 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        // Kredi kartı ödemesi PayTR tarafından onaylanıp "paid" statüsüne geçince Telegram bildirimi gönder
-        if ($order->isDirty('payment_status') && $order->payment_status === 'paid' && $order->payment_method === 'credit_card') {
+        // PayTR üzerinden Kredi kartı veya Havale ödemesi onaylanıp "paid" statüsüne geçince Telegram bildirimi gönder
+        if ($order->wasChanged('payment_status') && $order->payment_status === 'paid' && in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
             app()->terminating(function () use ($order) {
                 $order->refresh();
                 $this->sendTelegramNotification($order);
             });
         }
 
-        if ($order->isDirty('status')) {
+        if ($order->wasChanged('status')) {
             // Audit Log: Durum değişikliği
             \App\Models\OrderStatusHistory::create([
                 'order_id' => $order->id,
