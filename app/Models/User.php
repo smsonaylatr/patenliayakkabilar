@@ -45,6 +45,17 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'admin';
     }
 
+    protected static function booted()
+    {
+        static::created(function (User $user) {
+            if ($user->email) {
+                \App\Models\NewsletterSubscriber::firstOrCreate([
+                    'email' => $user->email
+                ]);
+            }
+        });
+    }
+
     public function addresses()
     {
         return $this->hasMany(Address::class);
