@@ -234,32 +234,46 @@ class Checkout extends Component
         $max_installment = 0;
         $currency = "TL";
 
-        $hash_str = $merchant_id .$user_ip .$merchant_oid .$email .$payment_amount .$user_basket .$no_installment .$max_installment .$currency .$test_mode;
-        $paytr_token = base64_encode(hash_hmac('sha256', $hash_str.$merchant_salt, $merchant_key, true));
-
-        $post_vals = [
-            'merchant_id' => $merchant_id,
-            'user_ip' => $user_ip,
-            'merchant_oid' => $merchant_oid,
-            'email' => $email,
-            'payment_amount' => $payment_amount,
-            'paytr_token' => $paytr_token,
-            'user_basket' => $user_basket,
-            'debug_on' => $debug_on,
-            'no_installment' => $no_installment,
-            'max_installment' => $max_installment,
-            'user_name' => $user_name,
-            'user_address' => $user_address,
-            'user_phone' => $user_phone,
-            'merchant_ok_url' => $merchant_ok_url,
-            'merchant_fail_url' => $merchant_fail_url,
-            'timeout_limit' => $timeout_limit,
-            'currency' => $currency,
-            'test_mode' => $test_mode
-        ];
-
         if ($payment_method === 'wire_transfer') {
-            $post_vals['payment_type'] = 'eft';
+            $hash_str = $merchant_id .$user_ip .$merchant_oid .$email .$payment_amount .'eft' .$test_mode;
+            $paytr_token = base64_encode(hash_hmac('sha256', $hash_str . $merchant_salt, $merchant_key, true));
+
+            $post_vals = [
+                'merchant_id' => $merchant_id,
+                'user_ip' => $user_ip,
+                'merchant_oid' => $merchant_oid,
+                'email' => $email,
+                'payment_amount' => $payment_amount,
+                'payment_type' => 'eft',
+                'paytr_token' => $paytr_token,
+                'debug_on' => 1,
+                'timeout_limit' => 30,
+                'test_mode' => $test_mode
+            ];
+        } else {
+            $hash_str = $merchant_id .$user_ip .$merchant_oid .$email .$payment_amount .$user_basket .$no_installment .$max_installment .$currency .$test_mode;
+            $paytr_token = base64_encode(hash_hmac('sha256', $hash_str . $merchant_salt, $merchant_key, true));
+
+            $post_vals = [
+                'merchant_id' => $merchant_id,
+                'user_ip' => $user_ip,
+                'merchant_oid' => $merchant_oid,
+                'email' => $email,
+                'payment_amount' => $payment_amount,
+                'paytr_token' => $paytr_token,
+                'user_basket' => $user_basket,
+                'debug_on' => 1,
+                'no_installment' => $no_installment,
+                'max_installment' => $max_installment,
+                'user_name' => auth()->user()->name,
+                'user_address' => $order->address,
+                'user_phone' => auth()->user()->phone ?? '05000000000',
+                'merchant_ok_url' => route('order.success', ['order_number' => $order->order_number]),
+                'merchant_fail_url' => route('order.fail', ['order_number' => $order->order_number]),
+                'timeout_limit' => 30,
+                'currency' => $currency,
+                'test_mode' => $test_mode
+            ];
         }
 
         $ch = curl_init();
