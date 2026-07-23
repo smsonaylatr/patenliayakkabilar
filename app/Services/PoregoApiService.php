@@ -148,4 +148,51 @@ class PoregoApiService
             return ['success' => false, 'message' => 'Sistemsel bir hata oluştu: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Porego üzerinden SMS gönderir
+     */
+    public function sendSms($phone, $message)
+    {
+        if (!$this->apiKey || !$this->apiSecret) {
+            Log::warning("Porego API Key veya Secret eksik olduğu için SMS gönderilemedi: {$phone}");
+            return ['success' => false, 'message' => 'API kimlik bilgileri eksik.'];
+        }
+
+        try {
+            // TAHMİNİ URL (Porego SMS servisi için)
+            $smsApiUrl = "{$this->apiUrl}/sms/send"; 
+
+            $payload = [
+                'phone' => $phone,
+                'message' => $message,
+            ];
+
+            $response = Http::withHeaders([
+                'X-Api-Key' => $this->apiKey,
+                'X-Api-Secret' => $this->apiSecret,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post($smsApiUrl, $payload);
+
+            if ($response->successful()) {
+                Log::info("Porego SMS başarıyla gönderildi. Telefon: {$phone}");
+                return ['success' => true, 'message' => 'SMS başarıyla gönderildi.'];
+            } else {
+                Log::error("Porego SMS Gönderim Hatası. Telefon: {$phone}", [
+                    'status' => $response->status(),
+                    'response' => $response->json()
+                ]);
+                return [
+                    'success' => false, 
+                    'message' => 'SMS gönderilirken hata oluştu: ' . ($response->json('message') ?? $response->status())
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error("Porego SMS Gönderim İstisnası. Telefon: {$phone}", [
+                'error' => $e->getMessage()
+            ]);
+            return ['success' => false, 'message' => 'Sistemsel bir hata oluştu: ' . $e->getMessage()];
+        }
+    }
 }

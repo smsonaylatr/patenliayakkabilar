@@ -52,13 +52,14 @@ class AbandonedCartsTable
             ])
             ->actions([
                 Action::make('remind')
-                    ->label('Hatırlat')
+                    ->label('Mail Hatırlat')
                     ->icon('heroicon-o-envelope')
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Hatırlatma Gönder')
                     ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir e-posta gönderilecektir. Onaylıyor musunuz?')
                     ->modalSubmitActionLabel('Evet, Gönder')
+                    ->visible(fn ($record) => empty($record->user->phone) && !empty($record->user->email))
                     ->action(function ($record) {
                         if ($record->user && $record->user->email) {
                             try {
@@ -81,6 +82,52 @@ class AbandonedCartsTable
                         } else {
                             \Filament\Notifications\Notification::make()
                                 ->title('Müşterinin e-posta adresi bulunamadı!')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+                Action::make('sms_remind')
+                    ->label('SMS Hatırlat')
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('SMS Hatırlatma Gönder')
+                    ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir SMS gönderilecektir. Onaylıyor musunuz?')
+                    ->modalSubmitActionLabel('Evet, SMS Gönder')
+                    ->visible(fn ($record) => !empty($record->user->phone))
+                    ->action(function ($record) {
+                        if ($record->user && $record->user->phone) {
+                            try {
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS gönderimi başlatıldı: ' . $record->user->phone);
+                                
+                                $message = "Merhaba {$record->user->name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
+                                $poregoService = app(\App\Services\PoregoApiService::class);
+                                $result = $poregoService->sendSms($record->user->phone, $message);
+
+                                if ($result['success']) {
+                                    \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS başarıyla gönderildi: ' . $record->user->phone);
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Hatırlatma Başarıyla Gönderildi')
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Gönderilemedi')
+                                        ->body($result['message'])
+                                        ->danger()
+                                        ->send();
+                                }
+                            } catch (\Exception $e) {
+                                \Illuminate\Support\Facades\Log::error('Sepeti terk etme SMS gönderilirken hata oluştu: ' . $e->getMessage());
+                                \Filament\Notifications\Notification::make()
+                                    ->title('SMS Gönderilirken Hata Oluştu!')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Müşterinin telefon numarası bulunamadı!')
                                 ->danger()
                                 ->send();
                         }
