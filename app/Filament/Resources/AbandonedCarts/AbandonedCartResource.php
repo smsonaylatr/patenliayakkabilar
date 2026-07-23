@@ -22,7 +22,7 @@ class AbandonedCartResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Müşteri İstihbaratı';
+    protected static string|\UnitEnum|null $navigationGroup = 'Müşteriler';
     protected static ?string $modelLabel = 'Terk Edilmiş Sepet';
     protected static ?string $pluralModelLabel = 'Sepeti Terk Edenler';
 
