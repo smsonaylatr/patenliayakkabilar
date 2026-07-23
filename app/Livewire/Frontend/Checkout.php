@@ -260,9 +260,7 @@ class Checkout extends Component
                 'paytr_token' => $paytr_token,
                 'debug_on' => 1,
                 'timeout_limit' => 30,
-                'test_mode' => $test_mode,
-                'iframe_v2' => 1,
-                'iframe_v2_dark' => 0
+                'test_mode' => $test_mode
             ];
         } else {
             $hash_str = $merchant_id .$user_ip .$merchant_oid .$email .$payment_amount .$user_basket .$no_installment .$max_installment .$currency .$test_mode;
@@ -286,9 +284,7 @@ class Checkout extends Component
                 'merchant_fail_url' => route('order.fail', ['order_number' => $order->order_number]),
                 'timeout_limit' => 30,
                 'currency' => $currency,
-                'test_mode' => $test_mode,
-                'iframe_v2' => 1,
-                'iframe_v2_dark' => 0
+                'test_mode' => $test_mode
             ];
         }
 
