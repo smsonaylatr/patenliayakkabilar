@@ -20,17 +20,17 @@ class PoregoWebhookController extends Controller
 
         if (!$secret) {
             Log::error('Porego Webhook Secret is not configured.');
-            // Test aşamasını geçmek için geçici olarak 200 dönüyoruz
-            return response()->json(['status' => 'success', 'note' => 'Secret not configured but bypassed for testing']);
+            return response()->json(['error' => 'Webhook secret not configured'], 500);
         }
 
         if (!$signature) {
-            Log::warning('Porego Webhook Signature is missing. Bypassing for test.');
-            return response()->json(['status' => 'success', 'note' => 'Signature missing but bypassed for test']);
+            Log::error('Porego Webhook Signature is missing.');
+            return response()->json(['error' => 'Signature missing'], 401);
         }
 
         $payload = $request->getContent();
-        $expectedSignature = hash_hmac('sha256', $payload, $secret);
+        // Porego sends the signature as 'sha256=...' so we need to match that format
+        $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
 
         if (!hash_equals($expectedSignature, $signature)) {
             Log::error('Porego Webhook Signature verification failed.', [
