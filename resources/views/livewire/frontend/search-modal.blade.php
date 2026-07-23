@@ -47,6 +47,7 @@
                             wire:model.live.debounce.300ms="search" 
                             x-ref="searchInput"
                             type="text" 
+                            aria-label="Arama Kutusu"
                             class="h-14 w-full rounded-xl border-0 bg-gray-50 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-black sm:text-lg" 
                             placeholder="Ürün, kategori veya kelime arayın..."
                         >
