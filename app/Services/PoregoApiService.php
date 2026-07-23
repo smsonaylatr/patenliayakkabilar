@@ -48,8 +48,9 @@ class PoregoApiService
                 'platformOrderId' => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
                 'items' => $order->items->map(function ($item) {
+                    $sku = $item->variant ? $item->variant->sku : ('SKU-' . $item->product_id);
                     return [
-                        'sku' => 'SKU-' . $item->product_id, // Varsayılan SKU
+                        'sku' => $sku,
                         'name' => $item->product_name,
                         'quantity' => $item->quantity,
                         'price' => $item->price,
