@@ -261,6 +261,7 @@ class Checkout extends Component
                 'debug_on' => 1,
                 'timeout_limit' => 30,
                 'test_mode' => $test_mode,
+                'iframe_v2' => 1,
                 'iframe_v2_dark' => 0
             ];
         } else {
@@ -286,6 +287,7 @@ class Checkout extends Component
                 'timeout_limit' => 30,
                 'currency' => $currency,
                 'test_mode' => $test_mode,
+                'iframe_v2' => 1,
                 'iframe_v2_dark' => 0
             ];
         }
