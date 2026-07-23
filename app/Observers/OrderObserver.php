@@ -74,14 +74,14 @@ class OrderObserver
                 }
 
                 if (!empty($imageUrl)) {
-                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                    \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendPhoto", [
                         'chat_id' => $chatId,
                         'photo' => $imageUrl,
                         'caption' => $message,
                         'parse_mode' => 'Markdown'
                     ]);
                 } else {
-                    \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                    \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                         'chat_id' => $chatId,
                         'text' => $message,
                         'parse_mode' => 'Markdown'
