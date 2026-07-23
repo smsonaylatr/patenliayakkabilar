@@ -238,9 +238,9 @@ class SchemaService
             $data['image'] = $images;
         }
 
-        // Marka (Organization olarak)
+        // Marka (Brand olarak)
         $data['brand'] = [
-            '@type' => 'Organization',
+            '@type' => 'Brand',
             'name'  => $product->brand ?: 'Patenli Ayakkabılar',
         ];
 
