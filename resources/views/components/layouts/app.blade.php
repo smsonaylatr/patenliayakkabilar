@@ -27,6 +27,13 @@
         <link rel="apple-touch-icon" href="/favicon.png?v={{ time() }}">
         <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v={{ time() }}">
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v={{ time() }}">
+
+        <!-- PWA (Web Uygulaması) Ayarları -->
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0f172a">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Patenli">
         <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
