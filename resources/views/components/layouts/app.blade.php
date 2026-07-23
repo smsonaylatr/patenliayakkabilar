@@ -38,6 +38,7 @@
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+        <link rel="mcp" href="/mcp.json">
 
         {{-- Arama Motoru Doğrulama --}}
         @php
