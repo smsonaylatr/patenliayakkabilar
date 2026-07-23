@@ -91,4 +91,61 @@ class PoregoApiService
             return false;
         }
     }
+
+    /**
+     * Sipariş için Porego QNB E-Fatura API'si üzerinden fatura oluşturur
+     */
+    public function createInvoice(Order $order)
+    {
+        if (!$this->apiKey || !$this->apiSecret) {
+            Log::warning("Porego API Key veya Secret eksik olduğu için #{$order->order_number} numaralı siparişe fatura kesilemedi.");
+            return ['success' => false, 'message' => 'API kimlik bilgileri eksik.'];
+        }
+
+        try {
+            // TODO: QNB E-Fatura için gerçek API uç noktasını buraya yazın
+            // Örnek: $invoiceApiUrl = 'https://back.porego.com/depokargo/api/v1/merchant-api/v1/orders/' . $order->order_number . '/invoice';
+            $invoiceApiUrl = "{$this->apiUrl}/orders/{$order->order_number}/invoice"; // TAHMİNİ URL
+
+            // TODO: QNB E-Fatura için gereken ek parametreleri ekleyin (TC/VKN vb.)
+            $payload = [
+                'orderNumber' => $order->order_number,
+                // 'identityNumber' => '11111111111', // VKN veya TCKN
+            ];
+
+            $response = Http::withHeaders([
+                'X-Api-Key' => $this->apiKey,
+                'X-Api-Secret' => $this->apiSecret,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post($invoiceApiUrl, $payload);
+
+            if ($response->successful()) {
+                // Fatura kesildiğinde veritabanını güncelle
+                $order->is_invoiced = true;
+                
+                // Eğer Porego bize bir fatura PDF linki dönüyorsa onu da kaydedelim
+                // $order->invoice_url = $response->json('invoiceUrl'); 
+                
+                $order->save();
+
+                Log::info("Sipariş (#{$order->order_number}) için başarıyla e-fatura kesildi.");
+                return ['success' => true, 'message' => 'Fatura başarıyla oluşturuldu.'];
+            } else {
+                Log::error("Porego QNB E-Fatura Hatası. Sipariş No: {$order->order_number}", [
+                    'status' => $response->status(),
+                    'response' => $response->json()
+                ]);
+                return [
+                    'success' => false, 
+                    'message' => 'Fatura kesilirken hata oluştu: ' . ($response->json('message') ?? $response->status())
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error("Porego QNB E-Fatura İstisnası. Sipariş No: {$order->order_number}", [
+                'error' => $e->getMessage()
+            ]);
+            return ['success' => false, 'message' => 'Sistemsel bir hata oluştu: ' . $e->getMessage()];
+        }
+    }
 }

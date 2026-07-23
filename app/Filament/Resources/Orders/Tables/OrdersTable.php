@@ -177,50 +177,40 @@ class OrdersTable
                 Action::make('createInvoice')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('Fatura Kes')
-                    ->icon('heroicon-o-document-currency-dollar')
+                    ->tooltip('E-Fatura Kes (Porego)')
+                    ->icon('heroicon-o-document-text')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Paraşüt E-Fatura Kes ve Gönder')
-                    ->modalDescription('Bu işlem Paraşüt üzerinde otomatik bir cari oluşturacak, satışı e-fatura/e-arşiv olarak resmileştirecek ve faturayı e-posta ile müşteriye gönderecektir. Onaylıyor musunuz?')
-                    ->modalSubmitActionLabel('Evet, Kes ve Gönder')
+                    ->modalHeading('Porego (QNB) E-Fatura Kes')
+                    ->modalDescription('Bu işlem siparişi Porego QNB Entegrasyonu üzerinden e-fatura/e-arşiv olarak resmileştirecektir. Onaylıyor musunuz?')
+                    ->modalSubmitActionLabel('Evet, Fatura Kes')
                     ->action(function (Order $record): void {
                         try {
-                            $service = app(\App\Services\ParasutInvoiceService::class);
-                            $pdfUrl = $service->createInvoiceFromOrder($record);
+                            $service = app(\App\Services\PoregoApiService::class);
+                            $result = $service->createInvoice($record);
                             
-                            // Configure SMTP dynamically from settings
-                            $settings = \App\Models\Setting::whereIn('key', [
-                                'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password'
-                            ])->pluck('value', 'key')->toArray();
-                            
-                            if (!empty($settings['smtp_host'])) {
-                                config([
-                                    'mail.mailers.smtp.host' => $settings['smtp_host'],
-                                    'mail.mailers.smtp.port' => $settings['smtp_port'] ?? 587,
-                                    'mail.mailers.smtp.username' => $settings['smtp_username'] ?? '',
-                                    'mail.mailers.smtp.password' => $settings['smtp_password'] ?? '',
-                                ]);
+                            if ($result['success']) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Fatura Başarıyla Kesildi')
+                                    ->body($result['message'])
+                                    ->success()
+                                    ->send();
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Fatura Kesilemedi')
+                                    ->body($result['message'])
+                                    ->danger()
+                                    ->send();
                             }
-                            
-                            // Send custom email
-                            \Illuminate\Support\Facades\Mail::to($record->customer_email)
-                                ->send(new \App\Mail\OrderInvoiceMail($record, $pdfUrl));
-                                
-                            $record->update(['status' => 'completed']);
-                            
-                            \Filament\Notifications\Notification::make()
-                                ->title('Fatura Başarıyla Kesildi ve Gönderildi')
-                                ->success()
-                                ->send();
                         } catch (\Exception $e) {
                             \Filament\Notifications\Notification::make()
-                                ->title('Fatura Kesilemedi')
+                                ->title('Sistem Hatası')
                                 ->body($e->getMessage())
                                 ->danger()
                                 ->send();
                         }
-                    }),
+                    })
+                    ->visible(fn (Order $record): bool => !$record->is_invoiced),
                 EditAction::make()
                     ->iconButton()
                     ->size('lg')
