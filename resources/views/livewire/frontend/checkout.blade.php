@@ -137,19 +137,6 @@
                                 </div>
                             </label>
 
-                            @if($isCodAllowed)
-                            <!-- Kapıda Ödeme Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
-                                <div class="flex items-center h-5">
-                                    <input wire:model.live="payment_method" type="radio" value="cash_on_delivery" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
-                                </div>
-                                <div class="ml-3">
-                                    <span class="block text-sm font-bold text-gray-900">Kapıda Ödeme</span>
-                                    <span class="block text-xs text-gray-500 mt-0.5">Ürünü teslim alırken nakit veya kredi kartı ile ödeyin.</span>
-                                </div>
-                            </label>
-                            @endif
-
                             <!-- Havale/EFT Seçeneği -->
                             <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
                                 <div class="flex items-center h-5">
@@ -165,6 +152,19 @@
                                     <span class="block text-xs text-gray-500 mt-0.5">PayTR güvencesiyle %100 güvenli Havale/EFT işlemi. Ödemeniz onaylandığında siparişiniz anında işleme alınır.</span>
                                 </div>
                             </label>
+
+                            @if($isCodAllowed)
+                            <!-- Kapıda Ödeme Seçeneği -->
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
+                                <div class="flex items-center h-5">
+                                    <input wire:model.live="payment_method" type="radio" value="cash_on_delivery" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
+                                </div>
+                                <div class="ml-3">
+                                    <span class="block text-sm font-bold text-gray-900">Kapıda Ödeme</span>
+                                    <span class="block text-xs text-gray-500 mt-0.5">Ürünü teslim alırken nakit veya kredi kartı ile ödeyin.</span>
+                                </div>
+                            </label>
+                            @endif
                         </div>
                     </div>
 
