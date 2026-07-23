@@ -29,7 +29,7 @@
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
                 <div class="flex flex-1 items-center justify-start">
                     <!-- Mobile Hamburger -->
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-900 focus:outline-none">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Menü" class="md:hidden text-gray-900 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
