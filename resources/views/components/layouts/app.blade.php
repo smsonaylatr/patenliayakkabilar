@@ -52,7 +52,12 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
         <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('og-square.png?v=' . time()) }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=' . time()) }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+
+        <!-- Open Graph / WhatsApp (Kare Önizleme) -->
+        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=' . time()) }}">
         <meta property="og:image:width" content="800">
         <meta property="og:image:height" content="800">
 
