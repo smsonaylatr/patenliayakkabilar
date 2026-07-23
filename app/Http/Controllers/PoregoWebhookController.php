@@ -29,8 +29,8 @@ class PoregoWebhookController extends Controller
         }
 
         $payload = $request->getContent();
-        // Porego sends the signature as 'sha256=...' so we need to match that format
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        // Porego sends the signature as 'sha256=...' and uses Base64 encoding for the hash
+        $expectedSignature = 'sha256=' . base64_encode(hash_hmac('sha256', $payload, $secret, true));
 
         if (!hash_equals($expectedSignature, $signature)) {
             Log::error('Porego Webhook Signature verification failed.', [
