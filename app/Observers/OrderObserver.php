@@ -55,6 +55,15 @@ class OrderObserver
                 $message .= "📞 *Telefon:* {$order->customer_phone}\n";
                 $message .= "💰 *Tutar:* " . number_format((float)$order->grand_total, 2) . " ₺\n";
                 $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
+
+                $message .= "📦 *Ürünler:*\n";
+                foreach ($order->items as $item) {
+                    $sku = $item->variant?->sku ?? '-';
+                    $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
+                    $message .= "- {$item->quantity}x {$item->product_name}{$variantText} | SKU: {$sku}\n";
+                }
+                $message .= "\n";
+
                 $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
                 
                 if (!empty($order->customer_note)) {
