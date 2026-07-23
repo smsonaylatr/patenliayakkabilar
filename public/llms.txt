@@ -1,36 +1,15 @@
 # Patenli Ayakkabılar
 
-> Türkiye'nin patenli ayakkabı ve tekerlekli ayakkabı uzmanı e-ticaret sitesi.
+Patenli Ayakkabılar, çocuklar ve gençler için güvenilir, eğlenceli ve kaliteli patenli ayakkabı (roller shoes) modelleri sunan bir e-ticaret platformudur.
 
 ## Hakkımızda
-Patenli Ayakkabılar, çocuklar ve gençler için tekerlekli (patenli) ayakkabı modelleri sunan bir e-ticaret markasıdır. Web sitesi: https://patenliayakkabilar.com
+Amacımız, yürüyüşü eğlenceye dönüştüren patenli ayakkabıları en yüksek kalite ve güvenlik standartlarında sunmaktır. Ürünlerimiz hem günlük ayakkabı hem de paten olarak kullanılabilir.
 
-## Ürünler
-- Patenli ayakkabı (tekerlekli ayakkabı, roller shoes)
-- Çocuk patenli ayakkabı
-- Işıklı patenli ayakkabı (LED)
-- Tek tekerlekli patenli ayakkabı
-- Çift tekerlekli patenli ayakkabı
-- Farklı renk seçenekleri (siyah, beyaz, pembe, mor, mavi)
+## Site Haritası
+- [Ana Sayfa](/)
+- [Tüm Ürünler](/urunler)
+- [Sipariş Takip](/siparis-takip)
+- [İletişim](/iletisim)
 
-## Hedef Kitle
-- Çocukları için patenli ayakkabı arayan ebeveynler
-- 4-14 yaş arası çocuklar ve gençler
-- Hediye arayanlar (doğum günü, özel günler)
-
-## Özellikler
-- Gizlenebilir tekerlek mekanizması
-- LED ışıklı modeller
-- USB şarj edilebilir ışıklar
-- Kaymaz taban
-- Hafif ve nefes alan malzeme
-- Tek ve çift tekerlek seçenekleri
-
-## İletişim
-Web: https://patenliayakkabilar.com
-İletişim: https://patenliayakkabilar.com/iletisim
-
-## Politikalar
-- Kargo: Türkiye geneli, 1-3 iş günü
-- İade: 14 gün koşulsuz iade
-- Ödeme: Kapıda ödeme, kredi kartı, havale/EFT
+## Kullanım İzinleri
+Bu sitedeki herkese açık içerikler, dil modelleri (LLM) ve yapay zeka ajanları tarafından taranabilir, dizine eklenebilir ve analiz edilebilir. Ancak kullanıcı verileri ve izne tabi kısımlar korunmaktadır.
