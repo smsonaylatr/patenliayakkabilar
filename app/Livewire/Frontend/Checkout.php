@@ -180,9 +180,9 @@ class Checkout extends Component
         // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet (Sepet boşaltma vs. için)
         session(['last_order_number' => $order->order_number]);
 
-        // IF KREDI KARTI, PAYTR TOKEN AL
-        if ($this->payment_method === 'credit_card') {
-            $this->paytr_token = $this->getPaytrToken($order, $cart->items);
+        // IF KREDI KARTI VEYA HAVALE/EFT, PAYTR TOKEN AL
+        if (in_array($this->payment_method, ['credit_card', 'wire_transfer'])) {
+            $this->paytr_token = $this->getPaytrToken($order, $cart->items, $this->payment_method);
             
             if (!$this->paytr_token) {
                 // Token alınamadıysa siparişi silip (veya hata verip) sepeti boşaltmıyoruz ki kullanıcı tekrar deneyebilsin.
@@ -200,7 +200,7 @@ class Checkout extends Component
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
     }
 
-    private function getPaytrToken(Order $order, $cartItems)
+    private function getPaytrToken(Order $order, $cartItems, $payment_method = 'credit_card')
     {
         $merchant_id    = config('services.paytr.merchant_id');
         $merchant_key   = config('services.paytr.merchant_key');
@@ -257,6 +257,10 @@ class Checkout extends Component
             'currency' => $currency,
             'test_mode' => $test_mode
         ];
+
+        if ($payment_method === 'wire_transfer') {
+            $post_vals['payment_type'] = 'eft';
+        }
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://www.paytr.com/odeme/api/get-token");

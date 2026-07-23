@@ -134,13 +134,18 @@
                             @endif
 
                             <!-- Havale/EFT Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
                                 <div class="flex items-center h-5">
-                                    <input wire:model.live="payment_method" type="radio" value="wire_transfer" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
+                                    <input wire:model.live="payment_method" type="radio" value="wire_transfer" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
-                                <div class="ml-3">
-                                    <span class="block text-sm font-bold text-gray-900">Havale / EFT</span>
-                                    <span class="block text-xs text-gray-500 mt-0.5">Ödemeyi banka hesabımıza doğrudan aktarın.</span>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="block text-sm font-bold text-gray-900">Havale / EFT</span>
+                                        <div class="flex gap-1">
+                                            <i class="fa-solid fa-building-columns text-xl text-brand-orange"></i>
+                                        </div>
+                                    </div>
+                                    <span class="block text-xs text-gray-500 mt-0.5">PayTR güvencesiyle %100 güvenli Havale/EFT işlemi. Ödemeniz onaylandığında siparişiniz anında işleme alınır.</span>
                                 </div>
                             </label>
                         </div>
