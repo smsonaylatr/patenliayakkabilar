@@ -652,6 +652,7 @@ Route::get('/deploy-fix-names', function () {
 // N8N Webhook (AI Blog Oto-Yayınlama)
 // ========================
 Route::post('api/n8n/blog-publish', [\App\Http\Controllers\N8nWebhookController::class, 'publishBlog']);
+Route::post('api/porego/webhook', [\App\Http\Controllers\PoregoWebhookController::class, 'handle']);
 
 // ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
