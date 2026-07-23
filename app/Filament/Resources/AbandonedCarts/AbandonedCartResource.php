@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AbandonedCarts;
 use App\Filament\Resources\AbandonedCarts\Pages\ListAbandonedCarts;
 use App\Filament\Resources\AbandonedCarts\Tables\AbandonedCartsTable;
 use App\Models\Cart;
+use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Section;
@@ -57,6 +58,15 @@ class AbandonedCartResource extends Resource
                         Repeater::make('items')
                             ->relationship()
                             ->schema([
+                                Placeholder::make('image')
+                                    ->label('Görsel')
+                                    ->content(function ($record) {
+                                        $imageUrl = $record->product?->images->first()?->image_url;
+                                        if ($imageUrl) {
+                                            return new HtmlString('<img src="' . $imageUrl . '" style="height: 48px; width: 48px; object-fit: cover; border-radius: 8px;">');
+                                        }
+                                        return '-';
+                                    }),
                                 Placeholder::make('product.name')
                                     ->label('Ürün')
                                     ->content(fn ($record) => $record->product?->name ?? '-'),
@@ -70,7 +80,7 @@ class AbandonedCartResource extends Resource
                                     ->label('Birim Fiyat')
                                     ->content(fn ($record) => number_format($record->product?->discount_price ?? $record->product?->price ?? 0, 2) . ' ₺'),
                             ])
-                            ->columns(4)
+                            ->columns(5)
                             ->disableItemCreation()
                             ->disableItemDeletion()
                             ->disableItemMovement()
