@@ -264,6 +264,7 @@ class SchemaService
             '@type'         => 'Offer',
             'price'         => number_format((float) $price, 2, '.', ''),
             'priceCurrency' => 'TRY',
+            'priceValidUntil' => now()->addYear()->format('Y-m-d'),
             'availability'  => $availability,
             'itemCondition' => 'https://schema.org/NewCondition',
             'url'           => $appUrl . '/urun/' . $product->slug,
@@ -284,6 +285,21 @@ class SchemaService
                 '@type'    => 'MonetaryAmount',
                 'value'    => '1.00',
                 'currency' => 'TRY',
+            ],
+            'deliveryTime' => [
+                '@type' => 'ShippingDeliveryTime',
+                'handlingTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => 0,
+                    'maxValue' => 1,
+                    'unitCode' => 'd'
+                ],
+                'transitTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => 1,
+                    'maxValue' => 3,
+                    'unitCode' => 'd'
+                ]
             ],
         ];
 
