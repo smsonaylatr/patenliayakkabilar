@@ -12,12 +12,6 @@ class PoregoWebhookController extends Controller
         $signature = $request->header('X-Porego-Signature');
         $secret = config('services.porego.webhook_secret', env('POREGO_WEBHOOK_SECRET'));
 
-        // TEST İÇİN GEÇİCİ LOGLAMA
-        Log::info('Porego Webhook Test Dump:', [
-            'headers' => $request->headers->all(),
-            'payload' => $request->all(),
-        ]);
-
         if (!$secret) {
             Log::error('Porego Webhook Secret is not configured.');
             return response()->json(['error' => 'Webhook secret not configured'], 500);
