@@ -59,7 +59,7 @@ class AbandonedCartsTable
                     ->modalHeading('Hatırlatma Gönder')
                     ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir e-posta gönderilecektir. Onaylıyor musunuz?')
                     ->modalSubmitActionLabel('Evet, Gönder')
-                    ->visible(fn ($record) => empty($record->user->phone) && !empty($record->user->email))
+                    ->visible(fn ($record) => !empty($record->user->email))
                     ->action(function ($record) {
                         if ($record->user && $record->user->email) {
                             try {
