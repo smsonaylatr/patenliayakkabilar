@@ -56,16 +56,19 @@ class Product extends Model
                 $product->discount_price = $temp;
             }
         });
-        static::created(function () {
+        static::created(function (Product $product) {
             static::clearProductCaches();
+            \App\Jobs\SyncProductToGoogleMerchant::dispatch($product);
         });
 
-        static::updated(function () {
+        static::updated(function (Product $product) {
             static::clearProductCaches();
+            \App\Jobs\SyncProductToGoogleMerchant::dispatch($product);
         });
 
-        static::deleted(function () {
+        static::deleted(function (Product $product) {
             static::clearProductCaches();
+            \App\Jobs\SyncProductToGoogleMerchant::dispatch($product);
         });
     }
 

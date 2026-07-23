@@ -140,6 +140,22 @@ class ProductsTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    \Filament\Tables\Actions\BulkAction::make('syncToGoogle')
+                        ->label("Google Merchant'a Gönder")
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            foreach ($records as $record) {
+                                \App\Jobs\SyncProductToGoogleMerchant::dispatch($record);
+                            }
+                            \Filament\Notifications\Notification::make()
+                                ->title('Ürünler sıraya eklendi')
+                                ->body('Seçilen ürünler arka planda Google Merchant Center\'a gönderilecektir.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
