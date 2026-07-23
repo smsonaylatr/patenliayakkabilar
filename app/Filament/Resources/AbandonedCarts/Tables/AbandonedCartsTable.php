@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AbandonedCarts\Tables;
 
 use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -50,6 +51,28 @@ class AbandonedCartsTable
                 //
             ])
             ->actions([
+                Action::make('remind')
+                    ->label('Hatırlat')
+                    ->icon('heroicon-o-envelope')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hatırlatma Gönder')
+                    ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir e-posta gönderilecektir. Onaylıyor musunuz?')
+                    ->modalSubmitActionLabel('Evet, Gönder')
+                    ->action(function ($record) {
+                        if ($record->user && $record->user->email) {
+                            \Illuminate\Support\Facades\Mail::to($record->user->email)->send(new \App\Mail\AbandonedCartReminderMail($record));
+                            \Filament\Notifications\Notification::make()
+                                ->title('Hatırlatma Başarıyla Gönderildi')
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Müşterinin e-posta adresi bulunamadı!')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
                 ViewAction::make(),
             ])
             ->bulkActions([
