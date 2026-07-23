@@ -28,10 +28,14 @@
                         <!-- PayTR Iframe -->
                         @if($payment_method === 'wire_transfer')
                             <div wire:poll.3s="checkOrderStatus">
-                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                                <div wire:ignore>
+                                    <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $el); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                                </div>
                             </div>
                         @else
-                            <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                            <div wire:ignore>
+                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                            </div>
                         @endif
                     </div>
                 @else
