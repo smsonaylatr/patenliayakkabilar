@@ -133,7 +133,7 @@ class Checkout extends Component
 
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
-        $shippingPrice = 1 * $totalItems;
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? 201 : (1 * $totalItems);
         $grandTotal = $subtotal + $shippingPrice;
         $orderNumber = 'TR' . mt_rand(100000, 999999);
 
@@ -325,7 +325,7 @@ class Checkout extends Component
         $cart = $cartService->getCart();
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
-        $shippingPrice = 1 * $totalItems;
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? 201 : (1 * $totalItems);
         $grandTotal = $subtotal + $shippingPrice;
 
         return view('livewire.frontend.checkout', [
