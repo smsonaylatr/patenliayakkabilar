@@ -71,8 +71,11 @@ class MerchantFeedController extends Controller
         // Ürün ID
         $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
 
-        // Ürün adı (max 150 karakter)
-        $xml .= '      <title>' . htmlspecialchars(mb_substr($product->name, 0, 150), ENT_XML1, 'UTF-8') . '</title>' . "\n";
+        // Ürün adı (SEO Odaklı: Marka + Ad + Hedef Kitle)
+        $brand = $product->brand ?: 'Patenli Ayakkabılar';
+        $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
+        $seoTitle = trim($brand . ' ' . $product->name . ' ' . $target);
+        $xml .= '      <title>' . htmlspecialchars(mb_substr($seoTitle, 0, 150), ENT_XML1, 'UTF-8') . '</title>' . "\n";
 
         // Açıklama (HTML strip, max 5000 karakter)
         $description = mb_substr(
@@ -110,8 +113,10 @@ class MerchantFeedController extends Controller
         }
 
         // Marka
-        $brand = $product->brand ?: 'Patenli Ayakkabılar';
         $xml .= '      <g:brand>' . htmlspecialchars($brand, ENT_XML1, 'UTF-8') . '</g:brand>' . "\n";
+
+        // GTIN/Barkod yoksa hata vermemesi için
+        $xml .= '      <g:identifier_exists>no</g:identifier_exists>' . "\n";
 
         // Durum (her zaman yeni)
         $xml .= '      <g:condition>new</g:condition>' . "\n";
@@ -158,10 +163,10 @@ class MerchantFeedController extends Controller
             $xml .= '      <g:size>' . htmlspecialchars($sizes->implode(', '), ENT_XML1, 'UTF-8') . '</g:size>' . "\n";
         }
 
-        // Kargo bilgileri (Türkiye, 1 TRY)
+        // Kargo bilgileri (Ücretsiz Kargo)
         $xml .= '      <g:shipping>' . "\n";
         $xml .= '        <g:country>TR</g:country>' . "\n";
-        $xml .= '        <g:price>1.00 TRY</g:price>' . "\n";
+        $xml .= '        <g:price>0.00 TRY</g:price>' . "\n";
         $xml .= '      </g:shipping>' . "\n";
 
         $xml .= '    </item>' . "\n";
@@ -204,6 +209,20 @@ class MerchantFeedController extends Controller
             'kiz_cocuk'   => 'female',
             'unisex'      => 'unisex',
             default       => 'unisex',
+        };
+    }
+
+    /**
+     * Hedef kitleyi Türkçe başlık için çevir
+     */
+    private function mapGenderToTR(?string $gender): string
+    {
+        return match ($gender) {
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            default       => '',
         };
     }
 }
