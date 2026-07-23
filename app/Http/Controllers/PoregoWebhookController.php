@@ -67,6 +67,22 @@ class PoregoWebhookController extends Controller
                     }
 
                     $order->save();
+
+                    // İptal edildiyse stokları geri yükle
+                    if ($newStatus === 'cancelled') {
+                        foreach ($order->items as $item) {
+                            if ($item->variant) {
+                                $variant = clone $item->variant;
+                                $variant->increment('stock', $item->quantity);
+                            }
+                            
+                            $product = clone $item->product;
+                            if ($product) {
+                                $product->increment('stock', $item->quantity);
+                            }
+                        }
+                        Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildiği için stoklar iade edildi.");
+                    }
                     
                     Log::info("Sipariş (#{$order->order_number}) durumu Porego webhook aracılığıyla '{$newStatus}' olarak güncellendi.");
                 }
