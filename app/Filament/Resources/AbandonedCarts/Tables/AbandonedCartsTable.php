@@ -61,11 +61,23 @@ class AbandonedCartsTable
                     ->modalSubmitActionLabel('Evet, Gönder')
                     ->action(function ($record) {
                         if ($record->user && $record->user->email) {
-                            \Illuminate\Support\Facades\Mail::to($record->user->email)->send(new \App\Mail\AbandonedCartReminderMail($record));
-                            \Filament\Notifications\Notification::make()
-                                ->title('Hatırlatma Başarıyla Gönderildi')
-                                ->success()
-                                ->send();
+                            try {
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili gönderimi başlatıldı: ' . $record->user->email);
+                                \Illuminate\Support\Facades\Mail::to($record->user->email)->send(new \App\Mail\AbandonedCartReminderMail($record));
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili başarıyla gönderildi: ' . $record->user->email);
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Hatırlatma Başarıyla Gönderildi')
+                                    ->success()
+                                    ->send();
+                            } catch (\Exception $e) {
+                                \Illuminate\Support\Facades\Log::error('Sepeti terk etme maili gönderilirken hata oluştu: ' . $e->getMessage());
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Mail Gönderilirken Hata Oluştu!')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         } else {
                             \Filament\Notifications\Notification::make()
                                 ->title('Müşterinin e-posta adresi bulunamadı!')
