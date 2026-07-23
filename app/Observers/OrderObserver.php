@@ -26,6 +26,9 @@ class OrderObserver
             app()->terminating(function () use ($order) {
                 $order->refresh();
                 $this->sendTelegramNotification($order);
+                
+                // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
+                app(\App\Services\PoregoApiService::class)->sendOrder($order);
             });
         }
     }
@@ -102,6 +105,9 @@ class OrderObserver
             app()->terminating(function () use ($order) {
                 $order->refresh();
                 $this->sendTelegramNotification($order);
+                
+                // Siparişi Porego'ya aktar
+                app(\App\Services\PoregoApiService::class)->sendOrder($order);
             });
         }
 
