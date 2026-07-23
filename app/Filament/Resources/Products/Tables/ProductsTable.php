@@ -140,7 +140,7 @@ class ProductsTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    \Filament\Tables\Actions\BulkAction::make('syncToGoogle')
+                    \Filament\Actions\BulkAction::make('syncToGoogle')
                         ->label("Google Merchant'a Gönder")
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
