@@ -21,6 +21,11 @@ class CartService
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
         }
 
+        if ($cart) {
+            // Clean up cart items if their product has been deleted
+            $cart->items()->whereDoesntHave('product')->delete();
+        }
+
         return $cart;
     }
 
@@ -70,7 +75,7 @@ class CartService
     {
         $cart = $this->getCart();
         return $cart->items->sum(function($item) {
-            return $item->quantity * $item->price;
+            return $item->product ? ($item->quantity * $item->price) : 0;
         });
     }
 
