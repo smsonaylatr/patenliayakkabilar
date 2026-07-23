@@ -64,8 +64,8 @@ class PaytrWebhookController extends Controller
         $order = Order::where('order_number', $post['merchant_oid'])->first();
 
         if (!$order) {
-            Log::error('PayTR Sipariş Bulunamadı!', ['order_number' => $post['merchant_oid']]);
-            return response('Siparis bulunamadi', 400);
+            Log::error('PayTR Sipariş Bulunamadı! (PayTR döngüsünü durdurmak için OK dönüldü)', ['order_number' => $post['merchant_oid']]);
+            return response('OK');
         }
 
         // Ödeme Başarılı
