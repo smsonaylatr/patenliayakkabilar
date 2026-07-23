@@ -95,6 +95,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/checkout', App\Livewire\Frontend\Checkout::class)->name('checkout');
 Route::get('/order/success/{order_number}', App\Livewire\Frontend\OrderSuccess::class)->name('order.success');
+Route::any('/order/fail/{order_number?}', function () {
+    return redirect()->route('checkout')->with('error', 'Ödeme işleminiz reddedildi veya iptal edildi. Lütfen tekrar deneyiniz.');
+})->name('order.fail');
 Route::get('/iletisim', App\Livewire\Frontend\Contact::class)->name('contact');
 
 // PayTR Ödeme Rotaları

@@ -7,6 +7,13 @@
             <p class="text-gray-500 mt-1">Siparişinizi tamamlamak için lütfen bilgilerinizi girin.</p>
         </div>
 
+        @if(session()->has('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center shadow-sm">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="font-medium text-sm">{{ session('error') }}</p>
+            </div>
+        @endif
+        
         <div class="flex flex-col-reverse lg:flex-row gap-10">
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
