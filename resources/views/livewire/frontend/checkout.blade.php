@@ -20,7 +20,9 @@
                     <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100">
                         <!-- PayTR Iframe -->
                         @if($payment_method === 'wire_transfer')
-                            <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                            <div wire:poll.3s="checkOrderStatus">
+                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                            </div>
                         @else
                             <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
                         @endif

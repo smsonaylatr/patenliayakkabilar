@@ -25,6 +25,7 @@ class Checkout extends Component
     public $districts = [];
 
     public $paytr_token = null;
+    public $created_order_number = null;
 
     protected $rules = [
         'customer_name' => 'required|string|max:255',
@@ -179,6 +180,7 @@ class Checkout extends Component
 
         // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet (Sepet boşaltma vs. için)
         session(['last_order_number' => $order->order_number]);
+        $this->created_order_number = $order->order_number;
 
         // IF KREDI KARTI VEYA HAVALE/EFT, PAYTR TOKEN AL
         if (in_array($this->payment_method, ['credit_card', 'wire_transfer'])) {
@@ -198,6 +200,16 @@ class Checkout extends Component
 
         // Redirect to success page (Havale veya Kapıda ödeme)
         return redirect()->route('order.success', ['order_number' => $order->order_number]);
+    }
+
+    public function checkOrderStatus()
+    {
+        if ($this->created_order_number) {
+            $order = \App\Models\Order::where('order_number', $this->created_order_number)->first();
+            if ($order && $order->payment_status === 'paid') {
+                return redirect()->route('order.success', ['order_number' => $this->created_order_number]);
+            }
+        }
     }
 
     private function getPaytrToken(Order $order, $cartItems, $payment_method = 'credit_card')
