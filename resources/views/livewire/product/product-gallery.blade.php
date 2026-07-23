@@ -64,7 +64,7 @@
     <div class="order-1 md:order-2 flex-1 w-full flex flex-col gap-6">
         
         <!-- Main Image -->
-        <div class="w-full relative overflow-hidden rounded-2xl bg-white aspect-square flex items-center justify-center select-none group"
+        <div class="w-full relative overflow-hidden rounded-2xl bg-white aspect-square lg:aspect-[4/3] flex items-center justify-center select-none group"
              :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
              x-ref="mainImageContainer"
              @click="isZoomed = !isZoomed; if(isZoomed) updatePan($event)"
@@ -120,7 +120,7 @@
         </div>
         
         <!-- Desktop/Tablet Reviews -->
-        <div class="hidden md:block w-full pointer-events-auto mt-0 lg:-mt-2 relative z-20">
+        <div class="hidden md:block w-full pointer-events-auto mt-0 lg:-mt-4 relative z-20">
             @livewire('product.review-list', ['product' => $product], key('desktop-reviews-'.$product->id))
         </div>
 
