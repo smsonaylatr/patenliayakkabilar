@@ -62,7 +62,7 @@ class AbandonedCartResource extends Resource
                                     ->content(fn ($record) => $record->product?->name ?? '-'),
                                 Placeholder::make('variant')
                                     ->label('Varyant')
-                                    ->content(fn ($record) => $record->variant ? ($record->variant->color . ' - ' . $record->variant->size) : '-'),
+                                    ->content(fn ($record) => $record->variant ? (implode(', ', (array) $record->variant->color) . ' - ' . $record->variant->size) : '-'),
                                 Placeholder::make('quantity')
                                     ->label('Adet')
                                     ->content(fn ($record) => $record->quantity),
