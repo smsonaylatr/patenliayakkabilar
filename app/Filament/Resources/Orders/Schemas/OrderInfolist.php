@@ -18,6 +18,13 @@ class OrderInfolist
                 TextEntry::make('status'),
                 TextEntry::make('payment_status'),
                 TextEntry::make('payment_method')
+                    ->label('Ödeme Yöntemi')
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'credit_card' => 'Kredi Kartı',
+                        'wire_transfer' => 'Havale/EFT',
+                        'cash_on_delivery' => 'Kapıda Ödeme',
+                        default => $state ?? '-',
+                    })
                     ->placeholder('-'),
                 TextEntry::make('ip_address')
                     ->label('IP Adresi')

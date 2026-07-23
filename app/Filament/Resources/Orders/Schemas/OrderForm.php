@@ -55,7 +55,7 @@ class OrderForm
                             ->label('Ödeme Yöntemi')
                             ->options([
                                 'credit_card' => 'Kredi Kartı',
-                                'bank_transfer' => 'Havale/EFT',
+                                'wire_transfer' => 'Havale/EFT',
                                 'cash_on_delivery' => 'Kapıda Ödeme',
                             ])
                             ->required()

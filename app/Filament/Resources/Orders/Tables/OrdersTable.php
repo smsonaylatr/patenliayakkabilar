@@ -129,7 +129,7 @@ class OrdersTable
                     ->label('Ödeme Yöntemi')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
                         'credit_card' => 'Kredi Kartı',
-                        'bank_transfer' => 'Havale/EFT',
+                        'wire_transfer' => 'Havale/EFT',
                         'cash_on_delivery' => 'Kapıda Ödeme',
                         default => $state ?? '-',
                     }),
@@ -169,7 +169,7 @@ class OrdersTable
                     ->label('Ödeme Yöntemi')
                     ->options([
                         'credit_card' => 'Kredi Kartı',
-                        'bank_transfer' => 'Havale/EFT',
+                        'wire_transfer' => 'Havale/EFT',
                         'cash_on_delivery' => 'Kapıda Ödeme',
                     ]),
             ])
