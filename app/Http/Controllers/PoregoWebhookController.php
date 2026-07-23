@@ -39,22 +39,23 @@ class PoregoWebhookController extends Controller
         // Process the webhook data here
         Log::info('Porego Webhook Received:', $data);
 
-        // TODO: Porego'dan gelen gerçek veri yapısına göre alan isimleri güncellenmelidir.
-        // Aşağıdaki kod genel (standart) bir API veri modeline göre yazılmıştır.
-        $orderNumber = $data['data']['order_number'] ?? $data['order_number'] ?? null;
-        $status = $data['data']['status'] ?? $data['status'] ?? null;
-        $trackingCode = $data['data']['tracking_code'] ?? $data['tracking_code'] ?? null;
+        $event = $data['event'] ?? null;
+        $orderData = $data['data'] ?? [];
+        
+        $platformOrderId = $orderData['platformOrderId'] ?? null;
+        $status = $orderData['currentStatus'] ?? null;
+        $trackingCode = $orderData['trackingNumber'] ?? null;
 
-        if ($orderNumber && $status) {
-            $order = \App\Models\Order::where('order_number', $orderNumber)->first();
+        if ($platformOrderId && $status && in_array($event, ['ORDER_STATUS_CHANGED', 'SHIPMENT_STATUS_CHANGED'])) {
+            $order = \App\Models\Order::find($platformOrderId);
             
             if ($order) {
                 // Porego statüleri ile sitemizdeki statüleri eşleştiriyoruz
-                // Örnek Porego statüleri: "Shipped", "Delivered", "Cancelled" vs.
-                $newStatus = match (strtolower($status)) {
-                    'shipped', 'kargoya_verildi' => 'shipped',
-                    'delivered', 'teslim_edildi' => 'delivered',
-                    'cancelled', 'iptal_edildi' => 'cancelled',
+                // Porego Statuses: NEW, READY, SHIPPED, IN_TRANSIT, COMPLETED, CANCELLED
+                $newStatus = match (strtoupper($status)) {
+                    'SHIPPED', 'IN_TRANSIT' => 'shipped',
+                    'COMPLETED' => 'delivered',
+                    'CANCELLED' => 'cancelled',
                     default => null
                 };
 
@@ -70,7 +71,7 @@ class PoregoWebhookController extends Controller
                     Log::info("Sipariş (#{$order->order_number}) durumu Porego webhook aracılığıyla '{$newStatus}' olarak güncellendi.");
                 }
             } else {
-                Log::warning("Porego Webhook: '{$orderNumber}' numaralı sipariş bulunamadı.");
+                Log::warning("Porego Webhook: '{$platformOrderId}' ID'li sipariş bulunamadı.");
             }
         }
 

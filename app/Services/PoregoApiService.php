@@ -17,7 +17,7 @@ class PoregoApiService
         $this->apiKey = env('POREGO_API_KEY');
         $this->apiSecret = env('POREGO_API_SECRET');
         // Varsa Porego API URL'sini .env'den alalım, yoksa varsayılan veya placeholder bir adres
-        $this->apiUrl = env('POREGO_API_URL', 'https://api.porego.com/v1'); 
+        $this->apiUrl = env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1'); 
     }
 
     /**
@@ -31,37 +31,39 @@ class PoregoApiService
         }
 
         try {
-            // TODO: Porego'nun gerçek dokümantasyonuna göre aşağıdaki JSON yapısı ve Endpoint URL (/orders veya /shipments) güncellenecektir.
+            // Müşteri adını ve soyadını ayırmak için basit bir işlem (Varsayılan olarak son kelime soyadı kabul edilir)
+            $nameParts = explode(' ', trim($order->customer_name));
+            $surname = count($nameParts) > 1 ? array_pop($nameParts) : 'Bilinmiyor';
+            $name = count($nameParts) > 0 ? implode(' ', $nameParts) : $order->customer_name;
+
             $payload = [
-                'order_number' => $order->order_number,
-                'customer' => [
-                    'name' => $order->customer_name,
-                    'email' => $order->customer_email,
-                    'phone' => $order->customer_phone,
-                ],
-                'shipping_address' => [
-                    'address' => $order->shipping_address,
-                    'city' => $order->shipping_city,
-                    'district' => $order->shipping_district,
-                ],
+                'customerName' => $name,
+                'customerSurname' => $surname,
+                'customerPhone' => $order->customer_phone,
+                'customerEmail' => $order->customer_email,
+                'address' => $order->shipping_address,
+                'city' => $order->shipping_city,
+                'district' => $order->shipping_district,
+                'paymentType' => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
+                'platformOrderId' => (string)$order->id,
+                'platformOrderNumber' => $order->order_number,
                 'items' => $order->items->map(function ($item) {
                     return [
+                        'sku' => 'SKU-' . $item->product_id, // Varsayılan SKU
                         'name' => $item->product_name,
                         'quantity' => $item->quantity,
                         'price' => $item->price,
                     ];
                 })->toArray(),
-                'total_amount' => $order->grand_total,
-                'payment_method' => $order->payment_method,
-                // Eğer sipariş kapıda ödemeli ise tahsilat tutarı gönderilir
-                'is_cash_on_delivery' => $order->payment_method === 'cash_on_delivery',
-                'cod_amount' => $order->payment_method === 'cash_on_delivery' ? $order->grand_total : 0,
             ];
 
-            // Gerçek API uç noktasını (Endpoint) dokümantasyon gelince düzelteceğiz.
+            if ($order->payment_method === 'cash_on_delivery') {
+                $payload['codAmount'] = $order->grand_total;
+            }
+
             $response = Http::withHeaders([
-                'X-Porego-Api-Key' => $this->apiKey,
-                'X-Porego-Api-Secret' => $this->apiSecret,
+                'X-Api-Key' => $this->apiKey,
+                'X-Api-Secret' => $this->apiSecret,
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
             ])->post("{$this->apiUrl}/orders", $payload);
