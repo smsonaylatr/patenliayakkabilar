@@ -22,10 +22,10 @@
                             <!-- PayTR Iframe -->
                             @if($payment_method === 'wire_transfer')
                                 <div wire:poll.3s="checkOrderStatus">
-                                    <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, '#paytriframe'); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 700px;"></iframe>
+                                    <iframe x-data="{ id: 'paytr_' + Math.random().toString(36).substr(2, 9) }" x-bind:id="id" x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, document.getElementById(id)); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" frameborder="0" scrolling="auto" style="width: 100%; min-height: 800px;"></iframe>
                                 </div>
                             @else
-                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, '#paytriframe'); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 700px;"></iframe>
+                                <iframe x-data="{ id: 'paytr_' + Math.random().toString(36).substr(2, 9) }" x-bind:id="id" x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, document.getElementById(id)); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" frameborder="0" scrolling="auto" style="width: 100%; min-height: 700px;"></iframe>
                             @endif
                         </div>
                     </div>
