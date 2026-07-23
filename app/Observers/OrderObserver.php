@@ -83,27 +83,35 @@ class OrderObserver
                 }
 
                 if (!empty($imageUrl)) {
-                    $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                    $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                         'chat_id' => $chatId,
-                        'photo' => $imageUrl,
-                        'caption' => $message,
-                        'parse_mode' => 'Markdown'
+                        'text' => $message,
+                        'parse_mode' => 'Markdown',
+                        'link_preview_options' => [
+                            'url' => $imageUrl,
+                            'prefer_small_media' => true
+                        ]
                     ]);
 
-                    // Eğer fotoğraf gönderimi başarısız olursa (örneğin lokal ortamdan dolayı Telegram URL'ye erişemezse),
-                    // sadece metin olarak mesajı göndermeyi dene (fallback).
+                    // Fallback in case link_preview_options fails or URL is invalid for preview
                     if ($response->failed()) {
                         \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                             'chat_id' => $chatId,
                             'text' => $message,
-                            'parse_mode' => 'Markdown'
+                            'parse_mode' => 'Markdown',
+                            'link_preview_options' => [
+                                'is_disabled' => true
+                            ]
                         ]);
                     }
                 } else {
                     \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                         'chat_id' => $chatId,
                         'text' => $message,
-                        'parse_mode' => 'Markdown'
+                        'parse_mode' => 'Markdown',
+                        'link_preview_options' => [
+                            'is_disabled' => true
+                        ]
                     ]);
                 }
             }
