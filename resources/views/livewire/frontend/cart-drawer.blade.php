@@ -61,7 +61,7 @@
                                     <ul role="list" class="-my-6 divide-y divide-gray-100">
                                         @forelse($items as $item)
                                             <li class="flex py-6 group">
-                                                <div class="h-28 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-50 shadow-sm transition-transform duration-300 group-hover:scale-105">
+                                                <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-50 shadow-sm transition-transform duration-300 group-hover:scale-105">
                                                     <img src="{{ $item->product->images->first() ? $item->product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover object-center">
                                                 </div>
 
