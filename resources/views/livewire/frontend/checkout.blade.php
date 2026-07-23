@@ -18,27 +18,21 @@
             <!-- Sol Taraf: Form -->
             <div class="flex-1">
                 @if($paytr_token)
-                    <div x-data x-init="$nextTick(() => { window.scrollTo({top: 0, behavior: 'smooth'}); })">
-                        <div class="mb-4">
-                            <button type="button" wire:click="editInformation" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
-                                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                                Bilgileri Düzenle
-                            </button>
-                        </div>
-                        <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100">
-                            <!-- PayTR Iframe -->
-                            @if($payment_method === 'wire_transfer')
-                                <div wire:poll.3s="checkOrderStatus" wire:key="paytr-poll-{{ $paytr_token }}">
-                                    <div wire:key="paytr-wrapper-{{ $paytr_token }}" x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $refs.iframe); } })">
-                                        <iframe x-ref="iframe" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
-                                    </div>
-                                </div>
-                            @else
-                                <div wire:key="paytr-wrapper-{{ $paytr_token }}" x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $refs.iframe); } })">
-                                    <iframe x-ref="iframe" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
-                                </div>
-                            @endif
-                        </div>
+                    <div class="mb-4">
+                        <button type="button" wire:click="editInformation" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-black transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            Bilgileri Düzenle
+                        </button>
+                    </div>
+                    <div class="bg-white p-0 sm:p-6 rounded-2xl shadow-sm sm:border sm:border-gray-100">
+                        <!-- PayTR Iframe -->
+                        @if($payment_method === 'wire_transfer')
+                            <div wire:poll.3s="checkOrderStatus">
+                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/api/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                            </div>
+                        @else
+                            <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({}, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px;"></iframe>
+                        @endif
                     </div>
                 @else
                 <form wire:submit.prevent="placeOrder" class="space-y-8">
