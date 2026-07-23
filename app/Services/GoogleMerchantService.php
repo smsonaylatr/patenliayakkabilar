@@ -110,7 +110,7 @@ class GoogleMerchantService
 
             $sizes = $product->variants->pluck('size')->filter()->unique()->sort()->values();
             if ($sizes->isNotEmpty()) {
-                $googleProduct->setSize($sizes->implode(', '));
+                $googleProduct->setSizes($sizes->toArray());
             }
             
             // Türkiye hedefleniyor
