@@ -23,7 +23,7 @@ class SecurityHeaders
             $response->header('X-Content-Type-Options', 'nosniff');
             $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
             $response->header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-            $response->header('Content-Security-Policy', "upgrade-insecure-requests; frame-ancestors 'self'; require-trusted-types-for 'script';");
+            $response->header('Content-Security-Policy', "upgrade-insecure-requests; frame-ancestors 'self';");
         }
 
         return $response;
