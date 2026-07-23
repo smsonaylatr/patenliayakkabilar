@@ -224,14 +224,24 @@ class SchemaService
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock';
 
+        $hasVariants = $product->variants->isNotEmpty();
+
         $data = [
             '@context'    => 'https://schema.org',
-            '@type'       => 'Product',
+            '@type'       => $hasVariants ? 'ProductGroup' : 'Product',
             'name'        => $product->name,
             'description' => strip_tags($product->short_description ?: $product->description),
-            'sku'         => $product->sku,
+            'sku'         => $product->sku ?? (string)$product->id,
             'url'         => $appUrl . '/urun/' . $product->slug,
         ];
+
+        if ($hasVariants) {
+            $data['productGroupID'] = $product->sku ?? (string)$product->id;
+            $variesBy = [];
+            if (!empty($sizes)) $variesBy[] = 'https://schema.org/size';
+            if (!empty($colors)) $variesBy[] = 'https://schema.org/color';
+            if (!empty($variesBy)) $data['variesBy'] = $variesBy;
+        }
 
         // Görseller
         if (!empty($images)) {
@@ -249,18 +259,8 @@ class SchemaService
             $data['category'] = $product->category->name;
         }
 
-        // Renkler
-        if (!empty($colors)) {
-            $data['color'] = implode(', ', $colors);
-        }
-
-        // Numaralar
-        if (!empty($sizes)) {
-            $data['size'] = implode(', ', $sizes);
-        }
-
-        // Teklif (Offer)
-        $offer = [
+        // Teklif (Offer) şablonu
+        $offerTemplate = [
             '@type'         => 'Offer',
             'price'         => number_format((float) $price, 2, '.', ''),
             'priceCurrency' => 'TRY',
@@ -272,48 +272,75 @@ class SchemaService
                 '@type' => 'Organization',
                 'name'  => 'Patenli Ayakkabılar',
             ],
-        ];
-
-        // Kargo bilgileri
-        $offer['shippingDetails'] = [
-            '@type'               => 'OfferShippingDetails',
-            'shippingDestination' => [
-                '@type'          => 'DefinedRegion',
-                'addressCountry' => 'TR',
-            ],
-            'shippingRate' => [
-                '@type'    => 'MonetaryAmount',
-                'value'    => '1.00',
-                'currency' => 'TRY',
-            ],
-            'deliveryTime' => [
-                '@type' => 'ShippingDeliveryTime',
-                'handlingTime' => [
-                    '@type' => 'QuantitativeValue',
-                    'minValue' => 0,
-                    'maxValue' => 1,
-                    'unitCode' => 'd'
+            'shippingDetails' => [
+                '@type'               => 'OfferShippingDetails',
+                'shippingDestination' => [
+                    '@type'          => 'DefinedRegion',
+                    'addressCountry' => 'TR',
                 ],
-                'transitTime' => [
-                    '@type' => 'QuantitativeValue',
-                    'minValue' => 1,
-                    'maxValue' => 3,
-                    'unitCode' => 'd'
-                ]
+                'shippingRate' => [
+                    '@type'    => 'MonetaryAmount',
+                    'value'    => '1.00',
+                    'currency' => 'TRY',
+                ],
+                'deliveryTime' => [
+                    '@type' => 'ShippingDeliveryTime',
+                    'handlingTime' => [
+                        '@type' => 'QuantitativeValue',
+                        'minValue' => 0,
+                        'maxValue' => 1,
+                        'unitCode' => 'd'
+                    ],
+                    'transitTime' => [
+                        '@type' => 'QuantitativeValue',
+                        'minValue' => 1,
+                        'maxValue' => 3,
+                        'unitCode' => 'd'
+                    ]
+                ],
+            ],
+            'hasMerchantReturnPolicy' => [
+                '@type'                    => 'MerchantReturnPolicy',
+                'applicableCountry'        => 'TR',
+                'returnPolicyCategory'     => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                'merchantReturnDays'       => 14,
+                'returnMethod'             => 'https://schema.org/ReturnByMail',
+                'returnFees'               => 'https://schema.org/FreeReturn',
             ],
         ];
 
-        // İade politikası (14 gün)
-        $offer['hasMerchantReturnPolicy'] = [
-            '@type'                    => 'MerchantReturnPolicy',
-            'applicableCountry'        => 'TR',
-            'returnPolicyCategory'     => 'https://schema.org/MerchantReturnFiniteReturnWindow',
-            'merchantReturnDays'       => 14,
-            'returnMethod'             => 'https://schema.org/ReturnByMail',
-            'returnFees'               => 'https://schema.org/FreeReturn',
-        ];
+        if ($hasVariants) {
+            $variantsArray = [];
+            foreach ($product->variants as $variant) {
+                $variantOffer = $offerTemplate;
+                // Eğer varyanta özel fiyat, stok vs eklenecekse buraya yazılabilir.
+                $vAvailability = (isset($variant->stock) && $variant->stock > 0) || $product->stock > 0
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock';
+                $variantOffer['availability'] = $vAvailability;
+                
+                $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
+                $vSize = (string)$variant->size;
 
-        $data['offers'] = $offer;
+                $variantData = [
+                    '@type' => 'Product',
+                    'name' => $product->name . ($vColor ? ' - ' . $vColor : '') . ($vSize ? ' (' . $vSize . ')' : ''),
+                    'sku' => $variant->sku ?? ($product->sku . '-' . $variant->id),
+                    'offers' => $variantOffer,
+                ];
+
+                if (!empty($images)) $variantData['image'] = $images;
+                if ($vColor) $variantData['color'] = $vColor;
+                if ($vSize) $variantData['size'] = $vSize;
+
+                $variantsArray[] = $variantData;
+            }
+            $data['hasVariant'] = $variantsArray;
+        } else {
+            $data['offers'] = $offerTemplate;
+            if (!empty($colors)) $data['color'] = implode(', ', $colors);
+            if (!empty($sizes)) $data['size'] = implode(', ', $sizes);
+        }
 
         // Onaylanmış yorumlar (status=true)
         $approvedReviews = $product->reviews->where('status', true);
@@ -333,7 +360,7 @@ class SchemaService
             $reviewData = [];
 
             foreach ($recentReviews as $review) {
-                $reviewItem = [
+                $reviewData[] = [
                     '@type'        => 'Review',
                     'reviewRating' => [
                         '@type'      => 'Rating',
@@ -342,27 +369,12 @@ class SchemaService
                         'worstRating' => 1,
                     ],
                     'datePublished' => $review->created_at->toW3cString(),
-                ];
-
-                // Yorum yazarı
-                if ($review->user) {
-                    $reviewItem['author'] = [
+                    'author' => [
                         '@type' => 'Person',
                         'name'  => $review->user->name ?? 'Anonim',
-                    ];
-                } else {
-                    $reviewItem['author'] = [
-                        '@type' => 'Person',
-                        'name'  => 'Anonim',
-                    ];
-                }
-
-                // Yorum metni
-                if ($review->comment) {
-                    $reviewItem['reviewBody'] = $review->comment;
-                }
-
-                $reviewData[] = $reviewItem;
+                    ],
+                    'reviewBody' => $review->comment ?: '',
+                ];
             }
 
             $data['review'] = $reviewData;
