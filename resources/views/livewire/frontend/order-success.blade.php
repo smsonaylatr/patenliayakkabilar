@@ -39,3 +39,21 @@
         </div>
     </div>
 </div>
+
+<!-- Google Customer Reviews Opt-in -->
+<script>
+  window.triggerGoogleOptIn = function() {
+    window.gapi.load('surveyoptin', function() {
+      window.gapi.surveyoptin.render(
+        {
+          "merchant_id": 5828544730,
+          "order_id": "{{ $order->order_number }}",
+          "email": "{{ $order->customer_email }}",
+          "delivery_country": "TR",
+          "estimated_delivery_date": "{{ \Carbon\Carbon::now()->addDays(3)->format('Y-m-d') }}",
+          "opt_in_style": "CENTER_DIALOG"
+        }
+      );
+    });
+  }
+</script>

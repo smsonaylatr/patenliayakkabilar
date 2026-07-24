@@ -431,6 +431,22 @@
         </a>
         @endif
 
+        <!-- Google Customer Reviews -->
+        <script src="https://apis.google.com/js/platform.js?onload=renderGoogleGCR" async defer></script>
+        <script>
+          window.renderGoogleGCR = function() {
+            var ratingBadgeContainer = document.createElement("div");
+            document.body.appendChild(ratingBadgeContainer);
+            window.gapi.load('ratingbadge', function() {
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+            });
+
+            if (typeof window.triggerGoogleOptIn === 'function') {
+                window.triggerGoogleOptIn();
+            }
+          }
+        </script>
+
         @livewireScripts
     </body>
 </html>
