@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patenli Ayakkabılar - Ürün İnceleme</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { background-color: #f8fafc; }
@@ -74,7 +75,7 @@
                                 <form x-show="!success" @submit.prevent="submitForm">
                                     <div class="mb-4">
                                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefon Numaranız *</label>
-                                        <input type="tel" x-model="phone" id="phone" required placeholder="05XX XXX XX XX" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
+                                        <input type="tel" x-model="phone" id="phone" x-mask="+90 (999) 999 99 99" required minlength="19" placeholder="+90 (5XX) XXX XX XX" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
                                     </div>
                                     <div class="mb-6">
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Kim için almak istiyorsunuz?</label>
