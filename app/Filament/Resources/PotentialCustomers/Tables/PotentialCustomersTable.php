@@ -27,7 +27,7 @@ class PotentialCustomersTable
                     ->width(50)
                     ->height(50),
                 \Filament\Tables\Columns\TextColumn::make('buying_for')
-                    ->label('Kime Alıyor')
+                    ->label('Alım Amacı')
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
