@@ -111,7 +111,6 @@
 
                     {{-- Fiyat --}}
                     <div class="mt-4">
-                        <h2 class="sr-only">Product information</h2>
                         <div class="flex items-center gap-3">
                             @php
                                 $displayPrice = $product->price;
