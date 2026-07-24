@@ -12,6 +12,9 @@
     <x-slot:schema>
         @if(app()->bound(\App\Services\SchemaService::class))
             {!! app(\App\Services\SchemaService::class)->blogArticle($post) !!}
+            @if(!empty($post->faq_schema))
+                {!! app(\App\Services\SchemaService::class)->faqPage($post->faq_schema) !!}
+            @endif
         @endif
     </x-slot:schema>
 

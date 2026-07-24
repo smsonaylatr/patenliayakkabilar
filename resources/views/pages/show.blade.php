@@ -4,6 +4,11 @@
     @if(isset($page->is_indexable) && !$page->is_indexable)
         <x-slot:robots>noindex, follow</x-slot:robots>
     @endif
+    <x-slot:schema>
+        @if(app()->bound(\App\Services\SchemaService::class) && !empty($page->faq_schema))
+            {!! app(\App\Services\SchemaService::class)->faqPage($page->faq_schema) !!}
+        @endif
+    </x-slot:schema>
 
     <style>
         .page-content { font-size: 17px; line-height: 1.8; color: #374151; text-align: justify; }

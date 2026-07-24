@@ -12,6 +12,9 @@
     <x-slot:schema>
         @if(app()->bound(\App\Services\SchemaService::class))
             {!! app(\App\Services\SchemaService::class)->product($product) !!}
+            @if(!empty($product->faq_schema))
+                {!! app(\App\Services\SchemaService::class)->faqPage($product->faq_schema) !!}
+            @endif
         @else
             <script type="application/ld+json">
             {!! json_encode([
