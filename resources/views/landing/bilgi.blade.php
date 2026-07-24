@@ -25,7 +25,7 @@
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card flex flex-col">
                 <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
                     @if($product->images->count() > 0)
-                        <img src="{{ str_starts_with($product->images->first()->image_path, 'http') ? $product->images->first()->image_path : asset($product->images->first()->image_path) }}" alt="{{ $product->name }}" class="w-full h-72 object-cover object-center">
+                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-72 object-cover object-center">
                     @else
                         <div class="w-full h-72 flex items-center justify-center bg-gray-100 text-gray-400">Görsel Yok</div>
                     @endif
