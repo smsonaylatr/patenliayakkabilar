@@ -4,6 +4,7 @@
     <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
     <x-slot:ogType>product</x-slot:ogType>
     <x-slot:ogImage>{{ $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
+    <x-slot:ogImageSquare>{{ $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
     <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
     @if(isset($product->is_indexable) && !$product->is_indexable)
         <x-slot:robots>noindex, follow</x-slot:robots>
