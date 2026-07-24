@@ -22,25 +22,22 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             @foreach($products as $product)
-            <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card flex flex-col">
-                <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+            <div @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card cursor-pointer relative group">
+                <div class="w-full overflow-hidden bg-gray-200 relative">
                     @if($product->images->count() > 0)
-                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-40 md:h-72 object-cover object-center">
+                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-40 md:h-72 object-cover object-center transition-transform duration-500 group-hover:scale-105">
                     @else
-                        <div class="w-full h-40 md:h-72 flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base">Görsel Yok</div>
+                        <div class="w-full h-40 md:h-72 flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base transition-transform duration-500 group-hover:scale-105">Görsel Yok</div>
                     @endif
-                </div>
-                <div class="p-3 md:p-6 flex flex-col flex-grow">
-
-                    <!-- Kategori veya kısa bilgi -->
-
                     
-                    <button @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="mt-auto w-full bg-black text-white font-semibold py-2 px-2 md:py-3 md:px-4 rounded-lg md:rounded-xl hover:bg-gray-800 transition-colors duration-200 flex justify-center items-center gap-1 md:gap-2 text-xs md:text-base">
-                        <span>Seç</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+                        <div class="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-white/90 backdrop-blur-sm text-black font-semibold py-2 px-5 rounded-full shadow-lg flex items-center gap-2 border border-white/50">
+                            <span class="text-sm md:text-base">İncele</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
             @endforeach
