@@ -1,0 +1,172 @@
+openapi: 3.0.0
+info:
+  title: Patenli Ayakkabılar API
+  version: 1.0.0
+  description: Patenli Ayakkabılar ürün kataloğuna erişim sağlayan genel API servisidir.
+servers:
+  - url: /api
+    description: Ana Sunucu
+paths:
+  /products:
+    get:
+      summary: Ürünleri Listele
+      description: Sistemdeki tüm aktif ürünleri ilişkili kategori, varyant ve resim bilgileriyle birlikte sayfalanmış olarak getirir.
+      parameters:
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+          required: false
+          description: Belirli bir kategoriye ait ürünleri filtrelemek için kullanılır.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+          required: false
+          description: Sayfa başına döndürülecek kayıt sayısı.
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          required: false
+          description: Sayfa numarası.
+      responses:
+        '200':
+          description: Başarılı liste
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 5
+                      per_page:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 100
+  /products/{identifier}:
+    get:
+      summary: Ürün Detayı Getir
+      description: ID veya URL Slug değerine göre tek bir ürünün tüm detaylarını getirir.
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          schema:
+            type: string
+          description: Ürünün ID numarası veya benzersiz URL slug değeri.
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Ürün Bulunamadı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Ürün bulunamadı.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Işıklı Tekerlekli Paten Ayakkabı
+        slug:
+          type: string
+          example: isikli-tekerlekli-paten-ayakkabi
+        price:
+          type: number
+          format: float
+          example: 1299.90
+        discount_price:
+          type: number
+          format: float
+          example: 999.90
+        is_active:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+              example: Çocuk Patenleri
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              sku:
+                type: string
+                example: ISK-PTN-01
+              color:
+                type: array
+                items:
+                  type: string
+                example: ["Pembe", "Beyaz"]
+              size:
+                type: string
+                example: "32"
+              price:
+                type: number
+                format: float
+              stock:
+                type: integer
+                example: 50
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              image_path:
+                type: string
+                example: uploads/products/image1.jpg
