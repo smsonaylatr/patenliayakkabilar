@@ -21,6 +21,9 @@ class PotentialCustomerForm
                 \Filament\Forms\Components\TextInput::make('email')
                     ->label('E-posta')
                     ->email(),
+                \Filament\Forms\Components\TextInput::make('buying_for')
+                    ->label('Alım Amacı')
+                    ->maxLength(255),
                 \Filament\Forms\Components\Select::make('status')
                     ->label('Durum')
                     ->options([
