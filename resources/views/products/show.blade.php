@@ -110,6 +110,7 @@
                     </div>
 
                     {{-- Fiyat --}}
+                    <div class="w-full h-0 overflow-hidden opacity-0 select-none" aria-hidden="true"><br></div>
                     <div class="mt-4">
                         <div class="flex items-center gap-3">
                             @php
