@@ -49,13 +49,13 @@ class PotentialCustomersTable
                     ]),
             ])
             ->recordActions([
-                \Filament\Tables\Actions\Action::make('whatsapp')
+                \Filament\Actions\Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
                     ->color('success')
                     ->url(fn (\App\Models\PotentialCustomer $record) => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $record->phone) . '?text=' . urlencode("Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek için: " . route('product.show', $record->product->slug)))
                     ->openUrlInNewTab(),
-                \Filament\Tables\Actions\Action::make('sendSms')
+                \Filament\Actions\Action::make('sendSms')
                     ->label('SMS')
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('info')
@@ -71,7 +71,7 @@ class PotentialCustomersTable
                             ->success()
                             ->send();
                     }),
-                \Filament\Tables\Actions\Action::make('call')
+                \Filament\Actions\Action::make('call')
                     ->label('Ara (NetSantral)')
                     ->icon('heroicon-o-phone')
                     ->color('danger')
