@@ -18,11 +18,35 @@
                 'answer' => 'Evet! Tüm modellerimizin tabanındaki gizli mekanizma sayesinde, tekerleği içeri gizleyerek ürünü günlük normal bir spor ayakkabı gibi kullanabilirsiniz. Arka kısımdaki butona basmanız yeterlidir.'
             ]
         ]);
+        
+        $articleSchema = json_encode([
+            '@context'      => 'https://schema.org',
+            '@type'         => 'Article',
+            'headline'      => 'Patenli Ayakkabılar - Eğlence ve Güvenlik Bir Arada',
+            'description'   => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'url'           => url('/'),
+            'author'        => [
+                '@type' => 'Person',
+                'name'  => 'Patenli Ayakkabılar Uzman Ekibi',
+                'url'   => url('/hakkimizda'),
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name'  => 'Patenli Ayakkabılar',
+                'logo'  => [
+                    '@type' => 'ImageObject',
+                    'url'   => url('/images/logo.png'),
+                ],
+            ],
+            'datePublished' => '2024-01-01T08:00:00+03:00',
+            'dateModified'  => now()->toW3cString(),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     @endphp
     
     <x-slot:schema>
         {!! $breadcrumbs !!}
         {!! $faqs !!}
+        <script type="application/ld+json">{!! $articleSchema !!}</script>
     </x-slot:schema>
 
     @include('livewire.home.hero-section')
