@@ -15,7 +15,7 @@ class BilgiController extends Controller
     public function index(Request $request)
     {
         // Tüm aktif ürünleri al
-        $products = Product::with(['images'])->where('is_active', true)->latest()->get();
+        $products = Product::with(['images'])->where('status', true)->latest()->get();
         
         return view('landing.bilgi', compact('products'));
     }
