@@ -59,7 +59,7 @@
                                 @if($product->images->isNotEmpty())
                                     <img src="{{ $product->images->first()->image_url }}" 
                                          alt="{{ $product->name }}"
-                                         loading="lazy"
+                                         loading="{{ $loop->index < 3 ? 'eager' : 'lazy' }}"
                                          class="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-700 ease-out" />
                                     
                                     @if($product->best_seller)

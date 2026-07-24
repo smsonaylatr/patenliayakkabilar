@@ -44,9 +44,9 @@ class ProductGrid extends Component
         if ($this->category) {
             $categoryModel = \App\Models\Category::where('slug', $this->category)->first();
             if ($categoryModel) {
-                $query->whereHas('categories', function ($q) use ($categoryModel) {
-                    $q->where('categories.id', $categoryModel->id);
-                });
+                $query->join('category_product', 'products.id', '=', 'category_product.product_id')
+                      ->where('category_product.category_id', $categoryModel->id)
+                      ->select('products.*');
             }
         }
 
