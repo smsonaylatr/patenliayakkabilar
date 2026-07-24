@@ -235,6 +235,10 @@ class SchemaService
             'url'         => $appUrl . '/urun/' . $product->slug,
         ];
 
+        if ($product->aio_summary) {
+            $data['abstract'] = $product->aio_summary;
+        }
+
         if ($hasVariants) {
             $data['productGroupID'] = $product->sku ?? (string)$product->id;
             $variesBy = [];
@@ -448,8 +452,9 @@ class SchemaService
             'datePublished' => $post->created_at->toW3cString(),
             'dateModified'  => $post->updated_at->toW3cString(),
             'author'        => [
-                '@type' => 'Organization',
-                'name'  => 'Patenli Ayakkabılar',
+                '@type' => 'Person',
+                'name'  => $post->author->name ?? 'Patenli Ayakkabılar Uzman Ekibi',
+                'url'   => $appUrl . '/hakkimizda',
             ],
             'publisher' => [
                 '@type' => 'Organization',
@@ -472,6 +477,80 @@ class SchemaService
         } elseif ($post->excerpt) {
             $data['description'] = $post->excerpt;
         }
+
+        if ($post->aio_summary) {
+            $data['abstract'] = $post->aio_summary;
+        }
+
+        return $this->toScript($data);
+    }
+
+    /**
+     * FAQPage (Sık Sorulan Sorular) şeması
+     * 
+     * AI motorları ve arama sonuçlarında çıkması için
+     */
+    public function faqPage(?array $faqSchema): ?string
+    {
+        if (empty($faqSchema)) {
+            return null;
+        }
+
+        $mainEntities = [];
+        foreach ($faqSchema as $faq) {
+            if (!empty($faq['question']) && !empty($faq['answer'])) {
+                $mainEntities[] = [
+                    '@type' => 'Question',
+                    'name' => $faq['question'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => strip_tags($faq['answer']),
+                    ],
+                ];
+            }
+        }
+
+        if (empty($mainEntities)) {
+            return null;
+        }
+
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => $mainEntities,
+        ];
+
+        return $this->toScript($data);
+    }
+
+    /**
+     * FAQ (Sıkça Sorulan Sorular) şeması
+     *
+     * AI görünürlüğünü (CEO) artırmak ve Google arama sonuçlarında
+     * zengin FAQ snippet'i çıkarmak için kullanılır.
+     *
+     * @param array $qaList [['question' => 'Soru?', 'answer' => 'Cevap']]
+     */
+    public function faq(array $qaList): string
+    {
+        $mainEntity = [];
+
+        foreach ($qaList as $qa) {
+            $mainEntity[] = [
+                '@type'          => 'Question',
+                'name'           => $qa['question'],
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text'  => $qa['answer'],
+                ],
+            ];
+        }
+
+        $data = [
+            '@context'   => 'https://schema.org',
+            '@type'      => 'FAQPage',
+            'mainEntity' => $mainEntity,
+        ];
 
         return $this->toScript($data);
     }

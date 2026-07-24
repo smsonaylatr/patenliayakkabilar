@@ -110,6 +110,37 @@ class PageResource extends Resource
                                     ->label('Arama motorlarında indekslensin')
                                     ->default(true),
                             ])->columns(2),
+                        \Filament\Schemas\Components\Tabs\Tab::make('Yapay Zeka (AIO)')
+                            ->icon('heroicon-o-cpu-chip')
+                            ->schema([
+                                Forms\Components\Textarea::make('aio_summary')
+                                    ->label('AI Özeti (TL;DR)')
+                                    ->rows(3)
+                                    ->helperText('Yapay zeka botlarının bu sayfayı doğrudan özetleyebilmesi için hap bilgi.')
+                                    ->columnSpanFull(),
+                                Forms\Components\TagsInput::make('aio_target_keywords')
+                                    ->label('Hedef AI Soruları / Promptları')
+                                    ->placeholder('Örn: patenli ayakkabılar iade politikası')
+                                    ->helperText('Yapay zekanın bu sayfayı hangi sorgularda referans göstermesini istiyorsanız yazın.')
+                                    ->columnSpanFull(),
+                                Forms\Components\Repeater::make('faq_schema')
+                                    ->label('Sık Sorulan Sorular (FAQ Schema)')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('question')
+                                            ->label('Soru')
+                                            ->required(),
+                                        Forms\Components\Textarea::make('answer')
+                                            ->label('Cevap')
+                                            ->required()
+                                            ->rows(3),
+                                    ])
+                                    ->columns(1)
+                                    ->collapsible()
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Soru Ekle')
+                                    ->helperText('Google arama sonuçlarında ve AI motorlarında çıkması için sayfaya özel soru-cevap ekleyin.')
+                                    ->columnSpanFull(),
+                            ]),
                     ])->columnSpanFull(),
             ]);
     }

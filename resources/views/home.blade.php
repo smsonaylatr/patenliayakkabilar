@@ -1,7 +1,29 @@
 <x-layouts.app>
-    <x-slot:title>Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları</x-slot:title>
+    <x-slot:title>Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri</x-slot:title>
     <x-slot:description>Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.</x-slot:description>
     <x-slot:canonical>{{ url('/') }}</x-slot:canonical>
+
+    @php
+        $schemaService = app(\App\Services\SchemaService::class);
+        $breadcrumbs = $schemaService->breadcrumb([
+            ['name' => 'Ana Sayfa', 'url' => '/']
+        ]);
+        $faqs = $schemaService->faq([
+            [
+                'question' => 'Siparişim ne zaman kargoya verilir?',
+                'answer' => 'Saat 14:00\'e kadar verilen siparişler aynı gün, 14:00\'ten sonra verilen siparişler ise ertesi iş günü kargoya teslim edilmektedir.'
+            ],
+            [
+                'question' => 'Patenli ayakkabılar normal ayakkabı olarak kullanılabilir mi?',
+                'answer' => 'Evet! Tüm modellerimizin tabanındaki gizli mekanizma sayesinde, tekerleği içeri gizleyerek ürünü günlük normal bir spor ayakkabı gibi kullanabilirsiniz. Arka kısımdaki butona basmanız yeterlidir.'
+            ]
+        ]);
+    @endphp
+    
+    <x-slot:schema>
+        {!! $breadcrumbs !!}
+        {!! $faqs !!}
+    </x-slot:schema>
 
     @include('livewire.home.hero-section')
     

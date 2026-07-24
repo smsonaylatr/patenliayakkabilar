@@ -306,6 +306,38 @@ class ProductForm
                             ])
                             ->columns(2),
 
+                        Tab::make('Yapay Zeka (AIO)')
+                            ->icon('heroicon-o-cpu-chip')
+                            ->schema([
+                                Textarea::make('aio_summary')
+                                    ->label('AI Özeti (TL;DR)')
+                                    ->rows(3)
+                                    ->helperText('Yapay zeka botlarının (Google SGE vb.) bu ürünü doğrudan özetleyebilmesi için hap bilgi.')
+                                    ->columnSpanFull(),
+                                \Filament\Forms\Components\TagsInput::make('aio_target_keywords')
+                                    ->label('Hedef AI Soruları / Promptları')
+                                    ->placeholder('Örn: işıklı erkek çocuk paten')
+                                    ->helperText('Yapay zekanın bu sayfayı hangi sorgularda referans göstermesini istiyorsanız yazın.')
+                                    ->columnSpanFull(),
+                                Repeater::make('faq_schema')
+                                    ->label('Sık Sorulan Sorular (FAQ Schema)')
+                                    ->schema([
+                                        TextInput::make('question')
+                                            ->label('Soru')
+                                            ->required(),
+                                        Textarea::make('answer')
+                                            ->label('Cevap')
+                                            ->required()
+                                            ->rows(3),
+                                    ])
+                                    ->columns(1)
+                                    ->collapsible()
+                                    ->defaultItems(0)
+                                    ->addActionLabel('Soru Ekle')
+                                    ->helperText('Google arama sonuçlarında (FAQ snippet) ve AI motorlarında çıkması için ürüne özel soru-cevap ekleyin.')
+                                    ->columnSpanFull(),
+                            ]),
+
                         Tab::make('Varyantlar')
                             ->icon('heroicon-o-squares-2x2')
                             ->schema([
