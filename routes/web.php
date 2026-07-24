@@ -126,7 +126,7 @@ Route::redirect('/urunler', '/patenli-ayakkabilar', 301);
 // Ürün detay
 Route::get('/urun/{slug}', function ($slug) {
     $product = \App\Models\Product::where('slug', $slug)
-        ->with(['variants', 'images', 'category', 'reviews' => function ($q) { $q->where('status', true); }, 'features'])
+        ->with(['variants', 'images', 'categories', 'reviews' => function ($q) { $q->where('status', true); }, 'features'])
         ->firstOrFail();
     return view('products.show', ['product' => $product]);
 })->name('products.show');
