@@ -13,7 +13,7 @@
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
     </style>
 </head>
-<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '+90 ', purpose: 'Çocuğum için 🧒🏻', isSubmitting: false, success: false, error: '' }">
+<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '', purpose: 'Çocuğum için 🧒🏻', isSubmitting: false, success: false, error: '' }">
 
     <div class="max-w-5xl mx-auto px-4 py-12">
         <div class="text-center mb-12">
@@ -83,7 +83,12 @@
                                 <form x-show="!success" @submit.prevent="submitForm">
                                     <div class="mb-4">
                                         <label for="phone" class="block text-left text-sm font-medium text-gray-700 mb-1">Telefon Numaranız *</label>
-                                        <input type="tel" x-model="phone" id="phone" x-mask="+90 (999) 999 99 99" required minlength="19" placeholder="+90 (5XX) XXX XX XX" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
+                                        <div class="flex relative rounded-xl border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-black focus-within:border-black transition-all bg-white">
+                                            <div class="flex items-center justify-center px-4 bg-gray-50 border-r border-gray-300 text-gray-700 font-medium select-none">
+                                                +90
+                                            </div>
+                                            <input type="tel" x-model="phone" id="phone" x-mask="(999) 999 99 99" required minlength="15" placeholder="(5XX) XXX XX XX" class="w-full px-4 py-3 outline-none border-none bg-transparent">
+                                        </div>
                                     </div>
                                     <div class="mb-6">
                                         <label class="block text-left text-sm font-medium text-gray-700 mb-2">Kim için almak istiyorsunuz?</label>
@@ -119,7 +124,7 @@
                 },
                 body: JSON.stringify({
                     product_id: this.selectedProduct,
-                    phone: this.phone,
+                    phone: '+90 ' + this.phone,
                     purpose: this.purpose
                 })
             })
@@ -128,7 +133,7 @@
                 this.isSubmitting = false;
                 if(data.success) {
                     this.success = true;
-                    this.phone = '+90 ';
+                    this.phone = '';
                     this.purpose = 'Çocuğum için 🧒🏻';
                     setTimeout(() => {
                         this.showModal = false;
