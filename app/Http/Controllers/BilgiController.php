@@ -48,7 +48,7 @@ class BilgiController extends Controller
         $lead = PotentialCustomer::create([
             'product_id' => $request->product_id,
             'phone' => $request->phone,
-            'notes' => 'Alım Amacı: ' . $request->purpose,
+            'buying_for' => $request->purpose,
             'status' => 'new'
         ]);
 
