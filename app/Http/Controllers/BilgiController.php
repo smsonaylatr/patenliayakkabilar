@@ -14,8 +14,13 @@ class BilgiController extends Controller
      */
     public function index(Request $request)
     {
-        // Tüm aktif ürünleri al
-        $products = Product::with(['images'])->where('status', true)->latest()->get();
+        // Tüm aktif ürünleri al (Varsayılan sıralama ile: homepage_sort)
+        $products = Product::with(['images'])
+            ->where('status', true)
+            ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+            ->orderBy('homepage_sort', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
         
         return view('landing.bilgi', compact('products'));
     }
