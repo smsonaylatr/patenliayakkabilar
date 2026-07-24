@@ -31,7 +31,7 @@
                     @endif
                 </div>
                 <div class="p-3 md:p-6 flex flex-col flex-grow">
-                    <h3 class="text-sm md:text-xl font-bold text-gray-900 mb-1 md:mb-2 line-clamp-2 md:line-clamp-none" title="{{ $product->name }}">{{ $product->name }}</h3>
+
                     <!-- Kategori veya kısa bilgi -->
                     <p class="hidden md:block text-sm text-gray-500 mb-6 flex-grow">Bu ürünün kalitesini ve tasarımını yakından inceleyin.</p>
                     
