@@ -13,7 +13,7 @@
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
     </style>
 </head>
-<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '', purpose: 'Çocuğum için 🧒🏻', isSubmitting: false, success: false, error: '' }">
+<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '+90 ', purpose: 'Çocuğum için 🧒🏻', isSubmitting: false, success: false, error: '' }">
 
     <div class="max-w-5xl mx-auto px-4 py-12">
         <div class="text-center mb-12">
@@ -135,7 +135,7 @@
                 this.isSubmitting = false;
                 if(data.success) {
                     this.success = true;
-                    this.phone = '';
+                    this.phone = '+90 ';
                     this.purpose = 'Çocuğum için 🧒🏻';
                     setTimeout(() => {
                         this.showModal = false;
