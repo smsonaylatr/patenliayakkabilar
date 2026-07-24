@@ -23,7 +23,7 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             @foreach($products as $product)
-            <div @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card cursor-pointer relative group">
+            <div @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card cursor-pointer relative group flex flex-col">
                 <div class="w-full overflow-hidden bg-gray-200 relative aspect-square">
                     @if($product->images->count() > 0)
                         <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
@@ -38,6 +38,14 @@
                                 <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </div>
+                    </div>
+                </div>
+                <div class="p-3 md:p-4 bg-white group-hover:bg-gray-50 transition-colors border-t border-gray-50 mt-auto">
+                    <div class="w-full bg-black text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transform group-hover:-translate-y-0.5 group-hover:shadow-md transition-all duration-300">
+                        <span class="text-sm md:text-base tracking-wide">Seç</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
                     </div>
                 </div>
             </div>
