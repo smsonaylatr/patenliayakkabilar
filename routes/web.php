@@ -654,6 +654,12 @@ Route::get('/deploy-fix-names', function () {
 Route::post('api/n8n/blog-publish', [\App\Http\Controllers\N8nWebhookController::class, 'publishBlog']);
 Route::post('api/porego/webhook', [\App\Http\Controllers\PoregoWebhookController::class, 'handle']);
 
+// Ürünler API'si
+Route::prefix('api/products')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\ProductApiController::class, 'index']);
+    Route::get('/{identifier}', [\App\Http\Controllers\Api\ProductApiController::class, 'show']);
+});
+
 // ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================
