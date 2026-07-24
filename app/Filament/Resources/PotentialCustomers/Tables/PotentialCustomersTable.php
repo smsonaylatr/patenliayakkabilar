@@ -81,12 +81,12 @@ class PotentialCustomersTable
                             ->send();
                     }),
                 \Filament\Actions\Action::make('call')
-                    ->label('Ara (NetSantral)')
+                    ->label('Ara')
                     ->icon('heroicon-o-phone')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('NetSantral ile Ara')
-                    ->modalDescription('NetSantral API üzerinden müşteri aranacaktır.')
+                    ->modalHeading('Müşteriyi Ara')
+                    ->modalDescription('Müşteri sistem üzerinden aranacaktır.')
                     ->modalSubmitActionLabel('Aramayı Başlat')
                     ->action(function (\App\Models\PotentialCustomer $record) {
                         // TODO: NetSantral API Integration
