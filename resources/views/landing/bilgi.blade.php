@@ -23,11 +23,11 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             @foreach($products as $product)
             <div @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card cursor-pointer relative group">
-                <div class="w-full overflow-hidden bg-gray-200 relative">
+                <div class="w-full overflow-hidden bg-gray-200 relative aspect-square">
                     @if($product->images->count() > 0)
-                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-40 md:h-72 object-cover object-center transition-transform duration-500 group-hover:scale-105">
+                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105">
                     @else
-                        <div class="w-full h-40 md:h-72 flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base transition-transform duration-500 group-hover:scale-105">Görsel Yok</div>
+                        <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base transition-transform duration-500 group-hover:scale-105">Görsel Yok</div>
                     @endif
                     
                     <div class="hidden md:flex absolute inset-0 transition-all duration-300 items-center justify-center opacity-0 group-hover:opacity-100" style="background-color: rgba(0,0,0,0.15);">
