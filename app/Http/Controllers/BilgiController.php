@@ -33,7 +33,7 @@ class BilgiController extends Controller
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|exists:products,id',
             'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'purpose' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -48,7 +48,7 @@ class BilgiController extends Controller
         $lead = PotentialCustomer::create([
             'product_id' => $request->product_id,
             'phone' => $request->phone,
-            'email' => $request->email,
+            'notes' => 'Alım Amacı: ' . $request->purpose,
             'status' => 'new'
         ]);
 

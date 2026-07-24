@@ -12,7 +12,7 @@
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
     </style>
 </head>
-<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '', email: '', isSubmitting: false, success: false, error: '' }">
+<body class="antialiased text-gray-800" x-data="{ showModal: false, selectedProduct: null, phone: '', purpose: 'Çocuğum için 🧒🏻', isSubmitting: false, success: false, error: '' }">
 
     <div class="max-w-5xl mx-auto px-4 py-12">
         <div class="text-center mb-12">
@@ -77,8 +77,27 @@
                                         <input type="tel" x-model="phone" id="phone" required placeholder="05XX XXX XX XX" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
                                     </div>
                                     <div class="mb-6">
-                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-posta Adresiniz (Opsiyonel)</label>
-                                        <input type="email" x-model="email" id="email" placeholder="ornek@mail.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kim için almak istiyorsunuz?</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                            <label class="cursor-pointer">
+                                                <input type="radio" x-model="purpose" value="Kendim için 🤴🏻" class="peer sr-only">
+                                                <div class="p-3 text-center text-sm md:text-base rounded-xl border border-gray-200 peer-checked:border-black peer-checked:bg-black peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-black transition-all">
+                                                    Kendim için 🤴🏻
+                                                </div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" x-model="purpose" value="Çocuğum için 🧒🏻" class="peer sr-only">
+                                                <div class="p-3 text-center text-sm md:text-base rounded-xl border border-gray-200 peer-checked:border-black peer-checked:bg-black peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-black transition-all">
+                                                    Çocuğum için 🧒🏻
+                                                </div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" x-model="purpose" value="Hediye olarak 🎁" class="peer sr-only">
+                                                <div class="p-3 text-center text-sm md:text-base rounded-xl border border-gray-200 peer-checked:border-black peer-checked:bg-black peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-black transition-all">
+                                                    Hediye olarak 🎁
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                     <button type="submit" :disabled="isSubmitting" class="w-full bg-black text-white font-bold py-3 px-4 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
                                         <span x-show="!isSubmitting">Gönder ve Bilgi Al</span>
@@ -107,7 +126,7 @@
                 body: JSON.stringify({
                     product_id: this.selectedProduct,
                     phone: this.phone,
-                    email: this.email
+                    purpose: this.purpose
                 })
             })
             .then(response => response.json())
@@ -116,7 +135,7 @@
                 if(data.success) {
                     this.success = true;
                     this.phone = '';
-                    this.email = '';
+                    this.purpose = 'Çocuğum için 🧒🏻';
                     setTimeout(() => {
                         this.showModal = false;
                     }, 4000);
