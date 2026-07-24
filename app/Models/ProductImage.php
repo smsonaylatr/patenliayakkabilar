@@ -22,6 +22,18 @@ class ProductImage extends Model
      */
     public function getImageUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->image_path);
+        $originalUrl = Storage::disk('public')->url($this->image_path);
+        
+        // Geliştirme ortamında veya çoktan optimize edilmiş CDN url'siyse orijinali döndür
+        if (app()->environment('local') || str_contains($originalUrl, 'wsrv.nl')) {
+            return $originalUrl;
+        }
+
+        // URL'yi temizle (http/https kısmını at)
+        $cleanUrl = preg_replace('#^https?://#', '', $originalUrl);
+        
+        // Ücretsiz ve inanılmaz hızlı görsel CDN'i (wsrv.nl) ile
+        // Boyutu max 800px genişliğe sınırla ve modern WEBP formatına çevir
+        return 'https://wsrv.nl/?url=' . urlencode($cleanUrl) . '&w=800&output=webp&we';
     }
 }
