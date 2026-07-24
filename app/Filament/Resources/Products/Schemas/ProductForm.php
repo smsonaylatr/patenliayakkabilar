@@ -28,13 +28,13 @@ class ProductForm
                         Tab::make('Genel Bilgiler')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Select::make('category_id')
-                                    ->label('Kategori')
-                                    ->relationship('category', 'name')
+                                Select::make('categories')
+                                    ->label('Kategoriler')
+                                    ->relationship('categories', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->placeholder('Kategori seçiniz')
-                                    ->default(null),
+                                    ->multiple()
+                                    ->placeholder('Kategori seçiniz'),
 
                                 TextInput::make('name')
                                     ->label('Ürün Adı')
@@ -186,14 +186,14 @@ class ProductForm
                                         ->modalDescription('Ürün bilgilerine göre meta başlık ve açıklama otomatik oluşturulacak. Mevcut değerler değiştirilecek.')
                                         ->action(function (Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
                                             $name = $get('name');
-                                            $categoryId = $get('category_id');
+                                            $categoryIds = (array) $get('categories');
                                             $brand = $get('brand');
                                             $gender = $get('gender');
                                             $ageGroup = $get('age_group');
                                             $price = $get('discount_price') ?: $get('price');
                                             $shortDesc = $get('short_description');
 
-                                            $category = $categoryId ? \App\Models\Category::find($categoryId)?->name : null;
+                                            $category = !empty($categoryIds) ? \App\Models\Category::find($categoryIds[0])?->name : null;
 
                                             $genderLabel = match ($gender) {
                                                 'erkek'       => 'Erkek',

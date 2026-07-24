@@ -60,7 +60,7 @@
                 <x-breadcrumb :items="[
                     ['name' => 'Ana Sayfa', 'url' => route('home')],
                     ['name' => 'Patenli Ayakkabılar', 'url' => route('products.index')],
-                    ...($product->category ? [['name' => $product->category->name, 'url' => url('/kategori/' . $product->category->slug)]] : []),
+                    ...($product->categories->first() ? [['name' => $product->categories->first()->name, 'url' => url('/kategori/' . $product->categories->first()->slug)]] : []),
                     ['name' => $product->name],
                 ]" />
             </div>

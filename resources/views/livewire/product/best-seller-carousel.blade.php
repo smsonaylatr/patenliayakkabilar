@@ -102,7 +102,7 @@
                                 <h3 class="text-sm font-bold text-gray-900 group-hover/card:text-brand-orange transition-colors line-clamp-1 mb-1">
                                     {{ $product->name }}
                                 </h3>
-                                <p class="text-xs text-gray-500 mb-4 line-clamp-1 flex-grow font-medium">{{ $product->category->name ?? 'Patenli Ayakkabı' }}</p>
+                                <p class="text-xs text-gray-500 mb-4 line-clamp-1 flex-grow font-medium">{{ $product->categories->first()?->name ?? 'Patenli Ayakkabı' }}</p>
                                 
                                 <div class="flex items-center justify-between mt-auto">
                                     <div class="flex flex-col">

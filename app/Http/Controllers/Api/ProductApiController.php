@@ -14,13 +14,15 @@ class ProductApiController extends Controller
     public function index(Request $request)
     {
         // Yalnızca yayında (is_active) olan ürünleri getir, ilişkili verilerle beraber
-        $query = Product::with(['category', 'images', 'variants'])
+        $query = Product::with(['categories', 'images', 'variants'])
             ->where('is_active', true)
             ->latest();
 
         // Kategoriye göre filtreleme
         if ($request->has('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('categories.id', $request->input('category_id'));
+            });
         }
 
         // Sayfalandırma (varsayılan 20)
@@ -44,7 +46,7 @@ class ProductApiController extends Controller
      */
     public function show($identifier)
     {
-        $product = Product::with(['category', 'images', 'variants'])
+        $product = Product::with(['categories', 'images', 'variants'])
             ->where('is_active', true)
             ->where(function($q) use ($identifier) {
                 $q->where('id', $identifier)

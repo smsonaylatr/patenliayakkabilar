@@ -40,10 +40,9 @@ class ProductsTable
                     ->weight('bold')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
-                TextColumn::make('category.name')
-                    ->label('Kategori')
+                TextColumn::make('categories.name')
+                    ->label('Kategoriler')
                     ->searchable()
-                    ->sortable()
                     ->badge()
                     ->color('info'),
                 TextColumn::make('price')
@@ -105,10 +104,11 @@ class ProductsTable
             ])
             ->filters([
                 TrashedFilter::make(),
-                SelectFilter::make('category_id')
-                    ->label('Kategori')
-                    ->relationship('category', 'name')
+                SelectFilter::make('categories')
+                    ->label('Kategoriler')
+                    ->relationship('categories', 'name')
                     ->searchable()
+                    ->multiple()
                     ->preload(),
                 TernaryFilter::make('status')
                     ->label('Aktiflik')

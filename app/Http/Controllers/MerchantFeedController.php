@@ -123,8 +123,8 @@ class MerchantFeedController extends Controller
 
         // Ürün tipi (kategori hiyerarşisi)
         $productType = 'Giyim > Ayakkabı > Patenli Ayakkabı';
-        if ($product->category) {
-            $productType = 'Giyim > Ayakkabı > ' . $product->category->name;
+        if ($product->categories->isNotEmpty()) {
+            $productType = 'Giyim > Ayakkabı > ' . ($product->categories->first()?->name ?? 'Patenli Ayakkabı');
         }
         $xml .= '      <g:product_type>' . htmlspecialchars($productType, ENT_XML1, 'UTF-8') . '</g:product_type>' . "\n";
 

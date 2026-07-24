@@ -92,7 +92,7 @@ class Product extends Model
     protected static function autoFillContent(Product $product): void
     {
         $name = $product->name;
-        $category = $product->category?->name;
+        $category = $product->categories()->first()?->name;
         $brand = $product->brand;
         $gender = $product->gender;
         $ageGroup = $product->age_group;
@@ -184,7 +184,7 @@ class Product extends Model
     protected static function autoFillSeo(Product $product): void
     {
         $name = $product->name;
-        $category = $product->category?->name;
+        $category = $product->categories()->first()?->name;
         $brand = $product->brand;
         $gender = $product->gender;
         $ageGroup = $product->age_group;
@@ -301,9 +301,9 @@ class Product extends Model
         }
     }
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
     }
 
     public function variants()
@@ -348,7 +348,7 @@ class Product extends Model
     {
         $features = [];
         $name = mb_strtolower($product->name ?? '');
-        $category = mb_strtolower($product->category?->name ?? '');
+        $category = mb_strtolower($product->categories()->first()?->name ?? '');
 
         // LED anahtar kelimeleri
         if (str_contains($name, 'led') || str_contains($name, 'ışık') || str_contains($category, 'led')) {
