@@ -17,7 +17,7 @@
     <div class="max-w-5xl mx-auto px-4 py-12">
         <div class="text-center mb-12">
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">Koleksiyonumuzu Keşfedin</h1>
-            <p class="text-lg text-gray-500">Işıklı ve tekerlekli paten modellerimizle tanışın.</p>
+            <p class="text-lg text-gray-500">Hangi ürünümüz hakkında bilgi almak istiyorsunuz seçiniz.</p>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
