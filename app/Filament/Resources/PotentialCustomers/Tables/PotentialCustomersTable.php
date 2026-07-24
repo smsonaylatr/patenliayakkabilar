@@ -28,7 +28,16 @@ class PotentialCustomersTable
                     ->height(50),
                 \Filament\Tables\Columns\TextColumn::make('buying_for')
                     ->label('Alım Amacı')
-                    ->searchable()
+                    ->getStateUsing(function ($record) {
+                        if ($record->buying_for) {
+                            return $record->buying_for;
+                        }
+                        if ($record->notes && str_starts_with($record->notes, 'Alım Amacı: ')) {
+                            return str_replace('Alım Amacı: ', '', $record->notes);
+                        }
+                        return '-';
+                    })
+                    ->searchable(['buying_for', 'notes'])
                     ->sortable()
                     ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('phone')
