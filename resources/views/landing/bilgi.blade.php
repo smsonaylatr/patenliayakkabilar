@@ -33,7 +33,7 @@
                 <div class="p-3 md:p-6 flex flex-col flex-grow">
 
                     <!-- Kategori veya kısa bilgi -->
-                    <p class="hidden md:block text-sm text-gray-500 mb-6 flex-grow">Bu ürünün kalitesini ve tasarımını yakından inceleyin.</p>
+
                     
                     <button @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="mt-auto w-full bg-black text-white font-semibold py-2 px-2 md:py-3 md:px-4 rounded-lg md:rounded-xl hover:bg-gray-800 transition-colors duration-200 flex justify-center items-center gap-1 md:gap-2 text-xs md:text-base">
                         <span>Seç</span>
