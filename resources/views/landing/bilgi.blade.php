@@ -30,15 +30,7 @@
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base transition-transform duration-500 group-hover:scale-105">Görsel Yok</div>
                     @endif
-                    
-                    <div class="hidden md:flex absolute inset-0 transition-all duration-300 items-center justify-center opacity-0 group-hover:opacity-100" style="background-color: rgba(0,0,0,0.15);">
-                        <div class="transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 bg-white/90 backdrop-blur-sm text-black font-semibold py-2 px-5 rounded-full shadow-lg flex items-center gap-2 border border-white/50">
-                            <span class="text-sm md:text-base">İncele</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="p-3 md:p-4 bg-white group-hover:bg-gray-50 transition-colors border-t border-gray-50 mt-auto">
                     <div class="w-full bg-white text-black font-semibold py-2 px-5 rounded-full flex items-center justify-center gap-2 shadow-sm border border-gray-200 transform group-hover:-translate-y-0.5 group-hover:shadow-md transition-all duration-300">
