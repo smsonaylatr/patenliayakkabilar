@@ -20,24 +20,24 @@
             <p class="text-lg text-gray-500">Işıklı ve tekerlekli paten modellerimizle tanışın.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
             @foreach($products as $product)
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 product-card flex flex-col">
                 <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
                     @if($product->images->count() > 0)
-                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-72 object-cover object-center">
+                        <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-full h-40 md:h-72 object-cover object-center">
                     @else
-                        <div class="w-full h-72 flex items-center justify-center bg-gray-100 text-gray-400">Görsel Yok</div>
+                        <div class="w-full h-40 md:h-72 flex items-center justify-center bg-gray-100 text-gray-400 text-xs md:text-base">Görsel Yok</div>
                     @endif
                 </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $product->name }}</h3>
+                <div class="p-3 md:p-6 flex flex-col flex-grow">
+                    <h3 class="text-sm md:text-xl font-bold text-gray-900 mb-1 md:mb-2 line-clamp-2 md:line-clamp-none" title="{{ $product->name }}">{{ $product->name }}</h3>
                     <!-- Kategori veya kısa bilgi -->
-                    <p class="text-sm text-gray-500 mb-6 flex-grow">Bu ürünün kalitesini ve tasarımını yakından inceleyin.</p>
+                    <p class="hidden md:block text-sm text-gray-500 mb-6 flex-grow">Bu ürünün kalitesini ve tasarımını yakından inceleyin.</p>
                     
-                    <button @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="w-full bg-black text-white font-semibold py-3 px-4 rounded-xl hover:bg-gray-800 transition-colors duration-200 flex justify-center items-center gap-2">
-                        <span>Ürünü Seç</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <button @click="selectedProduct = {{ $product->id }}; showModal = true; success = false; error = '';" class="mt-auto w-full bg-black text-white font-semibold py-2 px-2 md:py-3 md:px-4 rounded-lg md:rounded-xl hover:bg-gray-800 transition-colors duration-200 flex justify-center items-center gap-1 md:gap-2 text-xs md:text-base">
+                        <span>Seç</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
                     </button>
