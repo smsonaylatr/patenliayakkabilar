@@ -72,10 +72,10 @@
                     <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
                             @if($product->images->count() > 1)
-                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="{{ $loop->index < 4 ? 'eager' : 'lazy' }}" width="400" height="400">
+                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="lazy" width="400" height="400">
                                 <img src="{{ $product->images->skip(1)->first()->image_url }}" alt="{{ $product->name }} - Alternatif Görünüm" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out" loading="lazy" width="400" height="400">
                             @else
-                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="{{ $loop->index < 4 ? 'eager' : 'lazy' }}" width="400" height="400">
+                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
                             @endif
                         @else
                             <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
