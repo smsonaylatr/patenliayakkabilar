@@ -35,7 +35,7 @@ class ProductGrid extends Component
 
     public function render()
     {
-        $query = Product::where('status', true)->with(['category', 'images', 'variants']);
+        $query = Product::where('status', true)->with(['categories', 'images', 'variants']);
         
         if ($this->isFeaturedOnly) {
             $query->where('featured', true);

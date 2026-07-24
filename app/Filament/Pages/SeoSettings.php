@@ -397,7 +397,7 @@ class SeoSettings extends FilamentPage implements HasForms
             ->where(function ($q) {
                 $q->whereNull('meta_title')->orWhere('meta_title', '');
             })
-            ->with('category')
+            ->with('categories')
             ->get();
 
         $count = 0;
