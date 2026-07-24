@@ -74,11 +74,11 @@
 
                                 <form x-show="!success" @submit.prevent="submitForm">
                                     <div class="mb-4">
-                                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefon Numaranız *</label>
+                                        <label for="phone" class="block text-left text-sm font-medium text-gray-700 mb-1">Telefon Numaranız *</label>
                                         <input type="tel" x-model="phone" id="phone" x-mask="+90 (999) 999 99 99" required minlength="19" placeholder="+90 (5XX) XXX XX XX" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
                                     </div>
                                     <div class="mb-6">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kim için almak istiyorsunuz?</label>
+                                        <label class="block text-left text-sm font-medium text-gray-700 mb-2">Kim için almak istiyorsunuz?</label>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                             <label class="cursor-pointer">
                                                 <input type="radio" x-model="purpose" value="Kendim için 🤴🏻" class="peer sr-only">
