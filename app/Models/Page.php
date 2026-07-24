@@ -10,11 +10,14 @@ class Page extends Model
     protected $fillable = [
         'title', 'slug', 'content', 'is_active',
         'meta_title', 'meta_description', 'og_image', 'is_indexable',
+        'aio_summary', 'aio_target_keywords', 'faq_schema',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'is_indexable' => 'boolean',
+        'aio_target_keywords' => 'array',
+        'faq_schema' => 'array',
     ];
 
     protected static function boot()

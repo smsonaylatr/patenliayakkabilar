@@ -34,7 +34,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="PatenliAyakkabılar®">
-        <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri ve Fiyatları' }}</title>
+        <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">

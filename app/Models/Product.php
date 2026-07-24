@@ -17,6 +17,8 @@ class Product extends Model
         return [
             'is_cod_active' => 'boolean',
             'has_installments' => 'boolean',
+            'aio_target_keywords' => 'array',
+            'faq_schema' => 'array',
         ];
     }
 

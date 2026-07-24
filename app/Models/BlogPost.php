@@ -13,6 +13,8 @@ class BlogPost extends Model
         'status' => 'boolean',
         'is_indexable' => 'boolean',
         'published_at' => 'datetime',
+        'aio_target_keywords' => 'array',
+        'faq_schema' => 'array',
     ];
 
     protected static function boot()
