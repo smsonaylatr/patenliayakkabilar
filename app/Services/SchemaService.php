@@ -187,7 +187,7 @@ class SchemaService
     public function product(Product $product): string
     {
         // İlişkileri yükle (zaten yüklü değilse)
-        $product->loadMissing(['images', 'variants', 'reviews', 'category']);
+        $product->loadMissing(['images', 'variants', 'reviews', 'categories']);
 
         $appUrl = config('app.url');
 
@@ -259,8 +259,8 @@ class SchemaService
         ];
 
         // Kategori
-        if ($product->category) {
-            $data['category'] = $product->category->name;
+        if ($product->categories->isNotEmpty()) {
+            $data['category'] = $product->categories->first()->name;
         }
 
         // Teklif (Offer) şablonu
