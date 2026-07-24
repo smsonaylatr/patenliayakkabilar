@@ -53,7 +53,7 @@ class PotentialCustomersTable
                     ->label('WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
                     ->color('success')
-                    ->url(fn (\App\Models\PotentialCustomer $record) => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $record->phone) . '?text=' . urlencode("Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek için: " . route('product.show', $record->product->slug)))
+                    ->url(fn (\App\Models\PotentialCustomer $record) => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $record->phone) . '?text=' . urlencode("Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek için: " . route('products.show', $record->product->slug)))
                     ->openUrlInNewTab(),
                 \Filament\Actions\Action::make('sendSms')
                     ->label('SMS')
