@@ -8,6 +8,7 @@ class PotentialCustomer extends Model
 {
     protected $fillable = [
         'product_id',
+        'buying_for',
         'phone',
         'email',
         'status',

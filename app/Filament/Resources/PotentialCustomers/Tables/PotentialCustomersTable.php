@@ -17,11 +17,20 @@ class PotentialCustomersTable
                     ->label('Tarih')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('product.name')
-                    ->label('İlgilendiği Ürün')
+                \Filament\Tables\Columns\ImageColumn::make('product.images.image_path')
+                    ->label('Ürün')
+                    ->disk('public')
+                    ->square()
+                    ->stacked()
+                    ->limit(1)
+                    ->defaultImageUrl(fn () => 'https://placehold.co/80x80/f1f5f9/94a3b8?text=Ürün')
+                    ->width(50)
+                    ->height(50),
+                \Filament\Tables\Columns\TextColumn::make('buying_for')
+                    ->label('Kime Alıyor')
                     ->searchable()
                     ->sortable()
-                    ->limit(30),
+                    ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('phone')
                     ->label('Telefon')
                     ->searchable()
