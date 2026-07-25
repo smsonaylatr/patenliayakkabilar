@@ -285,8 +285,8 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
             ])
             ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->headerActions([
