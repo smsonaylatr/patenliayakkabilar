@@ -136,6 +136,13 @@ class ProductsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                \Filament\Tables\Actions\ReplicateAction::make()
+                    ->excludeAttributes(['slug', 'sku', 'homepage_sort'])
+                    ->beforeReplicaSaved(function (\Illuminate\Database\Eloquent\Model $replica): void {
+                        $replica->name = $replica->name . ' (Kopya)';
+                        $replica->slug = \Illuminate\Support\Str::slug($replica->name) . '-' . time();
+                        $replica->status = false; // Kopya ürün varsayılan olarak pasif başlasın
+                    }),
                 \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
