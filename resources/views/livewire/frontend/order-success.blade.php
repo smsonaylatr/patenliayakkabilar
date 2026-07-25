@@ -57,3 +57,12 @@
     });
   }
 </script>
+
+<!-- Google Ads Conversion Data -->
+<script>
+    window.googleAdsConversionData = {
+        transaction_id: "{{ $order->order_number }}",
+        value: {{ number_format($order->total_amount ?? 0, 2, '.', '') }},
+        currency: "TRY"
+    };
+</script>
