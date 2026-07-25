@@ -159,7 +159,7 @@ class ProductsTable
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
-                    \Filament\Tables\Actions\BulkAction::make('syncToGoogle')
+                    \Filament\Actions\BulkAction::make('syncToGoogle')
                         ->label("Google Merchant'a Gönder")
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
