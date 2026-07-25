@@ -147,11 +147,36 @@ class ProductsTable
                         ->requiresConfirmation()
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
                             foreach ($records as $record) {
-                                $replica = $record->replicate(['slug', 'sku', 'homepage_sort']);
+                                // Açıklamaları dışla (böylece boş kalır ve Model boot içinde otomatik dolar)
+                                $replica = $record->replicate(['slug', 'sku', 'homepage_sort', 'description', 'short_description']);
                                 $replica->name = $replica->name . ' (Kopya)';
                                 $replica->slug = \Illuminate\Support\Str::slug($replica->name) . '-' . time();
                                 $replica->status = false;
+                                
+                                // Tanıtımları boşalt ki "Product::boot()" otomatik olarak bu yeni (Kopya) isme göre yeni bir tanıtım üretsin.
+                                $replica->description = null;
+                                $replica->short_description = null;
+                                
                                 $replica->save();
+
+                                // İlişkileri (Özellikler, Kategoriler, Varyantlar, Resimler) kopyala
+                                foreach ($record->features as $feature) {
+                                    $replica->features()->create($feature->toArray());
+                                }
+                                
+                                if ($record->categories()->count() > 0) {
+                                    $replica->categories()->sync($record->categories->pluck('id')->toArray());
+                                }
+                                
+                                foreach ($record->variants as $variant) {
+                                    $newVariant = $variant->replicate(['product_id', 'sku']);
+                                    $newVariant->sku = $newVariant->sku ? $newVariant->sku . '-K' : null;
+                                    $replica->variants()->save($newVariant);
+                                }
+                                
+                                foreach ($record->images as $image) {
+                                    $replica->images()->create($image->toArray());
+                                }
                             }
                             \Filament\Notifications\Notification::make()
                                 ->title('Seçili ürünler çoğaltıldı.')
