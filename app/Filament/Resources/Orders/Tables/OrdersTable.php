@@ -290,7 +290,7 @@ class OrdersTable
                 ]),
             ])
             ->headerActions([
-                \Filament\Tables\Actions\Action::make('exportOfflineConversions')
+                Action::make('exportOfflineConversions')
                     ->label('Google Çevrimdışı Dönüşüm CSV İndir')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
