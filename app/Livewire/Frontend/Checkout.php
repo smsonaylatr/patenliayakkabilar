@@ -144,6 +144,7 @@ class Checkout extends Component
             'status' => 'pending',
             'payment_status' => 'pending',
             'payment_method' => $this->payment_method,
+            'gclid' => session('gclid'),
             'subtotal' => $subtotal,
             'shipping_price' => $shippingPrice,
             'grand_total' => $grandTotal,

@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->web(append: [
             \App\Http\Middleware\TrackCustomerActivity::class,
+            \App\Http\Middleware\CaptureGoogleClickId::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'payment/paytr/webhook',

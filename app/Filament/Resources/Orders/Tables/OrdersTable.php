@@ -285,9 +285,67 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                \Filament\Tables\Actions\BulkActionGroup::make([
+                    \Filament\Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                \Filament\Tables\Actions\Action::make('exportOfflineConversions')
+                    ->label('Google Çevrimdışı Dönüşüm CSV İndir')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Teslim Edilenleri Dışa Aktar')
+                    ->modalDescription('Kapıda ödeme ve havale ile sipariş verilip "Teslim Edildi" statüsünde olan, Google Click ID içeren ve daha önce aktarılmayan siparişler CSV olarak indirilecektir. İndirme sonrası bu siparişler "Aktarıldı" olarak işaretlenecektir.')
+                    ->modalSubmitActionLabel('İndir')
+                    ->action(function () {
+                        $orders = Order::whereNotNull('gclid')
+                            ->where('is_offline_conversion_exported', false)
+                            ->where('status', 'delivered')
+                            ->whereIn('payment_method', ['cash_on_delivery', 'wire_transfer'])
+                            ->get();
+
+                        if ($orders->isEmpty()) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Aktarılacak sipariş yok')
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        $csvData = [];
+                        // Google Ads Beklenen Sütunlar
+                        $csvData[] = ['Parameters:TimeZone', 'Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
+                        
+                        foreach ($orders as $order) {
+                            $csvData[] = [
+                                'Europe/Istanbul',
+                                $order->gclid,
+                                'Teslim Edilen Sipariş', // Dönüşüm adının Google Ads ile aynı olması gerekir
+                                $order->updated_at->format('Y-m-d H:i:s'),
+                                $order->grand_total,
+                                'TRY'
+                            ];
+                        }
+
+                        // Siparişleri işaretle
+                        Order::whereIn('id', $orders->pluck('id'))->update(['is_offline_conversion_exported' => true]);
+
+                        // CSV Oluştur
+                        $callback = function() use ($csvData) {
+                            $file = fopen('php://output', 'w');
+                            // UTF-8 BOM eklenebilir, Google genelde normal UTF-8 ister
+                            foreach ($csvData as $row) {
+                                fputcsv($file, $row);
+                            }
+                            fclose($file);
+                        };
+
+                        return response()->streamDownload($callback, 'google_ads_offline_conversions_' . date('Y-m-d') . '.csv', [
+                            'Content-Type' => 'text/csv',
+                            'Content-Disposition' => 'attachment; filename="google_ads_offline_conversions_' . date('Y-m-d') . '.csv"',
+                        ]);
+                    })
             ])
             ->defaultSort('created_at', 'desc');
     }
