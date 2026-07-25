@@ -136,7 +136,7 @@ class ProductsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                \Filament\Tables\Actions\ReplicateAction::make()
+                \Filament\Actions\ReplicateAction::make()
                     ->excludeAttributes(['slug', 'sku', 'homepage_sort'])
                     ->beforeReplicaSaved(function (\Illuminate\Database\Eloquent\Model $replica): void {
                         $replica->name = $replica->name . ' (Kopya)';
