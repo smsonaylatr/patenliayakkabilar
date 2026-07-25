@@ -199,7 +199,10 @@ class Checkout extends Component
         }
 
         // Redirect to success page (Havale veya Kapıda ödeme)
-        return redirect()->route('order.success', ['order_number' => $order->order_number]);
+        return redirect()->route('order.success', [
+            'order_number' => $order->order_number, 
+            'method' => $this->payment_method
+        ]);
     }
 
     public function checkOrderStatus()
@@ -207,7 +210,10 @@ class Checkout extends Component
         if ($this->created_order_number) {
             $order = \App\Models\Order::where('order_number', $this->created_order_number)->first();
             if ($order && $order->payment_status === 'paid') {
-                return redirect()->route('order.success', ['order_number' => $this->created_order_number]);
+                return redirect()->route('order.success', [
+                    'order_number' => $this->created_order_number,
+                    'method' => 'cc'
+                ]);
             }
         }
     }
@@ -280,7 +286,10 @@ class Checkout extends Component
                 'user_name' => $order->customer_name,
                 'user_address' => $order->shipping_address . ' ' . $order->shipping_district . ' ' . $order->shipping_city,
                 'user_phone' => $order->customer_phone,
-                'merchant_ok_url' => route('order.success', ['order_number' => $order->order_number]),
+                'merchant_ok_url' => route('order.success', [
+                    'order_number' => $order->order_number,
+                    'method' => 'cc'
+                ]),
                 'merchant_fail_url' => route('order.fail', ['order_number' => $order->order_number]),
                 'timeout_limit' => 30,
                 'currency' => $currency,
