@@ -136,18 +136,30 @@ class ProductsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                \Filament\Actions\ReplicateAction::make()
-                    ->excludeAttributes(['slug', 'sku', 'homepage_sort'])
-                    ->beforeReplicaSaved(function (\Illuminate\Database\Eloquent\Model $replica): void {
-                        $replica->name = $replica->name . ' (Kopya)';
-                        $replica->slug = \Illuminate\Support\Str::slug($replica->name) . '-' . time();
-                        $replica->status = false; // Kopya ürün varsayılan olarak pasif başlasın
-                    }),
+
                 \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('syncToGoogle')
+                    \Filament\Tables\Actions\BulkAction::make('replicate')
+                        ->label('Çoğalt')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            foreach ($records as $record) {
+                                $replica = $record->replicate(['slug', 'sku', 'homepage_sort']);
+                                $replica->name = $replica->name . ' (Kopya)';
+                                $replica->slug = \Illuminate\Support\Str::slug($replica->name) . '-' . time();
+                                $replica->status = false;
+                                $replica->save();
+                            }
+                            \Filament\Notifications\Notification::make()
+                                ->title('Seçili ürünler çoğaltıldı.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    \Filament\Tables\Actions\BulkAction::make('syncToGoogle')
                         ->label("Google Merchant'a Gönder")
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
