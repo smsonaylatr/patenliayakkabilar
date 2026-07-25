@@ -141,7 +141,7 @@ class ProductsTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    \Filament\Tables\Actions\BulkAction::make('replicate')
+                    \Filament\Actions\BulkAction::make('replicate')
                         ->label('Çoğalt')
                         ->icon('heroicon-o-document-duplicate')
                         ->requiresConfirmation()
