@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/paytr/webhook',
             'api/n8n/blog-publish',
             'api/porego/webhook',
+            'admin/logout',
+            'logout',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
