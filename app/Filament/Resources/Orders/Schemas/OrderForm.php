@@ -65,6 +65,12 @@ class OrderForm
                             ->label('IP Adresi')
                             ->disabled()
                             ->columnSpan('full'),
+                            
+                        TextInput::make('installment_count')
+                            ->label('Taksit Sayısı')
+                            ->disabled()
+                            ->columnSpan('full')
+                            ->formatStateUsing(fn ($state) => $state == 1 || !$state ? 'Tek Çekim' : $state . ' Taksit'),
                     ]),
 
                 Section::make('Kargo Bilgileri')

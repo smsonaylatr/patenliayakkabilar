@@ -74,6 +74,7 @@ class PaytrWebhookController extends Controller
                 $order->update([
                     'payment_status' => 'paid',
                     'status' => 'processing',
+                    'installment_count' => $post['installment_count'] ?? 1,
                 ]);
             }
         } 
