@@ -35,6 +35,11 @@ Route::get('/clear-cache', function () {
     return 'Harika! Sitenin tüm önbelleği (cache ve görünümler) başarıyla temizlendi. Lütfen ana sayfaya dönüp CTRL+F5 ile yenileyin.';
 });
 
+Route::get('/admin/logout', function () {
+    auth()->logout();
+    return redirect('/admin/login');
+});
+
 Route::get('/run-migrations', function () {
     $pages = [
         'hakkimizda' => [
