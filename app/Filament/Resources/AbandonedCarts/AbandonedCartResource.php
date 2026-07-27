@@ -38,15 +38,15 @@ class AbandonedCartResource extends Resource
             ->components([
                 Section::make('Müşteri Bilgileri')
                     ->schema([
-                        Placeholder::make('user.name')
+                        Placeholder::make('user_or_guest_name')
                             ->label('Müşteri Adı')
-                            ->content(fn ($record) => $record->user?->name ?? '-'),
-                        Placeholder::make('user.email')
+                            ->content(fn ($record) => $record->user_id ? $record->user?->name : ($record->guest_name ?? '-')),
+                        Placeholder::make('user_or_guest_email')
                             ->label('E-posta')
-                            ->content(fn ($record) => $record->user?->email ?? '-'),
-                        Placeholder::make('user.phone')
+                            ->content(fn ($record) => $record->user_id ? $record->user?->email : ($record->guest_email ?? '-')),
+                        Placeholder::make('user_or_guest_phone')
                             ->label('Telefon')
-                            ->content(fn ($record) => $record->user?->phone ?? '-'),
+                            ->content(fn ($record) => $record->user_id ? $record->user?->phone : ($record->guest_phone ?? '-')),
                         Placeholder::make('updated_at')
                             ->label('Son İşlem Tarihi')
                             ->content(fn ($record) => $record->updated_at?->format('d.m.Y H:i') ?? '-'),

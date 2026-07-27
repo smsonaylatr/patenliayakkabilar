@@ -13,19 +13,28 @@ class AbandonedCartsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('user_id')->has('items')->with(['user', 'items.product']))
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where(function($q) {
+                    $q->whereNotNull('user_id')
+                      ->orWhereNotNull('guest_email')
+                      ->orWhereNotNull('guest_phone');
+                })->has('items')->with(['user', 'items.product']);
+            })
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('user_or_guest_name')
                     ->label('Müşteri Adı')
-                    ->searchable()
+                    ->getStateUsing(fn ($record) => $record->user_id ? $record->user?->name : ($record->guest_name ?? '-'))
+                    ->searchable(['guest_name'])
                     ->sortable()
                     ->weight('bold'),
-                TextColumn::make('user.email')
+                TextColumn::make('user_or_guest_email')
                     ->label('E-posta')
-                    ->searchable(),
-                TextColumn::make('user.phone')
+                    ->getStateUsing(fn ($record) => $record->user_id ? $record->user?->email : ($record->guest_email ?? '-'))
+                    ->searchable(['guest_email']),
+                TextColumn::make('user_or_guest_phone')
                     ->label('Telefon')
-                    ->searchable(),
+                    ->getStateUsing(fn ($record) => $record->user_id ? $record->user?->phone : ($record->guest_phone ?? '-'))
+                    ->searchable(['guest_phone']),
                 TextColumn::make('items_count')
                     ->label('Sepetteki Ürün')
                     ->counts('items')
@@ -59,13 +68,14 @@ class AbandonedCartsTable
                     ->modalHeading('Hatırlatma Gönder')
                     ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir e-posta gönderilecektir. Onaylıyor musunuz?')
                     ->modalSubmitActionLabel('Evet, Gönder')
-                    ->visible(fn ($record) => !empty($record->user->email))
+                    ->visible(fn ($record) => !empty($record->user?->email) || !empty($record->guest_email))
                     ->action(function ($record) {
-                        if ($record->user && $record->user->email) {
+                        $email = $record->user?->email ?? $record->guest_email;
+                        if ($email) {
                             try {
-                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili gönderimi başlatıldı: ' . $record->user->email);
-                                \Illuminate\Support\Facades\Mail::to($record->user->email)->send(new \App\Mail\AbandonedCartReminderMail($record));
-                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili başarıyla gönderildi: ' . $record->user->email);
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili gönderimi başlatıldı: ' . $email);
+                                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\AbandonedCartReminderMail($record));
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme maili başarıyla gönderildi: ' . $email);
 
                                 \Filament\Notifications\Notification::make()
                                     ->title('Hatırlatma Başarıyla Gönderildi')
@@ -94,18 +104,20 @@ class AbandonedCartsTable
                     ->modalHeading('SMS Hatırlatma Gönder')
                     ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir SMS gönderilecektir. Onaylıyor musunuz?')
                     ->modalSubmitActionLabel('Evet, SMS Gönder')
-                    ->visible(fn ($record) => !empty($record->user->phone))
+                    ->visible(fn ($record) => !empty($record->user?->phone) || !empty($record->guest_phone))
                     ->action(function ($record) {
-                        if ($record->user && $record->user->phone) {
+                        $phone = $record->user?->phone ?? $record->guest_phone;
+                        if ($phone) {
                             try {
-                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS gönderimi başlatıldı: ' . $record->user->phone);
+                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS gönderimi başlatıldı: ' . $phone);
                                 
-                                $message = "Merhaba {$record->user->name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
+                                $name = $record->user?->name ?? $record->guest_name ?? 'Müşterimiz';
+                                $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
                                 $poregoService = app(\App\Services\PoregoApiService::class);
-                                $result = $poregoService->sendSms($record->user->phone, $message);
+                                $result = $poregoService->sendSms($phone, $message);
 
                                 if ($result['success']) {
-                                    \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS başarıyla gönderildi: ' . $record->user->phone);
+                                    \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS başarıyla gönderildi: ' . $phone);
                                     \Filament\Notifications\Notification::make()
                                         ->title('SMS Hatırlatma Başarıyla Gönderildi')
                                         ->success()

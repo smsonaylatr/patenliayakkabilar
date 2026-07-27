@@ -101,6 +101,22 @@ class Checkout extends Component
 
         if (isset($map[$propertyName])) {
             session([$map[$propertyName] => $this->$propertyName]);
+            
+            // Sepeti Terk Edenler için iletişim bilgilerini Cart'a kaydet (Misafir kullanıcılar için)
+            if (in_array($propertyName, ['customer_name', 'customer_email', 'customer_phone'])) {
+                $cartService = app(\App\Services\CartService::class);
+                $cart = $cartService->getCart();
+                if ($cart && !$cart->user_id) {
+                    $columnMap = [
+                        'customer_name' => 'guest_name',
+                        'customer_email' => 'guest_email',
+                        'customer_phone' => 'guest_phone',
+                    ];
+                    $cart->update([
+                        $columnMap[$propertyName] => $this->$propertyName
+                    ]);
+                }
+            }
         }
     }
 
@@ -136,6 +152,15 @@ class Checkout extends Component
         $shippingPrice = $this->payment_method === 'cash_on_delivery' ? 201 : (1 * $totalItems);
         $grandTotal = $subtotal + $shippingPrice;
         $orderNumber = 'TR' . mt_rand(100000, 999999);
+
+        // Sepet üzerinde misafir bilgilerini her ihtimale karşı güncelle
+        if (!$cart->user_id) {
+            $cart->update([
+                'guest_name' => $this->customer_name,
+                'guest_email' => $this->customer_email,
+                'guest_phone' => $this->customer_phone,
+            ]);
+        }
 
         // Create Order
         $order = Order::create([
