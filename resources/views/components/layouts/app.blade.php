@@ -223,7 +223,7 @@
                                 <li><a href="{{ route('home') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Ana Sayfa</a></li>
                                 <li><a href="{{ route('products.index') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Tüm Ürünler</a></li>
                                 <li><a href="{{ route('blog.index') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Rehber Merkezi</a></li>
-                                <li><a href="{{ route('order.tracking') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Sipariş Takip</a></li>
+                                <li><a href="{{ route('pages.show', 'beden-rehberi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Beden Rehberi</a></li>
                                 <li><a href="{{ route('contact') }}" class="hover:text-brand-orange transition-colors" wire:navigate>İletişim</a></li>
                             </ul>
                         </div>
@@ -302,10 +302,10 @@
                     <span class="absolute text-[10px] font-medium text-gray-900 pointer-events-none leading-none tracking-wide" style="bottom: 11px;">Sepet</span>
                 </div>
                 
-                <a href="{{ route('order.tracking') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
-                    <!-- Package / Order tracking icon -->
-                    <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                    <span class="text-[10px] font-medium whitespace-nowrap leading-none tracking-wide mt-1">Sipariş Takip</span>
+                <a href="{{ route('pages.show', 'beden-rehberi') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
+                    <!-- Ruler / Size Guide icon -->
+                    <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.121 14.121L19 19m-7-7l3-3m-3 3L3.586 15.414a2 2 0 000 2.828l2.172 2.172a2 2 0 002.828 0L14.121 14.121zm-7-7L19 19m-5-5l3-3"></path></svg>
+                    <span class="text-[10px] font-medium whitespace-nowrap leading-none tracking-wide mt-1">Beden Rehberi</span>
                 </a>
                 
                 <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
