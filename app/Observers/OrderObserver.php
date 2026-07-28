@@ -33,8 +33,36 @@ class OrderObserver
                 
                 // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
                 app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                
+                // Müşteriye SMS Gönder
+                $this->sendCustomerSms($order, 'new_order');
             });
         }
+    }
+
+    private function sendCustomerSms(Order $order, string $type): void
+    {
+        if (empty($order->customer_phone)) return;
+
+        $isActive = filter_var(\App\Models\Setting::where('key', 'vatansms_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
+        if (!$isActive) return;
+
+        $messageTemplate = '';
+        if ($type === 'new_order') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_new_order_message')->value('value');
+        } elseif ($type === 'shipped') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_shipped_message')->value('value');
+        }
+
+        if (empty($messageTemplate)) return;
+
+        $message = str_replace(
+            ['{isim}', '{siparis_no}', '{tutar}'],
+            [$order->customer_name, $order->order_number, number_format((float)$order->grand_total, 2) . ' TL'],
+            $messageTemplate
+        );
+
+        app(\App\Services\VatanSmsService::class)->send($order->customer_phone, $message, 'turkce', 'bilgi');
     }
 
     private function sendTelegramNotification(Order $order, string $type = 'new'): void
@@ -149,6 +177,9 @@ class OrderObserver
                     
                     // Siparişi Porego'ya aktar
                     app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                    
+                    // Müşteriye SMS Gönder
+                    $this->sendCustomerSms($order, 'new_order');
                 });
             } elseif ($order->payment_status === 'failed') {
                 app()->terminating(function () use ($order) {
@@ -159,6 +190,13 @@ class OrderObserver
         }
 
         if ($order->wasChanged('status')) {
+            if ($order->status === 'shipped') {
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    $this->sendCustomerSms($order, 'shipped');
+                });
+            }
+
             // Audit Log: Durum değişikliği
             \App\Models\OrderStatusHistory::create([
                 'order_id' => $order->id,

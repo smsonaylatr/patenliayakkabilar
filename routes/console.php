@@ -42,3 +42,7 @@ Artisan::command('phoenix:sync-segments', function () {
     dispatch_sync(new \App\Jobs\SyncSegmentCustomers);
     $this->info("✅ Segment eşleştirme tamamlandı.");
 })->purpose('Sync customers into dynamic segments');
+
+// ─── VatanSMS: Sepeti Terk Edenlere SMS Gönder (Her saat başı) ───────────
+Schedule::command('app:send-abandoned-cart-sms')->hourly();
+

@@ -170,6 +170,17 @@
 
                     <!-- Mobil İçin Buton (Sadece Mobilde Görünür) -->
                     <div class="mt-6">
+                        <!-- SMS Consent (Mobil) -->
+                        <div class="mb-4">
+                            <label class="flex items-start cursor-pointer group">
+                                <div class="flex items-center h-5 mt-0.5">
+                                    <input wire:model="sms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
+                                </div>
+                                <div class="ml-3 text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
+                                    Kampanya, duyuru ve sepet hatırlatmalarından haberdar olmak için iletişim izni veriyorum.
+                                </div>
+                            </label>
+                        </div>
                         @if(!$paytr_token)
                             <button type="submit" onclick="document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true}))" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                                 <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
@@ -235,6 +246,17 @@
 
                     <!-- Desktop İçin Buton -->
                     <div class="mt-8 hidden lg:block">
+                        <!-- SMS Consent (Desktop) -->
+                        <div class="mb-4">
+                            <label class="flex items-start cursor-pointer group">
+                                <div class="flex items-center h-5 mt-0.5">
+                                    <input wire:model="sms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
+                                </div>
+                                <div class="ml-3 text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
+                                    Kampanya, duyuru ve sepet hatırlatmalarından haberdar olmak için iletişim izni veriyorum.
+                                </div>
+                            </label>
+                        </div>
                         @if(!$paytr_token)
                             <button wire:click="placeOrder" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                                 <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>

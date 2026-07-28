@@ -11,6 +11,10 @@ class Order extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'sms_consent' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -20,6 +20,7 @@ class Checkout extends Component
     public $shipping_address;
     
     public $payment_method = 'credit_card';
+    public $sms_consent = false;
 
     public $cities = [];
     public $districts = [];
@@ -159,6 +160,11 @@ class Checkout extends Component
                 'guest_name' => $this->customer_name,
                 'guest_email' => $this->customer_email,
                 'guest_phone' => $this->customer_phone,
+                'sms_consent' => $this->sms_consent,
+            ]);
+        } else {
+            $cart->update([
+                'sms_consent' => $this->sms_consent,
             ]);
         }
 
@@ -178,6 +184,7 @@ class Checkout extends Component
             'customer_email' => $this->customer_email,
             'customer_phone' => $this->customer_phone,
             'customer_note' => $this->customer_note,
+            'sms_consent' => $this->sms_consent,
             
             'shipping_city' => $this->shipping_city,
             'shipping_district' => $this->shipping_district,
