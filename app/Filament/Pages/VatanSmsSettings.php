@@ -136,7 +136,21 @@ class VatanSmsSettings extends Page implements HasForms
                         ->required()
                 ])
                 ->action(function (array $data) {
-                    $this->sendTestMessage($data);
+                    $phone = $data['test_phone'] ?? '';
+                    
+                    if (empty($phone)) {
+                        Notification::make()->danger()->title('Hata')->body('Geçerli bir telefon numarası giriniz.')->send();
+                        return;
+                    }
+
+                    $service = app(VatanSmsService::class);
+                    $result = $service->send($phone, "Bu bir test mesajıdır. VatanSMS entegrasyonu başarıyla çalışıyor.", 'turkce', 'bilgi');
+
+                    if ($result) {
+                        Notification::make()->success()->title('Test mesajı gönderildi!')->body('Lütfen telefonunuzu kontrol edin.')->send();
+                    } else {
+                        Notification::make()->danger()->title('SMS Gönderilemedi')->body('API hatası. Lütfen logları veya API bilgilerinizi kontrol edin.')->send();
+                    }
                 })
                 ->modalHeading('Test Mesajı Gönder')
                 ->modalDescription('Bu işlem girdiğiniz numaraya VatanSMS üzerinden bir test mesajı gönderecektir.')
@@ -158,24 +172,5 @@ class VatanSmsSettings extends Page implements HasForms
             ->success()
             ->title('VatanSMS ayarları başarıyla kaydedildi')
             ->send();
-    }
-
-    public function sendTestMessage(array $data)
-    {
-        $phone = $data['test_phone'] ?? '';
-        
-        if (empty($phone)) {
-            Notification::make()->danger()->title('Hata')->body('Geçerli bir telefon numarası giriniz.')->send();
-            return;
-        }
-
-        $service = app(VatanSmsService::class);
-        $result = $service->send($phone, "Bu bir test mesajıdır. VatanSMS entegrasyonu başarıyla çalışıyor.", 'turkce', 'bilgi');
-
-        if ($result) {
-            Notification::make()->success()->title('Test mesajı gönderildi!')->body('Lütfen telefonunuzu kontrol edin.')->send();
-        } else {
-            Notification::make()->danger()->title('SMS Gönderilemedi')->body('API hatası. Lütfen logları veya API bilgilerinizi kontrol edin.')->send();
-        }
     }
 }
