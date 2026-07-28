@@ -135,7 +135,9 @@ class VatanSmsSettings extends Page implements HasForms
                         ->placeholder('5XXXXXXXXX')
                         ->required()
                 ])
-                ->action('sendTestMessage')
+                ->action(function (array $data) {
+                    $this->sendTestMessage($data);
+                })
                 ->modalHeading('Test Mesajı Gönder')
                 ->modalDescription('Bu işlem girdiğiniz numaraya VatanSMS üzerinden bir test mesajı gönderecektir.')
         ];
