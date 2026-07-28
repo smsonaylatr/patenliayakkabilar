@@ -7,7 +7,5 @@
                 Ayarları Kaydet
             </x-filament::button>
         </div>
-        
-        <x-filament-actions::modals />
     </form>
 </x-filament-panels::page>
