@@ -39,7 +39,7 @@ class VatanSmsSettings extends Page implements HasForms
         return 'VatanSMS Ayarları';
     }
 
-    protected string $view = 'filament.pages.telegram-settings'; // We will use the same view if it only contains <x-filament-panels::page> or create a new one.
+    protected string $view = 'filament.pages.vatan-sms-settings';
 
     public ?array $data = [];
 
