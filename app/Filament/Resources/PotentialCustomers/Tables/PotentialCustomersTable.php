@@ -82,12 +82,24 @@ class PotentialCustomersTable
                     ->modalDescription('Müşteriye ürün linki içeren bir SMS gönderilecektir.')
                     ->modalSubmitActionLabel('Gönder')
                     ->action(function (\App\Models\PotentialCustomer $record) {
-                        // TODO: NetGSM Service Integration
-                        $record->update(['status' => 'contacted']);
-                        \Filament\Notifications\Notification::make()
-                            ->title('SMS Gönderildi (Simülasyon)')
-                            ->success()
-                            ->send();
+                        $message = "Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek ve sipariş vermek için tıklayın: " . route('products.show', $record->product->slug);
+                        
+                        $vatanService = app(\App\Services\VatanSmsService::class);
+                        $result = $vatanService->send($record->phone, $message, 'turkce', 'ticari');
+
+                        if ($result) {
+                            $record->update(['status' => 'contacted']);
+                            \Filament\Notifications\Notification::make()
+                                ->title('SMS Başarıyla Gönderildi')
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('SMS Gönderilemedi')
+                                ->body('VatanSMS API üzerinden gönderim başarısız oldu.')
+                                ->danger()
+                                ->send();
+                        }
                     }),
                 \Filament\Actions\Action::make('call')
                     ->label('Ara')
