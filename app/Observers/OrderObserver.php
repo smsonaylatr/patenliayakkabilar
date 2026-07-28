@@ -20,12 +20,16 @@ class OrderObserver
             ->color('success')
             ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
 
-        // Send Telegram Notification after request finishes so items are definitely attached
-        // Kredi kartı ve Havale/EFT ödemelerinde, ödeme PayTR üzerinden tamamlanana kadar (webhook gelene kadar) bildirim göndermiyoruz
-        if (!in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
+        // Kredi kartı ve Havale/EFT ödemelerinde, müşteri ödeme sayfasına yönlendirildiğinde "Ödeme Aşamasında" bildirimi gönderiyoruz
+        if (in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
             app()->terminating(function () use ($order) {
                 $order->refresh();
-                $this->sendTelegramNotification($order);
+                $this->sendTelegramNotification($order, 'pending');
+            });
+        } else {
+            app()->terminating(function () use ($order) {
+                $order->refresh();
+                $this->sendTelegramNotification($order, 'new');
                 
                 // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
                 app(\App\Services\PoregoApiService::class)->sendOrder($order);
@@ -33,7 +37,7 @@ class OrderObserver
         }
     }
 
-    private function sendTelegramNotification(Order $order): void
+    private function sendTelegramNotification(Order $order, string $type = 'new'): void
     {
         try {
             $isActive = filter_var(\App\Models\Setting::where('key', 'telegram_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
@@ -49,7 +53,16 @@ class OrderObserver
                 
                 $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
                 
-                $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
+                if ($type === 'pending') {
+                    $message = "⏳ *ÖDEME AŞAMASINDA (Yarım Kalabilir)*\n";
+                    $message .= "_Müşteri şu an ödeme sayfasında._\n\n";
+                } elseif ($type === 'failed') {
+                    $message = "❌ *ÖDEME BAŞARISIZ / YARIM KALAN SİPARİŞ*\n\n";
+                } elseif ($type === 'paid') {
+                    $message = "✅ *ÖDEME BAŞARILI (Sipariş Onaylandı)*\n\n";
+                } else {
+                    $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
+                }
                 $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
                 $message .= "👤 *Müşteri:* {$order->customer_name}\n";
                 $message .= "📞 *Telefon:* {$order->customer_phone}\n";
@@ -127,15 +140,22 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        // PayTR üzerinden Kredi kartı veya Havale ödemesi onaylanıp "paid" statüsüne geçince Telegram bildirimi gönder
-        if ($order->wasChanged('payment_status') && $order->payment_status === 'paid' && in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
-            app()->terminating(function () use ($order) {
-                $order->refresh();
-                $this->sendTelegramNotification($order);
-                
-                // Siparişi Porego'ya aktar
-                app(\App\Services\PoregoApiService::class)->sendOrder($order);
-            });
+        // PayTR üzerinden Kredi kartı veya Havale ödemesi durumu değiştiğinde
+        if ($order->wasChanged('payment_status') && in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
+            if ($order->payment_status === 'paid') {
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    $this->sendTelegramNotification($order, 'paid');
+                    
+                    // Siparişi Porego'ya aktar
+                    app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                });
+            } elseif ($order->payment_status === 'failed') {
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    $this->sendTelegramNotification($order, 'failed');
+                });
+            }
         }
 
         if ($order->wasChanged('status')) {
