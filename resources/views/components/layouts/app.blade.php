@@ -302,10 +302,9 @@
                     <span class="absolute text-[10px] font-medium text-gray-900 pointer-events-none leading-none tracking-wide" style="bottom: 11px;">Sepet</span>
                 </div>
                 
-                <a href="{{ route('pages.show', 'beden-rehberi') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
-                    <!-- Ruler / Size Guide icon -->
-                    <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.121 14.121L19 19m-7-7l3-3m-3 3L3.586 15.414a2 2 0 000 2.828l2.172 2.172a2 2 0 002.828 0L14.121 14.121zm-7-7L19 19m-5-5l3-3"></path></svg>
-                    <span class="text-[10px] font-medium whitespace-nowrap leading-none tracking-wide mt-1">Beden Rehberi</span>
+                <a href="{{ route('order.tracking') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
+                    <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="text-[10px] font-medium whitespace-nowrap leading-none tracking-wide mt-1">Sipariş Takip</span>
                 </a>
                 
                 <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
