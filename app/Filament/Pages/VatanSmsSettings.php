@@ -125,7 +125,12 @@ class VatanSmsSettings extends Page implements HasForms
                 ->label('Ayarları Kaydet')
                 ->submit('save')
                 ->color('primary'),
-                
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
             Action::make('test')
                 ->label('Test SMS Gönder')
                 ->color('gray')

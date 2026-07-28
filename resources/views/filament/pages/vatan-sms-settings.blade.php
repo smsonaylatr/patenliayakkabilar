@@ -6,10 +6,6 @@
             <x-filament::button type="submit" size="lg">
                 Ayarları Kaydet
             </x-filament::button>
-
-            <x-filament::button wire:click="mountAction('test')" color="gray" size="lg">
-                Test Mesajı Gönder
-            </x-filament::button>
         </div>
         
         <x-filament-actions::modals />
