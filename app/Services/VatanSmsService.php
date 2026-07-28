@@ -38,6 +38,32 @@ class VatanSmsService
                 $phones = [$phones];
             }
 
+            // Numaraları 10 haneli (başında 0 olmadan) olacak şekilde temizle
+            $phones = array_map(function ($phone) {
+                // Sadece rakamları bırak
+                $phone = preg_replace('/[^0-9]/', '', (string)$phone);
+                
+                // Başında 90 varsa ve 12 haneliyse, 90'ı sil
+                if (strlen($phone) === 12 && str_starts_with($phone, '90')) {
+                    $phone = substr($phone, 2);
+                }
+                
+                // Başında 0 varsa ve 11 haneliyse, 0'ı sil
+                if (strlen($phone) === 11 && str_starts_with($phone, '0')) {
+                    $phone = substr($phone, 1);
+                }
+                
+                return $phone;
+            }, $phones);
+            
+            // Boş veya 10 haneli olmayanları filtrele ve indisleri sıfırla
+            $phones = array_values(array_filter($phones, fn($phone) => strlen($phone) === 10));
+            
+            if (empty($phones)) {
+                Log::warning('VatanSMS Hata: Geçerli bir telefon numarası bulunamadı.');
+                return false;
+            }
+
             $payload = [
                 'api_id' => $apiId,
                 'api_key' => $apiKey,
