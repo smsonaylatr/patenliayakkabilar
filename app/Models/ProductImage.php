@@ -34,6 +34,7 @@ class ProductImage extends Model
         
         // Ücretsiz ve inanılmaz hızlı görsel CDN'i (wsrv.nl) ile
         // Boyutu max 800px genişliğe sınırla ve modern WEBP formatına çevir
-        return 'https://wsrv.nl/?url=' . urlencode($cleanUrl) . '&w=800&output=webp&we';
+        // n=-1 parametresi hareketli GIF'lerin animasyonlarını (tüm kareleri) korumasını sağlar
+        return 'https://wsrv.nl/?url=' . urlencode($cleanUrl) . '&w=800&output=webp&we&n=-1';
     }
 }
