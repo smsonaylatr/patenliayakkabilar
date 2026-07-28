@@ -112,11 +112,18 @@ class AbandonedCartsTable
                                 \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS gönderimi başlatıldı: ' . $phone);
                                 
                                 $name = $record->user?->name ?? $record->guest_name ?? 'Müşterimiz';
-                                $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
-                                $poregoService = app(\App\Services\PoregoApiService::class);
-                                $result = $poregoService->sendSms($phone, $message);
+                                $messageTemplate = \App\Models\Setting::where('key', 'vatansms_abandoned_cart_message')->value('value');
+                                
+                                if (empty($messageTemplate)) {
+                                    $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
+                                } else {
+                                    $message = str_replace(['{isim}', '{siparis_no}', '{tutar}'], [$name, '', ''], $messageTemplate);
+                                }
 
-                                if ($result['success']) {
+                                $vatanService = app(\App\Services\VatanSmsService::class);
+                                $result = $vatanService->send($phone, $message, 'turkce', 'ticari');
+
+                                if ($result) {
                                     \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS başarıyla gönderildi: ' . $phone);
                                     \Filament\Notifications\Notification::make()
                                         ->title('SMS Hatırlatma Başarıyla Gönderildi')
@@ -125,7 +132,7 @@ class AbandonedCartsTable
                                 } else {
                                     \Filament\Notifications\Notification::make()
                                         ->title('SMS Gönderilemedi')
-                                        ->body($result['message'])
+                                        ->body('VatanSMS API üzerinden gönderim başarısız oldu. API ayarlarınızı kontrol edin.')
                                         ->danger()
                                         ->send();
                                 }
