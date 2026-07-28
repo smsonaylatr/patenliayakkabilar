@@ -80,7 +80,7 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('pages.show', 'beden-rehberi') }}" class="text-[13px] font-medium text-gray-900 hover:text-gray-500 uppercase tracking-widest transition-colors" wire:navigate>Beden Rehberi</a>
+                        <a href="{{ route('order.tracking') }}" class="text-[13px] font-medium text-gray-900 hover:text-gray-500 uppercase tracking-widest transition-colors" wire:navigate>Sipariş Takip</a>
                         <a href="{{ route('contact') }}" class="text-[13px] font-medium text-gray-900 hover:text-gray-500 uppercase tracking-widest transition-colors" wire:navigate>İletişim</a>
                     </nav>
                 </div>
@@ -140,7 +140,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('pages.show', 'beden-rehberi') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Beden Rehberi</a>
+                <a href="{{ route('order.tracking') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Sipariş Takip</a>
                 <a href="{{ route('contact') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>İletişim</a>
                 <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Hesabım</a>
             </div>
