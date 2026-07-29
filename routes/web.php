@@ -114,6 +114,12 @@ Route::post('/payment/paytr/webhook', [\App\Http\Controllers\Payment\PaytrWebhoo
 // ÜRÜN & KATEGORİ SAYFALARI
 // ========================
 
+// ========================
+// ESKİ URL YÖNLENDİRMELERİ (SEO)
+// ========================
+// Eski "koleksiyon" linklerini yeni "kategori" yapısına kalıcı (301) olarak yönlendir.
+Route::redirect('/koleksiyon/{slug}', '/kategori/{slug}', 301);
+
 // Tüm ürünler
 Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
     $category = $request->has('category') ? \App\Models\Category::where('slug', $request->category)->first() : null;
