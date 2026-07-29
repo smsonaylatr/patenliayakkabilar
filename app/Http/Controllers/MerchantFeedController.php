@@ -66,15 +66,55 @@ class MerchantFeedController extends Controller
      */
     private function buildProductItem(Product $product, string $appUrl): string
     {
+        $xmlOutput = '';
+
+        // Tüm mevcut numaraları ve renkleri topla
+        $sizes = $product->variants->pluck('size')->filter()->unique()->sort()->values();
+        
+        $colors = $product->variants
+            ->pluck('color')
+            ->filter()
+            ->flatMap(fn ($c) => is_array($c) ? $c : [$c])
+            ->unique()
+            ->values();
+
+        // Eğer bedeni varsa her beden için ayrı bir varyant (item) oluşturmalıyız
+        // Çünkü Google Merchant Center "g:size" etiketinde virgülle ayrılmış birden fazla değeri kabul etmiyor.
+        if ($sizes->isNotEmpty()) {
+            foreach ($sizes as $size) {
+                $xmlOutput .= $this->generateSingleXmlItem($product, $appUrl, $colors, $size);
+            }
+        } else {
+            // Bedeni yoksa tek bir ürün olarak çıkar
+            $xmlOutput .= $this->generateSingleXmlItem($product, $appUrl, $colors, null);
+        }
+
+        return $xmlOutput;
+    }
+
+    /**
+     * Tekil bir XML node'u üretir.
+     */
+    private function generateSingleXmlItem(Product $product, string $appUrl, \Illuminate\Support\Collection $colors, ?string $size): string
+    {
         $xml = '    <item>' . "\n";
 
-        // Ürün ID
-        $xml .= '      <g:id>' . $product->id . '</g:id>' . "\n";
+        // Ürün ID (Varyant varsa ID'nin sonuna bedeni ekle benzersiz olsun)
+        $itemId = $size ? $product->id . '_' . $size : $product->id;
+        $xml .= '      <g:id>' . $itemId . '</g:id>' . "\n";
 
-        // Ürün adı (SEO Odaklı: Marka + Ad + Hedef Kitle)
+        // Item Group ID (Varyantları aynı ürün altında gruplamak için)
+        if ($size) {
+            $xml .= '      <g:item_group_id>' . $product->id . '</g:item_group_id>' . "\n";
+        }
+
+        // Ürün adı (SEO Odaklı: Marka + Ad + Hedef Kitle + Beden)
         $brand = $product->brand ?: 'Patenli Ayakkabılar';
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
         $seoTitle = trim($brand . ' ' . $product->name . ' ' . $target);
+        if ($size) {
+            $seoTitle .= ' (' . $size . ' Numara)';
+        }
         $xml .= '      <title>' . htmlspecialchars(mb_substr($seoTitle, 0, 150), ENT_XML1, 'UTF-8') . '</title>' . "\n";
 
         // Açıklama (HTML strip, max 5000 karakter)
@@ -91,10 +131,7 @@ class MerchantFeedController extends Controller
         // Görseller
         $images = $product->images;
         if ($images->isNotEmpty()) {
-            // İlk görsel: ana görsel
             $xml .= '      <g:image_link>' . htmlspecialchars($images->first()->image_url, ENT_XML1, 'UTF-8') . '</g:image_link>' . "\n";
-
-            // Diğer görseller: ek görseller (max 10)
             foreach ($images->skip(1)->take(10) as $image) {
                 $xml .= '      <g:additional_image_link>' . htmlspecialchars($image->image_url, ENT_XML1, 'UTF-8') . '</g:additional_image_link>' . "\n";
             }
@@ -107,60 +144,31 @@ class MerchantFeedController extends Controller
         // Fiyat
         $xml .= '      <g:price>' . number_format((float) $product->price, 2, '.', '') . ' TRY</g:price>' . "\n";
 
-        // İndirimli fiyat (varsa ve normal fiyattan düşükse)
         if ($product->discount_price && $product->discount_price < $product->price) {
             $xml .= '      <g:sale_price>' . number_format((float) $product->discount_price, 2, '.', '') . ' TRY</g:sale_price>' . "\n";
         }
 
         // Marka
         $xml .= '      <g:brand>' . htmlspecialchars($brand, ENT_XML1, 'UTF-8') . '</g:brand>' . "\n";
-
-        // GTIN/Barkod yoksa hata vermemesi için
         $xml .= '      <g:identifier_exists>no</g:identifier_exists>' . "\n";
-
-        // Durum (her zaman yeni)
         $xml .= '      <g:condition>new</g:condition>' . "\n";
 
-        // Ürün tipi (kategori hiyerarşisi)
+        // Kategori
         $productType = 'Giyim > Ayakkabı > Patenli Ayakkabı';
         if ($product->categories->isNotEmpty()) {
             $productType = 'Giyim > Ayakkabı > ' . ($product->categories->first()?->name ?? 'Patenli Ayakkabı');
         }
         $xml .= '      <g:product_type>' . htmlspecialchars($productType, ENT_XML1, 'UTF-8') . '</g:product_type>' . "\n";
-
-        // Google ürün kategorisi (187 = Athletic Shoes)
         $xml .= '      <g:google_product_category>187</g:google_product_category>' . "\n";
-
-        // Yaş grubu
-        $ageGroup = $this->mapAgeGroup($product->age_group);
-        $xml .= '      <g:age_group>' . $ageGroup . '</g:age_group>' . "\n";
-
-        // Cinsiyet
-        $gender = $this->mapGender($product->gender);
-        $xml .= '      <g:gender>' . $gender . '</g:gender>' . "\n";
-
-        // Varyant bilgileri: Renkler
-        $colors = $product->variants
-            ->pluck('color')
-            ->filter()
-            ->flatMap(fn ($c) => is_array($c) ? $c : [$c])
-            ->unique()
-            ->values();
+        $xml .= '      <g:age_group>' . $this->mapAgeGroup($product->age_group) . '</g:age_group>' . "\n";
+        $xml .= '      <g:gender>' . $this->mapGender($product->gender) . '</g:gender>' . "\n";
 
         if ($colors->isNotEmpty()) {
             $xml .= '      <g:color>' . htmlspecialchars($colors->implode(', '), ENT_XML1, 'UTF-8') . '</g:color>' . "\n";
         }
 
-        // Varyant bilgileri: Numaralar
-        $sizes = $product->variants
-            ->pluck('size')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
-
-        if ($sizes->isNotEmpty()) {
-            $xml .= '      <g:size>' . htmlspecialchars($sizes->implode(', '), ENT_XML1, 'UTF-8') . '</g:size>' . "\n";
+        if ($size) {
+            $xml .= '      <g:size>' . htmlspecialchars($size, ENT_XML1, 'UTF-8') . '</g:size>' . "\n";
         }
 
         // Kargo bilgileri (Ücretsiz Kargo)
