@@ -55,20 +55,37 @@ class SchemaService
         ])->filter()->values()->toArray();
 
         $data = [
-            '@context' => 'https://schema.org',
-            '@type'    => 'Organization',
-            'name'     => $companyName,
-            'url'      => config('app.url'),
-            'logo'     => config('app.url') . '/images/logo.png',
+            '@context'    => 'https://schema.org',
+            '@type'       => 'OnlineStore',
+            '@id'         => config('app.url') . '/#organization',
+            'name'        => $companyName,
+            'legalName'   => $companyName . '®',
+            'url'         => config('app.url') . '/',
+            'logo'        => [
+                '@type'  => 'ImageObject',
+                'url'    => config('app.url') . '/favicon.png',
+                'width'  => 512,
+                'height' => 512,
+            ],
+            'description' => 'Çocuk ve yetişkinler için patenli ayakkabı modelleri sunan online mağaza.',
         ];
+
+        // İletişim eklentisi (ContactPoint)
+        $data['contactPoint'] = [
+            '@type'             => 'ContactPoint',
+            'contactType'       => 'customer service',
+            'availableLanguage' => 'Turkish',
+        ];
+        
+        if ($email = $settings->get('company_email', 'patenliayakkabilar@gmail.com')) {
+            $data['email'] = $email;
+            $data['contactPoint']['email'] = $email;
+        }
 
         // İletişim bilgileri (varsa)
         if ($phone = $settings->get('company_phone')) {
             $data['telephone'] = $phone;
-        }
-
-        if ($email = $settings->get('company_email')) {
-            $data['email'] = $email;
+            $data['contactPoint']['telephone'] = $phone;
         }
 
         // Adres bilgileri (varsa)
