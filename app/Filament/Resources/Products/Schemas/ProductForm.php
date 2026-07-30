@@ -457,7 +457,18 @@ class ProductForm
                                                 collect(range(26, 44))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
                                             )
                                             ->searchable()
-                                            ->required(),
+                                            ->required()
+                                            ->live()
+                                            ->afterStateUpdated(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get, $state) {
+                                                $sku = $get('sku');
+                                                if ($sku && $state) {
+                                                    if (preg_match('/-(\d+)$/', $sku)) {
+                                                        $set('sku', preg_replace('/-\d+$/', '-' . $state, $sku));
+                                                    } else {
+                                                        $set('sku', $sku . '-' . $state);
+                                                    }
+                                                }
+                                            }),
                                         Select::make('wheel_type')
                                             ->label('Teker Tipi')
                                             ->options([
@@ -489,9 +500,16 @@ class ProductForm
                                             ->minValue(0),
                                         TextInput::make('sku')
                                             ->label('SKU')
-                                            ->disabled()
-                                            ->dehydrated()
-                                            ->helperText('Otomatik üretilir'),
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get, ?string $state) {
+                                                $size = $get('size');
+                                                if ($state && $size) {
+                                                    if (!preg_match('/-(\d+)$/', $state)) {
+                                                        $set('sku', $state . '-' . $size);
+                                                    }
+                                                }
+                                            })
+                                            ->helperText('Manuel girebilirsiniz.'),
                                     ])
                                     ->columns(4)
                                     ->defaultItems(0)
