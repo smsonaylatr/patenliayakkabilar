@@ -340,6 +340,7 @@ class ProductForm
                                             $prompt = "Aşağıdaki ürün bilgilerini inceleyerek bu ürün için:
 1. SEO uyumlu kısa bir TL;DR (AIO) özeti çıkar (max 2 cümle).
 2. Hedef AI arama motorları için 5 adet arama niyeti (prompt / keyword) listesi oluştur. Sadece kelimeleri liste olarak (array) ver.
+3. Ürünle ilgili müşterilerin sıkça sorabileceği 3 adet soru (question) ve cevap (answer) oluştur.
 
 Ürün Adı: {$name}
 Kısa Açıklama: {$shortDesc}
@@ -348,7 +349,10 @@ Açıklama: {$desc}
 Lütfen yanıtını aşağıdaki JSON formatında ver:
 {
   \"aio_summary\": \"...\",
-  \"aio_target_keywords\": [\"keyword1\", \"keyword2\"]
+  \"aio_target_keywords\": [\"keyword1\", \"keyword2\"],
+  \"faq_schema\": [
+    { \"question\": \"...\", \"answer\": \"...\" }
+  ]
 }";
 
                                             try {
@@ -371,6 +375,7 @@ Lütfen yanıtını aşağıdaki JSON formatında ver:
                                                     if ($data && isset($data['aio_summary'])) {
                                                         $set('aio_summary', $data['aio_summary']);
                                                         $set('aio_target_keywords', $data['aio_target_keywords'] ?? []);
+                                                        $set('faq_schema', $data['faq_schema'] ?? []);
                                                         \Filament\Notifications\Notification::make()
                                                             ->title('Yapay zeka alanları doldurdu!')
                                                             ->success()
