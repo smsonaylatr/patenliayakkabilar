@@ -444,6 +444,17 @@ class ProductForm
 
                                             $set('variants', array_merge($existing, $newVariants));
                                         }),
+                                    \Filament\Actions\Action::make('clear_all_variants')
+                                        ->label('🗑️ Tüm Varyantları Sil')
+                                        ->color('danger')
+                                        ->size('lg')
+                                        ->requiresConfirmation()
+                                        ->modalHeading('Tüm Varyantları Sil')
+                                        ->modalDescription('Eklenmiş olan tüm varyantlar silinecektir. Onaylıyor musunuz?')
+                                        ->modalSubmitActionLabel('Evet, Tümünü Sil')
+                                        ->action(function (Set $set) {
+                                            $set('variants', []);
+                                        }),
                                 ])->columnSpanFull(),
 
                                 Repeater::make('variants')
