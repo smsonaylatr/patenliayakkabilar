@@ -184,8 +184,16 @@ class ProductForm
                                         ->requiresConfirmation()
                                         ->modalHeading('SEO Verileri Üretilsin mi?')
                                         ->modalDescription('Ürün bilgilerine göre meta başlık ve açıklama otomatik oluşturulacak. Mevcut değerler değiştirilecek.')
-                                        ->action(function (Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
+                                        ->action(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, ?\Illuminate\Database\Eloquent\Model $record = null) {
                                             $name = $get('name');
+                                            
+                                            if ($record && empty($get('og_image'))) {
+                                                $firstImage = $record->images()->orderBy('sort_order')->first();
+                                                if ($firstImage && $firstImage->image_path) {
+                                                    $set('og_image', $firstImage->image_path);
+                                                }
+                                            }
+
                                             $categoryIds = (array) $get('categories');
                                             $brand = $get('brand');
                                             $gender = $get('gender');
