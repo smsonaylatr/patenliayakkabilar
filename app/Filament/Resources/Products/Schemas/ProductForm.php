@@ -336,6 +336,25 @@ class ProductForm
                                             $name = $get('name');
                                             $shortDesc = $get('short_description');
                                             $desc = strip_tags($get('description') ?? '');
+                                            $brand = $get('brand');
+                                            $gender = $get('gender');
+                                            $ageGroup = $get('age_group');
+
+                                            $genderLabel = match ($gender) {
+                                                'erkek'       => 'Erkek',
+                                                'kadin'       => 'Kadın',
+                                                'erkek_cocuk' => 'Erkek Çocuk',
+                                                'kiz_cocuk'   => 'Kız Çocuk',
+                                                'unisex'      => 'Unisex',
+                                                default       => 'Belirtilmemiş',
+                                            };
+
+                                            $ageLabel = match ($ageGroup) {
+                                                'cocuk'    => 'Çocuk',
+                                                'genc'     => 'Genç',
+                                                'yetiskin' => 'Yetişkin',
+                                                default    => 'Belirtilmemiş',
+                                            };
 
                                             if (empty($name)) {
                                                 \Filament\Notifications\Notification::make()
@@ -351,8 +370,14 @@ class ProductForm
 3. Ürünle ilgili müşterilerin sıkça sorabileceği 3 adet soru (question) ve cevap (answer) oluştur.
 
 Ürün Adı: {$name}
+Marka: {$brand}
+Cinsiyet Hedef Kitlesi: {$genderLabel}
+Yaş Grubu: {$ageLabel}
 Kısa Açıklama: {$shortDesc}
 Açıklama: {$desc}
+
+ÖNEMLİ NOT: Kısa açıklama veya açıklama metni içerisinde daha önceden kalma farklı cinsiyet/yaş hataları olabilir (Örneğin metinde 'Erkek' yazıp Cinsiyet Hedef Kitlesi 'Kız Çocuk' olabilir). Lütfen Cinsiyet Hedef Kitlesi ve Yaş Grubu bilgilerini BAZ ALARAK yanıt üret. Metinlerdeki hatalı bilgileri göz ardı et.
+
 
 Lütfen yanıtını aşağıdaki JSON formatında ver:
 {
