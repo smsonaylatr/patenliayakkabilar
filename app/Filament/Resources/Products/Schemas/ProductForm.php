@@ -314,7 +314,7 @@ class ProductForm
                                         ->label('✨ Yapay Zeka ile Otomatik Doldur')
                                         ->color('primary')
                                         ->size('lg')
-                                        ->action(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get) {
+                                        ->action(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
                                             $apiKey = env('OPENAI_API_KEY');
                                             if (empty($apiKey) || $apiKey === 'sk-your-openai-api-key-here') {
                                                 \Filament\Notifications\Notification::make()
