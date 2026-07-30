@@ -309,6 +309,87 @@ class ProductForm
                         Tab::make('Yapay Zeka (AIO)')
                             ->icon('heroicon-o-cpu-chip')
                             ->schema([
+                                \Filament\Schemas\Components\Actions::make([
+                                    \Filament\Actions\Action::make('generate_ai_aio')
+                                        ->label('✨ Yapay Zeka ile Otomatik Doldur')
+                                        ->color('primary')
+                                        ->size('lg')
+                                        ->action(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get) {
+                                            $apiKey = env('OPENAI_API_KEY');
+                                            if (empty($apiKey) || $apiKey === 'sk-your-openai-api-key-here') {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Hata: OpenAI API anahtarı eksik')
+                                                    ->body('Lütfen .env dosyanızdaki OPENAI_API_KEY değerini güncelleyin.')
+                                                    ->danger()
+                                                    ->send();
+                                                return;
+                                            }
+
+                                            $name = $get('name');
+                                            $shortDesc = $get('short_description');
+                                            $desc = strip_tags($get('description') ?? '');
+
+                                            if (empty($name)) {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Ürün adı gerekli')
+                                                    ->warning()
+                                                    ->send();
+                                                return;
+                                            }
+
+                                            $prompt = "Aşağıdaki ürün bilgilerini inceleyerek bu ürün için:
+1. SEO uyumlu kısa bir TL;DR (AIO) özeti çıkar (max 2 cümle).
+2. Hedef AI arama motorları için 5 adet arama niyeti (prompt / keyword) listesi oluştur. Sadece kelimeleri liste olarak (array) ver.
+
+Ürün Adı: {$name}
+Kısa Açıklama: {$shortDesc}
+Açıklama: {$desc}
+
+Lütfen yanıtını aşağıdaki JSON formatında ver:
+{
+  \"aio_summary\": \"...\",
+  \"aio_target_keywords\": [\"keyword1\", \"keyword2\"]
+}";
+
+                                            try {
+                                                $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                                                    ->timeout(30)
+                                                    ->post('https://api.openai.com/v1/chat/completions', [
+                                                        'model' => 'gpt-3.5-turbo',
+                                                        'messages' => [
+                                                            ['role' => 'system', 'content' => 'Sen uzman bir SEO ve E-ticaret asistanısın. Sadece geçerli bir JSON objesi döndür. Markdown backtick kullanma.'],
+                                                            ['role' => 'user', 'content' => $prompt],
+                                                        ],
+                                                        'temperature' => 0.7,
+                                                    ]);
+
+                                                if ($response->successful()) {
+                                                    $content = $response->json('choices.0.message.content');
+                                                    $content = trim(preg_replace('/```json\s*|\s*```/', '', $content));
+                                                    $data = json_decode($content, true);
+
+                                                    if ($data && isset($data['aio_summary'])) {
+                                                        $set('aio_summary', $data['aio_summary']);
+                                                        $set('aio_target_keywords', $data['aio_target_keywords'] ?? []);
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title('Yapay zeka alanları doldurdu!')
+                                                            ->success()
+                                                            ->send();
+                                                    } else {
+                                                        throw new \Exception('JSON parse edilemedi.');
+                                                    }
+                                                } else {
+                                                    throw new \Exception('API Hatası: ' . $response->body());
+                                                }
+                                            } catch (\Exception $e) {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Hata oluştu')
+                                                    ->body($e->getMessage())
+                                                    ->danger()
+                                                    ->send();
+                                            }
+                                        }),
+                                ])->columnSpanFull(),
                                 Textarea::make('aio_summary')
                                     ->label('AI Özeti (TL;DR)')
                                     ->rows(3)
