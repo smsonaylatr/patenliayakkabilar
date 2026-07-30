@@ -396,6 +396,9 @@ class ProductForm
                                                 ->required()
                                                 ->helperText('Her numara için stok = koli adedi. Örn: 2 koli = her numaradan 2 adet.')
                                                 ->minValue(1),
+                                            TextInput::make('series_sku')
+                                                ->label('Ana SKU (Opsiyonel)')
+                                                ->helperText('Girerseniz varyantlar "SKU-Numara" şeklinde üretilir.'),
                                         ])
                                         ->modalHeading('📦 Varyant Serisi Oluştur')
                                         ->modalDescription('Seçtiğiniz numara aralığında tüm varyantları otomatik oluşturur. SKU otomatik üretilir.')
@@ -422,7 +425,11 @@ class ProductForm
 
                                             $newVariants = [];
                                             for ($size = $start; $size <= $end; $size++) {
-                                                $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
+                                                if (!empty($data['series_sku'])) {
+                                                    $sku = $data['series_sku'] . '-' . $size;
+                                                } else {
+                                                    $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
+                                                }
 
                                                 $newVariants[] = [
                                                     'color'          => $colors,
