@@ -235,25 +235,21 @@ class ProductForm
 
                                             // Meta Description
                                             $parts = [];
-                                            $intro = $name;
-                                            if ($genderLabel) $intro .= ' ' . $genderLabel;
-                                            if ($ageLabel && $ageLabel !== $genderLabel) $intro .= ' ' . $ageLabel;
-                                            if ($brand) $intro .= ' ' . $brand;
-                                            $intro .= ' patenli ayakkabı.';
+                                            $intro = $brand ? $brand . ' markalı' : 'En trend';
+                                            $intro .= " {$name} patenli ayakkabı modeli.";
+                                            if ($genderLabel && $genderLabel !== 'Belirtilmemiş') {
+                                                $intro .= " {$genderLabel} kullanımı için ideal.";
+                                            }
                                             $parts[] = $intro;
 
-                                            if ($price && $price > 0) {
-                                                $parts[] = 'Fiyat: ' . number_format((float) $price, 0) . ' ₺.';
-                                            }
-
                                             if ($shortDesc) {
-                                                $firstSentence = Str::before($shortDesc, '.');
+                                                $firstSentence = \Illuminate\Support\Str::before(strip_tags($shortDesc), '.');
                                                 if (mb_strlen($firstSentence) > 10 && mb_strlen($firstSentence) < 80) {
                                                     $parts[] = trim($firstSentence) . '.';
                                                 }
                                             }
 
-                                            $parts[] = '✅ Ücretsiz kargo, hızlı teslimat.';
+                                            $parts[] = '✅ Ücretsiz kargo, güvenli ödeme ve taksit seçenekleriyle hemen sipariş verin!';
 
                                             $desc = '';
                                             foreach ($parts as $part) {
@@ -289,7 +285,7 @@ class ProductForm
                                     ->hintColor(fn (?string $state): string => ($state && mb_strlen($state) > 150) ? 'warning' : 'gray')
                                     ->live(onBlur: true)
                                     ->placeholder('Boş bırakırsan kayıt sırasında otomatik üretilir')
-                                    ->helperText('İdeal: 120-155 karakter. Fiyat, özellik ve CTA içermeli.')
+                                    ->helperText('İdeal: 120-155 karakter. Özellik ve CTA (Tıklama çağrısı) içermeli.')
                                     ->default(null)
                                     ->columnSpanFull(),
 
