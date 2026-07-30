@@ -101,7 +101,13 @@ if (is_dir($cacheDir)) {
     echo "✅ Application cache temizlendi\n";
 }
 
-// 6. Fix permissions — storage dizinleri
+// 6. Reload Octane (RoadRunner) if it's running
+echo "🚀 Octane (RoadRunner) yeniden başlatılıyor...\n";
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan octane:reload 2>&1', $octaneOutput, $octaneCode);
+echo implode("\n", $octaneOutput) . "\n";
+echo "✅ Octane yenilendi\n";
+
+// 7. Fix permissions — storage dizinleri
 $storageDirs = [
     'storage',
     'storage/logs',
