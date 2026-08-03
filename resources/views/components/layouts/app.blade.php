@@ -42,6 +42,7 @@
         <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
         <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
+        <meta name="google" content="notranslate">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
         <link rel="mcp" href="/mcp.json">
 
