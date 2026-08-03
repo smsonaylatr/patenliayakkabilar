@@ -47,4 +47,8 @@ return [
         'merchant_salt' => env('PAYTR_MERCHANT_SALT'),
     ],
 
+    'etbis' => [
+        'api_key' => env('ETBIS_API_KEY'),
+    ],
+
 ];
