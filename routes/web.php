@@ -183,13 +183,16 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
 Route::get('/blog', function (\Illuminate\Http\Request $request) {
     $query = \App\Models\BlogPost::where('status', true);
 
-    if ($request->has('q') && !empty($request->q)) {
-        $search = $request->q;
-        $query->where(function($q) use ($search) {
-            $q->where('title', 'like', '%' . $search . '%')
-              ->orWhere('excerpt', 'like', '%' . $search . '%')
-              ->orWhere('content', 'like', '%' . $search . '%');
-        });
+    if ($request->has('q') && !empty(trim($request->q))) {
+        $terms = explode(' ', trim($request->q));
+        foreach ($terms as $term) {
+            if (empty($term)) continue;
+            $query->where(function($q) use ($term) {
+                $q->where('title', 'like', '%' . $term . '%')
+                  ->orWhere('excerpt', 'like', '%' . $term . '%')
+                  ->orWhere('content', 'like', '%' . $term . '%');
+            });
+        }
     }
 
     $posts = $query->orderByDesc('created_at')->paginate(12)->appends($request->all());
