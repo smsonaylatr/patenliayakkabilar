@@ -4,9 +4,12 @@ namespace App\Livewire\Frontend;
 
 use App\Models\BlogPost;
 use Livewire\Component;
+use Livewire\WithPagination;
 
-class BlogSearch extends Component
+class BlogIndex extends Component
 {
+    use WithPagination;
+
     public $search = '';
 
     public function mount()
@@ -14,14 +17,23 @@ class BlogSearch extends Component
         $this->search = request('q', '');
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $results = collect();
+        $query = BlogPost::where('status', true);
 
-        if (strlen(trim($this->search)) >= 2) {
+        if (strlen(trim($this->search)) > 0) {
             $terms = explode(' ', trim($this->search));
-            $query = BlogPost::where('status', true);
-            
             foreach ($terms as $term) {
                 if (empty($term)) continue;
                 $query->where(function ($q) use ($term) {
@@ -29,12 +41,12 @@ class BlogSearch extends Component
                       ->orWhere('excerpt', 'like', '%' . $term . '%');
                 });
             }
-            
-            $results = $query->take(5)->get();
         }
 
-        return view('livewire.frontend.blog-search', [
-            'results' => $results
-        ]);
+        $posts = $query->orderByDesc('created_at')->paginate(12);
+
+        return view('livewire.frontend.blog-index', [
+            'posts' => $posts
+        ])->layout('components.layouts.app');
     }
 }

@@ -180,23 +180,7 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
 // ========================
 // BLOG / REHBER MERKEZİ
 // ========================
-Route::get('/blog', function (\Illuminate\Http\Request $request) {
-    $query = \App\Models\BlogPost::where('status', true);
-
-    if ($request->has('q') && !empty(trim($request->q))) {
-        $terms = explode(' ', trim($request->q));
-        foreach ($terms as $term) {
-            if (empty($term)) continue;
-            $query->where(function($q) use ($term) {
-                $q->where('title', 'like', '%' . $term . '%')
-                  ->orWhere('excerpt', 'like', '%' . $term . '%');
-            });
-        }
-    }
-
-    $posts = $query->orderByDesc('created_at')->paginate(12)->appends($request->all());
-    return view('blog.index', compact('posts'));
-})->name('blog.index');
+Route::get('/blog', \App\Livewire\Frontend\BlogIndex::class)->name('blog.index');
 
 Route::get('/blog/{slug}', function ($slug) {
     $post = \App\Models\BlogPost::where('slug', $slug)->where('status', true)->firstOrFail();
