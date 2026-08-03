@@ -180,10 +180,19 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
 // ========================
 // BLOG / REHBER MERKEZİ
 // ========================
-Route::get('/blog', function () {
-    $posts = \App\Models\BlogPost::where('status', true)
-        ->orderByDesc('created_at')
-        ->paginate(12);
+Route::get('/blog', function (\Illuminate\Http\Request $request) {
+    $query = \App\Models\BlogPost::where('status', true);
+
+    if ($request->has('q') && !empty($request->q)) {
+        $search = $request->q;
+        $query->where(function($q) use ($search) {
+            $q->where('title', 'like', '%' . $search . '%')
+              ->orWhere('excerpt', 'like', '%' . $search . '%')
+              ->orWhere('content', 'like', '%' . $search . '%');
+        });
+    }
+
+    $posts = $query->orderByDesc('created_at')->paginate(12)->appends($request->all());
     return view('blog.index', compact('posts'));
 })->name('blog.index');
 
