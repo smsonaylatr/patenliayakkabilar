@@ -7,7 +7,7 @@
             <div class="space-y-6 bg-gray-50/50 p-8 rounded-3xl border border-gray-100">
                 <div>
                     <label for="name" class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Ad Soyad</label>
-                    <input wire:model="name" type="text" id="name" class="w-full bg-white border @error('name') border-red-300 @else border-gray-200 @enderror rounded-xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow shadow-sm">
+                    <input wire:model="name" type="text" id="name" x-on:input="$el.value = $el.value.split(' ').map(w => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR')).join(' ')" class="w-full bg-white border @error('name') border-red-300 @else border-gray-200 @enderror rounded-xl px-5 py-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-shadow shadow-sm">
                     @error('name') <span class="text-red-500 text-xs font-bold mt-2 block">{{ $message }}</span> @enderror
                 </div>
                 <div>
