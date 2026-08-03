@@ -1,35 +1,40 @@
+# Google Merchant & Search Crawler Directives
 User-agent: Googlebot
 Allow: /
+Allow: /urun/
+Allow: /storage/
+Allow: /feeds/
 
 User-agent: Googlebot-Image
 Allow: /
+Allow: /storage/
+Allow: /images/
 
 User-agent: Storebot-Google
 Allow: /
+Allow: /urun/
+
+User-agent: Google-InspectionTool
+Allow: /
+Allow: /urun/
 
 User-agent: *
 Allow: /
+Allow: /urun/
+Allow: /storage/
 
-# Admin paneli
+# System and Account Page Disallows
 Disallow: /admin
 Disallow: /admin/*
-
-# Kullanıcı sayfaları
 Disallow: /checkout
 Disallow: /hesabim
 Disallow: /hesabim/*
 Disallow: /login
 Disallow: /register
 Disallow: /auth/*
-
-# Teknik
 Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
-# Parametreler
-Disallow: /*?sort=
-Disallow: /*?filter=
-
-# Sitemap
+# Sitemap & Feed References
 Sitemap: https://patenliayakkabilar.com/sitemap.xml
