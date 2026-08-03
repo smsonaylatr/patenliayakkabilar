@@ -36,7 +36,7 @@ class Checkout extends Component
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
         'shipping_address' => 'required|string',
-        'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
+        'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card,google_pay',
         'terms_consent' => 'accepted',
     ];
 
@@ -218,6 +218,11 @@ class Checkout extends Component
         session(['last_order_number' => $order->order_number]);
         $this->created_order_number = $order->order_number;
 
+        if ($this->payment_method === 'google_pay') {
+            $this->dispatch('trigger-google-pay', ['amount' => $grandTotal]);
+            return;
+        }
+
         // IF KREDI KARTI VEYA HAVALE/EFT, PAYTR TOKEN AL
         if (in_array($this->payment_method, ['credit_card', 'wire_transfer'])) {
             $this->paytr_token = $this->getPaytrToken($order, $cart->items, $this->payment_method);
@@ -363,6 +368,40 @@ class Checkout extends Component
     public function editInformation()
     {
         $this->paytr_token = null;
+    }
+
+    public function processGooglePay($token)
+    {
+        $order = \App\Models\Order::where('order_number', $this->created_order_number)->first();
+        if (!$order) {
+            $this->dispatch('notify', message: 'Sipariş bulunamadı.', type: 'error');
+            return;
+        }
+
+        // Burada PayTR Direct API'ye (Non-3D) Google Pay'den dönen token ($token) gönderilerek ödeme tahsil edilir.
+        // PayTR dokümantasyonuna göre gpay_token parametresi veya user_basket ile tokenizasyon işlemi yapılır.
+        // Örnek bir başarılı işlem simülasyonu:
+        try {
+            // TODO: CURL request to PayTR Direct API using $token
+            // $result = $this->sendGooglePayTokenToPaytr($order, $token);
+            $isSuccess = true; 
+            
+            if ($isSuccess) {
+                // Sepeti boşalt
+                $cartService = app(\App\Services\CartService::class);
+                $cartService->clearCart();
+                
+                return redirect()->route('order.success', [
+                    'order_number' => $order->order_number, 
+                    'method' => 'google_pay'
+                ]);
+            } else {
+                $this->dispatch('notify', message: 'Ödeme işlemi başarısız oldu.', type: 'error');
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google Pay Error: ' . $e->getMessage());
+            $this->dispatch('notify', message: 'Ödeme alınırken bir hata oluştu.', type: 'error');
+        }
     }
 
     public function render(CartService $cartService)

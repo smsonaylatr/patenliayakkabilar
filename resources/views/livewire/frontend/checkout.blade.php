@@ -137,6 +137,23 @@
                                 </div>
                             </label>
 
+                            <!-- Google Pay Seçeneği -->
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'google_pay' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
+                                <div class="flex items-center h-5">
+                                    <input wire:model.live="payment_method" type="radio" value="google_pay" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="block text-sm font-bold text-gray-900">Google Pay</span>
+                                        <div class="flex gap-1">
+                                            <i class="fa-brands fa-google text-xl text-gray-800"></i>
+                                            <i class="fa-brands fa-google-pay text-2xl text-gray-800"></i>
+                                        </div>
+                                    </div>
+                                    <span class="block text-xs text-gray-500 mt-0.5">Google hesabınızla hızlı ve güvenli tek tıkla ödeme.</span>
+                                </div>
+                            </label>
+
                             <!-- Havale/EFT Seçeneği -->
                             <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
                                 <div class="flex items-center h-5">
@@ -403,3 +420,77 @@
         "></div>
     @endif
 </div>
+
+<script src="https://pay.google.com/gp/p/js/pay.js"></script>
+@script
+<script>
+    let paymentsClient = null;
+
+    function getGoogleIsReadyToPayRequest() {
+        return Object.assign({}, {
+            apiVersion: 2,
+            apiVersionMinor: 0,
+            allowedPaymentMethods: [
+                {
+                    type: 'CARD',
+                    parameters: {
+                        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                        allowedCardNetworks: ['AMEX', 'DISCOVER', 'INTERAC', 'JCB', 'MASTERCARD', 'VISA']
+                    },
+                    tokenizationSpecification: {
+                        type: 'PAYMENT_GATEWAY',
+                        parameters: {
+                            'gateway': 'paytr',
+                            'gatewayMerchantId': '{{ config("services.paytr.merchant_id") }}'
+                        }
+                    }
+                }
+            ]
+        });
+    }
+
+    function getGooglePaymentDataRequest(amount) {
+        const paymentDataRequest = getGoogleIsReadyToPayRequest();
+        paymentDataRequest.transactionInfo = {
+            totalPriceStatus: 'FINAL',
+            totalPrice: amount.toString(),
+            currencyCode: 'TRY',
+            countryCode: 'TR'
+        };
+        paymentDataRequest.merchantInfo = {
+            merchantId: '{{ config("services.google_pay.merchant_id", "01234567890123456789") }}',
+            merchantName: 'Patenli Ayakkabılar'
+        };
+        return paymentDataRequest;
+    }
+
+    function getGooglePaymentsClient() {
+        if (paymentsClient === null) {
+            paymentsClient = new google.payments.api.PaymentsClient({
+                environment: '{{ config("services.google_pay.environment", "TEST") }}'
+            });
+        }
+        return paymentsClient;
+    }
+
+    Livewire.on('trigger-google-pay', (event) => {
+        const amount = event[0].amount;
+        const paymentsClient = getGooglePaymentsClient();
+        const paymentDataRequest = getGooglePaymentDataRequest(amount);
+
+        paymentsClient.loadPaymentData(paymentDataRequest)
+            .then(function(paymentData) {
+                // handle the response
+                paymentToken = paymentData.paymentMethodData.tokenizationData.token;
+                $wire.processGooglePay(paymentToken);
+            })
+            .catch(function(err) {
+                // show error in developer console for debugging
+                console.error(err);
+                if (err.statusCode !== 'CANCELED') {
+                    $wire.dispatch('notify', { message: 'Google Pay işlemi sırasında bir hata oluştu.', type: 'error' });
+                }
+            });
+    });
+</script>
+@endscript
