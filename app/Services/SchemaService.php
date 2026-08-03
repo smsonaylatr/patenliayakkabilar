@@ -289,6 +289,7 @@ class SchemaService
             'price'         => number_format((float) $price, 2, '.', ''),
             'priceCurrency' => 'TRY',
             'priceValidUntil' => now()->addYear()->format('Y-m-d'),
+            'validFrom'     => now()->format('Y-m-d'),
             'availability'  => $availability,
             'itemCondition' => 'https://schema.org/NewCondition',
             'url'           => $appUrl . '/urun/' . $product->slug,
