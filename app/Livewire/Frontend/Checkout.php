@@ -21,6 +21,7 @@ class Checkout extends Component
     
     public $payment_method = 'credit_card';
     public $sms_consent = false;
+    public $terms_consent = false;
 
     public $cities = [];
     public $districts = [];
@@ -36,6 +37,7 @@ class Checkout extends Component
         'shipping_district' => 'required|string|max:100',
         'shipping_address' => 'required|string',
         'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
+        'terms_consent' => 'accepted',
     ];
 
     protected $messages = [
@@ -47,6 +49,7 @@ class Checkout extends Component
         'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
         'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
+        'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
     ];
 
     public $isCodAllowed = true;

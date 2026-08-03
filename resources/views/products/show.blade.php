@@ -169,6 +169,40 @@
                         <livewire:product.add-to-cart-button :product="$product" />
                     </div>
 
+                    {{-- Ortalama Teslimat Süresi Rozeti --}}
+                    @php
+                        $deliveryTimeText = $product->delivery_time 
+                            ? (stripos($product->delivery_time, 'gün') === false ? $product->delivery_time . ' iş günü' : $product->delivery_time)
+                            : '1-3 iş günü';
+
+                        $startDate = \Carbon\Carbon::now()->addDays(1);
+                        $endDate = \Carbon\Carbon::now()->addDays(3);
+                        if ($startDate->isWeekend()) { $startDate->addDays(2); }
+                        if ($endDate->isWeekend()) { $endDate->addDays(2); }
+                        
+                        $turkishMonths = [
+                            1 => 'Ocak', 2 => 'Şubat', 3 => 'Mart', 4 => 'Nisan', 5 => 'Mayıs', 6 => 'Haziran',
+                            7 => 'Temmuz', 8 => 'Ağustos', 9 => 'Eylül', 10 => 'Ekim', 11 => 'Kasım', 12 => 'Aralık'
+                        ];
+                        $startFormatted = $startDate->day . ' ' . ($turkishMonths[$startDate->month] ?? '');
+                        $endFormatted = $endDate->day . ' ' . ($turkishMonths[$endDate->month] ?? '');
+                    @endphp
+                    <div class="mt-4 p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border border-emerald-100 rounded-xl flex items-center gap-3 shadow-xs">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-base shrink-0 shadow-xs">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div class="flex-1 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-gray-900">Ortalama Teslimat Süresi:</span>
+                                <span class="font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">{{ $deliveryTimeText }}</span>
+                            </div>
+                            <p class="text-gray-600 mt-1 flex items-center gap-1">
+                                <i class="fa-regular fa-calendar-check text-emerald-600"></i>
+                                Tahmini Teslimat: <strong class="text-gray-900 font-bold">{{ $startFormatted }} - {{ $endFormatted }}</strong> tarihleri arasında
+                            </p>
+                        </div>
+                    </div>
+
                     {{-- ========================================
                          GÜVEN SİNYALLERİ — Minimalist
                     ======================================== --}}
@@ -285,8 +319,8 @@
                                     <div class="flex items-start gap-4">
                                         <i class="fa-solid fa-truck-fast text-emerald-500 text-sm mt-0.5 w-5 flex-shrink-0 text-center"></i>
                                         <div>
-                                            <p class="text-xs font-semibold text-gray-800">Sabit 1 TL Kargo</p>
-                                            <p class="text-[11px] text-gray-500 mt-0.5">Ürün başı kargo ücreti sadece 1 TL. Türkiye'nin her yerine {{ $product->delivery_time ? (stripos($product->delivery_time, 'gün') === false ? $product->delivery_time . ' iş günü içinde' : $product->delivery_time) : '1-3 iş günü içinde' }} kargoya verilir.</p>
+                                            <p class="text-xs font-semibold text-gray-800">Hızlı & Sabit 1 TL Kargo</p>
+                                            <p class="text-[11px] text-gray-500 mt-0.5">Ürün başı kargo ücreti sadece 1 TL. Türkiye'nin her yerine ortalama <strong>{{ $product->delivery_time ? (stripos($product->delivery_time, 'gün') === false ? $product->delivery_time . ' iş günü' : $product->delivery_time) : '1-3 iş günü' }}</strong> içinde kargoya verilip adrese ulaştırılır.</p>
                                         </div>
                                     </div>
                                     <div class="flex items-start gap-4">

@@ -236,6 +236,7 @@
                                 <li><a href="{{ route('pages.show', 'hakkimizda') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Hakkımızda</a></li>
                                 <li><a href="{{ route('pages.show', 'sikca-sorulan-sorular') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Sıkça Sorulan Sorular</a></li>
                                 <li><a href="{{ route('pages.show', 'iade-ve-degisim') }}" class="hover:text-brand-orange transition-colors" wire:navigate>İade ve Değişim</a></li>
+                                <li><a href="{{ route('pages.show', 'on-bilgilendirme-formu') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Ön Bilgilendirme Formu</a></li>
                                 <li><a href="{{ route('pages.show', 'mesafeli-satis-sozlesmesi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Mesafeli Satış Sözleşmesi</a></li>
                                 <li><a href="{{ route('pages.show', 'gizlilik-politikasi') }}" class="hover:text-brand-orange transition-colors" wire:navigate>Gizlilik Politikası</a></li>
                             </ul>

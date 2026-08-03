@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 pt-8 pb-24">
+<div class="min-h-screen bg-gray-50 pt-8 pb-24" x-data="{ activeModal: null }" @open-modal.window="activeModal = $event.detail">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
@@ -171,7 +171,7 @@
                     <!-- Mobil İçin Buton (Sadece Mobilde Görünür) -->
                     <div class="mt-6">
                         <!-- SMS Consent (Mobil) -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="flex items-start cursor-pointer group">
                                 <div class="flex items-center h-5 mt-0.5">
                                     <input wire:model="sms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
@@ -180,6 +180,18 @@
                                     Kampanya, duyuru ve sepet hatırlatmalarından haberdar olmak için iletişim izni veriyorum.
                                 </div>
                             </label>
+                        </div>
+                        <!-- Terms & Delivery Consent (Mobil) -->
+                        <div class="mb-4">
+                            <label class="flex items-start cursor-pointer group">
+                                <div class="flex items-center h-5 mt-0.5">
+                                    <input wire:model="terms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
+                                </div>
+                                <div class="ml-3 text-xs text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">
+                                    <button type="button" @click="$dispatch('open-modal', 'on-bilgilendirme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Ön Bilgilendirme Formu</button> ve <button type="button" @click="$dispatch('open-modal', 'mesafeli-sozlesme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Mesafeli Satış Sözleşmesi</button>'ni okudum, kabul ediyorum.
+                                </div>
+                            </label>
+                            @error('terms_consent') <span class="text-red-500 text-xs mt-1 block font-medium">{{ $message }}</span> @enderror
                         </div>
                         @if(!$paytr_token)
                             <button type="submit" onclick="document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true}))" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -247,7 +259,7 @@
                     <!-- Desktop İçin Buton -->
                     <div class="mt-8 hidden lg:block">
                         <!-- SMS Consent (Desktop) -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="flex items-start cursor-pointer group">
                                 <div class="flex items-center h-5 mt-0.5">
                                     <input wire:model="sms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
@@ -256,6 +268,18 @@
                                     Kampanya, duyuru ve sepet hatırlatmalarından haberdar olmak için iletişim izni veriyorum.
                                 </div>
                             </label>
+                        </div>
+                        <!-- Terms & Delivery Consent (Desktop) -->
+                        <div class="mb-4">
+                            <label class="flex items-start cursor-pointer group">
+                                <div class="flex items-center h-5 mt-0.5">
+                                    <input wire:model="terms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
+                                </div>
+                                <div class="ml-3 text-xs text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">
+                                    <button type="button" @click="$dispatch('open-modal', 'on-bilgilendirme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Ön Bilgilendirme Formu</button> ve <button type="button" @click="$dispatch('open-modal', 'mesafeli-sozlesme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Mesafeli Satış Sözleşmesi</button>'ni okudum, kabul ediyorum.
+                                </div>
+                            </label>
+                            @error('terms_consent') <span class="text-red-500 text-xs mt-1 block font-medium">{{ $message }}</span> @enderror
                         </div>
                         @if(!$paytr_token)
                             <button wire:click="placeOrder" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
@@ -273,6 +297,86 @@
                 </div>
             </div>
 
+    <!-- Sözleşme & Bilgilendirme Modal Penceresi -->
+    <div x-show="activeModal !== null" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="activeModal !== null" x-transition.opacity @click="activeModal = null" class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"></div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <!-- Ön Bilgilendirme Formu Modal -->
+            <div x-show="activeModal === 'on-bilgilendirme'" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-file-contract text-brand-orange"></i>
+                        Ön Bilgilendirme Formu
+                    </h3>
+                    <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="prose prose-sm max-w-none text-gray-700 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">1. Satıcı Bilgileri</h4>
+                        <p class="text-xs text-gray-600 mt-1">Unvanı: Patenli Ayakkabılar<br>E-posta: destek@patenliayakkabilar.com<br>Müşteri Hizmetleri: 0850 123 45 67</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">2. Sözleşme Konusu Ürün ve Fiyat</h4>
+                        <p class="text-xs text-gray-600 mt-1">Siparişe konu ürünlerin türü, miktarı, birim fiyatı ve KDV dahil toplam tutarı bu sipariş özetinde belirtildiği gibidir.</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 text-xs">
+                        <h4 class="font-bold text-emerald-950 text-sm mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-truck-fast text-emerald-600"></i>
+                            3. Ortalama Teslimat Süresi & Kargo Şartları
+                        </h4>
+                        <p class="leading-relaxed">Sipariş verilen ürünler, yasal 30 günlük azami süreyi aşmamak kaydıyla <strong>ortalama 1-3 iş günü</strong> (ürün detay sayfasında özel teslimat süresi belirtilen ürünlerde ilgili süre geçerlidir) içerisinde anlaşmalı kargo firmasına teslim edilerek ALICI'nın bildirdiği adrese ulaştırılır.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">4. Cayma Hakkı</h4>
+                        <p class="text-xs text-gray-600 mt-1">ALICI, ürünü teslim aldığı tarihten itibaren 14 (on dört) gün içerisinde hiçbir gerekçe göstermeksizin ve cezai şart ödemeksizin cayma hakkını kullanabilir.</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+                    <button type="button" @click="activeModal = null" class="px-6 py-2.5 bg-black hover:bg-gray-800 text-white font-bold rounded-xl text-sm transition-colors">Kapat</button>
+                </div>
+            </div>
+
+            <!-- Mesafeli Satış Sözleşmesi Modal -->
+            <div x-show="activeModal === 'mesafeli-sozlesme'" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-file-signature text-brand-orange"></i>
+                        Mesafeli Satış Sözleşmesi
+                    </h3>
+                    <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div class="prose prose-sm max-w-none text-gray-700 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">Madde 1 - Taraflar</h4>
+                        <p class="text-xs text-gray-600 mt-1">İşbu sözleşme Patenli Ayakkabılar (SATICI) ile patenliayakkabilar.com üzerinden sipariş veren Müşteri (ALICI) arasında dijital ortamda onaylanarak yürürlüğe girmiştir.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">Madde 2 - Konu</h4>
+                        <p class="text-xs text-gray-600 mt-1">İşbu sözleşmenin konusu, ALICI'nın SATICI'ya ait web sitesinden siparişini yaptığı ürünün satışı ve teslimi hususlarında 6502 sayılı Kanun uyarınca tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 text-xs">
+                        <h4 class="font-bold text-emerald-950 text-sm mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-truck-clock text-emerald-600"></i>
+                            Madde 3 - Ortalama Teslimat Süresi & İfa Şekli
+                        </h4>
+                        <p class="leading-relaxed">Sipariş konusu ürün/ürünler, ALICI'nın belirttiği teslimat adresine, yasal 30 günlük süreyi aşmamak kaydıyla <strong>ortalama 1-3 iş günü</strong> içerisinde faturası ile birlikte paketlenmiş olarak kargo firmasına teslim edilir ve ALICI'ya ulaştırılır.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-sm">Madde 4 - Cayma Hakkı</h4>
+                        <p class="text-xs text-gray-600 mt-1">ALICI, malı teslim aldığı tarihten itibaren 14 gün içerisinde hiçbir gerekçe göstermeksizin sözleşmeden cayma hakkına sahiptir.</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+                    <button type="button" @click="activeModal = null" class="px-6 py-2.5 bg-black hover:bg-gray-800 text-white font-bold rounded-xl text-sm transition-colors">Kapat</button>
+                </div>
+            </div>
         </div>
     </div>
 

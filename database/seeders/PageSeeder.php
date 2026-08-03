@@ -62,11 +62,29 @@ class PageSeeder extends Seeder
                 'content' => '
                     <h2>Mesafeli Satış Sözleşmesi</h2>
                     <p><strong>Madde 1: Taraflar</strong></p>
-                    <p>Bu sözleşme, bir tarafta Patenli Ayakkabılar (bundan sonra "SATICI" olarak anılacaktır) ile diğer tarafta ürünü satın alan tüketici (bundan sonra "ALICI" olarak anılacaktır) arasında elektronik ortamda akdedilmiştir.</p>
+                    <p>Bu sözleşme, bir tarafta Patenli Ayakkabılar (bundan sonra "SATICI" olarak anılacaktır) ile diğer tarafta internet sitesinden elektronik ortamda sipariş veren ALICI arasında akdedilmiştir.</p>
                     <p><strong>Madde 2: Sözleşmenin Konusu</strong></p>
-                    <p>İşbu sözleşmenin konusu, ALICI\'nın SATICI\'ya ait internet sitesinden elektronik ortamda siparişini yaptığı ürünün satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
-                    <p><strong>Madde 3: Cayma Hakkı</strong></p>
-                    <p>ALICI, ürünü teslim aldığı tarihten itibaren 14 (on dört) gün içinde hiçbir gerekçe göstermeksizin cayma hakkına sahiptir.</p>
+                    <p>İşbu sözleşmenin konusu, ALICI\'nın SATICI\'ya ait patenliayakkabilar.com web sitesinden elektronik ortamda siparişini yaptığı ürünün satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri gereğince tarafların hak ve yükümlülüklerinin saptanmasıdır.</p>
+                    <p><strong>Madde 3: Teslimat Süresi ve Şartları</strong></p>
+                    <p>Sipariş konusu ürün/ürünler, ALICI\'nın bildirdiği teslimat adresine faturası ile birlikte paketlenmiş olarak, yasal 30 günlük azami süreyi aşmamak koşuluyla <strong>ortalama 1-3 iş günü</strong> içerisinde kargo firmasına teslim edilir ve ALICI\'ya ulaştırılır. (Ürün detay sayfasında belirtilen özel teslimat süreleri saklıdır.) Kargo firmasından kaynaklanan olağanüstü gecikmelerden SATICI sorumlu tutulamaz.</p>
+                    <p><strong>Madde 4: Cayma Hakkı</strong></p>
+                    <p>ALICI, ürünü teslim aldığı tarihten itibaren 14 (on dört) gün içinde hiçbir gerekçe göstermeksizin ve cezai şart ödemeksizin cayma hakkına sahiptir.</p>
+                ',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Ön Bilgilendirme Formu',
+                'slug' => 'on-bilgilendirme-formu',
+                'content' => '
+                    <h2>Ön Bilgilendirme Formu</h2>
+                    <p><strong>1. Satıcı Bilgileri</strong></p>
+                    <p>Unvanı: Patenli Ayakkabılar<br>E-posta: destek@patenliayakkabilar.com<br>Müşteri Hizmetleri: 0850 123 45 67</p>
+                    <p><strong>2. Sözleşme Konusu Ürün ve Ödeme</strong></p>
+                    <p>Siparişe konu ürünün türü, miktarı, marka/modeli, rengi ve tüm vergiler dahil satış fiyatı siparişin sonlandırıldığı ekranda ve ALICI\'ya gönderilen sipariş onay e-postasında belirtildiği gibidir.</p>
+                    <p><strong>3. Ortalama Teslimat Süresi ve Kargo Şartları</strong></p>
+                    <p>Sipariş verilen ürünler, yasal 30 günlük süreyi aşmamak kaydıyla <strong>ortalama 1-3 iş günü</strong> (ürün sayfasında özel teslimat süresi belirtilen ürünler için ilgili süre geçerlidir) içerisinde anlaşmalı kargo firmasına teslim edilerek ALICI\'nın adresine ulaştırılır. Hafta sonu ve resmi tatillerde verilen siparişler takip eden ilk iş günü işleme alınır.</p>
+                    <p><strong>4. Cayma Hakkı</strong></p>
+                    <p>ALICI, malı teslim aldığı tarihten itibaren 14 (on dört) gün içerisinde hiçbir hukuki ve cezai sorumluluk üstlenmeksizin ve hiçbir gerekçe göstermeksizin malı reddederek sözleşmeden cayma hakkına sahiptir.</p>
                 ',
                 'is_active' => true,
             ],
