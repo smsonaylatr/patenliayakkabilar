@@ -65,8 +65,11 @@ class ProductVariant extends Model
             }
         });
 
-        // Fiyatlar yanlış girildiyse (indirim > fiyat) yerlerini değiştir
+        // Fiyatlar yanlış girildiyse (indirim > fiyat) yerlerini değiştir ve SKU temizle
         static::saving(function (ProductVariant $variant) {
+            if (!empty($variant->sku)) {
+                $variant->sku = \App\Services\SchemaService::sanitizeSku($variant->sku);
+            }
             if ($variant->discount_price && $variant->price && $variant->discount_price > $variant->price) {
                 $temp = $variant->price;
                 $variant->price = $variant->discount_price;

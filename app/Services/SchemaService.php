@@ -243,7 +243,8 @@ class SchemaService
 
         $hasVariants = $product->variants->isNotEmpty();
 
-        $parentSku = !empty($product->sku) ? $product->sku : ('SKU-' . $product->id);
+        $rawParentSku = !empty($product->sku) ? $product->sku : ('SKU-' . $product->id);
+        $parentSku = self::sanitizeSku($rawParentSku, 'SKU-' . $product->id);
 
         $data = [
             '@context'    => 'https://schema.org',
@@ -344,7 +345,8 @@ class SchemaService
                 
                 $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
                 $vSize = (string)$variant->size;
-                $variantSku = !empty($variant->sku) ? $variant->sku : ($parentSku . '-' . (!empty($vSize) ? $vSize : $variant->id));
+                $rawVariantSku = !empty($variant->sku) ? $variant->sku : ($parentSku . '-' . (!empty($vSize) ? $vSize : $variant->id));
+                $variantSku = self::sanitizeSku($rawVariantSku, $parentSku . '-' . $variant->id);
 
                 $variantData = [
                     '@type' => 'Product',
@@ -371,37 +373,34 @@ class SchemaService
 
         // AggregateRating — SADECE onaylı yorum varsa
         if ($approvedReviews->isNotEmpty()) {
+            $averageRating = number_format($approvedReviews->avg('rating'), 1, '.', '');
+            $reviewCount = $approvedReviews->count();
+
             $data['aggregateRating'] = [
                 '@type'       => 'AggregateRating',
-                'ratingValue' => round($approvedReviews->avg('rating'), 1),
-                'reviewCount' => $approvedReviews->count(),
-                'bestRating'  => 5,
-                'worstRating' => 1,
+                'ratingValue' => $averageRating,
+                'reviewCount' => (string) $reviewCount,
+                'bestRating'  => '5',
+                'worstRating' => '1',
             ];
 
-            // En son 5 onaylı yorumu ekle
-            $recentReviews = $approvedReviews->sortByDesc('created_at')->take(5);
-            $reviewData = [];
-
-            foreach ($recentReviews as $review) {
-                $reviewData[] = [
-                    '@type'        => 'Review',
-                    'reviewRating' => [
-                        '@type'      => 'Rating',
-                        'ratingValue' => $review->rating,
-                        'bestRating'  => 5,
-                        'worstRating' => 1,
+            $data['review'] = $approvedReviews->map(function ($rev) {
+                return [
+                    '@type'         => 'Review',
+                    'reviewRating'  => [
+                        '@type'       => 'Rating',
+                        'ratingValue' => (string) $rev->rating,
+                        'bestRating'  => '5',
+                        'worstRating' => '1',
                     ],
-                    'datePublished' => $review->created_at->toW3cString(),
-                    'author' => [
+                    'author'        => [
                         '@type' => 'Person',
-                        'name'  => $review->user->name ?? 'Anonim',
+                        'name'  => $rev->user_name ?: 'Müşteri',
                     ],
-                    'reviewBody' => $review->comment ?: '',
+                    'datePublished' => $rev->created_at->format('Y-m-d'),
+                    'reviewBody'    => $rev->comment ?: '',
                 ];
-            }
-
-            $data['review'] = $reviewData;
+            })->values()->toArray();
         }
 
         return $this->toScript($data);
