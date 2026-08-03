@@ -250,7 +250,7 @@ class SchemaService
             '@context'    => 'https://schema.org',
             '@type'       => $hasVariants ? 'ProductGroup' : 'Product',
             'name'        => $product->name,
-            'description' => strip_tags($product->short_description ?: $product->description),
+            'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
             'sku'         => $parentSku,
             'url'         => $appUrl . '/urun/' . $product->slug,
         ];
@@ -353,6 +353,7 @@ class SchemaService
                     '@type' => 'Product',
                     'name' => $product->name . ($vColor ? ' - ' . $vColor : '') . ($vSize ? ' (' . $vSize . ')' : ''),
                     'sku' => $variantSku,
+                    'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
                     'offers' => $variantOffer,
                 ];
 
