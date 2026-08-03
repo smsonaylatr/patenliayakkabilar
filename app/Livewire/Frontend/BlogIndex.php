@@ -43,10 +43,22 @@ class BlogIndex extends Component
             }
         }
 
+        $suggestions = collect();
+        if (strlen(trim($this->search)) > 0) {
+            $sQuery = BlogPost::where('status', true);
+            $terms = explode(' ', trim($this->search));
+            foreach ($terms as $term) {
+                if (empty($term)) continue;
+                $sQuery->where('title', 'like', '%' . $term . '%');
+            }
+            $suggestions = $sQuery->orderByDesc('created_at')->take(5)->get();
+        }
+
         $posts = $query->orderByDesc('created_at')->paginate(12);
 
         return view('livewire.frontend.blog-index', [
-            'posts' => $posts
+            'posts' => $posts,
+            'suggestions' => $suggestions
         ])->layout('components.layouts.app');
     }
 }

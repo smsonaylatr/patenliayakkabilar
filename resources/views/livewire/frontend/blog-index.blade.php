@@ -60,22 +60,20 @@
 
                     {{-- Arama Önerileri Dropdown --}}
                     <div x-show="open && $wire.search.length > 0" x-transition x-cloak class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden text-left" style="display: none;">
-                        @if(strlen($search) > 0 && $posts->count() > 0)
+                        @if(strlen($search) > 0 && $suggestions->count() > 0)
                             <ul class="py-2">
-                                @foreach($posts as $index => $post)
-                                    @if($index < 5)
-                                        <li>
-                                            <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="flex items-center px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
-                                                <svg class="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                <span class="truncate">{{ $post->title }}</span>
-                                            </a>
-                                        </li>
-                                    @endif
+                                @foreach($suggestions as $post)
+                                    <li>
+                                        <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="flex items-center px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                                            <svg class="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                            <span class="truncate">{{ $post->title }}</span>
+                                        </a>
+                                    </li>
                                 @endforeach
                             </ul>
                         @elseif(strlen($search) > 0)
                             <div class="px-6 py-4 text-sm text-gray-500 text-center">
-                                Sonuç bulunamadı.
+                                Başlıkta eşleşen sonuç bulunamadı.
                             </div>
                         @endif
                     </div>
