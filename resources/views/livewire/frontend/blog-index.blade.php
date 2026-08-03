@@ -32,11 +32,14 @@
                 <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">Patenli ayakkabı seçimi, kullanımı ve bakımı hakkında bilmeniz gereken her şey.</p>
                 
                 {{-- Arama Formu (Livewire Live Search) --}}
-                <div class="mt-8 max-w-xl mx-auto px-4 sm:px-0 relative">
+                <div class="mt-8 max-w-xl mx-auto px-4 sm:px-0 relative" x-data="{ open: false }" @click.outside="open = false">
                     <div class="relative flex items-center">
                         <input 
                             type="text" 
                             wire:model.live.debounce.300ms="search"
+                            @focus="open = true"
+                            @input="open = true"
+                            @keydown.escape="open = false"
                             placeholder="Blog yazılarında ara..." 
                             class="w-full pl-6 pr-24 py-3 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
                             autocomplete="off"
@@ -53,6 +56,28 @@
                                 </svg>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Arama Önerileri Dropdown --}}
+                    <div x-show="open && $wire.search.length > 0" x-transition x-cloak class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-lg overflow-hidden text-left" style="display: none;">
+                        @if(strlen($search) > 0 && $posts->count() > 0)
+                            <ul class="py-2">
+                                @foreach($posts as $index => $post)
+                                    @if($index < 5)
+                                        <li>
+                                            <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="flex items-center px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                                                <svg class="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                <span class="truncate">{{ $post->title }}</span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @elseif(strlen($search) > 0)
+                            <div class="px-6 py-4 text-sm text-gray-500 text-center">
+                                Sonuç bulunamadı.
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
