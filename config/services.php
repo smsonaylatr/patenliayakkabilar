@@ -49,6 +49,7 @@ return [
 
     'etbis' => [
         'api_key' => env('ETBIS_API_KEY'),
+        'site_id' => env('ETBIS_SITE_ID'),
     ],
 
 ];
