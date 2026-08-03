@@ -3,14 +3,19 @@
 namespace App\Filament\Resources\Orders\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use App\Models\Order;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrdersTable
 {
@@ -53,7 +58,7 @@ class OrdersTable
                             ->modalSubmitActionLabel('Kaydet')
                             ->modalCancelActionLabel('Vazgeç')
                             ->form([
-                                \Filament\Forms\Components\Select::make('status')
+                                Select::make('status')
                                     ->label('Durum')
                                     ->options([
                                         'pending' => 'Beklemede',
@@ -64,10 +69,15 @@ class OrdersTable
                                     ])
                                     ->placeholder('Seçiniz')
                                     ->default(fn (Order $record) => $record->status)
+                                    ->native(false)
                                     ->required(),
                             ])
                             ->action(function (Order $record, array $data): void {
                                 $record->update(['status' => $data['status']]);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sipariş durumu güncellendi')
+                                    ->success()
+                                    ->send();
                             })
                     ),
                 TextColumn::make('payment_status')
@@ -93,7 +103,7 @@ class OrdersTable
                             ->modalSubmitActionLabel('Kaydet')
                             ->modalCancelActionLabel('Vazgeç')
                             ->form([
-                                \Filament\Forms\Components\Select::make('payment_status')
+                                Select::make('payment_status')
                                     ->label('Ödeme Durumu')
                                     ->options([
                                         'pending' => 'Beklemede',
@@ -103,10 +113,15 @@ class OrdersTable
                                     ])
                                     ->placeholder('Seçiniz')
                                     ->default(fn (Order $record) => $record->payment_status)
+                                    ->native(false)
                                     ->required(),
                             ])
                             ->action(function (Order $record, array $data): void {
                                 $record->update(['payment_status' => $data['payment_status']]);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Ödeme durumu güncellendi')
+                                    ->success()
+                                    ->send();
                             })
                     ),
                 TextColumn::make('grand_total')
@@ -156,7 +171,8 @@ class OrdersTable
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
                         'cancelled' => 'İptal',
-                    ]),
+                    ])
+                    ->native(false),
                 SelectFilter::make('payment_status')
                     ->label('Ödeme Durumu')
                     ->options([
@@ -164,14 +180,16 @@ class OrdersTable
                         'paid' => 'Ödendi',
                         'refunded' => 'İade',
                         'failed' => 'Başarısız',
-                    ]),
+                    ])
+                    ->native(false),
                 SelectFilter::make('payment_method')
                     ->label('Ödeme Yöntemi')
                     ->options([
                         'credit_card' => 'Kredi Kartı',
                         'wire_transfer' => 'Havale/EFT',
                         'cash_on_delivery' => 'Kapıda Ödeme',
-                    ]),
+                    ])
+                    ->native(false),
             ])
             ->actions([
                 Action::make('createInvoice')
@@ -222,7 +240,7 @@ class OrdersTable
                     ->icon('heroicon-o-truck')
                     ->color('info')
                     ->form([
-                        \Filament\Forms\Components\Select::make('cargo_company')
+                        Select::make('cargo_company')
                             ->label('Kargo Firması')
                             ->options([
                                 'yurtici' => 'Yurtiçi Kargo',
@@ -231,8 +249,9 @@ class OrdersTable
                                 'surat' => 'Sürat Kargo',
                                 'ptt' => 'PTT Kargo',
                             ])
+                            ->native(false)
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('cargo_tracking_code')
+                        TextInput::make('cargo_tracking_code')
                             ->label('Takip Kodu')
                             ->required(),
                     ])
@@ -244,7 +263,7 @@ class OrdersTable
                         ]);
                         
                         \Filament\Notifications\Notification::make()
-                            ->title('Kargo bilgisi eklendi ve müşteri uyarıldı.')
+                            ->title('Kargo bilgisi eklendi ve sipariş kargoya verildi.')
                             ->success()
                             ->send();
                     })
@@ -286,6 +305,52 @@ class OrdersTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('exportSelectedOfflineConversions')
+                        ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Seçilen Siparişleri CSV Olarak Aktar')
+                        ->modalDescription('Seçtiğiniz siparişler Google Çevrimdışı Dönüşüm (Google Ads) formatında indirilecek ve dönüşüm aktarıldı olarak işaretlenecektir.')
+                        ->modalSubmitActionLabel('CSV İndir')
+                        ->action(function (Collection $records) {
+                            if ($records->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Seçili sipariş bulunamadı')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            $csvData = [];
+                            $csvData[] = ['Parameters:TimeZone', 'Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
+                            
+                            foreach ($records as $order) {
+                                $csvData[] = [
+                                    'Europe/Istanbul',
+                                    $order->gclid ?? ('OFFLINE_' . $order->order_number),
+                                    'Teslim Edilen Sipariş',
+                                    $order->updated_at ? $order->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+                                    $order->grand_total,
+                                    'TRY'
+                                ];
+                            }
+
+                            Order::whereIn('id', $records->pluck('id'))->update(['is_offline_conversion_exported' => true]);
+
+                            $callback = function() use ($csvData) {
+                                $file = fopen('php://output', 'w');
+                                foreach ($csvData as $row) {
+                                    fputcsv($file, $row);
+                                }
+                                fclose($file);
+                            };
+
+                            return response()->streamDownload($callback, 'google_ads_selected_conversions_' . date('Y-m-d') . '.csv', [
+                                'Content-Type' => 'text/csv',
+                                'Content-Disposition' => 'attachment; filename="google_ads_selected_conversions_' . date('Y-m-d') . '.csv"',
+                            ]);
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ])
@@ -294,47 +359,86 @@ class OrdersTable
                     ->label('Google Çevrimdışı Dönüşüm CSV İndir')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Teslim Edilenleri Dışa Aktar')
-                    ->modalDescription('Kapıda ödeme ve havale ile sipariş verilip "Teslim Edildi" statüsünde olan, Google Click ID içeren ve daha önce aktarılmayan siparişler CSV olarak indirilecektir. İndirme sonrası bu siparişler "Aktarıldı" olarak işaretlenecektir.')
-                    ->modalSubmitActionLabel('İndir')
-                    ->action(function () {
-                        $orders = Order::whereNotNull('gclid')
-                            ->where('is_offline_conversion_exported', false)
-                            ->where('status', 'delivered')
-                            ->whereIn('payment_method', ['cash_on_delivery', 'wire_transfer'])
-                            ->get();
+                    ->modalHeading('Google Çevrimdışı Dönüşüm CSV Dışa Aktar')
+                    ->modalDescription('Filtrelere uyan siparişler Google Ads CSV formatında indirilecek ve aktarıldı olarak işaretlenecektir.')
+                    ->modalSubmitActionLabel('CSV İndir')
+                    ->form([
+                        Select::make('status_filter')
+                            ->label('Sipariş Durumu')
+                            ->options([
+                                'delivered' => 'Sadece Teslim Edilenler (Teslim Edildi)',
+                                'delivered_processing' => 'Teslim Edilenler & Hazırlananlar',
+                                'all' => 'Tüm Durumlar (Tüm Siparişler)',
+                            ])
+                            ->default('delivered')
+                            ->native(false)
+                            ->required(),
+                        Select::make('payment_filter')
+                            ->label('Ödeme Yöntemi')
+                            ->options([
+                                'cod_wire' => 'Kapıda Ödeme & Havale / EFT',
+                                'all' => 'Tüm Ödeme Yöntemleri (Kredi Kartı Dahil)',
+                            ])
+                            ->default('cod_wire')
+                            ->native(false)
+                            ->required(),
+                        Toggle::make('only_new')
+                            ->label('Sadece daha önce aktarılmayan siparişleri getir')
+                            ->default(true),
+                        Toggle::make('only_with_gclid')
+                            ->label('Sadece Google Click ID (GCLID) içerenleri getir')
+                            ->default(true),
+                    ])
+                    ->action(function (array $data) {
+                        $query = Order::query();
+
+                        if ($data['status_filter'] === 'delivered') {
+                            $query->where('status', 'delivered');
+                        } elseif ($data['status_filter'] === 'delivered_processing') {
+                            $query->whereIn('status', ['delivered', 'processing']);
+                        }
+
+                        if ($data['payment_filter'] === 'cod_wire') {
+                            $query->whereIn('payment_method', ['cash_on_delivery', 'wire_transfer']);
+                        }
+
+                        if (!empty($data['only_new'])) {
+                            $query->where('is_offline_conversion_exported', false);
+                        }
+
+                        if (!empty($data['only_with_gclid'])) {
+                            $query->whereNotNull('gclid');
+                        }
+
+                        $orders = $query->get();
 
                         if ($orders->isEmpty()) {
                             \Filament\Notifications\Notification::make()
-                                ->title('Aktarılacak sipariş yok')
+                                ->title('Aktarılacak sipariş bulunamadı')
+                                ->body('Seçilen filtrelere uygun sipariş kaydı bulunamadı. Sipariş durumunu/filtreleri değiştirebilir veya tablodan sipariş seçip "Toplu İşlemler -> Seçilenler" seçeneğiyle indirebilirsiniz.')
                                 ->warning()
                                 ->send();
                             return;
                         }
 
                         $csvData = [];
-                        // Google Ads Beklenen Sütunlar
                         $csvData[] = ['Parameters:TimeZone', 'Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
                         
                         foreach ($orders as $order) {
                             $csvData[] = [
                                 'Europe/Istanbul',
-                                $order->gclid,
-                                'Teslim Edilen Sipariş', // Dönüşüm adının Google Ads ile aynı olması gerekir
-                                $order->updated_at->format('Y-m-d H:i:s'),
+                                $order->gclid ?? ('OFFLINE_' . $order->order_number),
+                                'Teslim Edilen Sipariş',
+                                $order->updated_at ? $order->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
                                 $order->grand_total,
                                 'TRY'
                             ];
                         }
 
-                        // Siparişleri işaretle
                         Order::whereIn('id', $orders->pluck('id'))->update(['is_offline_conversion_exported' => true]);
 
-                        // CSV Oluştur
                         $callback = function() use ($csvData) {
                             $file = fopen('php://output', 'w');
-                            // UTF-8 BOM eklenebilir, Google genelde normal UTF-8 ister
                             foreach ($csvData as $row) {
                                 fputcsv($file, $row);
                             }
