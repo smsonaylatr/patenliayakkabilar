@@ -23,7 +23,7 @@
                 'name' => $product->name,
                 'image' => [$product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png')],
                 'description' => Str::limit(strip_tags($product->short_description), 200),
-                'sku' => $product->sku ?? (string)$product->id,
+                'sku' => !empty($product->sku) ? $product->sku : ('SKU-' . $product->id),
                 'offers' => [
                     '@type' => 'Offer',
                     'url' => url()->current(),

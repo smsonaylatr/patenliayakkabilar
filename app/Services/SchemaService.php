@@ -243,12 +243,14 @@ class SchemaService
 
         $hasVariants = $product->variants->isNotEmpty();
 
+        $parentSku = !empty($product->sku) ? $product->sku : ('SKU-' . $product->id);
+
         $data = [
             '@context'    => 'https://schema.org',
             '@type'       => $hasVariants ? 'ProductGroup' : 'Product',
             'name'        => $product->name,
             'description' => strip_tags($product->short_description ?: $product->description),
-            'sku'         => $product->sku ?? (string)$product->id,
+            'sku'         => $parentSku,
             'url'         => $appUrl . '/urun/' . $product->slug,
         ];
 
@@ -257,7 +259,7 @@ class SchemaService
         }
 
         if ($hasVariants) {
-            $data['productGroupID'] = $product->sku ?? (string)$product->id;
+            $data['productGroupID'] = $parentSku;
             $variesBy = [];
             if (!empty($sizes)) $variesBy[] = 'https://schema.org/size';
             if (!empty($colors)) $variesBy[] = 'https://schema.org/color';
@@ -342,11 +344,12 @@ class SchemaService
                 
                 $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
                 $vSize = (string)$variant->size;
+                $variantSku = !empty($variant->sku) ? $variant->sku : ($parentSku . '-' . (!empty($vSize) ? $vSize : $variant->id));
 
                 $variantData = [
                     '@type' => 'Product',
                     'name' => $product->name . ($vColor ? ' - ' . $vColor : '') . ($vSize ? ' (' . $vSize . ')' : ''),
-                    'sku' => $variant->sku ?? ($product->sku . '-' . $variant->id),
+                    'sku' => $variantSku,
                     'offers' => $variantOffer,
                 ];
 
