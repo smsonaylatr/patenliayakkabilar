@@ -30,7 +30,7 @@ class SyncGoogleMerchantCommand extends Command
         $productId = $this->option('product');
 
         if ($productId) {
-            $product = Product::with(['images', 'variants', 'category'])->find($productId);
+            $product = Product::with(['images', 'variants', 'categories'])->find($productId);
             if (!$product) {
                 $this->error("Ürün ID: {$productId} bulunamadı.");
                 return Command::FAILURE;
@@ -51,7 +51,7 @@ class SyncGoogleMerchantCommand extends Command
         $products = Product::where('status', true)
             ->where('stock', '>', 0)
             ->whereNull('deleted_at')
-            ->with(['images', 'variants', 'category'])
+            ->with(['images', 'variants', 'categories'])
             ->get();
 
         $count = $products->count();

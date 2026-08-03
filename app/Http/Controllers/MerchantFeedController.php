@@ -32,7 +32,7 @@ class MerchantFeedController extends Controller
         $products = Product::where('status', true)
             ->where('stock', '>', 0)
             ->whereNull('deleted_at')
-            ->with(['images', 'variants', 'category'])
+            ->with(['images', 'variants', 'categories'])
             ->orderBy('id')
             ->get();
 
