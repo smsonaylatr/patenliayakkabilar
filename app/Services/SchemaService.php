@@ -588,4 +588,28 @@ class SchemaService
 
         return '<script type="application/ld+json">' . "\n" . $json . "\n" . '</script>';
     }
+
+    /**
+     * SKU değerini Google Search Console ve Merchant Center sınırlarına göre 
+     * maksimum 50 karakter olacak şekilde temizler.
+     *
+     * @param string|null $sku
+     * @param string $fallback
+     * @return string
+     */
+    public static function sanitizeSku(?string $sku, string $fallback = ''): string
+    {
+        $sku = trim((string) $sku);
+        
+        if (empty($sku)) {
+            $sku = trim($fallback);
+        }
+        
+        // Google Search Console / Merchant Center SKU uzunluk sınırı (genelde maks 50 karakter)
+        if (mb_strlen($sku) > 50) {
+            $sku = mb_substr($sku, 0, 50);
+        }
+        
+        return $sku;
+    }
 }
