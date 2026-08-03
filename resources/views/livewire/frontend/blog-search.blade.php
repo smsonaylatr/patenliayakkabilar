@@ -1,20 +1,26 @@
-<div class="mt-8 max-w-xl mx-auto px-4 sm:px-0 relative" x-data="{ open: true }" @click.outside="open = false">
+<div class="mt-8 max-w-xl mx-auto px-4 sm:px-0 relative" x-data="{ open: true, searchQuery: @entangle('search').live }" x-init="searchQuery = '{{ request('q', '') }}'" @click.outside="open = false">
     <form action="{{ route('blog.index') }}" method="GET" class="relative">
         <input 
+            x-ref="searchInput"
             type="text" 
             name="q" 
-            wire:model.live.debounce.300ms="search"
+            x-model.debounce.300ms="searchQuery"
             @focus="open = true"
             @keydown.escape="open = false"
             placeholder="Blog yazılarında ara..." 
-            class="w-full px-6 pr-12 py-3 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
+            class="w-full pl-6 pr-24 py-3 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"
             autocomplete="off"
         >
-        <button type="submit" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-blue-600 transition-colors">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-        </button>
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1">
+            <button type="button" x-show="searchQuery.length > 0" @click="searchQuery = ''; $refs.searchInput.focus()" class="p-2 text-gray-400 hover:text-red-500 transition-colors" style="display: none;">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <button type="submit" class="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </div>
     </form>
 
     @if(strlen(trim($search)) >= 2)

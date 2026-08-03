@@ -189,8 +189,7 @@ Route::get('/blog', function (\Illuminate\Http\Request $request) {
             if (empty($term)) continue;
             $query->where(function($q) use ($term) {
                 $q->where('title', 'like', '%' . $term . '%')
-                  ->orWhere('excerpt', 'like', '%' . $term . '%')
-                  ->orWhere('content', 'like', '%' . $term . '%');
+                  ->orWhere('excerpt', 'like', '%' . $term . '%');
             });
         }
     }
