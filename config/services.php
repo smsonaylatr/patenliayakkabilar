@@ -47,4 +47,9 @@ return [
         'merchant_salt' => env('PAYTR_MERCHANT_SALT'),
     ],
 
+    'google_pay' => [
+        'environment' => env('GOOGLE_PAY_ENVIRONMENT', 'TEST'),
+        'merchant_id' => env('GOOGLE_PAY_MERCHANT_ID', 'BCR2DN6DTLOJ7VTJ'),
+    ],
+
 ];
