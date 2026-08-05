@@ -157,10 +157,10 @@
                     <!-- Instagram Username -->
                     <div>
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Instagram Kullanıcı Adı <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm font-bold">@</span>
+                        <div class="flex items-center rounded-lg border border-gray-300 bg-white overflow-hidden focus-within:ring-2 focus-within:ring-black focus-within:border-black transition-all">
+                            <span class="bg-gray-100 text-gray-700 font-bold px-3.5 py-2.5 sm:py-3 border-r border-gray-300 text-sm select-none">@</span>
                             <input type="text" wire:model="instagram_username" placeholder="kullaniciadi" 
-                                   class="w-full bg-white border border-gray-300 rounded-lg pl-7 pr-3.5 py-2.5 sm:py-3 text-sm text-gray-900 font-medium placeholder-gray-400 focus:ring-2 focus:ring-black focus:border-black outline-none transition-all">
+                                   class="w-full bg-transparent px-3.5 py-2.5 sm:py-3 text-sm text-gray-900 font-medium placeholder-gray-400 border-none outline-none focus:ring-0">
                         </div>
                         @error('instagram_username') <span class="text-red-600 text-xs font-semibold mt-1 block">{{ $message }}</span> @enderror
                     </div>
