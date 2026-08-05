@@ -127,7 +127,7 @@ class GiveawayEntry extends Component
     public function render()
     {
         return view('livewire.frontend.giveaway-entry')
-            ->layout('components.layouts.app', [
+            ->layout('components.layouts.giveaway', [
                 'title' => 'Instagram Büyük Çekiliş Katılım Formu | Patenli Ayakkabılar',
                 'description' => 'Patenli Ayakkabılar resmi Instagram çekilişine katılın! 1 Çifte istediği ışıklı patenli ayakkabı HEDİYE! Hemen form doldurun, kura numaranızı alın.'
             ]);
