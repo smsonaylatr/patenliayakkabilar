@@ -106,16 +106,12 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="pt-2 flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3">
+                <div class="pt-2 flex justify-center">
                     <button onclick="navigator.clipboard.writeText('Patenli Ayakkabılar Instagram çekilişine katıldım! Kura Numaram: #{{ $ticketCode }} 🎁 Katılmak için link biyoda!'); alert('Hikaye metni kopyalandı! Instagram hikayenizde yapıştırabilirsiniz.');" 
-                            class="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-bold px-5 py-3 rounded-lg text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                            class="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-bold px-6 py-3.5 rounded-lg text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                         <span>Hikaye Metnini Kopyala</span>
                     </button>
-                    <a href="/" class="w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-5 py-3 rounded-lg text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        <span>Mağazaya Dön</span>
-                    </a>
                 </div>
             </div>
         @elseif ($alreadyParticipated)
@@ -137,13 +133,6 @@
                         <div class="text-2xl font-mono font-black text-gray-900">#{{ $existingTicketCode }}</div>
                     </div>
                 @endif
-
-                <div class="pt-2">
-                    <a href="/" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black hover:bg-gray-800 text-white font-bold px-6 py-3 rounded-lg text-xs uppercase tracking-widest transition-colors">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        <span>Mağazaya Dön</span>
-                    </a>
-                </div>
             </div>
         @else
             <!-- Corporate Form Card -->
