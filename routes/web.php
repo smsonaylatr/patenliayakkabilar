@@ -188,6 +188,12 @@ Route::get('/blog/{slug}', function ($slug) {
 })->name('blog.show');
 
 // ========================
+// INSTAGRAM ÇEKİLİŞ SAYFASI
+// ========================
+Route::get('/cekilis', \App\Livewire\Frontend\GiveawayEntry::class)->name('giveaway.index');
+Route::get('/instagram-cekilis', \App\Livewire\Frontend\GiveawayEntry::class);
+
+// ========================
 // LANSMAN
 // ========================
 Route::view('/lansman', 'lansman')->name('lansman');

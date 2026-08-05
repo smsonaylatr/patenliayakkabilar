@@ -208,4 +208,41 @@ class GoogleMerchantService
             default       => '',
         };
     }
+
+    /**
+     * Google Merchant Center'daki tüm ürünleri listeler
+     */
+    public function listProducts(): array
+    {
+        if (!$this->service || !$this->merchantId) {
+            return [];
+        }
+
+        $allProducts = [];
+        $pageToken = null;
+
+        try {
+            do {
+                $parameters = ['maxResults' => 250];
+                if ($pageToken) {
+                    $parameters['pageToken'] = $pageToken;
+                }
+
+                $response = $this->service->products->listProducts($this->merchantId, $parameters);
+                
+                if ($response->getResources()) {
+                    foreach ($response->getResources() as $product) {
+                        $allProducts[] = $product;
+                    }
+                }
+
+                $pageToken = $response->getNextPageToken();
+            } while ($pageToken);
+
+            return $allProducts;
+        } catch (\Exception $e) {
+            Log::error("Google Merchant Listeleme Hatası: " . $e->getMessage());
+            return [];
+        }
+    }
 }
