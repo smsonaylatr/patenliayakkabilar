@@ -41,53 +41,74 @@ class PaytrWebhookController extends Controller
      */
     public function webhook(Request $request)
     {
-        $post = $request->all();
+        try {
+            $post = $request->all();
 
-        // Zorunlu alanların kontrolü
-        if (!isset($post['merchant_oid']) || !isset($post['status']) || !isset($post['hash'])) {
-            return response('Eksik parametre', 400);
-        }
+            // Zorunlu alanların kontrolü
+            if (!isset($post['merchant_oid']) || !isset($post['status']) || !isset($post['hash'])) {
+                Log::error('PayTR Webhook: Eksik parametre', ['post' => $post]);
+                return response('Eksik parametre', 400);
+            }
 
-        $merchant_key = config('services.paytr.merchant_key');
-        $merchant_salt = config('services.paytr.merchant_salt');
+            $merchant_key = config('services.paytr.merchant_key');
+            $merchant_salt = config('services.paytr.merchant_salt');
 
-        // Hash doğrulama
-        $hash_string = $post['merchant_oid'] . $merchant_salt . $post['status'] . $post['total_amount'];
-        $hash = base64_encode(hash_hmac('sha256', $hash_string, $merchant_key, true));
+            $total_amount = $post['total_amount'] ?? '';
 
-        if ($hash != $post['hash']) {
-            Log::error('PayTR Hash Uyumsuzluğu!', ['post' => $post]);
-            return response('PAYTR notification failed: bad hash', 400);
-        }
+            // Hash doğrulama
+            $hash_string = $post['merchant_oid'] . $merchant_salt . $post['status'] . $total_amount;
+            $hash = base64_encode(hash_hmac('sha256', $hash_string, $merchant_key, true));
 
-        // Siparişi bul
-        $order = Order::where('order_number', $post['merchant_oid'])->first();
+            if ($hash != $post['hash']) {
+                Log::error('PayTR Hash Uyumsuzluğu!', ['post' => $post]);
+                return response('PAYTR notification failed: bad hash', 400);
+            }
 
-        if (!$order) {
-            Log::error('PayTR Sipariş Bulunamadı! (PayTR döngüsünü durdurmak için OK dönüldü)', ['order_number' => $post['merchant_oid']]);
+            // Siparişi bul
+            $order = Order::where('order_number', $post['merchant_oid'])->first();
+
+            if (!$order) {
+                Log::error('PayTR Sipariş Bulunamadı! (PayTR döngüsünü durdurmak için OK dönüldü)', ['order_number' => $post['merchant_oid']]);
+                return response('OK');
+            }
+
+            // Ödeme Başarılı
+            if ($post['status'] == 'success') {
+                if ($order->payment_status !== 'paid') {
+                    $updateData = [
+                        'payment_status' => 'paid',
+                        'status' => 'processing',
+                    ];
+
+                    // Migration çalıştırılmamış olma ihtimaline karşı kolon kontrolü
+                    if (isset($post['installment_count']) && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'installment_count')) {
+                        $updateData['installment_count'] = $post['installment_count'];
+                    }
+
+                    $order->update($updateData);
+                }
+            } 
+            // Ödeme Başarısız
+            else {
+                if ($order->payment_status !== 'failed') {
+                    $order->update([
+                        'payment_status' => 'failed',
+                    ]);
+                }
+            }
+
+            // PayTR'a işlemin başarılı alındığını bildirmek şarttır.
             return response('OK');
+            
+        } catch (\Throwable $e) {
+            Log::error('PayTR Webhook Hatası: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'post' => $request->all()
+            ]);
+            
+            // HTML yerine düz metin olarak hatayı dönelim ki PayTR paneli kilitlenmesin
+            return response('Webhook Error: ' . $e->getMessage(), 500);
         }
-
-        // Ödeme Başarılı
-        if ($post['status'] == 'success') {
-            if ($order->payment_status !== 'paid') {
-                $order->update([
-                    'payment_status' => 'paid',
-                    'status' => 'processing',
-                    'installment_count' => $post['installment_count'] ?? 1,
-                ]);
-            }
-        } 
-        // Ödeme Başarısız
-        else {
-            if ($order->payment_status !== 'failed') {
-                $order->update([
-                    'payment_status' => 'failed',
-                ]);
-            }
-        }
-
-        // PayTR'a işlemin başarılı alındığını bildirmek şarttır.
-        return response('OK');
     }
 }
