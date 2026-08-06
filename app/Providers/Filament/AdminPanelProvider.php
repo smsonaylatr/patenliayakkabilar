@@ -73,7 +73,35 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotifications();
+            ->databaseNotifications()
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::BODY_END,
+                fn () => new \Illuminate\Support\HtmlString('
+                    <script>
+                        (function() {
+                            document.addEventListener("click", function (e) {
+                                if (!window.location.pathname.includes("/admin/orders")) return;
+                                
+                                const target = e.target;
+                                if (target.closest("button, select, input, a, form, label, .fi-ta-action, option, [role=\"button\"]")) {
+                                    return;
+                                }
+
+                                const row = target.closest(".fi-ta-row, tr, .fi-ta-split");
+                                if (!row) return;
+
+                                const container = row.closest("tr, .fi-ta-record, div") || row.parentElement;
+                                if (!container) return;
+
+                                const trigger = container.querySelector(".fi-ta-collapsible-trigger, [x-on\\\\:click*=\"isCollapsed\"]") || container.querySelector("button");
+                                if (trigger) {
+                                    trigger.click();
+                                }
+                            });
+                        })();
+                    </script>
+                ')
+            );
     }
 
     public function boot(): void
