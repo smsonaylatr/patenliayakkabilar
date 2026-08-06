@@ -185,9 +185,9 @@ class AdminPanelProvider extends PanelProvider
                         <div style="flex: 0 0 110px; text-align: left;">ŞEHİR</div>
                         <div style="flex: 0 0 90px; text-align: left;">TUTAR</div>
                         <div style="flex: 0 0 100px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 105px; text-align: left;">ÖDEME DURUMU</div>
                         <div style="flex: 0 0 145px; text-align: left;">TARİH</div>
                         <div style="flex: 0 0 100px; text-align: left;">DURUM</div>
+                        <div style="flex: 0 0 105px; text-align: left;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )

@@ -59,24 +59,6 @@ class OrdersTable
                             default => $state ?: 'Kredi Kartı',
                         })
                         ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;']),
-                    TextColumn::make('payment_status')
-                        ->label('ÖDEME DURUMU')
-                        ->badge()
-                        ->color(fn (?string $state) => match ($state) {
-                            'paid' => 'success',
-                            'unpaid' => 'danger',
-                            'pending' => 'warning',
-                            'refunded' => 'gray',
-                            default => 'success',
-                        })
-                        ->formatStateUsing(fn (?string $state) => match ($state) {
-                            'paid' => 'Ödendi',
-                            'unpaid' => 'Ödenmedi',
-                            'pending' => 'Bekliyor',
-                            'refunded' => 'İade Edildi',
-                            default => 'Ödendi',
-                        })
-                        ->extraAttributes(['style' => 'width: 105px; flex: 0 0 105px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->getStateUsing(fn ($record) => $record->created_at ? $record->created_at->translatedFormat('d M Y H:i:s') : '-')
@@ -129,6 +111,24 @@ class OrdersTable
                                         ->send();
                                 })
                         ),
+                    TextColumn::make('payment_status')
+                        ->label('ÖDEME DURUMU')
+                        ->badge()
+                        ->color(fn (?string $state) => match ($state) {
+                            'paid' => 'success',
+                            'unpaid' => 'danger',
+                            'pending' => 'warning',
+                            'refunded' => 'gray',
+                            default => 'success',
+                        })
+                        ->formatStateUsing(fn (?string $state) => match ($state) {
+                            'paid' => 'Ödendi',
+                            'unpaid' => 'Ödenmedi',
+                            'pending' => 'Bekliyor',
+                            'refunded' => 'İade Edildi',
+                            default => 'Ödendi',
+                        })
+                        ->extraAttributes(['style' => 'width: 105px; flex: 0 0 105px; text-align: left; justify-content: flex-start;']),
                 ])
                 ->grow(true)
                 ->extraAttributes([
