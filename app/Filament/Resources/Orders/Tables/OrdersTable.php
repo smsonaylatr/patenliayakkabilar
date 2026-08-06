@@ -104,6 +104,10 @@ class OrdersTable
                                         ->send();
                                 })
                         ),
+                ])
+                ->extraAttributes([
+                    'class' => 'cursor-pointer select-none',
+                    'x-on:click' => '$event.target.closest("button, select, a, input, form") ? null : $el.closest("tr, .fi-ta-row, div")?.querySelector(".fi-ta-collapsible-trigger, button[x-on\\\\:click], [x-on\\\\:click*=\'isCollapsed\']")?.click()',
                 ]),
                 \Filament\Tables\Columns\Layout\Panel::make([
                     \Filament\Tables\Columns\ViewColumn::make('details')
