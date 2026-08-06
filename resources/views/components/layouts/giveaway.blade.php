@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ $title ?? 'Instagram Çekilişi | Patenli Ayakkabılar®' }}</title>
-    <meta name="description" content="{{ $description ?? 'Patenli Ayakkabılar® resmi Instagram çekiliş katılım formu.' }}">
+    <title>{{ $title ?? 'Resmi Instagram Çekilişi | Patenli Ayakkabılar®' }}</title>
+    <meta name="description" content="{{ $description ?? 'Patenli Ayakkabılar® resmi Instagram çekiliş katılım formu. Şansınızı deneyin ve orijinal patenli ayakkabı kazananı olun.' }}">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -13,30 +13,31 @@
     <!-- Fonts & Assets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif; }
         /* Prevent iOS Zoom on Input Focus */
         @media screen and (max-width: 767px) {
             input, select, textarea { font-size: 16px !important; }
         }
     </style>
 </head>
-<body class="antialiased text-gray-900 min-h-screen flex flex-col justify-between bg-slate-50">
+<body class="antialiased text-slate-900 min-h-screen flex flex-col justify-between bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100 via-slate-50 to-slate-100">
     
     <!-- Top Announcement Bar -->
-    <div class="bg-black text-white text-[10px] sm:text-xs font-semibold tracking-wider uppercase py-1.5 sm:py-2 px-2 text-center border-b border-gray-800 leading-tight">
-        INSTAGRAM RESMİ ÇEKİLİŞ PORTALI • PATENLİ AYAKKABILAR®
+    <div class="bg-slate-950 text-slate-200 text-[10px] sm:text-xs font-bold tracking-[0.15em] uppercase py-2 px-3 text-center border-b border-slate-800 leading-tight flex items-center justify-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>CANLI ÇEKİLİŞ PORTALI • PATENLİ AYAKKABILAR® • RESMİ KATILIM</span>
     </div>
 
     <!-- Official Corporate Header (Logo Centered Only) -->
-    <header class="w-full bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-3.5 sm:py-4 flex items-center justify-center">
+    <header class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 shadow-sm transition-all">
+        <div class="max-w-6xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-center">
             <!-- Official Brand Logo -->
-            <a href="/" class="text-xl sm:text-2xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap text-center">
+            <a href="/" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter uppercase whitespace-nowrap text-center hover:opacity-90 transition-opacity">
                 PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
             </a>
         </div>
@@ -47,34 +48,34 @@
         {{ $slot }}
     </main>
 
-    <!-- Corporate Footer -->
-    <footer class="w-full bg-white border-t border-gray-200 py-8 sm:py-10 text-xs text-gray-500 mt-12">
-        <div class="max-w-4xl mx-auto px-4 text-center space-y-4">
+    <!-- Premium Corporate Footer -->
+    <footer class="w-full bg-white border-t border-slate-200/80 py-10 sm:py-12 text-xs text-slate-500 mt-16 shadow-inner">
+        <div class="max-w-4xl mx-auto px-4 text-center space-y-5">
             <!-- Brand Logo Centered -->
             <div>
-                <a href="/" class="text-lg sm:text-xl font-black text-gray-900 tracking-tighter uppercase inline-block">
+                <a href="/" class="text-xl font-black text-slate-900 tracking-tighter uppercase inline-block">
                     PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                 </a>
             </div>
 
             <!-- Footer Navigation Links -->
-            <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
-                <a href="/gizlilik-politikasi" target="_blank" class="hover:text-black transition-colors">Gizlilik Politikası</a>
-                <span class="text-gray-300">•</span>
-                <a href="/mesafeli-satis-sozlesmesi" target="_blank" class="hover:text-black transition-colors">Katılım Koşulları</a>
-                <span class="text-gray-300">•</span>
-                <a href="/iletisim" target="_blank" class="hover:text-black transition-colors">İletişim</a>
-                <span class="text-gray-300">•</span>
-                <a href="tel:08503073164" class="hover:text-black transition-colors flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                <a href="/gizlilik-politikasi" target="_blank" class="hover:text-slate-900 transition-colors">Gizlilik Politikası</a>
+                <span class="text-slate-300">•</span>
+                <a href="/mesafeli-satis-sozlesmesi" target="_blank" class="hover:text-slate-900 transition-colors">Katılım Koşulları</a>
+                <span class="text-slate-300">•</span>
+                <a href="/iletisim" target="_blank" class="hover:text-slate-900 transition-colors">İletişim</a>
+                <span class="text-slate-300">•</span>
+                <a href="tel:08503073164" class="hover:text-slate-900 transition-colors flex items-center gap-1.5 font-extrabold text-slate-800">
+                    <svg class="w-3.5 h-3.5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     0850 307 31 64
                 </a>
             </div>
 
             <!-- Security & Copyright Line -->
-            <div class="pt-3 border-t border-gray-100 space-y-1 text-gray-500 text-[11px]">
-                <p>© {{ date('Y') }} Patenli Ayakkabılar®. Tüm Hakları Saklıdır.</p>
-                <p class="text-[10px] text-gray-400">Resmi Instagram Çekiliş Portalı • Güvenli KVKK Altyapısı</p>
+            <div class="pt-4 border-t border-slate-100 space-y-1 text-slate-500 text-[11px]">
+                <p class="font-medium">© {{ date('Y') }} Patenli Ayakkabılar®. Tüm Hakları Saklıdır.</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Resmi Instagram Çekiliş Portalı • 256-Bit SSL Güvenli Altyapı</p>
             </div>
         </div>
     </footer>
