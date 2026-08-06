@@ -15,7 +15,7 @@ class ProductApiController extends Controller
     {
         // Yalnızca yayında (is_active) olan ürünleri getir, ilişkili verilerle beraber
         $query = Product::with(['categories', 'images', 'variants'])
-            ->where('is_active', true)
+            ->where('status', true)
             ->latest();
 
         // Kategoriye göre filtreleme
@@ -47,7 +47,7 @@ class ProductApiController extends Controller
     public function show($identifier)
     {
         $product = Product::with(['categories', 'images', 'variants'])
-            ->where('is_active', true)
+            ->where('status', true)
             ->where(function($q) use ($identifier) {
                 $q->where('id', $identifier)
                   ->orWhere('slug', $identifier);

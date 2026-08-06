@@ -30,7 +30,7 @@
                     'priceCurrency' => 'TRY',
                     'price' => number_format((float)($product->discount_price ?? $product->price), 2, '.', ''),
                     'itemCondition' => 'https://schema.org/NewCondition',
-                    'availability' => $product->stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                    'availability' => $product->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 ],
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
             </script>
@@ -131,6 +131,12 @@
                                 <p class="text-3xl font-bold text-red-600">{{ number_format($displayPrice, 2) }} ₺</p>
                             @endif
                         </div>
+                        @if(!$product->inStock())
+                            <div class="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-bold shadow-2xs">
+                                <i class="fa-solid fa-ban text-sm"></i>
+                                <span>Bu ürünün stokları tükenmiştir.</span>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Taksit Bilgisi --}}
@@ -217,6 +223,7 @@
                                 '🏷️' => 'fa-solid fa-tag',
                                 '🔥' => 'fa-solid fa-fire',
                                 '⭐' => 'fa-solid fa-star',
+                                '🚫' => 'fa-solid fa-ban',
                             ];
                             $colorMap = [
                                 'green'  => 'text-emerald-500',

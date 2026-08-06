@@ -34,6 +34,10 @@ class CartService
         $cart = $this->getCart();
         $product = Product::findOrFail($productId);
         
+        if (!$product->inStock()) {
+            return $cart;
+        }
+        
         $price = $product->discount_price ?? $product->price;
 
         $cartItem = CartItem::where('cart_id', $cart->id)

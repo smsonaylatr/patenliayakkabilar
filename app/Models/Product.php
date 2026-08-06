@@ -438,8 +438,10 @@ class Product extends Model
             $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
         }
 
-        // Son stok uyarısı
-        if ($this->stock > 0 && $this->stock <= 5) {
+        // Stok durumu uyarısı
+        if (!$this->status || $this->stock <= 0) {
+            $signals[] = ['icon' => '🚫', 'text' => 'Stokları Tükendi', 'color' => 'red'];
+        } elseif ($this->stock > 0 && $this->stock <= 5) {
             $signals[] = ['icon' => '🔥', 'text' => 'Son ' . $this->stock . ' Adet!', 'color' => 'red'];
         }
 
@@ -540,5 +542,34 @@ class Product extends Model
         $this->stock = $variants->sum('stock');
 
         $this->saveQuietly();
+    }
+
+    /**
+     * Ürünün stokta ve satışa açık olup olmadığını kontrol et.
+     * Pasife alınan ürünlerin (status = false) stoku sıfır / tükenmiş sayılır.
+     */
+    public function inStock(): bool
+    {
+        if (!$this->status) {
+            return false;
+        }
+
+        return $this->stock > 0;
+    }
+
+    /**
+     * is_active erişimcisi (status alanı ile geriye dönük uyumluluk için)
+     */
+    public function getIsActiveAttribute(): bool
+    {
+        return (bool) $this->status;
+    }
+
+    /**
+     * Ürünün efektif stok miktarını döndürür. Pasif ürünler için 0 döner.
+     */
+    public function getEffectiveStockAttribute(): int
+    {
+        return $this->status ? (int) $this->stock : 0;
     }
 }

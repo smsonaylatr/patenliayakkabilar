@@ -29,6 +29,10 @@ class AddToCartButton extends Component
 
     public function addToCart(CartService $cartService)
     {
+        if (!$this->product->inStock()) {
+            return;
+        }
+
         if ($this->product->variants->count() > 0 && !$this->variantId) {
             $this->dispatch('open-variant-selector');
             return;

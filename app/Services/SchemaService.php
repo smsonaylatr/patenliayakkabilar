@@ -237,7 +237,7 @@ class SchemaService
             : $product->price;
 
         // Stok durumu
-        $availability = $product->stock > 0
+        $availability = $product->inStock()
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock';
 

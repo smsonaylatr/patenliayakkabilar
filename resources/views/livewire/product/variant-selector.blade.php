@@ -3,7 +3,7 @@
         open: false,
         variants: [
             @foreach($product->variants as $variant)
-                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', stock: {{ $variant->stock }} }{{ !$loop->last ? ',' : '' }}
+                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', stock: {{ $product->status ? $variant->stock : 0 }} }{{ !$loop->last ? ',' : '' }}
             @endforeach
         ],
         get selectedSize() {
