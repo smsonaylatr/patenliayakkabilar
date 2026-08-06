@@ -32,14 +32,14 @@ class OrdersTable
                         ->getStateUsing(fn ($record) => '#' . $record->order_number)
                         ->weight('bold')
                         ->copyable()
-                        ->extraAttributes(['style' => 'width: 140px; flex: 0 0 140px;']),
+                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px;']),
                     TextColumn::make('customer_name')
                         ->label('MÜŞTERİ')
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
                         ->limit(25)
-                        ->extraAttributes(['style' => 'width: 250px; flex: 0 0 250px;']),
+                        ->extraAttributes(['style' => 'width: 280px; flex: 0 0 280px;']),
                     TextColumn::make('items_count')
                         ->label('ÜRÜNLER')
                         ->counts('items')
