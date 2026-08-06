@@ -31,22 +31,26 @@ class OrdersTable
                         ->searchable()
                         ->getStateUsing(fn ($record) => '#' . $record->order_number)
                         ->weight('bold')
-                        ->copyable(),
+                        ->copyable()
+                        ->extraAttributes(['style' => 'width: 140px; flex: 0 0 140px;']),
                     TextColumn::make('customer_name')
                         ->label('MÜŞTERİ')
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
-                        ->limit(25),
+                        ->limit(25)
+                        ->extraAttributes(['style' => 'width: 250px; flex: 0 0 250px;']),
                     TextColumn::make('items_count')
                         ->label('ÜRÜNLER')
                         ->counts('items')
-                        ->formatStateUsing(fn ($state) => ($state ?: 1) . ' ürün'),
+                        ->formatStateUsing(fn ($state) => ($state ?: 1) . ' ürün')
+                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: center; justify-content: center;']),
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
                         ->sortable()
-                        ->weight('bold'),
+                        ->weight('bold')
+                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: right; justify-content: flex-end;']),
                     TextColumn::make('payment_method')
                         ->label('ÖDEME')
                         ->formatStateUsing(fn (?string $state) => match ($state) {
@@ -54,11 +58,13 @@ class OrdersTable
                             'wire_transfer' => 'Havale/EFT',
                             'cash_on_delivery' => 'Kapıda Ödeme',
                             default => $state ?: 'Kredi Kartı',
-                        }),
+                        })
+                        ->extraAttributes(['style' => 'width: 130px; flex: 0 0 130px; text-align: center; justify-content: center;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->dateTime('d M Y')
-                        ->sortable(),
+                        ->sortable()
+                        ->extraAttributes(['style' => 'width: 130px; flex: 0 0 130px; text-align: center; justify-content: center;']),
                     TextColumn::make('status')
                         ->label('DURUM')
                         ->badge()

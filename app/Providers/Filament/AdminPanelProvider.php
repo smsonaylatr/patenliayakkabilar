@@ -118,7 +118,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
-                    <div class="fi-ta-orders-header hidden md:grid w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: grid !important; grid-template-columns: 140px 310px 100px 110px 130px 130px 120px !important; align-items: center !important; width: 100% !important; padding-left: 68px !important; padding-right: 140px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important; clear: both !important;">
+                    <div class="fi-ta-orders-header hidden md:grid w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: grid !important; grid-template-columns: 140px 250px 100px 110px 130px 130px 120px !important; align-items: center !important; width: 100% !important; padding-left: 68px !important; padding-right: 140px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important; clear: both !important;">
                         <div style="text-align: left;">#SİPARİŞ</div>
                         <div style="text-align: left;">MÜŞTERİ</div>
                         <div style="text-align: center;">ÜRÜNLER</div>
