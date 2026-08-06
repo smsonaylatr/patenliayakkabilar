@@ -24,7 +24,6 @@ class OrdersTable
         return $table
             ->recordUrl(null)
             ->recordAction(null)
-            ->header(fn () => view('filament.orders.order-table-header'))
             ->columns([
                 \Filament\Tables\Columns\Layout\Split::make([
                     TextColumn::make('order_number')

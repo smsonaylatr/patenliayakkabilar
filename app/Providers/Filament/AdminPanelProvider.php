@@ -110,13 +110,19 @@ class AdminPanelProvider extends PanelProvider
                         .fi-ta-content,
                         .fi-ta-panel-cell,
                         tr.fi-ta-panel-row > td,
-                        .fi-ta-record-content {
-                            width: 100% !important;
-                            padding-left: 0 !important;
-                            padding-right: 0 !important;
-                        }
-                    </style>
-                ')
+            ->renderHook(
+                \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
+                fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
+                    <div class="fi-ta-orders-header hidden md:grid w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: grid !important; grid-template-columns: 120px minmax(180px, 1fr) 90px 110px 130px 120px 110px !important; align-items: center !important; width: 100% !important; padding-left: 68px !important; padding-right: 150px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important; clear: both !important;">
+                        <div style="text-align: left;">#SİPARİŞ</div>
+                        <div style="text-align: left;">MÜŞTERİ</div>
+                        <div style="text-align: center;">ÜRÜNLER</div>
+                        <div style="text-align: right; padding-right: 10px;">TUTAR</div>
+                        <div style="text-align: center;">ÖDEME</div>
+                        <div style="text-align: center;">TARİH</div>
+                        <div style="text-align: center;">DURUM</div>
+                    </div>
+                ') : null
             )
             ->renderHook(
                 \Filament\View\PanelsRenderHook::BODY_END,
