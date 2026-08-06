@@ -270,7 +270,7 @@
                         <!-- PayTR -->
                         <div class="bg-white rounded flex items-center justify-center w-[50px] h-[32px] px-1 overflow-hidden border border-gray-100" title="PayTR">
                             <span class="font-black text-[11px] leading-none tracking-tighter">
-                                <span class="text-[#002b49]">Pay</span><span class="text-[#00a8e1]">TR</span>
+                                <span style="color: #0b2545;">Pay</span><span style="color: #00a8e1;">TR</span>
                             </span>
                         </div>
                         <!-- Troy -->
