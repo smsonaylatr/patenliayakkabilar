@@ -103,41 +103,19 @@ class AdminPanelProvider extends PanelProvider
                             opacity: 0.7 !important;
                         }
 
-                        /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
+                        /* İşlem ikonlarını dikeyde tam merkeze ortalama ve birbirine yaklaştırma */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
-                            align-self: flex-start !important;
-                            vertical-align: top !important;
-                            padding-top: 12px !important;
-                        }
-
-                        /* Split layout konteyneri esnetme */
-                        .fi-ta-split,
-                        div.fi-ta-split {
-                            flex: 1 1 auto !important;
-                            width: 100% !important;
-                            justify-content: space-between !important;
-                            gap: 12px !important;
-                        }
-
-                        /* Akordiyon Panelinin ve İçerik Kapsayıcısının Tam Genişlik Sıfırlaması */
-                        .fi-ta-panel,
-                        div.fi-ta-panel,
-                        .order-detail-panel {
-                            width: 100% !important;
-                            max-width: 100% !important;
-                            margin-left: 0 !important;
-                            margin-right: 0 !important;
-                            box-sizing: border-box !important;
-                        }
-
-                        /* Tablo dikey boşluk küçültme ve ideal kompakt görünüm */
-                        .fi-ta-record,
-                        .fi-ta-row {
-                            padding-top: 4px !important;
-                            padding-bottom: 4px !important;
-                            margin-bottom: 2px !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            align-self: center !important;
+                            justify-content: flex-end !important;
+                            gap: 3px !important;
+                            padding-top: 0 !important;
+                            padding-bottom: 0 !important;
+                            margin-top: auto !important;
+                            margin-bottom: auto !important;
                         }
 
                         /* Sort by ve Bulk Indicator temizleme */
@@ -160,8 +138,11 @@ class AdminPanelProvider extends PanelProvider
                         .fi-ta-record-actions button,
                         .fi-ta-actions a,
                         .fi-icon-btn {
-                            padding: 4px !important;
-                            margin: 0 2px !important;
+                            padding: 2px !important;
+                            margin: 0 !important;
+                            display: inline-flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
