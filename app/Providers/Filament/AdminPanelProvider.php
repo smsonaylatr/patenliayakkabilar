@@ -145,6 +145,13 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: center !important;
                         }
 
+                        /* Split layout ve Başlık çubuğu gap (aralık) eşitlemesi */
+                        .fi-ta-orders-header,
+                        .fi-ta-split,
+                        div.fi-ta-split {
+                            gap: 16px !important;
+                        }
+
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
                         .fi-ta-record-content {
                             width: 100% !important;
@@ -157,7 +164,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::HEADER_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
-                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-1 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 24px !important; padding-right: 140px !important; padding-top: 10px !important; padding-bottom: 10px !important; box-sizing: border-box !important; margin-bottom: 6px !important;">
+                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-1 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 24px !important; padding-right: 140px !important; padding-top: 10px !important; padding-bottom: 10px !important; gap: 16px !important; box-sizing: border-box !important; margin-bottom: 6px !important;">
                         <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0; padding-left: 4px;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="const isChecked = this.checked; document.querySelectorAll(\'tbody input[type=checkbox], .fi-ta-record-checkbox input\').forEach(cb => { if (cb !== this && cb.checked !== isChecked) { cb.click(); } });" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
