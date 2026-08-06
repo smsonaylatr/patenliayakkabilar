@@ -20,6 +20,8 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(50)
+            ->paginationPageOptions([10, 25, 50, 100])
             ->reorderable('homepage_sort')
             ->afterReordering(function () {
                 \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
