@@ -132,14 +132,25 @@ class AdminPanelProvider extends PanelProvider
                             box-sizing: border-box !important;
                         }
 
+                        /* Tablo dikey boşluk küçültme ve ideal kompakt görünüm */
+                        .fi-ta-record,
+                        .fi-ta-row {
+                            padding-top: 4px !important;
+                            padding-bottom: 4px !important;
+                            margin-bottom: 2px !important;
+                        }
+
                         /* Sort by / reorder toolbar kutusunu ve tum siralama elemanlarini yok et */
                         .fi-ta-header-toolbar,
                         .fi-ta-content > div:has(select),
                         .fi-ta-content > div:first-child:has(select),
                         div:has(> select[wire\:model*="tableSort"]),
                         .fi-ta-orders-header + div:has(select),
-                        div.flex.items-center.justify-between.gap-x-4:has(select) {
+                        div.flex.items-center.justify-between.gap-x-4 {
                             display: none !important;
+                            height: 0 !important;
+                            padding: 0 !important;
+                            margin: 0 !important;
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
@@ -152,9 +163,9 @@ class AdminPanelProvider extends PanelProvider
                 ')
             )
             ->renderHook(
-                \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
+                \Filament\Tables\View\TablesRenderHook::TBODY_BEFORE,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
-                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 24px !important; padding-right: 140px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important;">
+                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-1 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 24px !important; padding-right: 140px !important; padding-top: 10px !important; padding-bottom: 10px !important; box-sizing: border-box !important; margin-bottom: 6px !important;">
                         <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0; padding-left: 4px;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="const isChecked = this.checked; document.querySelectorAll(\'tr input[type=checkbox], .fi-ta-record-checkbox input, .fi-ta-checkbox-cell input\').forEach(cb => { if (cb !== this && cb.checked !== isChecked) { cb.click(); } });" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
