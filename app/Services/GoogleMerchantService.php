@@ -171,9 +171,21 @@ class GoogleMerchantService
 
     private function buildSeoTitle(Product $product): string
     {
-        $brand = $product->brand ?: 'Patenli Ayakkabılar';
+        $title = trim($product->name);
+        $brand = trim($product->brand ?: '');
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
-        return trim($brand . ' ' . $product->name . ' ' . $target);
+
+        // Eğer ürün adında marka ismi zaten geçmiyorsa ve marka ismi varsa en başa ekle
+        if (!empty($brand) && stripos($title, $brand) === false) {
+            $title = $brand . ' ' . $title;
+        }
+
+        // Hedef kitle (Kız Çocuk, Erkek Çocuk vb.) başlıkta yoksa ekle
+        if (!empty($target) && stripos($title, $target) === false) {
+            $title .= ' ' . $target;
+        }
+
+        return trim($title);
     }
 
     private function mapAgeGroup(?string $ageGroup): string
