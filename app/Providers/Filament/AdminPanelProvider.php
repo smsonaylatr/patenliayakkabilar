@@ -176,6 +176,16 @@ class AdminPanelProvider extends PanelProvider
                             padding-left: 0 !important;
                             padding-right: 0 !important;
                         }
+
+                        /* Akordiyon oku: kapalıyken aşağı (v), açıkken yukarı (^) */
+                        .fi-ta-collapsible-trigger svg,
+                        button[aria-expanded] svg {
+                            transform: rotate(180deg) !important;
+                            transition: transform 0.2s ease !important;
+                        }
+                        button[aria-expanded="true"] svg {
+                            transform: rotate(0deg) !important;
+                        }
                     </style>
                 ')
             )
