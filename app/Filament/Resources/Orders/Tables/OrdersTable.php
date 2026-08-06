@@ -61,7 +61,18 @@ class OrdersTable
                         ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
-                        ->getStateUsing(fn ($record) => $record->created_at ? $record->created_at->translatedFormat('d M Y H:i:s') : '-')
+                        ->getStateUsing(function ($record) {
+                            if (! $record->created_at) {
+                                return '-';
+                            }
+                            $trMonths = [
+                                1 => 'Oca', 2 => 'Şub', 3 => 'Mar', 4 => 'Nis',
+                                5 => 'May', 6 => 'Haz', 7 => 'Tem', 8 => 'Ağu',
+                                9 => 'Eyl', 10 => 'Eki', 11 => 'Kas', 12 => 'Ara',
+                            ];
+                            $m = $trMonths[(int) $record->created_at->format('n')] ?? '';
+                            return $record->created_at->format('d') . ' ' . $m . ' ' . $record->created_at->format('Y H:i:s');
+                        })
                         ->extraAttributes(['style' => 'width: 145px; flex: 0 0 145px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('status')
                         ->label('DURUM')
