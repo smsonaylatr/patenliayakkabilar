@@ -86,6 +86,15 @@ class AdminPanelProvider extends PanelProvider
                             padding-top: 14px !important;
                         }
 
+                        /* Split layout konteynerini en sağdaki ikonlara kadar esnetip boşluğu kapatma */
+                        .fi-ta-split,
+                        div.fi-ta-split {
+                            flex: 1 1 auto !important;
+                            width: 100% !important;
+                            justify-content: space-between !important;
+                            gap: 16px !important;
+                        }
+
                         /* Akordiyon Panelinin Boş Kısımlara Tam Sığması (Full Width Fit) */
                         .fi-ta-panel,
                         .fi-ta-panel > div,

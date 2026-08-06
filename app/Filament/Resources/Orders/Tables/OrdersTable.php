@@ -107,8 +107,10 @@ class OrdersTable
                                 })
                         ),
                 ])
+                ->grow(true)
                 ->extraAttributes([
-                    'class' => 'cursor-pointer select-none',
+                    'class' => 'cursor-pointer select-none w-full flex-1 justify-between',
+                    'style' => 'flex: 1 1 auto !important; width: 100% !important; justify-content: space-between !important;',
                     'x-on:click' => '$event.target.closest("button, select, a, input, form") ? null : $el.closest("tr, .fi-ta-row, div")?.querySelector(".fi-ta-collapsible-trigger, button[x-on\\\\:click], [x-on\\\\:click*=\'isCollapsed\']")?.click()',
                 ]),
                 \Filament\Tables\Columns\Layout\Panel::make([
