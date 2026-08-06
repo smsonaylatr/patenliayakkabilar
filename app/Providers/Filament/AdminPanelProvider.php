@@ -102,6 +102,16 @@ class AdminPanelProvider extends PanelProvider
                             border-bottom: none !important;
                         }
 
+                        /* Dikey sütun ayırıcı çizgiler: ince beyaz */
+                        .fi-ta-split > div,
+                        .fi-ta-orders-header > div {
+                            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+                        }
+                        .fi-ta-split > div:last-child,
+                        .fi-ta-orders-header > div:last-child {
+                            border-right: none !important;
+                        }
+
                         /* Durum Rozeti kompakt boyutu */
                         .fi-ta-split .fi-badge {
                             font-size: 10px !important;
