@@ -169,11 +169,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 1: MÜŞTERİ (Başlıkta 2. div çünkü 1. div checkbox) */
                         .fi-ta-orders-header > div:nth-child(2),
-                        .fi-ta-split > div:nth-child(1),
-                        .fi-ta-split > div:nth-child(1) * {
+                        .fi-ta-split > div:nth-child(1) {
                             width: 240px !important;
                             min-width: 240px !important;
-                            max-width: 240px !important;
                             flex: 0 0 240px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -181,11 +179,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 2: ŞEHİR */
                         .fi-ta-orders-header > div:nth-child(3),
-                        .fi-ta-split > div:nth-child(2),
-                        .fi-ta-split > div:nth-child(2) * {
+                        .fi-ta-split > div:nth-child(2) {
                             width: 100px !important;
                             min-width: 100px !important;
-                            max-width: 100px !important;
                             flex: 0 0 100px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -193,11 +189,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 3: TUTAR */
                         .fi-ta-orders-header > div:nth-child(4),
-                        .fi-ta-split > div:nth-child(3),
-                        .fi-ta-split > div:nth-child(3) * {
+                        .fi-ta-split > div:nth-child(3) {
                             width: 90px !important;
                             min-width: 90px !important;
-                            max-width: 90px !important;
                             flex: 0 0 90px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -205,11 +199,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 4: ÖDEME */
                         .fi-ta-orders-header > div:nth-child(5),
-                        .fi-ta-split > div:nth-child(4),
-                        .fi-ta-split > div:nth-child(4) * {
+                        .fi-ta-split > div:nth-child(4) {
                             width: 110px !important;
                             min-width: 110px !important;
-                            max-width: 110px !important;
                             flex: 0 0 110px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -217,11 +209,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 5: TARİH */
                         .fi-ta-orders-header > div:nth-child(6),
-                        .fi-ta-split > div:nth-child(5),
-                        .fi-ta-split > div:nth-child(5) * {
+                        .fi-ta-split > div:nth-child(5) {
                             width: 160px !important;
                             min-width: 160px !important;
-                            max-width: 160px !important;
                             flex: 0 0 160px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -229,11 +219,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 6: DURUM */
                         .fi-ta-orders-header > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(6),
-                        .fi-ta-split > div:nth-child(6) * {
+                        .fi-ta-split > div:nth-child(6) {
                             width: 105px !important;
                             min-width: 105px !important;
-                            max-width: 105px !important;
                             flex: 0 0 105px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
@@ -241,11 +229,9 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 7: ÖDEME DURUMU */
                         .fi-ta-orders-header > div:nth-child(8),
-                        .fi-ta-split > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(7) * {
+                        .fi-ta-split > div:nth-child(7) {
                             width: 115px !important;
                             min-width: 115px !important;
-                            max-width: 115px !important;
                             flex: 0 0 115px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
