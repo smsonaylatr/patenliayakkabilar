@@ -156,86 +156,7 @@ class AdminPanelProvider extends PanelProvider
                             gap: 16px !important;
                         }
 
-                        /* Checkbox hücre genişliği kilitleri */
-                        .fi-ta-orders-header > div:first-child,
-                        .fi-ta-record-checkbox,
-                        .fi-ta-checkbox-cell,
-                        td:has(input[type=checkbox]) {
-                            width: 44px !important;
-                            min-width: 44px !important;
-                            max-width: 44px !important;
-                            flex: 0 0 44px !important;
-                        }
-
-                        /* Sütun 1: MÜŞTERİ (Başlıkta 2. div çünkü 1. div checkbox) */
-                        .fi-ta-orders-header > div:nth-child(2),
-                        .fi-ta-split > div:nth-child(1) {
-                            width: 240px !important;
-                            min-width: 240px !important;
-                            flex: 0 0 240px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 2: ŞEHİR */
-                        .fi-ta-orders-header > div:nth-child(3),
-                        .fi-ta-split > div:nth-child(2) {
-                            width: 100px !important;
-                            min-width: 100px !important;
-                            flex: 0 0 100px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 3: TUTAR */
-                        .fi-ta-orders-header > div:nth-child(4),
-                        .fi-ta-split > div:nth-child(3) {
-                            width: 90px !important;
-                            min-width: 90px !important;
-                            flex: 0 0 90px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 4: ÖDEME */
-                        .fi-ta-orders-header > div:nth-child(5),
-                        .fi-ta-split > div:nth-child(4) {
-                            width: 110px !important;
-                            min-width: 110px !important;
-                            flex: 0 0 110px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 5: TARİH */
-                        .fi-ta-orders-header > div:nth-child(6),
-                        .fi-ta-split > div:nth-child(5) {
-                            width: 160px !important;
-                            min-width: 160px !important;
-                            flex: 0 0 160px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 6: DURUM */
-                        .fi-ta-orders-header > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(6) {
-                            width: 105px !important;
-                            min-width: 105px !important;
-                            flex: 0 0 105px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Sütun 7: ÖDEME DURUMU */
-                        .fi-ta-orders-header > div:nth-child(8),
-                        .fi-ta-split > div:nth-child(7) {
-                            width: 115px !important;
-                            min-width: 115px !important;
-                            flex: 0 0 115px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
+                        /* Altın Oran Sütun Genişlikleri (φ = 1.618) */
 
                         /* Tablodaki TÜM başlıklar, metinler ve rozetleri KESİN SOLA YASLA */
                         .fi-ta-orders-header > div,
@@ -265,13 +186,13 @@ class AdminPanelProvider extends PanelProvider
                         <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0; padding-left: 4px;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="const isChecked = this.checked; document.querySelectorAll(\'tbody input[type=checkbox], .fi-ta-record-checkbox input\').forEach(cb => { if (cb !== this && cb.checked !== isChecked) { cb.click(); } });" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 250px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 100px; text-align: left;">ŞEHİR</div>
-                        <div style="flex: 0 0 90px; text-align: left;">TUTAR</div>
-                        <div style="flex: 0 0 110px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 160px; text-align: left;">TARİH</div>
-                        <div style="flex: 0 0 105px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 115px; text-align: left;">ÖDEME DURUMU</div>
+                        <div style="flex: 0 0 280px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 80px; text-align: left;">ŞEHİR</div>
+                        <div style="flex: 0 0 80px; text-align: left;">TUTAR</div>
+                        <div style="flex: 0 0 106px; text-align: left;">ÖDEME</div>
+                        <div style="flex: 0 0 172px; text-align: left;">TARİH</div>
+                        <div style="flex: 0 0 100px; text-align: left;">DURUM</div>
+                        <div style="flex: 0 0 106px; text-align: left;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
