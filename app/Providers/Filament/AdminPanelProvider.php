@@ -158,7 +158,8 @@ class AdminPanelProvider extends PanelProvider
                         <div style="flex: 0 0 250px; text-align: left;">MÜŞTERİ</div>
                         <div style="flex: 0 0 100px; text-align: center;">ÜRÜNLER</div>
                         <div style="flex: 0 0 110px; text-align: right; padding-right: 5px;">TUTAR</div>
-                        <div style="flex: 0 0 130px; text-align: center;">ÖDEME</div>
+                        <div style="flex: 0 0 120px; text-align: center;">ÖDEME</div>
+                        <div style="flex: 0 0 110px; text-align: center;">ÖDEME DURUMU</div>
                         <div style="flex: 0 0 130px; text-align: center;">TARİH</div>
                         <div style="flex: 0 0 120px; text-align: center;">DURUM</div>
                     </div>

@@ -59,7 +59,25 @@ class OrdersTable
                             'cash_on_delivery' => 'Kapıda Ödeme',
                             default => $state ?: 'Kredi Kartı',
                         })
-                        ->extraAttributes(['style' => 'width: 130px; flex: 0 0 130px; text-align: center; justify-content: center;']),
+                        ->extraAttributes(['style' => 'width: 120px; flex: 0 0 120px; text-align: center; justify-content: center;']),
+                    TextColumn::make('payment_status')
+                        ->label('ÖDEME DURUMU')
+                        ->badge()
+                        ->color(fn (?string $state) => match ($state) {
+                            'paid' => 'success',
+                            'unpaid' => 'danger',
+                            'pending' => 'warning',
+                            'refunded' => 'gray',
+                            default => 'success',
+                        })
+                        ->formatStateUsing(fn (?string $state) => match ($state) {
+                            'paid' => 'Ödendi',
+                            'unpaid' => 'Ödenmedi',
+                            'pending' => 'Bekliyor',
+                            'refunded' => 'İade Edildi',
+                            default => 'Ödendi',
+                        })
+                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: center; justify-content: center;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->dateTime('d M Y')
