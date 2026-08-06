@@ -40,6 +40,11 @@ class OrdersTable
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
                         ->limit(22)
                         ->extraAttributes(['style' => 'width: 210px; flex: 0 0 210px; text-align: left; justify-content: flex-start;']),
+                    TextColumn::make('shipping_city')
+                        ->label('ŞEHİR')
+                        ->getStateUsing(fn (Order $record) => $record->shipping_city ?: ($record->billing_city ?: 'İstanbul'))
+                        ->limit(18)
+                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
