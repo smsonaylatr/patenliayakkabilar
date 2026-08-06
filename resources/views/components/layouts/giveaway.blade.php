@@ -47,18 +47,24 @@
         {{ $slot }}
     </main>
 
-    <!-- Corporate Footer -->
-    <footer class="w-full bg-white border-t border-gray-200 py-6 sm:py-8 text-xs text-gray-500">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+    <!-- Corporate Footer (Centered) -->
+    <footer class="w-full bg-white border-t border-gray-200 py-8 text-xs text-gray-500">
+        <div class="max-w-4xl mx-auto px-4 text-center space-y-4 flex flex-col items-center justify-center">
             <div>
-                <a href="/" class="font-black text-sm text-gray-900 tracking-tighter uppercase">PATENLİ<span class="font-light">AYAKKABILAR&reg;</span></a>
-                <p class="mt-1 text-gray-500 text-[11px] sm:text-xs">© {{ date('Y') }} Patenli Ayakkabılar®. Tüm Hakları Saklıdır.</p>
+                <a href="/" class="font-black text-base text-gray-900 tracking-tighter uppercase inline-block">
+                    PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
+                </a>
             </div>
-            <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-gray-600 font-semibold uppercase tracking-wider text-[10px] sm:text-[11px]">
+            <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-6 text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
                 <a href="/gizlilik-politikasi" target="_blank" class="hover:text-black transition-colors">Gizlilik Politikası</a>
+                <span class="text-gray-300 hidden sm:inline">•</span>
                 <a href="/mesafeli-satis-sozlesmesi" target="_blank" class="hover:text-black transition-colors">Katılım Koşulları</a>
+                <span class="text-gray-300 hidden sm:inline">•</span>
                 <a href="/iletisim" target="_blank" class="hover:text-black transition-colors">İletişim</a>
             </div>
+            <p class="text-gray-500 text-[11px] font-medium pt-2 border-t border-gray-100 w-full max-w-xs sm:max-w-sm">
+                © {{ date('Y') }} Patenli Ayakkabılar®. Tüm Hakları Saklıdır.
+            </p>
         </div>
     </footer>
 
