@@ -115,7 +115,7 @@ td.fi-ta-actions-cell {
           <th>Ürün</th>
           <th>Renk / Numara</th>
           <th>Adet</th>
-          <th>Birim Fiyat</th>
+          <th>Sipariş No</th>
           <th>Toplam</th>
         </tr>
       </thead>
@@ -159,7 +159,7 @@ td.fi-ta-actions-cell {
               <td class="td-bold">{{ $item->product_name }}</td>
               <td class="td-muted">{{ $variantText }}</td>
               <td class="td-muted">{{ $item->quantity }}</td>
-              <td class="td-muted">₺{{ number_format($item->unit_price, 0, ',', '.') }}</td>
+              <td class="td-bold" style="color: #60a5fa;">#{{ $order->order_number }}</td>
               <td class="td-bold">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
             </tr>
         @empty

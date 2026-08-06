@@ -26,20 +26,13 @@ class OrdersTable
             ->recordAction(null)
             ->columns([
                 \Filament\Tables\Columns\Layout\Split::make([
-                    TextColumn::make('order_number')
-                        ->label('#SİPARİŞ')
-                        ->searchable()
-                        ->getStateUsing(fn ($record) => '#' . $record->order_number)
-                        ->weight('bold')
-                        ->copyable()
-                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('customer_name')
                         ->label('MÜŞTERİ')
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
-                        ->limit(22)
-                        ->extraAttributes(['style' => 'width: 210px; flex: 0 0 210px; text-align: left; justify-content: flex-start;']),
+                        ->limit(25)
+                        ->extraAttributes(['style' => 'width: 260px; flex: 0 0 260px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('shipping_city')
                         ->label('ŞEHİR')
                         ->getStateUsing(fn (Order $record) => $record->shipping_city ?: ($record->billing_city ?: 'İstanbul'))

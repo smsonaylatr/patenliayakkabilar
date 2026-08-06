@@ -180,8 +180,7 @@ class AdminPanelProvider extends PanelProvider
                         <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0; padding-left: 4px;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="const isChecked = this.checked; document.querySelectorAll(\'tbody input[type=checkbox], .fi-ta-record-checkbox input\').forEach(cb => { if (cb !== this && cb.checked !== isChecked) { cb.click(); } });" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 100px; text-align: left;">#SİPARİŞ</div>
-                        <div style="flex: 0 0 210px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 260px; text-align: left;">MÜŞTERİ</div>
                         <div style="flex: 0 0 110px; text-align: left;">ŞEHİR</div>
                         <div style="flex: 0 0 90px; text-align: left;">TUTAR</div>
                         <div style="flex: 0 0 100px; text-align: left;">ÖDEME</div>
