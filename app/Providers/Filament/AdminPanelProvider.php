@@ -95,12 +95,13 @@ class AdminPanelProvider extends PanelProvider
                             gap: 16px !important;
                         }
 
-                        /* Akordiyon Panelinin Boş Kısımlara Tam Sığması (Full Width Fit) */
+                        /* Akordiyon Kartını En Sağ Kenara (Farenin Durduğu Yere) Kadar Genişlet */
                         .fi-ta-panel,
-                        .fi-ta-panel > div,
+                        div.fi-ta-panel,
                         .order-detail-panel {
-                            width: 100% !important;
-                            max-width: 100% !important;
+                            width: calc(100% + 140px) !important;
+                            max-width: calc(100% + 140px) !important;
+                            margin-right: -140px !important;
                             box-sizing: border-box !important;
                         }
 

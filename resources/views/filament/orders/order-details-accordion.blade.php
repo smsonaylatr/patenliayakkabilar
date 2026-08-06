@@ -22,8 +22,9 @@ td.fi-ta-actions-cell {
     text-align: left;
     color: #fff;
     font-family: inherit;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: calc(100% + 140px) !important;
+    max-width: calc(100% + 140px) !important;
+    margin-right: -140px !important;
     box-sizing: border-box !important;
 }
 .detail-section {
