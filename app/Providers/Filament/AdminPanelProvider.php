@@ -141,13 +141,10 @@ class AdminPanelProvider extends PanelProvider
                             margin-top: 0 !important;
                         }
 
-                        /* Sort by, Bulk Indicator ve native thead gizleme */
+                        /* Sort by, Bulk Indicator gizleme */
                         .fi-ta-header-toolbar,
                         .fi-ta-selection-indicator,
-                        .fi-ta-selection-indicator-header,
-                        .fi-ta-header-ctn,
-                        table > thead,
-                        .fi-ta-table > thead {
+                        .fi-ta-selection-indicator-header {
                             display: none !important;
                         }
 
