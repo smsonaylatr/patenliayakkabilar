@@ -103,19 +103,19 @@ class AdminPanelProvider extends PanelProvider
                             opacity: 0.7 !important;
                         }
 
-                        /* İşlem ikonlarını dikeyde tam merkeze ortalama ve birbirine yaklaştırma */
+                        /* İşlem ikonlarını yukarı çekerek satır metinleriyle 1:1 dikey hizalama */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
                             display: flex !important;
                             align-items: center !important;
-                            align-self: center !important;
+                            align-self: flex-start !important;
                             justify-content: flex-end !important;
                             gap: 3px !important;
+                            transform: translateY(-5px) !important;
                             padding-top: 0 !important;
                             padding-bottom: 0 !important;
-                            margin-top: auto !important;
-                            margin-bottom: auto !important;
+                            margin-top: 0 !important;
                         }
 
                         /* Sort by ve Bulk Indicator temizleme */
