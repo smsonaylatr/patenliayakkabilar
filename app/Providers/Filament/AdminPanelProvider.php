@@ -140,17 +140,19 @@ class AdminPanelProvider extends PanelProvider
                             margin-bottom: 2px !important;
                         }
 
-                        /* Sort by / reorder toolbar kutusunu ve tum siralama elemanlarini yok et */
+                        /* Sort by Dropdown kutusu ve kapsayıcısını tamamen yok et */
                         .fi-ta-header-toolbar,
-                        .fi-ta-content > div:has(select),
-                        .fi-ta-content > div:first-child:has(select),
-                        div:has(> select[wire\:model*="tableSort"]),
-                        .fi-ta-orders-header + div:has(select),
-                        div.flex.items-center.justify-between.gap-x-4 {
+                        .fi-ta-content select,
+                        .fi-ta-content div:has(select),
+                        .fi-ta-content div:first-child:has(select),
+                        div:has(> select),
+                        .fi-select-input,
+                        .fi-ta-orders-header + div {
                             display: none !important;
+                            visibility: hidden !important;
                             height: 0 !important;
-                            padding: 0 !important;
                             margin: 0 !important;
+                            padding: 0 !important;
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */

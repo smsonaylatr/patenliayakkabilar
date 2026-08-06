@@ -48,7 +48,6 @@ class OrdersTable
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
-                        ->sortable()
                         ->weight('bold')
                         ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: right; justify-content: flex-end;']),
                     TextColumn::make('payment_method')
@@ -81,7 +80,6 @@ class OrdersTable
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->dateTime('d M Y')
-                        ->sortable()
                         ->extraAttributes(['style' => 'width: 130px; flex: 0 0 130px; text-align: center; justify-content: center;']),
                     TextColumn::make('status')
                         ->label('DURUM')
