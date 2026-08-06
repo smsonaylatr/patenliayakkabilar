@@ -22,6 +22,7 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordAction('viewDetails')
             ->columns([
                 TextColumn::make('order_number')
                     ->label('Sipariş No')
@@ -192,6 +193,18 @@ class OrdersTable
                     ->native(false),
             ])
             ->actions([
+                Action::make('viewDetails')
+                    ->label('Sipariş Detayı')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('Sipariş Detayını İncele (Ürünler & Adres)')
+                    ->icon('heroicon-o-eye')
+                    ->color('primary')
+                    ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)
+                    ->modalWidth('3xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Kapat')
+                    ->modalContent(fn (Order $record) => view('filament.orders.order-details-modal', ['order' => $record])),
                 Action::make('createInvoice')
                     ->iconButton()
                     ->size('lg')
