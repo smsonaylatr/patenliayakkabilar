@@ -417,4 +417,7 @@
             @endif
         </div>
     </div>
+
+    {{-- Stock Notification Modal --}}
+    <livewire:product.stock-notification-modal />
 </x-layouts.app>

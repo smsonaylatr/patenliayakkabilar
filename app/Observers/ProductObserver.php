@@ -42,6 +42,11 @@ class ProductObserver
                 ->color('warning')
                 ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
         }
+
+        // Stok yenilendiyse bekleyen bildirimleri gönder
+        if ($product->status && $product->stock > 0) {
+            \App\Services\StockNotificationService::processNotifications($product);
+        }
     }
 
     /**

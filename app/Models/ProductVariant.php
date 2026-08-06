@@ -80,6 +80,9 @@ class ProductVariant extends Model
         // Varyant kaydedildiğinde/silindiğinde ürün fiyat/stoğunu güncelle
         static::saved(function (ProductVariant $variant) {
             $variant->product?->syncFromVariants();
+            if ($variant->stock > 0 && $variant->product?->status) {
+                \App\Services\StockNotificationService::processNotifications($variant->product, $variant);
+            }
         });
 
         static::deleted(function (ProductVariant $variant) {
@@ -90,5 +93,10 @@ class ProductVariant extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function stockNotifications()
+    {
+        return $this->hasMany(StockNotification::class);
     }
 }

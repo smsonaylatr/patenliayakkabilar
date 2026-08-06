@@ -544,6 +544,11 @@ class Product extends Model
         $this->saveQuietly();
     }
 
+    public function stockNotifications()
+    {
+        return $this->hasMany(StockNotification::class);
+    }
+
     /**
      * Ürünün stokta ve satışa açık olup olmadığını kontrol et.
      * Pasife alınan ürünlerin (status = false) stoku sıfır / tükenmiş sayılır.
