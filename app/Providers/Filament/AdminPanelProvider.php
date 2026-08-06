@@ -147,21 +147,21 @@ class AdminPanelProvider extends PanelProvider
                             display: none !important;
                         }
 
-                        /* İşlem ikonları boyutunu 15px seviyesine düşürme */
+                        /* İşlem ikonları ideal boyutu (18px) */
                         .fi-ta-actions svg,
                         .fi-ta-record-actions svg,
                         td.fi-ta-actions-cell svg,
                         .fi-ta-cell svg {
-                            width: 15px !important;
-                            height: 15px !important;
+                            width: 18px !important;
+                            height: 18px !important;
                         }
 
                         .fi-ta-actions button,
                         .fi-ta-record-actions button,
                         .fi-ta-actions a,
                         .fi-icon-btn {
-                            padding: 3px !important;
-                            margin: 0 1px !important;
+                            padding: 4px !important;
+                            margin: 0 2px !important;
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
