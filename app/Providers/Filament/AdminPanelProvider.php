@@ -97,7 +97,9 @@ class AdminPanelProvider extends PanelProvider
                                 if (!window.location.pathname.includes("/admin/orders")) return;
                                 
                                 const target = e.target;
-                                if (target.closest("button, select, input, a, form, label, .fi-ta-action, option, [role=\"button\"]")) {
+
+                                // Eğer tıklanan yer veya üst elemanı bir buton, badge action, link veya form ise script araya girmesin
+                                if (target.closest("button, select, input, a, form, label, .fi-ta-action, [role=\"button\"], .fi-badge")) {
                                     return;
                                 }
 
@@ -107,7 +109,7 @@ class AdminPanelProvider extends PanelProvider
                                 const container = row.closest("tr, .fi-ta-record, div") || row.parentElement;
                                 if (!container) return;
 
-                                const trigger = container.querySelector(".fi-ta-collapsible-trigger, [x-on\\\\:click*=\"isCollapsed\"]") || container.querySelector("button");
+                                const trigger = container.querySelector(".fi-ta-collapsible-trigger, [x-on\\\\:click*=\"isCollapsed\"]");
                                 if (trigger) {
                                     trigger.click();
                                 }
