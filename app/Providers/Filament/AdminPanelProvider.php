@@ -98,22 +98,37 @@ class AdminPanelProvider extends PanelProvider
                                 
                                 const target = e.target;
 
-                                // Eğer tıklanan yer veya üst elemanı bir buton, badge action, link veya form ise script araya girmesin
-                                if (target.closest("button, select, input, a, form, label, .fi-ta-action, [role=\"button\"], .fi-badge")) {
+                                if (target.closest("button, select, input, a, form, label, .fi-ta-action, [role=\"button\"], .fi-badge, .fi-dropdown-trigger")) {
                                     return;
                                 }
 
-                                const row = target.closest(".fi-ta-row, tr, .fi-ta-split");
+                                const row = target.closest("tr, .fi-ta-row, .fi-ta-record, .fi-ta-split");
                                 if (!row) return;
 
-                                const container = row.closest("tr, .fi-ta-record, div") || row.parentElement;
+                                const container = row.closest("tr, .fi-ta-record, tbody, table") || row.parentElement;
                                 if (!container) return;
 
-                                const trigger = container.querySelector(".fi-ta-collapsible-trigger, [x-on\\\\:click*=\"isCollapsed\"]");
+                                let trigger = container.querySelector("button[x-on\\\\:click*=\"isCollapsed\"], .fi-ta-collapsible-trigger, button[aria-expanded]");
+                                
+                                if (!trigger && container.parentElement) {
+                                    trigger = container.parentElement.querySelector("button[x-on\\\\:click*=\"isCollapsed\"], .fi-ta-collapsible-trigger, button[aria-expanded]");
+                                }
+
                                 if (trigger) {
                                     trigger.click();
+                                    return;
                                 }
-                            });
+
+                                if (window.Alpine) {
+                                    const alpineEl = target.closest("[x-data]") || container.querySelector("[x-data]");
+                                    if (alpineEl && window.Alpine.$data(alpineEl)) {
+                                        const data = window.Alpine.$data(alpineEl);
+                                        if (typeof data.isCollapsed !== "undefined") {
+                                            data.isCollapsed = !data.isCollapsed;
+                                        }
+                                    }
+                                }
+                            }, true);
                         })();
                     </script>
                 ')
