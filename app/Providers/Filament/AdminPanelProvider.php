@@ -73,7 +73,22 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotifications()
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn () => new \Illuminate\Support\HtmlString('
+                    <style>
+                        /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
+                        .fi-ta-record-actions,
+                        .fi-ta-actions,
+                        td.fi-ta-actions-cell,
+                        .fi-ta-record > div:last-child {
+                            align-self: flex-start !important;
+                            vertical-align: top !important;
+                            padding-top: 14px !important;
+                        }
+                    </style>
+                ')
+            )
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('

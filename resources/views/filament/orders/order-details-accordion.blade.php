@@ -4,6 +4,16 @@
 
 @if($order)
 <style>
+/* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
+.fi-ta-record-actions,
+.fi-ta-actions,
+td.fi-ta-actions-cell,
+.fi-ta-record > div:last-child {
+    align-self: flex-start !important;
+    vertical-align: top !important;
+    padding-top: 14px !important;
+}
+
 .order-detail-panel {
     padding: 20px 24px;
     background: rgba(10, 12, 35, 0.65);
