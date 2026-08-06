@@ -140,31 +140,11 @@ class AdminPanelProvider extends PanelProvider
                             margin-bottom: 2px !important;
                         }
 
-                        /* Sort by Dropdown kutusu ve kapsayıcısını tamamen yok et */
+                        /* Sort by ve Bulk Indicator temizleme */
                         .fi-ta-header-toolbar,
-                        .fi-ta-content select,
-                        .fi-ta-content div:has(select),
-                        .fi-ta-content div:first-child:has(select),
-                        div:has(> select),
-                        .fi-select-input,
-                        .fi-ta-orders-header + div {
-                            display: none !important;
-                            visibility: hidden !important;
-                            height: 0 !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                        }
-
-                        /* Bulk Action satırını ve bağımsız checkbox satırını tamamen yok et */
                         .fi-ta-selection-indicator,
-                        .fi-ta-selection-indicator-header,
-                        .fi-ta-orders-header + div:has(input[type=checkbox]),
-                        .fi-ta-content > div:has(input[type=checkbox]):not(.fi-ta-orders-header) {
+                        .fi-ta-selection-indicator-header {
                             display: none !important;
-                            visibility: hidden !important;
-                            height: 0 !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
