@@ -77,35 +77,7 @@ class OrdersTable
                             'delivered' => 'Teslim Edildi',
                             'cancelled' => 'İptal',
                             default => $state,
-                        })
-                        ->action(
-                            Action::make('updateStatus')
-                                ->modalHeading('Durumu Güncelle')
-                                ->modalSubmitActionLabel('Kaydet')
-                                ->modalCancelActionLabel('Vazgeç')
-                                ->form([
-                                    Select::make('status')
-                                        ->label('Durum')
-                                        ->options([
-                                            'pending' => 'Beklemede',
-                                            'processing' => 'Hazırlanıyor',
-                                            'shipped' => 'Kargoda',
-                                            'delivered' => 'Teslim Edildi',
-                                            'cancelled' => 'İptal',
-                                        ])
-                                        ->placeholder('Seçiniz')
-                                        ->default(fn (Order $record) => $record->status)
-                                        ->native(false)
-                                        ->required(),
-                                ])
-                                ->action(function (Order $record, array $data): void {
-                                    $record->update(['status' => $data['status']]);
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Sipariş durumu güncellendi')
-                                        ->success()
-                                        ->send();
-                                })
-                        ),
+                        }),
                 ])
                 ->extraAttributes([
                     'class' => 'cursor-pointer select-none',
