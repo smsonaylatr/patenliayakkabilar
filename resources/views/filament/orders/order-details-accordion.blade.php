@@ -22,10 +22,10 @@ td.fi-ta-actions-cell {
     text-align: left;
     color: #fff;
     font-family: inherit;
-    flex-basis: 100% !important;
     width: 100% !important;
     max-width: 100% !important;
-    margin: 10px 0 0 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     box-sizing: border-box !important;
 }
 .detail-section {

@@ -77,39 +77,40 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <style>
-                        /* Siparişler Tablosu Satır Konteyneri Flex Wrap (Akordiyon Paneline 100% Yer Açma) */
-                        .fi-ta-record,
-                        div.fi-ta-record,
-                        .fi-ta-content {
-                            display: flex !important;
-                            flex-wrap: wrap !important;
-                            width: 100% !important;
-                        }
-
-                        /* Split Layout ve Sağ İkonlar Hizalaması */
-                        .fi-ta-split,
-                        div.fi-ta-split {
-                            flex: 1 1 auto !important;
-                            justify-content: space-between !important;
-                            gap: 16px !important;
-                        }
-
+                        /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
                             align-self: flex-start !important;
+                            vertical-align: top !important;
                             padding-top: 14px !important;
                         }
 
-                        /* Akordiyon Kartını Satırın Altında 100% Tam Genişlikte En Sağa Kadar Yayma */
+                        /* Split layout konteyneri esnetme */
+                        .fi-ta-split,
+                        div.fi-ta-split {
+                            flex: 1 1 auto !important;
+                            width: 100% !important;
+                            justify-content: space-between !important;
+                            gap: 12px !important;
+                        }
+
+                        /* Akordiyon Panelinin Taşmadan Sıfıra Sıfır Kapsayıcıya Oturması */
                         .fi-ta-panel,
                         div.fi-ta-panel,
                         .order-detail-panel {
-                            flex-basis: 100% !important;
                             width: 100% !important;
                             max-width: 100% !important;
-                            margin: 10px 0 0 0 !important;
+                            margin-left: 0 !important;
+                            margin-right: 0 !important;
                             box-sizing: border-box !important;
+                            overflow: hidden !important;
+                        }
+
+                        .fi-ta-panel-cell,
+                        tr.fi-ta-panel-row > td {
+                            width: 100% !important;
+                            padding: 0 !important;
                         }
                     </style>
                 ')
