@@ -25,17 +25,40 @@ class OrdersTable
             ->columns([
                 \Filament\Tables\Columns\Layout\Split::make([
                     TextColumn::make('order_number')
-                        ->label('Sipariş No')
+                        ->label('#SİPARİŞ')
                         ->searchable()
+                        ->getStateUsing(fn ($record) => '#' . $record->order_number)
                         ->weight('bold')
                         ->copyable(),
                     TextColumn::make('customer_name')
-                        ->label('Müşteri')
+                        ->label('MÜŞTERİ')
                         ->searchable()
-                        ->description(fn (Order $record) => $record->user ? 'Hesap: ' . $record->user->name : 'Misafir')
+                        ->weight('bold')
+                        ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
                         ->limit(25),
+                    TextColumn::make('items_count')
+                        ->label('ÜRÜNLER')
+                        ->counts('items')
+                        ->formatStateUsing(fn ($state) => ($state ?: 1) . ' ürün'),
+                    TextColumn::make('grand_total')
+                        ->label('TUTAR')
+                        ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
+                        ->sortable()
+                        ->weight('bold'),
+                    TextColumn::make('payment_method')
+                        ->label('ÖDEME')
+                        ->formatStateUsing(fn (?string $state) => match ($state) {
+                            'credit_card' => 'Kredi Kartı',
+                            'wire_transfer' => 'Havale/EFT',
+                            'cash_on_delivery' => 'Kapıda Ödeme',
+                            default => $state ?: 'Kredi Kartı',
+                        }),
+                    TextColumn::make('created_at')
+                        ->label('TARİH')
+                        ->dateTime('d M Y')
+                        ->sortable(),
                     TextColumn::make('status')
-                        ->label('Durum')
+                        ->label('DURUM')
                         ->badge()
                         ->color(fn (string $state) => match ($state) {
                             'pending' => 'warning',
@@ -81,67 +104,6 @@ class OrdersTable
                                         ->send();
                                 })
                         ),
-                    TextColumn::make('payment_status')
-                        ->label('Ödeme')
-                        ->badge()
-                        ->color(fn (string $state) => match ($state) {
-                            'pending' => 'warning',
-                            'paid' => 'success',
-                            'refunded' => 'info',
-                            'failed' => 'danger',
-                            default => 'gray',
-                        })
-                        ->formatStateUsing(fn (string $state) => match ($state) {
-                            'pending' => 'Beklemede',
-                            'paid' => 'Ödendi',
-                            'refunded' => 'İade',
-                            'failed' => 'Başarısız',
-                            default => $state,
-                        })
-                        ->action(
-                            Action::make('updatePaymentStatus')
-                                ->modalHeading('Ödeme Durumunu Güncelle')
-                                ->modalSubmitActionLabel('Kaydet')
-                                ->modalCancelActionLabel('Vazgeç')
-                                ->form([
-                                    Select::make('payment_status')
-                                        ->label('Ödeme Durumu')
-                                        ->options([
-                                            'pending' => 'Beklemede',
-                                            'paid' => 'Ödendi',
-                                            'refunded' => 'İade',
-                                            'failed' => 'Başarısız',
-                                        ])
-                                        ->placeholder('Seçiniz')
-                                        ->default(fn (Order $record) => $record->payment_status)
-                                        ->native(false)
-                                        ->required(),
-                                ])
-                                ->action(function (Order $record, array $data): void {
-                                    $record->update(['payment_status' => $data['payment_status']]);
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Ödeme durumu güncellendi')
-                                        ->success()
-                                        ->send();
-                                })
-                        ),
-                    TextColumn::make('grand_total')
-                        ->label('Toplam')
-                        ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')
-                        ->sortable()
-                        ->weight('bold'),
-                    TextColumn::make('payment_method')
-                        ->label('Ödeme Yöntemi')
-                        ->formatStateUsing(fn (?string $state) => match ($state) {
-                            'credit_card' => 'Kredi Kartı',
-                            'wire_transfer' => 'Havale/EFT',
-                            'cash_on_delivery' => 'Kapıda Ödeme',
-                            default => $state ?? '-',
-                        }),
-                    TextColumn::make('created_at')
-                        ->label('Tarih')
-                        ->dateTime('d.m.Y H:i')
-                        ->sortable(),
                 ]),
                 \Filament\Tables\Columns\Layout\Panel::make([
                     \Filament\Tables\Columns\ViewColumn::make('details')
