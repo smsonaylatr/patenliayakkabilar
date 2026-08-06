@@ -121,14 +121,14 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
-                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; padding-left: 45px !important; padding-right: 140px !important; padding-top: 10px !important; padding-bottom: 10px !important;">
-                        <div style="width: 15%; text-align: left; flex-shrink: 0;">#SİPARİŞ</div>
-                        <div style="width: 25%; text-align: left; flex-shrink: 0;">MÜŞTERİ</div>
-                        <div style="width: 10%; text-align: center; flex-shrink: 0;">ÜRÜNLER</div>
-                        <div style="width: 12%; text-align: right; flex-shrink: 0;">TUTAR</div>
-                        <div style="width: 12%; text-align: center; flex-shrink: 0;">ÖDEME</div>
-                        <div style="width: 14%; text-align: center; flex-shrink: 0;">TARİH</div>
-                        <div style="width: 12%; text-align: center; flex-shrink: 0;">DURUM</div>
+                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 68px !important; padding-right: 150px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important;">
+                        <div style="flex: 0 0 120px; text-align: left;">#SİPARİŞ</div>
+                        <div style="flex: 1 1 200px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 90px; text-align: center;">ÜRÜNLER</div>
+                        <div style="flex: 0 0 110px; text-align: right; padding-right: 10px;">TUTAR</div>
+                        <div style="flex: 0 0 130px; text-align: center;">ÖDEME</div>
+                        <div style="flex: 0 0 120px; text-align: center;">TARİH</div>
+                        <div style="flex: 0 0 110px; text-align: center;">DURUM</div>
                     </div>
                 ') : null
             )
