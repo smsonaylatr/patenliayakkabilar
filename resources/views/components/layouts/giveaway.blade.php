@@ -59,16 +59,17 @@
             </div>
 
             <!-- Footer Navigation Links -->
-            <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+            <div class="flex flex-wrap justify-center items-center gap-6 sm:gap-8 text-xs sm:text-sm font-semibold text-slate-600">
                 <a href="/gizlilik-politikasi" target="_blank" class="hover:text-slate-900 transition-colors">Gizlilik Politikası</a>
-                <span class="text-slate-300">•</span>
                 <a href="/mesafeli-satis-sozlesmesi" target="_blank" class="hover:text-slate-900 transition-colors">Katılım Koşulları</a>
-                <span class="text-slate-300">•</span>
                 <a href="/iletisim" target="_blank" class="hover:text-slate-900 transition-colors">İletişim</a>
-                <span class="text-slate-300">•</span>
-                <a href="tel:08503073164" class="hover:text-slate-900 transition-colors flex items-center gap-1.5 font-extrabold text-slate-800">
-                    <svg class="w-3.5 h-3.5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    0850 307 31 64
+            </div>
+
+            <!-- Phone Support Badge -->
+            <div class="pt-1">
+                <a href="tel:08503073164" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors border border-slate-200/80">
+                    <svg class="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <span>Müşteri Hizmetleri: 0850 307 31 64</span>
                 </a>
             </div>
 
