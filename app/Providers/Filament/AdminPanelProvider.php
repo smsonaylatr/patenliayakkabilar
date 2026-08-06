@@ -89,6 +89,19 @@ class AdminPanelProvider extends PanelProvider
                             line-height: 1.25rem !important;
                         }
 
+                        /* Tablo satır ayırıcı çizgiler: ince beyaz */
+                        .fi-ta-record,
+                        .fi-ta-row,
+                        tr {
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                            border-top: none !important;
+                        }
+                        .fi-ta-record:last-child,
+                        .fi-ta-row:last-child,
+                        tr:last-child {
+                            border-bottom: none !important;
+                        }
+
                         /* Durum Rozeti kompakt boyutu */
                         .fi-ta-split .fi-badge {
                             font-size: 10px !important;
