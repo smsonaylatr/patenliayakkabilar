@@ -147,6 +147,23 @@ class AdminPanelProvider extends PanelProvider
                             display: none !important;
                         }
 
+                        /* İşlem ikonları boyutunu 15px seviyesine düşürme */
+                        .fi-ta-actions svg,
+                        .fi-ta-record-actions svg,
+                        td.fi-ta-actions-cell svg,
+                        .fi-ta-cell svg {
+                            width: 15px !important;
+                            height: 15px !important;
+                        }
+
+                        .fi-ta-actions button,
+                        .fi-ta-record-actions button,
+                        .fi-ta-actions a,
+                        .fi-icon-btn {
+                            padding: 3px !important;
+                            margin: 0 1px !important;
+                        }
+
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
                         .fi-ta-record-content {
                             width: 100% !important;
