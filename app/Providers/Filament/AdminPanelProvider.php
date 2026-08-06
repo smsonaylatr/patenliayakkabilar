@@ -95,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
                             gap: 12px !important;
                         }
 
-                        /* Akordiyon Panelinin Taşmadan Sıfıra Sıfır Kapsayıcıya Oturması */
+                        /* Akordiyon Panelinin ve İçerik Kapsayıcısının Tam Genişlik Sıfırlaması */
                         .fi-ta-panel,
                         div.fi-ta-panel,
                         .order-detail-panel {
@@ -104,13 +104,16 @@ class AdminPanelProvider extends PanelProvider
                             margin-left: 0 !important;
                             margin-right: 0 !important;
                             box-sizing: border-box !important;
-                            overflow: hidden !important;
                         }
 
+                        /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
+                        .fi-ta-content,
                         .fi-ta-panel-cell,
-                        tr.fi-ta-panel-row > td {
+                        tr.fi-ta-panel-row > td,
+                        .fi-ta-record-content {
                             width: 100% !important;
-                            padding: 0 !important;
+                            padding-left: 0 !important;
+                            padding-right: 0 !important;
                         }
                     </style>
                 ')
