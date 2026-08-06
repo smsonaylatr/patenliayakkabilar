@@ -119,20 +119,6 @@ class AdminPanelProvider extends PanelProvider
                 ')
             )
             ->renderHook(
-                \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
-                fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
-                    <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 68px !important; padding-right: 150px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important;">
-                        <div style="flex: 0 0 120px; text-align: left;">#SİPARİŞ</div>
-                        <div style="flex: 1 1 200px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 90px; text-align: center;">ÜRÜNLER</div>
-                        <div style="flex: 0 0 110px; text-align: right; padding-right: 10px;">TUTAR</div>
-                        <div style="flex: 0 0 130px; text-align: center;">ÖDEME</div>
-                        <div style="flex: 0 0 120px; text-align: center;">TARİH</div>
-                        <div style="flex: 0 0 110px; text-align: center;">DURUM</div>
-                    </div>
-                ') : null
-            )
-            ->renderHook(
                 \Filament\View\PanelsRenderHook::BODY_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <script>
