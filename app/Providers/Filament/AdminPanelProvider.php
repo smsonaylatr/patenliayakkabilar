@@ -152,6 +152,18 @@ class AdminPanelProvider extends PanelProvider
                             gap: 16px !important;
                         }
 
+                        /* Tablodaki TÜM başlıklar, metinler ve rozetleri KESİN SOLA YASLA */
+                        .fi-ta-orders-header > div,
+                        .fi-ta-split > div,
+                        .fi-ta-content td,
+                        .fi-ta-cell,
+                        .fi-ta-text-item,
+                        .fi-ta-badge,
+                        .fi-badge {
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
                         .fi-ta-record-content {
                             width: 100% !important;
