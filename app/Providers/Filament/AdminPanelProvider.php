@@ -156,9 +156,21 @@ class AdminPanelProvider extends PanelProvider
                             gap: 16px !important;
                         }
 
+                        /* Checkbox hücre genişliği kilitleri */
+                        .fi-ta-orders-header > div:first-child,
+                        .fi-ta-record-checkbox,
+                        .fi-ta-checkbox-cell,
+                        td:has(input[type=checkbox]) {
+                            width: 44px !important;
+                            min-width: 44px !important;
+                            max-width: 44px !important;
+                            flex: 0 0 44px !important;
+                        }
+
                         /* Sütun 1: MÜŞTERİ (Başlıkta 2. div çünkü 1. div checkbox) */
                         .fi-ta-orders-header > div:nth-child(2),
-                        .fi-ta-split > div:nth-child(1) {
+                        .fi-ta-split > div:nth-child(1),
+                        .fi-ta-split > div:nth-child(1) * {
                             width: 240px !important;
                             min-width: 240px !important;
                             max-width: 240px !important;
@@ -169,7 +181,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 2: ŞEHİR */
                         .fi-ta-orders-header > div:nth-child(3),
-                        .fi-ta-split > div:nth-child(2) {
+                        .fi-ta-split > div:nth-child(2),
+                        .fi-ta-split > div:nth-child(2) * {
                             width: 100px !important;
                             min-width: 100px !important;
                             max-width: 100px !important;
@@ -180,7 +193,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 3: TUTAR */
                         .fi-ta-orders-header > div:nth-child(4),
-                        .fi-ta-split > div:nth-child(3) {
+                        .fi-ta-split > div:nth-child(3),
+                        .fi-ta-split > div:nth-child(3) * {
                             width: 90px !important;
                             min-width: 90px !important;
                             max-width: 90px !important;
@@ -191,7 +205,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 4: ÖDEME */
                         .fi-ta-orders-header > div:nth-child(5),
-                        .fi-ta-split > div:nth-child(4) {
+                        .fi-ta-split > div:nth-child(4),
+                        .fi-ta-split > div:nth-child(4) * {
                             width: 110px !important;
                             min-width: 110px !important;
                             max-width: 110px !important;
@@ -202,7 +217,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 5: TARİH */
                         .fi-ta-orders-header > div:nth-child(6),
-                        .fi-ta-split > div:nth-child(5) {
+                        .fi-ta-split > div:nth-child(5),
+                        .fi-ta-split > div:nth-child(5) * {
                             width: 160px !important;
                             min-width: 160px !important;
                             max-width: 160px !important;
@@ -213,7 +229,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 6: DURUM */
                         .fi-ta-orders-header > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(6) {
+                        .fi-ta-split > div:nth-child(6),
+                        .fi-ta-split > div:nth-child(6) * {
                             width: 105px !important;
                             min-width: 105px !important;
                             max-width: 105px !important;
@@ -224,7 +241,8 @@ class AdminPanelProvider extends PanelProvider
 
                         /* Sütun 7: ÖDEME DURUMU */
                         .fi-ta-orders-header > div:nth-child(8),
-                        .fi-ta-split > div:nth-child(7) {
+                        .fi-ta-split > div:nth-child(7),
+                        .fi-ta-split > div:nth-child(7) * {
                             width: 115px !important;
                             min-width: 115px !important;
                             max-width: 115px !important;
