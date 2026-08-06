@@ -32,24 +32,19 @@ class OrdersTable
                         ->getStateUsing(fn ($record) => '#' . $record->order_number)
                         ->weight('bold')
                         ->copyable()
-                        ->extraAttributes(['style' => 'width: 90px; flex: 0 0 90px;']),
+                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px;']),
                     TextColumn::make('customer_name')
                         ->label('MÜŞTERİ')
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
-                        ->limit(20)
-                        ->extraAttributes(['style' => 'width: 190px; flex: 0 0 190px;']),
-                    TextColumn::make('items_count')
-                        ->label('ÜRÜNLER')
-                        ->counts('items')
-                        ->formatStateUsing(fn ($state) => ($state ?: 1) . ' ürün')
-                        ->extraAttributes(['style' => 'width: 75px; flex: 0 0 75px; text-align: center; justify-content: center;']),
+                        ->limit(22)
+                        ->extraAttributes(['style' => 'width: 230px; flex: 0 0 230px;']),
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
                         ->weight('bold')
-                        ->extraAttributes(['style' => 'width: 90px; flex: 0 0 90px; text-align: right; justify-content: flex-end;']),
+                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: right; justify-content: flex-end;']),
                     TextColumn::make('payment_method')
                         ->label('ÖDEME')
                         ->formatStateUsing(fn (?string $state) => match ($state) {
