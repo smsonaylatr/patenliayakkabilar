@@ -3,112 +3,99 @@
 @endphp
 
 @if($order)
-<div class="p-6 my-2 text-xs bg-[#0b0e14] dark:bg-[#0b0e14] border-t border-b border-gray-800/80 text-gray-200 space-y-6">
+<div class="p-6 bg-[#0b0e17] dark:bg-[#0b0e17] text-gray-200 rounded-xl space-y-6 text-xs font-sans w-full border-t border-b border-gray-800/80">
     
     <!-- SİPARİŞ ÜRÜNLERİ -->
-    <div>
-        <h4 class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
-            <span>SİPARİŞ ÜRÜNLERİ</span>
+    <div class="space-y-3">
+        <h4 class="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+            SİPARİŞ ÜRÜNLERİ
         </h4>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                    <tr class="text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800/80">
-                        <th scope="col" class="py-2.5 px-3 font-bold">ÜRÜN</th>
-                        <th scope="col" class="py-2.5 px-3 font-bold text-center">RENK / NUMARA</th>
-                        <th scope="col" class="py-2.5 px-3 font-bold text-center">ADET</th>
-                        <th scope="col" class="py-2.5 px-3 font-bold text-right">BİRİM FİYAT</th>
-                        <th scope="col" class="py-2.5 px-3 font-bold text-right">TOPLAM</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-800/40">
-                    @forelse($order->items as $item)
-                        @php
-                            $product = $item->product;
-                            $variant = $item->variant;
-                            
-                            $imageUrl = null;
-                            if ($product) {
-                                $product->loadMissing('images');
-                                $imageUrl = $product->images->first()?->image_url;
-                            }
-                            if (!$imageUrl) {
-                                $imageUrl = asset('favicon.png');
-                            }
+        <!-- Ürünler Tablo Kapsayıcısı -->
+        <div class="space-y-2">
+            <!-- TABLO BAŞLIKLARI (CSS Grid) -->
+            <div class="grid grid-cols-12 gap-4 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-800/80">
+                <div class="col-span-5">ÜRÜN</div>
+                <div class="col-span-3 text-center">RENK / NUMARA</div>
+                <div class="col-span-1 text-center">ADET</div>
+                <div class="col-span-1 text-right">BİRİM FİYAT</div>
+                <div class="col-span-2 text-right">TOPLAM</div>
+            </div>
 
-                            // Renk / Numara biçimlendirmesi (örneğin: Siyah / 43 veya Lila / 33)
-                            $variantText = $item->variant_info;
-                            if (!$variantText && $variant) {
-                                $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
-                                $vSize = $variant->size;
-                                if ($vColor && $vSize) {
-                                    $variantText = "{$vColor} / {$vSize}";
-                                } elseif ($vSize) {
-                                    $variantText = "Beden: {$vSize}";
-                                } elseif ($vColor) {
-                                    $variantText = $vColor;
-                                }
-                            }
-                            if (!$variantText) {
-                                $variantText = 'Standart';
-                            }
-                        @endphp
-                        <tr class="hover:bg-gray-800/20 transition-colors">
-                            <!-- Ürün Görseli ve Adı -->
-                            <td class="py-3 px-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-900 border border-gray-800 shrink-0" style="width: 40px; height: 40px;">
-                                        <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover" style="width: 40px; height: 40px; object-fit: cover;">
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="font-bold text-white text-xs leading-snug">
-                                            {{ $item->product_name }}
-                                        </span>
-                                        @if($product && $product->sku)
-                                            <span class="text-[10px] font-mono text-gray-500">SKU: {{ $product->sku }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
+            <!-- ÜRÜN SATIRLARI -->
+            @forelse($order->items as $item)
+                @php
+                    $product = $item->product;
+                    $variant = $item->variant;
+                    
+                    $imageUrl = null;
+                    if ($product) {
+                        $product->loadMissing('images');
+                        $imageUrl = $product->images->first()?->image_url;
+                    }
+                    if (!$imageUrl) {
+                        $imageUrl = asset('favicon.png');
+                    }
 
-                            <!-- Renk / Numara -->
-                            <td class="py-3 px-3 text-center text-gray-300 font-medium">
-                                {{ $variantText }}
-                            </td>
+                    $variantText = $item->variant_info;
+                    if (!$variantText && $variant) {
+                        $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
+                        $vSize = $variant->size;
+                        if ($vColor && $vSize) {
+                            $variantText = "{$vColor} / {$vSize}";
+                        } elseif ($vSize) {
+                            $variantText = "Beden: {$vSize}";
+                        } elseif ($vColor) {
+                            $variantText = $vColor;
+                        }
+                    }
+                    if (!$variantText) {
+                        $variantText = 'Standart';
+                    }
+                @endphp
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 items-center bg-[#131722] dark:bg-[#131722] rounded-lg border border-gray-800/60 hover:border-gray-700/80 transition-colors">
+                    <!-- ÜRÜN (Resim + Ad) -->
+                    <div class="col-span-5 flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-md overflow-hidden bg-gray-900 border border-gray-800 shrink-0" style="width: 40px; height: 40px; min-width: 40px;">
+                            <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover" style="width: 40px; height: 40px; object-fit: cover;">
+                        </div>
+                        <span class="font-bold text-white text-xs truncate">
+                            {{ $item->product_name }}
+                        </span>
+                    </div>
 
-                            <!-- Adet -->
-                            <td class="py-3 px-3 text-center text-gray-300 font-medium">
-                                {{ $item->quantity }}
-                            </td>
+                    <!-- RENK / NUMARA -->
+                    <div class="col-span-3 text-center text-gray-300 font-medium truncate">
+                        {{ $variantText }}
+                    </div>
 
-                            <!-- Birim Fiyat -->
-                            <td class="py-3 px-3 text-right font-medium text-gray-300">
-                                ₺{{ number_format($item->unit_price, 0, ',', '.') }}
-                            </td>
+                    <!-- ADET -->
+                    <div class="col-span-1 text-center text-gray-300 font-medium">
+                        {{ $item->quantity }}
+                    </div>
 
-                            <!-- Toplam -->
-                            <td class="py-3 px-3 text-right font-bold text-white">
-                                ₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-4 text-center text-gray-500 text-xs">
-                                Sipariş ürünü bulunamadı.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    <!-- BİRİM FİYAT -->
+                    <div class="col-span-1 text-right text-gray-300 font-medium">
+                        ₺{{ number_format($item->unit_price, 0, ',', '.') }}
+                    </div>
+
+                    <!-- TOPLAM -->
+                    <div class="col-span-2 text-right font-bold text-white text-sm">
+                        ₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}
+                    </div>
+                </div>
+            @empty
+                <div class="p-4 text-center text-gray-500 text-xs">
+                    Sipariş ürünü bulunamadı.
+                </div>
+            @endforelse
         </div>
     </div>
 
-    <!-- KARGO ADRESİ & ÖDEME BİLGİSİ (Referans Tasarım Düzeni) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
-        
+    <!-- ALT BİLGİ KARTLARI (KARGO ADRESİ & ÖDEME BİLGİSİ) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-gray-800/80">
         <!-- KARGO ADRESİ -->
-        <div class="space-y-1 text-xs">
+        <div class="space-y-1.5 text-xs">
             <h5 class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">KARGO ADRESİ</h5>
             <div class="font-bold text-white text-sm">{{ $order->customer_name ?: 'Misafir Müşteri' }}</div>
             <div class="text-gray-300 leading-relaxed">{{ $order->shipping_address ?: 'Adres girilmemiş' }}</div>
@@ -128,7 +115,7 @@
         </div>
 
         <!-- ÖDEME BİLGİSİ -->
-        <div class="space-y-1 text-xs">
+        <div class="space-y-1.5 text-xs">
             <h5 class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">ÖDEME BİLGİSİ</h5>
             <div class="font-bold text-white text-sm">
                 @switch($order->payment_method)
@@ -149,10 +136,9 @@
 
             <div class="pt-2 text-xs">
                 <span class="text-gray-400">Toplam Tutar: </span>
-                <span class="font-bold text-white">₺{{ number_format($order->grand_total, 0, ',', '.') }}</span>
+                <span class="font-bold text-white text-sm">₺{{ number_format($order->grand_total, 0, ',', '.') }}</span>
             </div>
         </div>
-
     </div>
 
 </div>
