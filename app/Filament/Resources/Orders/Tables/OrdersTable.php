@@ -22,146 +22,131 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->recordAction('viewDetails')
             ->columns([
-                TextColumn::make('order_number')
-                    ->label('Sipariş No')
-                    ->searchable()
-                    ->weight('bold')
-                    ->copyable(),
-                TextColumn::make('customer_name')
-                    ->label('Müşteri')
-                    ->searchable()
-                    ->description(fn (Order $record) => $record->user ? 'Hesap: ' . $record->user->name : 'Misafir')
-                    ->limit(25),
-                TextColumn::make('status')
-                    ->label('Durum')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'pending' => 'warning',
-                        'processing' => 'info',
-                        'shipped' => 'primary',
-                        'delivered' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'pending' => 'Beklemede',
-                        'processing' => 'Hazırlanıyor',
-                        'shipped' => 'Kargoda',
-                        'delivered' => 'Teslim Edildi',
-                        'cancelled' => 'İptal',
-                        default => $state,
-                    })
-                    ->action(
-                        Action::make('updateStatus')
-                            ->modalHeading('Durumu Güncelle')
-                            ->modalSubmitActionLabel('Kaydet')
-                            ->modalCancelActionLabel('Vazgeç')
-                            ->form([
-                                Select::make('status')
-                                    ->label('Durum')
-                                    ->options([
-                                        'pending' => 'Beklemede',
-                                        'processing' => 'Hazırlanıyor',
-                                        'shipped' => 'Kargoda',
-                                        'delivered' => 'Teslim Edildi',
-                                        'cancelled' => 'İptal',
-                                    ])
-                                    ->placeholder('Seçiniz')
-                                    ->default(fn (Order $record) => $record->status)
-                                    ->native(false)
-                                    ->required(),
-                            ])
-                            ->action(function (Order $record, array $data): void {
-                                $record->update(['status' => $data['status']]);
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Sipariş durumu güncellendi')
-                                    ->success()
-                                    ->send();
-                            })
-                    ),
-                TextColumn::make('payment_status')
-                    ->label('Ödeme')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'pending' => 'warning',
-                        'paid' => 'success',
-                        'refunded' => 'info',
-                        'failed' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'pending' => 'Beklemede',
-                        'paid' => 'Ödendi',
-                        'refunded' => 'İade',
-                        'failed' => 'Başarısız',
-                        default => $state,
-                    })
-                    ->action(
-                        Action::make('updatePaymentStatus')
-                            ->modalHeading('Ödeme Durumunu Güncelle')
-                            ->modalSubmitActionLabel('Kaydet')
-                            ->modalCancelActionLabel('Vazgeç')
-                            ->form([
-                                Select::make('payment_status')
-                                    ->label('Ödeme Durumu')
-                                    ->options([
-                                        'pending' => 'Beklemede',
-                                        'paid' => 'Ödendi',
-                                        'refunded' => 'İade',
-                                        'failed' => 'Başarısız',
-                                    ])
-                                    ->placeholder('Seçiniz')
-                                    ->default(fn (Order $record) => $record->payment_status)
-                                    ->native(false)
-                                    ->required(),
-                            ])
-                            ->action(function (Order $record, array $data): void {
-                                $record->update(['payment_status' => $data['payment_status']]);
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Ödeme durumu güncellendi')
-                                    ->success()
-                                    ->send();
-                            })
-                    ),
-                TextColumn::make('grand_total')
-                    ->label('Toplam')
-                    ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')
-                    ->sortable()
-                    ->weight('bold'),
-                TextColumn::make('cargo_company')
-                    ->label('Kargo')
-                    ->badge()
-                    ->color('gray')
-                    ->default('-')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('cargo_tracking_code')
-                    ->label('Takip Kodu')
-                    ->copyable()
-                    ->default('-')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('payment_method')
-                    ->label('Ödeme Yöntemi')
-                    ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'credit_card' => 'Kredi Kartı',
-                        'wire_transfer' => 'Havale/EFT',
-                        'cash_on_delivery' => 'Kapıda Ödeme',
-                        default => $state ?? '-',
-                    }),
-                TextColumn::make('shipping_city')
-                    ->label('Şehir')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('items_count')
-                    ->label('Kalem')
-                    ->counts('items')
-                    ->badge()
-                    ->color('info')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Tarih')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
+                \Filament\Tables\Columns\Layout\Split::make([
+                    TextColumn::make('order_number')
+                        ->label('Sipariş No')
+                        ->searchable()
+                        ->weight('bold')
+                        ->copyable(),
+                    TextColumn::make('customer_name')
+                        ->label('Müşteri')
+                        ->searchable()
+                        ->description(fn (Order $record) => $record->user ? 'Hesap: ' . $record->user->name : 'Misafir')
+                        ->limit(25),
+                    TextColumn::make('status')
+                        ->label('Durum')
+                        ->badge()
+                        ->color(fn (string $state) => match ($state) {
+                            'pending' => 'warning',
+                            'processing' => 'info',
+                            'shipped' => 'primary',
+                            'delivered' => 'success',
+                            'cancelled' => 'danger',
+                            default => 'gray',
+                        })
+                        ->formatStateUsing(fn (string $state) => match ($state) {
+                            'pending' => 'Beklemede',
+                            'processing' => 'Hazırlanıyor',
+                            'shipped' => 'Kargoda',
+                            'delivered' => 'Teslim Edildi',
+                            'cancelled' => 'İptal',
+                            default => $state,
+                        })
+                        ->action(
+                            Action::make('updateStatus')
+                                ->modalHeading('Durumu Güncelle')
+                                ->modalSubmitActionLabel('Kaydet')
+                                ->modalCancelActionLabel('Vazgeç')
+                                ->form([
+                                    Select::make('status')
+                                        ->label('Durum')
+                                        ->options([
+                                            'pending' => 'Beklemede',
+                                            'processing' => 'Hazırlanıyor',
+                                            'shipped' => 'Kargoda',
+                                            'delivered' => 'Teslim Edildi',
+                                            'cancelled' => 'İptal',
+                                        ])
+                                        ->placeholder('Seçiniz')
+                                        ->default(fn (Order $record) => $record->status)
+                                        ->native(false)
+                                        ->required(),
+                                ])
+                                ->action(function (Order $record, array $data): void {
+                                    $record->update(['status' => $data['status']]);
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Sipariş durumu güncellendi')
+                                        ->success()
+                                        ->send();
+                                })
+                        ),
+                    TextColumn::make('payment_status')
+                        ->label('Ödeme')
+                        ->badge()
+                        ->color(fn (string $state) => match ($state) {
+                            'pending' => 'warning',
+                            'paid' => 'success',
+                            'refunded' => 'info',
+                            'failed' => 'danger',
+                            default => 'gray',
+                        })
+                        ->formatStateUsing(fn (string $state) => match ($state) {
+                            'pending' => 'Beklemede',
+                            'paid' => 'Ödendi',
+                            'refunded' => 'İade',
+                            'failed' => 'Başarısız',
+                            default => $state,
+                        })
+                        ->action(
+                            Action::make('updatePaymentStatus')
+                                ->modalHeading('Ödeme Durumunu Güncelle')
+                                ->modalSubmitActionLabel('Kaydet')
+                                ->modalCancelActionLabel('Vazgeç')
+                                ->form([
+                                    Select::make('payment_status')
+                                        ->label('Ödeme Durumu')
+                                        ->options([
+                                            'pending' => 'Beklemede',
+                                            'paid' => 'Ödendi',
+                                            'refunded' => 'İade',
+                                            'failed' => 'Başarısız',
+                                        ])
+                                        ->placeholder('Seçiniz')
+                                        ->default(fn (Order $record) => $record->payment_status)
+                                        ->native(false)
+                                        ->required(),
+                                ])
+                                ->action(function (Order $record, array $data): void {
+                                    $record->update(['payment_status' => $data['payment_status']]);
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Ödeme durumu güncellendi')
+                                        ->success()
+                                        ->send();
+                                })
+                        ),
+                    TextColumn::make('grand_total')
+                        ->label('Toplam')
+                        ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')
+                        ->sortable()
+                        ->weight('bold'),
+                    TextColumn::make('payment_method')
+                        ->label('Ödeme Yöntemi')
+                        ->formatStateUsing(fn (?string $state) => match ($state) {
+                            'credit_card' => 'Kredi Kartı',
+                            'wire_transfer' => 'Havale/EFT',
+                            'cash_on_delivery' => 'Kapıda Ödeme',
+                            default => $state ?? '-',
+                        }),
+                    TextColumn::make('created_at')
+                        ->label('Tarih')
+                        ->dateTime('d.m.Y H:i')
+                        ->sortable(),
+                ]),
+                \Filament\Tables\Columns\Layout\Panel::make([
+                    \Filament\Tables\Columns\ViewColumn::make('details')
+                        ->view('filament.orders.order-details-accordion'),
+                ])->collapsible()->collapsed(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -193,18 +178,6 @@ class OrdersTable
                     ->native(false),
             ])
             ->actions([
-                Action::make('viewDetails')
-                    ->label('Sipariş Detayı')
-                    ->iconButton()
-                    ->size('lg')
-                    ->tooltip('Sipariş Detayını İncele (Ürünler & Adres)')
-                    ->icon('heroicon-o-eye')
-                    ->color('primary')
-                    ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)
-                    ->modalWidth('3xl')
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Kapat')
-                    ->modalContent(fn (Order $record) => view('filament.orders.order-details-modal', ['order' => $record])),
                 Action::make('createInvoice')
                     ->iconButton()
                     ->size('lg')
