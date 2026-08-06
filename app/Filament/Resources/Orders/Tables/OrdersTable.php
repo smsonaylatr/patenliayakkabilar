@@ -31,13 +31,13 @@ class OrdersTable
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
-                        ->limit(25)
-                        ->extraAttributes(['style' => 'width: 260px; flex: 0 0 260px; text-align: left; justify-content: flex-start;']),
+                        ->limit(24)
+                        ->extraAttributes(['style' => 'width: 250px; flex: 0 0 250px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('shipping_city')
                         ->label('ŞEHİR')
                         ->getStateUsing(fn (Order $record) => $record->shipping_city ?: ($record->billing_city ?: 'İstanbul'))
-                        ->limit(18)
-                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: left; justify-content: flex-start;']),
+                        ->limit(16)
+                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
@@ -51,7 +51,7 @@ class OrdersTable
                             'cash_on_delivery' => 'Kapıda Ödeme',
                             default => $state ?: 'Kredi Kartı',
                         })
-                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;']),
+                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->getStateUsing(function ($record) {
@@ -66,7 +66,7 @@ class OrdersTable
                             $m = $trMonths[(int) $record->created_at->format('n')] ?? '';
                             return $record->created_at->format('d') . ' ' . $m . ' ' . $record->created_at->format('Y H:i:s');
                         })
-                        ->extraAttributes(['style' => 'width: 145px; flex: 0 0 145px; text-align: left; justify-content: flex-start;']),
+                        ->extraAttributes(['style' => 'width: 160px; flex: 0 0 160px; text-align: left; justify-content: flex-start;']),
                     TextColumn::make('status')
                         ->label('DURUM')
                         ->badge()
@@ -86,7 +86,7 @@ class OrdersTable
                             'cancelled' => 'İptal',
                             default => $state,
                         })
-                        ->extraAttributes(['style' => 'width: 100px; flex: 0 0 100px; text-align: left; justify-content: flex-start;'])
+                        ->extraAttributes(['style' => 'width: 105px; flex: 0 0 105px; text-align: left; justify-content: flex-start;'])
                         ->action(
                             Action::make('updateStatus')
                                 ->modalHeading('Durumu Güncelle')
@@ -132,7 +132,7 @@ class OrdersTable
                             'refunded' => 'İade Edildi',
                             default => 'Ödendi',
                         })
-                        ->extraAttributes(['style' => 'width: 105px; flex: 0 0 105px; text-align: left; justify-content: flex-start;']),
+                        ->extraAttributes(['style' => 'width: 115px; flex: 0 0 115px; text-align: left; justify-content: flex-start;']),
                 ])
                 ->grow(true)
                 ->extraAttributes([
