@@ -74,8 +74,8 @@ class OrdersTable
                         ->extraAttributes(['style' => 'width: 95px; flex: 0 0 95px; text-align: center; justify-content: center;']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
-                        ->dateTime('d M Y')
-                        ->extraAttributes(['style' => 'width: 105px; flex: 0 0 105px; text-align: center; justify-content: center;']),
+                        ->getStateUsing(fn ($record) => $record->created_at ? $record->created_at->translatedFormat('d M Y H:i:s') : '-')
+                        ->extraAttributes(['style' => 'width: 140px; flex: 0 0 140px; text-align: center; justify-content: center;']),
                     TextColumn::make('status')
                         ->label('DURUM')
                         ->badge()
