@@ -132,9 +132,13 @@ class AdminPanelProvider extends PanelProvider
                             box-sizing: border-box !important;
                         }
 
-                        /* Sort by / reorder toolbar kutusunu gizle */
+                        /* Sort by / reorder toolbar kutusunu ve tum siralama elemanlarini yok et */
                         .fi-ta-header-toolbar,
-                        .fi-ta-content > div:first-child:has(select) {
+                        .fi-ta-content > div:has(select),
+                        .fi-ta-content > div:first-child:has(select),
+                        div:has(> select[wire\:model*="tableSort"]),
+                        .fi-ta-orders-header + div:has(select),
+                        div.flex.items-center.justify-between.gap-x-4:has(select) {
                             display: none !important;
                         }
 
@@ -151,8 +155,8 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
                     <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider border-b border-gray-800/80 rounded-t-xl my-2 select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 24px !important; padding-right: 140px !important; padding-top: 12px !important; padding-bottom: 12px !important; box-sizing: border-box !important;">
-                        <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0;">
-                            <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="document.querySelectorAll(\'.fi-ta-record-checkbox input, .fi-ta-checkbox input, table td input[type=checkbox]\').forEach(cb => { cb.checked = this.checked; cb.dispatchEvent(new Event(\'change\', { bubbles: true })); })" style="width: 16px; height: 16px;" title="Tümünü Seç">
+                        <div style="display: flex; align-items: center; width: 44px; flex-shrink: 0; padding-left: 4px;">
+                            <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="const isChecked = this.checked; document.querySelectorAll(\'tr input[type=checkbox], .fi-ta-record-checkbox input, .fi-ta-checkbox-cell input\').forEach(cb => { if (cb !== this && cb.checked !== isChecked) { cb.click(); } });" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
                         <div style="flex: 0 0 140px; text-align: left;">#SİPARİŞ</div>
                         <div style="flex: 0 0 250px; text-align: left;">MÜŞTERİ</div>
