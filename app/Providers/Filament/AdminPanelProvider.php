@@ -270,6 +270,33 @@ class AdminPanelProvider extends PanelProvider
                                     }
                                 }
                             }, true);
+
+                            // Bulk action checkbox satırını gizle (başlık ile veri arasındaki boş checkbox satırı)
+                            function hideBulkCheckboxRow() {
+                                if (!window.location.pathname.includes("/admin/orders")) return;
+                                document.querySelectorAll(".fi-ta-record, tr").forEach(function(row) {
+                                    const checkbox = row.querySelector("input[type=checkbox]");
+                                    const split = row.querySelector(".fi-ta-split");
+                                    // Checkbox var ama split (veri sütunları) yoksa bu bulk action satırıdır
+                                    if (checkbox && !split && !row.classList.contains("fi-ta-orders-header")) {
+                                        const textContent = row.textContent.trim();
+                                        // Sadece checkbox içeren boş satırları gizle
+                                        if (textContent.length < 5) {
+                                            row.style.display = "none";
+                                        }
+                                    }
+                                });
+                            }
+                            hideBulkCheckboxRow();
+                            // Livewire güncellemelerinden sonra da çalıştır
+                            document.addEventListener("livewire:navigated", hideBulkCheckboxRow);
+                            if (window.Livewire) {
+                                document.addEventListener("livewire:init", function() {
+                                    Livewire.hook("morph.updated", function() { setTimeout(hideBulkCheckboxRow, 100); });
+                                });
+                            }
+                            new MutationObserver(function() { setTimeout(hideBulkCheckboxRow, 50); })
+                                .observe(document.body, { childList: true, subtree: true });
                         })();
                     </script>
                 ')
