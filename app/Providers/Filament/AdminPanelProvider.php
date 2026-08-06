@@ -107,9 +107,14 @@ class AdminPanelProvider extends PanelProvider
                         }
 
                         /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
-                        .fi-ta-content,
-                        .fi-ta-panel-cell,
-                        tr.fi-ta-panel-row > td,
+                        .fi-ta-record-content {
+                            width: 100% !important;
+                            padding-left: 0 !important;
+                            padding-right: 0 !important;
+                        }
+                    </style>
+                ')
+            )
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER,
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
