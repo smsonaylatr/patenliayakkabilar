@@ -22,6 +22,8 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
+            ->recordAction(null)
             ->columns([
                 \Filament\Tables\Columns\Layout\Split::make([
                     TextColumn::make('order_number')
