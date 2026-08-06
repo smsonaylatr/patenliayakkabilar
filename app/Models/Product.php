@@ -52,6 +52,16 @@ class Product extends Model
         });
 
         static::saving(function (Product $product) {
+            if (empty($product->sku)) {
+                $cleanSlug = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', Str::slug($product->name ?: 'PRODUCT')));
+                if (strlen($cleanSlug) > 15) {
+                    $cleanSlug = substr($cleanSlug, 0, 15);
+                }
+                $product->sku = 'PATEN-' . ($product->id ?: strtoupper(Str::random(4))) . ($cleanSlug ? '-' . $cleanSlug : '');
+            } else {
+                $product->sku = \App\Services\SchemaService::sanitizeSku($product->sku, 'PATEN-' . ($product->id ?: '0'));
+            }
+
             if ($product->discount_price && $product->price && $product->discount_price > $product->price) {
                 $temp = $product->price;
                 $product->price = $product->discount_price;

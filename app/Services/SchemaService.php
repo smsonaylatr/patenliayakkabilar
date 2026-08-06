@@ -286,6 +286,7 @@ class SchemaService
         // Teklif (Offer) şablonu
         $offerTemplate = [
             '@type'         => 'Offer',
+            'sku'           => $parentSku,
             'price'         => number_format((float) $price, 2, '.', ''),
             'priceCurrency' => 'TRY',
             'priceValidUntil' => now()->addYear()->format('Y-m-d'),
@@ -348,6 +349,7 @@ class SchemaService
                 $vSize = (string)$variant->size;
                 $rawVariantSku = !empty($variant->sku) ? $variant->sku : ($parentSku . '-' . (!empty($vSize) ? $vSize : $variant->id));
                 $variantSku = self::sanitizeSku($rawVariantSku, $parentSku . '-' . $variant->id);
+                $variantOffer['sku'] = $variantSku;
 
                 $variantData = [
                     '@type' => 'Product',
@@ -604,12 +606,21 @@ class SchemaService
         if (empty($sku)) {
             $sku = trim($fallback);
         }
-        
-        // Google Search Console / Merchant Center SKU uzunluk sınırı (genelde maks 50 karakter)
-        if (mb_strlen($sku) > 50) {
-            $sku = mb_substr($sku, 0, 50);
+
+        // Türkçe karakter ve geçersiz özel karakter temizliği (Alfanümerik + tire/alt tire)
+        $cleanSku = preg_replace('/[^a-zA-Z0-9\-_]/', '-', $sku);
+        $cleanSku = preg_replace('/-+/', '-', $cleanSku);
+        $cleanSku = strtoupper(trim($cleanSku, '-'));
+
+        if (empty($cleanSku)) {
+            $fallbackClean = preg_replace('/[^a-zA-Z0-9\-_]/', '-', trim($fallback));
+            $cleanSku = strtoupper(trim(preg_replace('/-+/', '-', $fallbackClean), '-'));
         }
-        
-        return $sku;
+
+        if (strlen($cleanSku) > 50) {
+            $cleanSku = substr($cleanSku, 0, 50);
+        }
+
+        return $cleanSku ?: 'PATEN-SKU';
     }
 }
