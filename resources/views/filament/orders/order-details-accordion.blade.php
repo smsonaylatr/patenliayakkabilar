@@ -7,8 +7,7 @@
 /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
 .fi-ta-record-actions,
 .fi-ta-actions,
-td.fi-ta-actions-cell,
-.fi-ta-record > div:last-child {
+td.fi-ta-actions-cell {
     align-self: flex-start !important;
     vertical-align: top !important;
     padding-top: 14px !important;
@@ -23,7 +22,9 @@ td.fi-ta-actions-cell,
     text-align: left;
     color: #fff;
     font-family: inherit;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 .detail-section {
     display: flex;

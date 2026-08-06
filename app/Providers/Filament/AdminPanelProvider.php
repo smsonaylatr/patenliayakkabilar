@@ -80,11 +80,25 @@ class AdminPanelProvider extends PanelProvider
                         /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
-                        td.fi-ta-actions-cell,
-                        .fi-ta-record > div:last-child {
+                        td.fi-ta-actions-cell {
                             align-self: flex-start !important;
                             vertical-align: top !important;
                             padding-top: 14px !important;
+                        }
+
+                        /* Akordiyon Panelinin Boş Kısımlara Tam Sığması (Full Width Fit) */
+                        .fi-ta-panel,
+                        .fi-ta-panel > div,
+                        .order-detail-panel {
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            box-sizing: border-box !important;
+                        }
+
+                        .fi-ta-panel-cell,
+                        tr.fi-ta-panel-row > td {
+                            width: 100% !important;
+                            padding: 0 !important;
                         }
                     </style>
                 ')
