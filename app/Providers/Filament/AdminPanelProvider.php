@@ -77,13 +77,39 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <style>
+                        /* Siparişler tablosunda genel okunaklı kompakt font boyutu (12px / 0.76rem) */
+                        .fi-ta-record,
+                        .fi-ta-row,
+                        .fi-ta-cell,
+                        .fi-ta-split,
+                        .fi-ta-split div,
+                        .fi-ta-split span,
+                        .fi-ta-split p {
+                            font-size: 0.76rem !important;
+                            line-height: 1.25rem !important;
+                        }
+
+                        /* Durum Rozeti kompakt boyutu */
+                        .fi-ta-split .fi-badge {
+                            font-size: 10px !important;
+                            padding: 2px 8px !important;
+                        }
+
+                        /* Müşteri Alt E-posta Metni ufaltma */
+                        .fi-ta-split .text-xs,
+                        .fi-ta-split .text-sm,
+                        .fi-ta-split .fi-ta-text-item-description {
+                            font-size: 0.7rem !important;
+                            opacity: 0.7 !important;
+                        }
+
                         /* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
                             align-self: flex-start !important;
                             vertical-align: top !important;
-                            padding-top: 14px !important;
+                            padding-top: 12px !important;
                         }
 
                         /* Split layout konteyneri esnetme */
