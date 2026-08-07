@@ -171,10 +171,11 @@ td.fi-ta-actions-cell {
 /* ======================================================== */
 @media (max-width: 640px) {
     .order-detail-panel {
-        padding: 8px !important;
+        padding: 8px 6px !important;
         gap: 12px !important;
         width: 100% !important;
         max-width: 100% !important;
+        border-radius: 0 !important;
         box-sizing: border-box !important;
     }
 

@@ -114,14 +114,23 @@ class AdminPanelProvider extends PanelProvider
                                 white-space: nowrap !important;
                             }
 
-                            /* Sipariş Detay Modalı Mobil Ekrana Tam Sığdırma */
+                            /* Sipariş Detay Modalı Mobilde Yanal Boşluksuz Tam Genişlik (100% Full Width) */
+                            .fi-modal,
+                            [role="dialog"],
+                            .fi-modal-window-container,
+                            .fi-modal-window-ctn {
+                                padding-left: 0 !important;
+                                padding-right: 0 !important;
+                            }
+
                             .fi-modal-window {
-                                width: 98vw !important;
-                                max-width: 98vw !important;
-                                margin: 4px auto !important;
-                                padding: 0 !important;
-                                zoom: 0.78 !important;
-                                overflow: hidden !important;
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                min-width: 100% !important;
+                                margin: 0 !important;
+                                border-radius: 0 !important;
+                                zoom: 1 !important;
+                                box-sizing: border-box !important;
                             }
 
                             .fi-modal-window > div,
@@ -129,6 +138,7 @@ class AdminPanelProvider extends PanelProvider
                             .fi-modal-body,
                             .fi-modal-header {
                                 padding: 8px 10px !important;
+                                width: 100% !important;
                                 max-width: 100% !important;
                                 box-sizing: border-box !important;
                             }
