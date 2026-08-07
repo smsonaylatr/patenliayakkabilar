@@ -14,106 +14,165 @@ td.fi-ta-actions-cell {
 }
 
 .order-detail-panel {
-    padding: 20px 24px;
-    background: rgba(10, 12, 35, 0.65);
+    padding: 16px 20px;
+    background-color: rgba(248, 250, 252, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     text-align: left;
-    color: #fff;
+    color: #0f172a;
     font-family: inherit;
     width: 100% !important;
     max-width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
     box-sizing: border-box !important;
+    transition: all 0.2s ease;
 }
+
+.dark .order-detail-panel {
+    background-color: rgba(15, 23, 42, 0.75);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
 .detail-section {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
 }
+
 .detail-title {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.35);
+    color: #64748b;
 }
+
+.dark .detail-title {
+    color: rgba(255, 255, 255, 0.45);
+}
+
 .detail-addr {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    font-size: 0.82rem;
+    gap: 4px;
+    font-size: 0.84rem;
 }
+
 .detail-meta {
     display: flex;
-    gap: 60px;
+    flex-direction: column;
+    gap: 20px;
 }
+
+@media (min-width: 768px) {
+    .detail-meta {
+        flex-direction: row;
+        gap: 40px;
+    }
+}
+
+.table-responsive-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+}
+
 .inner-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 3px;
-    font-size: 0.82rem;
+    border-spacing: 0 4px;
+    font-size: 0.84rem;
+    min-width: 600px;
 }
+
+@media (max-width: 640px) {
+    .inner-table {
+        min-width: 500px;
+    }
+}
+
 .inner-table th {
-    padding: 6px 12px;
+    padding: 8px 12px;
     text-align: left;
     font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.25);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #64748b;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+.dark .inner-table th {
+    color: rgba(255, 255, 255, 0.35);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
 .inner-table td {
-    padding: 11px 12px !important;
+    padding: 10px 12px !important;
     border-bottom: none !important;
     vertical-align: middle;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.03);
 }
+
+.dark .inner-table td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
     padding-right: 12px !important;
     width: 66px;
     vertical-align: middle;
-    transition: width 0.25s ease;
 }
+
 .inner-table td:last-child {
     border-radius: 0 8px 8px 0;
 }
+
 .inner-thumb {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
-    cursor: zoom-in;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+.dark .inner-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
 .inner-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.inner-thumb:hover {
-    width: 150px;
-    height: 150px;
-    border-radius: 16px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.3);
-}
+
 .td-bold {
     font-weight: 700;
+    color: #0f172a;
+}
+
+.dark .td-bold {
     color: #ffffff;
 }
+
 .td-muted {
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 0.8rem;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.dark .td-muted {
+    color: rgba(255, 255, 255, 0.55);
 }
 </style>
 
@@ -121,71 +180,73 @@ td.fi-ta-actions-cell {
   <!-- Products -->
   <div class="detail-section">
     <div class="detail-title">Sipariş Ürünleri</div>
-    <table class="inner-table">
-      <thead>
-        <tr>
-          <th style="width:44px"></th>
-          <th>Ürün</th>
-          <th>Renk / Numara</th>
-          <th>Adet</th>
-          <th>Sipariş No</th>
-          <th>Birim Fiyat</th>
-          <th>Toplam</th>
-        </tr>
-      </thead>
-      <tbody>
-        @forelse($order->items as $item)
-            @php
-                $product = $item->product;
-                $variant = $item->variant;
-                
-                $imageUrl = null;
-                if ($product) {
-                    $product->loadMissing('images');
-                    $imageUrl = $product->images->first()?->image_url;
-                }
-                if (!$imageUrl) {
-                    $imageUrl = asset('favicon.png');
-                }
+    <div class="table-responsive-container">
+      <table class="inner-table">
+        <thead>
+          <tr>
+            <th style="width:56px"></th>
+            <th>Ürün</th>
+            <th>Renk / Numara</th>
+            <th>Adet</th>
+            <th>Sipariş No</th>
+            <th>Birim Fiyat</th>
+            <th>Toplam</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($order->items as $item)
+              @php
+                  $product = $item->product;
+                  $variant = $item->variant;
+                  
+                  $imageUrl = null;
+                  if ($product) {
+                      $product->loadMissing('images');
+                      $imageUrl = $product->images->first()?->image_url;
+                  }
+                  if (!$imageUrl) {
+                      $imageUrl = asset('favicon.png');
+                  }
 
-                $variantText = $item->variant_info;
-                if (!$variantText && $variant) {
-                    $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
-                    $vSize = $variant->size;
-                    if ($vColor && $vSize) {
-                        $variantText = "{$vColor} / {$vSize}";
-                    } elseif ($vSize) {
-                        $variantText = "Beden: {$vSize}";
-                    } elseif ($vColor) {
-                        $variantText = $vColor;
-                    }
-                }
-                if (!$variantText) {
-                    $variantText = 'Standart';
-                }
-            @endphp
-            <tr>
-              <td style="width:44px">
-                <div class="inner-thumb">
-                  <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
-                </div>
-              </td>
-              <td class="td-bold">{{ $item->product_name }}</td>
-              <td class="td-muted">{{ $variantText }}</td>
-              <td class="td-muted">{{ $item->quantity }}</td>
-              <td class="td-bold" style="color: #60a5fa;">#{{ $order->order_number }}</td>
-              <td class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</td>
-              <td class="td-bold">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="7" class="td-muted" style="text-align:center; padding: 15px !important;">
-                    Sipariş ürünü bulunamadı.
+                  $variantText = $item->variant_info;
+                  if (!$variantText && $variant) {
+                      $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
+                      $vSize = $variant->size;
+                      if ($vColor && $vSize) {
+                          $variantText = "{$vColor} / {$vSize}";
+                      } elseif ($vSize) {
+                          $variantText = "Beden: {$vSize}";
+                      } elseif ($vColor) {
+                          $variantText = $vColor;
+                      }
+                  }
+                  if (!$variantText) {
+                      $variantText = 'Standart';
+                  }
+              @endphp
+              <tr>
+                <td style="width:56px">
+                  <div class="inner-thumb">
+                    <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
+                  </div>
                 </td>
-            </tr>
-        @endforelse
-      </tbody>
-    </table>
+                <td class="td-bold">{{ $item->product_name }}</td>
+                <td class="td-muted">{{ $variantText }}</td>
+                <td class="td-muted">{{ $item->quantity }}</td>
+                <td class="td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</td>
+                <td class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</td>
+                <td class="td-bold">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
+              </tr>
+          @empty
+              <tr>
+                  <td colspan="7" class="td-muted" style="text-align:center; padding: 15px !important;">
+                      Sipariş ürünü bulunamadı.
+                  </td>
+              </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Detail Meta (Kargo Adresi & Ödeme Bilgisi) -->
@@ -202,7 +263,7 @@ td.fi-ta-actions-cell {
             <div class="td-muted" style="margin-top:2px;">{{ $order->customer_phone }}</div>
         @endif
         @if($order->customer_note)
-            <div class="td-muted" style="color: #fbbf24; margin-top:2px;">Not: {{ $order->customer_note }}</div>
+            <div class="td-muted" style="color: #f59e0b; margin-top:2px;">Not: {{ $order->customer_note }}</div>
         @endif
       </div>
     </div>
@@ -212,10 +273,10 @@ td.fi-ta-actions-cell {
       <div class="detail-addr">
         <div class="td-bold">
             @switch($order->payment_method)
-                @case('credit_card') <span style="color: #a78bfa; font-weight: 600;">Kredi Kartı</span> @break
-                @case('wire_transfer') <span style="color: #2dd4bf; font-weight: 600;">Havale / EFT</span> @break
-                @case('cash_on_delivery') <span style="color: #fb923c; font-weight: 600;">Kapıda Ödeme</span> @break
-                @default <span style="color: #a78bfa; font-weight: 600;">{{ $order->payment_method ?: 'Kredi Kartı' }}</span>
+                @case('credit_card') <span style="color: #8b5cf6; font-weight: 600;">Kredi Kartı</span> @break
+                @case('wire_transfer') <span style="color: #0d9488; font-weight: 600;">Havale / EFT</span> @break
+                @case('cash_on_delivery') <span style="color: #ea580c; font-weight: 600;">Kapıda Ödeme</span> @break
+                @default <span style="color: #8b5cf6; font-weight: 600;">{{ $order->payment_method ?: 'Kredi Kartı' }}</span>
             @endswitch
         </div>
         @if($order->payment_method === 'credit_card' || !$order->payment_method)
@@ -223,7 +284,7 @@ td.fi-ta-actions-cell {
         @endif
         <div class="td-muted" style="margin-top:2px;">
             @php
-                $trMonths = [1=>'Ağu', 1=>'Oca', 2=>'Şub', 3=>'Mar', 4=>'Nis', 5=>'May', 6=>'Haz', 7=>'Tem', 8=>'Ağu', 9=>'Eyl', 10=>'Ekm', 11=>'Kas', 12=>'Ara'];
+                $trMonths = [1=>'Oca', 2=>'Şub', 3=>'Mar', 4=>'Nis', 5=>'May', 6=>'Haz', 7=>'Tem', 8=>'Ağu', 9=>'Eyl', 10=>'Eki', 11=>'Kas', 12=>'Ara'];
                 $dtStr = '-';
                 if ($order->created_at) {
                     $mName = $trMonths[(int)$order->created_at->format('n')] ?? '';
