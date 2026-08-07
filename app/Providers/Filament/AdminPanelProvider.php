@@ -243,7 +243,7 @@ class AdminPanelProvider extends PanelProvider
                         <div style="flex: 0 0 106px; text-align: left;">ÖDEME</div>
                         <div style="flex: 0 0 172px; text-align: left;">TARİH</div>
                         <div style="flex: 0 0 100px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 106px; text-align: left;">ÖDEME DURUMU</div>
+                        <div style="flex: 0 0 130px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
