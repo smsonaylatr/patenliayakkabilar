@@ -77,8 +77,6 @@ td.fi-ta-actions-cell {
 
 .table-responsive-container {
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     border-radius: 10px;
 }
 
@@ -87,13 +85,6 @@ td.fi-ta-actions-cell {
     border-collapse: separate;
     border-spacing: 0 4px;
     font-size: 0.84rem;
-    min-width: 600px;
-}
-
-@media (max-width: 640px) {
-    .inner-table {
-        min-width: 500px;
-    }
 }
 
 .inner-table th {
@@ -174,6 +165,81 @@ td.fi-ta-actions-cell {
 .dark .td-muted {
     color: rgba(255, 255, 255, 0.55);
 }
+
+/* ======================================================== */
+/* MOBİL DİKEY TABLO / KART DÜZENİ (max-width: 640px)       */
+/* ======================================================== */
+@media (max-width: 640px) {
+    .inner-table,
+    .inner-table thead,
+    .inner-table tbody,
+    .inner-table th,
+    .inner-table td,
+    .inner-table tr {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .inner-table thead {
+        display: none !important;
+    }
+
+    .inner-table tr {
+        margin-bottom: 10px !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .dark .inner-table tr {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .inner-table td {
+        background: transparent !important;
+        padding: 2px 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 0.82rem !important;
+    }
+
+    .inner-table td:first-child {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .inner-table td.mobile-item-header {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding-bottom: 6px !important;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .dark .inner-table td.mobile-item-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .mobile-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .dark .mobile-label {
+        color: rgba(255, 255, 255, 0.45);
+    }
+}
 </style>
 
 <div class="order-detail-panel">
@@ -225,17 +291,33 @@ td.fi-ta-actions-cell {
                   }
               @endphp
               <tr>
-                <td style="width:56px">
+                <td class="mobile-item-header">
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
+                  <div>
+                    <div class="td-bold">{{ $item->product_name }}</div>
+                    <div class="td-muted" style="font-size:0.78rem;">#{{ $order->order_number }}</div>
+                  </div>
                 </td>
-                <td class="td-bold">{{ $item->product_name }}</td>
-                <td class="td-muted">{{ $variantText }}</td>
-                <td class="td-muted">{{ $item->quantity }}</td>
-                <td class="td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</td>
-                <td class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</td>
-                <td class="td-bold">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</td>
+                <td class="hidden sm:table-cell td-bold">{{ $item->product_name }}</td>
+                <td>
+                  <span class="mobile-label sm:hidden">Varyant:</span>
+                  <span class="td-muted">{{ $variantText }}</span>
+                </td>
+                <td>
+                  <span class="mobile-label sm:hidden">Adet:</span>
+                  <span class="td-muted">{{ $item->quantity }} Adet</span>
+                </td>
+                <td class="hidden sm:table-cell td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</td>
+                <td>
+                  <span class="mobile-label sm:hidden">Birim Fiyat:</span>
+                  <span class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</span>
+                </td>
+                <td>
+                  <span class="mobile-label sm:hidden">Toplam:</span>
+                  <span class="td-bold" style="color: #10b981;">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</span>
+                </td>
               </tr>
           @empty
               <tr>
