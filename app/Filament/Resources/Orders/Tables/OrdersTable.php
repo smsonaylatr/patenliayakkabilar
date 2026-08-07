@@ -31,21 +31,16 @@ class OrdersTable
                         ->searchable()
                         ->weight('bold')
                         ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: 'misafir@mail.com'))
-                        ->limit(24)
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-customer']),
+                        ->extraAttributes(['class' => 'order-col order-col-customer']),
                     TextColumn::make('shipping_city')
                         ->label('ŞEHİR')
                         ->getStateUsing(fn (Order $record) => $record->shipping_city ?: ($record->billing_city ?: 'İstanbul'))
-                        ->limit(16)
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-city']),
+                        ->extraAttributes(['class' => 'order-col order-col-city']),
                     TextColumn::make('grand_total')
                         ->label('TUTAR')
                         ->getStateUsing(fn ($record) => '₺' . number_format($record->grand_total, 0, ',', '.'))
                         ->weight('bold')
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-total']),
+                        ->extraAttributes(['class' => 'order-col order-col-total']),
                     TextColumn::make('payment_method')
                         ->label('ÖDEME')
                         ->html()
@@ -55,8 +50,7 @@ class OrdersTable
                             'cash_on_delivery' => '<span style="color: #fb923c; font-weight: 600;">Kapıda Ödeme</span>',
                             default => '<span style="color: #a78bfa; font-weight: 600;">' . ($state ?: 'Kredi Kartı') . '</span>',
                         })
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-payment']),
+                        ->extraAttributes(['class' => 'order-col order-col-payment']),
                     TextColumn::make('created_at')
                         ->label('TARİH')
                         ->getStateUsing(function ($record) {
@@ -71,8 +65,7 @@ class OrdersTable
                             $m = $trMonths[(int) $record->created_at->format('n')] ?? '';
                             return $record->created_at->format('d') . ' ' . $m . ' ' . $record->created_at->format('Y H:i');
                         })
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-date']),
+                        ->extraAttributes(['class' => 'order-col order-col-date']),
                     TextColumn::make('status')
                         ->label('DURUM')
                         ->badge()
@@ -92,8 +85,7 @@ class OrdersTable
                             'cancelled' => 'İptal',
                             default => $state,
                         })
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-status'])
+                        ->extraAttributes(['class' => 'order-col order-col-status'])
                         ->action(
                             Action::make('updateStatus')
                                 ->modalHeading('Durumu Güncelle')
@@ -139,14 +131,11 @@ class OrdersTable
                             'refunded' => 'İade Edildi',
                             default => 'Ödendi',
                         })
-                        ->grow(false)
-                        ->extraAttributes(['class' => 'order-col-payment-status']),
+                        ->extraAttributes(['class' => 'order-col order-col-payment-status']),
                 ])
                 ->from('md')
-                ->grow(true)
                 ->extraAttributes([
-                    'class' => 'cursor-pointer select-none w-full flex-1 justify-between',
-                    'style' => 'flex: 1 1 auto !important; width: 100% !important; justify-content: space-between !important;',
+                    'class' => 'order-split-row cursor-pointer select-none',
                     'x-on:click' => '$event.target.closest("button, select, a, input, form") ? null : $el.closest("tr, .fi-ta-row, div")?.querySelector(".fi-ta-collapsible-trigger, button[x-on\\\\:click], [x-on\\\\:click*=\'isCollapsed\']")?.click()',
                 ]),
                 \Filament\Tables\Columns\Layout\Panel::make([

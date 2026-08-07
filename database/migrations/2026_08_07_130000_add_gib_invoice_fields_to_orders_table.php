@@ -12,6 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
+            if (!Schema::hasColumn('orders', 'is_invoiced')) {
+                $table->boolean('is_invoiced')->default(false)->after('status');
+            }
+            if (!Schema::hasColumn('orders', 'invoice_url')) {
+                $table->string('invoice_url')->nullable()->after('is_invoiced');
+            }
             if (!Schema::hasColumn('orders', 'tax_number')) {
                 $table->string('tax_number')->nullable()->after('customer_email');
             }
@@ -22,22 +28,22 @@ return new class extends Migration
                 $table->string('company_name')->nullable()->after('tax_office');
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_uuid')) {
-                $table->string('gib_invoice_uuid')->nullable()->unique()->after('invoice_url');
+                $table->string('gib_invoice_uuid')->nullable()->unique();
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_number')) {
-                $table->string('gib_invoice_number')->nullable()->after('gib_invoice_uuid');
+                $table->string('gib_invoice_number')->nullable();
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_date')) {
-                $table->dateTime('gib_invoice_date')->nullable()->after('gib_invoice_number');
+                $table->dateTime('gib_invoice_date')->nullable();
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_status')) {
-                $table->string('gib_invoice_status')->default('none')->after('gib_invoice_date');
+                $table->string('gib_invoice_status')->default('none');
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_html')) {
-                $table->longText('gib_invoice_html')->nullable()->after('gib_invoice_status');
+                $table->longText('gib_invoice_html')->nullable();
             }
             if (!Schema::hasColumn('orders', 'gib_invoice_error')) {
-                $table->text('gib_invoice_error')->nullable()->after('gib_invoice_html');
+                $table->text('gib_invoice_error')->nullable();
             }
         });
     }
@@ -49,6 +55,8 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn([
+                'is_invoiced',
+                'invoice_url',
                 'tax_number',
                 'tax_office',
                 'company_name',
