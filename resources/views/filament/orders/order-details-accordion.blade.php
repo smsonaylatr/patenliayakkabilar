@@ -102,10 +102,10 @@ td.fi-ta-actions-cell {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .inner-thumb:hover {
-    width: 120px;
-    height: 120px;
-    border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba(255, 255, 255, 0.25);
+    width: 150px;
+    height: 150px;
+    border-radius: 16px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 .td-bold {
     font-weight: 700;
