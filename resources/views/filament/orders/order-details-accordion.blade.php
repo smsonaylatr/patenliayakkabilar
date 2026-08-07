@@ -74,40 +74,31 @@ td.fi-ta-actions-cell {
 }
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
-    padding-right: 0 !important;
-    width: 50px;
-    overflow: visible !important;
-    position: relative;
+    padding-right: 12px !important;
+    width: 90px;
 }
 .inner-table td:last-child {
     border-radius: 0 8px 8px 0;
 }
 .inner-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
+    width: 76px;
+    height: 76px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
+    overflow: hidden;
     position: relative;
-    cursor: zoom-in;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10;
 }
 .inner-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.inner-thumb:hover {
-    transform: scale(3.5) translateX(12px);
-    z-index: 9999 !important;
-    border-radius: 12px;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 2px rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    transition: transform 0.25s ease;
 }
 .inner-thumb:hover img {
-    border-radius: 10px;
+    transform: scale(1.08);
 }
 .td-bold {
     font-weight: 700;
