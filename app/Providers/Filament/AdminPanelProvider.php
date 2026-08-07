@@ -241,21 +241,29 @@ class AdminPanelProvider extends PanelProvider
                             padding-right: 0 !important;
                         }
 
-                        /* Split layout ve Başlık çubuğu flex, padding ve gap 1:1 birebir eşitlemesi */
-                        .fi-ta-orders-header,
-                        .fi-ta-split,
-                        div.fi-ta-split {
+                        /* Başlık çubuğu flex, padding ve gap ayarları */
+                        .fi-ta-orders-header {
                             display: flex !important;
                             flex-direction: row !important;
                             align-items: center !important;
                             gap: 6px !important;
                             box-sizing: border-box !important;
-                        }
-                        .fi-ta-orders-header {
                             padding-left: 8px !important;
                             padding-right: 8px !important;
                         }
 
+                        /* Veri satırının padding ve gap ayarları - Başlık ile eşleşmesi için */
+                        .fi-ta-split, div.fi-ta-split {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            align-items: center !important;
+                            gap: 6px !important;
+                            box-sizing: border-box !important;
+                            padding-left: 0 !important;
+                            width: 100% !important;
+                        }
+
+                        /* Checkbox alanı */
                         .fi-ta-orders-header > div:nth-child(1) {
                             width: 28px !important;
                             min-width: 28px !important;
@@ -263,94 +271,23 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 28px !important;
                         }
 
-                        /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
-                        .fi-ta-orders-header > div:nth-child(2),
-                        .fi-ta-split > div:nth-child(1) {
-                            width: 155px !important;
-                            min-width: 155px !important;
-                            max-width: 155px !important;
-                            flex: 0 0 155px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
+                        /* Başlık çubuğu kilitleri */
+                        .fi-ta-orders-header > div:nth-child(2) { flex: 0 0 155px !important; width: 155px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(3) { flex: 0 0 60px !important; width: 60px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(4) { flex: 0 0 55px !important; width: 55px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(5) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(6) { flex: 0 0 115px !important; width: 115px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(7) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+                        .fi-ta-orders-header > div:nth-child(8) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
 
-                        .fi-ta-orders-header > div:nth-child(3),
-                        .fi-ta-split > div:nth-child(2) {
-                            width: 60px !important;
-                            min-width: 60px !important;
-                            max-width: 60px !important;
-                            flex: 0 0 60px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        .fi-ta-orders-header > div:nth-child(4),
-                        .fi-ta-split > div:nth-child(3) {
-                            width: 55px !important;
-                            min-width: 55px !important;
-                            max-width: 55px !important;
-                            flex: 0 0 55px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        .fi-ta-orders-header > div:nth-child(5),
-                        .fi-ta-split > div:nth-child(4) {
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        .fi-ta-orders-header > div:nth-child(6),
-                        .fi-ta-split > div:nth-child(5) {
-                            width: 115px !important;
-                            min-width: 115px !important;
-                            max-width: 115px !important;
-                            flex: 0 0 115px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        .fi-ta-orders-header > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(6) {
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
-                            text-align: left !important;
-                            justify-content: flex-start !important;
-                        }
-
-                        /* Mor taralı fi-growable buton esnemesini sıfırlama */
+                        /* Mor taralı fi-growable buton esnemesini sıfırlama (Veri satırları için) */
                         .fi-ta-split button.fi-growable,
-                        button.fi-grid-col.fi-growable.fi-ta-col,
-                        .fi-ta-split > div:nth-child(6) button {
+                        button.fi-grid-col.fi-growable.fi-ta-col {
                             flex-grow: 0 !important;
                             width: 75px !important;
                             min-width: 75px !important;
                             max-width: 75px !important;
                             flex: 0 0 75px !important;
-                        }
-
-                        /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
-                        .fi-ta-orders-header > div:nth-child(8),
-                        .fi-ta-split > div:nth-child(7) {
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
-                            margin-left: 0 !important;
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: flex-start !important;
-                            text-align: left !important;
-                        }
-                        .fi-ta-split > div:nth-child(7) .fi-badge,
-                        .fi-ta-split > div:nth-child(7) span {
-                            margin-left: 0 !important;
                         }
 
                         /* İŞLEMLER HÜCRESİ: 4 ikonun sığması için 85px kilit */
