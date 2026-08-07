@@ -141,13 +141,11 @@ class AdminPanelProvider extends PanelProvider
                             margin-top: 0 !important;
                         }
 
-                        /* Sort by, Bulk Indicator ve native checkbox header satırı gizleme */
+                        /* Sort by, Bulk Indicator ve native checkbox header gizleme */
                         .fi-ta-header-toolbar,
                         .fi-ta-selection-indicator,
                         .fi-ta-selection-indicator-header,
-                        .fi-ta-checkbox-cell-header,
-                        thead.fi-ta-header,
-                        .fi-ta-header-row {
+                        .fi-ta-content-header {
                             display: none !important;
                         }
 
