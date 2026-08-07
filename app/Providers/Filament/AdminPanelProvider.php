@@ -76,34 +76,50 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
-                    <style>
+                        /* Tablo Alanı Yana Kaydırma İptal & Ekrana %100 Tam Sığdırma */
+                        .fi-ta-ctn,
+                        .fi-ta-content,
+                        .fi-ta-content-ctn,
+                        .fi-ta-table-container {
+                            overflow-x: hidden !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
+                        }
+
+                        .fi-ta-table {
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            min-width: 0 !important;
+                            table-layout: auto !important;
+                        }
+
                         /* Tablo Genel Yazı ve İkon Boyutlarını Küçültme */
                         .fi-ta-header-cell {
-                            font-size: 0.72rem !important;
-                            padding-top: 8px !important;
-                            padding-bottom: 8px !important;
+                            font-size: 0.7rem !important;
+                            padding: 6px 3px !important;
+                            white-space: nowrap !important;
                         }
 
                         .fi-ta-cell {
-                            font-size: 0.8rem !important;
-                            padding-top: 8px !important;
-                            padding-bottom: 8px !important;
+                            font-size: 0.78rem !important;
+                            padding: 6px 3px !important;
+                            white-space: nowrap !important;
                         }
 
                         .fi-ta-cell .fi-badge {
-                            font-size: 0.72rem !important;
-                            padding: 2px 6px !important;
+                            font-size: 0.68rem !important;
+                            padding: 1px 5px !important;
                         }
 
                         .fi-ta-actions button,
                         .fi-ta-actions a,
                         .fi-ta-actions .fi-icon-btn {
-                            padding: 3px !important;
+                            padding: 2px !important;
                         }
 
                         .fi-ta-actions svg {
-                            width: 17px !important;
-                            height: 17px !important;
+                            width: 16px !important;
+                            height: 16px !important;
                         }
 
                         /* Aksiyon Butonlarını Ödeme Durumu Sütununa Bitişik Sola Yanaştırma */
@@ -111,15 +127,15 @@ class AdminPanelProvider extends PanelProvider
                         .fi-ta-actions-cell {
                             width: 1px !important;
                             white-space: nowrap !important;
-                            padding-left: 12px !important;
-                            padding-right: 12px !important;
+                            padding-left: 6px !important;
+                            padding-right: 6px !important;
                         }
 
                         .fi-ta-actions {
                             display: flex !important;
                             justify-content: flex-start !important;
                             align-items: center !important;
-                            gap: 4px !important;
+                            gap: 3px !important;
                             width: auto !important;
                         }
 
