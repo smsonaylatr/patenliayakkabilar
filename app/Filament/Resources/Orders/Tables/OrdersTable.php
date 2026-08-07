@@ -419,6 +419,8 @@ class OrdersTable
             ])
             ->headerActions([])
             ->defaultSort('created_at', 'desc')
+            ->recordAction('viewDetails')
+            ->recordUrl(null)
             ->striped();
     }
 }
