@@ -222,7 +222,7 @@ td.fi-ta-actions-cell {
             <div class="td-muted" style="font-family: monospace;">**** **** **** 4521</div>
         @endif
         <div class="td-muted" style="margin-top:2px;">
-            Sipariş Tarihi: {{ $order->created_at ? $order->created_at->format('d M Y') : '-' }}
+            Sipariş Tarihi: {{ $order->created_at ? $order->created_at->translatedFormat('d M Y H:i:s') : '-' }}
         </div>
         <div class="td-bold" style="margin-top:4px; font-size:0.9rem;">
             Toplam Tutar: ₺{{ number_format($order->grand_total, 0, ',', '.') }}
