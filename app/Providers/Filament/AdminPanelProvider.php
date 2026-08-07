@@ -309,9 +309,15 @@ class AdminPanelProvider extends PanelProvider
                             min-width: 110px !important;
                             max-width: 110px !important;
                             flex: 0 0 110px !important;
-                            margin-left: 12px !important;
-                            text-align: left !important;
+                            margin-left: 0 !important;
+                            display: flex !important;
+                            align-items: center !important;
                             justify-content: flex-start !important;
+                            text-align: left !important;
+                        }
+                        .fi-ta-split > div:nth-child(7) .fi-badge,
+                        .fi-ta-split > div:nth-child(7) span {
+                            margin-left: 0 !important;
                         }
                     </style>
                 ')
