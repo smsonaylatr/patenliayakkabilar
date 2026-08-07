@@ -88,6 +88,7 @@ class OrdersTable
                             default => $state,
                         })
                         ->extraAttributes(['style' => 'width: 90px; flex: 0 0 90px; text-align: left;'])
+                        ->grow(false)
                         ->action(
                             Action::make('updateStatus')
                                 ->modalHeading('Durumu Güncelle')

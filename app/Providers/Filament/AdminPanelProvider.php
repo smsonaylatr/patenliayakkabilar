@@ -302,6 +302,17 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
+                        /* Mor taralı fi-growable buton esnemesini sıfırlama */
+                        .fi-ta-split button.fi-growable,
+                        button.fi-grid-col.fi-growable.fi-ta-col,
+                        .fi-ta-split > div:nth-child(6) button {
+                            flex-grow: 0 !important;
+                            width: 90px !important;
+                            min-width: 90px !important;
+                            max-width: 90px !important;
+                            flex: 0 0 90px !important;
+                        }
+
                         /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
                         .fi-ta-orders-header > div:nth-child(8),
                         .fi-ta-split > div:nth-child(7) {
