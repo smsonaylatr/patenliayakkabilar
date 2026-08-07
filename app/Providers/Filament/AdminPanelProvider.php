@@ -219,6 +219,14 @@ class AdminPanelProvider extends PanelProvider
                             border-top-right-radius: 0 !important;
                         }
 
+                        /* DevTools: fi-ta-record-content.fi-collapsible genişlik ayarı */
+                        div.fi-ta-record-content.fi-collapsible,
+                        .fi-ta-record-content.fi-collapsible {
+                            width: 120% !important;
+                            padding-left: 0 !important;
+                            padding-right: 0 !important;
+                        }
+
                         /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
                         .fi-ta-orders-header > div:nth-child(2),
                         .fi-ta-split > div:nth-child(1) {
