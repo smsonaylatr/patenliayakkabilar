@@ -76,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
+                    <style>
                         /* Tablo Alanı Yana Kaydırma İptal & Ekrana %100 Tam Sığdırma */
                         .fi-ta-ctn,
                         .fi-ta-content,
