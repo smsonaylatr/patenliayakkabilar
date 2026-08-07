@@ -170,6 +170,14 @@ td.fi-ta-actions-cell {
 /* MOBİL DİKEY TABLO / KART DÜZENİ (max-width: 640px)       */
 /* ======================================================== */
 @media (max-width: 640px) {
+    .order-detail-panel {
+        padding: 8px !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
     .inner-table,
     .inner-table thead,
     .inner-table tbody,

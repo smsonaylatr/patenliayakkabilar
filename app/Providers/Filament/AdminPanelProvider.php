@@ -114,12 +114,23 @@ class AdminPanelProvider extends PanelProvider
                                 white-space: nowrap !important;
                             }
 
-                            /* Sipariş Detay Modalı Mobil Uyum & Zoom */
+                            /* Sipariş Detay Modalı Mobil Ekrana Tam Sığdırma */
                             .fi-modal-window {
-                                width: 96vw !important;
-                                max-width: 96vw !important;
-                                margin: 8px auto !important;
-                                zoom: 0.85 !important;
+                                width: 98vw !important;
+                                max-width: 98vw !important;
+                                margin: 4px auto !important;
+                                padding: 0 !important;
+                                zoom: 0.78 !important;
+                                overflow: hidden !important;
+                            }
+
+                            .fi-modal-window > div,
+                            .fi-modal-content,
+                            .fi-modal-body,
+                            .fi-modal-header {
+                                padding: 8px 10px !important;
+                                max-width: 100% !important;
+                                box-sizing: border-box !important;
                             }
                         }
                     </style>
