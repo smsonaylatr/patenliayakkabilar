@@ -24,6 +24,7 @@ class OrdersTable
         return $table
             ->recordUrl(null)
             ->recordAction(null)
+            ->checkboxesHidden()
             ->columns([
                 \Filament\Tables\Columns\Layout\Split::make([
                     TextColumn::make('customer_name')
