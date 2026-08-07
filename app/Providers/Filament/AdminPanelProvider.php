@@ -236,70 +236,129 @@ class AdminPanelProvider extends PanelProvider
                         /* DevTools: fi-ta-record-content.fi-collapsible genişlik ayarı */
                         div.fi-ta-record-content.fi-collapsible,
                         .fi-ta-record-content.fi-collapsible {
-                            width: 120% !important;
+                            width: 100% !important;
                             padding-left: 0 !important;
                             padding-right: 0 !important;
                         }
 
-                        /* Başlık çubuğu flex, padding ve gap ayarları */
-                        .fi-ta-orders-header {
-                            display: flex !important;
-                            flex-direction: row !important;
-                            align-items: center !important;
-                            gap: 6px !important;
-                            box-sizing: border-box !important;
-                            padding-left: 8px !important;
-                            padding-right: 8px !important;
+                        /* ======================================================== */
+                        /* MASAÜSTÜ GÖRÜNÜMÜ (min-width: 768px)                     */
+                        /* ======================================================== */
+                        @media (min-width: 768px) {
+                            /* Başlık çubuğu flex, padding ve gap ayarları */
+                            .fi-ta-orders-header {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                align-items: center !important;
+                                gap: 6px !important;
+                                box-sizing: border-box !important;
+                                padding-left: 8px !important;
+                                padding-right: 8px !important;
+                            }
+
+                            /* Veri satırının padding ve gap ayarları */
+                            .fi-ta-split, div.fi-ta-split {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                align-items: center !important;
+                                gap: 6px !important;
+                                box-sizing: border-box !important;
+                                padding-left: 0 !important;
+                                width: 100% !important;
+                            }
+
+                            /* Checkbox alanı */
+                            .fi-ta-orders-header > div:nth-child(1) {
+                                width: 28px !important;
+                                min-width: 28px !important;
+                                max-width: 28px !important;
+                                flex: 0 0 28px !important;
+                            }
+
+                            /* Masaüstü başlık çubuğu sütun kilitleri */
+                            .fi-ta-orders-header > div:nth-child(2) { flex: 0 0 155px !important; width: 155px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(3) { flex: 0 0 60px !important; width: 60px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(4) { flex: 0 0 55px !important; width: 55px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(5) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(6) { flex: 0 0 115px !important; width: 115px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(7) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+                            .fi-ta-orders-header > div:nth-child(8) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+
+                            /* Masaüstü veri sütun kilitleri */
+                            .order-col-customer { flex: 0 0 155px !important; width: 155px !important; min-width: 155px !important; max-width: 155px !important; text-align: left !important; }
+                            .order-col-city { flex: 0 0 60px !important; width: 60px !important; min-width: 60px !important; max-width: 60px !important; text-align: left !important; }
+                            .order-col-total { flex: 0 0 55px !important; width: 55px !important; min-width: 55px !important; max-width: 55px !important; text-align: left !important; }
+                            .order-col-payment { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
+                            .order-col-date { flex: 0 0 115px !important; width: 115px !important; min-width: 115px !important; max-width: 115px !important; text-align: left !important; }
+                            .order-col-status { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
+                            .order-col-payment-status { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
+
+                            /* Mor taralı fi-growable buton esnemesini sıfırlama */
+                            .fi-ta-split button.fi-growable,
+                            button.fi-grid-col.fi-growable.fi-ta-col {
+                                flex-grow: 0 !important;
+                                width: 75px !important;
+                                min-width: 75px !important;
+                                max-width: 75px !important;
+                                flex: 0 0 75px !important;
+                            }
+
+                            /* Masaüstü İŞLEMLER HÜCRESİ: 4 ikonun sığması için 85px kilit */
+                            .fi-ta-record-actions,
+                            .fi-ta-actions,
+                            td.fi-ta-actions-cell {
+                                width: 85px !important;
+                                min-width: 85px !important;
+                                max-width: 85px !important;
+                                flex: 0 0 85px !important;
+                                justify-content: flex-start !important;
+                                gap: 2px !important;
+                            }
                         }
 
-                        /* Veri satırının padding ve gap ayarları - Başlık ile eşleşmesi için */
-                        .fi-ta-split, div.fi-ta-split {
-                            display: flex !important;
-                            flex-direction: row !important;
-                            align-items: center !important;
-                            gap: 6px !important;
-                            box-sizing: border-box !important;
-                            padding-left: 0 !important;
-                            width: 100% !important;
-                        }
+                        /* ======================================================== */
+                        /* MOBİL GÖRÜNÜM (max-width: 767px)                          */
+                        /* ======================================================== */
+                        @media (max-width: 767px) {
+                            .fi-ta-orders-header {
+                                display: none !important;
+                            }
 
-                        /* Checkbox alanı */
-                        .fi-ta-orders-header > div:nth-child(1) {
-                            width: 28px !important;
-                            min-width: 28px !important;
-                            max-width: 28px !important;
-                            flex: 0 0 28px !important;
-                        }
+                            .fi-ta-split, div.fi-ta-split {
+                                display: flex !important;
+                                flex-direction: column !important;
+                                align-items: flex-start !important;
+                                gap: 8px !important;
+                                width: 100% !important;
+                                padding: 12px 10px !important;
+                                box-sizing: border-box !important;
+                            }
 
-                        /* Başlık çubuğu kilitleri */
-                        .fi-ta-orders-header > div:nth-child(2) { flex: 0 0 155px !important; width: 155px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(3) { flex: 0 0 60px !important; width: 60px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(4) { flex: 0 0 55px !important; width: 55px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(5) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(6) { flex: 0 0 115px !important; width: 115px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(7) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
-                        .fi-ta-orders-header > div:nth-child(8) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
+                            .order-col-customer,
+                            .order-col-city,
+                            .order-col-total,
+                            .order-col-payment,
+                            .order-col-date,
+                            .order-col-status,
+                            .order-col-payment-status {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                flex: 1 1 100% !important;
+                                text-align: left !important;
+                            }
 
-                        /* Mor taralı fi-growable buton esnemesini sıfırlama (Veri satırları için) */
-                        .fi-ta-split button.fi-growable,
-                        button.fi-grid-col.fi-growable.fi-ta-col {
-                            flex-grow: 0 !important;
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
-                        }
-
-                        /* İŞLEMLER HÜCRESİ: 4 ikonun sığması için 85px kilit */
-                        .fi-ta-record-actions,
-                        .fi-ta-actions,
-                        td.fi-ta-actions-cell {
-                            width: 85px !important;
-                            min-width: 85px !important;
-                            max-width: 85px !important;
-                            flex: 0 0 85px !important;
-                            justify-content: flex-start !important;
-                            gap: 2px !important;
+                            .fi-ta-record-actions,
+                            .fi-ta-actions,
+                            td.fi-ta-actions-cell {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                flex: 1 1 100% !important;
+                                justify-content: flex-start !important;
+                                margin-top: 6px !important;
+                                padding-top: 6px !important;
+                                border-top: 1px dashed rgba(255, 255, 255, 0.1) !important;
+                                gap: 8px !important;
+                            }
                         }
                     </style>
                 ')
