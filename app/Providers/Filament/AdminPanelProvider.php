@@ -274,31 +274,58 @@ class AdminPanelProvider extends PanelProvider
                                 }
                             }, true);
 
-                            // Bulk action checkbox satırını gizle (başlık ile veri arasındaki boş checkbox satırı)
+                            // Bulk action checkbox satırını DOM'dan tamamen kaldır
                             function hideBulkCheckboxRow() {
                                 if (!window.location.pathname.includes("/admin/orders")) return;
-                                document.querySelectorAll(".fi-ta-record, tr").forEach(function(row) {
-                                    const checkbox = row.querySelector("input[type=checkbox]");
-                                    const split = row.querySelector(".fi-ta-split");
-                                    // Checkbox var ama split (veri sütunları) yoksa bu bulk action satırıdır
-                                    if (checkbox && !split && !row.classList.contains("fi-ta-orders-header")) {
-                                        const textContent = row.textContent.trim();
-                                        // Sadece checkbox içeren boş satırları gizle
-                                        if (textContent.length < 5) {
-                                            row.style.display = "none";
+                                
+                                // Yöntem 1: Custom header'ın kardeş elemanlarını tara
+                                var header = document.querySelector(".fi-ta-orders-header");
+                                if (header) {
+                                    var next = header.nextElementSibling;
+                                    while (next) {
+                                        if (next.querySelector(".fi-ta-split")) break; // Veri satırına ulaştık
+                                        var cb = next.querySelector("input[type=checkbox]");
+                                        if (cb && !next.querySelector(".fi-ta-split")) {
+                                            next.style.display = "none";
+                                            next.style.height = "0";
+                                            next.style.overflow = "hidden";
+                                            next.style.padding = "0";
+                                            next.style.margin = "0";
+                                            next.style.border = "none";
+                                        }
+                                        next = next.nextElementSibling;
+                                    }
+                                }
+                                
+                                // Yöntem 2: Tüm sayfadaki checkbox-only elemanları tara
+                                document.querySelectorAll("div, tr, td, th, label").forEach(function(el) {
+                                    if (el.classList.contains("fi-ta-orders-header")) return;
+                                    if (el.querySelector(".fi-ta-split")) return;
+                                    if (el.closest(".fi-ta-orders-header")) return;
+                                    if (el.closest(".fi-ta-split")) return;
+                                    
+                                    var inputs = el.querySelectorAll("input[type=checkbox]");
+                                    var children = el.children;
+                                    
+                                    // Sadece 1 checkbox ve başka anlamlı içerik yok
+                                    if (inputs.length === 1 && children.length <= 2) {
+                                        var text = el.textContent.replace(/\\s/g, "");
+                                        if (text.length === 0) {
+                                            // Bu öksüz checkbox satırı - header ile ilk veri arası mı kontrol et
+                                            var parent = el.parentElement;
+                                            if (parent && parent.querySelector(".fi-ta-orders-header") && parent.querySelector(".fi-ta-split")) {
+                                                el.style.display = "none";
+                                            }
                                         }
                                     }
                                 });
                             }
-                            hideBulkCheckboxRow();
-                            // Livewire güncellemelerinden sonra da çalıştır
-                            document.addEventListener("livewire:navigated", hideBulkCheckboxRow);
-                            if (window.Livewire) {
-                                document.addEventListener("livewire:init", function() {
-                                    Livewire.hook("morph.updated", function() { setTimeout(hideBulkCheckboxRow, 100); });
-                                });
-                            }
-                            new MutationObserver(function() { setTimeout(hideBulkCheckboxRow, 50); })
+                            
+                            setTimeout(hideBulkCheckboxRow, 100);
+                            setTimeout(hideBulkCheckboxRow, 500);
+                            setTimeout(hideBulkCheckboxRow, 1500);
+                            document.addEventListener("livewire:navigated", function() { setTimeout(hideBulkCheckboxRow, 200); });
+                            new MutationObserver(function() { setTimeout(hideBulkCheckboxRow, 80); })
                                 .observe(document.body, { childList: true, subtree: true });
                         })();
                     </script>
