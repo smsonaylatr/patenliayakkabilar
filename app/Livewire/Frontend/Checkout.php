@@ -153,7 +153,7 @@ class Checkout extends Component
 
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
-        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? 201 : (1 * $totalItems);
+        $shippingPrice = 1; // Sabit kargo ücreti tek sefer 1 TL
         $grandTotal = $subtotal + $shippingPrice;
         $orderNumber = 'TR' . mt_rand(100000, 999999);
 
