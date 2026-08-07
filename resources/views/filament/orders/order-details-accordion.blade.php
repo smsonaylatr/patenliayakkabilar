@@ -201,6 +201,11 @@ td.fi-ta-actions-cell {
         border-color: rgba(255, 255, 255, 0.08) !important;
     }
 
+    .inner-thumb {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
     .inner-table td {
         background: transparent !important;
         padding: 2px 0 !important;
