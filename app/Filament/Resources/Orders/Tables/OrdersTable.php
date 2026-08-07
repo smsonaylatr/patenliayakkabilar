@@ -161,7 +161,6 @@ class OrdersTable
                 Action::make('viewDetails')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('Sipariş Detayları')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
                     ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)

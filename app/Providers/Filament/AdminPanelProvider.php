@@ -133,6 +133,13 @@ class AdminPanelProvider extends PanelProvider
                                 box-sizing: border-box !important;
                             }
 
+                            /* Mobilde Takılı Kalan Tooltip Balonlarını Gizleme */
+                            .tippy-box,
+                            [data-tippy-root],
+                            .fi-tooltip {
+                                display: none !important;
+                            }
+
                             .fi-modal-window > div,
                             .fi-modal-content,
                             .fi-modal-body,
