@@ -219,26 +219,6 @@ class AdminPanelProvider extends PanelProvider
                             border-top-right-radius: 0 !important;
                         }
 
-                        /* Akordiyon paneli ve detay kartının sağ tarafa kadar %120 genişletilmesi */
-                        .fi-ta-panel,
-                        .fi-ta-panel-content,
-                        .fi-ta-panel-cell,
-                        td.fi-ta-panel-cell,
-                        .fi-ta-collapsible,
-                        .fi-ta-record-content.fi-collapsible,
-                        td:has(.order-detail-panel),
-                        tr:has(.order-detail-panel) > td,
-                        div:has(> .order-detail-panel),
-                        div.order-detail-panel {
-                            width: 120% !important;
-                            max-width: 120% !important;
-                            padding-left: 0 !important;
-                            padding-right: 0 !important;
-                            margin-left: 0 !important;
-                            margin-right: 0 !important;
-                            box-sizing: border-box !important;
-                        }
-
                         /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
                         .fi-ta-orders-header > div:nth-child(2),
                         .fi-ta-split > div:nth-child(1) {
