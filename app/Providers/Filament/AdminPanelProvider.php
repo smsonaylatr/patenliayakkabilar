@@ -210,13 +210,23 @@ class AdminPanelProvider extends PanelProvider
                         }
                         .fi-ta-orders-header {
                             margin: 0 !important;
+                            background: #0f1422 !important;
+                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
                             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                            border-top-left-radius: 12px !important;
+                            border-top-right-radius: 12px !important;
                             border-bottom-left-radius: 0 !important;
                             border-bottom-right-radius: 0 !important;
                         }
                         .fi-ta-content {
+                            background: #0f1422 !important;
+                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                            border-top: none !important;
                             border-top-left-radius: 0 !important;
                             border-top-right-radius: 0 !important;
+                            border-bottom-left-radius: 12px !important;
+                            border-bottom-right-radius: 12px !important;
+                            box-shadow: none !important;
                         }
 
                         /* DevTools: fi-ta-record-content.fi-collapsible genişlik ayarı */
