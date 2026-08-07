@@ -225,6 +225,11 @@ td.fi-ta-actions-cell {
         font-size: 0.82rem !important;
     }
 
+    .inner-table td.hidden,
+    .inner-table td.sm\:table-cell {
+        display: none !important;
+    }
+
     .inner-table td:first-child {
         width: 100% !important;
         justify-content: flex-start !important;
