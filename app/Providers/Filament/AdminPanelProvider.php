@@ -218,6 +218,77 @@ class AdminPanelProvider extends PanelProvider
                             border-top-left-radius: 0 !important;
                             border-top-right-radius: 0 !important;
                         }
+
+                        /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
+                        .fi-ta-orders-header > div:nth-child(2),
+                        .fi-ta-split > div:nth-child(1) {
+                            width: 170px !important;
+                            min-width: 170px !important;
+                            max-width: 170px !important;
+                            flex: 0 0 170px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(3),
+                        .fi-ta-split > div:nth-child(2) {
+                            width: 75px !important;
+                            min-width: 75px !important;
+                            max-width: 75px !important;
+                            flex: 0 0 75px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(4),
+                        .fi-ta-split > div:nth-child(3) {
+                            width: 75px !important;
+                            min-width: 75px !important;
+                            max-width: 75px !important;
+                            flex: 0 0 75px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(5),
+                        .fi-ta-split > div:nth-child(4) {
+                            width: 95px !important;
+                            min-width: 95px !important;
+                            max-width: 95px !important;
+                            flex: 0 0 95px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(6),
+                        .fi-ta-split > div:nth-child(5) {
+                            width: 155px !important;
+                            min-width: 155px !important;
+                            max-width: 155px !important;
+                            flex: 0 0 155px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(7),
+                        .fi-ta-split > div:nth-child(6) {
+                            width: 90px !important;
+                            min-width: 90px !important;
+                            max-width: 90px !important;
+                            flex: 0 0 90px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(8),
+                        .fi-ta-split > div:nth-child(7) {
+                            width: 110px !important;
+                            min-width: 110px !important;
+                            max-width: 110px !important;
+                            flex: 0 0 110px !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
+                        }
                     </style>
                 ')
             )
