@@ -222,7 +222,15 @@ td.fi-ta-actions-cell {
             <div class="td-muted" style="font-family: monospace;">**** **** **** 4521</div>
         @endif
         <div class="td-muted" style="margin-top:2px;">
-            Sipariş Tarihi: {{ $order->created_at ? $order->created_at->translatedFormat('d M Y H:i:s') : '-' }}
+            @php
+                $trMonths = [1=>'Ağu', 1=>'Oca', 2=>'Şub', 3=>'Mar', 4=>'Nis', 5=>'May', 6=>'Haz', 7=>'Tem', 8=>'Ağu', 9=>'Eyl', 10=>'Ekm', 11=>'Kas', 12=>'Ara'];
+                $dtStr = '-';
+                if ($order->created_at) {
+                    $mName = $trMonths[(int)$order->created_at->format('n')] ?? '';
+                    $dtStr = $order->created_at->format('d ') . $mName . $order->created_at->format(' Y H:i:s');
+                }
+            @endphp
+            Sipariş Tarihi: {{ $dtStr }}
         </div>
         <div class="td-bold" style="margin-top:4px; font-size:0.9rem;">
             Toplam Tutar: ₺{{ number_format($order->grand_total, 0, ',', '.') }}
