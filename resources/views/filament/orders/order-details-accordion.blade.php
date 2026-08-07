@@ -212,10 +212,10 @@ td.fi-ta-actions-cell {
       <div class="detail-addr">
         <div class="td-bold">
             @switch($order->payment_method)
-                @case('credit_card') Kredi Kartı @break
-                @case('wire_transfer') Havale / EFT @break
-                @case('cash_on_delivery') Kapıda Ödeme @break
-                @default {{ $order->payment_method ?: 'Kredi Kartı' }}
+                @case('credit_card') <span style="color: #a78bfa; font-weight: 600;">Kredi Kartı</span> @break
+                @case('wire_transfer') <span style="color: #2dd4bf; font-weight: 600;">Havale / EFT</span> @break
+                @case('cash_on_delivery') <span style="color: #fb923c; font-weight: 600;">Kapıda Ödeme</span> @break
+                @default <span style="color: #a78bfa; font-weight: 600;">{{ $order->payment_method ?: 'Kredi Kartı' }}</span>
             @endswitch
         </div>
         @if($order->payment_method === 'credit_card' || !$order->payment_method)

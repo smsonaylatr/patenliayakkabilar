@@ -45,11 +45,12 @@ class OrdersTable
                         ->extraAttributes(['style' => 'width: 75px; flex: 0 0 75px; text-align: left;']),
                     TextColumn::make('payment_method')
                         ->label('ÖDEME')
+                        ->html()
                         ->formatStateUsing(fn (?string $state) => match ($state) {
-                            'credit_card' => 'Kredi Kartı',
-                            'wire_transfer' => 'Havale/EFT',
-                            'cash_on_delivery' => 'Kapıda Ödeme',
-                            default => $state ?: 'Kredi Kartı',
+                            'credit_card' => '<span style="color: #a78bfa; font-weight: 600;">Kredi Kartı</span>',
+                            'wire_transfer' => '<span style="color: #2dd4bf; font-weight: 600;">Havale / EFT</span>',
+                            'cash_on_delivery' => '<span style="color: #fb923c; font-weight: 600;">Kapıda Ödeme</span>',
+                            default => '<span style="color: #a78bfa; font-weight: 600;">' . ($state ?: 'Kredi Kartı') . '</span>',
                         })
                         ->extraAttributes(['style' => 'width: 95px; flex: 0 0 95px; text-align: left;']),
                     TextColumn::make('created_at')
