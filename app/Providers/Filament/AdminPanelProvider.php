@@ -241,6 +241,28 @@ class AdminPanelProvider extends PanelProvider
                             padding-right: 0 !important;
                         }
 
+                        /* Split layout ve Başlık çubuğu flex, padding ve gap 1:1 birebir eşitlemesi */
+                        .fi-ta-orders-header,
+                        .fi-ta-split,
+                        div.fi-ta-split {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            align-items: center !important;
+                            gap: 16px !important;
+                            box-sizing: border-box !important;
+                        }
+                        .fi-ta-orders-header {
+                            padding-left: 16px !important;
+                            padding-right: 16px !important;
+                        }
+
+                        .fi-ta-orders-header > div:nth-child(1) {
+                            width: 44px !important;
+                            min-width: 44px !important;
+                            max-width: 44px !important;
+                            flex: 0 0 44px !important;
+                        }
+
                         /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
                         .fi-ta-orders-header > div:nth-child(2),
                         .fi-ta-split > div:nth-child(1) {
@@ -337,7 +359,7 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\Tables\View\TablesRenderHook::HEADER_BEFORE,
                 fn () => (request()->routeIs('filament.admin.resources.orders.*') || request()->is('admin/orders*') || str_contains(request()->header('referer', ''), '/admin/orders')) ? new \Illuminate\Support\HtmlString('
                     <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding: 12px 0 !important; gap: 16px !important; box-sizing: border-box !important; margin: 0 !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; background: transparent !important;">
-                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 24px; box-sizing: border-box;">
+                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 0; box-sizing: border-box;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
                         <div style="flex: 0 0 170px; text-align: left;">MÜŞTERİ</div>
