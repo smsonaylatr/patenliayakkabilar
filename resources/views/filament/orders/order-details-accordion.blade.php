@@ -242,7 +242,8 @@ td.fi-ta-actions-cell {
 }
 
 @media (min-width: 641px) {
-    .mobile-item-title {
+    .mobile-item-title,
+    .mobile-label {
         display: none !important;
     }
 }
@@ -313,7 +314,7 @@ td.fi-ta-actions-cell {
                 </td>
                 <td>
                   <span class="mobile-label sm:hidden">Adet:</span>
-                  <span class="td-muted">{{ $item->quantity }} Adet</span>
+                  <span class="td-muted">{{ $item->quantity }}</span>
                 </td>
                 <td class="hidden sm:table-cell td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</td>
                 <td>
