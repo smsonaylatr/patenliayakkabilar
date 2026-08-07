@@ -295,7 +295,7 @@ td.fi-ta-actions-cell {
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
-                  <div>
+                  <div class="sm:hidden">
                     <div class="td-bold">{{ $item->product_name }}</div>
                     <div class="td-muted" style="font-size:0.78rem;">#{{ $order->order_number }}</div>
                   </div>
