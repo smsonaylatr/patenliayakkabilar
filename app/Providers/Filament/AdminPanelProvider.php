@@ -266,20 +266,20 @@ class AdminPanelProvider extends PanelProvider
                         /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
                         .fi-ta-orders-header > div:nth-child(2),
                         .fi-ta-split > div:nth-child(1) {
-                            width: 170px !important;
-                            min-width: 170px !important;
-                            max-width: 170px !important;
-                            flex: 0 0 170px !important;
+                            width: 150px !important;
+                            min-width: 150px !important;
+                            max-width: 150px !important;
+                            flex: 0 0 150px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
                         }
 
                         .fi-ta-orders-header > div:nth-child(3),
                         .fi-ta-split > div:nth-child(2) {
-                            width: 60px !important;
-                            min-width: 60px !important;
-                            max-width: 60px !important;
-                            flex: 0 0 60px !important;
+                            width: 55px !important;
+                            min-width: 55px !important;
+                            max-width: 55px !important;
+                            flex: 0 0 55px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
                         }
@@ -306,20 +306,20 @@ class AdminPanelProvider extends PanelProvider
 
                         .fi-ta-orders-header > div:nth-child(6),
                         .fi-ta-split > div:nth-child(5) {
-                            width: 130px !important;
-                            min-width: 130px !important;
-                            max-width: 130px !important;
-                            flex: 0 0 130px !important;
+                            width: 115px !important;
+                            min-width: 115px !important;
+                            max-width: 115px !important;
+                            flex: 0 0 115px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
                         }
 
                         .fi-ta-orders-header > div:nth-child(7),
                         .fi-ta-split > div:nth-child(6) {
-                            width: 80px !important;
-                            min-width: 80px !important;
-                            max-width: 80px !important;
-                            flex: 0 0 80px !important;
+                            width: 75px !important;
+                            min-width: 75px !important;
+                            max-width: 75px !important;
+                            flex: 0 0 75px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
                         }
@@ -329,10 +329,10 @@ class AdminPanelProvider extends PanelProvider
                         button.fi-grid-col.fi-growable.fi-ta-col,
                         .fi-ta-split > div:nth-child(6) button {
                             flex-grow: 0 !important;
-                            width: 80px !important;
-                            min-width: 80px !important;
-                            max-width: 80px !important;
-                            flex: 0 0 80px !important;
+                            width: 75px !important;
+                            min-width: 75px !important;
+                            max-width: 75px !important;
+                            flex: 0 0 75px !important;
                         }
 
                         /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
@@ -353,14 +353,14 @@ class AdminPanelProvider extends PanelProvider
                             margin-left: 0 !important;
                         }
 
-                        /* İŞLEMLER HÜCRESİ: 4 ikonun sığması için 100px kilit */
+                        /* İŞLEMLER HÜCRESİ: 4 ikon + Ok butonunun taşmaması için 115px kilit */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
-                            width: 100px !important;
-                            min-width: 100px !important;
-                            max-width: 100px !important;
-                            flex: 0 0 100px !important;
+                            width: 115px !important;
+                            min-width: 115px !important;
+                            max-width: 115px !important;
+                            flex: 0 0 115px !important;
                             justify-content: flex-start !important;
                         }
                     </style>
@@ -373,12 +373,12 @@ class AdminPanelProvider extends PanelProvider
                         <div style="display: flex; align-items: center; justify-content: flex-start; width: 28px; min-width: 28px; flex: 0 0 28px; flex-shrink: 0; padding-left: 0; box-sizing: border-box;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 170px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 60px; text-align: left;">ŞEHİR</div>
+                        <div style="flex: 0 0 150px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 55px; text-align: left;">ŞEHİR</div>
                         <div style="flex: 0 0 55px; text-align: left;">TUTAR</div>
                         <div style="flex: 0 0 80px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 130px; text-align: left;">TARİH</div>
-                        <div style="flex: 0 0 80px; text-align: left;">DURUM</div>
+                        <div style="flex: 0 0 115px; text-align: left;">TARİH</div>
+                        <div style="flex: 0 0 75px; text-align: left;">DURUM</div>
                         <div style="flex: 0 0 75px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
