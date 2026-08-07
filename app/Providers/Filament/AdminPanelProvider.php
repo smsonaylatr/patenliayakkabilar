@@ -114,7 +114,7 @@ class AdminPanelProvider extends PanelProvider
                                 white-space: nowrap !important;
                             }
 
-                            /* Sipariş Detay Modalı Mobilde Yanal Boşluksuz Tam Genişlik (100% Full Width) */
+                            /* Sipariş Detay Modalı Mobilde %95 Genişlik (Centered 95%) */
                             .fi-modal,
                             [role="dialog"],
                             .fi-modal-window-container,
@@ -124,11 +124,11 @@ class AdminPanelProvider extends PanelProvider
                             }
 
                             .fi-modal-window {
-                                width: 100% !important;
-                                max-width: 100% !important;
-                                min-width: 100% !important;
-                                margin: 0 !important;
-                                border-radius: 0 !important;
+                                width: 95vw !important;
+                                max-width: 95vw !important;
+                                min-width: 95vw !important;
+                                margin: 8px auto !important;
+                                border-radius: 12px !important;
                                 zoom: 1 !important;
                                 box-sizing: border-box !important;
                             }

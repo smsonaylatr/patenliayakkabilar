@@ -175,7 +175,7 @@ td.fi-ta-actions-cell {
         gap: 12px !important;
         width: 100% !important;
         max-width: 100% !important;
-        border-radius: 0 !important;
+        border-radius: 10px !important;
         box-sizing: border-box !important;
     }
 
