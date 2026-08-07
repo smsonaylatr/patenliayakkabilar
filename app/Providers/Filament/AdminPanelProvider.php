@@ -129,11 +129,6 @@ class AdminPanelProvider extends PanelProvider
                             padding-top: 0 !important;
                             padding-bottom: 0 !important;
                             margin-top: 0 !important;
-                            width: 105px !important;
-                            min-width: 105px !important;
-                            max-width: 105px !important;
-                            flex: 0 0 105px !important;
-                            margin-left: auto !important;
                         }
 
                         /* Sort by ve native checkbox header gizleme */
