@@ -73,40 +73,39 @@ td.fi-ta-actions-cell {
     background: rgba(255, 255, 255, 0.02);
 }
 .inner-table td:first-child {
-    border-radius: 12px 0 0 12px;
-    padding-right: 16px !important;
-    width: 100px;
+    border-radius: 8px 0 0 8px;
+    padding-right: 12px !important;
+    width: 50px;
     vertical-align: middle;
+    transition: width 0.25s ease;
 }
 .inner-table td:last-child {
-    border-radius: 0 12px 12px 0;
+    border-radius: 0 8px 8px 0;
 }
 .inner-thumb {
-    width: 90px;
-    height: 90px;
-    border-radius: 14px;
-    background: #c2f542;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
-    padding: 6px;
-    box-sizing: border-box;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    transition: all 0.2s ease;
+    cursor: zoom-in;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 .inner-thumb img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     border-radius: 8px;
-    transition: transform 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .inner-thumb:hover {
-    transform: scale(1.04);
-    box-shadow: 0 8px 20px rgba(194, 245, 66, 0.45);
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65), 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 .td-bold {
     font-weight: 700;
