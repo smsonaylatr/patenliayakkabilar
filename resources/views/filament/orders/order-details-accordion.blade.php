@@ -117,7 +117,7 @@ td.fi-ta-actions-cell {
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
     padding-right: 12px !important;
-    width: 66px;
+    width: 116px;
     vertical-align: middle;
 }
 
@@ -126,8 +126,8 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb {
-    width: 52px;
-    height: 52px;
+    width: 100px;
+    height: 100px;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
@@ -256,7 +256,7 @@ td.fi-ta-actions-cell {
       <table class="inner-table">
         <thead>
           <tr>
-            <th style="width:56px"></th>
+            <th style="width:116px"></th>
             <th>Ürün</th>
             <th>Renk / Numara</th>
             <th>Adet</th>
