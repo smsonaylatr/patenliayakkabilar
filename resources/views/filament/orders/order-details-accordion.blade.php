@@ -75,7 +75,7 @@ td.fi-ta-actions-cell {
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
     padding-right: 12px !important;
-    width: 50px;
+    width: 66px;
     vertical-align: middle;
     transition: width 0.25s ease;
 }
@@ -83,9 +83,9 @@ td.fi-ta-actions-cell {
     border-radius: 0 8px 8px 0;
 }
 .inner-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
     background: rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
     overflow: hidden;
