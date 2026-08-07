@@ -129,6 +129,11 @@ class AdminPanelProvider extends PanelProvider
                             padding-top: 0 !important;
                             padding-bottom: 0 !important;
                             margin-top: 0 !important;
+                            width: 105px !important;
+                            min-width: 105px !important;
+                            max-width: 105px !important;
+                            flex: 0 0 105px !important;
+                            margin-left: auto !important;
                         }
 
                         /* Sort by ve native checkbox header gizleme */
@@ -298,28 +303,16 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        /* ÖDEME DURUMU: Kilitli genişlik ve 1:1 hizalama */
+                        /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
                         .fi-ta-orders-header > div:nth-child(8),
                         .fi-ta-split > div:nth-child(7) {
                             width: 110px !important;
                             min-width: 110px !important;
                             max-width: 110px !important;
                             flex: 0 0 110px !important;
-                            margin-left: 0 !important;
+                            margin-left: 12px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                        }
-
-                        /* İşlem İkonları alanının genişliğini sabitle ki butonlar eksilse de ÖDEME DURUMU kaymasın */
-                        .fi-ta-record-actions,
-                        .fi-ta-actions,
-                        td.fi-ta-actions-cell {
-                            width: 100px !important;
-                            min-width: 100px !important;
-                            max-width: 100px !important;
-                            flex: 0 0 100px !important;
-                            justify-content: flex-end !important;
-                            margin-left: auto !important;
                         }
                     </style>
                 ')

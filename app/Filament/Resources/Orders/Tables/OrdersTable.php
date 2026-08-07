@@ -212,7 +212,7 @@ class OrdersTable
                                 ->send();
                         }
                     })
-                    ->visible(fn (Order $record): bool => !$record->is_invoiced),
+                    ->disabled(fn (Order $record): bool => (bool) $record->is_invoiced),
                 EditAction::make()
                     ->iconButton()
                     ->size('lg')
@@ -251,7 +251,7 @@ class OrdersTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
+                    ->disabled(fn (Order $record): bool => !in_array($record->status, ['pending', 'processing'])),
 
                 Action::make('cancelOrder')
                     ->iconButton()
@@ -285,7 +285,7 @@ class OrdersTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
+                    ->disabled(fn (Order $record): bool => !in_array($record->status, ['pending', 'processing'])),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
