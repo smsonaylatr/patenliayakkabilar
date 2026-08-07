@@ -134,11 +134,13 @@ td.fi-ta-actions-cell {
     overflow: hidden;
     position: relative;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
 }
 
 .dark .inner-thumb {
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
 }
 
 .inner-thumb img {
