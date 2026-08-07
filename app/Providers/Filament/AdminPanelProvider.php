@@ -222,11 +222,18 @@ class AdminPanelProvider extends PanelProvider
                         /* Akordiyon paneli ve detay kartının sağ tarafa kadar %100 genişletilmesi */
                         .fi-ta-panel,
                         .fi-ta-panel-content,
+                        .fi-ta-panel-cell,
                         td.fi-ta-panel-cell,
+                        .fi-ta-collapsible,
+                        td:has(.order-detail-panel),
+                        tr:has(.order-detail-panel) > td,
+                        div:has(> .order-detail-panel),
                         div.order-detail-panel {
                             width: 100% !important;
                             max-width: 100% !important;
+                            padding-left: 0 !important;
                             padding-right: 0 !important;
+                            margin-left: 0 !important;
                             margin-right: 0 !important;
                             box-sizing: border-box !important;
                         }
