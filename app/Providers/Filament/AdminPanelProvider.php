@@ -72,7 +72,59 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn () => new \Illuminate\Support\HtmlString('
+                    <style>
+                        /* Siparişler Sayfası Mobil Responsiveness & %50 Uzaklaştırma */
+                        @media (max-width: 768px) {
+                            /* Tablo Alanı Dokunmatik Yatay Kaydırma */
+                            .fi-ta-ctn,
+                            .fi-ta-content,
+                            .fi-ta-table-ctn {
+                                overflow-x: auto !important;
+                                -webkit-overflow-scrolling: touch !important;
+                                width: 100% !important;
+                            }
+
+                            /* Tablonun Kendisini Mobil Ekranda Kompakt Uzaklaştırma (Zoom) */
+                            .fi-ta-table {
+                                zoom: 0.75 !important;
+                                min-width: 680px !important;
+                            }
+
+                            /* Hücre Dolgularını & Fontları Mobil İçin Optimize Etme */
+                            .fi-ta-cell {
+                                padding-top: 6px !important;
+                                padding-bottom: 6px !important;
+                                padding-left: 6px !important;
+                                padding-right: 6px !important;
+                                font-size: 0.78rem !important;
+                            }
+
+                            /* Aksiyon Butonları Hizalama */
+                            .fi-ta-actions-cell,
+                            .fi-ta-actions {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                align-items: center !important;
+                                justify-content: flex-end !important;
+                                gap: 4px !important;
+                                white-space: nowrap !important;
+                            }
+
+                            /* Sipariş Detay Modalı Mobil Uyum & Zoom */
+                            .fi-modal-window {
+                                width: 96vw !important;
+                                max-width: 96vw !important;
+                                margin: 8px auto !important;
+                                zoom: 0.85 !important;
+                            }
+                        }
+                    </style>
+                ')
+            );
     }
 
     public function boot(): void
