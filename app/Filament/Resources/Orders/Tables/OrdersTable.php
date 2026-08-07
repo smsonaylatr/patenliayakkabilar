@@ -10,6 +10,7 @@ use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -22,6 +23,20 @@ class OrdersTable
     {
         return $table
             ->columns([
+                ImageColumn::make('product_image')
+                    ->label('GÖRSEL')
+                    ->getStateUsing(function (Order $record) {
+                        $firstItem = $record->items->first();
+                        if ($firstItem && $firstItem->product) {
+                            $firstItem->product->loadMissing('images');
+                            $img = $firstItem->product->images->first()?->image_url;
+                            if ($img) return $img;
+                        }
+                        return asset('favicon.png');
+                    })
+                    ->square()
+                    ->size(38),
+
                 TextColumn::make('customer_name')
                     ->label('MÜŞTERİ')
                     ->searchable()

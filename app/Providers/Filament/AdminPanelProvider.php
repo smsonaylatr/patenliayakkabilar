@@ -77,6 +77,35 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <style>
+                        /* Tablo Genel Yazı ve İkon Boyutlarını Küçültme */
+                        .fi-ta-header-cell {
+                            font-size: 0.72rem !important;
+                            padding-top: 8px !important;
+                            padding-bottom: 8px !important;
+                        }
+
+                        .fi-ta-cell {
+                            font-size: 0.8rem !important;
+                            padding-top: 8px !important;
+                            padding-bottom: 8px !important;
+                        }
+
+                        .fi-ta-cell .fi-badge {
+                            font-size: 0.72rem !important;
+                            padding: 2px 6px !important;
+                        }
+
+                        .fi-ta-actions button,
+                        .fi-ta-actions a,
+                        .fi-ta-actions .fi-icon-btn {
+                            padding: 3px !important;
+                        }
+
+                        .fi-ta-actions svg {
+                            width: 17px !important;
+                            height: 17px !important;
+                        }
+
                         /* Siparişler Sayfası Mobil Responsiveness & %50 Uzaklaştırma */
                         @media (max-width: 768px) {
                             /* Tablo Alanı Dokunmatik Yatay Kaydırma */
