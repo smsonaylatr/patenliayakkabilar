@@ -219,18 +219,19 @@ class AdminPanelProvider extends PanelProvider
                             border-top-right-radius: 0 !important;
                         }
 
-                        /* Akordiyon paneli ve detay kartının sağ tarafa kadar %100 genişletilmesi */
+                        /* Akordiyon paneli ve detay kartının sağ tarafa kadar %120 genişletilmesi */
                         .fi-ta-panel,
                         .fi-ta-panel-content,
                         .fi-ta-panel-cell,
                         td.fi-ta-panel-cell,
                         .fi-ta-collapsible,
+                        .fi-ta-record-content.fi-collapsible,
                         td:has(.order-detail-panel),
                         tr:has(.order-detail-panel) > td,
                         div:has(> .order-detail-panel),
                         div.order-detail-panel {
-                            width: 100% !important;
-                            max-width: 100% !important;
+                            width: 120% !important;
+                            max-width: 120% !important;
                             padding-left: 0 !important;
                             padding-right: 0 !important;
                             margin-left: 0 !important;
@@ -299,12 +300,14 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
+                        /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
                         .fi-ta-orders-header > div:nth-child(8),
                         .fi-ta-split > div:nth-child(7) {
                             width: 110px !important;
                             min-width: 110px !important;
                             max-width: 110px !important;
                             flex: 0 0 110px !important;
+                            margin-left: 12px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
                         }
