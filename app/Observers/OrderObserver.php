@@ -34,6 +34,9 @@ class OrderObserver
                 // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
                 app(\App\Services\PoregoApiService::class)->sendOrder($order);
                 
+                // Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
+                app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+                
                 // Müşteriye SMS Gönder
                 $this->sendCustomerSms($order, 'new_order');
             });
@@ -177,6 +180,9 @@ class OrderObserver
                     
                     // Siparişi Porego'ya aktar
                     app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                    
+                    // Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
+                    app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
                     
                     // Müşteriye SMS Gönder
                     $this->sendCustomerSms($order, 'new_order');

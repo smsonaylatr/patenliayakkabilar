@@ -48,6 +48,9 @@ class EInvoiceSettings extends Page implements HasForms
             'gib_user_code',
             'gib_password',
             'gib_test_mode',
+            'gib_auto_invoice',
+            'gib_auto_email',
+            'gib_logo_url',
             'gib_company_name',
             'gib_company_vkn',
             'gib_company_tax_office',
@@ -70,6 +73,9 @@ class EInvoiceSettings extends Page implements HasForms
             'gib_user_code' => $settings['gib_user_code'] ?? config('gib.user_code', ''),
             'gib_password' => $settings['gib_password'] ?? config('gib.password', ''),
             'gib_test_mode' => isset($settings['gib_test_mode']) ? filter_var($settings['gib_test_mode'], FILTER_VALIDATE_BOOLEAN) : config('gib.is_test', true),
+            'gib_auto_invoice' => isset($settings['gib_auto_invoice']) ? filter_var($settings['gib_auto_invoice'], FILTER_VALIDATE_BOOLEAN) : true,
+            'gib_auto_email' => isset($settings['gib_auto_email']) ? filter_var($settings['gib_auto_email'], FILTER_VALIDATE_BOOLEAN) : true,
+            'gib_logo_url' => $settings['gib_logo_url'] ?? asset('favicon.png'),
             'gib_company_name' => $settings['gib_company_name'] ?? config('gib.company_name', 'Patenli Ayakkabılar E-Ticaret'),
             'gib_company_vkn' => $settings['gib_company_vkn'] ?? config('gib.company_vkn', '1111111111'),
             'gib_company_tax_office' => $settings['gib_company_tax_office'] ?? config('gib.company_tax_office', 'Kadıköy'),
@@ -100,6 +106,18 @@ class EInvoiceSettings extends Page implements HasForms
                             ->label('Test Modu (Sandbox / Demo)')
                             ->helperText('Açık olduğunda GİB test portalına fatura oluşturulur. Canlıya alırken kapatın.')
                             ->default(true),
+                        Toggle::make('gib_auto_invoice')
+                            ->label('Tam Otomatik Fatura Kes')
+                            ->helperText('Sipariş tamamlandığında veya ödendiğinde GİB E-Arşiv faturasını otomatik keser.')
+                            ->default(true),
+                        Toggle::make('gib_auto_email')
+                            ->label('Faturayı Müşteriye E-Posta ile Gönder')
+                            ->helperText('Fatura oluşturulduğunda faturayı otomatik olarak müşterinin e-posta adresine gönderir.')
+                            ->default(true),
+                        TextInput::make('gib_logo_url')
+                            ->label('Fatura Firma Logo URL\'si')
+                            ->placeholder('https://patenliayakkabilar.com/favicon.png')
+                            ->helperText('Fatura belgesinin ve e-postanın üst kısmında görünecek logo adresi.'),
                         TextInput::make('gib_user_code')
                             ->label('GİB Kullanıcı Kodu (VKN / TCKN)')
                             ->placeholder('örn: 12345678')
