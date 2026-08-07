@@ -123,12 +123,16 @@ class AdminPanelProvider extends PanelProvider
                             display: flex !important;
                             align-items: center !important;
                             align-self: flex-start !important;
-                            justify-content: flex-end !important;
+                            justify-content: flex-start !important;
                             gap: 3px !important;
                             transform: translateY(-5px) !important;
                             padding-top: 0 !important;
                             padding-bottom: 0 !important;
                             margin-top: 0 !important;
+                            width: 80px !important;
+                            min-width: 80px !important;
+                            max-width: 80px !important;
+                            flex: 0 0 80px !important;
                         }
 
                         /* Sort by ve native checkbox header gizleme */
