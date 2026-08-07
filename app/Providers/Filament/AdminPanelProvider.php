@@ -223,17 +223,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => request()->routeIs('filament.admin.resources.orders.index') ? new \Illuminate\Support\HtmlString('
                     <div class="fi-ta-orders-header hidden md:flex w-full bg-[#0d111b] text-gray-400 font-extrabold text-[11px] uppercase tracking-wider rounded-t-xl select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding-left: 0 !important; padding-right: 0 !important; padding-top: 12px !important; padding-bottom: 12px !important; gap: 16px !important; box-sizing: border-box !important; margin: 0 !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important;">
                         <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 24px; box-sizing: border-box;">
-                            <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="
-                                const isChecked = this.checked;
-                                const nativeSelectAll = document.querySelector('.fi-ta-content-header input[type=checkbox], thead input[type=checkbox], [aria-label*=\'Select/deselect\']');
-                                if (nativeSelectAll) {
-                                    if (nativeSelectAll.checked !== isChecked) { nativeSelectAll.click(); }
-                                } else {
-                                    document.querySelectorAll('tbody input[type=checkbox], .fi-ta-record-checkbox input').forEach(cb => {
-                                        if (cb !== this && cb.checked !== isChecked) { cb.click(); }
-                                    });
-                                }
-                            " style="width: 16px; height: 16px;" title="Tümünü Seç">
+                            <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
                         <div style="flex: 0 0 180px; text-align: left;">MÜŞTERİ</div>
                         <div style="flex: 0 0 80px; text-align: left;">ŞEHİR</div>
@@ -250,6 +240,21 @@ class AdminPanelProvider extends PanelProvider
                 fn () => new \Illuminate\Support\HtmlString('
                     <script>
                         (function() {
+                            window.toggleSelectAllOrders = function(isChecked) {
+                                const nativeSelectAll = document.querySelector(".fi-ta-content-header input[type=checkbox], thead input[type=checkbox], [aria-label*=\"Select/deselect\"]");
+                                if (nativeSelectAll) {
+                                    if (nativeSelectAll.checked !== isChecked) {
+                                        nativeSelectAll.click();
+                                    }
+                                } else {
+                                    document.querySelectorAll("tbody input[type=checkbox], .fi-ta-record-checkbox input").forEach(function(cb) {
+                                        if (cb.checked !== isChecked) {
+                                            cb.click();
+                                        }
+                                    });
+                                }
+                            };
+
                             document.addEventListener("click", function (e) {
                                 if (!window.location.pathname.includes("/admin/orders")) return;
                                 
