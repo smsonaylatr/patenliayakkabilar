@@ -371,9 +371,36 @@ td.fi-ta-actions-cell {
       </div>
     </div>
 
-    <div class="detail-section" style="flex:1">
-      <div class="detail-title">Ödeme Bilgisi</div>
-      <div class="detail-addr">
+    <div class="detail-section" style="flex:1" x-data="{ showPayment: false }">
+      <button 
+        type="button" 
+        @click="showPayment = !showPayment" 
+        class="detail-title flex items-center justify-between w-full cursor-pointer hover:opacity-80 transition-opacity select-none"
+        style="background: transparent; border: none; padding: 0; margin: 0; text-align: left; width: 100%;"
+      >
+        <span class="flex items-center gap-2">
+          <span>Ödeme Bilgisi</span>
+          <span style="font-size: 0.7rem; font-weight: normal; text-transform: none; opacity: 0.7;" x-text="showPayment ? '(Gizle)' : '(Göster)'"></span>
+        </span>
+        <svg 
+          class="w-4 h-4 transition-transform duration-200" 
+          :class="{ 'rotate-180': showPayment }" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+          style="width: 16px; height: 16px;"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div 
+        x-show="showPayment" 
+        x-collapse 
+        x-cloak 
+        class="detail-addr mt-2"
+        style="margin-top: 8px;"
+      >
         <div class="td-bold">
             @switch($order->payment_method)
                 @case('credit_card') <span style="color: #8b5cf6; font-weight: 600;">Kredi Kartı</span> @break
