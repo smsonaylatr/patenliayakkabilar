@@ -15,7 +15,7 @@ td.fi-ta-actions-cell {
 
 .order-detail-panel {
     padding: 20px 24px;
-    background: rgba(10, 12, 35, 0.65);
+    background: rgba(10, 12, 35, 0.75);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -24,8 +24,9 @@ td.fi-ta-actions-cell {
     font-family: inherit;
     width: 100% !important;
     max-width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin: 8px 0 !important;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-sizing: border-box !important;
 }
 .detail-section {
