@@ -73,45 +73,40 @@ td.fi-ta-actions-cell {
     background: rgba(255, 255, 255, 0.02);
 }
 .inner-table td:first-child {
-    border-radius: 8px 0 0 8px;
-    padding-right: 12px !important;
-    width: 56px;
-    overflow: visible !important;
-    position: relative;
+    border-radius: 12px 0 0 12px;
+    padding-right: 16px !important;
+    width: 100px;
+    vertical-align: middle;
 }
 .inner-table td:last-child {
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 12px 12px 0;
 }
 .inner-thumb {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
+    width: 90px;
+    height: 90px;
+    border-radius: 14px;
+    background: #c2f542;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
-    overflow: visible !important;
+    overflow: hidden;
     position: relative;
-    cursor: zoom-in;
+    padding: 6px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
 }
 .inner-thumb img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 8px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 10;
+    transition: transform 0.2s ease;
 }
-.inner-thumb:hover img {
-    position: absolute;
-    top: -8px;
-    left: 0;
-    width: 180px;
-    height: 180px;
-    transform: translateY(-100%);
-    z-index: 99999 !important;
-    border-radius: 14px;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.95), 0 0 0 2px rgba(255, 255, 255, 0.35);
-    background: #0d111b;
+.inner-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 20px rgba(194, 245, 66, 0.45);
 }
 .td-bold {
     font-weight: 700;
