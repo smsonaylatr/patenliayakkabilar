@@ -241,30 +241,60 @@ class AdminPanelProvider extends PanelProvider
                             padding-right: 0 !important;
                         }
 
-                        /* Split layout ve Başlık çubuğu flex, padding ve gap 1:1 birebir eşitlemesi */
-                        .fi-ta-orders-header,
+                        /* ==========================================================================
+                           PHOENIX CTO AGENT - SIPARISLER TABLOSU SIFIR KAYMA SUTUN EŞİTLEME SİSTEMİ
+                           ========================================================================== */
+
+                        /* 1. Header Bar Genel Konteyner */
+                        .fi-ta-orders-header {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            align-items: center !important;
+                            width: 100% !important;
+                            box-sizing: border-box !important;
+                            padding: 12px 16px !important;
+                            gap: 16px !important;
+                            margin: 0 !important;
+                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                            border-top-left-radius: 12px !important;
+                            border-top-right-radius: 12px !important;
+                            border-bottom-left-radius: 0 !important;
+                            border-bottom-right-radius: 0 !important;
+                            background: transparent !important;
+                        }
+
+                        /* 2. Veri Satırı (.fi-ta-split) Konteyner */
                         .fi-ta-split,
                         div.fi-ta-split {
                             display: flex !important;
                             flex-direction: row !important;
                             align-items: center !important;
-                            gap: 16px !important;
+                            width: 100% !important;
                             box-sizing: border-box !important;
-                        }
-                        .fi-ta-orders-header {
-                            padding-left: 16px !important;
-                            padding-right: 16px !important;
+                            gap: 16px !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(1) {
-                            width: 44px !important;
-                            min-width: 44px !important;
-                            max-width: 44px !important;
-                            flex: 0 0 44px !important;
+                        /* 3. Checkbox Sütun Eşitlemesi */
+                        .fi-header-col-checkbox,
+                        .fi-ta-record-checkbox-ctn,
+                        td.fi-ta-record-checkbox-cell,
+                        .fi-ta-record-checkbox {
+                            width: 24px !important;
+                            min-width: 24px !important;
+                            max-width: 24px !important;
+                            flex: 0 0 24px !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
                         }
 
-                        /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
-                        .fi-ta-orders-header > div:nth-child(2),
+                        /* 4. Sütun Genişlik ve Hizalama Kilitleri (Header vs Data 1:1) */
+
+                        /* MÜŞTERİ */
+                        .fi-header-col-customer,
                         .fi-ta-split > div:nth-child(1) {
                             width: 170px !important;
                             min-width: 170px !important;
@@ -274,7 +304,8 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(3),
+                        /* ŞEHİR */
+                        .fi-header-col-city,
                         .fi-ta-split > div:nth-child(2) {
                             width: 75px !important;
                             min-width: 75px !important;
@@ -284,7 +315,8 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(4),
+                        /* TUTAR */
+                        .fi-header-col-total,
                         .fi-ta-split > div:nth-child(3) {
                             width: 75px !important;
                             min-width: 75px !important;
@@ -294,7 +326,8 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(5),
+                        /* ÖDEME */
+                        .fi-header-col-payment,
                         .fi-ta-split > div:nth-child(4) {
                             width: 95px !important;
                             min-width: 95px !important;
@@ -304,7 +337,8 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(6),
+                        /* TARİH */
+                        .fi-header-col-date,
                         .fi-ta-split > div:nth-child(5) {
                             width: 155px !important;
                             min-width: 155px !important;
@@ -314,7 +348,8 @@ class AdminPanelProvider extends PanelProvider
                             justify-content: flex-start !important;
                         }
 
-                        .fi-ta-orders-header > div:nth-child(7),
+                        /* DURUM */
+                        .fi-header-col-status,
                         .fi-ta-split > div:nth-child(6) {
                             width: 90px !important;
                             min-width: 90px !important;
@@ -335,8 +370,8 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 90px !important;
                         }
 
-                        /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
-                        .fi-ta-orders-header > div:nth-child(8),
+                        /* ÖDEME DURUMU */
+                        .fi-header-col-payment-status,
                         .fi-ta-split > div:nth-child(7) {
                             width: 110px !important;
                             min-width: 110px !important;
@@ -358,17 +393,17 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::HEADER_BEFORE,
                 fn () => (request()->routeIs('filament.admin.resources.orders.*') || request()->is('admin/orders*') || str_contains(request()->header('referer', ''), '/admin/orders')) ? new \Illuminate\Support\HtmlString('
-                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding: 12px 0 !important; gap: 16px !important; box-sizing: border-box !important; margin: 0 !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; background: transparent !important;">
-                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 0; box-sizing: border-box;">
+                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none">
+                        <div class="fi-header-col-checkbox">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 170px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 75px; text-align: left;">ŞEHİR</div>
-                        <div style="flex: 0 0 75px; text-align: left;">TUTAR</div>
-                        <div style="flex: 0 0 95px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 155px; text-align: left;">TARİH</div>
-                        <div style="flex: 0 0 90px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 110px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
+                        <div class="fi-header-col-customer">MÜŞTERİ</div>
+                        <div class="fi-header-col-city">ŞEHİR</div>
+                        <div class="fi-header-col-total">TUTAR</div>
+                        <div class="fi-header-col-payment">ÖDEME</div>
+                        <div class="fi-header-col-date">TARİH</div>
+                        <div class="fi-header-col-status">DURUM</div>
+                        <div class="fi-header-col-payment-status">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
