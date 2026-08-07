@@ -137,13 +137,13 @@ class AdminPanelProvider extends PanelProvider
                             display: none !important;
                         }
 
-                        /* İşlem ikonları ideal boyutu (18px) */
+                        /* İşlem ikonları ideal boyutu (20px) */
                         .fi-ta-actions svg,
                         .fi-ta-record-actions svg,
                         td.fi-ta-actions-cell svg,
                         .fi-ta-cell svg {
-                            width: 18px !important;
-                            height: 18px !important;
+                            width: 20px !important;
+                            height: 20px !important;
                         }
 
                         .fi-ta-actions button,
@@ -225,13 +225,13 @@ class AdminPanelProvider extends PanelProvider
                         <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 24px; box-sizing: border-box;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 180px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 80px; text-align: left;">ŞEHİR</div>
-                        <div style="flex: 0 0 80px; text-align: left;">TUTAR</div>
-                        <div style="flex: 0 0 106px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 172px; text-align: left;">TARİH</div>
-                        <div style="flex: 0 0 100px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 130px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
+                        <div style="flex: 0 0 200px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 90px; text-align: left;">ŞEHİR</div>
+                        <div style="flex: 0 0 90px; text-align: left;">TUTAR</div>
+                        <div style="flex: 0 0 115px; text-align: left;">ÖDEME</div>
+                        <div style="flex: 0 0 180px; text-align: left;">TARİH</div>
+                        <div style="flex: 0 0 110px; text-align: left;">DURUM</div>
+                        <div style="flex: 0 0 135px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
