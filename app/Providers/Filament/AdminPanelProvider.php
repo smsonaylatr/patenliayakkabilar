@@ -122,10 +122,22 @@ class AdminPanelProvider extends PanelProvider
                             white-space: nowrap !important;
                         }
 
-                        /* Tüm order-col hücreleri: taşma engelleme */
-                        .order-col {
+                        /* Metin sütunlarında taşma engelleme */
+                        .order-col-customer,
+                        .order-col-city,
+                        .order-col-total,
+                        .order-col-payment,
+                        .order-col-date {
                             overflow: hidden !important;
                             text-overflow: ellipsis !important;
+                            white-space: nowrap !important;
+                            min-width: 0 !important;
+                        }
+
+                        /* Badge sütunlarında overflow engelleme */
+                        .order-col-status,
+                        .order-col-payment-status {
+                            overflow: visible !important;
                             white-space: nowrap !important;
                             min-width: 0 !important;
                         }
@@ -250,29 +262,29 @@ class AdminPanelProvider extends PanelProvider
 
                             /* Split veri satırı */
                             .order-split-row {
-                                gap: 0 !important;
-                                padding-left: 0 !important;
-                                padding-right: 0 !important;
+                                gap: 8px !important;
+                                padding-left: 4px !important;
+                                padding-right: 4px !important;
                             }
 
-                            /* Sütun genişlikleri — YÜZDE */
-                            .order-col-customer  { flex: 0 0 22% !important; width: 22% !important; max-width: 22% !important; }
-                            .order-col-city      { flex: 0 0 9%  !important; width: 9%  !important; max-width: 9%  !important; }
-                            .order-col-total     { flex: 0 0 8%  !important; width: 8%  !important; max-width: 8%  !important; }
-                            .order-col-payment   { flex: 0 0 12% !important; width: 12% !important; max-width: 12% !important; }
+                            /* Sütun genişlikleri — YÜZDE (toplam ~90% + gap payı) */
+                            .order-col-customer  { flex: 0 0 20% !important; width: 20% !important; max-width: 20% !important; }
+                            .order-col-city      { flex: 0 0 8%  !important; width: 8%  !important; max-width: 8%  !important; }
+                            .order-col-total     { flex: 0 0 7%  !important; width: 7%  !important; max-width: 7%  !important; }
+                            .order-col-payment   { flex: 0 0 11% !important; width: 11% !important; max-width: 11% !important; }
                             .order-col-date      { flex: 0 0 17% !important; width: 17% !important; max-width: 17% !important; }
-                            .order-col-status    { flex: 0 0 12% !important; width: 12% !important; max-width: 12% !important; }
-                            .order-col-payment-status { flex: 0 0 10% !important; width: 10% !important; max-width: 10% !important; }
+                            .order-col-status    { flex: 0 0 11% !important; width: 11% !important; max-width: 11% !important; }
+                            .order-col-payment-status { flex: 0 0 11% !important; width: 11% !important; max-width: 11% !important; }
 
                             /* Header sütun genişlikleri — aynı yüzde */
                             .fi-ta-orders-header > .oh-checkbox { flex: 0 0 32px !important; width: 32px !important; }
-                            .fi-ta-orders-header > .oh-customer  { flex: 0 0 22% !important; }
-                            .fi-ta-orders-header > .oh-city      { flex: 0 0 9%  !important; }
-                            .fi-ta-orders-header > .oh-total     { flex: 0 0 8%  !important; }
-                            .fi-ta-orders-header > .oh-payment   { flex: 0 0 12% !important; }
+                            .fi-ta-orders-header > .oh-customer  { flex: 0 0 20% !important; }
+                            .fi-ta-orders-header > .oh-city      { flex: 0 0 8%  !important; }
+                            .fi-ta-orders-header > .oh-total     { flex: 0 0 7%  !important; }
+                            .fi-ta-orders-header > .oh-payment   { flex: 0 0 11% !important; }
                             .fi-ta-orders-header > .oh-date      { flex: 0 0 17% !important; }
-                            .fi-ta-orders-header > .oh-status    { flex: 0 0 12% !important; }
-                            .fi-ta-orders-header > .oh-pay-status { flex: 0 0 10% !important; }
+                            .fi-ta-orders-header > .oh-status    { flex: 0 0 11% !important; }
+                            .fi-ta-orders-header > .oh-pay-status { flex: 0 0 11% !important; }
 
                             /* İşlem butonları alanı */
                             .fi-ta-record-actions,

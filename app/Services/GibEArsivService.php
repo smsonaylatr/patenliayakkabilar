@@ -18,7 +18,6 @@ class GibEArsivService
     protected string $companyVkn;
     protected string $companyTaxOffice;
     protected string $companyAddress;
-    protected string $logoUrl;
 
     public function __construct()
     {
@@ -30,7 +29,6 @@ class GibEArsivService
             'gib_company_vkn',
             'gib_company_tax_office',
             'gib_company_address',
-            'gib_logo_url',
         ])->pluck('value', 'key')->toArray();
 
         $this->userCode = $settings['gib_user_code'] ?? config('gib.user_code', '');
@@ -41,7 +39,20 @@ class GibEArsivService
         $this->companyVkn = $settings['gib_company_vkn'] ?? config('gib.company_vkn', '1111111111');
         $this->companyTaxOffice = $settings['gib_company_tax_office'] ?? config('gib.company_tax_office', 'Kadıköy');
         $this->companyAddress = $settings['gib_company_address'] ?? config('gib.company_address', 'İstanbul');
-        $this->logoUrl = $settings['gib_logo_url'] ?? asset('favicon.png');
+    }
+
+    /**
+     * Siteden dinamik firma logosu URL'sini çeker
+     */
+    public function getSiteLogoUrl(): string
+    {
+        $customLogo = Setting::where('key', 'gib_logo_url')->value('value');
+        if (!empty($customLogo)) {
+            return $customLogo;
+        }
+
+        // Siteden dinamik olarak logo URL'sini oluştur
+        return url('/favicon.png');
     }
 
     /**
@@ -94,29 +105,24 @@ class GibEArsivService
     }
 
     /**
-     * Tam Otomatik Fatura Oluşturma ve Müşteriye Mail Gönderme
+     * Tam Otomatik Fatura Oluşturma ve Müşteriye Mail Gönderme (HER ZAMAN AKTİF)
      */
     public function autoInvoiceAndSendMail(Order $order): array
     {
-        $isAutoActive = filter_var(Setting::where('key', 'gib_auto_invoice')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN);
-
-        if (!$isAutoActive) {
-            return ['success' => false, 'message' => 'Otomatik fatura kesme pasif bırakılmış.'];
-        }
-
         if ($order->is_invoiced) {
-            return ['success' => true, 'message' => 'Sipariş zaten faturalandırılmış.'];
-        }
-
-        // Faturayı Oluştur
-        $result = $this->createInvoice($order);
-
-        // Fatura Başarılı Olduysa ve Mail Ayarı Açıksa E-Posta Gönder
-        if ($result['success']) {
-            $isMailActive = filter_var(Setting::where('key', 'gib_auto_email')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN);
-            if ($isMailActive && !empty($order->customer_email)) {
+            // Zaten fatura kesilmişse ve mail gitmemişse maili tekrar göndermeyi dene
+            if (!empty($order->customer_email)) {
                 $this->sendInvoiceMail($order);
             }
+            return ['success' => true, 'message' => 'Sipariş zaten faturalandırılmış. Mail iletildi.'];
+        }
+
+        // Faturayı Kes
+        $result = $this->createInvoice($order);
+
+        // Otomatik Olarak Müşteriye Mail Gönder
+        if ($result['success'] && !empty($order->customer_email)) {
+            $this->sendInvoiceMail($order);
         }
 
         return $result;
@@ -264,7 +270,7 @@ class GibEArsivService
                 'gib_invoice_error' => null,
             ]);
 
-            Log::info("GİB E-Arşiv Faturası başarıyla oluşturuldu. Sipariş No: #{$order->order_number}, UUID: {$uuid}");
+            Log::info("GİB E-Arşiv Faturası oluşturuldu. Sipariş No: #{$order->order_number}, UUID: {$uuid}");
 
             return [
                 'success' => true,
@@ -289,28 +295,27 @@ class GibEArsivService
     }
 
     /**
-     * GİB Fatura HTML içeriğine Firma Logosu & Marka başlığı ekler
+     * GİB Fatura HTML içeriğine Siteden Dinamik Çekilen Firma Logosu ve Başlık ekler
      */
     protected function enrichInvoiceHtmlWithLogo(string $html): string
     {
-        $logoSrc = $this->logoUrl;
+        $logoSrc = $this->getSiteLogoUrl();
         
         $logoHeaderHtml = <<<HTML
-<div class="brand-invoice-header" style="background: #ffffff; border-bottom: 2px solid #0284c7; padding: 18px 25px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; font-family: 'Segoe UI', Arial, sans-serif;">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <img src="{$logoSrc}" alt="Patenli Ayakkabılar Logo" style="max-height: 55px; width: auto; object-fit: contain;">
+<div class="brand-invoice-header" style="background: #ffffff; border-bottom: 3px solid #0284c7; padding: 20px 30px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; font-family: 'Segoe UI', Helvetica, Arial, sans-serif;">
+    <div style="display: flex; align-items: center; gap: 18px;">
+        <img src="{$logoSrc}" alt="Patenli Ayakkabılar Logo" style="max-height: 60px; width: auto; object-fit: contain;">
         <div>
-            <h2 style="margin: 0; color: #0f172a; font-size: 20px; font-weight: 700;">{$this->companyName}</h2>
-            <p style="margin: 3px 0 0; color: #64748b; font-size: 12px;">Patenli Ayakkabılar Resmi E-Arşiv Faturası</p>
+            <h2 style="margin: 0; color: #0f172a; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">{$this->companyName}</h2>
+            <p style="margin: 3px 0 0; color: #64748b; font-size: 13px;">Resmi GİB E-Arşiv Faturası Belgesi</p>
         </div>
     </div>
-    <div style="text-align: right; color: #0284c7; font-weight: 600; font-size: 14px;">
+    <div style="text-align: right; color: #0284c7; font-weight: 700; font-size: 15px;">
         patenliayakkabilar.com
     </div>
 </div>
 HTML;
 
-        // <body> etiketi sonrasına veya en başa yerleştirelim
         if (stripos($html, '<body') !== false) {
             $html = preg_replace('/(<body[^>]*>)/i', '$1' . "\n" . $logoHeaderHtml, $html, 1);
         } else {
