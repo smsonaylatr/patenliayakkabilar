@@ -35,7 +35,7 @@ class OrdersTable
                         return asset('favicon.png');
                     })
                     ->square()
-                    ->size(54),
+                    ->size(60),
 
                 TextColumn::make('customer_name')
                     ->label('MÜŞTERİ')

@@ -106,14 +106,21 @@ class AdminPanelProvider extends PanelProvider
                             height: 17px !important;
                         }
 
-                        /* Aksiyon Butonlarını Sola Yanaştırma */
-                        .fi-ta-actions-cell,
-                        .fi-ta-actions,
-                        td.fi-ta-actions-cell {
+                        /* Aksiyon Butonlarını Ödeme Durumu Sütununa Bitişik Sola Yanaştırma */
+                        td.fi-ta-actions-cell,
+                        .fi-ta-actions-cell {
+                            width: 1px !important;
+                            white-space: nowrap !important;
+                            padding-left: 12px !important;
+                            padding-right: 12px !important;
+                        }
+
+                        .fi-ta-actions {
                             display: flex !important;
                             justify-content: flex-start !important;
                             align-items: center !important;
                             gap: 4px !important;
+                            width: auto !important;
                         }
 
                         /* Siparişler Sayfası Mobil Responsiveness & %50 Uzaklaştırma */
