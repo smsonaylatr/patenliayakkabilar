@@ -77,19 +77,23 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <style>
-                        /* Siparişler tablosunda genel okunaklı kompakt font boyutu (12px / 0.76rem) */
+                        /* ============================================== */
+                        /* SİPARİŞLER TABLOSU — YÜZDE BAZLI FLEX LAYOUT  */
+                        /* ============================================== */
+
+                        /* Genel font boyutu */
                         .fi-ta-record,
                         .fi-ta-row,
                         .fi-ta-cell,
-                        .fi-ta-split,
-                        .fi-ta-split div,
-                        .fi-ta-split span,
-                        .fi-ta-split p {
-                            font-size: 0.76rem !important;
-                            line-height: 1.25rem !important;
+                        .order-split-row,
+                        .order-split-row div,
+                        .order-split-row span,
+                        .order-split-row p {
+                            font-size: 0.78rem !important;
+                            line-height: 1.3rem !important;
                         }
 
-                        /* Tablo satır ayırıcı çizgiler: ince beyaz */
+                        /* Satır ayırıcılar */
                         .fi-ta-record,
                         .fi-ta-row,
                         tr {
@@ -102,98 +106,95 @@ class AdminPanelProvider extends PanelProvider
                             border-bottom: none !important;
                         }
 
-                        /* Durum Rozeti kompakt boyutu */
-                        .fi-ta-split .fi-badge {
+                        /* Badge boyutu */
+                        .order-split-row .fi-badge {
                             font-size: 10px !important;
-                            padding: 2px 8px !important;
+                            padding: 2px 7px !important;
+                            white-space: nowrap !important;
                         }
 
-                        /* Müşteri Alt E-posta Metni ufaltma */
-                        .fi-ta-split .text-xs,
-                        .fi-ta-split .text-sm,
-                        .fi-ta-split .fi-ta-text-item-description {
-                            font-size: 0.7rem !important;
-                            opacity: 0.7 !important;
+                        /* Müşteri e-posta açıklaması */
+                        .order-split-row .fi-ta-text-item-description {
+                            font-size: 0.68rem !important;
+                            opacity: 0.65 !important;
+                            overflow: hidden !important;
+                            text-overflow: ellipsis !important;
+                            white-space: nowrap !important;
                         }
 
-                        /* İşlem ikonlarını yukarı çekerek satır metinleriyle 1:1 dikey hizalama */
+                        /* Tüm order-col hücreleri: taşma engelleme */
+                        .order-col {
+                            overflow: hidden !important;
+                            text-overflow: ellipsis !important;
+                            white-space: nowrap !important;
+                            min-width: 0 !important;
+                        }
+
+                        /* Split row — tam genişlik flex satır */
+                        .order-split-row {
+                            display: flex !important;
+                            flex-direction: row !important;
+                            align-items: center !important;
+                            width: 100% !important;
+                            gap: 0 !important;
+                            box-sizing: border-box !important;
+                        }
+
+                        /* İşlem butonları */
                         .fi-ta-record-actions,
                         .fi-ta-actions,
                         td.fi-ta-actions-cell {
                             display: flex !important;
                             align-items: center !important;
-                            align-self: flex-start !important;
-                            justify-content: flex-start !important;
-                            gap: 3px !important;
-                            transform: translateY(-5px) !important;
-                            padding-top: 0 !important;
-                            padding-bottom: 0 !important;
-                            margin-top: 0 !important;
-                            width: 96px !important;
-                            min-width: 96px !important;
-                            max-width: 96px !important;
-                            flex: 0 0 96px !important;
+                            justify-content: flex-end !important;
+                            gap: 2px !important;
+                            padding: 0 4px !important;
+                            flex-shrink: 0 !important;
                         }
-
-                        /* Sort by ve native checkbox header gizleme */
-                        .fi-ta-header-toolbar,
-                        .fi-ta-content-header {
-                            display: none !important;
-                        }
-
-                        /* İşlem ikonları ideal boyutu (20px) */
                         .fi-ta-actions svg,
                         .fi-ta-record-actions svg,
                         td.fi-ta-actions-cell svg,
                         .fi-ta-cell svg {
-                            width: 20px !important;
-                            height: 20px !important;
+                            width: 18px !important;
+                            height: 18px !important;
                         }
-
                         .fi-ta-actions button,
                         .fi-ta-record-actions button,
                         .fi-ta-actions a,
                         .fi-icon-btn {
-                            padding: 2px !important;
+                            padding: 3px !important;
                             margin: 0 !important;
                             display: inline-flex !important;
                             align-items: center !important;
                             justify-content: center !important;
                         }
 
-                        /* Split layout ve Başlık çubuğu flex ve gap eşitlemesi */
-                        .fi-ta-orders-header,
-                        .fi-ta-split,
-                        div.fi-ta-split {
-                            display: flex !important;
-                            flex-direction: row !important;
-                            align-items: center !important;
-                            justify-content: flex-start !important;
-                            gap: 16px !important;
+                        /* Tablo container birleşik */
+                        .fi-ta-ctn,
+                        .fi-ta-content-ctn,
+                        .fi-ta-content,
+                        .fi-ta-table-container {
+                            gap: 0 !important;
+                            margin-top: 0 !important;
+                            overflow-x: hidden !important;
                         }
 
-                        /* Altın Oran Sütun Genişlikleri (φ = 1.618) */
-
-                        /* Tablodaki TÜM başlıklar, metinler ve rozetleri KESİN SOLA YASLA */
-                        .fi-ta-orders-header > div,
-                        .fi-ta-split > div,
-                        .fi-ta-content td,
-                        .fi-ta-cell,
-                        .fi-ta-text-item,
-                        .fi-ta-badge,
-                        .fi-badge {
-                            text-align: left !important;
-                            justify-content: flex-start !important;
+                        /* Filament native header gizle */
+                        .fi-ta-header-toolbar,
+                        .fi-ta-content-header {
+                            display: none !important;
                         }
 
-                        /* Kapsayıcı hücrelerin iç boşluk sıfırlaması */
-                        .fi-ta-record-content {
+                        /* Record content genişlik */
+                        .fi-ta-record-content,
+                        div.fi-ta-record-content.fi-collapsible,
+                        .fi-ta-record-content.fi-collapsible {
                             width: 100% !important;
                             padding-left: 0 !important;
                             padding-right: 0 !important;
                         }
 
-                        /* Akordiyon oku: kapalıyken aşağı (v), açıkken yukarı (^) */
+                        /* Akordiyon ok animasyonu */
                         .fi-ta-collapsible-trigger svg,
                         button[aria-expanded] svg {
                             transform: rotate(180deg) !important;
@@ -203,134 +204,109 @@ class AdminPanelProvider extends PanelProvider
                             transform: rotate(0deg) !important;
                         }
 
-                        /* Tablo başlık çubuğu ile tablo kutusunun yekpare birleştirilmesi ve scrollbar engelleme */
-                        .fi-ta-ctn,
-                        .fi-ta-content-ctn,
-                        .fi-ta-content,
-                        .fi-ta-table-container {
-                            gap: 0 !important;
-                            margin-top: 0 !important;
-                            overflow-x: hidden !important;
-                        }
-                        .fi-ta-orders-header {
-                            margin: 0 !important;
-                            background: transparent !important;
-                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-                            border-top-left-radius: 12px !important;
-                            border-top-right-radius: 12px !important;
-                            border-bottom-left-radius: 0 !important;
-                            border-bottom-right-radius: 0 !important;
-                        }
-                        .fi-ta-content {
-                            background: transparent !important;
-                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                            border-top: none !important;
-                            border-top-left-radius: 0 !important;
-                            border-top-right-radius: 0 !important;
-                            border-bottom-left-radius: 12px !important;
-                            border-bottom-right-radius: 12px !important;
-                            box-shadow: none !important;
+                        /* Badge ve metin sola hizala */
+                        .order-col,
+                        .fi-ta-text-item,
+                        .fi-ta-badge,
+                        .fi-badge {
+                            text-align: left !important;
+                            justify-content: flex-start !important;
                         }
 
-                        /* DevTools: fi-ta-record-content.fi-collapsible genişlik ayarı */
-                        div.fi-ta-record-content.fi-collapsible,
-                        .fi-ta-record-content.fi-collapsible {
-                            width: 100% !important;
-                            padding-left: 0 !important;
-                            padding-right: 0 !important;
-                        }
-
-                        /* ======================================================== */
-                        /* MASAÜSTÜ GÖRÜNÜMÜ (min-width: 768px)                     */
-                        /* ======================================================== */
+                        /* ============================================== */
+                        /* MASAÜSTÜ (≥768px) — YÜZDE BAZLI SÜTUNLAR      */
+                        /* ============================================== */
                         @media (min-width: 768px) {
-                            /* Başlık çubuğu flex, padding ve gap ayarları */
+                            /* Custom header bar */
                             .fi-ta-orders-header {
                                 display: flex !important;
                                 flex-direction: row !important;
                                 align-items: center !important;
-                                gap: 6px !important;
-                                box-sizing: border-box !important;
-                                padding-left: 8px !important;
-                                padding-right: 8px !important;
-                            }
-
-                            /* Veri satırının padding ve gap ayarları */
-                            .fi-ta-split, div.fi-ta-split {
-                                display: flex !important;
-                                flex-direction: row !important;
-                                align-items: center !important;
-                                gap: 6px !important;
-                                box-sizing: border-box !important;
-                                padding-left: 0 !important;
                                 width: 100% !important;
+                                gap: 0 !important;
+                                box-sizing: border-box !important;
+                                padding: 10px 8px !important;
+                                margin: 0 !important;
+                                background: transparent !important;
+                                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                                border-top-left-radius: 12px !important;
+                                border-top-right-radius: 12px !important;
+                                border-bottom-left-radius: 0 !important;
+                                border-bottom-right-radius: 0 !important;
                             }
 
-                            /* Checkbox alanı */
-                            .fi-ta-orders-header > div:nth-child(1) {
-                                width: 28px !important;
-                                min-width: 28px !important;
-                                max-width: 28px !important;
-                                flex: 0 0 28px !important;
+                            /* İçerik tablosu border */
+                            .fi-ta-content {
+                                background: transparent !important;
+                                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                                border-top: none !important;
+                                border-top-left-radius: 0 !important;
+                                border-top-right-radius: 0 !important;
+                                border-bottom-left-radius: 12px !important;
+                                border-bottom-right-radius: 12px !important;
+                                box-shadow: none !important;
                             }
 
-                            /* Masaüstü başlık çubuğu sütun kilitleri */
-                            .fi-ta-orders-header > div:nth-child(2) { flex: 0 0 155px !important; width: 155px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(3) { flex: 0 0 60px !important; width: 60px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(4) { flex: 0 0 55px !important; width: 55px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(5) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(6) { flex: 0 0 115px !important; width: 115px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(7) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
-                            .fi-ta-orders-header > div:nth-child(8) { flex: 0 0 75px !important; width: 75px !important; text-align: left !important; }
-
-                            /* Masaüstü veri sütun kilitleri */
-                            .order-col-customer { flex: 0 0 155px !important; width: 155px !important; min-width: 155px !important; max-width: 155px !important; text-align: left !important; }
-                            .order-col-city { flex: 0 0 60px !important; width: 60px !important; min-width: 60px !important; max-width: 60px !important; text-align: left !important; }
-                            .order-col-total { flex: 0 0 55px !important; width: 55px !important; min-width: 55px !important; max-width: 55px !important; text-align: left !important; }
-                            .order-col-payment { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
-                            .order-col-date { flex: 0 0 115px !important; width: 115px !important; min-width: 115px !important; max-width: 115px !important; text-align: left !important; }
-                            .order-col-status { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
-                            .order-col-payment-status { flex: 0 0 75px !important; width: 75px !important; min-width: 75px !important; max-width: 75px !important; text-align: left !important; }
-
-                            /* Mor taralı fi-growable buton esnemesini sıfırlama */
-                            .fi-ta-split button.fi-growable,
-                            button.fi-grid-col.fi-growable.fi-ta-col {
-                                flex-grow: 0 !important;
-                                width: 75px !important;
-                                min-width: 75px !important;
-                                max-width: 75px !important;
-                                flex: 0 0 75px !important;
+                            /* Split veri satırı */
+                            .order-split-row {
+                                gap: 0 !important;
+                                padding-left: 0 !important;
+                                padding-right: 0 !important;
                             }
 
-                            /* Masaüstü İŞLEMLER HÜCRESİ: 4 ikonun sığması için 85px kilit */
+                            /* Sütun genişlikleri — YÜZDE */
+                            .order-col-customer  { flex: 0 0 22% !important; width: 22% !important; max-width: 22% !important; }
+                            .order-col-city      { flex: 0 0 9%  !important; width: 9%  !important; max-width: 9%  !important; }
+                            .order-col-total     { flex: 0 0 8%  !important; width: 8%  !important; max-width: 8%  !important; }
+                            .order-col-payment   { flex: 0 0 12% !important; width: 12% !important; max-width: 12% !important; }
+                            .order-col-date      { flex: 0 0 17% !important; width: 17% !important; max-width: 17% !important; }
+                            .order-col-status    { flex: 0 0 12% !important; width: 12% !important; max-width: 12% !important; }
+                            .order-col-payment-status { flex: 0 0 10% !important; width: 10% !important; max-width: 10% !important; }
+
+                            /* Header sütun genişlikleri — aynı yüzde */
+                            .fi-ta-orders-header > .oh-checkbox { flex: 0 0 32px !important; width: 32px !important; }
+                            .fi-ta-orders-header > .oh-customer  { flex: 0 0 22% !important; }
+                            .fi-ta-orders-header > .oh-city      { flex: 0 0 9%  !important; }
+                            .fi-ta-orders-header > .oh-total     { flex: 0 0 8%  !important; }
+                            .fi-ta-orders-header > .oh-payment   { flex: 0 0 12% !important; }
+                            .fi-ta-orders-header > .oh-date      { flex: 0 0 17% !important; }
+                            .fi-ta-orders-header > .oh-status    { flex: 0 0 12% !important; }
+                            .fi-ta-orders-header > .oh-pay-status { flex: 0 0 10% !important; }
+
+                            /* İşlem butonları alanı */
                             .fi-ta-record-actions,
                             .fi-ta-actions,
                             td.fi-ta-actions-cell {
-                                width: 85px !important;
-                                min-width: 85px !important;
-                                max-width: 85px !important;
-                                flex: 0 0 85px !important;
-                                justify-content: flex-start !important;
-                                gap: 2px !important;
+                                flex: 0 0 auto !important;
+                                width: auto !important;
+                                min-width: unset !important;
+                                max-width: unset !important;
+                                transform: none !important;
+                            }
+
+                            /* fi-growable buton sıfırlama */
+                            .order-split-row button.fi-growable,
+                            button.fi-grid-col.fi-growable.fi-ta-col {
+                                flex-grow: 0 !important;
                             }
                         }
 
-                        /* ======================================================== */
-                        /* MOBİL GÖRÜNÜM (max-width: 767px)                          */
-                        /* ======================================================== */
+                        /* ============================================== */
+                        /* MOBİL (<768px) — TEK SÜTUN                     */
+                        /* ============================================== */
                         @media (max-width: 767px) {
                             .fi-ta-orders-header {
                                 display: none !important;
                             }
 
-                            .fi-ta-split, div.fi-ta-split {
+                            .order-split-row {
                                 display: flex !important;
                                 flex-direction: column !important;
                                 align-items: flex-start !important;
-                                gap: 8px !important;
+                                gap: 6px !important;
                                 width: 100% !important;
-                                padding: 12px 10px !important;
+                                padding: 10px !important;
                                 box-sizing: border-box !important;
                             }
 
@@ -344,7 +320,6 @@ class AdminPanelProvider extends PanelProvider
                                 width: 100% !important;
                                 max-width: 100% !important;
                                 flex: 1 1 100% !important;
-                                text-align: left !important;
                             }
 
                             .fi-ta-record-actions,
@@ -366,17 +341,17 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::HEADER_BEFORE,
                 fn () => (request()->routeIs('filament.admin.resources.orders.*') || request()->is('admin/orders*') || str_contains(request()->header('referer', ''), '/admin/orders')) ? new \Illuminate\Support\HtmlString('
-                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding: 12px 0 !important; gap: 6px !important; box-sizing: border-box !important; margin: 0 !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; background: transparent !important;">
-                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 28px; min-width: 28px; flex: 0 0 28px; flex-shrink: 0; padding-left: 0; box-sizing: border-box;">
+                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none">
+                        <div class="oh-checkbox" style="display: flex; align-items: center; justify-content: center;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div style="flex: 0 0 155px; text-align: left;">MÜŞTERİ</div>
-                        <div style="flex: 0 0 60px; text-align: left;">ŞEHİR</div>
-                        <div style="flex: 0 0 55px; text-align: left;">TUTAR</div>
-                        <div style="flex: 0 0 75px; text-align: left;">ÖDEME</div>
-                        <div style="flex: 0 0 115px; text-align: left;">TARİH</div>
-                        <div style="flex: 0 0 75px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 75px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
+                        <div class="oh-customer">MÜŞTERİ</div>
+                        <div class="oh-city">ŞEHİR</div>
+                        <div class="oh-total">TUTAR</div>
+                        <div class="oh-payment">ÖDEME</div>
+                        <div class="oh-date">TARİH</div>
+                        <div class="oh-status">DURUM</div>
+                        <div class="oh-pay-status">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
@@ -409,7 +384,7 @@ class AdminPanelProvider extends PanelProvider
                                     return;
                                 }
 
-                                const row = target.closest("tr, .fi-ta-row, .fi-ta-record, .fi-ta-split");
+                                const row = target.closest("tr, .fi-ta-row, .fi-ta-record, .order-split-row");
                                 if (!row) return;
 
                                 const container = row.closest("tr, .fi-ta-record, tbody, table") || row.parentElement;
@@ -441,14 +416,13 @@ class AdminPanelProvider extends PanelProvider
                             function hideBulkCheckboxRow() {
                                 if (!window.location.pathname.includes("/admin/orders")) return;
                                 
-                                // Method 1: Traverse siblings after custom header
                                 var header = document.querySelector(".fi-ta-orders-header");
                                 if (header) {
                                     var next = header.nextElementSibling;
                                     while (next) {
-                                        if (next.querySelector(".fi-ta-split")) break;
+                                        if (next.querySelector(".order-split-row")) break;
                                         var cb = next.querySelector("input[type=checkbox]");
-                                        if (cb && !next.querySelector(".fi-ta-split")) {
+                                        if (cb && !next.querySelector(".order-split-row")) {
                                             next.style.display = "none";
                                             next.style.height = "0";
                                             next.style.overflow = "hidden";
@@ -460,12 +434,11 @@ class AdminPanelProvider extends PanelProvider
                                     }
                                 }
                                 
-                                // Method 2: Find checkbox-only elements
                                 document.querySelectorAll("div, tr, td, th, label").forEach(function(el) {
                                     if (el.classList.contains("fi-ta-orders-header")) return;
-                                    if (el.querySelector(".fi-ta-split")) return;
+                                    if (el.querySelector(".order-split-row")) return;
                                     if (el.closest(".fi-ta-orders-header")) return;
-                                    if (el.closest(".fi-ta-split")) return;
+                                    if (el.closest(".order-split-row")) return;
                                     
                                     var inputs = el.querySelectorAll("input[type=checkbox]");
                                     var children = el.children;
@@ -474,7 +447,7 @@ class AdminPanelProvider extends PanelProvider
                                         var text = el.textContent.replace(/\\s/g, "");
                                         if (text.length === 0) {
                                             var parent = el.parentElement;
-                                            if (parent && parent.querySelector(".fi-ta-orders-header") && parent.querySelector(".fi-ta-split")) {
+                                            if (parent && parent.querySelector(".fi-ta-orders-header") && parent.querySelector(".order-split-row")) {
                                                 el.style.display = "none";
                                             }
                                         }
