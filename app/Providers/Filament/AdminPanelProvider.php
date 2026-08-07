@@ -274,16 +274,16 @@ class AdminPanelProvider extends PanelProvider
                                 }
                             }, true);
 
-                            // Bulk action checkbox satırını DOM'dan tamamen kaldır
+                            // Bulk action checkbox row - hide from DOM
                             function hideBulkCheckboxRow() {
                                 if (!window.location.pathname.includes("/admin/orders")) return;
                                 
-                                // Yöntem 1: Custom header'ın kardeş elemanlarını tara
+                                // Method 1: Traverse siblings after custom header
                                 var header = document.querySelector(".fi-ta-orders-header");
                                 if (header) {
                                     var next = header.nextElementSibling;
                                     while (next) {
-                                        if (next.querySelector(".fi-ta-split")) break; // Veri satırına ulaştık
+                                        if (next.querySelector(".fi-ta-split")) break;
                                         var cb = next.querySelector("input[type=checkbox]");
                                         if (cb && !next.querySelector(".fi-ta-split")) {
                                             next.style.display = "none";
@@ -297,7 +297,7 @@ class AdminPanelProvider extends PanelProvider
                                     }
                                 }
                                 
-                                // Yöntem 2: Tüm sayfadaki checkbox-only elemanları tara
+                                // Method 2: Find checkbox-only elements
                                 document.querySelectorAll("div, tr, td, th, label").forEach(function(el) {
                                     if (el.classList.contains("fi-ta-orders-header")) return;
                                     if (el.querySelector(".fi-ta-split")) return;
@@ -307,11 +307,9 @@ class AdminPanelProvider extends PanelProvider
                                     var inputs = el.querySelectorAll("input[type=checkbox]");
                                     var children = el.children;
                                     
-                                    // Sadece 1 checkbox ve başka anlamlı içerik yok
                                     if (inputs.length === 1 && children.length <= 2) {
                                         var text = el.textContent.replace(/\\s/g, "");
                                         if (text.length === 0) {
-                                            // Bu öksüz checkbox satırı - header ile ilk veri arası mı kontrol et
                                             var parent = el.parentElement;
                                             if (parent && parent.querySelector(".fi-ta-orders-header") && parent.querySelector(".fi-ta-split")) {
                                                 el.style.display = "none";
