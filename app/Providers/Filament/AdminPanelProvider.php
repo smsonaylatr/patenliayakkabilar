@@ -335,7 +335,7 @@ class AdminPanelProvider extends PanelProvider
                     <script>
                         (function() {
                             function ensureOrdersHeader() {
-                                if (!window.location.pathname.includes('/admin/orders')) return;
+                                if (!window.location.pathname.includes("/admin/orders")) return;
                                 const tableContent = document.querySelector('.fi-ta-content');
                                 if (tableContent && !document.querySelector('#custom-orders-header-bar')) {
                                     const header = document.createElement('div');
