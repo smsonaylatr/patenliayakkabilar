@@ -334,6 +334,32 @@ class AdminPanelProvider extends PanelProvider
                 fn () => new \Illuminate\Support\HtmlString('
                     <script>
                         (function() {
+                            function ensureOrdersHeader() {
+                                if (!window.location.pathname.includes('/admin/orders')) return;
+                                const tableContent = document.querySelector('.fi-ta-content');
+                                if (tableContent && !document.querySelector('#custom-orders-header-bar')) {
+                                    const header = document.createElement('div');
+                                    header.id = 'custom-orders-header-bar';
+                                    header.className = 'fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none';
+                                    header.style.cssText = 'display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding: 12px 0 !important; gap: 16px !important; box-sizing: border-box !important; margin: 0 !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; background: transparent !important;';
+                                    header.innerHTML = `
+                                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 44px; min-width: 44px; flex: 0 0 44px; flex-shrink: 0; padding-left: 24px; box-sizing: border-box;">
+                                            <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
+                                        </div>
+                                        <div style="flex: 0 0 170px; text-align: left;">MÜŞTERİ</div>
+                                        <div style="flex: 0 0 75px; text-align: left;">ŞEHİR</div>
+                                        <div style="flex: 0 0 75px; text-align: left;">TUTAR</div>
+                                        <div style="flex: 0 0 95px; text-align: left;">ÖDEME</div>
+                                        <div style="flex: 0 0 155px; text-align: left;">TARİH</div>
+                                        <div style="flex: 0 0 90px; text-align: left;">DURUM</div>
+                                        <div style="flex: 0 0 110px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
+                                    `;
+                                    tableContent.parentNode.insertBefore(header, tableContent);
+                                }
+                            }
+                            setInterval(ensureOrdersHeader, 150);
+                            document.addEventListener('DOMContentLoaded', ensureOrdersHeader);
+
                             window.toggleSelectAllOrders = function(isChecked) {
                                 const nativeSelectAll = document.querySelector(".fi-ta-content-header input[type=checkbox], thead input[type=checkbox], [aria-label*=\"Select/deselect\"]");
                                 if (nativeSelectAll) {
