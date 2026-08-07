@@ -242,7 +242,7 @@ class AdminPanelProvider extends PanelProvider
                         }
 
                         /* ==========================================================================
-                           PHOENIX CTO AGENT - SIPARISLER TABLOSU SIFIR KAYMA SUTUN EŞİTLEME SİSTEMİ
+                           PHOENIX CTO AGENT - SIPARISLER TABLOSU A++ ULTRA PREMIUM REVIZYON SİSTEMİ
                            ========================================================================== */
 
                         /* 1. Header Bar Genel Konteyner */
@@ -262,6 +262,7 @@ class AdminPanelProvider extends PanelProvider
                             border-bottom-left-radius: 0 !important;
                             border-bottom-right-radius: 0 !important;
                             background: transparent !important;
+                            white-space: nowrap !important;
                         }
 
                         /* 2. Veri Satırı (.fi-ta-split) Konteyner */
@@ -275,15 +276,16 @@ class AdminPanelProvider extends PanelProvider
                             gap: 16px !important;
                         }
 
-                        /* 3. Checkbox Sütun Eşitlemesi */
+                        /* 3. Checkbox Sütun Eşitlemesi (Tam 44px Kilit) */
                         .fi-header-col-checkbox,
                         .fi-ta-record-checkbox-ctn,
                         td.fi-ta-record-checkbox-cell,
-                        .fi-ta-record-checkbox {
-                            width: 24px !important;
-                            min-width: 24px !important;
-                            max-width: 24px !important;
-                            flex: 0 0 24px !important;
+                        .fi-ta-record-checkbox,
+                        div.fi-ta-record-checkbox {
+                            width: 44px !important;
+                            min-width: 44px !important;
+                            max-width: 44px !important;
+                            flex: 0 0 44px !important;
                             display: flex !important;
                             align-items: center !important;
                             justify-content: center !important;
@@ -302,6 +304,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 170px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* ŞEHİR */
@@ -313,6 +316,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 75px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* TUTAR */
@@ -324,6 +328,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 75px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* ÖDEME */
@@ -335,6 +340,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 95px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* TARİH */
@@ -346,6 +352,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 155px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* DURUM */
@@ -357,6 +364,7 @@ class AdminPanelProvider extends PanelProvider
                             flex: 0 0 90px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
+                            white-space: nowrap !important;
                         }
 
                         /* Mor taralı fi-growable buton esnemesini sıfırlama */
@@ -382,6 +390,7 @@ class AdminPanelProvider extends PanelProvider
                             align-items: center !important;
                             justify-content: flex-start !important;
                             text-align: left !important;
+                            white-space: nowrap !important;
                         }
                         .fi-ta-split > div:nth-child(7) .fi-badge,
                         .fi-ta-split > div:nth-child(7) span {
