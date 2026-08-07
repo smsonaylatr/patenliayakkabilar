@@ -680,6 +680,10 @@ Route::prefix('api/products')->group(function () {
     Route::get('/{identifier}', [\App\Http\Controllers\Api\ProductApiController::class, 'show']);
 });
 
+// GİB E-Arşiv Fatura Çıktısı / İndirme
+Route::get('/orders/{order}/gib-invoice', [\App\Http\Controllers\InvoiceDownloadController::class, 'show'])->name('orders.gib-invoice')->middleware('auth');
+
+
 // API Dokümantasyonu
 Route::get('api/docs', function () {
     return <<<'HTML'

@@ -13,6 +13,8 @@ class Order extends Model
 
     protected $casts = [
         'sms_consent' => 'boolean',
+        'is_invoiced' => 'boolean',
+        'gib_invoice_date' => 'datetime',
     ];
 
     public function user()

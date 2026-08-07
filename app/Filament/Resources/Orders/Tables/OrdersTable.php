@@ -184,30 +184,59 @@ class OrdersTable
                     ->native(false),
             ])
             ->actions([
-                Action::make('createInvoice')
+                Action::make('createGibInvoice')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('E-Fatura Kes (Porego)')
-                    ->icon('heroicon-o-document-text')
+                    ->tooltip('GİB E-Arşiv Fatura Kes')
+                    ->icon('heroicon-o-document-check')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Porego (QNB) E-Fatura Kes')
-                    ->modalDescription('Bu işlem siparişi Porego QNB Entegrasyonu üzerinden e-fatura/e-arşiv olarak resmileştirecektir. Onaylıyor musunuz?')
-                    ->modalSubmitActionLabel('Evet, Fatura Kes')
-                    ->action(function (Order $record): void {
+                    ->modalHeading('GİB E-Arşiv Faturası Kes (Portal)')
+                    ->modalDescription('Aşağıdaki fatura bilgilerini kontrol edip faturayı GİB Portalına taslak olarak oluşturabilirsiniz.')
+                    ->modalSubmitActionLabel('Faturayı Kes ve Kaydet')
+                    ->modalCancelActionLabel('İptal')
+                    ->form([
+                        TextInput::make('customer_name')
+                            ->label('Müşteri Ad Soyad')
+                            ->default(fn (Order $record) => $record->customer_name)
+                            ->required(),
+                        TextInput::make('tax_number')
+                            ->label('TCKN / VKN (11 haneli şahıs / 10 haneli kurumsal)')
+                            ->default(fn (Order $record) => $record->tax_number ?: '11111111111')
+                            ->required(),
+                        TextInput::make('company_name')
+                            ->label('Firma Unvanı (Kurumsal ise)')
+                            ->default(fn (Order $record) => $record->company_name),
+                        TextInput::make('tax_office')
+                            ->label('Vergi Dairesi')
+                            ->default(fn (Order $record) => $record->tax_office),
+                        Select::make('kdv_rate')
+                            ->label('KDV Oranı (%)')
+                            ->options([
+                                '20' => '%20 (Standart)',
+                                '10' => '%10 (İndirimli)',
+                                '0'  => '%0 (İstisna)',
+                            ])
+                            ->default('20')
+                            ->native(false)
+                            ->required(),
+                        TextInput::make('invoice_note')
+                            ->label('Fatura Notu')
+                            ->default(fn (Order $record) => 'Sipariş No: #' . $record->order_number),
+                    ])
+                    ->action(function (Order $record, array $data): void {
                         try {
-                            $service = app(\App\Services\PoregoApiService::class);
-                            $result = $service->createInvoice($record);
+                            $service = app(\App\Services\GibEArsivService::class);
+                            $result = $service->createInvoice($record, $data);
                             
                             if ($result['success']) {
                                 \Filament\Notifications\Notification::make()
-                                    ->title('Fatura Başarıyla Kesildi')
+                                    ->title('GİB Faturası Başarıyla Oluşturuldu')
                                     ->body($result['message'])
                                     ->success()
                                     ->send();
                             } else {
                                 \Filament\Notifications\Notification::make()
-                                    ->title('Fatura Kesilemedi')
+                                    ->title('GİB Fatura Hatası')
                                     ->body($result['message'])
                                     ->danger()
                                     ->send();
@@ -221,6 +250,17 @@ class OrdersTable
                         }
                     })
                     ->visible(fn (Order $record): bool => !$record->is_invoiced),
+
+                Action::make('viewGibInvoice')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('GİB Faturasını İncele / Yazdır')
+                    ->icon('heroicon-o-document-magnifying-glass')
+                    ->color('info')
+                    ->url(fn (Order $record): string => route('orders.gib-invoice', $record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Order $record): bool => (bool) $record->is_invoiced || !empty($record->gib_invoice_uuid)),
+
                 EditAction::make()
                     ->iconButton()
                     ->size('lg')
@@ -297,6 +337,38 @@ class OrdersTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulkCreateGibInvoice')
+                        ->label('Toplu GİB E-Arşiv Faturası Kes')
+                        ->icon('heroicon-o-document-check')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Seçilen Siparişlere GİB Faturası Kes')
+                        ->modalDescription('Seçtiğiniz siparişler için GİB E-Arşiv portalında sırayla taslak faturalar oluşturulacaktır. Onaylıyor musunuz?')
+                        ->modalSubmitActionLabel('Evet, Faturaları Kes')
+                        ->action(function (Collection $records) {
+                            $successCount = 0;
+                            $failCount = 0;
+                            $service = app(\App\Services\GibEArsivService::class);
+
+                            foreach ($records as $order) {
+                                if ($order->is_invoiced) {
+                                    continue;
+                                }
+                                $res = $service->createInvoice($order);
+                                if ($res['success']) {
+                                    $successCount++;
+                                } else {
+                                    $failCount++;
+                                }
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Toplu Fatura İşlemi Tamamlandı')
+                                ->body("{$successCount} adet sipariş faturası kesildi. {$failCount} adet sipariş başarısız oldu.")
+                                ->success()
+                                ->send();
+                        }),
+
                     BulkAction::make('exportSelectedOfflineConversions')
                         ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
                         ->icon('heroicon-o-arrow-down-tray')

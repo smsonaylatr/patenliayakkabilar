@@ -5,14 +5,14 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Http;
+use App\Services\GibEArsivService;
 
 class EInvoiceSettings extends Page implements HasForms
 {
@@ -25,7 +25,7 @@ class EInvoiceSettings extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return 'Entegrasyon Ayarları';
+        return 'Entegrasyon & Fatura Ayarları';
     }
 
     public static function getNavigationGroup(): ?string
@@ -35,7 +35,7 @@ class EInvoiceSettings extends Page implements HasForms
 
     public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
-        return 'Sistem & Entegrasyon Ayarları';
+        return 'E-Arşiv / E-Fatura & Entegrasyon Ayarları';
     }
 
     protected string $view = 'filament.pages.e-invoice-settings';
@@ -45,6 +45,13 @@ class EInvoiceSettings extends Page implements HasForms
     public function mount(): void
     {
         $settings = Setting::whereIn('key', [
+            'gib_user_code',
+            'gib_password',
+            'gib_test_mode',
+            'gib_company_name',
+            'gib_company_vkn',
+            'gib_company_tax_office',
+            'gib_company_address',
             'parasut_company_id',
             'parasut_client_id',
             'parasut_client_secret',
@@ -60,6 +67,13 @@ class EInvoiceSettings extends Page implements HasForms
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
+            'gib_user_code' => $settings['gib_user_code'] ?? config('gib.user_code', ''),
+            'gib_password' => $settings['gib_password'] ?? config('gib.password', ''),
+            'gib_test_mode' => isset($settings['gib_test_mode']) ? filter_var($settings['gib_test_mode'], FILTER_VALIDATE_BOOLEAN) : config('gib.is_test', true),
+            'gib_company_name' => $settings['gib_company_name'] ?? config('gib.company_name', 'Patenli Ayakkabılar E-Ticaret'),
+            'gib_company_vkn' => $settings['gib_company_vkn'] ?? config('gib.company_vkn', '1111111111'),
+            'gib_company_tax_office' => $settings['gib_company_tax_office'] ?? config('gib.company_tax_office', 'Kadıköy'),
+            'gib_company_address' => $settings['gib_company_address'] ?? config('gib.company_address', 'İstanbul'),
             'parasut_company_id' => $settings['parasut_company_id'] ?? '',
             'parasut_client_id' => $settings['parasut_client_id'] ?? '',
             'parasut_client_secret' => $settings['parasut_client_secret'] ?? '',
@@ -79,68 +93,86 @@ class EInvoiceSettings extends Page implements HasForms
     {
         return $form
             ->schema([
+                Section::make('GİB E-Arşiv Portal Ayarları (mlevent/fatura)')
+                    ->description('Gelir İdaresi Başkanlığı E-Arşiv portalı üzerinden resmi fatura kesebilmek için portal kullanıcı bilgileri.')
+                    ->schema([
+                        Toggle::make('gib_test_mode')
+                            ->label('Test Modu (Sandbox / Demo)')
+                            ->helperText('Açık olduğunda GİB test portalına fatura oluşturulur. Canlıya alırken kapatın.')
+                            ->default(true),
+                        TextInput::make('gib_user_code')
+                            ->label('GİB Kullanıcı Kodu (VKN / TCKN)')
+                            ->placeholder('örn: 12345678')
+                            ->required(!empty($this->data['gib_test_mode'] ?? false) ? false : true),
+                        TextInput::make('gib_password')
+                            ->label('GİB Portal Şifresi')
+                            ->password()
+                            ->revealable()
+                            ->required(!empty($this->data['gib_test_mode'] ?? false) ? false : true),
+                        TextInput::make('gib_company_name')
+                            ->label('Satıcı Firma Unvanı')
+                            ->placeholder('Patenli Ayakkabılar E-Ticaret A.Ş.')
+                            ->required(),
+                        TextInput::make('gib_company_vkn')
+                            ->label('Satıcı VKN / TCKN')
+                            ->required(),
+                        TextInput::make('gib_company_tax_office')
+                            ->label('Satıcı Vergi Dairesi')
+                            ->required(),
+                        Textarea::make('gib_company_address')
+                            ->label('Satıcı Açık Adresi')
+                            ->columnSpanFull()
+                            ->required(),
+                    ])->columns(2),
+
                 Section::make('Paraşüt E-Fatura API Ayarları')
                     ->description('Paraşüt Ayarlar > Uygulamalar > API Erişim Bilgileri bölümünden alabilirsiniz.')
                     ->schema([
                         TextInput::make('parasut_company_id')
-                            ->label('Firma ID (Company ID)')
-                            ->required(),
+                            ->label('Firma ID (Company ID)'),
                         TextInput::make('parasut_username')
-                            ->label('Paraşüt Kullanıcı Adı')
-                            ->required(),
+                            ->label('Paraşüt Kullanıcı Adı'),
                         TextInput::make('parasut_password')
                             ->label('Paraşüt Şifresi')
-                            ->password()
-                            ->required(),
+                            ->password(),
                         TextInput::make('parasut_client_id')
-                            ->label('Client ID')
-                            ->required(),
+                            ->label('Client ID'),
                         TextInput::make('parasut_client_secret')
                             ->label('Client Secret')
-                            ->password()
-                            ->required(),
-                    ])->columns(2),
+                            ->password(),
+                    ])->columns(2)->collapsible()->collapsed(),
 
                 Section::make('SMTP (E-Posta Gönderim) Ayarları')
                     ->description('Faturanın müşteriye gönderilebilmesi için e-posta sunucu ayarlarınız.')
                     ->schema([
                         TextInput::make('smtp_host')
                             ->label('SMTP Sunucusu (Host)')
-                            ->placeholder('mail.domain.com')
-                            ->required(),
+                            ->placeholder('mail.domain.com'),
                         TextInput::make('smtp_port')
                             ->label('SMTP Port')
                             ->numeric()
-                            ->default(587)
-                            ->required(),
+                            ->default(587),
                         TextInput::make('smtp_username')
                             ->label('E-Posta Adresi (Kullanıcı Adı)')
-                            ->email()
-                            ->required(),
+                            ->email(),
                         TextInput::make('smtp_password')
                             ->label('E-Posta Şifresi')
-                            ->password()
-                            ->required(),
+                            ->password(),
                         TextInput::make('smtp_from_address')
                             ->label('Gönderici E-Posta Adresi')
-                            ->email()
-                            ->required(),
+                            ->email(),
                         TextInput::make('smtp_from_name')
                             ->label('Gönderici Adı (Unvan)')
-                            ->default('Patenli Ayakkabılar')
-                            ->required(),
-                    ])->columns(2),
+                            ->default('Patenli Ayakkabılar'),
+                    ])->columns(2)->collapsible()->collapsed(),
 
-                Section::make('N8N & Yapay Zeka Otomasyon Ayarları')
-                    ->description('Dış sistemlerin (n8n, ChatGPT vb.) sitenize veri gönderebilmesi için güvenlik anahtarı.')
+                Section::make('N8N & Otomasyon Ayarları')
                     ->schema([
                         TextInput::make('n8n_api_token')
                             ->label('N8N Güvenlik Tokenı')
-                            ->helperText('N8N workflow dosyanızdaki PATENLI_N8N_TOKEN değişkeni ile buradaki değer aynı olmalıdır.')
                             ->password()
-                            ->revealable()
-                            ->required(),
-                    ]),
+                            ->revealable(),
+                    ])->collapsible()->collapsed(),
             ])
             ->statePath('data');
     }
@@ -152,7 +184,34 @@ class EInvoiceSettings extends Page implements HasForms
                 ->label('Ayarları Kaydet')
                 ->submit('save')
                 ->color('primary'),
+            Action::make('testGib')
+                ->label('GİB Bağlantısını Test Et')
+                ->color('success')
+                ->icon('heroicon-o-check-circle')
+                ->action('testGibConnection'),
         ];
+    }
+
+    public function testGibConnection(): void
+    {
+        $this->save();
+
+        $service = app(GibEArsivService::class);
+        $result = $service->testConnection();
+
+        if ($result['success']) {
+            Notification::make()
+                ->title('Bağlantı Başarılı')
+                ->body($result['message'])
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Bağlantı Başarısız')
+                ->body($result['message'])
+                ->danger()
+                ->send();
+        }
     }
 
     public function save(): void
@@ -169,7 +228,7 @@ class EInvoiceSettings extends Page implements HasForms
 
             Notification::make()
                 ->title('Başarılı')
-                ->body('E-Fatura ve SMTP ayarları başarıyla güncellendi.')
+                ->body('Tüm ayarlar başarıyla güncellendi.')
                 ->success()
                 ->send();
         } catch (\Exception $e) {
