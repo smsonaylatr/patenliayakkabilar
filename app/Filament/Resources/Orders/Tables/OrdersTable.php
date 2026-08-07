@@ -132,7 +132,7 @@ class OrdersTable
                             'refunded' => 'İade Edildi',
                             default => 'Ödendi',
                         })
-                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: center; justify-content: center;']),
+                        ->extraAttributes(['style' => 'width: 110px; flex: 0 0 110px; text-align: left;']),
                 ])
                 ->grow(true)
                 ->extraAttributes([

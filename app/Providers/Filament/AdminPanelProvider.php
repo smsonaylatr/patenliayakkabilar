@@ -281,14 +281,13 @@ class AdminPanelProvider extends PanelProvider
                         }
 
                         .fi-ta-orders-header > div:nth-child(8),
-                        .fi-ta-split > div:nth-child(7),
-                        .fi-ta-split > div:nth-child(7) * {
+                        .fi-ta-split > div:nth-child(7) {
                             width: 110px !important;
                             min-width: 110px !important;
                             max-width: 110px !important;
                             flex: 0 0 110px !important;
-                            text-align: center !important;
-                            justify-content: center !important;
+                            text-align: left !important;
+                            justify-content: flex-start !important;
                         }
                     </style>
                 ')
@@ -306,7 +305,7 @@ class AdminPanelProvider extends PanelProvider
                         <div style="flex: 0 0 95px; text-align: left;">ÖDEME</div>
                         <div style="flex: 0 0 155px; text-align: left;">TARİH</div>
                         <div style="flex: 0 0 90px; text-align: left;">DURUM</div>
-                        <div style="flex: 0 0 110px; text-align: center; justify-content: center; display: flex; white-space: nowrap !important;">ÖDEME DURUMU</div>
+                        <div style="flex: 0 0 110px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
