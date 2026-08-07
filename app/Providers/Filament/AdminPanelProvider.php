@@ -241,130 +241,87 @@ class AdminPanelProvider extends PanelProvider
                             padding-right: 0 !important;
                         }
 
-                        /* ==========================================================================
-                           PHOENIX CTO AGENT - SIPARISLER TABLOSU A++ ULTRA PREMIUM REVIZYON SİSTEMİ
-                           ========================================================================== */
-
-                        /* 1. Header Bar Genel Konteyner */
-                        .fi-ta-orders-header {
-                            display: flex !important;
-                            flex-direction: row !important;
-                            align-items: center !important;
-                            width: 100% !important;
-                            box-sizing: border-box !important;
-                            padding: 12px 16px !important;
-                            gap: 16px !important;
-                            margin: 0 !important;
-                            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-                            border-top-left-radius: 12px !important;
-                            border-top-right-radius: 12px !important;
-                            border-bottom-left-radius: 0 !important;
-                            border-bottom-right-radius: 0 !important;
-                            background: transparent !important;
-                            white-space: nowrap !important;
-                        }
-
-                        /* 2. Veri Satırı (.fi-ta-split) Konteyner */
+                        /* Split layout ve Başlık çubuğu flex, padding ve gap 1:1 birebir eşitlemesi */
+                        .fi-ta-orders-header,
                         .fi-ta-split,
                         div.fi-ta-split {
                             display: flex !important;
                             flex-direction: row !important;
                             align-items: center !important;
-                            width: 100% !important;
+                            gap: 10px !important;
                             box-sizing: border-box !important;
-                            gap: 16px !important;
+                        }
+                        .fi-ta-orders-header {
+                            padding-left: 12px !important;
+                            padding-right: 12px !important;
                         }
 
-                        /* 3. Checkbox Sütun Eşitlemesi (Tam 44px Kilit) */
-                        .fi-header-col-checkbox,
-                        .fi-ta-record-checkbox-ctn,
-                        td.fi-ta-record-checkbox-cell,
-                        .fi-ta-record-checkbox,
-                        div.fi-ta-record-checkbox {
-                            width: 44px !important;
-                            min-width: 44px !important;
-                            max-width: 44px !important;
-                            flex: 0 0 44px !important;
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: center !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
+                        .fi-ta-orders-header > div:nth-child(1) {
+                            width: 36px !important;
+                            min-width: 36px !important;
+                            max-width: 36px !important;
+                            flex: 0 0 36px !important;
                         }
 
-                        /* 4. Sütun Genişlik ve Hizalama Kilitleri (Header vs Data 1:1) */
-
-                        /* MÜŞTERİ */
-                        .fi-header-col-customer,
+                        /* Başlık çubuğu ve Veri satırı nth-child 1:1 sol hizalama ve genişlik kilitleri */
+                        .fi-ta-orders-header > div:nth-child(2),
                         .fi-ta-split > div:nth-child(1) {
-                            width: 170px !important;
-                            min-width: 170px !important;
-                            max-width: 170px !important;
-                            flex: 0 0 170px !important;
+                            width: 160px !important;
+                            min-width: 160px !important;
+                            max-width: 160px !important;
+                            flex: 0 0 160px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
-                        /* ŞEHİR */
-                        .fi-header-col-city,
+                        .fi-ta-orders-header > div:nth-child(3),
                         .fi-ta-split > div:nth-child(2) {
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
+                            width: 65px !important;
+                            min-width: 65px !important;
+                            max-width: 65px !important;
+                            flex: 0 0 65px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
-                        /* TUTAR */
-                        .fi-header-col-total,
+                        .fi-ta-orders-header > div:nth-child(4),
                         .fi-ta-split > div:nth-child(3) {
-                            width: 75px !important;
-                            min-width: 75px !important;
-                            max-width: 75px !important;
-                            flex: 0 0 75px !important;
+                            width: 65px !important;
+                            min-width: 65px !important;
+                            max-width: 65px !important;
+                            flex: 0 0 65px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
-                        /* ÖDEME */
-                        .fi-header-col-payment,
+                        .fi-ta-orders-header > div:nth-child(5),
                         .fi-ta-split > div:nth-child(4) {
-                            width: 95px !important;
-                            min-width: 95px !important;
-                            max-width: 95px !important;
-                            flex: 0 0 95px !important;
+                            width: 85px !important;
+                            min-width: 85px !important;
+                            max-width: 85px !important;
+                            flex: 0 0 85px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
-                        /* TARİH */
-                        .fi-header-col-date,
+                        .fi-ta-orders-header > div:nth-child(6),
                         .fi-ta-split > div:nth-child(5) {
-                            width: 155px !important;
-                            min-width: 155px !important;
-                            max-width: 155px !important;
-                            flex: 0 0 155px !important;
+                            width: 135px !important;
+                            min-width: 135px !important;
+                            max-width: 135px !important;
+                            flex: 0 0 135px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
-                        /* DURUM */
-                        .fi-header-col-status,
+                        .fi-ta-orders-header > div:nth-child(7),
                         .fi-ta-split > div:nth-child(6) {
-                            width: 90px !important;
-                            min-width: 90px !important;
-                            max-width: 90px !important;
-                            flex: 0 0 90px !important;
+                            width: 85px !important;
+                            min-width: 85px !important;
+                            max-width: 85px !important;
+                            flex: 0 0 85px !important;
                             text-align: left !important;
                             justify-content: flex-start !important;
-                            white-space: nowrap !important;
                         }
 
                         /* Mor taralı fi-growable buton esnemesini sıfırlama */
@@ -372,25 +329,24 @@ class AdminPanelProvider extends PanelProvider
                         button.fi-grid-col.fi-growable.fi-ta-col,
                         .fi-ta-split > div:nth-child(6) button {
                             flex-grow: 0 !important;
-                            width: 90px !important;
-                            min-width: 90px !important;
-                            max-width: 90px !important;
-                            flex: 0 0 90px !important;
+                            width: 85px !important;
+                            min-width: 85px !important;
+                            max-width: 85px !important;
+                            flex: 0 0 85px !important;
                         }
 
-                        /* ÖDEME DURUMU */
-                        .fi-header-col-payment-status,
+                        /* ÖDEME DURUMU: Gruptan bağımsız ayrıştırma */
+                        .fi-ta-orders-header > div:nth-child(8),
                         .fi-ta-split > div:nth-child(7) {
-                            width: 110px !important;
-                            min-width: 110px !important;
-                            max-width: 110px !important;
-                            flex: 0 0 110px !important;
+                            width: 75px !important;
+                            min-width: 75px !important;
+                            max-width: 75px !important;
+                            flex: 0 0 75px !important;
                             margin-left: 0 !important;
                             display: flex !important;
                             align-items: center !important;
                             justify-content: flex-start !important;
                             text-align: left !important;
-                            white-space: nowrap !important;
                         }
                         .fi-ta-split > div:nth-child(7) .fi-badge,
                         .fi-ta-split > div:nth-child(7) span {
@@ -402,17 +358,17 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\Tables\View\TablesRenderHook::HEADER_BEFORE,
                 fn () => (request()->routeIs('filament.admin.resources.orders.*') || request()->is('admin/orders*') || str_contains(request()->header('referer', ''), '/admin/orders')) ? new \Illuminate\Support\HtmlString('
-                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none">
-                        <div class="fi-header-col-checkbox">
+                    <div id="custom-orders-header-bar" wire:key="orders-header-bar-persistent" wire:ignore class="fi-ta-orders-header hidden md:flex w-full text-gray-400 font-extrabold text-[11px] uppercase tracking-wider select-none" style="display: flex !important; flex-direction: row !important; align-items: center !important; width: 100% !important; padding: 12px 0 !important; gap: 10px !important; box-sizing: border-box !important; margin: 0 !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; background: transparent !important;">
+                        <div style="display: flex; align-items: center; justify-content: flex-start; width: 36px; min-width: 36px; flex: 0 0 36px; flex-shrink: 0; padding-left: 0; box-sizing: border-box;">
                             <input type="checkbox" class="fi-checkbox-input rounded border-gray-700 bg-gray-900 text-primary-600 shadow-sm focus:ring-primary-600 cursor-pointer" onclick="window.toggleSelectAllOrders && window.toggleSelectAllOrders(this.checked)" style="width: 16px; height: 16px;" title="Tümünü Seç">
                         </div>
-                        <div class="fi-header-col-customer">MÜŞTERİ</div>
-                        <div class="fi-header-col-city">ŞEHİR</div>
-                        <div class="fi-header-col-total">TUTAR</div>
-                        <div class="fi-header-col-payment">ÖDEME</div>
-                        <div class="fi-header-col-date">TARİH</div>
-                        <div class="fi-header-col-status">DURUM</div>
-                        <div class="fi-header-col-payment-status">ÖDEME DURUMU</div>
+                        <div style="flex: 0 0 160px; text-align: left;">MÜŞTERİ</div>
+                        <div style="flex: 0 0 65px; text-align: left;">ŞEHİR</div>
+                        <div style="flex: 0 0 65px; text-align: left;">TUTAR</div>
+                        <div style="flex: 0 0 85px; text-align: left;">ÖDEME</div>
+                        <div style="flex: 0 0 135px; text-align: left;">TARİH</div>
+                        <div style="flex: 0 0 85px; text-align: left;">DURUM</div>
+                        <div style="flex: 0 0 75px; text-align: left; white-space: nowrap !important;">ÖDEME DURUMU</div>
                     </div>
                 ') : null
             )
