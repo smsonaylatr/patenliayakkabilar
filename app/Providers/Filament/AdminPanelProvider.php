@@ -106,6 +106,16 @@ class AdminPanelProvider extends PanelProvider
                             height: 17px !important;
                         }
 
+                        /* Aksiyon Butonlarını Sola Yanaştırma */
+                        .fi-ta-actions-cell,
+                        .fi-ta-actions,
+                        td.fi-ta-actions-cell {
+                            display: flex !important;
+                            justify-content: flex-start !important;
+                            align-items: center !important;
+                            gap: 4px !important;
+                        }
+
                         /* Siparişler Sayfası Mobil Responsiveness & %50 Uzaklaştırma */
                         @media (max-width: 768px) {
                             /* Tablo Alanı Dokunmatik Yatay Kaydırma */
