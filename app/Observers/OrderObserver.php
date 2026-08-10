@@ -29,16 +29,34 @@ class OrderObserver
         } else {
             app()->terminating(function () use ($order) {
                 $order->refresh();
-                $this->sendTelegramNotification($order, 'new');
+                
+                // Telegram Bildirimi Gönder
+                try {
+                    $this->sendTelegramNotification($order, 'new');
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Telegram notification error: ' . $e->getMessage());
+                }
                 
                 // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
-                app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                try {
+                    app(\App\Services\PoregoApiService::class)->sendOrder($order);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
+                }
                 
                 // Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
-                app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+                try {
+                    app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error: ' . $e->getMessage());
+                }
                 
                 // Müşteriye SMS Gönder
-                $this->sendCustomerSms($order, 'new_order');
+                try {
+                    $this->sendCustomerSms($order, 'new_order');
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('SMS notification error: ' . $e->getMessage());
+                }
             });
         }
     }
@@ -76,6 +94,8 @@ class OrderObserver
             $chatId = \App\Models\Setting::where('key', 'telegram_chat_id')->value('value');
 
             if ($isActive && !empty($token) && !empty($chatId)) {
+                $order->loadMissing(['items.product.images', 'items.variant']);
+
                 $paymentMethods = [
                     'credit_card' => 'Kredi Kartı',
                     'cash_on_delivery' => 'Kapıda Ödeme',
@@ -85,82 +105,72 @@ class OrderObserver
                 $paymentMethod = $paymentMethods[$order->payment_method] ?? $order->payment_method;
                 
                 if ($type === 'pending') {
-                    $message = "⏳ *ÖDEME AŞAMASINDA (Yarım Kalabilir)*\n";
-                    $message .= "_Müşteri şu an ödeme sayfasında._\n\n";
+                    $htmlMessage = "⏳ <b>ÖDEME AŞAMASINDA (Yarım Kalabilir)</b>\n";
+                    $htmlMessage .= "<i>Müşteri şu an ödeme sayfasında.</i>\n\n";
                 } elseif ($type === 'failed') {
-                    $message = "❌ *ÖDEME BAŞARISIZ / YARIM KALAN SİPARİŞ*\n\n";
+                    $htmlMessage = "❌ <b>ÖDEME BAŞARISIZ / YARIM KALAN SİPARİŞ</b>\n\n";
                 } elseif ($type === 'paid') {
-                    $message = "✅ *ÖDEME BAŞARILI (Sipariş Onaylandı)*\n\n";
+                    $htmlMessage = "✅ <b>ÖDEME BAŞARILI (Sipariş Onaylandı)</b>\n\n";
                 } else {
-                    $message = "📦 *YENİ SİPARİŞ GELDİ!*\n\n";
+                    $htmlMessage = "📦 <b>YENİ SİPARİŞ GELDİ!</b>\n\n";
                 }
-                $message .= "🛒 *Sipariş No:* {$order->order_number}\n";
-                $message .= "👤 *Müşteri:* {$order->customer_name}\n";
-                $message .= "📞 *Telefon:* {$order->customer_phone}\n";
-                $message .= "💰 *Tutar:* " . number_format((float)$order->grand_total, 2) . " ₺\n";
-                $message .= "💳 *Ödeme:* {$paymentMethod}\n\n";
+                $htmlMessage .= "🛒 <b>Sipariş No:</b> " . htmlspecialchars($order->order_number) . "\n";
+                $htmlMessage .= "👤 <b>Müşteri:</b> " . htmlspecialchars($order->customer_name) . "\n";
+                $htmlMessage .= "📞 <b>Telefon:</b> " . htmlspecialchars($order->customer_phone) . "\n";
+                $htmlMessage .= "💰 <b>Tutar:</b> " . number_format((float)$order->grand_total, 2) . " ₺\n";
+                $htmlMessage .= "💳 <b>Ödeme:</b> " . htmlspecialchars($paymentMethod) . "\n\n";
 
-                $message .= "📦 *Ürünler:*\n";
+                $htmlMessage .= "📦 <b>Ürünler:</b>\n";
                 foreach ($order->items as $item) {
                     $sku = $item->variant?->sku ?? '-';
                     $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
-                    $message .= "- {$item->quantity}x {$item->product_name}{$variantText} | SKU: {$sku}\n";
+                    $htmlMessage .= "- {$item->quantity}x " . htmlspecialchars($item->product_name . $variantText) . " | SKU: " . htmlspecialchars($sku) . "\n";
                 }
-                $message .= "\n";
+                $htmlMessage .= "\n";
 
-                $message .= "📍 *Teslimat Adresi:*\n{$order->shipping_address}\n{$order->shipping_district} / {$order->shipping_city}\n\n";
+                $htmlMessage .= "📍 <b>Teslimat Adresi:</b>\n" . htmlspecialchars($order->shipping_address) . "\n" . htmlspecialchars($order->shipping_district) . " / " . htmlspecialchars($order->shipping_city) . "\n\n";
                 
                 if (!empty($order->customer_note)) {
-                    $message .= "📝 *Sipariş Notu:*\n{$order->customer_note}\n\n";
+                    $htmlMessage .= "📝 <b>Sipariş Notu:</b>\n" . htmlspecialchars($order->customer_note) . "\n\n";
                 }
                 
-                $message .= "Detaylar için admin panelini kontrol edebilirsiniz.";
+                $htmlMessage .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
                 $imageUrl = null;
-                $firstItem = $order->items()->first();
+                $firstItem = $order->items->first();
                 if ($firstItem && $firstItem->product && $firstItem->product->images->count() > 0) {
-                    // Telegram'ın fotoğrafı indirebilmesi için tam URL olması gerekir
                     $imageUrl = $firstItem->product->images->first()->image_url;
                     if (!empty($imageUrl) && !str_starts_with($imageUrl, 'http')) {
                         $imageUrl = asset($imageUrl);
                     }
                 }
 
-                if (!empty($imageUrl)) {
-                    $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
-                        'chat_id' => $chatId,
-                        'text' => $message,
-                        'parse_mode' => 'Markdown',
-                        'link_preview_options' => [
-                            'url' => $imageUrl,
-                            'prefer_small_media' => true
-                        ]
-                    ]);
+                $payload = [
+                    'chat_id' => $chatId,
+                    'text' => $htmlMessage,
+                    'parse_mode' => 'HTML',
+                ];
 
-                    // Fallback in case link_preview_options fails or URL is invalid for preview
-                    if ($response->failed()) {
-                        \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
-                            'chat_id' => $chatId,
-                            'text' => $message,
-                            'parse_mode' => 'Markdown',
-                            'link_preview_options' => [
-                                'is_disabled' => true
-                            ]
-                        ]);
-                    }
-                } else {
+                if (!empty($imageUrl)) {
+                    $payload['link_preview_options'] = [
+                        'url' => $imageUrl,
+                        'prefer_small_media' => true,
+                    ];
+                }
+
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", $payload);
+
+                if ($response->failed()) {
+                    \Illuminate\Support\Facades\Log::warning('Telegram HTML notification failed, retrying plain text. Response: ' . $response->body());
+                    
+                    $plainText = strip_tags(str_replace(['<b>', '</b>', '<i>', '</i>', '<code>', '</code>'], ['', '', '', '', '', ''], $htmlMessage));
                     \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                         'chat_id' => $chatId,
-                        'text' => $message,
-                        'parse_mode' => 'Markdown',
-                        'link_preview_options' => [
-                            'is_disabled' => true
-                        ]
+                        'text' => $plainText,
                     ]);
                 }
             }
         } catch (\Throwable $e) {
-            // Sessizce hatayı yutalım, sipariş akışını ve Porego entegrasyonunu bozmamak için
             \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
         }
     }
