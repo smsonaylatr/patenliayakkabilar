@@ -77,21 +77,23 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
                     <style>
-                        /* Tablo Alanı Yana Kaydırma İptal & Ekrana %100 Tam Sığdırma */
-                        .fi-ta-ctn,
-                        .fi-ta-content,
-                        .fi-ta-content-ctn,
-                        .fi-ta-table-container {
-                            overflow-x: hidden !important;
-                            width: 100% !important;
-                            max-width: 100% !important;
-                        }
+                        /* Masaüstünde Yana Kaydırma İptal & Ekrana %100 Tam Sığdırma */
+                        @media (min-width: 769px) {
+                            .fi-ta-ctn,
+                            .fi-ta-content,
+                            .fi-ta-content-ctn,
+                            .fi-ta-table-container {
+                                overflow-x: hidden !important;
+                                width: 100% !important;
+                                max-width: 100% !important;
+                            }
 
-                        .fi-ta-table {
-                            width: 100% !important;
-                            max-width: 100% !important;
-                            min-width: 0 !important;
-                            table-layout: auto !important;
+                            .fi-ta-table {
+                                width: 100% !important;
+                                max-width: 100% !important;
+                                min-width: 0 !important;
+                                table-layout: auto !important;
+                            }
                         }
 
                         /* Tablo Genel Yazı ve İkon Boyutlarını Küçültme */
@@ -140,21 +142,24 @@ class AdminPanelProvider extends PanelProvider
                             width: auto !important;
                         }
 
-                        /* Siparişler Sayfası Mobil Responsiveness & %50 Uzaklaştırma */
+                        /* Siparişler Sayfası Mobil Responsiveness & Dokunmatik Yatay Kaydırma */
                         @media (max-width: 768px) {
                             /* Tablo Alanı Dokunmatik Yatay Kaydırma */
                             .fi-ta-ctn,
                             .fi-ta-content,
+                            .fi-ta-content-ctn,
+                            .fi-ta-table-container,
                             .fi-ta-table-ctn {
                                 overflow-x: auto !important;
                                 -webkit-overflow-scrolling: touch !important;
+                                touch-action: pan-x pan-y !important;
                                 width: 100% !important;
                             }
 
-                            /* Tablonun Kendisini Mobil Ekranda Kompakt Uzaklaştırma (Zoom) */
+                            /* Tablonun Kendisini Mobil Ekranda Kompakt Yapma */
                             .fi-ta-table {
-                                zoom: 0.75 !important;
-                                min-width: 680px !important;
+                                zoom: 0.85 !important;
+                                min-width: 640px !important;
                             }
 
                             /* Hücre Dolgularını & Fontları Mobil İçin Optimize Etme */
