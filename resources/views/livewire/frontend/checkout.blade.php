@@ -161,7 +161,7 @@
                                 </div>
                                 <div class="ml-3">
                                     <span class="block text-sm font-bold text-gray-900">Kapıda Ödeme</span>
-                                    <span class="block text-xs text-gray-500 mt-0.5">Ürünü teslim alırken nakit veya kredi kartı ile ödeyin.</span>
+                                    <span class="block text-xs text-gray-500 mt-0.5">Ürünü teslim alırken nakit veya kredi kartı ile ödeyin (200 ₺ Kapıda Ödeme Hizmet Bedeli + Ürün Başı 1 ₺ Kargo).</span>
                                 </div>
                             </label>
                             @endif
@@ -247,7 +247,7 @@
                             <span>{{ number_format($subtotal, 2) }} ₺</span>
                         </div>
                         <div class="flex justify-between text-sm text-gray-600">
-                            <span>Kargo <span class="text-[10px] text-gray-400 ml-1">{{ $payment_method === 'cash_on_delivery' ? '(Sabit 201 ₺)' : '(Ürün Başı 1 ₺)' }}</span></span>
+                            <span>Kargo <span class="text-[10px] text-gray-400 ml-1">{{ $payment_method === 'cash_on_delivery' ? '(200 ₺ Hizmet Bedeli + Ürün Başı 1 ₺)' : '(Ürün Başı 1 ₺)' }}</span></span>
                             <span class="text-gray-900 font-medium">{{ number_format($shippingPrice, 2) }} ₺</span>
                         </div>
                         <div class="flex justify-between text-lg font-black text-gray-900 pt-3 border-t border-gray-100 mt-3">
