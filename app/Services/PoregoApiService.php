@@ -36,6 +36,9 @@ class PoregoApiService
             $surname = count($nameParts) > 1 ? array_pop($nameParts) : 'Bilinmiyor';
             $name = count($nameParts) > 0 ? implode(' ', $nameParts) : $order->customer_name;
 
+            // Tam ilişkileri yüklediğimizden emin olalım
+            $order->loadMissing(['items.product', 'items.variant']);
+
             $payload = [
                 'customerName' => $name,
                 'customerSurname' => $surname,
@@ -48,18 +51,22 @@ class PoregoApiService
                 'platformOrderId' => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
                 'items' => $order->items->map(function ($item) {
-                    $sku = $item->variant ? $item->variant->sku : ('SKU-' . $item->product_id);
+                    $sku = $item->variant?->sku ?: ($item->product?->sku ?: ('SKU-' . $item->product_id));
+                    $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
+                    $skuText = ($sku && $sku !== '-') ? " [SKU: {$sku}]" : "";
+                    $nameWithDetails = $item->product_name . $variantText . $skuText;
+
                     return [
                         'sku' => $sku,
-                        'name' => $item->product_name,
-                        'quantity' => $item->quantity,
-                        'price' => $item->price,
+                        'name' => $nameWithDetails,
+                        'quantity' => (int)$item->quantity,
+                        'price' => (float)($item->unit_price ?? 0),
                     ];
                 })->toArray(),
             ];
 
             if ($order->payment_method === 'cash_on_delivery') {
-                $payload['codAmount'] = $order->grand_total;
+                $payload['codAmount'] = (float)$order->grand_total;
             }
 
             $response = Http::withHeaders([
