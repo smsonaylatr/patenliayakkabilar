@@ -181,27 +181,42 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
-        // PayTR üzerinden Kredi kartı veya Havale ödemesi durumu değiştiğinde
-        if ($order->wasChanged('payment_status') && in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
-            if ($order->payment_status === 'paid') {
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    $this->sendTelegramNotification($order, 'paid');
-                    
-                    // Siparişi Porego'ya aktar
-                    app(\App\Services\PoregoApiService::class)->sendOrder($order);
-                    
-                    // Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
-                    app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
-                    
-                    // Müşteriye SMS Gönder
-                    $this->sendCustomerSms($order, 'new_order');
-                });
-            } elseif ($order->payment_status === 'failed') {
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    $this->sendTelegramNotification($order, 'failed');
-                });
+        // PayTR veya Admin panel üzerinden ödeme 'paid' (ödendi) durumuna geçtiğinde
+        if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
+            $order->loadMissing(['items.product', 'items.variant']);
+
+            // 1. Telegram Bildirimi Gönder
+            try {
+                $this->sendTelegramNotification($order, 'paid');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Telegram notification error on paid: ' . $e->getMessage());
+            }
+            
+            // 2. Tam Otomatik Porego Kargo Aktarımı
+            try {
+                app(\App\Services\PoregoApiService::class)->sendOrder($order);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
+            }
+            
+            // 3. Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
+            try {
+                app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error on paid: ' . $e->getMessage());
+            }
+            
+            // 4. Müşteriye SMS Gönder
+            try {
+                $this->sendCustomerSms($order, 'new_order');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('SMS notification error on paid: ' . $e->getMessage());
+            }
+        } elseif ($order->wasChanged('payment_status') && $order->payment_status === 'failed') {
+            try {
+                $this->sendTelegramNotification($order, 'failed');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Telegram notification error on failed: ' . $e->getMessage());
             }
         }
 
