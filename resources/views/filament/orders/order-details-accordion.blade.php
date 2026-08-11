@@ -317,6 +317,8 @@ td.fi-ta-actions-cell {
                   if (!$variantText) {
                       $variantText = 'Standart';
                   }
+
+                  $sku = $variant?->sku ?: ($product?->sku ?: '-');
               @endphp
               <tr>
                 <td class="mobile-item-header">
@@ -325,10 +327,18 @@ td.fi-ta-actions-cell {
                   </div>
                   <div class="mobile-item-title">
                     <div class="td-bold">{{ $item->product_name }}</div>
+                    <div style="font-size:0.75rem; color:#f97316; font-weight:600; margin-top:2px;">
+                      SKU: <span style="font-family:monospace;">{{ $sku }}</span>
+                    </div>
                     <div class="td-muted" style="font-size:0.78rem;">#{{ $order->order_number }}</div>
                   </div>
                 </td>
-                <td class="hidden sm:table-cell td-bold">{{ $item->product_name }}</td>
+                <td class="hidden sm:table-cell">
+                  <div class="td-bold">{{ $item->product_name }}</div>
+                  <div style="font-size:0.75rem; color:#f97316; font-weight:600; margin-top:2px;">
+                    SKU: <span style="font-family:monospace;">{{ $sku }}</span>
+                  </div>
+                </td>
                 <td>
                   <span class="mobile-label sm:hidden">Varyant:</span>
                   <span class="td-muted">{{ $variantText }}</span>

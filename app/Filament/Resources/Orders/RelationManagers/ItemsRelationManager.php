@@ -34,10 +34,10 @@ class ItemsRelationManager extends RelationManager
                     ->limit(40),
                 Tables\Columns\TextColumn::make('sku')
                     ->label('Stok Kodu (SKU)')
-                    ->getStateUsing(fn ($record) => $record->variant ? $record->variant->sku : ('SKU-' . $record->product_id))
+                    ->getStateUsing(fn ($record) => $record->variant?->sku ?: ($record->product?->sku ?: '-'))
                     ->copyable()
                     ->badge()
-                    ->color('gray'),
+                    ->color('warning'),
                 Tables\Columns\TextColumn::make('variant.color')
                     ->label('Renk')
                     ->badge()
