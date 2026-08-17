@@ -91,7 +91,9 @@ class PoregoProductApiController extends Controller
             'products' => $items,
             'items' => $items,
             'data' => $items,
-        ]);
+        ])->header('Access-Control-Allow-Origin', '*')
+          ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+          ->header('Access-Control-Allow-Headers', '*');
     }
 
     /**
@@ -117,6 +119,8 @@ class PoregoProductApiController extends Controller
         return response()->json([
             'status' => 'success',
             'stocks' => $stockMap,
-        ]);
+        ])->header('Access-Control-Allow-Origin', '*')
+          ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+          ->header('Access-Control-Allow-Headers', '*');
     }
 }
