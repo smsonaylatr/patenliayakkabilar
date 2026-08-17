@@ -260,13 +260,91 @@ td.fi-ta-actions-cell {
     .dark .mobile-label {
         color: rgba(255, 255, 255, 0.45);
     }
-}
-
 @media (min-width: 641px) {
     .mobile-item-title,
     .mobile-label {
         display: none !important;
     }
+}
+
+/* SKU Kopyalanabilir Rozet Stilleri */
+.sku-copy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: all;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(249, 115, 22, 0.14);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    color: #fdba74;
+    max-width: 100%;
+    word-break: break-all;
+}
+
+.sku-copy-badge:hover {
+    background: rgba(249, 115, 22, 0.25);
+    border-color: rgba(249, 115, 22, 0.7);
+    color: #ffedd5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+}
+
+.sku-prefix {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+    font-weight: 700;
+    color: #f97316;
+}
+
+.sku-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #ffedd5;
+}
+
+/* Aydınlık Tema Uyumlu Stiller */
+:root:not(.dark) .sku-copy-badge,
+html:not(.dark) .sku-copy-badge {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #ea580c;
+}
+
+:root:not(.dark) .sku-copy-badge:hover,
+html:not(.dark) .sku-copy-badge:hover {
+    background: #ffedd5;
+    border-color: #f97316;
+    color: #c2410c;
+}
+
+:root:not(.dark) .sku-code,
+html:not(.dark) .sku-code {
+    color: #9a3412;
+}
+
+.sku-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 2px;
+}
+
+.copied-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: #34d399;
+    font-size: 0.68rem;
+    font-weight: 700;
 }
 </style>
 
@@ -327,17 +405,55 @@ td.fi-ta-actions-cell {
                   </div>
                   <div class="mobile-item-title">
                     <div class="td-bold">{{ $item->product_name }}</div>
-                    <div style="font-size:0.75rem; color:#f97316; font-weight:600; margin-top:2px;">
-                      SKU: <span style="font-family:monospace;">{{ $sku }}</span>
+                    @if($sku && $sku !== '-')
+                    <div 
+                      x-data="{ copied: false }" 
+                      @click.stop="navigator.clipboard.writeText('{{ e($sku) }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                      class="sku-copy-badge"
+                      title="Tıklayarak SKU'yu Kopyala"
+                    >
+                      <span class="sku-prefix">SKU:</span>
+                      <span class="sku-code">{{ $sku }}</span>
+                      <span class="sku-icon">
+                        <template x-if="!copied">
+                          <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"/></svg>
+                        </template>
+                        <template x-if="copied">
+                          <span class="copied-text">
+                            <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                            Kopyalandı!
+                          </span>
+                        </template>
+                      </span>
                     </div>
-                    <div class="td-muted" style="font-size:0.78rem;">#{{ $order->order_number }}</div>
+                    @endif
+                    <div class="td-muted" style="font-size:0.78rem; margin-top:2px;">#{{ $order->order_number }}</div>
                   </div>
                 </td>
                 <td class="hidden sm:table-cell">
                   <div class="td-bold">{{ $item->product_name }}</div>
-                  <div style="font-size:0.75rem; color:#f97316; font-weight:600; margin-top:2px;">
-                    SKU: <span style="font-family:monospace;">{{ $sku }}</span>
+                  @if($sku && $sku !== '-')
+                  <div 
+                    x-data="{ copied: false }" 
+                    @click.stop="navigator.clipboard.writeText('{{ e($sku) }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                    class="sku-copy-badge"
+                    title="Tıklayarak SKU'yu Kopyala"
+                  >
+                    <span class="sku-prefix">SKU:</span>
+                    <span class="sku-code">{{ $sku }}</span>
+                    <span class="sku-icon">
+                      <template x-if="!copied">
+                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"/></svg>
+                      </template>
+                      <template x-if="copied">
+                        <span class="copied-text">
+                          <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                          Kopyalandı!
+                        </span>
+                      </template>
+                    </span>
                   </div>
+                  @endif
                 </td>
                 <td>
                   <span class="mobile-label sm:hidden">Varyant:</span>
