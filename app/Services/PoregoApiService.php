@@ -48,48 +48,47 @@ class PoregoApiService
                 $order->setRelation('items', $items);
             }
 
-            // Ürün özet metni oluşturalım (Root seviyesinde ve kargo fişi şablonlarında kullanılmak üzere)
+            // Ürün özet metni oluşturalım (Sadece SKU çekilmesi talebi doğrultusunda)
             $productSummaryList = [];
             $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
                 $sku = $item->variant?->sku ?: ($item->product?->sku ?: ('SKU-' . $item->product_id));
-                $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
-                $skuText = ($sku && $sku !== '-') ? " [SKU: {$sku}]" : "";
-                $fullName = $item->product_name . $variantText . $skuText;
-                $rawName = $item->product_name;
+                $onlySku = ($sku && $sku !== '-') ? $sku : ($item->product_name ?: ('SKU-' . $item->product_id));
 
-                $productSummaryList[] = "{$item->quantity}x {$fullName}";
+                $productSummaryList[] = "{$item->quantity}x {$onlySku}";
 
                 return [
-                    'sku'                 => $sku,
-                    'productSku'          => $sku,
-                    'product_sku'         => $sku,
-                    'barcode'             => $sku,
-                    'code'                => $sku,
-                    'productCode'         => $sku,
+                    'sku'                 => $onlySku,
+                    'productSku'          => $onlySku,
+                    'product_sku'         => $onlySku,
+                    'barcode'             => $onlySku,
+                    'code'                => $onlySku,
+                    'productCode'         => $onlySku,
 
-                    // Ürün Adı varyasyonları (DHL ve Paketfy şablonları için)
-                    'name'                => $fullName,
-                    'productName'         => $fullName,
-                    'product_name'        => $fullName,
-                    'itemName'            => $fullName,
-                    'item_name'           => $fullName,
-                    'title'               => $fullName,
-                    'productTitle'        => $fullName,
-                    'product_title'       => $fullName,
-                    'description'         => $fullName,
-                    'productDescription'  => $fullName,
-                    'product_description' => $fullName,
-                    'urun_adi'            => $fullName,
-                    'urunAdi'             => $fullName,
-                    'product'             => $fullName,
-                    'item'                => $fullName,
-                    'goodsName'           => $fullName,
-                    'goods_name'          => $fullName,
-                    'label'               => $fullName,
+                    // Ürün Adı varyasyonları (Sadece SKU basılması istendiği için strictly SKU aktarılıyor)
+                    'name'                => $onlySku,
+                    'productName'         => $onlySku,
+                    'product_name'        => $onlySku,
+                    'itemName'            => $onlySku,
+                    'item_name'           => $onlySku,
+                    'title'               => $onlySku,
+                    'productTitle'        => $onlySku,
+                    'product_title'       => $onlySku,
+                    'description'         => $onlySku,
+                    'productDescription'  => $onlySku,
+                    'product_description' => $onlySku,
+                    'urun_adi'            => $onlySku,
+                    'urunAdi'             => $onlySku,
+                    'product'             => $onlySku,
+                    'item'                => $onlySku,
+                    'goodsName'           => $onlySku,
+                    'goods_name'          => $onlySku,
+                    'label'               => $onlySku,
 
-                    // Yalın isim
-                    'raw_name'            => $rawName,
-                    'rawName'             => $rawName,
+                    // Yalın isim ve varyant detayı
+                    'raw_name'            => $item->product_name,
+                    'rawName'             => $item->product_name,
+                    'variantInfo'         => $item->variant_info,
+                    'variant_info'        => $item->variant_info,
 
                     // Adet varyasyonları
                     'quantity'            => (int)$item->quantity,
@@ -102,8 +101,6 @@ class PoregoApiService
                     'units'               => (int)$item->quantity,
 
                     // Fiyat ve Varyant
-                    'variantInfo'         => $item->variant_info,
-                    'variant_info'        => $item->variant_info,
                     'price'               => (float)($item->unit_price ?? 0),
                     'unitPrice'           => (float)($item->unit_price ?? 0),
                     'unit_price'          => (float)($item->unit_price ?? 0),
