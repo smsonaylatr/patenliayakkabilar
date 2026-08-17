@@ -442,12 +442,6 @@ class Product extends Model
             ['icon' => '↩️', 'text' => '14 Gün İade', 'color' => 'orange'],
         ];
 
-        // İndirim rozeti
-        if ($this->discount_price && $this->price > $this->discount_price) {
-            $percent = round(($this->price - $this->discount_price) / $this->price * 100);
-            $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
-        }
-
         // Stok durumu uyarısı
         if (!$this->status || $this->stock <= 0) {
             $signals[] = ['icon' => '🚫', 'text' => 'Stokları Tükendi', 'color' => 'red'];
