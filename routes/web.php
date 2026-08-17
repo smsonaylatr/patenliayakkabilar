@@ -121,8 +121,12 @@ Route::post('/payment/paytr/webhook', [\App\Http\Controllers\Payment\PaytrWebhoo
 // ========================
 // ESKİ URL YÖNLENDİRMELERİ (SEO)
 // ========================
-// Eski "koleksiyon" linklerini yeni "kategori" yapısına kalıcı (301) olarak yönlendir.
+// Eski "koleksiyon" ve "sayfa" linklerini yeni yapıya kalıcı (301) olarak yönlendir.
 Route::redirect('/koleksiyon/{slug}', '/kategori/{slug}', 301);
+Route::redirect('/sayfa/kosullar', '/mesafeli-satis-sozlesmesi', 301);
+Route::redirect('/sayfa/kullanim-kosullari', '/mesafeli-satis-sozlesmesi', 301);
+Route::redirect('/sayfa/{slug}', '/{slug}', 301);
+Route::redirect('/kosullar', '/mesafeli-satis-sozlesmesi', 301);
 
 // Tüm ürünler
 Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
@@ -145,7 +149,26 @@ Route::redirect('/urunler', '/patenli-ayakkabilar', 301);
 Route::get('/urun/{slug}', function ($slug) {
     $product = \App\Models\Product::where('slug', $slug)
         ->with(['variants', 'images', 'categories', 'reviews' => function ($q) { $q->where('status', true); }, 'features'])
-        ->firstOrFail();
+        ->first();
+
+    if (!$product) {
+        // Bulunamayan ürün isteğini akıllıca ilgili kategoriye veya ana ürünler sayfasına 301 yönlendir
+        $category = \App\Models\Category::where('slug', $slug)->first();
+        if (!$category) {
+            if (str_contains($slug, 'erkek-cocuk')) {
+                $category = \App\Models\Category::where('slug', 'like', '%erkek-cocuk%')->first();
+            } elseif (str_contains($slug, 'kiz-cocuk')) {
+                $category = \App\Models\Category::where('slug', 'like', '%kiz-cocuk%')->first();
+            }
+        }
+
+        if ($category) {
+            return redirect()->route('category.show', ['slug' => $category->slug], 301);
+        }
+
+        return redirect()->route('products.index', [], 301);
+    }
+
     return view('products.show', ['product' => $product]);
 })->name('products.show');
 
