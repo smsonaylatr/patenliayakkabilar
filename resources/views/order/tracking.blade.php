@@ -27,6 +27,9 @@
                 @endif
 
                 @if(isset($order))
+                    @php
+                        $trackingCode = $order->cargo_tracking_code ?: $order->order_number;
+                    @endphp
                     <div class="mt-6 pt-6 border-t border-gray-100 text-left">
                         <h2 class="text-lg font-bold text-gray-900 mb-4">Sipariş Detayları</h2>
                         
@@ -75,27 +78,19 @@
                             <div class="bg-white p-4 rounded-xl border border-gray-200 space-y-2 mt-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Porego Kargo Takip Kodu</span>
-                                    @if($order->cargo_tracking_code)
-                                        <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold">
-                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kargo Çekildi
-                                        </span>
-                                    @else
-                                        <span class="text-xs text-amber-600 font-medium">Kargo Kodu Hazırlanıyor</span>
-                                    @endif
+                                    <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kargo Kodu Aktif
+                                    </span>
                                 </div>
 
-                                @if($order->cargo_tracking_code)
-                                    <div class="flex items-center justify-between gap-2 pt-1">
-                                        <span class="font-mono font-black text-black text-xl tracking-wider">{{ $order->cargo_tracking_code }}</span>
-                                        <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($order->cargo_tracking_code) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                            <span x-show="!copied">Kargo Kodunu Kopyala</span>
-                                            <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
-                                        </div>
+                                <div class="flex items-center justify-between gap-2 pt-1">
+                                    <span class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</span>
+                                    <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        <span x-show="!copied">Kodu Kopyala</span>
+                                        <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
                                     </div>
-                                @else
-                                    <p class="text-xs text-gray-500 pt-1">Siparişiniz kargo firmasına teslim edildiğinde Porego kargo takip kodunuz otomatik olarak buraya yansıyacaktır.</p>
-                                @endif
+                                </div>
                             </div>
 
                             <div class="flex justify-between items-center border-t border-gray-200 pt-3">
