@@ -61,6 +61,23 @@ class GibEArsivService
     protected function getGibClient()
     {
         if (!class_exists(\Mlevent\Fatura\Gib::class)) {
+            spl_autoload_register(function ($class) {
+                if (str_starts_with($class, 'Mlevent\\Fatura\\')) {
+                    $relative = str_replace('Mlevent\\Fatura\\', '', $class);
+                    $file = base_path('vendor/mlevent/fatura/src/' . str_replace('\\', '/', $relative) . '.php');
+                    if (file_exists($file)) {
+                        require_once $file;
+                    }
+                }
+            });
+
+            $helpersFile = base_path('vendor/mlevent/fatura/src/Utils/Helpers.php');
+            if (file_exists($helpersFile)) {
+                require_once $helpersFile;
+            }
+        }
+
+        if (!class_exists(\Mlevent\Fatura\Gib::class)) {
             throw new \Exception("mlevent/fatura kütüphanesi yüklü değil.");
         }
 
