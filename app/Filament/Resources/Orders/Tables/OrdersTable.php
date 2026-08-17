@@ -304,6 +304,32 @@ class OrdersTable
                     })
                     ->visible(fn (Order $record): bool => in_array($record->status, ['pending', 'processing'])),
 
+                Action::make('sendToPorego')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('Porego\'ya Kargo Gönder')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Porego\'ya Kargo Gönder')
+                    ->modalDescription('Sipariş bilgilerini ve detaylı ürün listesini Porego Kargo sistemine aktarır.')
+                    ->modalSubmitActionLabel('Gönder')
+                    ->action(function (Order $record): void {
+                        $success = app(\App\Services\PoregoApiService::class)->sendOrder($record);
+                        if ($success) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Sipariş Porego\'ya başarıyla gönderildi')
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Porego gönderim hatası')
+                                ->body('Sipariş Porego\'ya iletilirken bir hata oluştu. Lütfen logları ve API anahtarlarını kontrol edin.')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+
                 Action::make('cancelOrder')
                     ->iconButton()
                     ->size('lg')
@@ -339,6 +365,34 @@ class OrdersTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('bulkSendToPorego')
+                        ->label('Seçilenleri Porego\'ya Gönder')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Seçilen Siparişleri Porego\'ya Gönder')
+                        ->modalDescription('Seçtiğiniz siparişler Porego Kargo sistemine ürün detaylarıyla birlikte aktarılacaktır.')
+                        ->modalSubmitActionLabel('Gönder')
+                        ->action(function (Collection $records) {
+                            $successCount = 0;
+                            $failCount = 0;
+                            $service = app(\App\Services\PoregoApiService::class);
+
+                            foreach ($records as $order) {
+                                if ($service->sendOrder($order)) {
+                                    $successCount++;
+                                } else {
+                                    $failCount++;
+                                }
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Toplu Porego Gönderimi Tamamlandı')
+                                ->body("{$successCount} adet sipariş Porego'ya iletildi. {$failCount} adet sipariş başarısız oldu.")
+                                ->success()
+                                ->send();
+                        }),
+
                     BulkAction::make('bulkCreateGibInvoice')
                         ->label('Toplu GİB E-Arşiv Faturası Kes')
                         ->icon('heroicon-o-document-check')

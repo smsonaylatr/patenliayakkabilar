@@ -36,8 +36,55 @@ class PoregoApiService
             $surname = count($nameParts) > 1 ? array_pop($nameParts) : 'Bilinmiyor';
             $name = count($nameParts) > 0 ? implode(' ', $nameParts) : $order->customer_name;
 
-            // Tam ilişkileri yüklediğimizden emin olalım
-            $order->loadMissing(['items.product', 'items.variant']);
+            // İlişkileri taze bir şekilde yükleyelim (Load cache önlemek için)
+            $order->unsetRelation('items');
+            $order->load(['items.product', 'items.variant']);
+
+            // Eğer relation boş geldiyse veritabanından doğrudan tekrar sorgulayalım
+            if ($order->items->isEmpty()) {
+                $items = \App\Models\OrderItem::with(['product', 'variant'])
+                    ->where('order_id', $order->id)
+                    ->get();
+                $order->setRelation('items', $items);
+            }
+
+            // Ürün özet metni oluşturalım (Root seviyesinde ve kargo fişi şablonlarında kullanılmak üzere)
+            $productSummaryList = [];
+            $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
+                $sku = $item->variant?->sku ?: ($item->product?->sku ?: ('SKU-' . $item->product_id));
+                $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
+                $skuText = ($sku && $sku !== '-') ? " [SKU: {$sku}]" : "";
+                $fullName = $item->product_name . $variantText . $skuText;
+
+                $productSummaryList[] = "{$item->quantity}x {$fullName}";
+
+                return [
+                    'sku' => $sku,
+                    'productSku' => $sku,
+                    'product_sku' => $sku,
+                    'barcode' => $sku,
+                    'code' => $sku,
+                    'productCode' => $sku,
+                    'name' => $fullName,
+                    'productName' => $fullName,
+                    'product_name' => $fullName,
+                    'title' => $fullName,
+                    'description' => $fullName,
+                    'variantInfo' => $item->variant_info,
+                    'variant_info' => $item->variant_info,
+                    'quantity' => (int)$item->quantity,
+                    'qty' => (int)$item->quantity,
+                    'count' => (int)$item->quantity,
+                    'amount' => (int)$item->quantity,
+                    'price' => (float)($item->unit_price ?? 0),
+                    'unitPrice' => (float)($item->unit_price ?? 0),
+                    'unit_price' => (float)($item->unit_price ?? 0),
+                    'totalPrice' => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
+                    'total_price' => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
+                ];
+            })->toArray();
+
+            $productSummaryText = implode(', ', $productSummaryList);
 
             $payload = [
                 'customerName' => $name,
@@ -50,19 +97,21 @@ class PoregoApiService
                 'paymentType' => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
                 'platformOrderId' => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
-                'items' => $order->items->map(function ($item) {
-                    $sku = $item->variant?->sku ?: ($item->product?->sku ?: ('SKU-' . $item->product_id));
-                    $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
-                    $skuText = ($sku && $sku !== '-') ? " [SKU: {$sku}]" : "";
-                    $nameWithDetails = $item->product_name . $variantText . $skuText;
 
-                    return [
-                        'sku' => $sku,
-                        'name' => $nameWithDetails,
-                        'quantity' => (int)$item->quantity,
-                        'price' => (float)($item->unit_price ?? 0),
-                    ];
-                })->toArray(),
+                // Root seviyede ürün özet bilgileri (Kargo fişi / etiket basımında aranabilecek tüm alan adları)
+                'productInfo' => $productSummaryText,
+                'product_info' => $productSummaryText,
+                'cargoContent' => $productSummaryText,
+                'cargo_content' => $productSummaryText,
+                'description' => $productSummaryText,
+                'content' => $productSummaryText,
+                'items_summary' => $productSummaryText,
+                'orderContent' => $productSummaryText,
+                'packageContent' => $productSummaryText,
+
+                // Hem items hem de products anahtarıyla liste gönderimi
+                'items' => $mappedItems,
+                'products' => $mappedItems,
             ];
 
             if ($order->payment_method === 'cash_on_delivery') {
