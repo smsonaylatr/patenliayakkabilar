@@ -239,18 +239,6 @@ td.fi-ta-actions-cell {
         margin-bottom: 4px !important;
     }
 
-    .inner-table td.mobile-item-header {
-        display: flex !important;
-        align-items: center !important;
-        gap: 10px !important;
-        padding-bottom: 6px !important;
-        border-bottom: 1px dashed rgba(0, 0, 0, 0.08) !important;
-    }
-
-    .dark .inner-table td.mobile-item-header {
-        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-    }
-
     .mobile-label {
         font-size: 0.75rem;
         font-weight: 600;
@@ -260,8 +248,8 @@ td.fi-ta-actions-cell {
     .dark .mobile-label {
         color: rgba(255, 255, 255, 0.45);
     }
+
 @media (min-width: 641px) {
-    .mobile-item-title,
     .mobile-label {
         display: none !important;
     }
@@ -399,38 +387,12 @@ html:not(.dark) .sku-code {
                   $sku = $variant?->sku ?: ($product?->sku ?: '-');
               @endphp
               <tr>
-                <td class="mobile-item-header">
+                <td style="width:76px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
-                  <div class="mobile-item-title">
-                    <div class="td-bold">{{ $item->product_name }}</div>
-                    @if($sku && $sku !== '-')
-                    <div 
-                      x-data="{ copied: false }" 
-                      @click.stop="navigator.clipboard.writeText('{{ e($sku) }}'); copied = true; setTimeout(() => copied = false, 2000)"
-                      class="sku-copy-badge"
-                      title="Tıklayarak SKU'yu Kopyala"
-                    >
-                      <span class="sku-prefix">SKU:</span>
-                      <span class="sku-code">{{ $sku }}</span>
-                      <span class="sku-icon">
-                        <template x-if="!copied">
-                          <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"/></svg>
-                        </template>
-                        <template x-if="copied">
-                          <span class="copied-text">
-                            <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            Kopyalandı!
-                          </span>
-                        </template>
-                      </span>
-                    </div>
-                    @endif
-                    <div class="td-muted" style="font-size:0.78rem; margin-top:2px;">#{{ $order->order_number }}</div>
-                  </div>
                 </td>
-                <td class="hidden sm:table-cell">
+                <td style="vertical-align:middle;">
                   <div class="td-bold">{{ $item->product_name }}</div>
                   @if($sku && $sku !== '-')
                   <div 
