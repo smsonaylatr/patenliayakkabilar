@@ -425,7 +425,28 @@ html:not(.dark) .sku-code {
                   <span class="mobile-label sm:hidden">Adet:</span>
                   <span class="td-muted">{{ $item->quantity }}</span>
                 </td>
-                <td class="hidden sm:table-cell td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</td>
+                <td class="hidden sm:table-cell">
+                  <div 
+                    x-data="{ copied: false }" 
+                    @click.stop="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                    class="sku-copy-badge"
+                    style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;"
+                    title="Tıklayarak Sipariş Numarasını Kopyala"
+                  >
+                    <span class="sku-code" style="color: #93c5fd;">#{{ $order->order_number }}</span>
+                    <span class="sku-icon">
+                      <template x-if="!copied">
+                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 002 2v8a2 2 0 002 2z"/></svg>
+                      </template>
+                      <template x-if="copied">
+                        <span class="copied-text">
+                          <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                          Kopyalandı!
+                        </span>
+                      </template>
+                    </span>
+                  </div>
+                </td>
                 <td>
                   <span class="mobile-label sm:hidden">Birim Fiyat:</span>
                   <span class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</span>
