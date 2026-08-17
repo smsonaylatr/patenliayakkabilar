@@ -208,9 +208,9 @@ class SchemaService
 
         $appUrl = config('app.url');
 
-        // Tüm ürün görsellerini topla
+        // Tüm ürün görsellerini topla (Orijinal domain URL'leri)
         $images = $product->images
-            ->map(fn ($img) => $img->image_url)
+            ->map(fn ($img) => $img->raw_image_url)
             ->toArray();
 
         // Varyantlardan unique renkleri çıkar (color JSON array)

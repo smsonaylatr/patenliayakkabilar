@@ -59,13 +59,13 @@ class GoogleMerchantService
             $googleProduct->setDescription($description);
             $googleProduct->setLink(url('/urun/' . $product->slug));
             
-            // Görseller
+            // Görseller (Direct domain URLs for Google Merchant API)
             $images = $product->images;
             if ($images->isNotEmpty()) {
-                $googleProduct->setImageLink($images->first()->image_url);
+                $googleProduct->setImageLink($images->first()->raw_image_url);
                 $additionalImages = [];
                 foreach ($images->skip(1)->take(10) as $img) {
-                    $additionalImages[] = $img->image_url;
+                    $additionalImages[] = $img->raw_image_url;
                 }
                 if (!empty($additionalImages)) {
                     $googleProduct->setAdditionalImageLinks($additionalImages);

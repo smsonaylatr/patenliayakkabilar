@@ -9,7 +9,7 @@ class ProductImage extends Model
 {
     protected $guarded = [];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'raw_image_url'];
 
     public function product()
     {
@@ -17,8 +17,25 @@ class ProductImage extends Model
     }
 
     /**
-     * Görselin tam URL'sini döndürür.
-     * Tüm template'lerde $image->image_url olarak kullanılır.
+     * Görselin saf (orijinal, wsrv.nl proxy'siz) doğrudan URL'sini döndürür.
+     * Google Merchant Center, Sitemap ve Schema.org için gereklidir.
+     */
+    public function getRawImageUrlAttribute(): string
+    {
+        if (empty($this->image_path)) {
+            return asset('favicon.png');
+        }
+
+        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
+            return $this->image_path;
+        }
+
+        return Storage::disk('public')->url($this->image_path);
+    }
+
+    /**
+     * Görselin CDN optimize edilmiş URL'sini döndürür.
+     * Web sitesi ön yüzündeki template'lerde $image->image_url olarak kullanılır.
      */
     public function getImageUrlAttribute(): string
     {

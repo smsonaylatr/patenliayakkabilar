@@ -117,10 +117,10 @@ class SitemapController extends Controller
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
             $xml .= '    <priority>0.8</priority>' . "\n";
 
-            // Ürün görselleri (Google Image indexleme)
+            // Ürün görselleri (Google Image indexleme - Orijinal domain URL'leri)
             foreach ($product->images as $image) {
                 $xml .= '    <image:image>' . "\n";
-                $xml .= '      <image:loc>' . htmlspecialchars($image->image_url, ENT_XML1) . '</image:loc>' . "\n";
+                $xml .= '      <image:loc>' . htmlspecialchars($image->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
                 $xml .= '      <image:title>' . htmlspecialchars($image->alt_text ?: $product->name, ENT_XML1) . '</image:title>' . "\n";
                 $xml .= '    </image:image>' . "\n";
             }

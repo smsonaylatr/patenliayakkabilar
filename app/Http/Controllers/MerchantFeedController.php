@@ -128,12 +128,12 @@ class MerchantFeedController extends Controller
         // Ürün linki
         $xml .= '      <link>' . $appUrl . '/urun/' . $product->slug . '</link>' . "\n";
 
-        // Görseller
+        // Görseller (Google Merchant doğrudan domain URL'lerini ister)
         $images = $product->images;
         if ($images->isNotEmpty()) {
-            $xml .= '      <g:image_link>' . htmlspecialchars($images->first()->image_url, ENT_XML1, 'UTF-8') . '</g:image_link>' . "\n";
+            $xml .= '      <g:image_link>' . htmlspecialchars($images->first()->raw_image_url, ENT_XML1, 'UTF-8') . '</g:image_link>' . "\n";
             foreach ($images->skip(1)->take(10) as $image) {
-                $xml .= '      <g:additional_image_link>' . htmlspecialchars($image->image_url, ENT_XML1, 'UTF-8') . '</g:additional_image_link>' . "\n";
+                $xml .= '      <g:additional_image_link>' . htmlspecialchars($image->raw_image_url, ENT_XML1, 'UTF-8') . '</g:additional_image_link>' . "\n";
             }
         }
 
