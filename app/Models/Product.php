@@ -442,6 +442,12 @@ class Product extends Model
             ['icon' => '↩️', 'text' => '14 Gün İade', 'color' => 'orange'],
         ];
 
+        // İndirim rozeti
+        if ($this->discount_price && $this->price > $this->discount_price) {
+            $percent = round(($this->price - $this->discount_price) / $this->price * 100);
+            $signals[] = ['icon' => '🏷️', 'text' => '%' . $percent . ' İndirim', 'color' => 'red'];
+        }
+
         // Stok durumu uyarısı
         if (!$this->status || $this->stock <= 0) {
             $signals[] = ['icon' => '🚫', 'text' => 'Stokları Tükendi', 'color' => 'red'];
@@ -452,6 +458,34 @@ class Product extends Model
         // Çok satan
         if ($this->best_seller) {
             $signals[] = ['icon' => '⭐', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
+        }
+
+        // Ek sinyaller (Tek sayı adeti durumunda 2 sütunlu gridde boşluk kalmaması için çift sayıya 4, 6, 8 tamamlar)
+        $extraPool = [
+            ['icon' => '🛡️', 'text' => 'Orijinal Ürün', 'color' => 'emerald'],
+            ['icon' => '⭐', 'text' => 'Müşteri Favorisi', 'color' => 'amber'],
+            ['icon' => '💬', 'text' => '7/24 Destek', 'color' => 'teal'],
+        ];
+
+        if (count($signals) % 2 !== 0) {
+            foreach ($extraPool as $extra) {
+                $exists = false;
+                foreach ($signals as $s) {
+                    if ($s['text'] === $extra['text']) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $signals[] = $extra;
+                    break;
+                }
+            }
+        }
+
+        // Her ihtimale karşı tek sayı kalırsa son elemanı çıkar ki (4, 6, 8) garanti olsun
+        if (count($signals) % 2 !== 0) {
+            array_pop($signals);
         }
 
         return $signals;
