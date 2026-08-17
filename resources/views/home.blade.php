@@ -67,7 +67,7 @@
                         <div class="relative mb-5">
                             <div class="flex items-center justify-between gap-3">
                                 <h2 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
-                                <a href="{{ route('products.index', ['category' => $category->slug]) }}" wire:navigate class="group inline-flex items-center gap-2 text-sm sm:text-[15px] font-medium text-gray-800 hover:text-black transition-colors shrink-0">
+                                <a href="{{ route('category.show', ['slug' => $category->slug]) }}" wire:navigate class="group inline-flex items-center gap-2 text-sm sm:text-[15px] font-medium text-gray-800 hover:text-black transition-colors shrink-0">
                                     Daha Fazla 
                                     <span class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-200 text-gray-600 group-hover:bg-gray-300 transition-colors">
                                         <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-[1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>

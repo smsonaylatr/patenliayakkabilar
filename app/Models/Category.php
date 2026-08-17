@@ -74,4 +74,13 @@ class Category extends Model
     {
         return $this->products()->where('status', true)->count();
     }
+
+    /**
+     * Kategori SEO URL'si
+     */
+    public function getUrlAttribute(): string
+    {
+        return route('category.show', ['slug' => $this->slug]);
+    }
 }
+

@@ -126,7 +126,10 @@ Route::redirect('/koleksiyon/{slug}', '/kategori/{slug}', 301);
 
 // Tüm ürünler
 Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
-    $category = $request->has('category') ? \App\Models\Category::where('slug', $request->category)->first() : null;
+    if ($request->has('category') && !empty($request->category)) {
+        return redirect()->route('category.show', ['slug' => $request->category], 301);
+    }
+    $category = null;
     return view('products.index', compact('category'));
 })->name('products.index');
 

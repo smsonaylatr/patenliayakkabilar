@@ -396,7 +396,7 @@
                     <ul class="flex flex-col">
                         @foreach($categories as $index => $category)
                         <li class="border-b border-gray-100 last:border-0">
-                            <a href="{{ route('products.index', ['category' => $category->slug]) }}" @click="open = false" wire:navigate class="flex items-center justify-between py-6 group">
+                            <a href="{{ route('category.show', ['slug' => $category->slug]) }}" @click="open = false" wire:navigate class="flex items-center justify-between py-6 group">
                                 <div class="flex items-center gap-5 sm:gap-8">
                                     <span class="text-sm font-bold text-gray-300 w-6">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
                                     <span class="text-3xl sm:text-4xl font-black text-gray-900 group-hover:text-brand-orange transition-colors tracking-tight">{{ $category->name }}</span>
