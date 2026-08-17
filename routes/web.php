@@ -189,9 +189,20 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
     
     if ($request->has('order_number')) {
         $orderNumber = trim($request->input('order_number'));
-        $order = \App\Models\Order::where('order_number', $orderNumber)->first();
+        $order = \App\Models\Order::with(['items.product', 'items.variant'])
+            ->where('order_number', $orderNumber)
+            ->first();
+
         if (!$order) {
             $error = 'Girdiğiniz sipariş numarasına ait bir kayıt bulunamadı.';
+        } else {
+            // Porego canlı kargo durumunu ve takip kodunu sorgulayalım
+            try {
+                app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+                $order->refresh();
+            } catch (\Throwable $e) {
+                // Background sync fail-safe
+            }
         }
     }
     
