@@ -388,20 +388,36 @@ html:not(.dark) .sku-code {
                       $imageUrl = asset('favicon.png');
                   }
 
-                  $variantText = $item->variant_info;
-                  if (!$variantText && $variant) {
+                  // Renk ve Beden bilgilerini hem ilişkiden hem de ürün adından dinamik çözümleyelim
+                  $vColor = null;
+                  if ($variant && !empty($variant->color)) {
                       $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
-                      $vSize = $variant->size;
-                      if ($vColor && $vSize) {
-                          $variantText = "{$vColor} / {$vSize}";
-                      } elseif ($vSize) {
-                          $variantText = "Beden: {$vSize}";
-                      } elseif ($vColor) {
-                          $variantText = $vColor;
+                  }
+
+                  if (!$vColor) {
+                      $colorsToMatch = ['Pudra', 'Pembe', 'Pink', 'Lila', 'Rainbow', 'Gökkuşağı', 'Blue', 'Mavi', 'Siyah', 'Black', 'Beyaz', 'White', 'Kırmızı', 'Red', 'Yeşil', 'Green', 'Mor', 'Purple', 'Turuncu', 'Orange', 'Sarı', 'Yellow', 'Fuşya', 'Gümüş', 'Altın'];
+                      $checkText = ($product ? $product->name : '') . ' ' . $item->product_name . ' ' . ($variant?->sku ?: '');
+                      foreach ($colorsToMatch as $c) {
+                          if (stripos($checkText, $c) !== false) {
+                              $vColor = $c;
+                              break;
+                          }
                       }
                   }
-                  if (!$variantText) {
-                      $variantText = 'Standart';
+
+                  $vSize = $variant?->size;
+                  if (!$vSize && !empty($item->variant_info) && preg_match('/(?:Beden:\s*|Numara:\s*)(\d+)/i', $item->variant_info, $m)) {
+                      $vSize = $m[1];
+                  }
+
+                  if ($vColor && $vSize) {
+                      $variantText = "{$vColor} / Beden: {$vSize}";
+                  } elseif ($vSize) {
+                      $variantText = "Beden: {$vSize}";
+                  } elseif ($vColor) {
+                      $variantText = $vColor;
+                  } else {
+                      $variantText = $item->variant_info ?: 'Standart';
                   }
 
                   $sku = $variant?->sku ?: ($product?->sku ?: '-');

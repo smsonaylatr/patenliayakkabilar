@@ -262,12 +262,27 @@ class Checkout extends Component
 
         // Create Order Items
         foreach ($cart->items as $item) {
+            $vColor = null;
+            if ($item->variant && !empty($item->variant->color)) {
+                $vColor = is_array($item->variant->color) ? implode(', ', $item->variant->color) : $item->variant->color;
+            }
+            $vSize = $item->variant?->size;
+
+            $variantInfo = null;
+            if ($vColor && $vSize) {
+                $variantInfo = "{$vColor} / Beden: {$vSize}";
+            } elseif ($vSize) {
+                $variantInfo = "Beden: {$vSize}";
+            } elseif ($vColor) {
+                $variantInfo = $vColor;
+            }
+
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
                 'product_variant_id' => $item->product_variant_id,
                 'product_name' => $item->product ? $item->product->name : 'Bilinmeyen Ürün',
-                'variant_info' => $item->variant ? 'Beden: ' . $item->variant->size : null,
+                'variant_info' => $variantInfo,
                 'quantity' => $item->quantity,
                 'unit_price' => $item->price,
                 'total_price' => $item->price * $item->quantity,
