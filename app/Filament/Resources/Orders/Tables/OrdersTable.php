@@ -204,6 +204,13 @@ class OrdersTable
                     ->native(false),
             ])
             ->actions([
+                Action::make('viewDetails')
+                    ->hidden()
+                    ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)
+                    ->modalContent(fn (Order $record) => view('filament.orders.order-details-accordion', ['getRecord' => fn () => $record]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Kapat'),
+
                 Action::make('createGibInvoice')
                     ->iconButton()
                     ->size('lg')
