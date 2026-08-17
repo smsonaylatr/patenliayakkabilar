@@ -410,4 +410,82 @@ class PoregoApiService
             return false;
         }
     }
+
+    /**
+     * Porego'dan aktif/kargodaki siparişlerin güncel durumlarını ve kargo takip numaralarını çeker.
+     */
+    public function syncOrderStatuses()
+    {
+        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
+        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
+        $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
+
+        if (!$apiKey || !$apiSecret) {
+            return ['success' => false, 'message' => 'Porego API Anahtarları tanımlı değil.', 'updated_count' => 0];
+        }
+
+        try {
+            // Tamamlanmamış veya kargodaki siparişleri getirelim
+            $activeOrders = Order::whereNotIn('status', ['delivered', 'cancelled'])->get();
+            $updatedCount = 0;
+
+            foreach ($activeOrders as $order) {
+                // Porego sipariş detay sorgulaması
+                $response = Http::withHeaders([
+                    'X-Api-Key' => $apiKey,
+                    'X-Api-Secret' => $apiSecret,
+                    'Accept' => 'application/json',
+                ])->get("{$apiUrl}/orders/{$order->id}");
+
+                if (!$response->successful() && !empty($order->order_number)) {
+                    $response = Http::withHeaders([
+                        'X-Api-Key' => $apiKey,
+                        'X-Api-Secret' => $apiSecret,
+                        'Accept' => 'application/json',
+                    ])->get("{$apiUrl}/orders/{$order->order_number}");
+                }
+
+                if ($response->successful()) {
+                    $data = $response->json('data') ?: $response->json();
+                    $status = $data['currentStatus'] ?? ($data['status'] ?? null);
+                    $trackingNumber = $data['trackingNumber'] ?? ($data['tracking_number'] ?? ($data['cargo_tracking_code'] ?? null));
+
+                    if ($status) {
+                        $newStatus = match (strtoupper($status)) {
+                            'SHIPPED', 'IN_TRANSIT' => 'shipped',
+                            'COMPLETED', 'DELIVERED' => 'delivered',
+                            'CANCELLED' => 'cancelled',
+                            default => null
+                        };
+
+                        $changed = false;
+                        if ($newStatus && $order->status !== $newStatus) {
+                            $order->status = $newStatus;
+                            $changed = true;
+                        }
+
+                        if ($trackingNumber && $order->cargo_tracking_code !== $trackingNumber) {
+                            $order->cargo_tracking_code = $trackingNumber;
+                            $changed = true;
+                        }
+
+                        if ($changed) {
+                            $order->save();
+                            $updatedCount++;
+                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) durumu '{$order->status}' olarak güncellendi.");
+                        }
+                    }
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => "{$updatedCount} adet siparişin Porego durumu başarıyla güncellendi.",
+                'updated_count' => $updatedCount
+            ];
+        } catch (\Throwable $e) {
+            Log::error("Porego Sipariş Durumu Senkronizasyon İstisnası: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Hata: ' . $e->getMessage(), 'updated_count' => 0];
+        }
+    }
 }

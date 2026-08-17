@@ -16,6 +16,26 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('syncPoregoOrders')
+                ->label('Porego Durumlarını Çek')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->action(function (): void {
+                    $result = app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+                    if ($result['success']) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Sipariş Durumları Güncellendi')
+                            ->body($result['message'])
+                            ->success()
+                            ->send();
+                    } else {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Porego Senkronizasyon Uyarısı')
+                            ->body($result['message'])
+                            ->warning()
+                            ->send();
+                    }
+                }),
             CreateAction::make()->label('Yeni Sipariş'),
         ];
     }
