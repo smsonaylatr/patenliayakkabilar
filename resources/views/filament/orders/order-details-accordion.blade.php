@@ -117,7 +117,7 @@ td.fi-ta-actions-cell {
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
     padding-right: 6px !important;
-    width: 55px;
+    width: 145px;
     vertical-align: middle;
     position: relative;
     overflow: visible;
@@ -128,9 +128,9 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
     background: #ffffff;
     overflow: hidden;
     flex-shrink: 0;
@@ -147,10 +147,10 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb:hover {
-    width: 300px;
-    height: 300px;
+    width: 250px;
+    height: 250px;
     border-radius: 16px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
     z-index: 9999 !important;
     border-color: #38bdf8 !important;
 }
@@ -440,7 +440,7 @@ html:not(.dark) .sku-code {
                   $sku = $variant?->sku ?: ($product?->sku ?: '-');
               @endphp
               <tr>
-                <td style="width:76px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
+                <td style="width:145px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
