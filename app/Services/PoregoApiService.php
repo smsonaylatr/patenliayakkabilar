@@ -84,10 +84,13 @@ class PoregoApiService
 
             $rawAddress = trim($order->shipping_address) ?: 'Adres Belirtilmedi';
 
-            // Extract or infer neighborhood name for Porego cargo label validation
+            // Extract or infer clean neighborhood name (e.g. "Göztepe") for Porego dropdown matching
             $neighborhoodName = trim($order->shipping_district) ?: 'Merkez';
             if (preg_match('/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9\s]+)(mah|mahalle|mahallesi|mh\.)/i', $rawAddress, $matches)) {
-                $neighborhoodName = trim($matches[0]);
+                $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/i', '', $matches[0]));
+                if (!empty($cleanMah)) {
+                    $neighborhoodName = $cleanMah;
+                }
             }
 
             $payload = [
@@ -97,9 +100,14 @@ class PoregoApiService
                 'customerEmail'       => $order->customer_email ?: 'siparis@patenliayakkabilar.com',
                 'address'             => $rawAddress,
                 'city'                => trim($order->shipping_city) ?: 'İstanbul',
+                'cityName'            => trim($order->shipping_city) ?: 'İstanbul',
                 'district'            => trim($order->shipping_district) ?: 'Merkez',
+                'districtName'        => trim($order->shipping_district) ?: 'Merkez',
                 'neighborhood'        => $neighborhoodName,
                 'neighborhoodName'    => $neighborhoodName,
+                'mahalle'             => $neighborhoodName,
+                'mahalleName'         => $neighborhoodName,
+                'subdistrict'         => $neighborhoodName,
                 'paymentType'         => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
                 'platformOrderId'     => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
