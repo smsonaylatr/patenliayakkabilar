@@ -147,10 +147,10 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb:hover {
-    width: 140px;
-    height: 140px;
-    border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    width: 300px;
+    height: 300px;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
     z-index: 9999 !important;
     border-color: #38bdf8 !important;
 }
