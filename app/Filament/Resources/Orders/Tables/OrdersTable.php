@@ -463,9 +463,10 @@ class OrdersTable
                         ->form([
                             TextInput::make('conversion_name')
                                 ->label('Google Ads Dönüşüm Eylemi Adı')
-                                ->default('Teslim Edilen Sipariş')
+                                ->default('Purchase')
                                 ->required()
-                                ->helperText('Google Ads panelinizdeki (Hedefler > Dönüşümler > Özet) Dönüşüm Eylemi adı ile BİREBİR aynı olmalıdır (Örn: Purchase, Satın Alma, Teslim Edilen Sipariş).'),
+                                ->placeholder('Örn: Purchase, Satın Alma, Sipariş')
+                                ->helperText('Google Ads panelinizdeki (Hedefler > Dönüşümler > Özet) Dönüşüm Eylemi adı ile BİREBİR aynı olmalıdır. En yaygın varsayılan isim: Purchase veya Satın Alma.'),
                         ])
                         ->modalHeading('Seçilen Siparişleri CSV Olarak Aktar')
                         ->modalDescription('Google Ads panelinizdeki Dönüşüm Eylemi adını kontrol ediniz. Yalnızca Google Ads (GCLID) kaynaklı siparişler dışa aktarılacaktır.')
