@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'payment/paytr/webhook',
             'api/n8n/blog-publish',
-            'api/porego/webhook',
+            'api/porego/*',
             'admin/logout',
             'logout',
         ]);

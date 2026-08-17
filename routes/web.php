@@ -695,6 +695,8 @@ Route::get('/deploy-fix-names', function () {
 // ========================
 Route::post('api/n8n/blog-publish', [\App\Http\Controllers\N8nWebhookController::class, 'publishBlog']);
 Route::post('api/porego/webhook', [\App\Http\Controllers\PoregoWebhookController::class, 'handle']);
+Route::get('api/porego/products', [\App\Http\Controllers\PoregoProductApiController::class, 'index']);
+Route::get('api/porego/stock', [\App\Http\Controllers\PoregoProductApiController::class, 'stock']);
 
 // Landing Page (Bilgi Sistemi)
 Route::get('bilgi', [\App\Http\Controllers\BilgiController::class, 'index'])->name('bilgi.index');

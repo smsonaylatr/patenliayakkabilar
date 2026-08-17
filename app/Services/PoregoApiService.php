@@ -251,4 +251,163 @@ class PoregoApiService
             return ['success' => false, 'message' => 'Sistemsel bir hata oluştu: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Tüm ürünleri veya seçilen ürünleri Porego / Paketfy stok yönetimi API'sine aktarır/senkronize eder.
+     */
+    public function syncProducts($productsQuery = null)
+    {
+        if (!$this->apiKey || !$this->apiSecret) {
+            Log::warning("Porego API Key veya Secret eksik olduğu için ürün senkronizasyonu yapılamadı.");
+            return ['success' => false, 'message' => 'Porego API Anahtarları (.env) tanımlı değil.', 'synced_count' => 0];
+        }
+
+        try {
+            $products = $productsQuery ? $productsQuery->get() : \App\Models\Product::with(['variants', 'images'])->get();
+            $itemsPayload = [];
+
+            foreach ($products as $product) {
+                $productImage = $product->images->first()?->image_url ?: url('/favicon.png');
+                if (!empty($productImage) && !str_starts_with($productImage, 'http')) {
+                    $productImage = asset($productImage);
+                }
+
+                if ($product->variants->isNotEmpty()) {
+                    foreach ($product->variants as $variant) {
+                        $sku = $variant->sku ?: ($product->sku ?: 'SKU-V' . $variant->id);
+                        $variantName = $variant->size ? "Beden: {$variant->size}" : "";
+                        $fullName = $product->name . ($variantName ? " ({$variantName})" : "");
+
+                        $itemsPayload[] = [
+                            'platformProductId' => (string)$product->id,
+                            'platformVariantId' => (string)$variant->id,
+                            'sku'               => $sku,
+                            'productSku'        => $sku,
+                            'barcode'           => $sku,
+                            'code'              => $sku,
+                            'name'              => $fullName,
+                            'productName'       => $fullName,
+                            'title'             => $fullName,
+                            'price'             => (float)($variant->price ?: $product->price),
+                            'discountPrice'     => (float)($variant->discount_price ?: $product->discount_price ?: 0),
+                            'stock'             => (int)($variant->stock ?? 0),
+                            'quantity'          => (int)($variant->stock ?? 0),
+                            'size'              => $variant->size,
+                            'color'             => is_array($variant->color) ? implode(', ', $variant->color) : $variant->color,
+                            'imageUrl'          => $productImage,
+                            'active'            => (bool)$product->status,
+                        ];
+                    }
+                } else {
+                    $sku = $product->sku ?: 'SKU-P' . $product->id;
+                    $itemsPayload[] = [
+                        'platformProductId' => (string)$product->id,
+                        'platformVariantId' => null,
+                        'sku'               => $sku,
+                        'productSku'        => $sku,
+                        'barcode'           => $sku,
+                        'code'              => $sku,
+                        'name'              => $product->name,
+                        'productName'       => $product->name,
+                        'title'             => $product->name,
+                        'price'             => (float)$product->price,
+                        'discountPrice'     => (float)($product->discount_price ?: 0),
+                        'stock'             => (int)($product->stock ?? 0),
+                        'quantity'          => (int)($product->stock ?? 0),
+                        'imageUrl'          => $productImage,
+                        'active'            => (bool)$product->status,
+                    ];
+                }
+            }
+
+            if (empty($itemsPayload)) {
+                return ['success' => true, 'message' => 'Senkronize edilecek aktif ürün bulunamadı.', 'synced_count' => 0];
+            }
+
+            // Porego / Paketfy ürün ve stok senkronizasyon uç noktalarına gönderim
+            $syncEndpoints = [
+                "{$this->apiUrl}/products/sync",
+                "{$this->apiUrl}/products/batch",
+                "{$this->apiUrl}/products",
+            ];
+
+            $success = false;
+            $responseMessage = '';
+
+            foreach ($syncEndpoints as $endpoint) {
+                try {
+                    $response = Http::withHeaders([
+                        'X-Api-Key' => $this->apiKey,
+                        'X-Api-Secret' => $this->apiSecret,
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ])->post($endpoint, [
+                        'products' => $itemsPayload,
+                        'items' => $itemsPayload,
+                    ]);
+
+                    if ($response->successful()) {
+                        $success = true;
+                        Log::info("Porego Ürün Senkronizasyonu Başarılı ({$endpoint}): " . count($itemsPayload) . " ürün/varyant aktarıldı.");
+                        break;
+                    } else {
+                        $responseMessage = $response->body();
+                    }
+                } catch (\Throwable $e) {
+                    $responseMessage = $e->getMessage();
+                }
+            }
+
+            if ($success) {
+                return [
+                    'success' => true,
+                    'message' => count($itemsPayload) . ' adet ürün/varyant Porego stok sistemine başarıyla aktarıldı.',
+                    'synced_count' => count($itemsPayload),
+                ];
+            } else {
+                Log::warning("Porego Ürün Senkronizasyon Hatası: " . $responseMessage);
+                return [
+                    'success' => false,
+                    'message' => 'Porego ürün senkronizasyonu sırasında API yanıtı: ' . $responseMessage,
+                    'synced_count' => count($itemsPayload),
+                ];
+            }
+        } catch (\Throwable $e) {
+            Log::error("Porego Ürün Senkronizasyon İstisnası: " . $e->getMessage());
+            return ['success' => false, 'message' => 'İstisna: ' . $e->getMessage(), 'synced_count' => 0];
+        }
+    }
+
+    /**
+     * Tek bir ürün veya varyant stoğunu Porego'da günceller
+     */
+    public function syncProductStock($variantOrProduct)
+    {
+        if (!$this->apiKey || !$this->apiSecret) return false;
+
+        try {
+            $sku = $variantOrProduct->sku;
+            $stock = (int)($variantOrProduct->stock ?? 0);
+
+            if (!$sku) return false;
+
+            $payload = [
+                'sku' => $sku,
+                'stock' => $stock,
+                'quantity' => $stock,
+            ];
+
+            Http::withHeaders([
+                'X-Api-Key' => $this->apiKey,
+                'X-Api-Secret' => $this->apiSecret,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post("{$this->apiUrl}/products/update-stock", $payload);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Porego tekli stok güncelleme hatası: " . $e->getMessage());
+            return false;
+        }
+    }
 }

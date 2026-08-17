@@ -186,6 +186,29 @@ class ProductsTable
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
+                    \Filament\Actions\BulkAction::make('syncToPorego')
+                        ->label("Porego'ya Senkronize Et")
+                        ->icon('heroicon-o-paper-airplane')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $result = app(\App\Services\PoregoApiService::class)->syncProducts($records);
+                            if ($result['success']) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Porego Senkronizasyonu Başarılı')
+                                    ->body($result['message'])
+                                    ->success()
+                                    ->send();
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Porego Senkronizasyon Uyarısı')
+                                    ->body($result['message'])
+                                    ->warning()
+                                    ->send();
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     \Filament\Actions\BulkAction::make('syncToGoogle')
                         ->label("Google Merchant'a Gönder")
                         ->icon('heroicon-o-arrow-path')
