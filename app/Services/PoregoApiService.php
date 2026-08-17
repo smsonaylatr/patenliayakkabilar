@@ -53,32 +53,43 @@ class PoregoApiService
                 $order->setRelation('items', $items);
             }
 
-            // Ürün özet metni oluşturalım (Sadece SKU çekilmesi talebi doğrultusunda)
+            // SKU ve Ürün listesi hazırlama (Strictly net SKU)
             $productSummaryList = [];
             $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
-                $sku = $item->variant?->sku ?: ($item->product?->sku ?: ('SKU-' . $item->product_id));
-                $onlySku = ($sku && $sku !== '-') ? $sku : ($item->product_name ?: ('SKU-' . $item->product_id));
+                $rawSku = trim($item->variant?->sku ?: ($item->product?->sku ?: ''));
+                if (empty($rawSku) || $rawSku === '-' || $rawSku === 'SKU-') {
+                    $rawSku = 'SKU-' . ($item->variant_id ?: $item->product_id);
+                }
 
-                $productSummaryList[] = "{$item->quantity}x {$onlySku}";
+                $productSummaryList[] = "{$item->quantity}x {$rawSku}";
 
                 return [
-                    'sku'      => $onlySku,
-                    'name'     => $onlySku,
-                    'quantity' => (int)$item->quantity,
+                    'sku'      => $rawSku,
+                    'name'     => $rawSku,
+                    'quantity' => max(1, (int)$item->quantity),
                     'price'    => (float)($item->unit_price ?? 0),
                 ];
-            })->toArray();
+            })->values()->toArray();
 
             $productSummaryText = implode(', ', $productSummaryList);
+
+            // Telefon numarasını standart formata getirelim
+            $phone = preg_replace('/[^0-9]/', '', $order->customer_phone ?: '');
+            if (strlen($phone) === 10 && str_starts_with($phone, '5')) {
+                $phone = '0' . $phone;
+            }
+            if (empty($phone)) {
+                $phone = '05555555555';
+            }
 
             $payload = [
                 'customerName'        => $name,
                 'customerSurname'     => $surname,
-                'customerPhone'       => $order->customer_phone,
-                'customerEmail'       => $order->customer_email,
-                'address'             => $order->shipping_address,
-                'city'                => $order->shipping_city,
-                'district'            => $order->shipping_district,
+                'customerPhone'       => $phone,
+                'customerEmail'       => $order->customer_email ?: 'siparis@patenliayakkabilar.com',
+                'address'             => trim($order->shipping_address) ?: 'Adres Belirtilmedi',
+                'city'                => trim($order->shipping_city) ?: 'İstanbul',
+                'district'            => trim($order->shipping_district) ?: 'Merkez',
                 'paymentType'         => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
                 'platformOrderId'     => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
@@ -105,6 +116,14 @@ class PoregoApiService
                 if (empty($err)) {
                     $err = "HTTP " . $response->status();
                 }
+
+                // 400 Bad Request durumunda kullanıcı dostu açıklama ekleyelim (Sipariş zaten Porego'da kayıtlı)
+                if ($response->status() === 400) {
+                    $msg = "Bu sipariş (#{$order->order_number}) Porego sisteminde zaten oluşturulmuş veya mevcut kaydı bulunmaktadır. Porego panelindeki Siparişler sayfasından etiketini basabilirsiniz.";
+                    Log::info("Porego API 400 Bildirimi. Sipariş No: {$order->order_number}", ['response' => $response->body()]);
+                    return ['success' => false, 'message' => $msg];
+                }
+
                 Log::error("Porego API Sipariş Gönderim Hatası. Sipariş No: {$order->order_number}", [
                     'status' => $response->status(),
                     'response' => $response->json(),
