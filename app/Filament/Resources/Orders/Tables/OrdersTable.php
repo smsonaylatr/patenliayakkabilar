@@ -131,20 +131,48 @@ class OrdersTable
                 TextColumn::make('payment_status')
                     ->label('ÖDEME DURUMU')
                     ->badge()
-                    ->color(fn (?string $state) => match ($state) {
+                    ->color(fn (?string $state, Order $record) => match ($state) {
                         'paid' => 'success',
-                        'unpaid' => 'danger',
+                        'unpaid', 'failed' => 'danger',
                         'pending' => 'warning',
                         'refunded' => 'gray',
-                        default => 'success',
+                        default => $record->payment_method === 'cash_on_delivery' ? 'warning' : 'danger',
                     })
-                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                    ->formatStateUsing(fn (?string $state, Order $record) => match ($state) {
                         'paid' => 'Ödendi',
                         'unpaid' => 'Ödenmedi',
+                        'failed' => 'Başarısız',
                         'pending' => 'Bekliyor',
                         'refunded' => 'İade Edildi',
-                        default => 'Ödendi',
-                    }),
+                        default => $record->payment_method === 'cash_on_delivery' ? 'Bekliyor' : 'Ödenmedi',
+                    })
+                    ->action(
+                        Action::make('updatePaymentStatus')
+                            ->modalHeading('Ödeme Durumunu Güncelle')
+                            ->modalSubmitActionLabel('Kaydet')
+                            ->modalCancelActionLabel('Vazgeç')
+                            ->form([
+                                Select::make('payment_status')
+                                    ->label('Ödeme Durumu')
+                                    ->options([
+                                        'pending' => 'Bekliyor',
+                                        'paid' => 'Ödendi',
+                                        'unpaid' => 'Ödenmedi',
+                                        'failed' => 'Başarısız',
+                                        'refunded' => 'İade Edildi',
+                                    ])
+                                    ->default(fn (Order $record) => $record->payment_status ?: 'pending')
+                                    ->native(false)
+                                    ->required(),
+                            ])
+                            ->action(function (Order $record, array $data): void {
+                                $record->update(['payment_status' => $data['payment_status']]);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Ödeme durumu güncellendi')
+                                    ->success()
+                                    ->send();
+                            })
+                    ),
             ])
             ->filters([
                 SelectFilter::make('status')
