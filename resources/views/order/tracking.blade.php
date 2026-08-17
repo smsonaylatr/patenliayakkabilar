@@ -56,10 +56,12 @@
                         <div class="bg-gray-50 rounded-2xl p-5 space-y-4 border border-gray-100">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500 text-sm">Sipariş No:</span>
-                                <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-lg border border-gray-200 text-sm font-mono font-bold text-gray-900 hover:border-black transition-colors" title="Tıklayarak Kopyala">
+                                <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-lg border border-gray-200 text-sm font-semibold text-gray-900 hover:border-black transition-colors" title="Tıklayarak Kopyala">
                                     <span>#{{ $order->order_number }}</span>
-                                    <svg x-show="!copied" class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    <span x-show="copied" x-cloak class="text-xs text-emerald-600 font-bold">Kopyalandı!</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span x-show="copied" x-cloak class="text-xs text-emerald-600 font-bold ml-0.5">Kopyalandı!</span>
                                 </div>
                             </div>
 
@@ -110,7 +112,9 @@
                                             <div class="text-xs font-medium text-gray-500 mt-1">Kargo Firması: <strong class="text-gray-900 font-semibold">{{ $cargoName }}</strong></div>
                                         </div>
                                         <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs shrink-0">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                            </svg>
                                             <span x-show="!copied">Kodu Kopyala</span>
                                             <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
                                         </div>
