@@ -460,11 +460,17 @@ class OrdersTable
                         ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('success')
-                        ->requiresConfirmation()
+                        ->form([
+                            TextInput::make('conversion_name')
+                                ->label('Google Ads Dönüşüm Eylemi Adı')
+                                ->default('Teslim Edilen Sipariş')
+                                ->required()
+                                ->helperText('Google Ads panelinizdeki (Hedefler > Dönüşümler > Özet) Dönüşüm Eylemi adı ile BİREBİR aynı olmalıdır (Örn: Purchase, Satın Alma, Teslim Edilen Sipariş).'),
+                        ])
                         ->modalHeading('Seçilen Siparişleri CSV Olarak Aktar')
-                        ->modalDescription('Seçtiğiniz siparişler Google Çevrimdışı Dönüşüm (Google Ads) formatında indirilecek me dönüşüm aktarıldı olarak işaretlenecektir.')
+                        ->modalDescription('Google Ads panelinizdeki Dönüşüm Eylemi adını kontrol ediniz. Yalnızca Google Ads (GCLID) kaynaklı siparişler dışa aktarılacaktır.')
                         ->modalSubmitActionLabel('CSV İndir')
-                        ->action(function (Collection $records) {
+                        ->action(function (Collection $records, array $data) {
                             if ($records->isEmpty()) {
                                 \Filament\Notifications\Notification::make()
                                     ->title('Seçili sipariş bulunamadı')
@@ -473,6 +479,19 @@ class OrdersTable
                                 return;
                             }
 
+                            $gclidRecords = $records->filter(fn (Order $order) => !empty(trim($order->gclid ?? '')));
+
+                            if ($gclidRecords->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('GCLID Bulunamadı')
+                                    ->body('Seçtiğiniz siparişlerin hiçbirinde Google Ads Tıklama Kimliği (GCLID) bulunmuyor. Google Ads, GCLID olmadan dönüşüm kabul etmez.')
+                                    ->danger()
+                                    ->persistent()
+                                    ->send();
+                                return;
+                            }
+
+                            $conversionName = trim($data['conversion_name'] ?? 'Teslim Edilen Sipariş');
                             $csvData = [];
                             // Google Ads Çevrimdışı Dönüşüm CSV Formatı:
                             // Satır 1: Parameters:TimeZone=Europe/Istanbul
@@ -481,17 +500,26 @@ class OrdersTable
                             $csvData[] = ['Parameters:TimeZone=Europe/Istanbul'];
                             $csvData[] = ['Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
                             
-                            foreach ($records as $order) {
+                            foreach ($gclidRecords as $order) {
                                 $csvData[] = [
-                                    $order->gclid ?? ('OFFLINE_' . $order->order_number),
-                                    'Teslim Edilen Sipariş',
+                                    $order->gclid,
+                                    $conversionName,
                                     $order->updated_at ? $order->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
                                     number_format((float) $order->grand_total, 2, '.', ''),
                                     'TRY'
                                 ];
                             }
 
-                            Order::whereIn('id', $records->pluck('id'))->update(['is_offline_conversion_exported' => true]);
+                            Order::whereIn('id', $gclidRecords->pluck('id'))->update(['is_offline_conversion_exported' => true]);
+
+                            $skippedCount = $records->count() - $gclidRecords->count();
+                            if ($skippedCount > 0) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Bazı Siparişler Atlandı')
+                                    ->body("{$gclidRecords->count()} adet GCLID'li sipariş CSV'ye aktarıldı. GCLID'si bulunmayan {$skippedCount} adet sipariş atlandı.")
+                                    ->warning()
+                                    ->send();
+                            }
 
                             $callback = function() use ($csvData) {
                                 $file = fopen('php://output', 'w');
