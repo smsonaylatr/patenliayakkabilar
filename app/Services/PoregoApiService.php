@@ -25,9 +25,14 @@ class PoregoApiService
      */
     public function sendOrder(Order $order)
     {
-        if (!$this->apiKey || !$this->apiSecret) {
-            Log::warning("Porego API Key veya Secret eksik olduğu için #{$order->order_number} numaralı sipariş gönderilemedi.");
-            return false;
+        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
+        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
+        $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
+
+        if (!$apiKey || !$apiSecret) {
+            $msg = "Porego API Key veya Secret tanımlı olmadığı için #{$order->order_number} numaralı sipariş aktarılamadı. Lütfen .env dosyasını kontrol edin.";
+            Log::warning($msg);
+            return ['success' => false, 'message' => $msg];
         }
 
         try {
@@ -171,32 +176,32 @@ class PoregoApiService
             }
 
             $response = Http::withHeaders([
-                'X-Api-Key' => $this->apiKey,
-                'X-Api-Secret' => $this->apiSecret,
+                'X-Api-Key' => $apiKey,
+                'X-Api-Secret' => $apiSecret,
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-            ])->post("{$this->apiUrl}/orders", $payload);
+            ])->post("{$apiUrl}/orders", $payload);
 
             if ($response->successful()) {
                 Log::info("Sipariş başarıyla Porego'ya iletildi. Sipariş No: {$order->order_number}", $response->json());
-                
-                // İsteğe bağlı olarak dönen kargo takip kodunu veritabanına kaydedebiliriz.
-                // $order->update(['cargo_tracking_code' => $response->json('tracking_code')]);
-                
-                return true;
+                return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) başarıyla Porego'ya aktarıldı."];
             } else {
+                $err = $response->json('message') ?: ($response->json('error') ?: $response->body());
+                if (empty($err)) {
+                    $err = "HTTP " . $response->status();
+                }
                 Log::error("Porego API Sipariş Gönderim Hatası. Sipariş No: {$order->order_number}", [
                     'status' => $response->status(),
                     'response' => $response->json(),
                     'payload' => $payload,
                 ]);
-                return false;
+                return ['success' => false, 'message' => "Porego API Hatası ({$response->status()}): {$err}"];
             }
         } catch (\Throwable $e) {
             Log::error("Porego API Sipariş Gönderim İstisnası. Sipariş No: {$order->order_number}", [
                 'error' => $e->getMessage()
             ]);
-            return false;
+            return ['success' => false, 'message' => "İstisna: " . $e->getMessage()];
         }
     }
 

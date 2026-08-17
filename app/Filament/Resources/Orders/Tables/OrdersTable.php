@@ -312,20 +312,25 @@ class OrdersTable
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Porego\'ya Kargo Gönder')
-                    ->modalDescription('Sipariş bilgilerini ve detaylı ürün listesini Porego Kargo sistemine aktarır.')
+                    ->modalDescription('Sipariş bilgilerini ve net SKU listesini Porego Kargo sistemine aktarır.')
                     ->modalSubmitActionLabel('Gönder')
                     ->action(function (Order $record): void {
-                        $success = app(\App\Services\PoregoApiService::class)->sendOrder($record);
-                        if ($success) {
+                        $result = app(\App\Services\PoregoApiService::class)->sendOrder($record);
+                        $isSuccess = is_array($result) ? ($result['success'] ?? false) : (bool)$result;
+                        $message = is_array($result) ? ($result['message'] ?? '') : '';
+
+                        if ($isSuccess) {
                             \Filament\Notifications\Notification::make()
                                 ->title('Sipariş Porego\'ya başarıyla gönderildi')
+                                ->body($message ?: 'Sipariş detayları Porego sistemine iletildi.')
                                 ->success()
                                 ->send();
                         } else {
                             \Filament\Notifications\Notification::make()
-                                ->title('Porego gönderim hatası')
-                                ->body('Sipariş Porego\'ya iletilirken bir hata oluştu. Lütfen logları ve API anahtarlarını kontrol edin.')
+                                ->title('Porego Gönderim Uyarısı')
+                                ->body($message ?: 'Sipariş Porego\'ya iletilirken hata oluştu.')
                                 ->danger()
+                                ->persistent()
                                 ->send();
                         }
                     }),
