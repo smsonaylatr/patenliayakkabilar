@@ -177,14 +177,41 @@
 
                     {{-- Ortalama Teslimat Süresi Rozeti --}}
                     @php
-                        $deliveryTimeText = $product->delivery_time 
-                            ? (stripos($product->delivery_time, 'gün') === false ? $product->delivery_time . ' iş günü' : $product->delivery_time)
-                            : '1-3 iş günü';
+                        $deliveryTimeRaw = $product->delivery_time ?: '1-3 iş günü';
+                        $deliveryTimeText = stripos($deliveryTimeRaw, 'gün') === false 
+                            ? $deliveryTimeRaw . ' iş günü' 
+                            : $deliveryTimeRaw;
 
-                        $startDate = \Carbon\Carbon::now()->addDays(1);
-                        $endDate = \Carbon\Carbon::now()->addDays(3);
-                        if ($startDate->isWeekend()) { $startDate->addDays(2); }
-                        if ($endDate->isWeekend()) { $endDate->addDays(2); }
+                        // Ürünün teslimat süresinden iş günü sayılarını çıkaralım (Örn: "7-14 iş günü" -> 7 ve 14)
+                        preg_match_all('/\d+/', $deliveryTimeRaw, $matches);
+                        $numbers = array_map('intval', $matches[0] ?? []);
+
+                        if (count($numbers) >= 2) {
+                            $minDays = $numbers[0];
+                            $maxDays = $numbers[1];
+                        } elseif (count($numbers) === 1) {
+                            $minDays = $numbers[0];
+                            $maxDays = $numbers[0] + 2;
+                        } else {
+                            $minDays = 1;
+                            $maxDays = 3;
+                        }
+
+                        // Hafta sonlarını (Cumartesi / Pazar) atlayarak iş günü ekleyen fonksiyon
+                        $addBusinessDays = function (\Carbon\Carbon $date, int $days): \Carbon\Carbon {
+                            $current = $date->copy();
+                            while ($days > 0) {
+                                $current->addDay();
+                                if (!$current->isWeekend()) {
+                                    $days--;
+                                }
+                            }
+                            return $current;
+                        };
+
+                        $now = \Carbon\Carbon::now();
+                        $startDate = $addBusinessDays($now, $minDays);
+                        $endDate = $addBusinessDays($now, $maxDays);
                         
                         $turkishMonths = [
                             1 => 'Ocak', 2 => 'Şubat', 3 => 'Mart', 4 => 'Nisan', 5 => 'Mayıs', 6 => 'Haziran',
