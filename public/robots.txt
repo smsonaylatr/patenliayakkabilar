@@ -12,8 +12,17 @@ Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
+# Google Web Search Bot
 User-agent: Googlebot
 Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /storage/
+Allow: /img/
+Allow: /css/
+Allow: /js/
+Allow: /build/
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /checkout
@@ -26,13 +35,38 @@ Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
+# Google Merchant Center & Shopping Image Crawler
 User-agent: Googlebot-Image
 Allow: /
+Allow: /storage/
+Allow: /img/
+Allow: /build/
 
+# Google Ads Landing Page Quality Check Crawlers
+User-agent: AdsBot-Google
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /storage/
+Allow: /img/
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /storage/
+Allow: /img/
+
+# Google Storebot & Inspection Tools
 User-agent: Storebot-Google
 Allow: /
 
 User-agent: Google-InspectionTool
+Allow: /
+
+User-agent: Mediapartners-Google
 Allow: /
 
 Sitemap: https://patenliayakkabilar.com/sitemap.xml

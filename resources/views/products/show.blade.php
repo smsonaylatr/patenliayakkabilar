@@ -6,7 +6,7 @@
     <x-slot:ogImage>{{ $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
     <x-slot:ogImageSquare>{{ $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
     <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
-    @if(isset($product->is_indexable) && !$product->is_indexable)
+    @if(isset($product->is_indexable) && $product->is_indexable === false)
         <x-slot:robots>noindex, follow</x-slot:robots>
     @endif
     <x-slot:schema>
