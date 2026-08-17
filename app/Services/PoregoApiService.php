@@ -351,7 +351,14 @@ class PoregoApiService
                         Log::info("Porego Ürün Senkronizasyonu Başarılı ({$endpoint}): " . count($itemsPayload) . " ürün/varyant aktarıldı.");
                         break;
                     } else {
-                        $responseMessage = $response->body();
+                        $msg = $response->json('message') ?: ($response->json('error') ?: $response->body());
+                        if (empty($msg)) {
+                            $msg = "HTTP " . $response->status() . " (Yanıt metni boş)";
+                        }
+                        if ($response->status() === 401) {
+                            $msg = "API Kimlik Doğrulama Hatası (401 - Unauthorized). Lütfen .env dosyasındaki POREGO_API_KEY ve POREGO_API_SECRET anahtarlarını kontrol ediniz.";
+                        }
+                        $responseMessage = $msg;
                     }
                 } catch (\Throwable $e) {
                     $responseMessage = $e->getMessage();
@@ -368,8 +375,8 @@ class PoregoApiService
                 Log::warning("Porego Ürün Senkronizasyon Hatası: " . $responseMessage);
                 return [
                     'success' => false,
-                    'message' => 'Porego ürün senkronizasyonu sırasında API yanıtı: ' . $responseMessage,
-                    'synced_count' => count($itemsPayload),
+                    'message' => $responseMessage,
+                    'synced_count' => 0,
                 ];
             }
         } catch (\Throwable $e) {
