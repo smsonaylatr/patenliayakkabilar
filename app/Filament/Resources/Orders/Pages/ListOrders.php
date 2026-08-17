@@ -40,6 +40,16 @@ class ListOrders extends ListRecords
         ];
     }
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        // 3 dakikada bir siparişler sayfası yüklendiğinde otomatik Porego durumlarını çeker
+        \Illuminate\Support\Facades\Cache::remember('porego_auto_order_sync', 180, function () {
+            return app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+        });
+    }
+
     public function getDefaultActiveTab(): string | int | null
     {
         return 'valid';
