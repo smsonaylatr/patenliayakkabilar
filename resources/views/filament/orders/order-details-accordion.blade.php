@@ -126,16 +126,15 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
+    width: 76px;
+    height: 76px;
+    border-radius: 10px;
     background: rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
+    overflow: hidden;
     position: relative;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.12) !important;
-    cursor: zoom-in;
-    z-index: 10;
 }
 
 .dark .inner-thumb {
@@ -148,21 +147,12 @@ td.fi-ta-actions-cell {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
-    position: relative;
-    z-index: 10;
-}
-
-.inner-thumb:hover {
-    z-index: 9999 !important;
+    border-radius: 10px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .inner-thumb:hover img {
-    transform: scale(3.5) !important;
-    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 8px 12px -6px rgba(0, 0, 0, 0.4) !important;
-    border-radius: 10px !important;
-    z-index: 9999 !important;
+    transform: scale(1.4) !important;
 }
 
 .td-bold {

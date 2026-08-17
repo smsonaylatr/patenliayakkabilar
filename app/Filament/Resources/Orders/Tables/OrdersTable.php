@@ -37,8 +37,8 @@ class OrdersTable
                     ->square()
                     ->size(60)
                     ->extraImgAttributes([
-                        'style' => 'border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 8px !important; object-fit: cover !important; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease !important; cursor: zoom-in !important; position: relative !important; z-index: 10 !important;',
-                        'class' => 'hover:scale-[3.5] hover:z-[9999] hover:shadow-2xl hover:rounded-xl',
+                        'style' => 'border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 8px !important; object-fit: cover !important; transition: transform 0.3s ease !important;',
+                        'class' => 'transition-transform duration-300 hover:scale-125',
                     ]),
 
                 TextColumn::make('customer_name')
