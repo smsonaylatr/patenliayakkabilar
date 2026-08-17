@@ -502,28 +502,40 @@ class PoregoApiService
                         $cleanOrderNumber = trim((string)$order->order_number);
                         $cleanOrderId = trim((string)$order->id);
 
-                        // Gerçek kargo takip kodunun sipariş numarasıyla aynı olmadığından emin olalım
-                        if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
-                            $order->cargo_tracking_code = $cleanTrackingNumber;
-                            if (!empty($cargoName)) {
-                                $order->cargo_name = $cargoName;
-                            }
-                            if ($status) {
-                                $newStatus = match (strtoupper((string)$status)) {
-                                    'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE' => 'shipped',
-                                    'COMPLETED', 'DELIVERED' => 'delivered',
-                                    'CANCELLED', 'FAILED', 'FAILED_DELIVERY' => 'cancelled',
-                                    default => null
-                                };
-                                if ($newStatus) {
-                                    $order->status = $newStatus;
-                                }
-                            }
-                            $order->save();
+                        $changed = false;
 
+                        if ($status) {
+                            $upperStatus = strtoupper((string)$status);
+                            $newStatus = match ($upperStatus) {
+                                'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
+                                'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI' => 'delivered',
+                                'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                                default => null
+                            };
+
+                            if ($newStatus && $order->status !== $newStatus) {
+                                $order->status = $newStatus;
+                                $changed = true;
+                            }
+                        }
+
+                        if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
+                            if ($order->cargo_tracking_code !== $cleanTrackingNumber) {
+                                $order->cargo_tracking_code = $cleanTrackingNumber;
+                                $changed = true;
+                            }
+                            if (!empty($cargoName) && $order->cargo_name !== $cargoName) {
+                                $order->cargo_name = $cargoName;
+                                $changed = true;
+                            }
+                        }
+
+                        if ($changed) {
+                            $order->save();
+                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo durumu '{$order->status}' olarak güncellendi.");
                             return [
-                                'tracking_code' => $cleanTrackingNumber,
-                                'cargo_name'    => $cargoName,
+                                'tracking_code' => $order->cargo_tracking_code,
+                                'cargo_name'    => $order->cargo_name,
                                 'tracking_url'  => $trackingUrl,
                                 'status'        => $order->status,
                             ];

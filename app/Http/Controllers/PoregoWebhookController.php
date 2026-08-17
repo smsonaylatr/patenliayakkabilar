@@ -37,21 +37,26 @@ class PoregoWebhookController extends Controller
             $orderData = $data['data'] ?? $data;
 
             // 1. Sipariş Durumu Değişikliği (ORDER_STATUS_CHANGED, SHIPMENT_STATUS_CHANGED)
-            $platformOrderId = $orderData['platformOrderId'] ?? ($orderData['platform_order_id'] ?? null);
-            $status = $orderData['currentStatus'] ?? ($orderData['status'] ?? null);
+            $platformOrderId = $orderData['platformOrderId'] ?? ($orderData['platform_order_id'] ?? ($orderData['order_id'] ?? ($orderData['id'] ?? null)));
+            $platformOrderNumber = $orderData['platformOrderNumber'] ?? ($orderData['platform_order_number'] ?? ($orderData['order_number'] ?? ($orderData['orderNumber'] ?? null)));
+            $status = $orderData['currentStatus'] ?? ($orderData['status'] ?? ($orderData['orderStatus'] ?? null));
             $trackingCode = $orderData['trackingNumber'] ?? ($orderData['tracking_number'] ?? ($orderData['trackingCode'] ?? null));
 
-            if ($platformOrderId && $status && in_array($event, ['ORDER_STATUS_CHANGED', 'SHIPMENT_STATUS_CHANGED'])) {
-                $order = \App\Models\Order::find($platformOrderId);
-                if (!$order && isset($orderData['platformOrderNumber'])) {
-                    $order = \App\Models\Order::where('order_number', $orderData['platformOrderNumber'])->first();
+            if ($status && ($platformOrderId || $platformOrderNumber)) {
+                $order = null;
+                if ($platformOrderId) {
+                    $order = \App\Models\Order::find($platformOrderId);
+                }
+                if (!$order && $platformOrderNumber) {
+                    $order = \App\Models\Order::where('order_number', $platformOrderNumber)->first();
                 }
 
                 if ($order) {
-                    $newStatus = match (strtoupper($status)) {
-                        'SHIPPED', 'IN_TRANSIT' => 'shipped',
-                        'COMPLETED', 'DELIVERED' => 'delivered',
-                        'CANCELLED' => 'cancelled',
+                    $upperStatus = strtoupper((string)$status);
+                    $newStatus = match ($upperStatus) {
+                        'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
+                        'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI' => 'delivered',
+                        'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
                         default => null
                     };
 
