@@ -2,9 +2,10 @@
     <div class="min-h-[70vh] bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl mx-auto">
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 bg-black text-white rounded-2xl mb-4 shadow-lg">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-black mb-4 border border-slate-200 shadow-sm">
+                    <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
                     </svg>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-black text-gray-900 mb-2">Sipariş & Kargo Takibi</h1>
