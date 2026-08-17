@@ -40,16 +40,6 @@ class OrdersTable
                         'style' => 'border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 8px !important; object-fit: cover !important;',
                     ]),
 
-                TextColumn::make('order_number')
-                    ->label('SİPARİŞ NO')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold')
-                    ->fontFamily('mono')
-                    ->copyable()
-                    ->copyMessage('Sipariş numarası kopyalandı!')
-                    ->formatStateUsing(fn (string $state) => '#' . $state),
-
                 TextColumn::make('customer_name')
                     ->label('MÜŞTERİ')
                     ->searchable()
