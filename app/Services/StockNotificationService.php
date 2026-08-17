@@ -16,22 +16,27 @@ class StockNotificationService
      */
     public static function processNotifications(Product $product, ?ProductVariant $variant = null): int
     {
-        if (!$product->status) {
-            return 0;
-        }
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('stock_notifications')) {
+                return 0;
+            }
 
-        $query = StockNotification::where('product_id', $product->id)
-            ->where('is_notified', false);
+            if (!$product->status) {
+                return 0;
+            }
 
-        if ($variant) {
-            $query->where('product_variant_id', $variant->id);
-        }
+            $query = StockNotification::where('product_id', $product->id)
+                ->where('is_notified', false);
 
-        $pendingNotifications = $query->get();
+            if ($variant) {
+                $query->where('product_variant_id', $variant->id);
+            }
 
-        if ($pendingNotifications->isEmpty()) {
-            return 0;
-        }
+            $pendingNotifications = $query->get();
+
+            if ($pendingNotifications->isEmpty()) {
+                return 0;
+            }
 
         $notifiedCount = 0;
         $vatanSms = app(VatanSmsService::class);
@@ -63,5 +68,9 @@ class StockNotificationService
         }
 
         return $notifiedCount;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('StockNotificationService error: ' . $e->getMessage());
+            return 0;
+        }
     }
 }
