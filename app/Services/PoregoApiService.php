@@ -55,63 +55,118 @@ class PoregoApiService
                 $variantText = $item->variant_info ? " ({$item->variant_info})" : "";
                 $skuText = ($sku && $sku !== '-') ? " [SKU: {$sku}]" : "";
                 $fullName = $item->product_name . $variantText . $skuText;
+                $rawName = $item->product_name;
 
                 $productSummaryList[] = "{$item->quantity}x {$fullName}";
 
                 return [
-                    'sku' => $sku,
-                    'productSku' => $sku,
-                    'product_sku' => $sku,
-                    'barcode' => $sku,
-                    'code' => $sku,
-                    'productCode' => $sku,
-                    'name' => $fullName,
-                    'productName' => $fullName,
-                    'product_name' => $fullName,
-                    'title' => $fullName,
-                    'description' => $fullName,
-                    'variantInfo' => $item->variant_info,
-                    'variant_info' => $item->variant_info,
-                    'quantity' => (int)$item->quantity,
-                    'qty' => (int)$item->quantity,
-                    'count' => (int)$item->quantity,
-                    'amount' => (int)$item->quantity,
-                    'price' => (float)($item->unit_price ?? 0),
-                    'unitPrice' => (float)($item->unit_price ?? 0),
-                    'unit_price' => (float)($item->unit_price ?? 0),
-                    'totalPrice' => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
-                    'total_price' => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
+                    'sku'                 => $sku,
+                    'productSku'          => $sku,
+                    'product_sku'         => $sku,
+                    'barcode'             => $sku,
+                    'code'                => $sku,
+                    'productCode'         => $sku,
+
+                    // Ürün Adı varyasyonları (DHL ve Paketfy şablonları için)
+                    'name'                => $fullName,
+                    'productName'         => $fullName,
+                    'product_name'        => $fullName,
+                    'itemName'            => $fullName,
+                    'item_name'           => $fullName,
+                    'title'               => $fullName,
+                    'productTitle'        => $fullName,
+                    'product_title'       => $fullName,
+                    'description'         => $fullName,
+                    'productDescription'  => $fullName,
+                    'product_description' => $fullName,
+                    'urun_adi'            => $fullName,
+                    'urunAdi'             => $fullName,
+                    'product'             => $fullName,
+                    'item'                => $fullName,
+                    'goodsName'           => $fullName,
+                    'goods_name'          => $fullName,
+                    'label'               => $fullName,
+
+                    // Yalın isim
+                    'raw_name'            => $rawName,
+                    'rawName'             => $rawName,
+
+                    // Adet varyasyonları
+                    'quantity'            => (int)$item->quantity,
+                    'qty'                 => (int)$item->quantity,
+                    'count'               => (int)$item->quantity,
+                    'amount'              => (int)$item->quantity,
+                    'adet'                => (int)$item->quantity,
+                    'piece'               => (int)$item->quantity,
+                    'pieces'              => (int)$item->quantity,
+                    'units'               => (int)$item->quantity,
+
+                    // Fiyat ve Varyant
+                    'variantInfo'         => $item->variant_info,
+                    'variant_info'        => $item->variant_info,
+                    'price'               => (float)($item->unit_price ?? 0),
+                    'unitPrice'           => (float)($item->unit_price ?? 0),
+                    'unit_price'          => (float)($item->unit_price ?? 0),
+                    'totalPrice'          => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
+                    'total_price'         => (float)($item->total_price ?? ($item->unit_price * $item->quantity)),
                 ];
             })->toArray();
 
             $productSummaryText = implode(', ', $productSummaryList);
 
             $payload = [
-                'customerName' => $name,
-                'customerSurname' => $surname,
-                'customerPhone' => $order->customer_phone,
-                'customerEmail' => $order->customer_email,
-                'address' => $order->shipping_address,
-                'city' => $order->shipping_city,
-                'district' => $order->shipping_district,
-                'paymentType' => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
-                'platformOrderId' => (string)$order->id,
-                'platformOrderNumber' => $order->order_number,
+                'customerName'         => $name,
+                'customerSurname'      => $surname,
+                'customerPhone'        => $order->customer_phone,
+                'customerEmail'        => $order->customer_email,
+                'address'              => $order->shipping_address,
+                'city'                 => $order->shipping_city,
+                'district'             => $order->shipping_district,
+                'paymentType'          => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
+                'platformOrderId'      => (string)$order->id,
+                'platformOrderNumber'  => $order->order_number,
 
-                // Root seviyede ürün özet bilgileri (Kargo fişi / etiket basımında aranabilecek tüm alan adları)
-                'productInfo' => $productSummaryText,
-                'product_info' => $productSummaryText,
-                'cargoContent' => $productSummaryText,
-                'cargo_content' => $productSummaryText,
-                'description' => $productSummaryText,
-                'content' => $productSummaryText,
-                'items_summary' => $productSummaryText,
-                'orderContent' => $productSummaryText,
-                'packageContent' => $productSummaryText,
+                // Root seviye özet metinleri (Tüm etiket şablonları için)
+                'productInfo'          => $productSummaryText,
+                'product_info'         => $productSummaryText,
+                'cargoContent'         => $productSummaryText,
+                'cargo_content'        => $productSummaryText,
+                'cargoDescription'     => $productSummaryText,
+                'cargo_description'    => $productSummaryText,
+                'description'          => $productSummaryText,
+                'content'              => $productSummaryText,
+                'items_summary'        => $productSummaryText,
+                'itemsSummary'         => $productSummaryText,
+                'orderContent'         => $productSummaryText,
+                'order_content'        => $productSummaryText,
+                'packageContent'       => $productSummaryText,
+                'package_content'      => $productSummaryText,
+                'productDetails'       => $productSummaryText,
+                'product_details'      => $productSummaryText,
+                'goodsDescription'     => $productSummaryText,
+                'goods_description'    => $productSummaryText,
+                'urun_bilgisi'         => $productSummaryText,
+                'urunBilgisi'          => $productSummaryText,
+                'note'                 => $order->customer_note ?: $productSummaryText,
 
-                // Hem items hem de products anahtarıyla liste gönderimi
-                'items' => $mappedItems,
-                'products' => $mappedItems,
+                // Tüm olası ürün koleksiyonu anahtarları
+                'items'                => $mappedItems,
+                'products'             => $mappedItems,
+                'orderItems'           => $mappedItems,
+                'order_items'          => $mappedItems,
+                'lineItems'            => $mappedItems,
+                'line_items'           => $mappedItems,
+                'orderDetails'         => $mappedItems,
+                'order_details'        => $mappedItems,
+                'cargoItems'           => $mappedItems,
+                'cargo_items'          => $mappedItems,
+                'packages'             => $mappedItems,
+                'packageItems'         => $mappedItems,
+                'package_items'        => $mappedItems,
+                'goods'                => $mappedItems,
+                'orderLines'           => $mappedItems,
+                'order_lines'          => $mappedItems,
+                'lines'                => $mappedItems,
             ];
 
             if ($order->payment_method === 'cash_on_delivery') {
