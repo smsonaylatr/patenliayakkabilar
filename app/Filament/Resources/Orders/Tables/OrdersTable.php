@@ -205,7 +205,11 @@ class OrdersTable
             ])
             ->actions([
                 Action::make('viewDetails')
-                    ->hidden()
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('Sipariş Detayı')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
                     ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)
                     ->modalContent(fn (Order $record) => view('filament.orders.order-details-accordion', ['getRecord' => fn () => $record]))
                     ->modalSubmitAction(false)
