@@ -454,7 +454,23 @@ html:not(.dark) .sku-code {
                   @endif
                 </td>
                 <td style="vertical-align: middle;">
-                  <span class="td-muted">{{ $variantText }}</span>
+                  <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                    @if($vColor)
+                      <div style="font-size: 0.82rem; font-weight: 700;">
+                        <span style="color: #94a3b8; font-weight: 500;">Renk:</span>
+                        <span style="color: #38bdf8;">{{ $vColor }}</span>
+                      </div>
+                    @endif
+                    @if($vSize)
+                      <div style="font-size: 0.82rem; font-weight: 700;">
+                        <span style="color: #94a3b8; font-weight: 500;">Numara:</span>
+                        <span style="color: #f8fafc;">{{ $vSize }}</span>
+                      </div>
+                    @endif
+                    @if(!$vColor && !$vSize)
+                      <span class="td-muted">{{ $item->variant_info ?: 'Standart' }}</span>
+                    @endif
+                  </div>
                 </td>
                 <td style="vertical-align: middle;">
                   <span class="td-muted">{{ $item->quantity }}</span>
