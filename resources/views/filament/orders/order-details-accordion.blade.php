@@ -255,6 +255,26 @@ td.fi-ta-actions-cell {
     }
 }
 
+/* Sipariş No Tıklanabilir Stil */
+.order-no-clickable {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    user-select: all !important;
+    transition: opacity 0.2s ease !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.order-no-clickable:hover {
+    opacity: 0.85 !important;
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
 /* SKU Kopyalanabilir Rozet Stilleri */
 .sku-copy-badge {
     display: inline-flex;
@@ -425,27 +445,26 @@ html:not(.dark) .sku-code {
                   <span class="mobile-label sm:hidden">Adet:</span>
                   <span class="td-muted">{{ $item->quantity }}</span>
                 </td>
-                <td class="hidden sm:table-cell">
-                  <div 
+                <td class="hidden sm:table-cell" style="vertical-align: middle; white-space: nowrap;">
+                  <span 
                     x-data="{ copied: false }" 
                     @click.stop="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)"
-                    class="sku-copy-badge"
-                    style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;"
+                    class="order-no-clickable"
                     title="Tıklayarak Sipariş Numarasını Kopyala"
                   >
-                    <span class="sku-code" style="color: #93c5fd;">#{{ $order->order_number }}</span>
-                    <span class="sku-icon">
+                    <span class="td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</span>
+                    <span style="display: inline-flex; align-items: center; margin-left: 4px; vertical-align: middle;">
                       <template x-if="!copied">
-                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 002 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:13px; height:13px; display:inline-block; opacity:0.75; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 002 2v8a2 2 0 002 2z"/></svg>
                       </template>
                       <template x-if="copied">
-                        <span class="copied-text">
-                          <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <span style="color: #34d399; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 2px;">
+                          <svg style="width:13px; height:13px; display:inline-block; color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                           Kopyalandı!
                         </span>
                       </template>
                     </span>
-                  </div>
+                  </span>
                 </td>
                 <td>
                   <span class="mobile-label sm:hidden">Birim Fiyat:</span>
