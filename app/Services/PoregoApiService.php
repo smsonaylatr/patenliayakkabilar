@@ -448,32 +448,39 @@ class PoregoApiService
                 if ($response->successful()) {
                     $data = $response->json('data') ?: $response->json();
                     $status = $data['currentStatus'] ?? ($data['status'] ?? null);
-                    $trackingNumber = $data['trackingNumber'] ?? ($data['tracking_number'] ?? ($data['cargo_tracking_code'] ?? null));
+                    $trackingNumber = $data['trackingNumber'] ?? ($data['tracking_number'] ?? ($data['cargo_tracking_code'] ?? ($data['trackingCode'] ?? ($data['shipmentTrackingNumber'] ?? ($data['barcode'] ?? null)))));
+                    $cargoName = $data['cargoName'] ?? ($data['carrier'] ?? ($data['carrierName'] ?? ($data['cargo_company'] ?? 'DHL eCommerce')));
+
+                    $changed = false;
 
                     if ($status) {
                         $newStatus = match (strtoupper($status)) {
-                            'SHIPPED', 'IN_TRANSIT' => 'shipped',
+                            'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE' => 'shipped',
                             'COMPLETED', 'DELIVERED' => 'delivered',
-                            'CANCELLED' => 'cancelled',
+                            'CANCELLED', 'FAILED', 'FAILED_DELIVERY' => 'cancelled',
                             default => null
                         };
 
-                        $changed = false;
                         if ($newStatus && $order->status !== $newStatus) {
                             $order->status = $newStatus;
                             $changed = true;
                         }
+                    }
 
-                        if ($trackingNumber && $order->cargo_tracking_code !== $trackingNumber) {
-                            $order->cargo_tracking_code = $trackingNumber;
-                            $changed = true;
-                        }
+                    if ($trackingNumber && $order->cargo_tracking_code !== $trackingNumber) {
+                        $order->cargo_tracking_code = $trackingNumber;
+                        $changed = true;
+                    }
 
-                        if ($changed) {
-                            $order->save();
-                            $updatedCount++;
-                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) durumu '{$order->status}' olarak güncellendi.");
-                        }
+                    if ($cargoName && $order->cargo_name !== $cargoName) {
+                        $order->cargo_name = $cargoName;
+                        $changed = true;
+                    }
+
+                    if ($changed) {
+                        $order->save();
+                        $updatedCount++;
+                        Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo bilgileri güncellendi. Takip: '{$order->cargo_tracking_code}', Durum: '{$order->status}'.");
                     }
                 }
             }
