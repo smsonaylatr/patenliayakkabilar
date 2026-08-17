@@ -462,14 +462,14 @@ class OrdersTable
                         ->color('success')
                         ->form([
                             TextInput::make('conversion_name')
-                                ->label('Google Ads Dönüşüm Eylemi Adı')
-                                ->default('Purchase')
+                                ->label('Google Ads Dönüşüm Eylemi Adı (Conversion Name)')
+                                ->default('Satın Alma')
                                 ->required()
-                                ->placeholder('Örn: Purchase, Satın Alma, Sipariş')
-                                ->helperText('Google Ads panelinizdeki (Hedefler > Dönüşümler > Özet) Dönüşüm Eylemi adı ile BİREBİR aynı olmalıdır. En yaygın varsayılan isim: Purchase veya Satın Alma.'),
+                                ->placeholder('Örn: Satın Alma, Purchase, Sipariş')
+                                ->helperText('Google Ads panelinizdeki (Hedefler > Dönüşümler > Özet) listenizde görünen Dönüşüm Adı ile harfi harfine BİREBİR aynı olmalıdır. Türkçe Google Ads hesaplarında genellikle "Satın Alma", İngilizce hesaplarda "Purchase"dir.'),
                         ])
-                        ->modalHeading('Seçilen Siparişleri CSV Olarak Aktar')
-                        ->modalDescription('Google Ads panelinizdeki Dönüşüm Eylemi adını kontrol ediniz. Yalnızca Google Ads (GCLID) kaynaklı siparişler dışa aktarılacaktır.')
+                        ->modalHeading('Seçilen Siparişleri Google Ads CSV Olarak Aktar')
+                        ->modalDescription('Google Ads panelinizdeki Dönüşüm Eylemi adını kontrol ediniz. CSV içindeki isim ile Google Ads hesabınızdaki isim uyuşmazsa Google "Dönüşüm işlemi bulunamıyor" hatası verir.')
                         ->modalSubmitActionLabel('CSV İndir')
                         ->action(function (Collection $records, array $data) {
                             if ($records->isEmpty()) {
