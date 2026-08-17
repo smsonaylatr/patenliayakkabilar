@@ -116,9 +116,11 @@ td.fi-ta-actions-cell {
 
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
-    padding-right: 12px !important;
-    width: 116px;
+    padding-right: 6px !important;
+    width: 55px;
     vertical-align: middle;
+    position: relative;
+    overflow: visible;
 }
 
 .inner-table td:last-child {
@@ -126,46 +128,43 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 8px;
     background: #ffffff;
+    overflow: hidden;
     flex-shrink: 0;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.25s ease, box-shadow 0.25s ease;
     position: relative;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
-    cursor: zoom-in;
     z-index: 10;
+    cursor: zoom-in;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
 }
 
 .dark .inner-thumb {
     background: #1e293b;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.inner-thumb:hover {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    z-index: 9999 !important;
+    border-color: #38bdf8 !important;
 }
 
 .inner-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
-    transform-origin: center left;
-    position: relative;
-    z-index: 10;
-}
-
-.inner-thumb:hover {
-    z-index: 9999 !important;
+    border-radius: 6px;
+    transition: border-radius 0.25s ease;
 }
 
 .inner-thumb:hover img {
-    transform: scale(2.6) !important;
-    box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.3) !important;
-    border-radius: 12px !important;
-    background: #ffffff !important;
-    border: 2px solid #38bdf8 !important;
-    z-index: 9999 !important;
+    border-radius: 10px;
 }
 
 .td-bold {
