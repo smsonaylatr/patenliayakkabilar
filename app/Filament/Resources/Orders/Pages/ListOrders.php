@@ -16,26 +16,6 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\Action::make('syncPoregoOrders')
-                ->label('Porego Durumlarını Çek')
-                ->icon('heroicon-o-arrow-path')
-                ->color('warning')
-                ->action(function (): void {
-                    $result = app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
-                    if ($result['success']) {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Sipariş Durumları Güncellendi')
-                            ->body($result['message'])
-                            ->success()
-                            ->send();
-                    } else {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Porego Senkronizasyon Uyarısı')
-                            ->body($result['message'])
-                            ->warning()
-                            ->send();
-                    }
-                }),
             CreateAction::make()->label('Yeni Sipariş'),
         ];
     }
@@ -44,8 +24,8 @@ class ListOrders extends ListRecords
     {
         parent::mount();
 
-        // 3 dakikada bir siparişler sayfası yüklendiğinde otomatik Porego durumlarını çeker
-        \Illuminate\Support\Facades\Cache::remember('porego_auto_order_sync', 180, function () {
+        // Sayfa her yüklendiğinde/yenilendiğinde 30 saniyede bir otomatik Porego durumlarını günceller
+        \Illuminate\Support\Facades\Cache::remember('porego_auto_order_sync', 30, function () {
             return app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
         });
     }

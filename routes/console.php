@@ -46,7 +46,7 @@ Artisan::command('phoenix:sync-segments', function () {
 // ─── VatanSMS: Sepeti Terk Edenlere SMS Gönder (Her saat başı) ───────────
 Schedule::command('app:send-abandoned-cart-sms')->hourly();
 
-// ─── Porego: Sipariş & Teslimat Durumlarını Otomatik Senkronize Et (Her 15 dk) ───
-Schedule::command('porego:sync-orders')->everyFifteenMinutes();
+// ─── Porego: Sipariş & Kargo Durumlarını Otomatik Senkronize Et (Her 5 dk) ───
+Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping();
 
 
