@@ -24,7 +24,7 @@ class OrdersTable
         return $table
             ->columns([
                 ImageColumn::make('product_image')
-                    ->label('GÖRSEL')
+                    ->label('')
                     ->getStateUsing(function (Order $record) {
                         $firstItem = $record->items->first();
                         if ($firstItem && $firstItem->product) {
