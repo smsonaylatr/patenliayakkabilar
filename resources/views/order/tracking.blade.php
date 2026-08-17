@@ -8,11 +8,11 @@
                     </svg>
                 </div>
                 <h1 class="text-2xl sm:text-3xl font-black text-gray-900 mb-2">Sipariş & Kargo Takibi</h1>
-                <p class="text-gray-500 mb-8 text-sm">Siparişinizin durumunu ve Porego kargo takip kodunuzu öğrenmek için sipariş numaranızı girin.</p>
+                <p class="text-gray-500 mb-8 text-sm">Siparişinizin durumunu ve kargo takip kodunuzu öğrenmek için sipariş numaranızı girin.</p>
                 
                 <form action="{{ route('order.tracking') }}" method="GET" class="space-y-4 mb-8">
                     <div>
-                        <input type="text" name="order_number" value="{{ request('order_number') }}" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black text-center text-lg py-3 uppercase tracking-wider font-mono" placeholder="Sipariş No (Örn: TR123456)" required>
+                        <input type="text" name="order_number" value="{{ request('order_number') }}" class="w-full rounded-xl border-gray-200 focus:ring-black focus:border-black text-center text-lg py-3 uppercase tracking-wider font-mono" placeholder="Sipariş No (Örn: TR505322)" required>
                     </div>
                     <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -29,6 +29,15 @@
                 @if(isset($order))
                     @php
                         $trackingCode = $order->cargo_tracking_code ?: $order->order_number;
+                        $cargoName = $order->cargo_name ?: 'DHL eCommerce';
+                        
+                        if (strtolower($cargoName) === 'aras kargo' || strtolower($cargoName) === 'aras') {
+                            $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
+                        } elseif (strtolower($cargoName) === 'yurtiçi kargo' || strtolower($cargoName) === 'yurtici') {
+                            $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($trackingCode);
+                        } else {
+                            $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
+                        }
                     @endphp
                     <div class="mt-6 pt-6 border-t border-gray-100 text-left">
                         <h2 class="text-lg font-bold text-gray-900 mb-4">Sipariş Detayları</h2>
@@ -38,7 +47,7 @@
                                 <span class="text-gray-500 text-sm">Sipariş No:</span>
                                 <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-lg border border-gray-200 text-sm font-mono font-bold text-gray-900 hover:border-black transition-colors" title="Tıklayarak Kopyala">
                                     <span>#{{ $order->order_number }}</span>
-                                    <svg x-show="!copied" class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <svg x-show="!copied" class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                     <span x-show="copied" x-cloak class="text-xs text-emerald-600 font-bold">Kopyalandı!</span>
                                 </div>
                             </div>
@@ -74,22 +83,33 @@
                                 </div>
                             </div>
 
-                            <!-- POREGO KARGO TAKİP KODU ALANI -->
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 space-y-2 mt-2">
+                            <!-- KARGO TAKİP KODU VE FİRMA BİLGİSİ ALANI -->
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 space-y-3 mt-2">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Porego Kargo Takip Kodu</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">KARGO TAKİP KODU</span>
                                     <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold">
                                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kargo Kodu Aktif
                                     </span>
                                 </div>
 
-                                <div class="flex items-center justify-between gap-2 pt-1">
-                                    <span class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</span>
-                                    <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                <div class="flex items-center justify-between gap-2 pt-1 border-b border-gray-100 pb-3">
+                                    <div>
+                                        <div class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</div>
+                                        <div class="text-xs font-medium text-gray-500 mt-1">Kargo Firması: <strong class="text-gray-900 font-semibold">{{ $cargoName }}</strong></div>
+                                    </div>
+                                    <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                         <span x-show="!copied">Kodu Kopyala</span>
                                         <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
                                     </div>
+                                </div>
+
+                                <div class="pt-1 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500 font-medium">Kargo Durum Sorgulama:</span>
+                                    <a href="{{ $trackingUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                                        <span>Kargo Takip Linki</span>
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
                                 </div>
                             </div>
 
