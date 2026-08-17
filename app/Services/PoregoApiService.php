@@ -412,82 +412,140 @@ class PoregoApiService
     }
 
     /**
-     * Porego'dan aktif/kargodaki siparişlerin güncel durumlarını ve kargo takip numaralarını çeker.
+     * Sipariş için Porego'dan canlı kargo takip bilgilerini çeker ve veritabanına kaydeder.
      */
-    public function syncOrderStatuses()
+    public function fetchAndSaveOrderTracking(Order $order): ?array
     {
         $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
         $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
         $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
 
         if (!$apiKey || !$apiSecret) {
-            return ['success' => false, 'message' => 'Porego API Anahtarları tanımlı değil.', 'updated_count' => 0];
+            return null;
         }
 
         try {
-            // Tamamlanmamış veya kargodaki siparişleri getirelim
-            $activeOrders = Order::whereNotIn('status', ['delivered', 'cancelled'])->get();
-            $updatedCount = 0;
+            $endpoints = [
+                "{$apiUrl}/orders/{$order->id}",
+                "{$apiUrl}/orders/{$order->order_number}",
+                "{$apiUrl}/shipments?platformOrderId={$order->id}",
+                "{$apiUrl}/shipments?platformOrderNumber={$order->order_number}",
+            ];
 
-            foreach ($activeOrders as $order) {
-                // Porego sipariş detay sorgulaması
+            foreach ($endpoints as $endpoint) {
                 $response = Http::withHeaders([
                     'X-Api-Key' => $apiKey,
                     'X-Api-Secret' => $apiSecret,
                     'Accept' => 'application/json',
-                ])->get("{$apiUrl}/orders/{$order->id}");
-
-                if (!$response->successful() && !empty($order->order_number)) {
-                    $response = Http::withHeaders([
-                        'X-Api-Key' => $apiKey,
-                        'X-Api-Secret' => $apiSecret,
-                        'Accept' => 'application/json',
-                    ])->get("{$apiUrl}/orders/{$order->order_number}");
-                }
+                ])->timeout(5)->get($endpoint);
 
                 if ($response->successful()) {
-                    $data = $response->json('data') ?: $response->json();
-                    $status = $data['currentStatus'] ?? ($data['status'] ?? null);
-                    $trackingNumber = $data['trackingNumber'] ?? ($data['tracking_number'] ?? ($data['cargo_tracking_code'] ?? ($data['trackingCode'] ?? ($data['shipmentTrackingNumber'] ?? ($data['barcode'] ?? null)))));
-                    $cargoName = $data['cargoName'] ?? ($data['carrier'] ?? ($data['carrierName'] ?? ($data['cargo_company'] ?? 'DHL eCommerce')));
+                    $res = $response->json();
+                    $data = $res['data'] ?? ($res['shipment'] ?? $res);
 
-                    $changed = false;
+                    if (is_array($data)) {
+                        if (isset($data[0]) && is_array($data[0])) {
+                            $data = $data[0];
+                        }
 
-                    if ($status) {
-                        $newStatus = match (strtoupper($status)) {
-                            'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE' => 'shipped',
-                            'COMPLETED', 'DELIVERED' => 'delivered',
-                            'CANCELLED', 'FAILED', 'FAILED_DELIVERY' => 'cancelled',
-                            default => null
-                        };
+                        $shipment = $data['shipment'] ?? ($data['shipmentData'] ?? $data);
 
-                        if ($newStatus && $order->status !== $newStatus) {
-                            $order->status = $newStatus;
-                            $changed = true;
+                        // Porego API kargo takip kodu ve barkod alan adları
+                        $rawTrackingNumber = $shipment['trackingNumber'] 
+                            ?? ($shipment['trackingNo'] 
+                            ?? ($shipment['trackingCode'] 
+                            ?? ($shipment['cargoTrackingCode'] 
+                            ?? ($shipment['barcode'] 
+                            ?? ($data['trackingNumber'] 
+                            ?? ($data['trackingNo'] 
+                            ?? ($data['trackingCode'] 
+                            ?? ($data['cargoTrackingCode'] 
+                            ?? ($data['shipmentTrackingNumber'] 
+                            ?? ($data['barcode'] ?? null))))))))));
+
+                        $cargoName = $shipment['carrierName'] 
+                            ?? ($shipment['carrier'] 
+                            ?? ($shipment['cargoName'] 
+                            ?? ($shipment['cargoCompany'] 
+                            ?? ($data['carrierName'] 
+                            ?? ($data['carrier'] 
+                            ?? ($data['cargoName'] 
+                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce')))))));
+
+                        $trackingUrl = $shipment['trackingLink'] 
+                            ?? ($shipment['trackingUrl'] 
+                            ?? ($shipment['cargoTrackingUrl'] 
+                            ?? ($data['trackingLink'] 
+                            ?? ($data['trackingUrl'] ?? null))));
+
+                        $status = $data['currentStatus'] ?? ($data['status'] ?? ($shipment['status'] ?? null));
+
+                        $cleanTrackingNumber = trim((string)$rawTrackingNumber);
+                        $cleanOrderNumber = trim((string)$order->order_number);
+                        $cleanOrderId = trim((string)$order->id);
+
+                        // Gerçek kargo takip kodunun sipariş numarasıyla aynı olmadığından emin olalım
+                        if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
+                            $order->cargo_tracking_code = $cleanTrackingNumber;
+                            if (!empty($cargoName)) {
+                                $order->cargo_name = $cargoName;
+                            }
+                            if ($status) {
+                                $newStatus = match (strtoupper((string)$status)) {
+                                    'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE' => 'shipped',
+                                    'COMPLETED', 'DELIVERED' => 'delivered',
+                                    'CANCELLED', 'FAILED', 'FAILED_DELIVERY' => 'cancelled',
+                                    default => null
+                                };
+                                if ($newStatus) {
+                                    $order->status = $newStatus;
+                                }
+                            }
+                            $order->save();
+
+                            return [
+                                'tracking_code' => $cleanTrackingNumber,
+                                'cargo_name'    => $cargoName,
+                                'tracking_url'  => $trackingUrl,
+                                'status'        => $order->status,
+                            ];
                         }
                     }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("Porego kargo takip çekme hatası (#{$order->order_number}): " . $e->getMessage());
+        }
 
-                    if ($trackingNumber && $order->cargo_tracking_code !== $trackingNumber) {
-                        $order->cargo_tracking_code = $trackingNumber;
-                        $changed = true;
-                    }
+        return null;
+    }
 
-                    if ($cargoName && $order->cargo_name !== $cargoName) {
-                        $order->cargo_name = $cargoName;
-                        $changed = true;
-                    }
+    /**
+     * Porego'dan aktif/kargodaki siparişlerin güncel durumlarını ve kargo takip numaralarını çeker.
+     */
+    public function syncOrderStatuses()
+    {
+        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
+        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
 
-                    if ($changed) {
-                        $order->save();
-                        $updatedCount++;
-                        Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo bilgileri güncellendi. Takip: '{$order->cargo_tracking_code}', Durum: '{$order->status}'.");
-                    }
+        if (!$apiKey || !$apiSecret) {
+            return ['success' => false, 'message' => 'Porego API Anahtarları tanımlı değil.', 'updated_count' => 0];
+        }
+
+        try {
+            $activeOrders = Order::whereNotIn('status', ['delivered', 'cancelled'])->get();
+            $updatedCount = 0;
+
+            foreach ($activeOrders as $order) {
+                $result = $this->fetchAndSaveOrderTracking($order);
+                if ($result) {
+                    $updatedCount++;
                 }
             }
 
             return [
                 'success' => true,
-                'message' => "{$updatedCount} adet siparişin Porego durumu başarıyla güncellendi.",
+                'message' => "{$updatedCount} adet siparişin Porego kargo durumu güncellendi.",
                 'updated_count' => $updatedCount
             ];
         } catch (\Throwable $e) {

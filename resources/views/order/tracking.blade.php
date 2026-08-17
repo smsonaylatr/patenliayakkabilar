@@ -28,15 +28,25 @@
 
                 @if(isset($order))
                     @php
-                        $trackingCode = $order->cargo_tracking_code ?: $order->order_number;
+                        $rawTrackingCode = trim((string)$order->cargo_tracking_code);
+                        $hasRealTrackingCode = !empty($rawTrackingCode) 
+                            && $rawTrackingCode !== (string)$order->order_number 
+                            && $rawTrackingCode !== (string)$order->id 
+                            && $rawTrackingCode !== '#' . (string)$order->order_number;
+
+                        $trackingCode = $hasRealTrackingCode ? $rawTrackingCode : null;
                         $cargoName = $order->cargo_name ?: 'DHL eCommerce';
                         
-                        if (strtolower($cargoName) === 'aras kargo' || strtolower($cargoName) === 'aras') {
-                            $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
-                        } elseif (strtolower($cargoName) === 'yurtiçi kargo' || strtolower($cargoName) === 'yurtici') {
-                            $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($trackingCode);
+                        if ($hasRealTrackingCode) {
+                            if (stripos($cargoName, 'aras') !== false) {
+                                $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
+                            } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
+                                $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($trackingCode);
+                            } else {
+                                $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
+                            }
                         } else {
-                            $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
+                            $trackingUrl = null;
                         }
                     @endphp
                     <div class="mt-6 pt-6 border-t border-gray-100 text-left">
@@ -84,33 +94,50 @@
                             </div>
 
                             <!-- KARGO TAKİP KODU VE FİRMA BİLGİSİ ALANI -->
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 space-y-3 mt-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">KARGO TAKİP KODU</span>
-                                    <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-bold">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kargo Kodu Aktif
-                                    </span>
-                                </div>
-
-                                <div class="flex items-center justify-between gap-2 pt-1 border-b border-gray-100 pb-3">
-                                    <div>
-                                        <div class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</div>
-                                        <div class="text-xs font-medium text-gray-500 mt-1">Kargo Firması: <strong class="text-gray-900 font-semibold">{{ $cargoName }}</strong></div>
+                            @if($hasRealTrackingCode)
+                                <div class="bg-white p-4 rounded-xl border border-gray-200 space-y-3 mt-2 shadow-xs">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">KARGO TAKİP KODU</span>
+                                        <span class="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-bold">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Kargo Kodu Aktif
+                                        </span>
                                     </div>
-                                    <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        <span x-show="!copied">Kodu Kopyala</span>
-                                        <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
-                                    </div>
-                                </div>
 
-                                <div class="pt-1 flex items-center justify-between">
-                                    <span class="text-xs text-gray-500 font-medium">Kargo Durum Sorgulama:</span>
-                                    <a href="{{ $trackingUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-                                        <span>Kargo Takip Linki</span>
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                    </a>
+                                    <div class="flex items-center justify-between gap-2 pt-1 border-b border-gray-100 pb-3">
+                                        <div>
+                                            <div class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</div>
+                                            <div class="text-xs font-medium text-gray-500 mt-1">Kargo Firması: <strong class="text-gray-900 font-semibold">{{ $cargoName }}</strong></div>
+                                        </div>
+                                        <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                            <span x-show="!copied">Kodu Kopyala</span>
+                                            <span x-show="copied" x-cloak class="text-emerald-600 font-bold">Kopyalandı!</span>
+                                        </div>
+                                    </div>
+
+                                    @if($trackingUrl)
+                                    <div class="pt-1 flex items-center justify-between">
+                                        <span class="text-xs text-gray-500 font-medium">Kargo Durum Sorgulama:</span>
+                                        <a href="{{ $trackingUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                                            <span>Kargo Takip Linki</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </a>
+                                    </div>
+                                    @endif
                                 </div>
+                            @else
+                                <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200/80 space-y-2 mt-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-amber-800">KARGO TAKİP DURUMU</span>
+                                        <span class="inline-flex items-center gap-1.5 text-xs text-amber-700 font-bold">
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Kargo Kodu Hazırlanıyor
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-amber-900 leading-relaxed font-medium pt-1">
+                                        Siparişiniz Porego / Paketfy depomuza iletilmiştir. Kargo barkodunuz basılıp kuryeye teslim edildiğinde kargo takip numaranız bu alanda ve SMS ile otomatik görünecektir.
+                                    </p>
+                                </div>
+                            @endif
                             </div>
 
                             <div class="flex justify-between items-center border-t border-gray-200 pt-3">

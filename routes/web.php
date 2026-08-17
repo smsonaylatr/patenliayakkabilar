@@ -196,9 +196,9 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
         if (!$order) {
             $error = 'Girdiğiniz sipariş numarasına ait bir kayıt bulunamadı.';
         } else {
-            // Porego canlı kargo durumunu ve takip kodunu sorgulayalım
+            // Porego canlı kargo durumunu ve takip kodunu doğrudan bu sipariş için sorgulayalım
             try {
-                app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+                app(\App\Services\PoregoApiService::class)->fetchAndSaveOrderTracking($order);
                 $order->refresh();
             } catch (\Throwable $e) {
                 // Background sync fail-safe
