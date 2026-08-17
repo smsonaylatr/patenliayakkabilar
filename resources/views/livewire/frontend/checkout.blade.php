@@ -100,8 +100,14 @@
                             </div>
                             
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Açık Adres</label>
-                                <textarea wire:model.blur="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Mahalle, sokak, bina ve daire no..."></textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mahalle <span class="text-red-500">*</span></label>
+                                <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Örn: Altıntepe Mahallesi">
+                                @error('shipping_neighborhood') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Açık Adres (Cadde, Sokak, Bina No, Daire)</label>
+                                <textarea wire:model.blur="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Cadde, sokak, bina ve daire no..."></textarea>
                                 @error('shipping_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 

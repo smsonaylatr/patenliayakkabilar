@@ -17,6 +17,7 @@ class Checkout extends Component
     
     public $shipping_city;
     public $shipping_district;
+    public $shipping_neighborhood;
     public $shipping_address;
     
     public $payment_method = 'credit_card';
@@ -35,6 +36,7 @@ class Checkout extends Component
         'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
+        'shipping_neighborhood' => 'required|string|max:150',
         'shipping_address' => 'required|string',
         'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
         'terms_consent' => 'accepted',
@@ -48,6 +50,7 @@ class Checkout extends Component
         'customer_phone.regex' => 'Lütfen başında 0 olacak şekilde 11 haneli geçerli bir numara giriniz (Örn: 05551234567).',
         'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
         'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
+        'shipping_neighborhood.required' => 'Lütfen mahalle bilginizi giriniz.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
     ];
@@ -87,6 +90,7 @@ class Checkout extends Component
             $this->shipping_district = session('co_district', $this->shipping_district);
         }
         
+        $this->shipping_neighborhood = session('co_neighborhood', $this->shipping_neighborhood);
         $this->shipping_address = session('co_address', $this->shipping_address);
         $this->customer_note = session('co_note', $this->customer_note);
     }
@@ -99,6 +103,7 @@ class Checkout extends Component
             'customer_phone' => 'co_phone',
             'shipping_city' => 'co_city',
             'shipping_district' => 'co_district',
+            'shipping_neighborhood' => 'co_neighborhood',
             'shipping_address' => 'co_address',
             'customer_note' => 'co_note',
         ];
@@ -172,6 +177,15 @@ class Checkout extends Component
         }
 
         // Create Order
+        $neighborhood = trim($this->shipping_neighborhood ?: '');
+        $rawAddress = trim($this->shipping_address ?: '');
+
+        if (!empty($neighborhood) && stripos($rawAddress, $neighborhood) === false) {
+            $formattedAddress = $neighborhood . (preg_match('/(mah|mahallesi|mh\.)/i', $neighborhood) ? '' : ' Mah.') . ' ' . $rawAddress;
+        } else {
+            $formattedAddress = $rawAddress;
+        }
+
         $order = Order::create([
             'user_id' => auth()->id(),
             'order_number' => $orderNumber,
@@ -191,11 +205,11 @@ class Checkout extends Component
             
             'shipping_city' => $this->shipping_city,
             'shipping_district' => $this->shipping_district,
-            'shipping_address' => $this->shipping_address,
+            'shipping_address' => $formattedAddress,
             
             'billing_city' => $this->shipping_city,
             'billing_district' => $this->shipping_district,
-            'billing_address' => $this->shipping_address,
+            'billing_address' => $formattedAddress,
 
             'ip_address' => request()->ip(),
         ]);
