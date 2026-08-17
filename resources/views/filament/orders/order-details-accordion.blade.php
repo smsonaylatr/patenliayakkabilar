@@ -425,7 +425,7 @@ html:not(.dark) .sku-code {
                     <span class="sku-code">{{ $sku }}</span>
                     <span class="sku-icon">
                       <template x-if="!copied">
-                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"/></svg>
+                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                       </template>
                       <template x-if="copied">
                         <span class="copied-text">
@@ -437,15 +437,13 @@ html:not(.dark) .sku-code {
                   </div>
                   @endif
                 </td>
-                <td>
-                  <span class="mobile-label sm:hidden">Varyant:</span>
+                <td style="vertical-align: middle;">
                   <span class="td-muted">{{ $variantText }}</span>
                 </td>
-                <td>
-                  <span class="mobile-label sm:hidden">Adet:</span>
+                <td style="vertical-align: middle;">
                   <span class="td-muted">{{ $item->quantity }}</span>
                 </td>
-                <td class="hidden sm:table-cell" style="vertical-align: middle; white-space: nowrap;">
+                <td style="vertical-align: middle; white-space: nowrap;">
                   <span 
                     x-data="{ copied: false }" 
                     @click.stop="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)"
@@ -455,7 +453,7 @@ html:not(.dark) .sku-code {
                     <span class="td-bold" style="color: #3b82f6;">#{{ $order->order_number }}</span>
                     <span style="display: inline-flex; align-items: center; margin-left: 4px; vertical-align: middle;">
                       <template x-if="!copied">
-                        <svg style="width:13px; height:13px; display:inline-block; opacity:0.75; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 002 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:13px; height:13px; display:inline-block; opacity:0.75; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                       </template>
                       <template x-if="copied">
                         <span style="color: #34d399; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 2px;">
@@ -466,14 +464,13 @@ html:not(.dark) .sku-code {
                     </span>
                   </span>
                 </td>
-                <td>
-                  <span class="mobile-label sm:hidden">Birim Fiyat:</span>
+                <td style="vertical-align: middle;">
                   <span class="td-muted">₺{{ number_format($item->unit_price ?: 0, 0, ',', '.') }}</span>
                 </td>
-                <td>
-                  <span class="mobile-label sm:hidden">Toplam:</span>
+                <td style="vertical-align: middle;">
                   <span class="td-bold" style="color: #10b981;">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</span>
                 </td>
+              </tr>       </td>
               </tr>
           @empty
               <tr>
