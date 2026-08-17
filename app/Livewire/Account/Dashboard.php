@@ -21,6 +21,6 @@ class Dashboard extends Component
     public function render()
     {
         return view('livewire.account.dashboard')
-            ->layout('components.layouts.app', ['title' => 'Hesabım | Patenli Ayakkabılar']);
+            ->layout('components.layouts.app', ['title' => 'Hesabım | Patenli Ayakkabılar', 'robots' => 'noindex, nofollow']);
     }
 }

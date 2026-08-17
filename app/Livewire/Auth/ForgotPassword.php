@@ -33,6 +33,6 @@ class ForgotPassword extends Component
     public function render()
     {
         return view('livewire.auth.forgot-password')
-            ->layout('components.layouts.app', ['title' => 'Şifremi Unuttum | Patenli Ayakkabılar']);
+            ->layout('components.layouts.app', ['title' => 'Şifremi Unuttum | Patenli Ayakkabılar', 'robots' => 'noindex, nofollow']);
     }
 }

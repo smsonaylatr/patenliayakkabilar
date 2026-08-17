@@ -31,6 +31,6 @@ class Login extends Component
     public function render()
     {
         return view('livewire.auth.login')
-            ->layout('components.layouts.app', ['title' => 'Giriş Yap | Patenli Ayakkabılar']);
+            ->layout('components.layouts.app', ['title' => 'Giriş Yap | Patenli Ayakkabılar', 'robots' => 'noindex, nofollow']);
     }
 }

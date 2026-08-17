@@ -38,6 +38,6 @@ class Register extends Component
     public function render()
     {
         return view('livewire.auth.register')
-            ->layout('components.layouts.app', ['title' => 'Kayıt Ol | Patenli Ayakkabılar']);
+            ->layout('components.layouts.app', ['title' => 'Kayıt Ol | Patenli Ayakkabılar', 'robots' => 'noindex, nofollow']);
     }
 }

@@ -55,6 +55,6 @@ class ResetPassword extends Component
     public function render()
     {
         return view('livewire.auth.reset-password')
-            ->layout('components.layouts.app', ['title' => 'Yeni Şifre Belirle | Patenli Ayakkabılar']);
+            ->layout('components.layouts.app', ['title' => 'Yeni Şifre Belirle | Patenli Ayakkabılar', 'robots' => 'noindex, nofollow']);
     }
 }
