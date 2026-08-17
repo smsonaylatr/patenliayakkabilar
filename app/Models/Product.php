@@ -460,13 +460,31 @@ class Product extends Model
             $signals[] = ['icon' => '⭐', 'text' => 'Çok Satan Ürün', 'color' => 'yellow'];
         }
 
-        // Ek sinyaller (Tek sayı adeti durumunda 2 sütunlu gridde boşluk kalmaması için çift sayıya 4, 6, 8 tamamlar)
+        // Tamamlayıcı güven sinyalleri havuzu (En az 6 buton ve her zaman ÇİFT SAYI 6 veya 8 yapmak için)
         $extraPool = [
             ['icon' => '🛡️', 'text' => 'Orijinal Ürün', 'color' => 'emerald'],
             ['icon' => '⭐', 'text' => 'Müşteri Favorisi', 'color' => 'amber'],
             ['icon' => '💬', 'text' => '7/24 Destek', 'color' => 'teal'],
         ];
 
+        // 1. Buton sayısını en az 6'ya tamamla
+        foreach ($extraPool as $extra) {
+            if (count($signals) >= 6) {
+                break;
+            }
+            $exists = false;
+            foreach ($signals as $s) {
+                if ($s['text'] === $extra['text']) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                $signals[] = $extra;
+            }
+        }
+
+        // 2. Eğer buton sayısı tek ise (örneğin 7), 8'e tamamla
         if (count($signals) % 2 !== 0) {
             foreach ($extraPool as $extra) {
                 $exists = false;
@@ -483,7 +501,7 @@ class Product extends Model
             }
         }
 
-        // Her ihtimale karşı tek sayı kalırsa son elemanı çıkar ki (4, 6, 8) garanti olsun
+        // 3. Her ihtimale karşı tek sayı kalırsa son elemanı çıkararak her zaman ÇİFT SAYI (6 veya 8) tut
         if (count($signals) % 2 !== 0) {
             array_pop($signals);
         }
