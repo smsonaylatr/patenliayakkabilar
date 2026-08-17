@@ -15,7 +15,7 @@
         "laravel/socialite": "^5.29",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^4.3",
-        "mlevent/fatura": "*",
+        "mlevent/fatura": "^0.3.3",
         "spiral/roadrunner-cli": "*",
         "spiral/roadrunner-http": "*"
     },

@@ -78,7 +78,7 @@
                                             $cargoName = 'Yurtiçi Kargo';
                                         }
                                         
-                                        $trackingUrl = '#';
+                                        $trackingUrl = 'https://porego.com/takip/patenliayakkabilar.com';
                                         if (strtolower($cargoName) === 'aras kargo') {
                                             $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . $order->cargo_tracking_code;
                                         } elseif (strtolower($cargoName) === 'yurtiçi kargo') {
