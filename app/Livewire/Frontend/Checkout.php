@@ -26,6 +26,7 @@ class Checkout extends Component
 
     public $cities = [];
     public $districts = [];
+    public $neighborhoods = [];
 
     public $paytr_token = null;
     public $created_order_number = null;
@@ -50,7 +51,7 @@ class Checkout extends Component
         'customer_phone.regex' => 'Lütfen başında 0 olacak şekilde 11 haneli geçerli bir numara giriniz (Örn: 05551234567).',
         'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
         'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
-        'shipping_neighborhood.required' => 'Lütfen mahalle bilginizi giriniz.',
+        'shipping_neighborhood.required' => 'Lütfen mahalle bilginizi seçiniz.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
     ];
@@ -88,9 +89,12 @@ class Checkout extends Component
         if ($this->shipping_city) {
             $this->updatedShippingCity($this->shipping_city);
             $this->shipping_district = session('co_district', $this->shipping_district);
+            if ($this->shipping_district) {
+                $this->updatedShippingDistrict($this->shipping_district);
+                $this->shipping_neighborhood = session('co_neighborhood', $this->shipping_neighborhood);
+            }
         }
         
-        $this->shipping_neighborhood = session('co_neighborhood', $this->shipping_neighborhood);
         $this->shipping_address = session('co_address', $this->shipping_address);
         $this->customer_note = session('co_note', $this->customer_note);
     }
@@ -108,7 +112,7 @@ class Checkout extends Component
             'customer_note' => 'co_note',
         ];
 
-        if (isset($map[$propertyName])) {
+        if (array_key_exists($propertyName, $map)) {
             session([$map[$propertyName] => $this->$propertyName]);
             
             // Sepeti Terk Edenler için iletişim bilgilerini Cart'a kaydet (Misafir kullanıcılar için)

@@ -100,8 +100,22 @@
                             </div>
                             
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Mahalle <span class="text-red-500">*</span></label>
-                                <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Örn: Altıntepe Mahallesi">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-sm font-medium text-gray-700">Mahalle <span class="text-red-500">*</span></label>
+                                    <span wire:loading wire:target="shipping_district" class="text-xs text-brand-orange font-medium animate-pulse">
+                                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mahalleler yükleniyor...
+                                    </span>
+                                </div>
+                                @if(!empty($neighborhoods))
+                                    <select wire:model.live="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
+                                        <option value="">Mahalle Seçiniz</option>
+                                        @foreach($neighborhoods as $neighborhood)
+                                            <option value="{{ $neighborhood }}">{{ $neighborhood }} Mah.</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="{{ empty($shipping_district) ? 'Önce ilçe seçiniz...' : 'Mahalle adını yazınız veya seçiniz...' }}" {{ empty($shipping_district) ? 'disabled' : '' }}>
+                                @endif
                                 @error('shipping_neighborhood') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             
