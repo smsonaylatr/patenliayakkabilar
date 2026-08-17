@@ -298,22 +298,44 @@
             </div>
 
     <!-- Sözleşme & Bilgilendirme Modal Penceresi -->
-    <div x-show="activeModal !== null" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div x-show="activeModal !== null" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="activeModal !== null" x-transition.opacity @click="activeModal = null" class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"></div>
+            <div x-show="activeModal !== null" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="activeModal = null" 
+                 class="fixed inset-0 transition-opacity"
+                 style="background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px);"></div>
             
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             
             <!-- Ön Bilgilendirme Formu Modal -->
-            <div x-show="activeModal === 'on-bilgilendirme'" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
+            <div x-show="activeModal === 'on-bilgilendirme'" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative z-10 inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
                 <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <i class="fa-solid fa-file-contract text-brand-orange"></i>
                         Ön Bilgilendirme Formu
                     </h3>
-                    <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('pages.show', 'on-bilgilendirme-formu') }}" target="_blank" class="text-xs font-bold text-teal-600 hover:underline flex items-center gap-1">
+                            Tam Sayfa
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </a>
+                        <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="prose prose-sm max-w-none text-gray-700 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar space-y-4">
                     <div>
@@ -342,15 +364,28 @@
             </div>
 
             <!-- Mesafeli Satış Sözleşmesi Modal -->
-            <div x-show="activeModal === 'mesafeli-sozlesme'" x-transition class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
+            <div x-show="activeModal === 'mesafeli-sozlesme'" 
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative z-10 inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full p-6 sm:p-8">
                 <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
                     <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <i class="fa-solid fa-file-signature text-brand-orange"></i>
                         Mesafeli Satış Sözleşmesi
                     </h3>
-                    <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('pages.show', 'mesafeli-satis-sozlesmesi') }}" target="_blank" class="text-xs font-bold text-teal-600 hover:underline flex items-center gap-1">
+                            Tam Sayfa
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </a>
+                        <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="prose prose-sm max-w-none text-gray-700 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar space-y-4">
                     <div>
