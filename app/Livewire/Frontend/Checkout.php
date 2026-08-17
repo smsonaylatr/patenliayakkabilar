@@ -136,7 +136,9 @@ class Checkout extends Component
     public function updatedShippingCity($value)
     {
         $this->shipping_district = null;
+        $this->shipping_neighborhood = null;
         $this->districts = [];
+        $this->neighborhoods = [];
 
         if ($value && file_exists(database_path('data/cities.json'))) {
             $json = json_decode(file_get_contents(database_path('data/cities.json')), true);
@@ -146,6 +148,46 @@ class Checkout extends Component
                     $this->districts = collect($cityData['districts'])->pluck('name')->toArray();
                 }
             }
+        }
+    }
+
+    public function updatedShippingDistrict($value)
+    {
+        $this->shipping_neighborhood = null;
+        $this->neighborhoods = [];
+
+        if ($value) {
+            $this->loadNeighborhoods($value);
+        }
+    }
+
+    public function loadNeighborhoods($district)
+    {
+        if (empty($district)) {
+            $this->neighborhoods = [];
+            return;
+        }
+
+        try {
+            $cacheKey = 'district_neighborhoods_' . \Illuminate\Support\Str::slug($district);
+            $neighborhoods = \Illuminate\Support\Facades\Cache::remember($cacheKey, 86400 * 30, function () use ($district) {
+                $response = \Illuminate\Support\Facades\Http::timeout(4)->get('https://turkiyeapi.dev/api/v1/districts', [
+                    'name' => $district
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json('data');
+                    if (!empty($data[0]['neighborhoods'])) {
+                        return collect($data[0]['neighborhoods'])->pluck('name')->sort()->values()->toArray();
+                    }
+                }
+                return [];
+            });
+
+            $this->neighborhoods = $neighborhoods ?: [];
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Mahalle yükleme hatası ({$district}): " . $e->getMessage());
+            $this->neighborhoods = [];
         }
     }
 
