@@ -477,15 +477,19 @@ class OrdersTable
                             }
 
                             $csvData = [];
-                            $csvData[] = ['Parameters:TimeZone', 'Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
+                            // Google Ads Çevrimdışı Dönüşüm CSV Formatı:
+                            // Satır 1: Parameters:TimeZone=Europe/Istanbul
+                            // Satır 2: Başlık Satırı (Google Click ID, Conversion Name, Conversion Time, Conversion Value, Conversion Currency)
+                            // Satır 3+: Veri Satırları
+                            $csvData[] = ['Parameters:TimeZone=Europe/Istanbul'];
+                            $csvData[] = ['Google Click ID', 'Conversion Name', 'Conversion Time', 'Conversion Value', 'Conversion Currency'];
                             
                             foreach ($records as $order) {
                                 $csvData[] = [
-                                    'Europe/Istanbul',
                                     $order->gclid ?? ('OFFLINE_' . $order->order_number),
                                     'Teslim Edilen Sipariş',
                                     $order->updated_at ? $order->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
-                                    $order->grand_total,
+                                    number_format((float) $order->grand_total, 2, '.', ''),
                                     'TRY'
                                 ];
                             }
