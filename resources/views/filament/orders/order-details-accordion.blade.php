@@ -556,9 +556,9 @@ html:not(.dark) .sku-code {
             <div class="td-muted" style="margin-top:2px; display: flex; align-items: center; gap: 6px;">
               {{ $order->customer_phone }}
               <a 
-                href="https://wa.me/{{ $rawPhone }}?text={{ urlencode($waMessage) }}" 
+                href="whatsapp://send?phone={{ $rawPhone }}&text={{ urlencode($waMessage) }}" 
                 target="_blank" 
-                title="WhatsApp ile mesaj at"
+                title="WhatsApp Masaüstü ile mesaj at"
                 style="display: inline-flex; align-items: center; justify-content: center; color: #25D366; text-decoration: none; transition: all 0.15s ease; flex-shrink: 0;"
                 onmouseover="this.style.transform='scale(1.2)'; this.style.filter='brightness(1.15)';"
                 onmouseout="this.style.transform='scale(1)'; this.style.filter='none';"
