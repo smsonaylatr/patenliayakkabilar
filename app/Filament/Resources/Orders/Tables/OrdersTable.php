@@ -228,7 +228,7 @@ class OrdersTable
                         default => 'primary',
                     })
                     ->modalHeading('GİB E-Arşiv Faturası')
-                    ->modalWidth('4xl')
+                    ->modalWidth('3xl')
                     ->modalCancelAction(false)
                     ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
                     ->form([
@@ -240,9 +240,11 @@ class OrdersTable
                                 }
                                 $html = htmlspecialchars($record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
                                 return new \Illuminate\Support\HtmlString('
-                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; overflow: hidden; height: 75vh;">
-                                        <div style="width: 100%; position: relative; overflow: hidden;">
-                                            <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 160%; height: 160%; transform: scale(0.625); transform-origin: 0 0; border: none; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);"></iframe>
+                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; height: 70vh; overflow-y: auto; overflow-x: hidden; display: flex; justify-content: center; align-items: flex-start;">
+                                        <div style="container-type: inline-size; width: 100%; display: flex; justify-content: center;">
+                                            <div style="width: 1000px; height: 1450px; transform: scale(min(1, calc(100cqw / 1000))); transform-origin: top center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); background: #fff;">
+                                                <iframe srcdoc="' . $html . '" style="width: 100%; height: 100%; border: none;"></iframe>
+                                            </div>
                                         </div>
                                     </div>
                                 ');
