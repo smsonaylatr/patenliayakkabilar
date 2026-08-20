@@ -269,7 +269,7 @@ class OrdersTable
                             ->required()
                             ->placeholder('Gelen şifreyi girin'),
                     ])
-                    ->mountUsing(function (\Filament\Forms\Form $form, Order $record) {
+                    ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
                             $result = $service->startSmsVerification();
@@ -555,7 +555,7 @@ class OrdersTable
                                 ->required()
                                 ->placeholder('Gelen şifreyi girin'),
                         ])
-                        ->mountUsing(function (\Filament\Forms\Form $form, Collection $records) {
+                        ->mountUsing(function (\Filament\Schemas\Schema $form, Collection $records) {
                             try {
                                 $drafts = $records->filter(fn ($r) => $r->is_invoiced && $r->gib_invoice_status === 'draft');
                                 if ($drafts->isEmpty()) {
