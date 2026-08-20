@@ -251,8 +251,8 @@ class OrdersTable
                                     </div>
                                 ');
                             }),
-                        \Filament\Forms\Components\Actions::make([
-                            \Filament\Forms\Components\Actions\Action::make('sendSmsCode')
+                        \Filament\Schemas\Components\Actions::make([
+                            \Filament\Actions\Action::make('sendSmsCode')
                                 ->label(fn (\Filament\Forms\Get $get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
                                 ->icon('heroicon-o-paper-airplane')
                                 ->color('warning')
