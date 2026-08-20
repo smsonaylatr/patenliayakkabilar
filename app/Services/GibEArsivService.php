@@ -212,7 +212,7 @@ class GibEArsivService
                 ulke:             'Türkiye',
                 tel:              $order->customer_phone ?: '',
                 eposta:           $order->customer_email ?: '',
-                websitesi:        'https://patenliayakkabilar.com',
+                websitesi:        '',
                 vergiDairesi:     $taxOffice,
                 not:              $invoiceNote,
             );
