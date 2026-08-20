@@ -410,4 +410,66 @@ HTML;
             return null;
         }
     }
+
+    /**
+     * SMS Doğrulamayı Başlatır (GİB'den telefona SMS gönderir)
+     */
+    public function startSmsVerification(): array
+    {
+        try {
+            $gib = $this->getGibClient();
+            $operationId = $gib->startSmsVerification();
+            
+            return [
+                'success' => true,
+                'operation_id' => $operationId,
+            ];
+        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+            $error = $e->getMessage();
+            if ($e->hasResponse()) {
+                $error .= " - Response: " . print_r($e->getResponse(), true);
+            }
+            return [
+                'success' => false,
+                'message' => 'GİB API Hatası: ' . $error,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => 'SMS doğrulama başlatılamadı: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * SMS Kodunu GİB'e göndererek belgeleri imzalar
+     */
+    public function completeSmsVerification(string $smsCode, string $operationId, array $uuids): array
+    {
+        try {
+            $gib = $this->getGibClient();
+            $result = $gib->completeSmsVerification($smsCode, $operationId, $uuids);
+            $count = $gib->rowCount();
+            
+            return [
+                'success' => $result,
+                'count' => $count,
+                'message' => $result ? "{$count} adet belge başarıyla imzalandı." : "İmzalama başarısız oldu.",
+            ];
+        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+            $error = $e->getMessage();
+            if ($e->hasResponse()) {
+                $error .= " - Response: " . print_r($e->getResponse(), true);
+            }
+            return [
+                'success' => false,
+                'message' => 'GİB API Hatası: ' . $error,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => 'SMS onaylama hatası: ' . $e->getMessage(),
+            ];
+        }
+    }
 }

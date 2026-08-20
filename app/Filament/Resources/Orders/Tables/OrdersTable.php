@@ -252,6 +252,86 @@ class OrdersTable
                     })
                     ->visible(fn (Order $record): bool => !$record->is_invoiced),
 
+                Action::make('signGibInvoice')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('GİB Faturasını İmzala (SMS)')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('primary')
+                    ->modalHeading('GİB Faturasını İmzala (SMS)')
+                    ->modalDescription(fn () => new \Illuminate\Support\HtmlString('GİB portalından sisteme kayıtlı telefonunuza bir SMS şifresi gönderildi.<br><br><b>ÖNEMLİ:</b> Şifrenin ulaşması 5-10 saniye sürebilir. Lütfen bekleyin ve gelen şifreyi girerek onaylayın.'))
+                    ->modalSubmitActionLabel('İmzala')
+                    ->form([
+                        \Filament\Forms\Components\Hidden::make('operation_id'),
+                        \Filament\Forms\Components\TextInput::make('sms_code')
+                            ->label('SMS Şifresi')
+                            ->numeric()
+                            ->required()
+                            ->placeholder('Gelen şifreyi girin'),
+                    ])
+                    ->mountUsing(function (\Filament\Forms\Form $form, Order $record) {
+                        try {
+                            $service = app(\App\Services\GibEArsivService::class);
+                            $result = $service->startSmsVerification();
+                            if ($result['success']) {
+                                $form->fill([
+                                    'operation_id' => $result['operation_id'],
+                                ]);
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('SMS Gönderilemedi')
+                                    ->body($result['message'])
+                                    ->danger()
+                                    ->send();
+                                throw new \Filament\Support\Exceptions\Halt();
+                            }
+                        } catch (\Exception $e) {
+                            if (!($e instanceof \Filament\Support\Exceptions\Halt)) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sistem Hatası')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                            throw new \Filament\Support\Exceptions\Halt();
+                        }
+                    })
+                    ->action(function (array $data, Order $record): void {
+                        try {
+                            $service = app(\App\Services\GibEArsivService::class);
+                            $result = $service->completeSmsVerification($data['sms_code'], $data['operation_id'], [$record->gib_invoice_uuid]);
+                            
+                            if ($result['success']) {
+                                // Faturayı tekrar çek (İmzalı versiyonu)
+                                $newHtml = $service->getInvoiceHtml($record->gib_invoice_uuid);
+                                
+                                $record->update([
+                                    'gib_invoice_status' => 'signed',
+                                    'gib_invoice_html' => $newHtml,
+                                ]);
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Fatura Başarıyla İmzalandı')
+                                    ->body($result['message'])
+                                    ->success()
+                                    ->send();
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('İmzalama Hatası')
+                                    ->body($result['message'])
+                                    ->danger()
+                                    ->send();
+                            }
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Sistem Hatası')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->visible(fn (Order $record): bool => $record->is_invoiced && $record->gib_invoice_status === 'draft'),
+
                 Action::make('view_gib_invoice')
                     ->iconButton()
                     ->size('lg')
@@ -458,6 +538,102 @@ class OrdersTable
                                 ->body("{$count} adet siparişin faturası sıfırlandı. Artık yeniden fatura kesebilirsiniz.")
                                 ->success()
                                 ->send();
+                        }),
+
+                    BulkAction::make('bulkSignGibInvoice')
+                        ->label('Seçilenleri İmzala (SMS)')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('primary')
+                        ->modalHeading('GİB Faturalarını İmzala (SMS)')
+                        ->modalDescription(fn () => new \Illuminate\Support\HtmlString('Seçilen taslak faturaları imzalamak için telefonunuza bir SMS şifresi gönderildi.<br><br><b>ÖNEMLİ:</b> Şifrenin ulaşması 5-10 saniye sürebilir. Lütfen bekleyin ve gelen şifreyi girerek onaylayın.'))
+                        ->modalSubmitActionLabel('İmzala')
+                        ->form([
+                            \Filament\Forms\Components\Hidden::make('operation_id'),
+                            \Filament\Forms\Components\TextInput::make('sms_code')
+                                ->label('SMS Şifresi')
+                                ->numeric()
+                                ->required()
+                                ->placeholder('Gelen şifreyi girin'),
+                        ])
+                        ->mountUsing(function (\Filament\Forms\Form $form, Collection $records) {
+                            try {
+                                $drafts = $records->filter(fn ($r) => $r->is_invoiced && $r->gib_invoice_status === 'draft');
+                                if ($drafts->isEmpty()) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Uyarı')
+                                        ->body('İmzalanacak taslak fatura bulunamadı.')
+                                        ->warning()
+                                        ->send();
+                                    throw new \Filament\Support\Exceptions\Halt();
+                                }
+                                
+                                $service = app(\App\Services\GibEArsivService::class);
+                                $result = $service->startSmsVerification();
+                                if ($result['success']) {
+                                    $form->fill([
+                                        'operation_id' => $result['operation_id'],
+                                    ]);
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Gönderilemedi')
+                                        ->body($result['message'])
+                                        ->danger()
+                                        ->send();
+                                    throw new \Filament\Support\Exceptions\Halt();
+                                }
+                            } catch (\Exception $e) {
+                                if (!($e instanceof \Filament\Support\Exceptions\Halt)) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Sistem Hatası')
+                                        ->body($e->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                                throw new \Filament\Support\Exceptions\Halt();
+                            }
+                        })
+                        ->action(function (array $data, Collection $records): void {
+                            try {
+                                $drafts = $records->filter(fn ($r) => $r->is_invoiced && $r->gib_invoice_status === 'draft');
+                                $uuids = $drafts->pluck('gib_invoice_uuid')->toArray();
+                                
+                                if (empty($uuids)) return;
+
+                                $service = app(\App\Services\GibEArsivService::class);
+                                $result = $service->completeSmsVerification($data['sms_code'], $data['operation_id'], $uuids);
+                                
+                                if ($result['success']) {
+                                    foreach ($drafts as $record) {
+                                        try {
+                                            $newHtml = $service->getInvoiceHtml($record->gib_invoice_uuid);
+                                            $record->update([
+                                                'gib_invoice_status' => 'signed',
+                                                'gib_invoice_html' => $newHtml,
+                                            ]);
+                                        } catch (\Exception $ex) {
+                                            $record->update(['gib_invoice_status' => 'signed']);
+                                        }
+                                    }
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Toplu İmzalama Başarılı')
+                                        ->body($result['message'])
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('İmzalama Hatası')
+                                        ->body($result['message'])
+                                        ->danger()
+                                        ->send();
+                                }
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sistem Hatası')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
 
                     BulkAction::make('exportSelectedOfflineConversions')
