@@ -39,12 +39,10 @@
                         $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_company ?: 'DHL eCommerce');
                         
                         $trackingUrl = $trackingData['tracking_url'] ?? null;
-                        // Porego'nun kendi yönlendirme linkini yoksay (direkt kargo firmasına gitsin)
-                        if ($trackingUrl && str_contains($trackingUrl, 'app.porego.com')) {
-                            $trackingUrl = null;
-                        }
                         
-                        if (!$trackingUrl && $hasRealTrackingCode) {
+                        // Sadece eğer bizde GERÇEK bir kargo firması kayıtlıysa Porego linkini ezip direkt link oluştur!
+                        // Porego API bize gerçek DHL kodunu (741...) vermediği için, kod 330... şeklinde ise mecburen Porego sayfasına gitmeli.
+                        if ($hasRealTrackingCode && $cargoName !== 'Porego Kargo') {
                             if (stripos($cargoName, 'aras') !== false) {
                                 $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
                             } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
@@ -55,10 +53,13 @@
                                 $trackingUrl = 'https://gonderitakip.ptt.gov.tr/Track/Verify?q=' . urlencode($trackingCode);
                             } elseif (stripos($cargoName, 'sendeo') !== false) {
                                 $trackingUrl = 'https://kargotakip.sendeo.com.tr/kargo-takip-popup?gonderiNo=' . urlencode($trackingCode);
-                            } else {
+                            } elseif (stripos($cargoName, 'dhl') !== false) {
                                 $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
                             }
                         }
+                        
+                        // Eğer hiçbir özel URL oluşturulamadıysa ve Porego URL'si yoksa, boş bırak.
+                        // (Porego URL'si varsa onu kullanmaya devam eder)
 
                         $deliveryDate = $trackingData['delivery_date'] ?? null;
                         if ($deliveryDate && strtotime($deliveryDate)) {
