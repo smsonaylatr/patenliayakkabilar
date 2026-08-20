@@ -228,7 +228,7 @@ class OrdersTable
                         default => 'primary',
                     })
                     ->modalHeading('GİB E-Arşiv Faturası')
-                    ->modalWidth('3xl')
+                    ->modalWidth('4xl')
                     ->modalCancelAction(false)
                     ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
                     ->form([
@@ -238,13 +238,36 @@ class OrdersTable
                                 if (!$record->gib_invoice_html) {
                                     return new \Illuminate\Support\HtmlString('<i>Fatura içeriği yüklenemedi.</i>');
                                 }
-                                $html = htmlspecialchars($record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
+                                
+                                // CSS enjeksiyonu ile faturayı duyarlı (responsive) hale getirelim
+                                $style = '
+                                <style>
+                                    body {
+                                        margin: 0 !important;
+                                        padding: 15px !important;
+                                        background: #fff !important;
+                                        display: flex !important;
+                                        justify-content: center !important;
+                                    }
+                                    /* GİB fatura tablolarını esnek yap */
+                                    table[width="800"], table[width="800px"], .main-table {
+                                        width: 100% !important;
+                                        max-width: 800px !important;
+                                        margin: 0 auto !important;
+                                    }
+                                    table {
+                                        max-width: 100% !important;
+                                    }
+                                </style>
+                                ';
+                                
+                                $modifiedHtml = $style . $record->gib_invoice_html;
+                                $html = htmlspecialchars($modifiedHtml, ENT_QUOTES, 'UTF-8');
+                                
                                 return new \Illuminate\Support\HtmlString('
-                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; height: 70vh; overflow-y: auto; overflow-x: hidden; display: flex; justify-content: center; align-items: flex-start;">
-                                        <div style="container-type: inline-size; width: 100%; display: flex; justify-content: center;">
-                                            <div style="width: 1000px; height: 1450px; transform: scale(min(1, calc(100cqw / 1000))); transform-origin: top center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); background: #fff;">
-                                                <iframe srcdoc="' . $html . '" style="width: 100%; height: 100%; border: none;"></iframe>
-                                            </div>
+                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; height: 75vh;">
+                                        <div style="width: 100%; max-width: 830px; height: 100%; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); border-radius: 0.25rem; overflow: hidden;">
+                                            <iframe srcdoc="' . $html . '" style="width: 100%; height: 100%; border: none;"></iframe>
                                         </div>
                                     </div>
                                 ');
