@@ -540,7 +540,7 @@ class OrdersTable
                             ]);
                         }),
                     DeleteBulkAction::make(),
-                ]),
+                ])->label('Toplu İşlemler'),
             ])
             ->headerActions([])
             ->defaultSort('created_at', 'desc')
