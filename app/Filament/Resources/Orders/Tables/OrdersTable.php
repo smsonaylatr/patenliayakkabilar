@@ -446,7 +446,7 @@ class OrdersTable
                                         'gib_invoice_uuid' => null,
                                         'gib_invoice_html' => null,
                                         'gib_invoice_date' => null,
-                                        'gib_invoice_status' => null,
+                                        'gib_invoice_status' => 'none',
                                         'gib_invoice_error' => null,
                                     ]);
                                     $count++;
