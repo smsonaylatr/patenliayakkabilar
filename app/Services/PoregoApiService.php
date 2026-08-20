@@ -467,6 +467,7 @@ class PoregoApiService
 
                 if ($response->successful()) {
                     $res = $response->json();
+
                     $data = $res['data'] ?? ($res['shipment'] ?? $res);
 
                     if (is_array($data)) {
@@ -479,7 +480,9 @@ class PoregoApiService
                         if (isset($data[0]) && is_array($data[0])) {
                             $data = $data[0];
                         }
+                    }
 
+                    if (is_array($data)) {
                         $shipment = $data['shipment'] ?? ($data['shipmentData'] ?? $data);
 
                         // Porego API kargo takip kodu ve barkod alan adları
@@ -562,8 +565,8 @@ class PoregoApiService
                                 $order->cargo_tracking_code = $cleanTrackingNumber;
                                 $changed = true;
                             }
-                            if (!empty($cargoName) && $order->cargo_name !== $cargoName) {
-                                $order->cargo_name = $cargoName;
+                            if (!empty($cargoName) && $order->cargo_company !== $cargoName) {
+                                $order->cargo_company = $cargoName;
                                 $changed = true;
                             }
                         }
@@ -576,7 +579,7 @@ class PoregoApiService
                         // Her durumda güncel canlı veriyi frontend için geri döndürüyoruz
                         return [
                             'tracking_code'  => $order->cargo_tracking_code,
-                            'cargo_name'     => $order->cargo_name,
+                            'cargo_name'     => $order->cargo_company,
                             'tracking_url'   => $trackingUrl,
                             'status'         => $order->status,
                             'payment_status' => $order->payment_status,

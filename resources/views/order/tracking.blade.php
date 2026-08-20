@@ -36,7 +36,7 @@
                             && $rawTrackingCode !== '#' . (string)$order->order_number;
 
                         $trackingCode = $hasRealTrackingCode ? $rawTrackingCode : null;
-                        $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_name ?: 'DHL eCommerce');
+                        $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_company ?: 'DHL eCommerce');
                         
                         $trackingUrl = $trackingData['tracking_url'] ?? null;
                         if (!$trackingUrl && $hasRealTrackingCode) {

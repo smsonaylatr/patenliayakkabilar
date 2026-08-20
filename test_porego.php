@@ -12,23 +12,40 @@ if (!$order) {
 echo "Order found: " . $order->order_number . "\n";
 
 $service = app(App\Services\PoregoApiService::class);
-// Reflect to access protected methods/properties to check URL and keys
-$ref = new ReflectionClass($service);
-$apiUrlProp = $ref->getProperty('apiUrl');
-$apiUrlProp->setAccessible(true);
-$apiUrl = $apiUrlProp->getValue($service);
-echo "API URL: " . $apiUrl . "\n";
 
+$fakeData = [
+    'data' => [
+        [
+            'platformCargoTrackingNumber' => '123456789',
+            'platformCargoCompany' => 'Aras Kargo',
+            'status' => 'SHIPPED',
+            'deliveryDate' => '2026-08-18',
+            'deliveryLocation' => 'ISTANBUL',
+            'cargoMessage' => 'Transfer Aşamasında'
+        ]
+    ]
+];
+
+use Illuminate\Support\Facades\Http;
+
+$ref = new ReflectionClass($service);
 $apiKeyProp = $ref->getProperty('apiKey');
 $apiKeyProp->setAccessible(true);
-$apiKey = $apiKeyProp->getValue($service);
-echo "API KEY exists: " . (!empty($apiKey) ? 'Yes' : 'No') . "\n";
+$apiKeyProp->setValue($service, 'fake-api-key');
+$apiSecretProp = $ref->getProperty('apiSecret');
+$apiSecretProp->setAccessible(true);
+$apiSecretProp->setValue($service, 'fake-api-secret');
 
-if (empty($apiKey)) {
-    $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value');
-    echo "DB API KEY exists: " . (!empty($apiKey) ? 'Yes' : 'No') . "\n";
+Http::fake([
+    '*' => Http::response($fakeData, 200)
+]);
+
+$order = App\Models\Order::first();
+if ($order) {
+    $res = $service->fetchAndSaveOrderTracking($order);
+    echo "Parsed Result:\n";
+    print_r($res);
+} else {
+    echo "No orders to test with.\n";
 }
 
-$res = $service->fetchAndSaveOrderTracking($order);
-echo "Result:\n";
-print_r($res);
