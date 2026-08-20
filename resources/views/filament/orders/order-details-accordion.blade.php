@@ -186,89 +186,45 @@ td.fi-ta-actions-cell {
 }
 
 /* ======================================================== */
-/* MOBİL DİKEY TABLO / KART DÜZENİ (max-width: 640px)       */
+/* MOBİL RESPONSİVE STİLLERİ (max-width: 640px)             */
 /* ======================================================== */
 @media (max-width: 640px) {
     .order-detail-panel {
-        padding: 8px 6px !important;
-        gap: 12px !important;
+        padding: 10px 8px !important;
+        gap: 14px !important;
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 10px !important;
         box-sizing: border-box !important;
     }
 
-    .inner-table,
-    .inner-table thead,
-    .inner-table tbody,
-    .inner-table th,
-    .inner-table td,
-    .inner-table tr {
-        display: block !important;
+    .table-responsive-container {
         width: 100% !important;
-        box-sizing: border-box !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
-    .inner-table thead {
-        display: none !important;
-    }
-
-    .inner-table tr {
-        margin-bottom: 10px !important;
-        background: rgba(0, 0, 0, 0.04) !important;
-        border-radius: 10px !important;
-        padding: 12px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 6px !important;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-    }
-
-    .dark .inner-table tr {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border-color: rgba(255, 255, 255, 0.08) !important;
+    .inner-table {
+        min-width: 620px !important;
     }
 
     .inner-thumb {
-        width: 70px !important;
-        height: 70px !important;
+        width: 80px !important;
+        height: 80px !important;
     }
 
-    .inner-table td {
-        background: transparent !important;
-        padding: 2px 0 !important;
-        border-radius: 0 !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        font-size: 0.82rem !important;
-    }
-
-    .inner-table td.hidden,
-    .inner-table td.sm\:table-cell {
-        display: none !important;
+    .inner-thumb:hover {
+        width: 140px !important;
+        height: 140px !important;
     }
 
     .inner-table td:first-child {
-        width: 100% !important;
-        justify-content: flex-start !important;
-        gap: 12px !important;
-        margin-bottom: 4px !important;
+        width: 95px !important;
     }
 
-    .mobile-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #64748b;
-    }
-
-    .dark .mobile-label {
-        color: rgba(255, 255, 255, 0.45);
-    }
-
-@media (min-width: 641px) {
-    .mobile-label {
-        display: none !important;
+    .detail-meta {
+        flex-direction: column !important;
+        gap: 16px !important;
     }
 }
 
