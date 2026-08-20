@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
         Model::unguard();
 
         // Mlevent\Fatura kütüphanesi için yedek autoloader
-        if (!class_exists(\Mlevent\Fatura\Gib::class)) {
+        if (!class_exists(\Mlevent\Fatura\Models\InvoiceModel::class)) {
             spl_autoload_register(function ($class) {
                 if (str_starts_with($class, 'Mlevent\\Fatura\\')) {
                     $relative = str_replace('Mlevent\\Fatura\\', '', $class);

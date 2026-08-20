@@ -58,7 +58,7 @@ class GibEArsivService
      */
     protected function ensureAutoloader(): void
     {
-        if (class_exists(\Mlevent\Fatura\Gib::class)) {
+        if (class_exists(\Mlevent\Fatura\Models\InvoiceModel::class)) {
             return;
         }
 
