@@ -265,7 +265,6 @@ class OrdersTable
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')
                             ->label('SMS Şifresi')
-                            ->numeric()
                             ->required()
                             ->placeholder('Gelen şifreyi girin'),
                     ])
@@ -551,7 +550,6 @@ class OrdersTable
                             \Filament\Forms\Components\Hidden::make('operation_id'),
                             \Filament\Forms\Components\TextInput::make('sms_code')
                                 ->label('SMS Şifresi')
-                                ->numeric()
                                 ->required()
                                 ->placeholder('Gelen şifreyi girin'),
                         ])
