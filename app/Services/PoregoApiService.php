@@ -451,10 +451,11 @@ class PoregoApiService
 
         try {
             $endpoints = [
-                "{$apiUrl}/orders/{$order->id}",
+                "{$apiUrl}/orders?platformOrderNumber={$order->order_number}",
                 "{$apiUrl}/orders/{$order->order_number}",
-                "{$apiUrl}/shipments?platformOrderId={$order->id}",
+                "{$apiUrl}/orders/{$order->id}",
                 "{$apiUrl}/shipments?platformOrderNumber={$order->order_number}",
+                "{$apiUrl}/shipments?platformOrderId={$order->id}",
             ];
 
             foreach ($endpoints as $endpoint) {
@@ -469,6 +470,12 @@ class PoregoApiService
                     $data = $res['data'] ?? ($res['shipment'] ?? $res);
 
                     if (is_array($data)) {
+                        // Eğer data içerisinde items array'i geldiyse (Porego yeni listeleme yapısı)
+                        if (isset($data['items']) && is_array($data['items']) && count($data['items']) > 0) {
+                            $data = $data['items'][0];
+                        }
+                        
+                        // Eğer data direkt array (liste) olarak geldiyse
                         if (isset($data[0]) && is_array($data[0])) {
                             $data = $data[0];
                         }
