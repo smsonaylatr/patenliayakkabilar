@@ -230,23 +230,23 @@ class OrdersTable
                     ->modalHeading('GİB E-Arşiv Faturası')
                     ->modalWidth('4xl')
                     ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
-                    ->form(function (Order $record) {
-                        $schema = [
-                            \Filament\Forms\Components\Placeholder::make('html_preview')
-                                ->label('Fatura Önizlemesi')
-                                ->content(fn () => new \Illuminate\Support\HtmlString('<div style="max-height: 500px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 1rem; border-radius: 0.5rem; background: #fff; color: #000;">' . ($record->gib_invoice_html ?: '<i>Fatura içeriği yüklenemedi.</i>') . '</div>')),
-                        ];
-
-                        if ($record->gib_invoice_status !== 'signed') {
-                            $schema[] = \Filament\Forms\Components\Hidden::make('operation_id');
-                            $schema[] = \Filament\Forms\Components\TextInput::make('sms_code')
-                                ->label('SMS Şifresi')
-                                ->required()
-                                ->placeholder('Telefonunuza gelen SMS şifresini girin');
-                        }
-
-                        return $schema;
-                    })
+                    ->form([
+                        \Filament\Forms\Components\Placeholder::make('html_preview')
+                            ->hiddenLabel()
+                            ->content(fn (Order $record) => new \Illuminate\Support\HtmlString('
+                                <div style="display: flex; justify-content: center; background-color: #525659; padding: 2rem; border-radius: 0.5rem; max-height: 70vh; overflow-y: auto;">
+                                    <div style="width: 176mm; min-height: 250mm; padding: 10mm; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); transform-origin: top center; transform: scale(0.95); overflow: hidden; color: #000;">
+                                        ' . ($record->gib_invoice_html ?: '<i>Fatura içeriği yüklenemedi.</i>') . '
+                                    </div>
+                                </div>
+                            ')),
+                        \Filament\Forms\Components\Hidden::make('operation_id'),
+                        \Filament\Forms\Components\TextInput::make('sms_code')
+                            ->label('SMS Şifresi')
+                            ->required(fn (Order $record) => $record->gib_invoice_status !== 'signed')
+                            ->placeholder('Telefonunuza gelen SMS şifresini girin')
+                            ->hidden(fn (Order $record) => $record->gib_invoice_status === 'signed'),
+                    ])
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
