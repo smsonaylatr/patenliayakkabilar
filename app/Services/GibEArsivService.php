@@ -177,7 +177,7 @@ class GibEArsivService
             $taxOffice = $overrideData['tax_office'] ?? $order->tax_office ?? '';
             $customerName = $overrideData['customer_name'] ?? $order->customer_name ?? 'Müşteri';
             $companyName = $overrideData['company_name'] ?? $order->company_name ?? '';
-            $kdvPercent = (float)($overrideData['kdv_rate'] ?? 20);
+            $kdvPercent = (float)($overrideData['kdv_rate'] ?? 10);
             $order->loadMissing(['items.product', 'items.variant']);
             
             $productNames = $order->items->map(function($item) {
@@ -217,32 +217,39 @@ class GibEArsivService
                 not:              $invoiceNote,
             );
 
-            // Sipariş kalemlerini ekle
-            foreach ($order->items as $item) {
-                $itemTotalGross = (float) $item->price * (int) $item->quantity;
-                // KDV dahil fiyattan KDV hariç birim fiyatı hesapla
-                $unitPriceExVat = ($itemTotalGross / (1 + ($kdvPercent / 100))) / (int) $item->quantity;
-
-                $invoice->addItem(
-                    new \Mlevent\Fatura\Models\InvoiceItemModel(
-                        malHizmet:  $item->product_name ?? ('Ürün #' . $item->product_id),
-                        miktar:     (float) $item->quantity,
-                        birimFiyat: round($unitPriceExVat, 4),
-                        kdvOrani:   $kdvPercent,
-                    )
-                );
+            // Yeni Fiyatlama Mantığı
+            $isCOD = ($order->payment_method === 'cash_on_delivery');
+            
+            $productGrossTotal = $isCOD ? ((float)$order->grand_total - 200) : (float)$order->grand_total;
+            if ($productGrossTotal < 0) {
+                $productGrossTotal = 0;
             }
+            
+            $productKdvPercent = $kdvPercent; // 10%
+            $productUnitPriceExVat = $productGrossTotal / (1 + ($productKdvPercent / 100));
 
-            // Kargo bedeli varsa ayrı kalem olarak ekle
-            if ((float) $order->shipping_price > 0) {
-                $shippingExVat = (float) $order->shipping_price / (1 + ($kdvPercent / 100));
+            // Tüm ürünleri genel toplam fiyatıyla tek kalem olarak ekle
+            $invoice->addItem(
+                new \Mlevent\Fatura\Models\InvoiceItemModel(
+                    malHizmet:  $productNames ?: 'Ürün Bedeli',
+                    miktar:     1.0,
+                    birimFiyat: round($productUnitPriceExVat, 4),
+                    kdvOrani:   $productKdvPercent,
+                )
+            );
+
+            // Kapıda Ödeme siparişlerinde sabit 200 TL Kargo Hizmet Bedeli (KDV %20)
+            if ($isCOD) {
+                $shippingKdvPercent = 20;
+                $shippingGrossTotal = 200;
+                $shippingExVat = $shippingGrossTotal / (1 + ($shippingKdvPercent / 100));
 
                 $invoice->addItem(
                     new \Mlevent\Fatura\Models\InvoiceItemModel(
                         malHizmet:  'Kargo Hizmet Bedeli',
                         miktar:     1.0,
                         birimFiyat: round($shippingExVat, 4),
-                        kdvOrani:   $kdvPercent,
+                        kdvOrani:   $shippingKdvPercent,
                     )
                 );
             }
