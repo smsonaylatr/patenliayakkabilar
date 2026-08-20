@@ -373,7 +373,26 @@ html:not(.dark) .sku-code {
 }
 </style>
 
-<div class="order-detail-panel">
+<div 
+  x-data="{ copyToast: false, toastMsg: '' }"
+  @copy-toast.window="toastMsg = $event.detail; copyToast = true; setTimeout(() => copyToast = false, 2000)"
+  class="order-detail-panel"
+>
+  <!-- Floating Toast Notification -->
+  <div 
+    x-show="copyToast" 
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+    x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+    style="position: fixed; bottom: 24px; right: 24px; z-index: 999999; background: #10b981; color: #ffffff; padding: 10px 18px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: none;"
+    x-cloak
+  >
+    <svg style="width:16px; height:16px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <span x-text="toastMsg"></span>
+  </div>
   <!-- Products -->
   <div class="detail-section">
     <div class="detail-title">Sipariş Ürünleri</div>
@@ -450,7 +469,7 @@ html:not(.dark) .sku-code {
                   @if($sku && $sku !== '-')
                   <div 
                     x-data="{ copied: false }" 
-                    @click.stop="navigator.clipboard.writeText('{{ e($sku) }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                    @click.stop="navigator.clipboard.writeText('{{ e($sku) }}'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'SKU Kopyalandı!')"
                     class="sku-copy-badge"
                     title="Tıklayarak SKU'yu Kopyala"
                   >
@@ -461,10 +480,7 @@ html:not(.dark) .sku-code {
                         <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                       </template>
                       <template x-if="copied">
-                        <span class="copied-text">
-                          <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                          Kopyalandı!
-                        </span>
+                        <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                       </template>
                     </span>
                   </div>
@@ -495,7 +511,7 @@ html:not(.dark) .sku-code {
                 <td style="vertical-align: middle; white-space: nowrap;">
                   <span 
                     x-data="{ copied: false }" 
-                    @click.stop="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                    @click.stop="navigator.clipboard.writeText('{{ e($order->order_number) }}'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'Sipariş No Kopyalandı!')"
                     class="order-no-clickable"
                     title="Tıklayarak Sipariş Numarasını Kopyala"
                   >
@@ -505,10 +521,7 @@ html:not(.dark) .sku-code {
                         <svg style="width:13px; height:13px; display:inline-block; opacity:0.75; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                       </template>
                       <template x-if="copied">
-                        <span style="color: #34d399; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 2px;">
-                          <svg style="width:13px; height:13px; display:inline-block; color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                          Kopyalandı!
-                        </span>
+                        <svg style="width:13px; height:13px; display:inline-block; color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                       </template>
                     </span>
                   </span>
@@ -519,7 +532,6 @@ html:not(.dark) .sku-code {
                 <td style="vertical-align: middle;">
                   <span class="td-bold" style="color: #10b981;">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</span>
                 </td>
-              </tr>       </td>
               </tr>
           @empty
               <tr>
