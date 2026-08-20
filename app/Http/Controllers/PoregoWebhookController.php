@@ -67,6 +67,11 @@ class PoregoWebhookController extends Controller
                             $order->cargo_tracking_code = $trackingCode;
                         }
 
+                        // Kapıda Ödeme (COD) siparişi teslim edildiğinde ödeme durumunu 'paid' (Ödendi) yapıyoruz
+                        if ($newStatus === 'delivered' && $order->payment_method === 'cash_on_delivery' && $order->payment_status !== 'paid') {
+                            $order->payment_status = 'paid';
+                        }
+
                         $order->save();
 
                         if ($newStatus === 'cancelled') {

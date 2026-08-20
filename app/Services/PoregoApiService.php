@@ -504,12 +504,14 @@ class PoregoApiService
                             ?? ($data['trackingUrl'] ?? null))));
 
                         $status = $data['currentStatus'] ?? ($data['status'] ?? ($shipment['status'] ?? null));
+                        $poregoPaymentStatus = $data['paymentStatus'] ?? ($data['payment_status'] ?? ($data['codStatus'] ?? ($data['cod_status'] ?? ($shipment['paymentStatus'] ?? ($shipment['codStatus'] ?? null)))));
 
                         $cleanTrackingNumber = trim((string)$rawTrackingNumber);
                         $cleanOrderNumber = trim((string)$order->order_number);
                         $cleanOrderId = trim((string)$order->id);
 
                         $changed = false;
+                        $newStatus = null;
 
                         if ($status) {
                             $upperStatus = strtoupper((string)$status);
@@ -526,6 +528,24 @@ class PoregoApiService
                             }
                         }
 
+                        // Kapıda Ödeme (COD) siparişlerin ödeme durumu senkronizasyonu
+                        if ($poregoPaymentStatus) {
+                            $upperPay = strtoupper((string)$poregoPaymentStatus);
+                            if (in_array($upperPay, ['PAID', 'COLLECTED', 'COD_COLLECTED', 'COMPLETED', 'ÖDENDİ', 'ODENDI', 'TAHSİL EDİLDİ', 'TAHSIL EDILDI'])) {
+                                if ($order->payment_status !== 'paid') {
+                                    $order->payment_status = 'paid';
+                                    $changed = true;
+                                }
+                            }
+                        }
+
+                        // Kapıda Ödeme siparişi teslim edildiğinde (delivered) ödeme teslim esnasında tahsil edildiği için otomatik "Ödendi" yapıyoruz
+                        $effectiveStatus = $newStatus ?: $order->status;
+                        if ($effectiveStatus === 'delivered' && $order->payment_method === 'cash_on_delivery' && $order->payment_status !== 'paid') {
+                            $order->payment_status = 'paid';
+                            $changed = true;
+                        }
+
                         if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
                             if ($order->cargo_tracking_code !== $cleanTrackingNumber) {
                                 $order->cargo_tracking_code = $cleanTrackingNumber;
@@ -539,12 +559,13 @@ class PoregoApiService
 
                         if ($changed) {
                             $order->save();
-                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo durumu '{$order->status}' olarak güncellendi.");
+                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo durumu '{$order->status}', ödeme durumu '{$order->payment_status}' olarak güncellendi.");
                             return [
-                                'tracking_code' => $order->cargo_tracking_code,
-                                'cargo_name'    => $order->cargo_name,
-                                'tracking_url'  => $trackingUrl,
-                                'status'        => $order->status,
+                                'tracking_code'  => $order->cargo_tracking_code,
+                                'cargo_name'     => $order->cargo_name,
+                                'tracking_url'   => $trackingUrl,
+                                'status'         => $order->status,
+                                'payment_status' => $order->payment_status,
                             ];
                         }
                     }
@@ -558,7 +579,7 @@ class PoregoApiService
     }
 
     /**
-     * Porego'dan aktif/kargodaki siparişlerin güncel durumlarını ve kargo takip numaralarını çeker.
+     * Porego'dan aktif/kargodaki ve ödemesi bekleyen Kapıda Ödeme siparişlerinin güncel durumlarını çeker.
      */
     public function syncOrderStatuses()
     {
@@ -570,7 +591,14 @@ class PoregoApiService
         }
 
         try {
-            $activeOrders = Order::whereNotIn('status', ['delivered', 'cancelled'])->get();
+            $activeOrders = Order::whereNotIn('status', ['cancelled'])
+                ->where(function($q) {
+                    $q->whereNotIn('status', ['delivered'])
+                      ->orWhere(function($subQ) {
+                          $subQ->where('payment_method', 'cash_on_delivery')
+                               ->where('payment_status', '!=', 'paid');
+                      });
+                })->get();
             $updatedCount = 0;
 
             foreach ($activeOrders as $order) {
@@ -582,7 +610,7 @@ class PoregoApiService
 
             return [
                 'success' => true,
-                'message' => "{$updatedCount} adet siparişin Porego kargo durumu güncellendi.",
+                'message' => "{$updatedCount} adet siparişin Porego kargo/ödeme durumu güncellendi.",
                 'updated_count' => $updatedCount
             ];
         } catch (\Throwable $e) {
