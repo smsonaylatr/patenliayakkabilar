@@ -229,17 +229,24 @@ class OrdersTable
                     })
                     ->modalHeading('GİB E-Arşiv Faturası')
                     ->modalWidth('4xl')
+                    ->modalCancelAction(false)
                     ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
                     ->form([
                         \Filament\Forms\Components\Placeholder::make('html_preview')
                             ->hiddenLabel()
-                            ->content(fn (Order $record) => new \Illuminate\Support\HtmlString('
-                                <div style="display: flex; justify-content: center; background-color: #525659; padding: 2rem; border-radius: 0.5rem; max-height: 70vh; overflow-y: auto;">
-                                    <div style="width: 176mm; min-height: 250mm; padding: 10mm; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); transform-origin: top center; transform: scale(0.95); overflow: hidden; color: #000;">
-                                        ' . ($record->gib_invoice_html ?: '<i>Fatura içeriği yüklenemedi.</i>') . '
+                            ->content(function (Order $record) {
+                                if (!$record->gib_invoice_html) {
+                                    return new \Illuminate\Support\HtmlString('<i>Fatura içeriği yüklenemedi.</i>');
+                                }
+                                $html = htmlspecialchars($record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
+                                return new \Illuminate\Support\HtmlString('
+                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center;">
+                                        <div style="width: 100%; max-width: 210mm; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);">
+                                            <iframe srcdoc="' . $html . '" style="width: 100%; height: 70vh; border: none;"></iframe>
+                                        </div>
                                     </div>
-                                </div>
-                            ')),
+                                ');
+                            }),
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')
                             ->label('SMS Şifresi')
