@@ -240,9 +240,9 @@ class OrdersTable
                                 }
                                 $html = htmlspecialchars($record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
                                 return new \Illuminate\Support\HtmlString('
-                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center;">
-                                        <div style="width: 100%; max-width: 210mm; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);">
-                                            <iframe srcdoc="' . $html . '" style="width: 100%; height: 70vh; border: none;"></iframe>
+                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; overflow: hidden; height: 75vh;">
+                                        <div style="width: 100%; position: relative; overflow: hidden;">
+                                            <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 140%; height: 140%; transform: scale(0.714); transform-origin: 0 0; border: none; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);"></iframe>
                                         </div>
                                     </div>
                                 ');
