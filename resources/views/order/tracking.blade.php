@@ -171,11 +171,20 @@
                                     <div class="flex justify-between items-center">
                                         <span class="text-xs font-bold uppercase tracking-wider text-amber-800">KARGO TAKİP DURUMU</span>
                                         <span class="inline-flex items-center gap-1.5 text-xs text-amber-700 font-bold">
-                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Kargo Kodu Hazırlanıyor
+                                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> 
+                                            @if(in_array($order->status, ['shipped', 'delivered', 'completed']))
+                                                Kargo Kodu Bekleniyor
+                                            @else
+                                                Kargo Kodu Hazırlanıyor
+                                            @endif
                                         </span>
                                     </div>
                                     <p class="text-xs text-amber-900 leading-relaxed font-medium pt-1">
-                                        Siparişiniz Porego / Paketfy depomuza iletilmiştir. Kargo barkodunuz basılıp kuryeye teslim edildiğinde kargo takip numaranız bu alanda ve SMS ile otomatik görünecektir.
+                                        @if(in_array($order->status, ['shipped', 'delivered', 'completed']))
+                                            Siparişiniz kargo firmasına teslim edilmiştir. Kargo takip numaranız kargo firmasından sistemimize ulaştığında bu alanda otomatik olarak görünecektir.
+                                        @else
+                                            Siparişiniz Porego / Paketfy depomuza iletilmiştir. Kargo barkodunuz basılıp kuryeye teslim edildiğinde kargo takip numaranız bu alanda ve SMS ile otomatik görünecektir.
+                                        @endif
                                     </p>
                                 </div>
                             @endif
