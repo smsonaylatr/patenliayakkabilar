@@ -482,7 +482,7 @@ class OrdersTable
             ->bulkActions([
                 BulkActionGroup::make([
                     BulkAction::make('bulkSendToPorego')
-                        ->label('Seçilenleri Porego\'ya Gönder')
+                        ->label('Porego\'ya Gönder')
                         ->icon('heroicon-o-paper-airplane')
                         ->color('warning')
                         ->requiresConfirmation()
@@ -510,7 +510,7 @@ class OrdersTable
                         }),
 
                     BulkAction::make('bulkCreateGibInvoice')
-                        ->label('Toplu GİB E-Arşiv Faturası Kes')
+                        ->label('GİB Faturası Kes')
                         ->icon('heroicon-o-document-check')
                         ->color('success')
                         ->requiresConfirmation()
@@ -549,7 +549,7 @@ class OrdersTable
                         }),
 
                     BulkAction::make('bulkResetGibInvoice')
-                        ->label('Seçilenlerin Fatura Durumunu Sıfırla')
+                        ->label('Fatura Kaydını Sıfırla')
                         ->icon('heroicon-o-arrow-path')
                         ->color('info')
                         ->requiresConfirmation()
@@ -580,7 +580,7 @@ class OrdersTable
                         }),
 
                     BulkAction::make('syncGibInvoiceStatus')
-                        ->label('Durumları Eşitle (GİB)')
+                        ->label('Fatura Durumu Eşitle')
                         ->icon('heroicon-o-arrow-path')
                         ->color('info')
                         ->requiresConfirmation()
@@ -637,7 +637,7 @@ class OrdersTable
                         }),
 
                     BulkAction::make('bulkSignGibInvoice')
-                        ->label('Seçilenleri İmzala (SMS)')
+                        ->label('Faturayı İmzala (SMS)')
                         ->icon('heroicon-o-check-badge')
                         ->color('primary')
                         ->modalHeading('GİB Faturalarını İmzala (SMS)')
@@ -741,7 +741,7 @@ class OrdersTable
                         }),
 
                     BulkAction::make('exportSelectedOfflineConversions')
-                        ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
+                        ->label('Google Ads CSV İndir')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('primary')
                         ->form([
