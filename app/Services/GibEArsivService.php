@@ -301,8 +301,6 @@ class GibEArsivService
                 Log::warning("GİB Fatura HTML çekilemedi (UUID: {$uuid}): " . $hEx->getMessage());
             }
 
-            $gib->logout();
-
             // Veritabanını Güncelle
             $order->update([
                 'tax_number'         => $taxNumber,
@@ -362,6 +360,14 @@ class GibEArsivService
                 'success' => false,
                 'message' => 'Fatura oluşturulurken hata oluştu: ' . $errorMessage,
             ];
+        } finally {
+            if (isset($gib) && $gib) {
+                try {
+                    $gib->logout();
+                } catch (\Throwable $t) {
+                    // Ignore logout errors
+                }
+            }
         }
     }
 
@@ -410,6 +416,7 @@ HTML;
      */
     public function getInvoiceHtml(string $uuid): ?string
     {
+        $gib = null;
         try {
             $gib = $this->getGibClient();
             // Önce imzalanmış versiyonu dene, bulunamazsa taslak versiyonunu çek
@@ -419,7 +426,6 @@ HTML;
             } catch (\Throwable $e) {
                 $html = $gib->getHtml($uuid, false);
             }
-            $gib->logout();
 
             if ($html) {
                 $html = $this->enrichInvoiceHtmlWithLogo($html);
@@ -436,6 +442,14 @@ HTML;
         } catch (\Throwable $e) {
             Log::error("GİB Fatura HTML Alma Hatası (UUID: {$uuid}): " . $e->getMessage());
             return null;
+        } finally {
+            if ($gib) {
+                try {
+                    $gib->logout();
+                } catch (\Throwable $t) {
+                    // Ignore logout errors
+                }
+            }
         }
     }
 
@@ -444,6 +458,7 @@ HTML;
      */
     public function startSmsVerification(): array
     {
+        $gib = null;
         try {
             $gib = $this->getGibClient();
             $operationId = $gib->startSmsVerification();
@@ -466,6 +481,14 @@ HTML;
                 'success' => false,
                 'message' => 'SMS doğrulama başlatılamadı: ' . $e->getMessage(),
             ];
+        } finally {
+            if ($gib) {
+                try {
+                    $gib->logout();
+                } catch (\Throwable $t) {
+                    // Ignore logout errors
+                }
+            }
         }
     }
 
@@ -474,6 +497,7 @@ HTML;
      */
     public function completeSmsVerification(string $smsCode, string $operationId, array $uuids): array
     {
+        $gib = null;
         try {
             $gib = $this->getGibClient();
             $result = $gib->completeSmsVerification($smsCode, $operationId, $uuids);
@@ -498,6 +522,14 @@ HTML;
                 'success' => false,
                 'message' => 'SMS onaylama hatası: ' . $e->getMessage(),
             ];
+        } finally {
+            if ($gib) {
+                try {
+                    $gib->logout();
+                } catch (\Throwable $t) {
+                    // Ignore logout errors
+                }
+            }
         }
     }
 }
