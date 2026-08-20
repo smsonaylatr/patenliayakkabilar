@@ -432,7 +432,7 @@ class OrdersTable
                     BulkAction::make('bulkResetGibInvoice')
                         ->label('Seçilenlerin Fatura Durumunu Sıfırla')
                         ->icon('heroicon-o-arrow-path')
-                        ->color('warning')
+                        ->color('info')
                         ->requiresConfirmation()
                         ->modalHeading('Fatura Durumlarını Sıfırla')
                         ->modalDescription('GİB Portalından iptal ettiğiniz faturaları yeniden kesebilmek için sistemdeki kayıtlarını sıfırlamanız gerekir. Seçili siparişlerin mevcut fatura kayıtları silinerek yeniden fatura kesilebilir duruma getirilecektir. Onaylıyor musunuz?')
@@ -463,7 +463,7 @@ class OrdersTable
                     BulkAction::make('exportSelectedOfflineConversions')
                         ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->color('success')
+                        ->color('primary')
                         ->form([
                             TextInput::make('conversion_name')
                                 ->label('Google Ads Dönüşüm Eylemi Adı (Conversion Name)')
@@ -540,7 +540,7 @@ class OrdersTable
                             ]);
                         }),
                     DeleteBulkAction::make(),
-                ]),
+                ])->dropdown(false),
             ])
             ->headerActions([])
             ->defaultSort('created_at', 'desc')
