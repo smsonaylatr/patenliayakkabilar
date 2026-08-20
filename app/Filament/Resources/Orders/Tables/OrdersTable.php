@@ -242,7 +242,7 @@ class OrdersTable
                                 return new \Illuminate\Support\HtmlString('
                                     <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; overflow: hidden; height: 75vh;">
                                         <div style="width: 100%; position: relative; overflow: hidden;">
-                                            <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 140%; height: 140%; transform: scale(0.714); transform-origin: 0 0; border: none; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);"></iframe>
+                                            <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 160%; height: 160%; transform: scale(0.625); transform-origin: 0 0; border: none; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);"></iframe>
                                         </div>
                                     </div>
                                 ');
