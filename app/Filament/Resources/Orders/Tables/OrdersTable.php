@@ -239,34 +239,11 @@ class OrdersTable
                                     return new \Illuminate\Support\HtmlString('<i>Fatura içeriği yüklenemedi.</i>');
                                 }
                                 
-                                // CSS enjeksiyonu ile faturayı duyarlı (responsive) hale getirelim
-                                $style = '
-                                <style>
-                                    body {
-                                        margin: 0 !important;
-                                        padding: 15px !important;
-                                        background: #fff !important;
-                                        display: flex !important;
-                                        justify-content: center !important;
-                                    }
-                                    /* GİB fatura tablolarını esnek yap */
-                                    table[width="800"], table[width="800px"], .main-table {
-                                        width: 100% !important;
-                                        max-width: 800px !important;
-                                        margin: 0 auto !important;
-                                    }
-                                    table {
-                                        max-width: 100% !important;
-                                    }
-                                </style>
-                                ';
-                                
-                                $modifiedHtml = $style . $record->gib_invoice_html;
-                                $html = htmlspecialchars($modifiedHtml, ENT_QUOTES, 'UTF-8');
+                                $html = htmlspecialchars($record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
                                 
                                 return new \Illuminate\Support\HtmlString('
-                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; height: 75vh;">
-                                        <div style="width: 100%; max-width: 830px; height: 100%; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); border-radius: 0.25rem; overflow: hidden;">
+                                    <div style="background-color: #525659; padding: 1.5rem; border-radius: 0.5rem; display: flex; justify-content: center; align-items: flex-start; height: 75vh; overflow: auto;">
+                                        <div style="width: 820px; min-width: 820px; height: 1150px; background: #fff; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); border-radius: 0.25rem; overflow: hidden; margin-bottom: 1.5rem;">
                                             <iframe srcdoc="' . $html . '" style="width: 100%; height: 100%; border: none;"></iframe>
                                         </div>
                                     </div>
