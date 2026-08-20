@@ -38,24 +38,14 @@
                         $trackingCode = $hasRealTrackingCode ? $rawTrackingCode : null;
                         $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_company ?: 'DHL eCommerce');
                         
+                        // Kargo linki direkt olarak backend'den (Porego API'sinden dönen carrierTrackingUrl) geliyor.
+                        // Eğer backend'den gelmemişse veya hatalıysa, sipariş tablosundaki varsayılan linki (varsa) kullanırız.
                         $trackingUrl = $trackingData['tracking_url'] ?? null;
                         
-                        // Sadece eğer bizde GERÇEK bir kargo firması kayıtlıysa Porego linkini ezip direkt link oluştur!
-                        // Porego API bize gerçek DHL kodunu (741...) vermediği için, kod 330... şeklinde ise mecburen Porego sayfasına gitmeli.
-                        if ($hasRealTrackingCode && $cargoName !== 'Porego Kargo') {
-                            if (stripos($cargoName, 'aras') !== false) {
-                                $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
-                            } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
-                                $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($trackingCode);
-                            } elseif (stripos($cargoName, 'mng') !== false) {
-                                $trackingUrl = 'https://www.mngkargo.com.tr/gonderitakip/' . urlencode($trackingCode);
-                            } elseif (stripos($cargoName, 'ptt') !== false) {
-                                $trackingUrl = 'https://gonderitakip.ptt.gov.tr/Track/Verify?q=' . urlencode($trackingCode);
-                            } elseif (stripos($cargoName, 'sendeo') !== false) {
-                                $trackingUrl = 'https://kargotakip.sendeo.com.tr/kargo-takip-popup?gonderiNo=' . urlencode($trackingCode);
-                            } elseif (stripos($cargoName, 'dhl') !== false) {
-                                $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
-                            }
+                        // Ancak bazı durumlarda backend boş gönderebiliyor ve bizde manuel kargo kodu varsa,
+                        // fallback olarak kendimiz sadece DHL için oluşturabiliriz (isteğe bağlı)
+                        if (empty($trackingUrl) && $hasRealTrackingCode && stripos($cargoName, 'dhl') !== false) {
+                            $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
                         }
                         
                         // Eğer hiçbir özel URL oluşturulamadıysa ve Porego URL'si yoksa, boş bırak.
