@@ -345,15 +345,15 @@ class GibEArsivService
         $logoUrl = 'https://i.hizliresim.com/ixv8t7k1.png';
         
         $logoHtml = <<<HTML
-<br>
-<div style="text-align: right; margin-top: 15px;">
-    <img src="{$logoUrl}" alt="Firma Logosu" style="max-width: 220px; object-fit: contain;">
+<div style="text-align: left; padding-top: 25px; padding-bottom: 5px;">
+    <img src="{$logoUrl}" alt="Firma Logosu" style="max-width: 250px; height: auto; object-fit: contain;">
 </div>
-</td></tr>
+</td>
 HTML;
 
-        // QR kodun script ile bittiği td'nin sonrasına logoyu yerleştir. 
-        $html = preg_replace('/(<\/script>\s*<\/td>\s*<\/tr>)/i', '</script>' . $logoHtml, $html, 1);
+        // "Satıcı" tablosunun bittiği yeri bul (</table><hr></td>) ve hemen altına logoyu ekle.
+        // GİB HTML'sinde Satıcı alanından sonra orta sütun başlar: <td valign="middle"
+        $html = preg_replace('/(<\/table>\s*<hr>\s*<\/td>)(\s*<td[^>]*valign="middle")/i', '</table><hr>' . $logoHtml . '$2', $html, 1);
 
         return $html;
     }
