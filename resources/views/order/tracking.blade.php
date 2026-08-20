@@ -39,11 +39,22 @@
                         $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_company ?: 'DHL eCommerce');
                         
                         $trackingUrl = $trackingData['tracking_url'] ?? null;
+                        // Porego'nun kendi yönlendirme linkini yoksay (direkt kargo firmasına gitsin)
+                        if ($trackingUrl && str_contains($trackingUrl, 'app.porego.com')) {
+                            $trackingUrl = null;
+                        }
+                        
                         if (!$trackingUrl && $hasRealTrackingCode) {
                             if (stripos($cargoName, 'aras') !== false) {
                                 $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
                             } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
                                 $trackingUrl = 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($trackingCode);
+                            } elseif (stripos($cargoName, 'mng') !== false) {
+                                $trackingUrl = 'https://www.mngkargo.com.tr/gonderitakip/' . urlencode($trackingCode);
+                            } elseif (stripos($cargoName, 'ptt') !== false) {
+                                $trackingUrl = 'https://gonderitakip.ptt.gov.tr/Track/Verify?q=' . urlencode($trackingCode);
+                            } elseif (stripos($cargoName, 'sendeo') !== false) {
+                                $trackingUrl = 'https://kargotakip.sendeo.com.tr/kargo-takip-popup?gonderiNo=' . urlencode($trackingCode);
                             } else {
                                 $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
                             }
