@@ -31,7 +31,7 @@ td.fi-ta-actions-cell {
 }
 
 .dark .order-detail-panel {
-    background-color: rgba(15, 23, 42, 0.85);
+    background-color: rgba(15, 23, 42, 0.75);
     border-color: rgba(255, 255, 255, 0.08);
     color: #f8fafc;
 }
@@ -44,7 +44,7 @@ td.fi-ta-actions-cell {
 }
 
 .detail-title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -65,28 +65,23 @@ td.fi-ta-actions-cell {
 .detail-meta {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
 @media (min-width: 768px) {
     .detail-meta {
         flex-direction: row;
-        gap: 30px;
+        gap: 40px;
     }
 }
 
 .table-responsive-container {
     width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     border-radius: 10px;
-    background: transparent;
 }
 
-/* Mobil ve masaüstünde birebir aynı şık yatay tablo yapısı */
 .inner-table {
     width: 100%;
-    min-width: 640px;
     border-collapse: separate;
     border-spacing: 0 4px;
     font-size: 0.84rem;
@@ -101,11 +96,10 @@ td.fi-ta-actions-cell {
     letter-spacing: 0.08em;
     color: #64748b;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    white-space: nowrap;
 }
 
 .dark .inner-table th {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.35);
     border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -123,9 +117,10 @@ td.fi-ta-actions-cell {
 .inner-table td:first-child {
     border-radius: 8px 0 0 8px;
     padding-right: 6px !important;
-    width: 110px;
+    width: 145px;
     vertical-align: middle;
     position: relative;
+    overflow: visible;
 }
 
 .inner-table td:last-child {
@@ -133,13 +128,13 @@ td.fi-ta-actions-cell {
 }
 
 .inner-thumb {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
     background: #ffffff;
     overflow: hidden;
     flex-shrink: 0;
-    transition: all 0.25s ease;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.25s ease, box-shadow 0.25s ease;
     position: relative;
     z-index: 10;
     cursor: zoom-in;
@@ -151,15 +146,13 @@ td.fi-ta-actions-cell {
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
 }
 
-@media (min-width: 768px) {
-    .inner-thumb:hover {
-        width: 200px;
-        height: 200px;
-        border-radius: 14px;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
-        z-index: 9999 !important;
-        border-color: #38bdf8 !important;
-    }
+.inner-thumb:hover {
+    width: 250px;
+    height: 250px;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+    z-index: 9999 !important;
+    border-color: #38bdf8 !important;
 }
 
 .inner-thumb img {
@@ -167,6 +160,11 @@ td.fi-ta-actions-cell {
     height: 100%;
     object-fit: cover;
     border-radius: 6px;
+    transition: border-radius 0.25s ease;
+}
+
+.inner-thumb:hover img {
+    border-radius: 10px;
 }
 
 .td-bold {
@@ -187,21 +185,90 @@ td.fi-ta-actions-cell {
     color: rgba(255, 255, 255, 0.55);
 }
 
-/* Mobil cihaz ayarları */
+/* ======================================================== */
+/* MOBİL DİKEY TABLO / KART DÜZENİ (max-width: 640px)       */
+/* ======================================================== */
 @media (max-width: 640px) {
     .order-detail-panel {
-        padding: 12px 10px !important;
-        gap: 14px !important;
+        padding: 8px 6px !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
         border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .inner-table,
+    .inner-table thead,
+    .inner-table tbody,
+    .inner-table th,
+    .inner-table td,
+    .inner-table tr {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .inner-table thead {
+        display: none !important;
+    }
+
+    .inner-table tr {
+        margin-bottom: 10px !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .dark .inner-table tr {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
     }
 
     .inner-thumb {
-        width: 80px !important;
-        height: 80px !important;
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .inner-table td {
+        background: transparent !important;
+        padding: 2px 0 !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 0.82rem !important;
+    }
+
+    .inner-table td.hidden,
+    .inner-table td.sm\:table-cell {
+        display: none !important;
     }
 
     .inner-table td:first-child {
-        width: 90px !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .mobile-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .dark .mobile-label {
+        color: rgba(255, 255, 255, 0.45);
+    }
+
+@media (min-width: 641px) {
+    .mobile-label {
+        display: none !important;
     }
 }
 
@@ -314,7 +381,7 @@ html:not(.dark) .sku-code {
       <table class="inner-table">
         <thead>
           <tr>
-            <th style="width:100px"></th>
+            <th style="width:116px"></th>
             <th>Ürün</th>
             <th>Renk / Numara</th>
             <th>Adet</th>
@@ -373,7 +440,7 @@ html:not(.dark) .sku-code {
                   $sku = $variant?->sku ?: ($product?->sku ?: '-');
               @endphp
               <tr>
-                <td style="width:100px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
+                <td style="width:145px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
@@ -452,6 +519,7 @@ html:not(.dark) .sku-code {
                 <td style="vertical-align: middle;">
                   <span class="td-bold" style="color: #10b981;">₺{{ number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.') }}</span>
                 </td>
+              </tr>       </td>
               </tr>
           @empty
               <tr>

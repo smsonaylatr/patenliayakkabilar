@@ -208,7 +208,6 @@ class OrdersTable
                 Action::make('viewDetails')
                     ->extraAttributes(['style' => 'display: none !important;'])
                     ->modalHeading(fn (Order $record) => 'Sipariş Detayı #' . $record->order_number)
-                    ->modalWidth('5xl')
                     ->modalContent(fn (Order $record) => view('filament.orders.order-details-accordion', ['getRecord' => fn () => $record]))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Kapat'),
