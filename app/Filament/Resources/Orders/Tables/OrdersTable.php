@@ -256,7 +256,7 @@ class OrdersTable
                     ->iconButton()
                     ->size('lg')
                     ->tooltip('GİB Faturasını İmzala (SMS)')
-                    ->icon('heroicon-o-pencil-square')
+                    ->icon('heroicon-o-check-badge')
                     ->color('primary')
                     ->modalHeading('GİB Faturasını İmzala (SMS)')
                     ->modalDescription(fn () => new \Illuminate\Support\HtmlString('GİB portalından sisteme kayıtlı telefonunuza bir SMS şifresi gönderildi.<br><br><b>ÖNEMLİ:</b> Şifrenin ulaşması 5-10 saniye sürebilir. Lütfen bekleyin ve gelen şifreyi girerek onaylayın.'))
@@ -542,7 +542,7 @@ class OrdersTable
 
                     BulkAction::make('bulkSignGibInvoice')
                         ->label('Seçilenleri İmzala (SMS)')
-                        ->icon('heroicon-o-pencil-square')
+                        ->icon('heroicon-o-check-badge')
                         ->color('primary')
                         ->modalHeading('GİB Faturalarını İmzala (SMS)')
                         ->modalDescription(fn () => new \Illuminate\Support\HtmlString('Seçilen taslak faturaları imzalamak için telefonunuza bir SMS şifresi gönderildi.<br><br><b>ÖNEMLİ:</b> Şifrenin ulaşması 5-10 saniye sürebilir. Lütfen bekleyin ve gelen şifreyi girerek onaylayın.'))
