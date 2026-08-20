@@ -224,15 +224,21 @@
                         <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-base shrink-0 shadow-xs">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
-                        <div class="flex-1 text-xs">
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-gray-900">Ortalama Teslimat Süresi:</span>
-                                <span class="font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">{{ $deliveryTimeText }}</span>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between gap-1">
+                                <span class="font-bold text-gray-900 text-xs sm:text-sm leading-tight">Ortalama Teslimat Süresi:</span>
+                                <span class="font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs text-[10px] sm:text-xs whitespace-nowrap shrink-0">{{ $deliveryTimeText }}</span>
                             </div>
-                            <p class="text-gray-600 mt-1 flex items-center gap-1">
-                                <i class="fa-regular fa-calendar-check text-emerald-600"></i>
-                                Tahmini Teslimat: <strong class="text-gray-900 font-bold">{{ $startFormatted }} - {{ $endFormatted }}</strong> tarihleri arasında
-                            </p>
+                            <div class="flex justify-between items-center mt-2 gap-1">
+                                <div class="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
+                                    <i class="fa-regular fa-calendar-check text-emerald-600 text-sm sm:text-base"></i>
+                                    <div class="text-gray-500 leading-tight">Tahmini<br>Teslimat:</div>
+                                    <div class="text-gray-900 font-bold leading-tight">{{ $startFormatted }} -<br>{{ $endFormatted }}</div>
+                                </div>
+                                <div class="text-gray-500 text-[10px] sm:text-xs leading-tight text-center sm:text-right shrink-0">
+                                    tarihleri<br>arasında
+                                </div>
+                            </div>
                         </div>
                     </div>
 
