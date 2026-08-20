@@ -244,9 +244,9 @@ class OrdersTable
                                 $html = htmlspecialchars($style . $record->gib_invoice_html, ENT_QUOTES, 'UTF-8');
                                 
                                 return new \Illuminate\Support\HtmlString('
-                                    <div style="background-color: #525659; padding: 1.5rem; border-radius: 0.5rem; display: flex; justify-content: center; align-items: flex-start; height: 75vh; overflow: auto; container-type: inline-size; width: 100%;">
-                                        <div style="width: 820px; min-width: 820px; height: 1150px; background: #fff; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); border-radius: 0.25rem; overflow: hidden; margin-bottom: 1.5rem; transform: scale(min(1, calc(100cqw / 820px))); transform-origin: top center;">
-                                            <iframe srcdoc="' . $html . '" style="width: 100%; height: 100%; border: none;"></iframe>
+                                    <div style="background-color: #525659; padding: 1rem; border-radius: 0.5rem; display: flex; justify-content: center; align-items: flex-start; height: 75vh; overflow-y: auto; width: 100%;">
+                                        <div style="width: 100%; max-width: 820px; aspect-ratio: 820 / 1150; background: #fff; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); border-radius: 0.25rem; overflow: hidden; position: relative; margin-bottom: 1.5rem; container-type: inline-size;">
+                                            <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 820px; height: 1150px; border: none; transform: scale(calc(100cqw / 820px)); transform-origin: top left;"></iframe>
                                         </div>
                                     </div>
                                 ');
