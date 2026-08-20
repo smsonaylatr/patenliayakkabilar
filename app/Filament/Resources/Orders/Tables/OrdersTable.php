@@ -251,17 +251,49 @@ class OrdersTable
                                     </div>
                                 ');
                             }),
+                        \Filament\Forms\Components\Actions::make([
+                            \Filament\Forms\Components\Actions\Action::make('sendSmsCode')
+                                ->label(fn (\Filament\Forms\Get $get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
+                                ->icon('heroicon-o-paper-airplane')
+                                ->color('warning')
+                                ->action(function (\Filament\Forms\Set $set) {
+                                    try {
+                                        $service = app(\App\Services\GibEArsivService::class);
+                                        $smsResult = $service->startSmsVerification();
+                                        if ($smsResult['success']) {
+                                            $set('operation_id', $smsResult['operation_id']);
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('SMS Gönderildi')
+                                                ->body('Telefonunuza gelen SMS şifresini aşağıdaki alana girin.')
+                                                ->success()
+                                                ->send();
+                                        } else {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('SMS Gönderilemedi')
+                                                ->body($smsResult['message'])
+                                                ->danger()
+                                                ->send();
+                                        }
+                                    } catch (\Exception $e) {
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Sistem Hatası')
+                                            ->body($e->getMessage())
+                                            ->danger()
+                                            ->send();
+                                    }
+                                })
+                                ->hidden(fn (Order $record) => $record->gib_invoice_status === 'signed'),
+                        ])->alignCenter(),
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')
                             ->label('SMS Şifresi')
-                            ->required(fn (Order $record) => $record->gib_invoice_status !== 'signed')
+                            ->required(fn (\Filament\Forms\Get $get) => (bool)$get('operation_id'))
                             ->placeholder('Telefonunuza gelen SMS şifresini girin')
-                            ->hidden(fn (Order $record) => $record->gib_invoice_status === 'signed'),
+                            ->hidden(fn (\Filament\Forms\Get $get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
-                            $shouldStartSms = false;
 
                             if (!$record->is_invoiced) {
                                 $result = $service->createInvoice($record, []);
@@ -274,7 +306,6 @@ class OrdersTable
                                     throw new \Filament\Support\Exceptions\Halt();
                                 }
                                 $record->refresh();
-                                $shouldStartSms = true;
                             } elseif ($record->gib_invoice_status === 'draft') {
                                 // Otomatik senkronizasyon: Açarken GİB'den durum kontrolü yap
                                 $gib = $service->getGibClient();
@@ -291,35 +322,12 @@ class OrdersTable
                                             'gib_invoice_html' => $newHtml,
                                         ]);
                                         
-                                        // Formu kapatıp yeniden açmalarına gerek kalmaması için html'i güncelleyelim.
-                                        $shouldStartSms = false;
-                                        
                                         \Filament\Notifications\Notification::make()
                                             ->title('Fatura Zaten İmzalanmış')
                                             ->body('GİB üzerinden kontrol edildi, fatura daha önce imzalandığı için otomatik güncellendi.')
                                             ->success()
                                             ->send();
-                                    } else {
-                                        $shouldStartSms = true;
                                     }
-                                } else {
-                                    $shouldStartSms = true;
-                                }
-                            }
-
-                            if ($shouldStartSms) {
-                                $smsResult = $service->startSmsVerification();
-                                if ($smsResult['success']) {
-                                    $form->fill([
-                                        'operation_id' => $smsResult['operation_id'],
-                                    ]);
-                                } else {
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('SMS Gönderilemedi')
-                                        ->body($smsResult['message'])
-                                        ->danger()
-                                        ->send();
-                                    throw new \Filament\Support\Exceptions\Halt();
                                 }
                             }
                         } catch (\Exception $e) {
@@ -336,6 +344,15 @@ class OrdersTable
                     ->action(function (array $data, Order $record): void {
                         if ($record->gib_invoice_status === 'signed') {
                             return;
+                        }
+
+                        if (empty($data['sms_code'])) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Hata')
+                                ->body('Lütfen önce SMS şifresi gönderin ve gelen kodu girin.')
+                                ->danger()
+                                ->send();
+                            throw new \Filament\Support\Exceptions\Halt();
                         }
 
                         try {
@@ -360,13 +377,17 @@ class OrdersTable
                                     ->body($result['message'])
                                     ->danger()
                                     ->send();
+                                throw new \Filament\Support\Exceptions\Halt();
                             }
                         } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Sistem Hatası')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
+                            if (!($e instanceof \Filament\Support\Exceptions\Halt)) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sistem Hatası')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                            throw new \Filament\Support\Exceptions\Halt();
                         }
                     }),
 
