@@ -253,7 +253,9 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => !$record->is_invoiced),
 
                 Action::make('view_gib_invoice')
-                    ->label('GİB Faturasını İncele / Yazdır')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('GİB Faturasını İncele / Yazdır')
                     ->icon('heroicon-o-document-magnifying-glass')
                     ->color('info')
                     ->url(fn (Order $record): string => \Illuminate\Support\Facades\URL::signedRoute('orders.gib-invoice', $record))
