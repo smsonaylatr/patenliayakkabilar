@@ -517,9 +517,9 @@ class PoregoApiService
             if ($status) {
                 $upperStatus = strtoupper((string)$status);
                 $newStatus = match ($upperStatus) {
-                    'SHIPPED', 'IN_TRANSIT' => 'shipped',
-                    'COMPLETED' => 'delivered',
-                    'CANCELLED' => 'cancelled',
+                    'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
+                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
+                    'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
                     'READY' => 'processing',
                     default => null
                 };
