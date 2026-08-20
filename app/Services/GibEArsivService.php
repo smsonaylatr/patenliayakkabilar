@@ -195,6 +195,27 @@ class GibEArsivService
             $date = date('d/m/Y');
             $time = date('H:i:s');
 
+            $rawAddress = trim($order->billing_address ?: ($order->shipping_address ?: 'Türkiye'));
+            $binaNo = '-';
+            $kapiNo = '-';
+
+            // Bina No parsing
+            if (preg_match('/(?:no|numara)\s*[:\.]?\s*([0-9a-zA-Z]+)/i', $rawAddress, $matches)) {
+                $binaNo = $matches[1];
+                $rawAddress = preg_replace('/(?:no|numara)\s*[:\.]?\s*[0-9a-zA-Z]+/i', '', $rawAddress);
+            }
+
+            // Kapı No parsing
+            if (preg_match('/(?:daire|d|kapi|kapı)\s*[:\.]?\s*([0-9a-zA-Z]+)/i', $rawAddress, $matches)) {
+                $kapiNo = $matches[1];
+                $rawAddress = preg_replace('/(?:daire|d|kapi|kapı)\s*[:\.]?\s*[0-9a-zA-Z]+/i', '', $rawAddress);
+            }
+
+            $rawAddress = trim(preg_replace('/[\s,]+/', ' ', $rawAddress));
+            if (empty($rawAddress) || $rawAddress === '-') {
+                $rawAddress = 'Merkez';
+            }
+
             // InvoiceModel oluştur (mlevent/fatura model yapısı)
             $invoice = new \Mlevent\Fatura\Models\InvoiceModel(
                 vknTckn:          $taxNumber,
@@ -206,7 +227,9 @@ class GibEArsivService
                 aliciUnvan:       $isCorporate ? ($companyName ?: $customerName) : '',
                 aliciAdi:         !$isCorporate ? $firstName : '',
                 aliciSoyadi:      !$isCorporate ? $surname : '',
-                adres:            $order->billing_address ?: ($order->shipping_address ?: 'Türkiye'),
+                adres:            $rawAddress,
+                binaNo:           $binaNo,
+                kapiNo:           $kapiNo,
                 mahalleSemtIlce:  $order->billing_district ?: ($order->shipping_district ?: 'Merkez'),
                 sehir:            $order->billing_city ?: ($order->shipping_city ?: 'İstanbul'),
                 ulke:             'Türkiye',
