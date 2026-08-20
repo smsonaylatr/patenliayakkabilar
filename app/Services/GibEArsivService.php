@@ -412,6 +412,13 @@ HTML;
             }
 
             return $html;
+        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+            $detailedError = $e->getMessage();
+            if ($e->hasResponse()) {
+                $detailedError .= " - Response: " . print_r($e->getResponse(), true);
+            }
+            Log::error("GİB Fatura HTML Alma Hatası API (UUID: {$uuid}): " . $detailedError);
+            return null;
         } catch (\Throwable $e) {
             Log::error("GİB Fatura HTML Alma Hatası (UUID: {$uuid}): " . $e->getMessage());
             return null;
