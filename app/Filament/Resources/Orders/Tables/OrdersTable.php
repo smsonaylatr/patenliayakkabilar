@@ -529,6 +529,63 @@ class OrdersTable
                                 ->send();
                         }),
 
+                    BulkAction::make('syncGibInvoiceStatus')
+                        ->label('Durumları Eşitle (GİB)')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->modalHeading('GİB Durumlarını Senkronize Et')
+                        ->modalDescription('Seçilen taslak faturaların durumları GİB üzerinden kontrol edilecek ve eğer GİB üzerinde imzalanmışsa sisteme İmzalı olarak yansıtılacaktır.')
+                        ->action(function (Collection $records): void {
+                            $drafts = $records->filter(fn ($r) => $r->is_invoiced && $r->gib_invoice_status === 'draft');
+                            if ($drafts->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('İşlem Yapılmadı')
+                                    ->body('Seçili kayıtlarda kontrol edilecek taslak fatura bulunmuyor.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            try {
+                                $service = app(\App\Services\GibEArsivService::class);
+                                $gib = $service->client();
+                                
+                                $updatedCount = 0;
+                                foreach ($drafts as $order) {
+                                    $startDate = $order->gib_invoice_date ? $order->gib_invoice_date->copy()->subDays(2)->format('d/m/Y') : date('d/m/Y', strtotime('-2 days'));
+                                    $endDate = $order->gib_invoice_date ? $order->gib_invoice_date->copy()->addDays(2)->format('d/m/Y') : date('d/m/Y', strtotime('+2 days'));
+
+                                    $docs = $gib->findEttn($order->gib_invoice_uuid)->getAll($startDate, $endDate);
+                                    
+                                    if (!empty($docs)) {
+                                        $doc = $docs[0];
+                                        if (str_contains($doc['onayDurumu'] ?? '', 'Onayland')) {
+                                            $newHtml = $service->getInvoiceHtml($order->gib_invoice_uuid);
+                                            $order->update([
+                                                'gib_invoice_status' => 'signed',
+                                                'gib_invoice_html' => $newHtml,
+                                            ]);
+                                            $updatedCount++;
+                                        }
+                                    }
+                                }
+
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Senkronizasyon Tamamlandı')
+                                    ->body("{$updatedCount} adet fatura GİB'den çekilerek imzalı duruma güncellendi.")
+                                    ->success()
+                                    ->send();
+
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sistem Hatası')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
+
                     BulkAction::make('bulkSignGibInvoice')
                         ->label('Seçilenleri İmzala (SMS)')
                         ->icon('heroicon-o-check-badge')
