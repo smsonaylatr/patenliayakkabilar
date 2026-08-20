@@ -446,151 +446,123 @@ class PoregoApiService
         $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
 
         if (!$apiKey || !$apiSecret) {
+            Log::warning("Porego API anahtarları tanımlı değil, kargo takip çekilemiyor.");
             return null;
         }
 
         try {
-            $endpoints = [
-                "{$apiUrl}/orders?platformOrderNumber={$order->order_number}",
-                "{$apiUrl}/orders/{$order->order_number}",
-                "{$apiUrl}/orders/{$order->id}",
-                "{$apiUrl}/shipments?platformOrderNumber={$order->order_number}",
-                "{$apiUrl}/shipments?platformOrderId={$order->id}",
-            ];
+            // Porego API: /orders endpoint'i paginated 'content' array döndürür.
+            // platformOrderNumber filtresi çalışmadığı için tüm sayfaları tarayıp
+            // platformOrderNumber eşleşmesi yapıyoruz.
+            $poregoOrder = null;
+            $page = 0;
 
-            foreach ($endpoints as $endpoint) {
+            while ($page < 10) {
                 $response = Http::withHeaders([
                     'X-Api-Key' => $apiKey,
                     'X-Api-Secret' => $apiSecret,
                     'Accept' => 'application/json',
-                ])->timeout(5)->get($endpoint);
+                ])->timeout(10)->get("{$apiUrl}/orders", ['page' => $page, 'size' => 50]);
 
-                if ($response->successful()) {
-                    $res = $response->json();
+                if (!$response->successful()) {
+                    Log::warning("Porego sipariş listesi alınamadı. Status: " . $response->status());
+                    break;
+                }
 
-                    $data = $res['data'] ?? ($res['shipment'] ?? $res);
+                $body = $response->json();
+                $content = $body['content'] ?? [];
 
-                    if (is_array($data)) {
-                        // Eğer data içerisinde items array'i geldiyse (Porego yeni listeleme yapısı)
-                        if (isset($data['items']) && is_array($data['items']) && count($data['items']) > 0) {
-                            $data = $data['items'][0];
-                        }
-                        
-                        // Eğer data direkt array (liste) olarak geldiyse
-                        if (isset($data[0]) && is_array($data[0])) {
-                            $data = $data[0];
-                        }
-                    }
-
-                    if (is_array($data)) {
-                        $shipment = $data['shipment'] ?? ($data['shipmentData'] ?? $data);
-
-                        // Porego API kargo takip kodu ve barkod alan adları
-                        $rawTrackingNumber = $data['platformCargoTrackingNumber'] 
-                            ?? ($shipment['platformCargoTrackingNumber']
-                            ?? ($shipment['trackingNumber'] 
-                            ?? ($shipment['trackingNo'] 
-                            ?? ($shipment['trackingCode'] 
-                            ?? ($shipment['cargoTrackingCode'] 
-                            ?? ($shipment['barcode'] 
-                            ?? ($data['trackingNumber'] 
-                            ?? ($data['trackingNo'] 
-                            ?? ($data['trackingCode'] 
-                            ?? ($data['cargoTrackingCode'] 
-                            ?? ($data['shipmentTrackingNumber'] 
-                            ?? ($data['barcode'] ?? null))))))))))));
-
-                        $cargoName = $data['platformCargoCompany']
-                            ?? ($shipment['platformCargoCompany']
-                            ?? ($shipment['carrierName'] 
-                            ?? ($shipment['carrier'] 
-                            ?? ($shipment['cargoName'] 
-                            ?? ($shipment['cargoCompany'] 
-                            ?? ($data['carrierName'] 
-                            ?? ($data['carrier'] 
-                            ?? ($data['cargoName'] 
-                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce')))))))));
-
-                        $trackingUrl = $shipment['trackingLink'] 
-                            ?? ($shipment['trackingUrl'] 
-                            ?? ($shipment['cargoTrackingUrl'] 
-                            ?? ($data['trackingLink'] 
-                            ?? ($data['trackingUrl'] ?? null))));
-
-                        $status = $data['currentStatus'] ?? ($data['status'] ?? ($shipment['status'] ?? null));
-                        $poregoPaymentStatus = $data['paymentStatus'] ?? ($data['payment_status'] ?? ($data['codStatus'] ?? ($data['cod_status'] ?? ($shipment['paymentStatus'] ?? ($shipment['codStatus'] ?? null)))));
-
-                        $cleanTrackingNumber = trim((string)$rawTrackingNumber);
-                        $cleanOrderNumber = trim((string)$order->order_number);
-                        $cleanOrderId = trim((string)$order->id);
-
-                        $changed = false;
-                        $newStatus = null;
-
-                        if ($status) {
-                            $upperStatus = strtoupper((string)$status);
-                            $newStatus = match ($upperStatus) {
-                                'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
-                                'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI' => 'delivered',
-                                'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
-                                default => null
-                            };
-
-                            if ($newStatus && $order->status !== $newStatus) {
-                                $order->status = $newStatus;
-                                $changed = true;
-                            }
-                        }
-
-                        // Kapıda Ödeme (COD) siparişlerin ödeme durumu senkronizasyonu
-                        if ($poregoPaymentStatus) {
-                            $upperPay = strtoupper((string)$poregoPaymentStatus);
-                            if (in_array($upperPay, ['PAID', 'COLLECTED', 'COD_COLLECTED', 'COMPLETED', 'ÖDENDİ', 'ODENDI', 'TAHSİL EDİLDİ', 'TAHSIL EDILDI'])) {
-                                if ($order->payment_status !== 'paid') {
-                                    $order->payment_status = 'paid';
-                                    $changed = true;
-                                }
-                            }
-                        }
-
-                        // Kapıda Ödeme siparişi teslim edildiğinde (delivered) ödeme teslim esnasında tahsil edildiği için otomatik "Ödendi" yapıyoruz
-                        $effectiveStatus = $newStatus ?: $order->status;
-                        if ($effectiveStatus === 'delivered' && $order->payment_method === 'cash_on_delivery' && $order->payment_status !== 'paid') {
-                            $order->payment_status = 'paid';
-                            $changed = true;
-                        }
-
-                        if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
-                            if ($order->cargo_tracking_code !== $cleanTrackingNumber) {
-                                $order->cargo_tracking_code = $cleanTrackingNumber;
-                                $changed = true;
-                            }
-                            if (!empty($cargoName) && $order->cargo_company !== $cargoName) {
-                                $order->cargo_company = $cargoName;
-                                $changed = true;
-                            }
-                        }
-
-                        if ($changed) {
-                            $order->save();
-                            Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo durumu '{$order->status}', ödeme durumu '{$order->payment_status}' olarak güncellendi.");
-                        }
-
-                        // Her durumda güncel canlı veriyi frontend için geri döndürüyoruz
-                        return [
-                            'tracking_code'  => $order->cargo_tracking_code,
-                            'cargo_name'     => $order->cargo_company,
-                            'tracking_url'   => $trackingUrl,
-                            'status'         => $order->status,
-                            'payment_status' => $order->payment_status,
-                            'delivery_date'  => $data['deliveryDate'] ?? ($shipment['deliveryDate'] ?? ($data['deliveredAt'] ?? null)),
-                            'delivery_location' => $data['deliveryLocation'] ?? ($shipment['deliveryLocation'] ?? null),
-                            'cargo_message'  => $data['cargoMessage'] ?? ($shipment['cargoMessage'] ?? ($data['shipmentMessage'] ?? ($data['trackingMessage'] ?? null))),
-                            'raw_status'     => $status,
-                        ];
+                foreach ($content as $item) {
+                    if (($item['platformOrderNumber'] ?? '') === $order->order_number) {
+                        $poregoOrder = $item;
+                        break 2; // Her iki döngüden de çık
                     }
                 }
+
+                // Son sayfa mı?
+                if ($body['last'] ?? true) break;
+                $page++;
             }
+
+            if (!$poregoOrder) {
+                Log::info("Porego'da sipariş bulunamadı: #{$order->order_number}");
+                return null;
+            }
+
+            // ===== Porego OrderResponse alanları =====
+            // trackingNumber: Porego'nun atadığı kargo takip numarası (ör: 330459070)
+            // trackingUrl: Porego takip linki (ör: https://app.porego.com/tracking/330459070)
+            // platformCargoTrackingNumber: Platform tarafından atanan kargo takip no (genelde null)
+            // platformCargoCompany: Platform tarafından atanan kargo firması (genelde null)
+            // status: NEW, READY, SHIPPED, IN_TRANSIT, COMPLETED, CANCELLED
+
+            $trackingNumber = $poregoOrder['platformCargoTrackingNumber']
+                ?? $poregoOrder['trackingNumber']
+                ?? null;
+            
+            $trackingUrl = $poregoOrder['trackingUrl'] ?? null;
+            $status = $poregoOrder['status'] ?? null;
+            $cargoCompany = $poregoOrder['platformCargoCompany'] ?? null;
+
+            $cleanTrackingNumber = trim((string)$trackingNumber);
+            $cleanOrderNumber = trim((string)$order->order_number);
+            $cleanOrderId = trim((string)$order->id);
+
+            $changed = false;
+            $newStatus = null;
+
+            // Durum eşleştirmesi
+            if ($status) {
+                $upperStatus = strtoupper((string)$status);
+                $newStatus = match ($upperStatus) {
+                    'SHIPPED', 'IN_TRANSIT' => 'shipped',
+                    'COMPLETED' => 'delivered',
+                    'CANCELLED' => 'cancelled',
+                    'READY' => 'processing',
+                    default => null
+                };
+
+                if ($newStatus && $order->status !== $newStatus) {
+                    $order->status = $newStatus;
+                    $changed = true;
+                }
+            }
+
+            // Kapıda Ödeme siparişi teslim edildiğinde otomatik "Ödendi" yap
+            $effectiveStatus = $newStatus ?: $order->status;
+            if ($effectiveStatus === 'delivered' && $order->payment_method === 'cash_on_delivery' && $order->payment_status !== 'paid') {
+                $order->payment_status = 'paid';
+                $changed = true;
+            }
+
+            // Kargo takip kodu kaydet (sipariş numarasıyla aynı değilse)
+            if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
+                if ($order->cargo_tracking_code !== $cleanTrackingNumber) {
+                    $order->cargo_tracking_code = $cleanTrackingNumber;
+                    $changed = true;
+                }
+                if (!empty($cargoCompany) && $order->cargo_company !== $cargoCompany) {
+                    $order->cargo_company = $cargoCompany;
+                    $changed = true;
+                }
+            }
+
+            if ($changed) {
+                $order->save();
+                Log::info("Porego Senkronizasyonu: Sipariş #{$order->order_number} güncellendi. Status: {$order->status}, Kargo: {$order->cargo_tracking_code}");
+            }
+
+            // Frontend için canlı veri döndür
+            return [
+                'tracking_code'  => $cleanTrackingNumber ?: $order->cargo_tracking_code,
+                'cargo_name'     => $cargoCompany ?: ($order->cargo_company ?: 'Porego Kargo'),
+                'tracking_url'   => $trackingUrl,
+                'status'         => $order->status,
+                'payment_status' => $order->payment_status,
+                'raw_status'     => $status,
+                'porego_order_number' => $poregoOrder['orderNumber'] ?? null,
+            ];
+
         } catch (\Throwable $e) {
             Log::error("Porego kargo takip çekme hatası (#{$order->order_number}): " . $e->getMessage());
         }

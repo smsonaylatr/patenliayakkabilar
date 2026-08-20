@@ -4,48 +4,56 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$order = App\Models\Order::latest()->first();
-if (!$order) {
-    echo "No orders found\n";
-    exit;
-}
-echo "Order found: " . $order->order_number . "\n";
-
-$service = app(App\Services\PoregoApiService::class);
-
-$fakeData = [
-    'data' => [
-        [
-            'platformCargoTrackingNumber' => '123456789',
-            'platformCargoCompany' => 'Aras Kargo',
-            'status' => 'SHIPPED',
-            'deliveryDate' => '2026-08-18',
-            'deliveryLocation' => 'ISTANBUL',
-            'cargoMessage' => 'Transfer Aşamasında'
-        ]
-    ]
-];
-
 use Illuminate\Support\Facades\Http;
 
-$ref = new ReflectionClass($service);
-$apiKeyProp = $ref->getProperty('apiKey');
-$apiKeyProp->setAccessible(true);
-$apiKeyProp->setValue($service, 'fake-api-key');
-$apiSecretProp = $ref->getProperty('apiSecret');
-$apiSecretProp->setAccessible(true);
-$apiSecretProp->setValue($service, 'fake-api-secret');
+$apiKey = env('POREGO_API_KEY');
+$apiSecret = env('POREGO_API_SECRET');
+$apiUrl = env('POREGO_API_URL');
 
-Http::fake([
-    '*' => Http::response($fakeData, 200)
-]);
+// Tüm siparişleri paginate ederek TR639133'ü bul
+echo "=== TÜM SİPARİŞLERDE TR639133 ARANYOR ===\n";
 
-$order = App\Models\Order::first();
-if ($order) {
-    $res = $service->fetchAndSaveOrderTracking($order);
-    echo "Parsed Result:\n";
-    print_r($res);
-} else {
-    echo "No orders to test with.\n";
+$page = 0;
+$found = null;
+
+while ($page < 10) {
+    $resp = Http::withHeaders([
+        'X-Api-Key' => $apiKey,
+        'X-Api-Secret' => $apiSecret,
+        'Accept' => 'application/json',
+    ])->timeout(10)->get("{$apiUrl}/orders?page={$page}&size=20");
+    
+    if (!$resp->successful()) {
+        echo "Sayfa {$page} hatası: " . $resp->status() . "\n";
+        break;
+    }
+    
+    $body = $resp->json();
+    $content = $body['content'] ?? [];
+    $totalPages = $body['totalPages'] ?? 1;
+    
+    echo "Sayfa {$page}/{$totalPages} - {$body['numberOfElements']} sipariş\n";
+    
+    foreach ($content as $order) {
+        $pon = $order['platformOrderNumber'] ?? '?';
+        $tid = $order['trackingNumber'] ?? '?';
+        $ptid = $order['platformCargoTrackingNumber'] ?? '-';
+        $st = $order['status'] ?? '?';
+        echo "  {$pon} | porego_tracking: {$tid} | platform_cargo: {$ptid} | status: {$st}\n";
+        
+        if ($pon === 'TR639133') {
+            $found = $order;
+            echo "\n  >>> TR639133 BULUNDU! <<<\n";
+        }
+    }
+    
+    if ($body['last'] ?? false) break;
+    $page++;
 }
 
+if ($found) {
+    echo "\n=== TR639133 DETAYI ===\n";
+    echo json_encode($found, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
+} else {
+    echo "\nTR639133 Porego'da bulunamadı.\n";
+}
