@@ -4,12 +4,12 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$order = App\Models\Order::where('order_number', 'TR639133')->first();
+$order = App\Models\Order::latest()->first();
 if (!$order) {
-    echo "Order not found\n";
+    echo "No orders found\n";
     exit;
 }
-echo "Order found: " . $order->id . "\n";
+echo "Order found: " . $order->order_number . "\n";
 
 $service = app(App\Services\PoregoApiService::class);
 // Reflect to access protected methods/properties to check URL and keys

@@ -495,7 +495,7 @@ class PoregoApiService
                             ?? ($data['trackingCode'] 
                             ?? ($data['cargoTrackingCode'] 
                             ?? ($data['shipmentTrackingNumber'] 
-                            ?? ($data['barcode'] ?? null)))))))))))));
+                            ?? ($data['barcode'] ?? null))))))))))));
 
                         $cargoName = $data['platformCargoCompany']
                             ?? ($shipment['platformCargoCompany']
@@ -506,7 +506,7 @@ class PoregoApiService
                             ?? ($data['carrierName'] 
                             ?? ($data['carrier'] 
                             ?? ($data['cargoName'] 
-                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce'))))))))));
+                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce')))))))));
 
                         $trackingUrl = $shipment['trackingLink'] 
                             ?? ($shipment['trackingUrl'] 
