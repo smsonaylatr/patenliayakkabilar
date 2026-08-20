@@ -252,15 +252,13 @@ class OrdersTable
                     })
                     ->visible(fn (Order $record): bool => !$record->is_invoiced),
 
-                Action::make('viewGibInvoice')
-                    ->iconButton()
-                    ->size('lg')
-                    ->tooltip('GİB Faturasını İncele / Yazdır')
+                Tables\Actions\Action::make('view_gib_invoice')
+                    ->label('GİB Faturasını İncele / Yazdır')
                     ->icon('heroicon-o-document-magnifying-glass')
                     ->color('info')
-                    ->url(fn (Order $record): string => route('orders.gib-invoice', $record))
+                    ->url(fn (Order $record): string => \Illuminate\Support\Facades\URL::signedRoute('orders.gib-invoice', $record))
                     ->openUrlInNewTab()
-                    ->visible(fn (Order $record): bool => (bool) $record->is_invoiced || !empty($record->gib_invoice_uuid)),
+                    ->visible(fn (Order $record): bool => $record->is_invoiced && !empty($record->gib_invoice_uuid)),
 
                 EditAction::make()
                     ->iconButton()

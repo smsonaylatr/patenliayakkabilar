@@ -720,7 +720,7 @@ Route::prefix('api/products')->group(function () {
 });
 
 // GİB E-Arşiv Fatura Çıktısı / İndirme
-Route::get('/orders/{order}/gib-invoice', [\App\Http\Controllers\InvoiceDownloadController::class, 'show'])->name('orders.gib-invoice')->middleware('auth');
+Route::get('/orders/{order}/gib-invoice', [\App\Http\Controllers\InvoiceDownloadController::class, 'show'])->name('orders.gib-invoice')->middleware('signed');
 
 
 // API Dokümantasyonu
