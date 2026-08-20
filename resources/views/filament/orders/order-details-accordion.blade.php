@@ -420,7 +420,7 @@ td.fi-ta-actions-cell {
                     @if($vSize)
                       <div style="font-size: 0.82rem; font-weight: 700;">
                         <span style="color: #94a3b8; font-weight: 500;">Numara:</span>
-                        <span style="color: #f8fafc;">{{ $vSize }}</span>
+                        <span class="td-bold">{{ $vSize }}</span>
                       </div>
                     @endif
                     @if(!$vColor && !$vSize)
