@@ -130,7 +130,31 @@
                                     <div class="flex items-center justify-between gap-2 pt-1 border-b border-gray-100 pb-3">
                                         <div>
                                             <div class="font-mono font-black text-black text-xl tracking-wider">{{ $trackingCode }}</div>
-                                            <div class="text-xs font-medium text-gray-500 mt-1">Kargo Firması: <strong class="text-gray-900 font-semibold">{{ $cargoName }}</strong></div>
+                                            
+                                            @php
+                                                $cargoLogo = null;
+                                                if (stripos($cargoName, 'dhl') !== false) {
+                                                    $cargoLogo = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/DHL_Logo.svg';
+                                                } elseif (stripos($cargoName, 'aras') !== false) {
+                                                    $cargoLogo = 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Aras_Kargo_logo.svg';
+                                                } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
+                                                    $cargoLogo = 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Yurti%C3%A7i_Kargo_logo.svg';
+                                                } elseif (stripos($cargoName, 'mng') !== false) {
+                                                    $cargoLogo = 'https://upload.wikimedia.org/wikipedia/commons/9/90/MNG_Kargo_logo.svg';
+                                                } elseif (stripos($cargoName, 'ptt') !== false) {
+                                                    $cargoLogo = 'https://upload.wikimedia.org/wikipedia/commons/6/67/PTT_logo.svg';
+                                                }
+                                            @endphp
+                                            
+                                            <div class="flex items-center gap-2 mt-1.5">
+                                                <div class="text-xs font-medium text-gray-500">Kargo Firması:</div>
+                                                <div class="flex items-center gap-1.5">
+                                                    @if($cargoLogo)
+                                                        <img src="{{ $cargoLogo }}" alt="{{ $cargoName }}" class="h-4 object-contain">
+                                                    @endif
+                                                    <strong class="text-gray-900 font-semibold text-xs">{{ $cargoName }}</strong>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ e($trackingCode) }}'); copied = true; setTimeout(() => copied = false, 2000)" class="cursor-pointer bg-gray-100 hover:bg-black hover:text-white text-gray-800 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" style="width:14px; height:14px; min-width:14px; display:inline-block; vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
