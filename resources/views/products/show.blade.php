@@ -220,31 +220,18 @@
                         $startFormatted = $startDate->day . ' ' . ($turkishMonths[$startDate->month] ?? '');
                         $endFormatted = $endDate->day . ' ' . ($turkishMonths[$endDate->month] ?? '');
                     @endphp
-                    <div class="mt-4 p-3 sm:p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border border-emerald-100 rounded-xl flex items-center gap-3 shadow-xs">
+                    <div class="mt-4 p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border border-emerald-100 rounded-xl flex items-center gap-3 shadow-xs">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-base shrink-0 shadow-xs">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-gray-900 text-xs sm:text-sm">Ortalama Teslimat Süresi:</span>
-                                <span class="font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs text-[10px] sm:text-xs whitespace-nowrap">{{ $deliveryTimeText }}</span>
+                        <div class="flex-1 text-[11px] sm:text-xs">
+                            <div class="flex items-center justify-between flex-wrap gap-x-2 gap-y-1">
+                                <span class="font-bold text-gray-900">Ortalama Teslimat Süresi:</span>
+                                <span class="font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 shadow-2xs whitespace-nowrap">{{ $deliveryTimeText }}</span>
                             </div>
-                            <div class="flex items-center gap-1.5 mt-1.5">
-                                <i class="fa-regular fa-calendar-check text-emerald-600 text-sm"></i>
-                                <div class="flex flex-1 items-center gap-1.5 sm:gap-3 text-[10px] sm:text-xs">
-                                    <div class="flex flex-col leading-tight text-gray-600">
-                                        <span>Tahmini</span>
-                                        <span>Teslimat:</span>
-                                    </div>
-                                    <div class="flex flex-col leading-tight font-bold text-gray-900">
-                                        <span>{{ $startFormatted }} -</span>
-                                        <span>{{ $endFormatted }}</span>
-                                    </div>
-                                    <div class="flex flex-col leading-tight text-gray-600">
-                                        <span>tarihleri</span>
-                                        <span>arasında</span>
-                                    </div>
-                                </div>
+                            <div class="text-gray-600 mt-1.5 leading-snug">
+                                <i class="fa-regular fa-calendar-check text-emerald-600 mr-0.5"></i>
+                                Tahmini Teslimat: <strong class="text-gray-900 font-bold whitespace-nowrap">{{ $startFormatted }} - {{ $endFormatted }}</strong> tarihleri arasında
                             </div>
                         </div>
                     </div>
