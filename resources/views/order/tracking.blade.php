@@ -163,23 +163,23 @@
                                             @php
                                                 $imageUrl = $item->product?->images->first()?->image_url;
                                             @endphp
-                                            <div class="w-[150px] h-[150px] shrink-0 bg-white rounded-lg overflow-hidden border border-gray-200">
+                                            <div style="width: 150px; height: 150px; min-width: 150px;" class="bg-white rounded-lg overflow-hidden border border-gray-200 shrink-0">
                                                 @if($imageUrl)
-                                                    <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
+                                                    <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                 @else
                                                     <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
                                                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div class="flex-1 flex flex-col justify-between h-[150px] py-1">
-                                                <div>
+                                            <div class="flex-1 flex flex-col justify-between" style="height: 150px;">
+                                                <div class="pt-1">
                                                     <div class="font-bold text-gray-900 text-base leading-tight">{{ $item->product_name }}</div>
                                                     @if($item->variant_info)
                                                         <div class="text-sm text-gray-500 mt-2">{{ $item->variant_info }}</div>
                                                     @endif
                                                 </div>
-                                                <div class="flex items-center justify-between mt-auto">
+                                                <div class="flex items-center justify-between pb-1">
                                                     <span class="font-bold text-gray-900">{{ $item->quantity }} adet</span>
                                                     <div class="text-base font-bold text-gray-900">₺{{ number_format($item->unit_price ?: 0, 2, ',', '.') }}</div>
                                                 </div>
