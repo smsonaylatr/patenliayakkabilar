@@ -265,7 +265,35 @@ class OrdersTable
                                 $record->refresh();
                                 $shouldStartSms = true;
                             } elseif ($record->gib_invoice_status === 'draft') {
-                                $shouldStartSms = true;
+                                // Otomatik senkronizasyon: Açarken GİB'den durum kontrolü yap
+                                $gib = $service->getGibClient();
+                                $startDate = $record->gib_invoice_date ? $record->gib_invoice_date->copy()->subDays(2)->format('d/m/Y') : date('d/m/Y', strtotime('-2 days'));
+                                $endDate = $record->gib_invoice_date ? $record->gib_invoice_date->copy()->addDays(2)->format('d/m/Y') : date('d/m/Y', strtotime('+2 days'));
+                                
+                                $docs = $gib->findEttn($record->gib_invoice_uuid)->getAll($startDate, $endDate);
+                                if (!empty($docs)) {
+                                    $doc = reset($docs); // array key 0 hatasını önlemek için reset()
+                                    if (str_contains($doc['onayDurumu'] ?? '', 'Onayland')) {
+                                        $newHtml = $service->getInvoiceHtml($record->gib_invoice_uuid);
+                                        $record->update([
+                                            'gib_invoice_status' => 'signed',
+                                            'gib_invoice_html' => $newHtml,
+                                        ]);
+                                        
+                                        // Formu kapatıp yeniden açmalarına gerek kalmaması için html'i güncelleyelim.
+                                        $shouldStartSms = false;
+                                        
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Fatura Zaten İmzalanmış')
+                                            ->body('GİB üzerinden kontrol edildi, fatura daha önce imzalandığı için otomatik güncellendi.')
+                                            ->success()
+                                            ->send();
+                                    } else {
+                                        $shouldStartSms = true;
+                                    }
+                                } else {
+                                    $shouldStartSms = true;
+                                }
                             }
 
                             if ($shouldStartSms) {
@@ -365,6 +393,12 @@ class OrdersTable
                             'status' => 'shipped',
                         ]);
                         
+                        \App\Models\OrderStatusHistory::create([
+                            'order_id' => $record->id,
+                            'status' => 'shipped',
+                            'note' => 'Kargo bilgileri girildi.',
+                        ]);
+
                         \Filament\Notifications\Notification::make()
                             ->title('Kargo bilgisi eklendi ve sipariş kargoya verildi.')
                             ->success()
@@ -559,7 +593,7 @@ class OrdersTable
                                     $docs = $gib->findEttn($order->gib_invoice_uuid)->getAll($startDate, $endDate);
                                     
                                     if (!empty($docs)) {
-                                        $doc = $docs[0];
+                                        $doc = reset($docs);
                                         if (str_contains($doc['onayDurumu'] ?? '', 'Onayland')) {
                                             $newHtml = $service->getInvoiceHtml($order->gib_invoice_uuid);
                                             $order->update([
