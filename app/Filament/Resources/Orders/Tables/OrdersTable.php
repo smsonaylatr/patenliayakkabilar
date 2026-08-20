@@ -429,6 +429,37 @@ class OrdersTable
                                 ->send();
                         }),
 
+                    BulkAction::make('bulkResetGibInvoice')
+                        ->label('Seçilenlerin Fatura Durumunu Sıfırla')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Fatura Durumlarını Sıfırla')
+                        ->modalDescription('GİB Portalından iptal ettiğiniz faturaları yeniden kesebilmek için sistemdeki kayıtlarını sıfırlamanız gerekir. Seçili siparişlerin mevcut fatura kayıtları silinerek yeniden fatura kesilebilir duruma getirilecektir. Onaylıyor musunuz?')
+                        ->modalSubmitActionLabel('Evet, Sıfırla')
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $order) {
+                                if ($order->is_invoiced) {
+                                    $order->update([
+                                        'is_invoiced' => false,
+                                        'gib_invoice_uuid' => null,
+                                        'gib_invoice_html' => null,
+                                        'gib_invoice_date' => null,
+                                        'gib_invoice_status' => null,
+                                        'gib_invoice_error' => null,
+                                    ]);
+                                    $count++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Fatura Durumları Sıfırlandı')
+                                ->body("{$count} adet siparişin faturası sıfırlandı. Artık yeniden fatura kesebilirsiniz.")
+                                ->success()
+                                ->send();
+                        }),
+
                     BulkAction::make('exportSelectedOfflineConversions')
                         ->label('Google Çevrimdışı Dönüşüm CSV İndir (Seçilenler)')
                         ->icon('heroicon-o-arrow-down-tray')
