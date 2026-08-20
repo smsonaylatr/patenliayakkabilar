@@ -136,9 +136,9 @@ class GibEArsivService
      */
     public function autoInvoiceAndSendMail(Order $order): array
     {
-        // İptal edilen siparişlere fatura kesilmez
-        if ($order->status === 'cancelled') {
-            return ['success' => false, 'message' => 'İptal edilmiş siparişe fatura kesilmez.'];
+        // Sadece teslim edildi olan siparişlere fatura kesilebilir
+        if ($order->status !== 'delivered') {
+            return ['success' => false, 'message' => 'Sadece teslim edilen siparişlerin faturası kesilebilir.'];
         }
 
         if ($order->is_invoiced) {
@@ -170,6 +170,14 @@ class GibEArsivService
      */
     public function createInvoice(Order $order, array $overrideData = []): array
     {
+        // Sadece teslim edildi olan siparişlere fatura kesilebilir
+        if ($order->status !== 'delivered') {
+            return [
+                'success' => false,
+                'message' => 'Fatura kesebilmek için sipariş durumunun "Teslim Edildi" olması gerekir.',
+            ];
+        }
+
         try {
             $this->ensureAutoloader();
 

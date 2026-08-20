@@ -216,6 +216,7 @@ class OrdersTable
                 Action::make('manageGibInvoice')
                     ->iconButton()
                     ->size('lg')
+                    ->visible(fn (Order $record) => $record->is_invoiced || $record->status === 'delivered')
                     ->tooltip(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Faturayı Görüntüle' : 'GİB Faturası İşlemleri')
                     ->icon(fn (Order $record) => match(true) {
                         $record->gib_invoice_status === 'signed' => 'heroicon-o-document-check',
@@ -521,10 +522,17 @@ class OrdersTable
                             $failCount = 0;
                             $service = app(\App\Services\GibEArsivService::class);
 
-                            foreach ($records as $order) {
-                                if ($order->is_invoiced) {
-                                    continue;
-                                }
+                            $delivereds = $records->filter(fn ($r) => !$r->is_invoiced && $r->status === 'delivered');
+                            if ($delivereds->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('İşlem Yapılmadı')
+                                    ->body('Seçili siparişlerde faturası kesilmemiş ve "Teslim Edildi" durumunda olan bir sipariş bulunmuyor.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            foreach ($delivereds as $order) {
                                 $res = $service->createInvoice($order);
                                 if ($res['success']) {
                                     $successCount++;

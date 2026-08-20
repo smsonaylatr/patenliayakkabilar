@@ -43,13 +43,7 @@ class OrderObserver
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
                 }
-                
-                // Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
-                try {
-                    app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error: ' . $e->getMessage());
-                }
+
                 
                 // Müşteriye SMS Gönder
                 try {
@@ -198,13 +192,7 @@ class OrderObserver
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
             }
-            
-            // 3. Tam Otomatik GİB E-Arşiv Faturası Kes ve Müşteriye Mail Gönder
-            try {
-                app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error on paid: ' . $e->getMessage());
-            }
+
             
             // 4. Müşteriye SMS Gönder
             try {
@@ -225,6 +213,15 @@ class OrderObserver
                 app()->terminating(function () use ($order) {
                     $order->refresh();
                     $this->sendCustomerSms($order, 'shipped');
+                });
+            } elseif ($order->status === 'delivered') {
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    try {
+                        app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error on delivered: ' . $e->getMessage());
+                    }
                 });
             }
 
