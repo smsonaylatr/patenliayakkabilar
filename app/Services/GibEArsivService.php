@@ -342,32 +342,18 @@ class GibEArsivService
      */
     protected function enrichInvoiceHtmlWithLogo(string $html): string
     {
-        $logoSrc = $this->getSiteLogoUrl();
+        $logoUrl = 'https://i.hizliresim.com/ixv8t7k1.png';
         
-        $logoHeaderHtml = <<<HTML
-<div class="brand-invoice-header" style="background: linear-gradient(to right, #f8fafc, #ffffff); border-bottom: 4px solid #0f172a; padding: 35px 50px; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box;">
-    <div style="display: flex; align-items: center; gap: 24px;">
-        <div style="background: #ffffff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
-            <img src="{$logoSrc}" alt="Firma Logosu" style="height: 70px; width: 70px; object-fit: contain;">
-        </div>
-        <div>
-            <h1 style="margin: 0; color: #0f172a; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase;">{$this->companyName}</h1>
-            <p style="margin: 6px 0 0; color: #64748b; font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">Resmİ E-Arşİv Faturası</p>
-        </div>
-    </div>
-    <div style="text-align: right;">
-        <span style="display: inline-block; padding: 10px 18px; background: #0f172a; color: #ffffff; font-size: 14px; font-weight: 700; border-radius: 6px; letter-spacing: 1px;">
-            PATENLİAYAKKABİLAR.COM
-        </span>
-    </div>
+        $logoHtml = <<<HTML
+<br>
+<div style="text-align: right; margin-top: 15px;">
+    <img src="{$logoUrl}" alt="Firma Logosu" style="max-width: 220px; object-fit: contain;">
 </div>
+</td></tr>
 HTML;
 
-        if (stripos($html, '<body') !== false) {
-            $html = preg_replace('/(<body[^>]*>)/i', '$1' . "\n" . $logoHeaderHtml, $html, 1);
-        } else {
-            $html = $logoHeaderHtml . "\n" . $html;
-        }
+        // QR kodun script ile bittiği td'nin sonrasına logoyu yerleştir. 
+        $html = preg_replace('/(<\/script>\s*<\/td>\s*<\/tr>)/i', '</script>' . $logoHtml, $html, 1);
 
         return $html;
     }
