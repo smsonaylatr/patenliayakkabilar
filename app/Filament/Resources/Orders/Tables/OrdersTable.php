@@ -253,10 +253,10 @@ class OrdersTable
                             }),
                         \Filament\Schemas\Components\Actions::make([
                             \Filament\Actions\Action::make('sendSmsCode')
-                                ->label(fn (\Filament\Forms\Get $get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
+                                ->label(fn ($get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
                                 ->icon('heroicon-o-paper-airplane')
                                 ->color('warning')
-                                ->action(function (\Filament\Forms\Set $set) {
+                                ->action(function ($set) {
                                     try {
                                         $service = app(\App\Services\GibEArsivService::class);
                                         $smsResult = $service->startSmsVerification();
@@ -287,9 +287,9 @@ class OrdersTable
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')
                             ->label('SMS Şifresi')
-                            ->required(fn (\Filament\Forms\Get $get) => (bool)$get('operation_id'))
+                            ->required(fn ($get) => (bool)$get('operation_id'))
                             ->placeholder('Telefonunuza gelen SMS şifresini girin')
-                            ->hidden(fn (\Filament\Forms\Get $get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
+                            ->hidden(fn ($get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
                         try {
