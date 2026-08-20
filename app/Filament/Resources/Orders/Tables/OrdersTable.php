@@ -213,76 +213,75 @@ class OrdersTable
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Kapat'),
 
-                Action::make('createGibInvoice')
+                Action::make('manageGibInvoice')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('GİB E-Arşiv Fatura Kes')
-                    ->icon('heroicon-o-document-check')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('GİB E-Arşiv Faturası Kes (Portal)')
-                    ->modalDescription('Bu sipariş için GİB portalında taslak fatura oluşturulacaktır. Onaylıyor musunuz?')
-                    ->modalSubmitActionLabel('Faturayı Kes')
-                    ->modalCancelActionLabel('İptal')
-                    ->action(function (Order $record): void {
-                        try {
-                            $service = app(\App\Services\GibEArsivService::class);
-                            $result = $service->createInvoice($record, []);
-                            
-                            if ($result['success']) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('GİB Faturası Başarıyla Oluşturuldu')
-                                    ->body($result['message'])
-                                    ->success()
-                                    ->send();
-                            } else {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('GİB Fatura Hatası')
-                                    ->body($result['message'])
-                                    ->danger()
-                                    ->send();
-                            }
-                        } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Sistem Hatası')
-                                ->body($e->getMessage())
-                                ->danger()
-                                ->send();
-                        }
+                    ->tooltip(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Faturayı Görüntüle' : 'GİB Faturası İşlemleri')
+                    ->icon(fn (Order $record) => match(true) {
+                        $record->gib_invoice_status === 'signed' => 'heroicon-o-document-check',
+                        $record->is_invoiced => 'heroicon-o-document-text',
+                        default => 'heroicon-o-document-plus',
                     })
-                    ->visible(fn (Order $record): bool => !$record->is_invoiced),
+                    ->color(fn (Order $record) => match(true) {
+                        $record->gib_invoice_status === 'signed' => 'success',
+                        $record->is_invoiced => 'warning',
+                        default => 'primary',
+                    })
+                    ->modalHeading('GİB E-Arşiv Faturası')
+                    ->modalWidth('4xl')
+                    ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
+                    ->form(function (Order $record) {
+                        $schema = [
+                            \Filament\Forms\Components\Placeholder::make('html_preview')
+                                ->label('Fatura Önizlemesi')
+                                ->content(fn () => new \Illuminate\Support\HtmlString('<div style="max-height: 500px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 1rem; border-radius: 0.5rem; background: #fff; color: #000;">' . ($record->gib_invoice_html ?: '<i>Fatura içeriği yüklenemedi.</i>') . '</div>')),
+                        ];
 
-                Action::make('signGibInvoice')
-                    ->iconButton()
-                    ->size('lg')
-                    ->tooltip('GİB Faturasını İmzala (SMS)')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('primary')
-                    ->modalHeading('GİB Faturasını İmzala (SMS)')
-                    ->modalDescription(fn () => new \Illuminate\Support\HtmlString('GİB portalından sisteme kayıtlı telefonunuza bir SMS şifresi gönderildi.<br><br><b>ÖNEMLİ:</b> Şifrenin ulaşması 5-10 saniye sürebilir. Lütfen bekleyin ve gelen şifreyi girerek onaylayın.'))
-                    ->modalSubmitActionLabel('İmzala')
-                    ->form([
-                        \Filament\Forms\Components\Hidden::make('operation_id'),
-                        \Filament\Forms\Components\TextInput::make('sms_code')
-                            ->label('SMS Şifresi')
-                            ->required()
-                            ->placeholder('Gelen şifreyi girin'),
-                    ])
+                        if ($record->gib_invoice_status !== 'signed') {
+                            $schema[] = \Filament\Forms\Components\Hidden::make('operation_id');
+                            $schema[] = \Filament\Forms\Components\TextInput::make('sms_code')
+                                ->label('SMS Şifresi')
+                                ->required()
+                                ->placeholder('Telefonunuza gelen SMS şifresini girin');
+                        }
+
+                        return $schema;
+                    })
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
-                            $result = $service->startSmsVerification();
-                            if ($result['success']) {
-                                $form->fill([
-                                    'operation_id' => $result['operation_id'],
-                                ]);
-                            } else {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('SMS Gönderilemedi')
-                                    ->body($result['message'])
-                                    ->danger()
-                                    ->send();
-                                throw new \Filament\Support\Exceptions\Halt();
+                            $shouldStartSms = false;
+
+                            if (!$record->is_invoiced) {
+                                $result = $service->createInvoice($record, []);
+                                if (!$result['success']) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Fatura Kesilemedi')
+                                        ->body($result['message'])
+                                        ->danger()
+                                        ->send();
+                                    throw new \Filament\Support\Exceptions\Halt();
+                                }
+                                $record->refresh();
+                                $shouldStartSms = true;
+                            } elseif ($record->gib_invoice_status === 'draft') {
+                                $shouldStartSms = true;
+                            }
+
+                            if ($shouldStartSms) {
+                                $smsResult = $service->startSmsVerification();
+                                if ($smsResult['success']) {
+                                    $form->fill([
+                                        'operation_id' => $smsResult['operation_id'],
+                                    ]);
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Gönderilemedi')
+                                        ->body($smsResult['message'])
+                                        ->danger()
+                                        ->send();
+                                    throw new \Filament\Support\Exceptions\Halt();
+                                }
                             }
                         } catch (\Exception $e) {
                             if (!($e instanceof \Filament\Support\Exceptions\Halt)) {
@@ -296,14 +295,16 @@ class OrdersTable
                         }
                     })
                     ->action(function (array $data, Order $record): void {
+                        if ($record->gib_invoice_status === 'signed') {
+                            return;
+                        }
+
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
                             $result = $service->completeSmsVerification($data['sms_code'], $data['operation_id'], [$record->gib_invoice_uuid]);
                             
                             if ($result['success']) {
-                                // Faturayı tekrar çek (İmzalı versiyonu)
                                 $newHtml = $service->getInvoiceHtml($record->gib_invoice_uuid);
-                                
                                 $record->update([
                                     'gib_invoice_status' => 'signed',
                                     'gib_invoice_html' => $newHtml,
@@ -328,18 +329,7 @@ class OrdersTable
                                 ->danger()
                                 ->send();
                         }
-                    })
-                    ->visible(fn (Order $record): bool => $record->is_invoiced && $record->gib_invoice_status === 'draft'),
-
-                Action::make('view_gib_invoice')
-                    ->iconButton()
-                    ->size('lg')
-                    ->tooltip('GİB Faturasını İncele / Yazdır')
-                    ->icon('heroicon-o-document-magnifying-glass')
-                    ->color('info')
-                    ->url(fn (Order $record): string => \Illuminate\Support\Facades\URL::signedRoute('orders.gib-invoice', $record))
-                    ->openUrlInNewTab()
-                    ->visible(fn (Order $record): bool => $record->is_invoiced && !empty($record->gib_invoice_uuid)),
+                    }),
 
                 EditAction::make()
                     ->iconButton()
