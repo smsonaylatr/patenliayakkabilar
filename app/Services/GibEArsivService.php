@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class GibEArsivService
 {
@@ -51,47 +50,57 @@ class GibEArsivService
             return $customLogo;
         }
 
-        // Siteden dinamik olarak logo URL'sini oluştur
         return url('/favicon.png');
+    }
+
+    /**
+     * Autoloader kaydet — Octane altında Composer autoload bazen Mlevent\Fatura'yı bulamıyor
+     */
+    protected function ensureAutoloader(): void
+    {
+        if (class_exists(\Mlevent\Fatura\Gib::class)) {
+            return;
+        }
+
+        spl_autoload_register(function ($class) {
+            if (str_starts_with($class, 'Mlevent\\Fatura\\')) {
+                $relative = str_replace('Mlevent\\Fatura\\', '', $class);
+                $file = base_path('vendor/mlevent/fatura/src/' . str_replace('\\', '/', $relative) . '.php');
+                if (file_exists($file)) {
+                    require_once $file;
+                }
+            }
+        });
+
+        $helpersFile = base_path('vendor/mlevent/fatura/src/Utils/Helpers.php');
+        if (file_exists($helpersFile)) {
+            require_once $helpersFile;
+        }
     }
 
     /**
      * GİB E-Arşiv Portal Giriş Nesnesi Oluşturur
      */
-    protected function getGibClient()
+    protected function getGibClient(): \Mlevent\Fatura\Gib
     {
-        if (!class_exists(\Mlevent\Fatura\Gib::class)) {
-            spl_autoload_register(function ($class) {
-                if (str_starts_with($class, 'Mlevent\\Fatura\\')) {
-                    $relative = str_replace('Mlevent\\Fatura\\', '', $class);
-                    $file = base_path('vendor/mlevent/fatura/src/' . str_replace('\\', '/', $relative) . '.php');
-                    if (file_exists($file)) {
-                        require_once $file;
-                    }
-                }
-            });
-
-            $helpersFile = base_path('vendor/mlevent/fatura/src/Utils/Helpers.php');
-            if (file_exists($helpersFile)) {
-                require_once $helpersFile;
-            }
-        }
+        $this->ensureAutoloader();
 
         if (!class_exists(\Mlevent\Fatura\Gib::class)) {
-            throw new \Exception("mlevent/fatura kütüphanesi yüklü değil.");
+            throw new \Exception("mlevent/fatura kütüphanesi yüklü değil. 'composer require mlevent/fatura' komutunu çalıştırın.");
         }
 
         $gib = new \Mlevent\Fatura\Gib();
 
         if ($this->isTest) {
             if (!empty($this->userCode) && !empty($this->password)) {
-                $gib->setCredentials($this->userCode, $this->password);
+                $gib->setTestCredentials($this->userCode, $this->password);
             } else {
+                // GİB Test portalı dinamik hesapları bozabiliyor, hardcode eski test hesabı
                 $gib->setTestCredentials('33333333', '123456');
             }
         } else {
             if (empty($this->userCode) || empty($this->password)) {
-                throw new \Exception("GİB E-Arşiv Kullanıcı Kodu veya Parolası girilmemiş.");
+                throw new \Exception("GİB E-Arşiv Kullanıcı Kodu veya Parolası girilmemiş. Admin > E-Arşiv Ayarları sayfasından giriş bilgilerinizi tanımlayın.");
             }
             $gib->setCredentials($this->userCode, $this->password);
         }
@@ -108,10 +117,11 @@ class GibEArsivService
     {
         try {
             $gib = $this->getGibClient();
+            $token = $gib->getToken();
             $gib->logout();
             return [
                 'success' => true,
-                'message' => 'GİB E-Arşiv Portal bağlantısı başarılı!',
+                'message' => 'GİB E-Arşiv Portal bağlantısı başarılı! Token alındı.',
             ];
         } catch (\Throwable $e) {
             return [
@@ -126,19 +136,28 @@ class GibEArsivService
      */
     public function autoInvoiceAndSendMail(Order $order): array
     {
+        // İptal edilen siparişlere fatura kesilmez
+        if ($order->status === 'cancelled') {
+            return ['success' => false, 'message' => 'İptal edilmiş siparişe fatura kesilmez.'];
+        }
+
         if ($order->is_invoiced) {
-            // Zaten fatura kesilmişse ve mail gitmemişse maili tekrar göndermeyi dene
+            // Zaten fatura kesilmişse maili tekrar göndermeyi dene
             if (!empty($order->customer_email)) {
                 $this->sendInvoiceMail($order);
             }
             return ['success' => true, 'message' => 'Sipariş zaten faturalandırılmış. Mail iletildi.'];
         }
 
+        // Siparişin items ilişkisini yükle
+        $order->loadMissing(['items.product', 'items.variant']);
+
         // Faturayı Kes
         $result = $this->createInvoice($order);
 
         // Otomatik Olarak Müşteriye Mail Gönder
         if ($result['success'] && !empty($order->customer_email)) {
+            $order->refresh();
             $this->sendInvoiceMail($order);
         }
 
@@ -147,10 +166,13 @@ class GibEArsivService
 
     /**
      * Sipariş için GİB E-Arşiv Taslak Faturası Oluşturur
+     * mlevent/fatura kütüphanesi InvoiceModel + InvoiceItemModel + createDraft API'sini kullanır
      */
     public function createInvoice(Order $order, array $overrideData = []): array
     {
         try {
+            $this->ensureAutoloader();
+
             $taxNumber = $overrideData['tax_number'] ?? $order->tax_number ?? '11111111111';
             $taxOffice = $overrideData['tax_office'] ?? $order->tax_office ?? '';
             $customerName = $overrideData['customer_name'] ?? $order->customer_name ?? 'Müşteri';
@@ -164,107 +186,74 @@ class GibEArsivService
             $surname = count($nameParts) > 1 ? array_pop($nameParts) : '';
             $firstName = count($nameParts) > 0 ? implode(' ', $nameParts) : $customerName;
 
-            $uuid = (string) Str::uuid();
             $date = date('d/m/Y');
             $time = date('H:i:s');
 
-            $items = [];
-            $totalTaxable = 0;
-            $totalKdv = 0;
+            // InvoiceModel oluştur (mlevent/fatura model yapısı)
+            $invoice = new \Mlevent\Fatura\Models\InvoiceModel(
+                vknTckn:          $taxNumber,
+                tarih:            $date,
+                saat:             $time,
+                faturaTipi:       \Mlevent\Fatura\Enums\InvoiceType::Satis,
+                siparisNumarasi:  $order->order_number,
+                siparisTarihi:    $order->created_at ? $order->created_at->format('d/m/Y') : $date,
+                aliciUnvan:       $isCorporate ? ($companyName ?: $customerName) : '',
+                aliciAdi:         !$isCorporate ? $firstName : '',
+                aliciSoyadi:      !$isCorporate ? $surname : '',
+                adres:            $order->billing_address ?: ($order->shipping_address ?: 'Türkiye'),
+                mahalleSemtIlce:  $order->billing_district ?: ($order->shipping_district ?: 'Merkez'),
+                sehir:            $order->billing_city ?: ($order->shipping_city ?: 'İstanbul'),
+                ulke:             'Türkiye',
+                tel:              $order->customer_phone ?: '',
+                eposta:           $order->customer_email ?: '',
+                websitesi:        'https://patenliayakkabilar.com',
+                vergiDairesi:     $taxOffice,
+                not:              $invoiceNote,
+            );
+
+            // Sipariş kalemlerini ekle
+            $order->loadMissing(['items.product', 'items.variant']);
 
             foreach ($order->items as $item) {
                 $itemTotalGross = (float) $item->price * (int) $item->quantity;
-                $itemTaxable = $itemTotalGross / (1 + ($kdvPercent / 100));
-                $itemKdv = $itemTotalGross - $itemTaxable;
+                // KDV dahil fiyattan KDV hariç birim fiyatı hesapla
+                $unitPriceExVat = ($itemTotalGross / (1 + ($kdvPercent / 100))) / (int) $item->quantity;
 
-                $totalTaxable += $itemTaxable;
-                $totalKdv += $itemKdv;
-
-                $items[] = [
-                    'name' => $item->product_name,
-                    'quantity' => (int) $item->quantity,
-                    'unit' => 'C62',
-                    'unitPrice' => round($itemTaxable / $item->quantity, 4),
-                    'price' => round($itemTaxable, 2),
-                    'vatRate' => $kdvPercent,
-                    'vatAmount' => round($itemKdv, 2),
-                ];
+                $invoice->addItem(
+                    new \Mlevent\Fatura\Models\InvoiceItemModel(
+                        malHizmet:  $item->product_name ?? ('Ürün #' . $item->product_id),
+                        miktar:     (float) $item->quantity,
+                        birimFiyat: round($unitPriceExVat, 4),
+                        kdvOrani:   $kdvPercent,
+                    )
+                );
             }
 
+            // Kargo bedeli varsa ayrı kalem olarak ekle
             if ((float) $order->shipping_price > 0) {
-                $shippingGross = (float) $order->shipping_price;
-                $shippingTaxable = $shippingGross / (1 + ($kdvPercent / 100));
-                $shippingKdv = $shippingGross - $shippingTaxable;
+                $shippingExVat = (float) $order->shipping_price / (1 + ($kdvPercent / 100));
 
-                $totalTaxable += $shippingTaxable;
-                $totalKdv += $shippingKdv;
-
-                $items[] = [
-                    'name' => 'Kargo Hizmet Bedeli',
-                    'quantity' => 1,
-                    'unit' => 'C62',
-                    'unitPrice' => round($shippingTaxable, 4),
-                    'price' => round($shippingTaxable, 2),
-                    'vatRate' => $kdvPercent,
-                    'vatAmount' => round($shippingKdv, 2),
-                ];
+                $invoice->addItem(
+                    new \Mlevent\Fatura\Models\InvoiceItemModel(
+                        malHizmet:  'Kargo Hizmet Bedeli',
+                        miktar:     1.0,
+                        birimFiyat: round($shippingExVat, 4),
+                        kdvOrani:   $kdvPercent,
+                    )
+                );
             }
 
-            $grandTotal = round($totalTaxable + $totalKdv, 2);
-
-            $invoiceData = [
-                'faturaUuid' => $uuid,
-                'belgeNumarasi' => '',
-                'faturaTarihi' => $date,
-                'saat' => $time,
-                'parabirimi' => 'TRY',
-                'dovizKuru' => 1,
-                'faturaTipi' => 'SATIS',
-                'vknTckn' => $taxNumber,
-                'aliciUnvan' => $isCorporate ? ($companyName ?: $customerName) : '',
-                'aliciAdi' => !$isCorporate ? $firstName : '',
-                'aliciSoyadi' => !$isCorporate ? $surname : '',
-                'binaAdı' => '',
-                'binaNo' => '',
-                'kapiNo' => '',
-                'kasabaKoy' => '',
-                'vergiDairesi' => $taxOffice,
-                'ulke' => 'Türkiye',
-                'bulvarCaddeSokak' => $order->billing_address ?: ($order->shipping_address ?: 'Türkiye'),
-                'mahalleSemtiIlce' => $order->billing_district ?: ($order->shipping_district ?: 'Merkez'),
-                'sehir' => $order->billing_city ?: ($order->shipping_city ?: 'İstanbul'),
-                'postaKodu' => '',
-                'tel' => $order->customer_phone ?: '',
-                'fax' => '',
-                'eposta' => $order->customer_email ?: '',
-                'websitesi' => 'https://patenliayakkabilar.com',
-                'siparisNumarasi' => $order->order_number,
-                'siparisTarihi' => $order->created_at ? $order->created_at->format('d/m/Y') : $date,
-                'irsaliyeNumarasi' => '',
-                'irsaliyeTarihi' => '',
-                'fisNo' => '',
-                'fisTarihi' => '',
-                'fisTipi' => '',
-                'zRaporNo' => '',
-                'okcSeriNo' => '',
-                'not' => $invoiceNote,
-                'matrah' => round($totalTaxable, 2),
-                'malHizmetToplamTutari' => round($totalTaxable, 2),
-                'toplamIskonto' => 0,
-                'hesaplananKdv' => round($totalKdv, 2),
-                'vergilerToplami' => round($totalKdv, 2),
-                'vergilerDahilToplamTutar' => $grandTotal,
-                'odenecekTutar' => $grandTotal,
-                'kalemListesi' => $items,
-            ];
-
-            // GİB Portalına Gönder
+            // GİB Portalına Gönder (createDraft = taslak fatura oluştur)
             $gib = $this->getGibClient();
-            $response = $gib->createInvoice($invoiceData);
+            $gib->createDraft($invoice);
 
+            // Oluşturulan faturanın UUID'sini al
+            $uuid = $gib->lastId();
+
+            // Fatura HTML'ini çek (taslak olduğu için signed=false)
             $html = null;
             try {
-                $html = $gib->getHtml($uuid);
+                $html = $gib->getHtml($uuid, false);
                 if ($html) {
                     $html = $this->enrichInvoiceHtmlWithLogo($html);
                 }
@@ -276,33 +265,58 @@ class GibEArsivService
 
             // Veritabanını Güncelle
             $order->update([
-                'tax_number' => $taxNumber,
-                'tax_office' => $taxOffice,
-                'company_name' => $companyName,
-                'is_invoiced' => true,
-                'gib_invoice_uuid' => $uuid,
-                'gib_invoice_date' => now(),
+                'tax_number'         => $taxNumber,
+                'tax_office'         => $taxOffice,
+                'company_name'       => $companyName,
+                'is_invoiced'        => true,
+                'gib_invoice_uuid'   => $uuid,
+                'gib_invoice_date'   => now(),
                 'gib_invoice_status' => 'draft',
-                'gib_invoice_html' => $html,
-                'gib_invoice_error' => null,
+                'gib_invoice_html'   => $html,
+                'gib_invoice_error'  => null,
             ]);
 
             Log::info("GİB E-Arşiv Faturası oluşturuldu. Sipariş No: #{$order->order_number}, UUID: {$uuid}");
 
             return [
                 'success' => true,
-                'uuid' => $uuid,
+                'uuid'    => $uuid,
                 'message' => 'GİB E-Arşiv Faturası başarıyla oluşturuldu.',
             ];
 
+        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+            $errorMessage = $e->getMessage();
+            $detailedError = $errorMessage;
+            if ($e->hasResponse()) {
+                $detailedError .= " - Response: " . print_r($e->getResponse(), true);
+            }
+            Log::error("GİB E-Arşiv API Hatası. Sipariş No: #{$order->order_number}: " . $detailedError);
+
+            try {
+                $order->update([
+                    'gib_invoice_status' => 'failed',
+                    'gib_invoice_error'  => mb_substr($detailedError, 0, 1000),
+                ]);
+            } catch (\Throwable $dbEx) {
+                Log::error("GİB hata kaydı DB güncelleme hatası: " . $dbEx->getMessage());
+            }
+
+            return [
+                'success' => false,
+                'message' => 'GİB API Hatası: ' . $errorMessage,
+            ];
         } catch (\Throwable $e) {
             $errorMessage = $e->getMessage();
             Log::error("GİB E-Arşiv Fatura Oluşturma Hatası. Sipariş No: #{$order->order_number}: " . $errorMessage);
 
-            $order->update([
-                'gib_invoice_status' => 'failed',
-                'gib_invoice_error' => $errorMessage,
-            ]);
+            try {
+                $order->update([
+                    'gib_invoice_status' => 'failed',
+                    'gib_invoice_error'  => mb_substr($errorMessage, 0, 500),
+                ]);
+            } catch (\Throwable $dbEx) {
+                Log::error("GİB hata kaydı DB güncelleme hatası: " . $dbEx->getMessage());
+            }
 
             return [
                 'success' => false,
@@ -368,7 +382,13 @@ HTML;
     {
         try {
             $gib = $this->getGibClient();
-            $html = $gib->getHtml($uuid);
+            // Önce imzalanmış versiyonu dene, bulunamazsa taslak versiyonunu çek
+            $html = null;
+            try {
+                $html = $gib->getHtml($uuid, true);
+            } catch (\Throwable $e) {
+                $html = $gib->getHtml($uuid, false);
+            }
             $gib->logout();
 
             if ($html) {
