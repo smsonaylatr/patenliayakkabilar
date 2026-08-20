@@ -540,7 +540,7 @@ class OrdersTable
                             ]);
                         }),
                     DeleteBulkAction::make(),
-                ])->dropdown(false),
+                ]),
             ])
             ->headerActions([])
             ->defaultSort('created_at', 'desc')
