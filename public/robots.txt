@@ -1,3 +1,9 @@
+# =====================================================
+# Patenli Ayakkabılar - robots.txt
+# Google Merchant Center uyumlu yapılandırma
+# =====================================================
+
+# Genel kurallar
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -12,7 +18,7 @@ Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
-# Google Web Search Bot
+# Google Web Search Bot — Tam erişim (admin hariç)
 User-agent: Googlebot
 Allow: /
 Allow: /urun/
@@ -35,14 +41,17 @@ Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
-# Google Merchant Center & Shopping Image Crawler
+# Google Görsel Tarayıcısı — Tüm görsellere tam erişim
 User-agent: Googlebot-Image
 Allow: /
-Allow: /storage/
-Allow: /img/
-Allow: /build/
+Disallow:
 
-# Google Ads Landing Page Quality Check Crawlers
+# Google Merchant Center Ürün Denetim Botu
+User-agent: Storebot-Google
+Allow: /
+Disallow:
+
+# Google Ads Açılış Sayfası Kalite Kontrol Botu
 User-agent: AdsBot-Google
 Allow: /
 Allow: /urun/
@@ -50,7 +59,9 @@ Allow: /patenli-ayakkabilar
 Allow: /kategori/
 Allow: /storage/
 Allow: /img/
+Disallow:
 
+# Google Ads Mobil Bot
 User-agent: AdsBot-Google-Mobile
 Allow: /
 Allow: /urun/
@@ -58,15 +69,16 @@ Allow: /patenli-ayakkabilar
 Allow: /kategori/
 Allow: /storage/
 Allow: /img/
+Disallow:
 
-# Google Storebot & Inspection Tools
-User-agent: Storebot-Google
-Allow: /
-
+# Google Denetleme Aracı
 User-agent: Google-InspectionTool
 Allow: /
+Disallow:
 
+# Google Reklam Ortakları
 User-agent: Mediapartners-Google
 Allow: /
+Disallow:
 
 Sitemap: https://patenliayakkabilar.com/sitemap.xml
