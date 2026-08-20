@@ -252,7 +252,7 @@ class OrdersTable
                     })
                     ->visible(fn (Order $record): bool => !$record->is_invoiced),
 
-                Tables\Actions\Action::make('view_gib_invoice')
+                Action::make('view_gib_invoice')
                     ->label('GİB Faturasını İncele / Yazdır')
                     ->icon('heroicon-o-document-magnifying-glass')
                     ->color('info')
