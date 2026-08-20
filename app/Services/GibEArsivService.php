@@ -81,7 +81,7 @@ class GibEArsivService
     /**
      * GİB E-Arşiv Portal Giriş Nesnesi Oluşturur
      */
-    protected function getGibClient(): \Mlevent\Fatura\Gib
+    public function getGibClient(): \Mlevent\Fatura\Gib
     {
         $this->ensureAutoloader();
 

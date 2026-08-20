@@ -549,7 +549,7 @@ class OrdersTable
 
                             try {
                                 $service = app(\App\Services\GibEArsivService::class);
-                                $gib = $service->client();
+                                $gib = $service->getGibClient();
                                 
                                 $updatedCount = 0;
                                 foreach ($drafts as $order) {
