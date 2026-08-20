@@ -496,14 +496,16 @@ class PoregoApiService
             // platformCargoCompany: Platform tarafından atanan kargo firması (genelde null)
             // status: NEW, READY, SHIPPED, IN_TRANSIT, COMPLETED, CANCELLED
 
-            // Porego kendi kargo takip numarası (platformCargoTrackingNumber) yoksa, 
-            // kendi iç barkodunu (trackingNumber) dönüyor. Gerçek kargo firmasını ezmemek için kontrol edelim.
-            $platformTracking = $poregoOrder['platformCargoTrackingNumber'] ?? null;
-            $platformCompany = $poregoOrder['platformCargoCompany'] ?? null;
+            // Porego API'sinin yeni eklenen gerçek kargo alanları (carrierTrackingNumber, carrierName, carrierTrackingUrl)
+            // Eğer bunlar boş gelirse (paket şubede okutulmadıysa), Porego'nun kendi alanlarına (trackingNumber) fallback yap
+            $platformTracking = $poregoOrder['carrierTrackingNumber'] ?? ($poregoOrder['platformCargoTrackingNumber'] ?? null);
+            $platformCompany = $poregoOrder['carrierName'] ?? ($poregoOrder['carrierCode'] ?? ($poregoOrder['platformCargoCompany'] ?? null));
             
             $trackingNumber = $platformTracking ?? $poregoOrder['trackingNumber'] ?? null;
-            $cargoCompany = $platformCompany; // Sadece platformdan gelen gerçek kargo firmasını baz al
-            $trackingUrl = $poregoOrder['trackingUrl'] ?? null;
+            $cargoCompany = $platformCompany; 
+            
+            // Eğer gerçek kargo takip linki varsa (carrierTrackingUrl), Porego'nun linkini ez
+            $trackingUrl = $poregoOrder['carrierTrackingUrl'] ?? ($poregoOrder['trackingUrl'] ?? null);
             $status = $poregoOrder['status'] ?? null;
 
             $cleanTrackingNumber = trim((string)$trackingNumber);
@@ -538,11 +540,9 @@ class PoregoApiService
             }
 
             // Kargo takip kodu kaydet
-            // Sadece Porego'dan GERÇEK bir platformCargoTrackingNumber geldiyse veya 
-            // DB'deki kayıt tamamen boşsa Porego'nun iç kodunu kullan.
             if (!empty($cleanTrackingNumber) && $cleanTrackingNumber !== $cleanOrderNumber && $cleanTrackingNumber !== $cleanOrderId && $cleanTrackingNumber !== '#' . $cleanOrderNumber) {
-                // Eğer platformCargoTrackingNumber varsa KESİN GÜNCELLE
-                // Yoksa, sadece bizim DB'deki kargo kodumuz BOŞSA güncelle (gerçek kargo kodunu ezmemek için)
+                // Eğer GERÇEK bir kargo numarası (carrierTrackingNumber) varsa KESİN GÜNCELLE
+                // Yoksa, sadece DB'deki barkod BOŞSA güncelle (gerçek kodu ezmemek için)
                 if ($platformTracking || empty($order->cargo_tracking_code)) {
                     if ($order->cargo_tracking_code !== $cleanTrackingNumber) {
                         $order->cargo_tracking_code = $cleanTrackingNumber;
@@ -550,7 +550,7 @@ class PoregoApiService
                     }
                 }
                 
-                // Kargo firması için de aynısı: Sadece gerçek firma varsa veya DB'de hiç yoksa güncelle
+                // Kargo firması için de aynısı
                 if (!empty($cargoCompany) || empty($order->cargo_company)) {
                     $fallbackCompany = $cargoCompany ?: 'Porego Kargo';
                     if ($order->cargo_company !== $fallbackCompany) {

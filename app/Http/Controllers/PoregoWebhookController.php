@@ -40,7 +40,10 @@ class PoregoWebhookController extends Controller
             $platformOrderId = $orderData['platformOrderId'] ?? ($orderData['platform_order_id'] ?? ($orderData['order_id'] ?? ($orderData['id'] ?? null)));
             $platformOrderNumber = $orderData['platformOrderNumber'] ?? ($orderData['platform_order_number'] ?? ($orderData['order_number'] ?? ($orderData['orderNumber'] ?? null)));
             $status = $orderData['currentStatus'] ?? ($orderData['status'] ?? ($orderData['orderStatus'] ?? null));
-            $trackingCode = $orderData['platformCargoTrackingNumber'] ?? ($orderData['trackingNumber'] ?? ($orderData['tracking_number'] ?? ($orderData['trackingCode'] ?? null)));
+            
+            // Porego'nun yeni eklediği alanlar üzerinden gerçek takip kodunu almayı deniyoruz
+            $trackingCode = $orderData['carrierTrackingNumber'] ?? ($orderData['platformCargoTrackingNumber'] ?? ($orderData['trackingNumber'] ?? ($orderData['tracking_number'] ?? ($orderData['trackingCode'] ?? null))));
+            $cargoCompany = $orderData['carrierName'] ?? ($orderData['carrierCode'] ?? ($orderData['platformCargoCompany'] ?? null));
 
             if ($status && ($platformOrderId || $platformOrderNumber)) {
                 $order = null;
@@ -62,9 +65,19 @@ class PoregoWebhookController extends Controller
 
                     if ($newStatus && $order->status !== $newStatus) {
                         $order->status = $newStatus;
-
+                        
+                        // Gerçek kargo firması ve takip kodu varsa DB'yi güncelle
                         if ($trackingCode) {
-                            $order->cargo_tracking_code = $trackingCode;
+                            // Eğer gelen kod gerçek barkod ise VEYA DB'de kayıtlı kod yoksa kaydet. (Gerçek kodu ezme)
+                            if (!empty($orderData['carrierTrackingNumber']) || !empty($orderData['platformCargoTrackingNumber']) || empty($order->cargo_tracking_code)) {
+                                $order->cargo_tracking_code = $trackingCode;
+                            }
+                        }
+                        
+                        if ($cargoCompany) {
+                            if (!empty($orderData['carrierName']) || !empty($orderData['platformCargoCompany']) || empty($order->cargo_company)) {
+                                $order->cargo_company = $cargoCompany;
+                            }
                         }
 
                         // Kapıda Ödeme (COD) siparişi teslim edildiğinde ödeme durumunu 'paid' (Ödendi) yapıyoruz
