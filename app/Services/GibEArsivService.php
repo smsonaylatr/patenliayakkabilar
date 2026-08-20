@@ -243,8 +243,13 @@ class GibEArsivService
             // Yeni Fiyatlama Mantığı
             $isCOD = ($order->payment_method === 'cash_on_delivery');
             
-            // Ürün fiyatı her zaman paneldeki "Genel Toplam" kadar olacak (Örn: 2000 TL)
-            $productGrossTotal = (float)$order->grand_total;
+            // Eğer kapıda ödeme ise toplam tutardan 200 TL kargo bedeli düşüp ürüne yansıtıyoruz
+            if ($isCOD) {
+                $productGrossTotal = (float)$order->grand_total - 200;
+            } else {
+                $productGrossTotal = (float)$order->grand_total;
+            }
+
             if ($productGrossTotal < 0) {
                 $productGrossTotal = 0;
             }
