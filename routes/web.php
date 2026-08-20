@@ -186,6 +186,7 @@ Route::get('/urun/{slug}/yorumlar', function ($slug) {
 Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
     $order = null;
     $error = null;
+    $trackingData = null;
     
     if ($request->has('order_number')) {
         $orderNumber = trim($request->input('order_number'));
@@ -198,7 +199,7 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
         } else {
             // Porego canlı kargo durumunu ve takip kodunu doğrudan bu sipariş için sorgulayalım
             try {
-                app(\App\Services\PoregoApiService::class)->fetchAndSaveOrderTracking($order);
+                $trackingData = app(\App\Services\PoregoApiService::class)->fetchAndSaveOrderTracking($order);
                 $order->refresh();
             } catch (\Throwable $e) {
                 // Background sync fail-safe
@@ -206,7 +207,7 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
         }
     }
     
-    return view('order.tracking', compact('order', 'error'));
+    return view('order.tracking', compact('order', 'error', 'trackingData'));
 })->name('order.tracking');
 
 // ========================

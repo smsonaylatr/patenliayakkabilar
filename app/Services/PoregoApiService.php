@@ -560,14 +560,20 @@ class PoregoApiService
                         if ($changed) {
                             $order->save();
                             Log::info("Porego Durum Senkronizasyonu: Sipariş (#{$order->order_number}) kargo durumu '{$order->status}', ödeme durumu '{$order->payment_status}' olarak güncellendi.");
-                            return [
-                                'tracking_code'  => $order->cargo_tracking_code,
-                                'cargo_name'     => $order->cargo_name,
-                                'tracking_url'   => $trackingUrl,
-                                'status'         => $order->status,
-                                'payment_status' => $order->payment_status,
-                            ];
                         }
+
+                        // Her durumda güncel canlı veriyi frontend için geri döndürüyoruz
+                        return [
+                            'tracking_code'  => $order->cargo_tracking_code,
+                            'cargo_name'     => $order->cargo_name,
+                            'tracking_url'   => $trackingUrl,
+                            'status'         => $order->status,
+                            'payment_status' => $order->payment_status,
+                            'delivery_date'  => $data['deliveryDate'] ?? ($shipment['deliveryDate'] ?? ($data['deliveredAt'] ?? null)),
+                            'delivery_location' => $data['deliveryLocation'] ?? ($shipment['deliveryLocation'] ?? null),
+                            'cargo_message'  => $data['cargoMessage'] ?? ($shipment['cargoMessage'] ?? ($data['shipmentMessage'] ?? ($data['trackingMessage'] ?? null))),
+                            'raw_status'     => $status,
+                        ];
                     }
                 }
             }

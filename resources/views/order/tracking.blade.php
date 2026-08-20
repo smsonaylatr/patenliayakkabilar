@@ -29,16 +29,17 @@
 
                 @if(isset($order))
                     @php
-                        $rawTrackingCode = trim((string)$order->cargo_tracking_code);
+                        $rawTrackingCode = trim((string)($trackingData['tracking_code'] ?? $order->cargo_tracking_code));
                         $hasRealTrackingCode = !empty($rawTrackingCode) 
                             && $rawTrackingCode !== (string)$order->order_number 
                             && $rawTrackingCode !== (string)$order->id 
                             && $rawTrackingCode !== '#' . (string)$order->order_number;
 
                         $trackingCode = $hasRealTrackingCode ? $rawTrackingCode : null;
-                        $cargoName = $order->cargo_name ?: 'DHL eCommerce';
+                        $cargoName = $trackingData['cargo_name'] ?? ($order->cargo_name ?: 'DHL eCommerce');
                         
-                        if ($hasRealTrackingCode) {
+                        $trackingUrl = $trackingData['tracking_url'] ?? null;
+                        if (!$trackingUrl && $hasRealTrackingCode) {
                             if (stripos($cargoName, 'aras') !== false) {
                                 $trackingUrl = 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($trackingCode);
                             } elseif (stripos($cargoName, 'yurtiçi') !== false || stripos($cargoName, 'yurtici') !== false) {
@@ -46,9 +47,16 @@
                             } else {
                                 $trackingUrl = 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($trackingCode);
                             }
-                        } else {
-                            $trackingUrl = null;
                         }
+
+                        $deliveryDate = $trackingData['delivery_date'] ?? null;
+                        if ($deliveryDate && strtotime($deliveryDate)) {
+                            try {
+                                $deliveryDate = \Carbon\Carbon::parse($deliveryDate)->translatedFormat('d F Y H:i');
+                            } catch(\Exception $e) {}
+                        }
+                        $deliveryLocation = $trackingData['delivery_location'] ?? null;
+                        $cargoMessage = $trackingData['cargo_message'] ?? null;
                     @endphp
                     <div class="mt-6 pt-6 border-t border-gray-100 text-left">
                         <h2 class="text-lg font-bold text-gray-900 mb-4">Sipariş Detayları</h2>
@@ -132,6 +140,32 @@
                                     </div>
                                     @endif
                                 </div>
+
+                                @if($deliveryDate || $deliveryLocation || $cargoMessage)
+                                <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200/80 mt-3 space-y-3 shadow-xs">
+                                    <div class="text-xs font-bold uppercase tracking-wider text-emerald-800">TESLİM BİLGİLERİ</div>
+                                    <div class="space-y-2">
+                                        @if($deliveryDate)
+                                            <div>
+                                                <div class="text-xs text-emerald-700/80 font-semibold uppercase">TESLİM TARİHİ</div>
+                                                <div class="text-emerald-900 font-bold text-sm">{{ $deliveryDate }}</div>
+                                            </div>
+                                        @endif
+                                        @if($deliveryLocation)
+                                            <div>
+                                                <div class="text-xs text-emerald-700/80 font-semibold uppercase">TESLİM LOKASYONU</div>
+                                                <div class="text-emerald-900 font-bold text-sm uppercase">{{ $deliveryLocation }}</div>
+                                            </div>
+                                        @endif
+                                        @if($cargoMessage)
+                                            <div>
+                                                <div class="text-xs text-emerald-700/80 font-semibold uppercase">KARGO MESAJI</div>
+                                                <div class="text-emerald-900 font-bold text-sm">{{ $cargoMessage }}</div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
                             @else
                                 <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200/80 space-y-2 mt-2">
                                     <div class="flex justify-between items-center">
