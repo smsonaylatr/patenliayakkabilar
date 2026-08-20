@@ -220,7 +220,8 @@ class GibEArsivService
             // Yeni Fiyatlama Mantığı
             $isCOD = ($order->payment_method === 'cash_on_delivery');
             
-            $productGrossTotal = $isCOD ? ((float)$order->grand_total - 200) : (float)$order->grand_total;
+            // Ürün fiyatı her zaman paneldeki "Genel Toplam" kadar olacak (Örn: 2000 TL)
+            $productGrossTotal = (float)$order->grand_total;
             if ($productGrossTotal < 0) {
                 $productGrossTotal = 0;
             }
@@ -228,7 +229,7 @@ class GibEArsivService
             $productKdvPercent = $kdvPercent; // 10%
             $productUnitPriceExVat = $productGrossTotal / (1 + ($productKdvPercent / 100));
 
-            // Tüm ürünleri genel toplam fiyatıyla tek kalem olarak ekle
+            // Tüm ürünleri tek kalem olarak ekle
             $invoice->addItem(
                 new \Mlevent\Fatura\Models\InvoiceItemModel(
                     malHizmet:  $productNames ?: 'Ürün Bedeli',
@@ -238,7 +239,7 @@ class GibEArsivService
                 )
             );
 
-            // Kapıda Ödeme siparişlerinde sabit 200 TL Kargo Hizmet Bedeli (KDV %20)
+            // Kapıda Ödeme siparişlerinde ekstra 200 TL Kargo Hizmet Bedeli (KDV %20)
             if ($isCOD) {
                 $shippingKdvPercent = 20;
                 $shippingGrossTotal = 200;
