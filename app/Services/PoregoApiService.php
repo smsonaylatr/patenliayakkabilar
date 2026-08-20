@@ -476,7 +476,9 @@ class PoregoApiService
                         $shipment = $data['shipment'] ?? ($data['shipmentData'] ?? $data);
 
                         // Porego API kargo takip kodu ve barkod alan adları
-                        $rawTrackingNumber = $shipment['trackingNumber'] 
+                        $rawTrackingNumber = $data['platformCargoTrackingNumber'] 
+                            ?? ($shipment['platformCargoTrackingNumber']
+                            ?? ($shipment['trackingNumber'] 
                             ?? ($shipment['trackingNo'] 
                             ?? ($shipment['trackingCode'] 
                             ?? ($shipment['cargoTrackingCode'] 
@@ -486,16 +488,18 @@ class PoregoApiService
                             ?? ($data['trackingCode'] 
                             ?? ($data['cargoTrackingCode'] 
                             ?? ($data['shipmentTrackingNumber'] 
-                            ?? ($data['barcode'] ?? null))))))))));
+                            ?? ($data['barcode'] ?? null)))))))))))));
 
-                        $cargoName = $shipment['carrierName'] 
+                        $cargoName = $data['platformCargoCompany']
+                            ?? ($shipment['platformCargoCompany']
+                            ?? ($shipment['carrierName'] 
                             ?? ($shipment['carrier'] 
                             ?? ($shipment['cargoName'] 
                             ?? ($shipment['cargoCompany'] 
                             ?? ($data['carrierName'] 
                             ?? ($data['carrier'] 
                             ?? ($data['cargoName'] 
-                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce')))))));
+                            ?? ($data['cargoCompany'] ?? 'DHL eCommerce'))))))))));
 
                         $trackingUrl = $shipment['trackingLink'] 
                             ?? ($shipment['trackingUrl'] 
