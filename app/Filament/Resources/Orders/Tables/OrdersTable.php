@@ -322,6 +322,15 @@ class OrdersTable
                                             'gib_invoice_html' => $newHtml,
                                         ]);
                                         
+                                        // Başarıyla imzalanan faturayı müşteriye e-posta olarak gönder
+                                        if (!empty($record->customer_email)) {
+                                            try {
+                                                $service->sendInvoiceMail($record);
+                                            } catch (\Exception $mailEx) {
+                                                Log::warning("Fatura e-postası gönderilemedi: " . $mailEx->getMessage());
+                                            }
+                                        }
+                                        
                                         \Filament\Notifications\Notification::make()
                                             ->title('Fatura Zaten İmzalanmış')
                                             ->body('GİB üzerinden kontrol edildi, fatura daha önce imzalandığı için otomatik güncellendi.')
@@ -365,6 +374,15 @@ class OrdersTable
                                     'gib_invoice_status' => 'signed',
                                     'gib_invoice_html' => $newHtml,
                                 ]);
+
+                                // Başarıyla imzalanan faturayı müşteriye e-posta olarak gönder
+                                if (!empty($record->customer_email)) {
+                                    try {
+                                        $service->sendInvoiceMail($record);
+                                    } catch (\Exception $mailEx) {
+                                        Log::warning("Fatura e-postası gönderilemedi: " . $mailEx->getMessage());
+                                    }
+                                }
 
                                 \Filament\Notifications\Notification::make()
                                     ->title('Fatura Başarıyla İmzalandı')
@@ -681,6 +699,15 @@ class OrdersTable
                                             ]);
                                         } catch (\Exception $ex) {
                                             $record->update(['gib_invoice_status' => 'signed']);
+                                        }
+
+                                        // Başarıyla imzalanan faturayı müşteriye e-posta olarak gönder
+                                        if (!empty($record->customer_email)) {
+                                            try {
+                                                $service->sendInvoiceMail($record);
+                                            } catch (\Exception $mailEx) {
+                                                Log::warning("Fatura e-postası gönderilemedi: " . $mailEx->getMessage());
+                                            }
                                         }
                                     }
 
