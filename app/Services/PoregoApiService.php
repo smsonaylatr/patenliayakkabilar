@@ -84,14 +84,18 @@ class PoregoApiService
 
             $rawAddress = trim($order->shipping_address) ?: 'Adres Belirtilmedi';
 
-            // Extract or infer clean neighborhood name (e.g. "Göztepe") for Porego dropdown matching
-            $neighborhoodName = trim($order->shipping_district) ?: 'Merkez';
-            if (preg_match('/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9\s]+)(mah|mahalle|mahallesi|mh\.)/i', $rawAddress, $matches)) {
-                $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/i', '', $matches[0]));
-                if (!empty($cleanMah)) {
-                    $neighborhoodName = $cleanMah;
+            // Extract or resolve neighborhood name cleanly from model attribute or address
+            $neighborhoodName = trim($order->shipping_neighborhood ?? '');
+            if (empty($neighborhoodName)) {
+                if (preg_match('/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9\.\s]+?)(?:\s+mah|\s+mahalle|\s+mahallesi|\s+mh)/i', $rawAddress, $matches)) {
+                    $neighborhoodName = trim($matches[1]);
                 }
             }
+            if (empty($neighborhoodName)) {
+                $neighborhoodName = trim($order->shipping_district) ?: 'Merkez';
+            }
+
+            $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/i', '', $neighborhoodName));
 
             $payload = [
                 'customerName'        => $name,
@@ -103,11 +107,14 @@ class PoregoApiService
                 'cityName'            => trim($order->shipping_city) ?: 'İstanbul',
                 'district'            => trim($order->shipping_district) ?: 'Merkez',
                 'districtName'        => trim($order->shipping_district) ?: 'Merkez',
-                'neighborhood'        => $neighborhoodName,
-                'neighborhoodName'    => $neighborhoodName,
-                'mahalle'             => $neighborhoodName,
-                'mahalleName'         => $neighborhoodName,
-                'subdistrict'         => $neighborhoodName,
+                'neighborhood'        => $cleanMah,
+                'neighborhoodName'    => $cleanMah,
+                'neighborhood_name'   => $cleanMah,
+                'shipping_neighborhood' => $cleanMah,
+                'mahalle'             => $cleanMah,
+                'mahalleName'         => $cleanMah,
+                'subdistrict'         => $cleanMah,
+                'town'                => $cleanMah,
                 'paymentType'         => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
                 'platformOrderId'     => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,

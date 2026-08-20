@@ -251,10 +251,12 @@ class Checkout extends Component
             
             'shipping_city' => $this->shipping_city,
             'shipping_district' => $this->shipping_district,
+            'shipping_neighborhood' => $neighborhood,
             'shipping_address' => $formattedAddress,
             
             'billing_city' => $this->shipping_city,
             'billing_district' => $this->shipping_district,
+            'billing_neighborhood' => $neighborhood,
             'billing_address' => $formattedAddress,
 
             'ip_address' => request()->ip(),
