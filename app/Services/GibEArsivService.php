@@ -345,7 +345,7 @@ class GibEArsivService
         $logoUrl = 'https://i.hizliresim.com/ixv8t7k1.png';
         
         $logoHtml = <<<HTML
-<div style="text-align: left; padding-top: 25px; padding-bottom: 5px;">
+<div style="text-align: left; padding-top: 2px; padding-bottom: 0px; margin-top: -5px;">
     <img src="{$logoUrl}" alt="Firma Logosu" style="max-width: 250px; height: auto; object-fit: contain;">
 </div>
 </td>
