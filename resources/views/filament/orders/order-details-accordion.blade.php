@@ -248,84 +248,51 @@ td.fi-ta-actions-cell {
     background: rgba(59, 130, 246, 0.08) !important;
 }
 
-/* SKU Kopyalanabilir Rozet Stilleri */
+/* SKU Stilleri */
 .sku-copy-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 600;
+    gap: 4px;
+    margin-top: 3px;
+    font-size: 0.76rem;
+    font-weight: 500;
     cursor: pointer;
-    user-select: all;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(249, 115, 22, 0.14);
-    border: 1px solid rgba(249, 115, 22, 0.4);
-    color: #fdba74;
-    max-width: 100%;
-    word-break: break-all;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #64748b;
+    transition: opacity 0.2s ease;
 }
 
 .sku-copy-badge:hover {
-    background: rgba(249, 115, 22, 0.25);
-    border-color: rgba(249, 115, 22, 0.7);
-    color: #ffedd5;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+    opacity: 0.85;
 }
 
 .sku-prefix {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    opacity: 0.85;
-    font-weight: 700;
-    color: #f97316;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.dark .sku-prefix {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .sku-code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: #ffedd5;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #475569;
 }
 
-/* Aydınlık Tema Uyumlu Stiller */
-:root:not(.dark) .sku-copy-badge,
-html:not(.dark) .sku-copy-badge {
-    background: #fff7ed;
-    border-color: #fdba74;
-    color: #ea580c;
-}
-
-:root:not(.dark) .sku-copy-badge:hover,
-html:not(.dark) .sku-copy-badge:hover {
-    background: #ffedd5;
-    border-color: #f97316;
-    color: #c2410c;
-}
-
-:root:not(.dark) .sku-code,
-html:not(.dark) .sku-code {
-    color: #9a3412;
+.dark .sku-code {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .sku-icon {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
     margin-left: 2px;
-}
-
-.copied-text {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    color: #34d399;
-    font-size: 0.68rem;
-    font-weight: 700;
+    opacity: 0.6;
 }
 </style>
 
