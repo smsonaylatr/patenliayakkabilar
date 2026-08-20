@@ -178,7 +178,13 @@ class GibEArsivService
             $customerName = $overrideData['customer_name'] ?? $order->customer_name ?? 'Müşteri';
             $companyName = $overrideData['company_name'] ?? $order->company_name ?? '';
             $kdvPercent = (float)($overrideData['kdv_rate'] ?? 20);
-            $invoiceNote = $overrideData['invoice_note'] ?? ("Sipariş No: #" . $order->order_number);
+            $order->loadMissing(['items.product', 'items.variant']);
+            
+            $productNames = $order->items->map(function($item) {
+                return $item->product_name ?? ('Ürün #' . $item->product_id);
+            })->implode(', ');
+            
+            $invoiceNote = $overrideData['invoice_note'] ?? ("Sipariş No: #" . $order->order_number . " - " . $productNames);
 
             $isCorporate = strlen(trim($taxNumber)) === 10 || !empty($companyName);
             
@@ -212,8 +218,6 @@ class GibEArsivService
             );
 
             // Sipariş kalemlerini ekle
-            $order->loadMissing(['items.product', 'items.variant']);
-
             foreach ($order->items as $item) {
                 $itemTotalGross = (float) $item->price * (int) $item->quantity;
                 // KDV dahil fiyattan KDV hariç birim fiyatı hesapla

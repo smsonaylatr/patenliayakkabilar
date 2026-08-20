@@ -219,43 +219,15 @@ class OrdersTable
                     ->tooltip('GİB E-Arşiv Fatura Kes')
                     ->icon('heroicon-o-document-check')
                     ->color('success')
+                    ->requiresConfirmation()
                     ->modalHeading('GİB E-Arşiv Faturası Kes (Portal)')
-                    ->modalDescription('Aşağıdaki fatura bilgilerini kontrol edip faturayı GİB Portalına taslak olarak oluşturabilirsiniz.')
-                    ->modalSubmitActionLabel('Faturayı Kes ve Kaydet')
+                    ->modalDescription('Bu sipariş için GİB portalında taslak fatura oluşturulacaktır. Onaylıyor musunuz?')
+                    ->modalSubmitActionLabel('Faturayı Kes')
                     ->modalCancelActionLabel('İptal')
-                    ->form([
-                        TextInput::make('customer_name')
-                            ->label('Müşteri Ad Soyad')
-                            ->default(fn (Order $record) => $record->customer_name)
-                            ->required(),
-                        TextInput::make('tax_number')
-                            ->label('TCKN / VKN (11 haneli şahıs / 10 haneli kurumsal)')
-                            ->default(fn (Order $record) => $record->tax_number ?: '11111111111')
-                            ->required(),
-                        TextInput::make('company_name')
-                            ->label('Firma Unvanı (Kurumsal ise)')
-                            ->default(fn (Order $record) => $record->company_name),
-                        TextInput::make('tax_office')
-                            ->label('Vergi Dairesi')
-                            ->default(fn (Order $record) => $record->tax_office),
-                        Select::make('kdv_rate')
-                            ->label('KDV Oranı (%)')
-                            ->options([
-                                '20' => '%20 (Standart)',
-                                '10' => '%10 (İndirimli)',
-                                '0'  => '%0 (İstisna)',
-                            ])
-                            ->default('20')
-                            ->native(false)
-                            ->required(),
-                        TextInput::make('invoice_note')
-                            ->label('Fatura Notu')
-                            ->default(fn (Order $record) => 'Sipariş No: #' . $record->order_number),
-                    ])
-                    ->action(function (Order $record, array $data): void {
+                    ->action(function (Order $record): void {
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
-                            $result = $service->createInvoice($record, $data);
+                            $result = $service->createInvoice($record, []);
                             
                             if ($result['success']) {
                                 \Filament\Notifications\Notification::make()
