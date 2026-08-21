@@ -376,7 +376,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       width: 380px;
       max-width: 380px;
       height: 300px;
-      top: 55%;
+      top: 65%;
       left: 70%;
       transform: perspective(1000px) translateX(-50%) translateY(-50%);
       animation: float-main 7s ease-in-out infinite;
@@ -396,7 +396,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     }
 
     .card-float-1 {
-      top: 8%;
+      top: -8%;
       right: 5%;
       animation: float 9s ease-in-out infinite reverse;
     }
