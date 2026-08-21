@@ -637,10 +637,10 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     <!-- Left: Text block -->
     <div class="hero-text" id="hero-text-block"
       :style="`transform: translate(${mx * -8}px, ${my * -5}px); transition: transform ${mx === 0 ? '0.8s ease' : '0.15s ease'}`">
-      <div class="hero-pill">
+      {{-- <div class="hero-pill">
         <span class="pill-dot"></span>
         {{ $pillText }}
-      </div>
+      </div> --}}
 
       <h1 class="hero-title">
         <span class="title-line">{{ $title1 }}</span>
