@@ -108,6 +108,8 @@ class PoregoApiService
                 'district'            => trim($order->shipping_district) ?: 'Merkez',
                 'districtName'        => trim($order->shipping_district) ?: 'Merkez',
                 'neighborhood'        => $cleanMah,
+                'neighbourhood'       => $cleanMah, // British spelling used in Porego
+                'neighbourhoodName'   => $cleanMah,
                 'neighborhoodName'    => $cleanMah,
                 'neighborhood_name'   => $cleanMah,
                 'shipping_neighborhood' => $cleanMah,
