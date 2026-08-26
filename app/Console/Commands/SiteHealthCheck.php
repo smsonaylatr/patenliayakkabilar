@@ -25,8 +25,8 @@ class SiteHealthCheck extends Command
     {
         $urls = [
             'Ana Sayfa' => 'https://patenliayakkabilar.com',
-            'Katalog' => 'https://patenliayakkabilar.com/katalog',
-            'Sepet' => 'https://patenliayakkabilar.com/sepet',
+            'Ürünler' => 'https://patenliayakkabilar.com/patenli-ayakkabilar',
+            'İletişim' => 'https://patenliayakkabilar.com/iletisim',
             'Health Check' => 'https://patenliayakkabilar.com/up',
         ];
 
