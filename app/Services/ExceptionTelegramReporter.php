@@ -49,17 +49,17 @@ class ExceptionTelegramReporter
 
         Cache::put($cacheKey, true, now()->addMinutes(5));
 
-        $errorMessage = mb_substr($e->getMessage(), 0, 500);
-        $exceptionClass = get_class($e);
-        $file = $e->getFile();
+        $errorMessage = htmlspecialchars(mb_substr($e->getMessage(), 0, 500), ENT_QUOTES, 'UTF-8');
+        $exceptionClass = htmlspecialchars(get_class($e), ENT_QUOTES, 'UTF-8');
+        $file = htmlspecialchars($e->getFile(), ENT_QUOTES, 'UTF-8');
         $line = $e->getLine();
         
-        $url = $request ? $request->fullUrl() : 'N/A';
+        $url = $request ? htmlspecialchars($request->fullUrl(), ENT_QUOTES, 'UTF-8') : 'N/A';
         $method = $request ? $request->method() : 'N/A';
         $ip = $request ? $request->ip() : 'N/A';
-        $userAgent = $request ? mb_substr($request->userAgent() ?? '', 0, 100) : 'N/A';
+        $userAgent = $request ? htmlspecialchars(mb_substr($request->userAgent() ?? '', 0, 100), ENT_QUOTES, 'UTF-8') : 'N/A';
         
-        $timestamp = Carbon::now('Europe/Istanbul')->format('Y-m-d H:i:s');
+        $timestamp = Carbon::now('Europe/Istanbul')->format('d.m.Y H:i:s');
 
         $message = "🚨 <b>HATA BİLDİRİMİ</b>\n\n";
         $message .= "<b>Sınıf:</b> <code>{$exceptionClass}</code>\n";
