@@ -25,5 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->report(function (Throwable $e) {
+            try {
+                $request = request();
+                app(\App\Services\ExceptionTelegramReporter::class)->report($e, $request);
+            } catch (\Throwable $reportException) {
+                // Telegram raporlama hatası ana hatayı engellememeli
+                \Illuminate\Support\Facades\Log::error('Telegram error reporter failed: ' . $reportException->getMessage());
+            }
+        });
     })->create();

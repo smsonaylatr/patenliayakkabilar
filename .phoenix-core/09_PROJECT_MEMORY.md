@@ -142,6 +142,10 @@
 | SSH Kullanıcı | `root` |
 | SSH Şifre | `jqhg3UwQqfgsrVe9QQnh` |
 | SSH Portu | `22` |
+| Hosting | Plesk |
+| PHP Yolu | `/opt/plesk/php/8.3/bin/php` |
+| Proje Yolu | `/var/www/vhosts/patenliayakkabilar.com/httpdocs` |
+| SSH Yöntemi | Python paramiko (Windows ssh interaktif şifre desteklemediği için) |
 
 > **Son güncelleme:** 2026-08-26
 > **Güncelleyen:** Phoenix CTO Agent

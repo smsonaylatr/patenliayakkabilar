@@ -49,4 +49,5 @@ Schedule::command('app:send-abandoned-cart-sms')->hourly();
 // ─── Porego: Sipariş & Kargo Durumlarını Otomatik Senkronize Et (Her 5 dk) ───
 Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping();
 
-
+// ─── Site Sağlık Kontrolü (Her 5 dakikada bir) ──────────────────────────
+Schedule::command('site:health-check')->everyFiveMinutes()->withoutOverlapping();
