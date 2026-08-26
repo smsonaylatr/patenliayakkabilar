@@ -134,5 +134,14 @@
 
 ---
 
-> **Son güncelleme:** 2026-07-01
+## Production Sunucu Bilgileri
+
+| Bilgi | Değer |
+|---|---|
+| IP | `45.11.229.125` |
+| SSH Kullanıcı | `root` |
+| SSH Şifre | `jqhg3UwQqfgsrVe9QQnh` |
+| SSH Portu | `22` |
+
+> **Son güncelleme:** 2026-08-26
 > **Güncelleyen:** Phoenix CTO Agent
