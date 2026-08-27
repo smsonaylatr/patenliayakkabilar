@@ -61,13 +61,44 @@ class PoregoApiService
                     $rawSku = 'SKU-' . ($item->variant_id ?: $item->product_id);
                 }
 
-                $productSummaryList[] = "{$item->quantity}x {$rawSku}";
+                // Ürün adını OrderItem üzerindeki product_name alanından al,
+                // yoksa ilişkili product modelinin name alanından,
+                // son çare olarak SKU kullan
+                $productName = trim($item->product_name ?? '');
+                if (empty($productName)) {
+                    $productName = trim($item->product?->name ?? '');
+                }
+                if (empty($productName)) {
+                    $productName = $rawSku;
+                }
+
+                // Varyant bilgisini (beden/renk) ekle
+                $variantInfo = trim($item->variant_info ?? '');
+                if (empty($variantInfo) && $item->variant) {
+                    $sizePart = $item->variant->size ? "Beden: {$item->variant->size}" : '';
+                    $colorPart = $item->variant->color ? (is_array($item->variant->color) ? implode(', ', $item->variant->color) : $item->variant->color) : '';
+                    $variantInfo = implode(' / ', array_filter([$sizePart, $colorPart]));
+                }
+
+                $fullName = $variantInfo ? "{$productName} ({$variantInfo})" : $productName;
+                $qty = max(1, (int)$item->quantity);
+
+                $productSummaryList[] = "{$qty}x {$fullName}";
 
                 return [
-                    'sku'      => $rawSku,
-                    'name'     => $rawSku,
-                    'quantity' => max(1, (int)$item->quantity),
-                    'price'    => (float)($item->unit_price ?? 0),
+                    'sku'         => $rawSku,
+                    'code'        => $rawSku,
+                    'barcode'     => $rawSku,
+                    'productSku'  => $rawSku,
+                    'productCode' => $rawSku,
+                    'name'        => $fullName,
+                    'productName' => $fullName,
+                    'title'       => $fullName,
+                    'quantity'    => $qty,
+                    'count'       => $qty,
+                    'price'       => (float)($item->unit_price ?? 0),
+                    'unitPrice'   => (float)($item->unit_price ?? 0),
+                    'totalPrice'  => (float)(($item->unit_price ?? 0) * $qty),
                 ];
             })->values()->toArray();
 
@@ -121,7 +152,13 @@ class PoregoApiService
                 'platformOrderId'     => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
                 'productInfo'         => $productSummaryText,
+                'note'                => $productSummaryText,
+                'description'         => $productSummaryText,
+                'orderNote'           => $productSummaryText,
                 'items'               => $mappedItems,
+                'products'            => $mappedItems,
+                'orderItems'          => $mappedItems,
+                'orderProducts'       => $mappedItems,
             ];
 
             if ($order->payment_method === 'cash_on_delivery') {
