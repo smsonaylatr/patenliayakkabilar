@@ -492,20 +492,29 @@ class OrdersTable
                         ->action(function (Collection $records) {
                             $successCount = 0;
                             $failCount = 0;
+                            $failMessages = [];
                             $service = app(\App\Services\PoregoApiService::class);
 
                             foreach ($records as $order) {
-                                if ($service->sendOrder($order)) {
+                                $result = $service->sendOrder($order);
+                                if (is_array($result) && ($result['success'] ?? false)) {
                                     $successCount++;
                                 } else {
                                     $failCount++;
+                                    $msg = is_array($result) ? ($result['message'] ?? 'Bilinmeyen hata') : 'Bilinmeyen hata';
+                                    $failMessages[] = "#{$order->order_number}: {$msg}";
                                 }
+                            }
+
+                            $body = "{$successCount} adet sipariş Porego'ya iletildi. {$failCount} adet sipariş başarısız oldu.";
+                            if (!empty($failMessages)) {
+                                $body .= "\n\n" . implode("\n", array_slice($failMessages, 0, 5));
                             }
 
                             \Filament\Notifications\Notification::make()
                                 ->title('Toplu Porego Gönderimi Tamamlandı')
-                                ->body("{$successCount} adet sipariş Porego'ya iletildi. {$failCount} adet sipariş başarısız oldu.")
-                                ->success()
+                                ->body($body)
+                                ->{$failCount > 0 ? 'warning' : 'success'}()
                                 ->send();
                         }),
 

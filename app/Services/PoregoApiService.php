@@ -181,10 +181,61 @@ class PoregoApiService
                     $err = "HTTP " . $response->status();
                 }
 
-                // 400 Bad Request durumunda kullanıcı dostu açıklama ekleyelim (Sipariş zaten Porego'da kayıtlı)
+                // 400 Bad Request: Sipariş zaten Porego'da kayıtlı - PUT ile güncellemeyi dene
                 if ($response->status() === 400) {
-                    $msg = "Bu sipariş (#{$order->order_number}) Porego sisteminde zaten oluşturulmuş veya mevcut kaydı bulunmaktadır. Porego panelindeki Siparişler sayfasından etiketini basabilirsiniz.";
-                    Log::info("Porego API 400 Bildirimi. Sipariş No: {$order->order_number}", ['response' => $response->body()]);
+                    Log::info("Porego API 400: Sipariş zaten mevcut, PUT ile güncelleme deneniyor. Sipariş No: {$order->order_number}");
+                    
+                    // Porego API'sinde sipariş güncelleme endpoint'lerini dene
+                    $updateEndpoints = [
+                        "{$apiUrl}/orders/{$order->order_number}",
+                        "{$apiUrl}/orders/{$order->id}",
+                    ];
+                    
+                    foreach ($updateEndpoints as $updateUrl) {
+                        try {
+                            $updateResponse = Http::withHeaders([
+                                'X-Api-Key' => $apiKey,
+                                'X-Api-Secret' => $apiSecret,
+                                'Accept' => 'application/json',
+                                'Content-Type' => 'application/json',
+                            ])->put($updateUrl, $payload);
+                            
+                            if ($updateResponse->successful()) {
+                                Log::info("Sipariş PUT ile güncellendi. Sipariş No: {$order->order_number}, URL: {$updateUrl}");
+                                return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'da güncellendi (ürün bilgileri dahil)."];
+                            }
+                        } catch (\Throwable $putEx) {
+                            Log::warning("Porego PUT denemesi başarısız: {$updateUrl} - " . $putEx->getMessage());
+                        }
+                    }
+                    
+                    // PUT da çalışmadıysa, siparişi Porego'dan silip yeniden oluşturmayı dene
+                    try {
+                        $deleteResponse = Http::withHeaders([
+                            'X-Api-Key' => $apiKey,
+                            'X-Api-Secret' => $apiSecret,
+                            'Accept' => 'application/json',
+                        ])->delete("{$apiUrl}/orders/{$order->order_number}");
+                        
+                        if ($deleteResponse->successful() || $deleteResponse->status() === 204) {
+                            // Silme başarılı, yeniden oluştur
+                            $recreateResponse = Http::withHeaders([
+                                'X-Api-Key' => $apiKey,
+                                'X-Api-Secret' => $apiSecret,
+                                'Accept' => 'application/json',
+                                'Content-Type' => 'application/json',
+                            ])->post("{$apiUrl}/orders", $payload);
+                            
+                            if ($recreateResponse->successful()) {
+                                Log::info("Sipariş Porego'da silindi ve yeniden oluşturuldu. Sipariş No: {$order->order_number}");
+                                return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'da silindi ve ürün bilgileriyle yeniden oluşturuldu."];
+                            }
+                        }
+                    } catch (\Throwable $delEx) {
+                        Log::warning("Porego DELETE+POST denemesi başarısız: " . $delEx->getMessage());
+                    }
+                    
+                    $msg = "Bu sipariş (#{$order->order_number}) Porego sisteminde zaten mevcut. Güncelleme denenmiş ancak başarısız olmuştur. Porego panelinden siparişi silip tekrar gönderebilirsiniz.";
                     return ['success' => false, 'message' => $msg];
                 }
 
