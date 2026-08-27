@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
@@ -30,6 +31,13 @@ class Checkout extends Component
 
     public $paytr_token = null;
     public $created_order_number = null;
+
+    // Kupon kodu
+    public $coupon_code = '';
+    public $applied_coupon = null;
+    public $coupon_discount = 0;
+    public $coupon_message = '';
+    public $coupon_error = '';
 
     protected $rules = [
         'customer_name' => 'required|string|max:255',
@@ -205,7 +213,8 @@ class Checkout extends Component
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
         $shippingPrice = $this->payment_method === 'cash_on_delivery' ? (200 + (1 * $totalItems)) : (1 * $totalItems);
-        $grandTotal = $subtotal + $shippingPrice;
+        $couponDiscount = $this->coupon_discount;
+        $grandTotal = max(0, $subtotal - $couponDiscount) + $shippingPrice;
         $orderNumber = 'TR' . mt_rand(100000, 999999);
 
         // Sepet üzerinde misafir bilgilerini her ihtimale karşı güncelle
@@ -241,6 +250,8 @@ class Checkout extends Component
             'gclid' => session('gclid'),
             'subtotal' => $subtotal,
             'shipping_price' => $shippingPrice,
+            'discount_total' => $couponDiscount,
+            'coupon_code' => $this->applied_coupon ? $this->applied_coupon->code : null,
             'grand_total' => $grandTotal,
             
             'customer_name' => $this->customer_name,
@@ -261,6 +272,11 @@ class Checkout extends Component
 
             'ip_address' => request()->ip(),
         ]);
+
+        // Kupon kullanım sayısını artır
+        if ($this->applied_coupon) {
+            $this->applied_coupon->increment('used_count');
+        }
 
         // Create Order Items
         foreach ($cart->items as $item) {
@@ -437,6 +453,70 @@ class Checkout extends Component
         }
     }
 
+    public function applyCoupon()
+    {
+        $this->coupon_message = '';
+        $this->coupon_error = '';
+
+        $code = strtoupper(trim($this->coupon_code));
+
+        if (empty($code)) {
+            $this->coupon_error = 'Lütfen bir kupon kodu giriniz.';
+            return;
+        }
+
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (!$coupon) {
+            $this->coupon_error = 'Geçersiz kupon kodu.';
+            return;
+        }
+
+        if (!$coupon->status) {
+            $this->coupon_error = 'Bu kupon kodu aktif değil.';
+            return;
+        }
+
+        if ($coupon->expires_at && $coupon->expires_at->isPast()) {
+            $this->coupon_error = 'Bu kupon kodunun süresi dolmuş.';
+            return;
+        }
+
+        if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
+            $this->coupon_error = 'Bu kupon kodunun kullanım limiti dolmuş.';
+            return;
+        }
+
+        // Minimum sepet tutarı kontrolü
+        $cartService = app(CartService::class);
+        $subtotal = $cartService->getTotal();
+
+        if ($coupon->min_cart_total && $subtotal < $coupon->min_cart_total) {
+            $this->coupon_error = 'Bu kupon için minimum sepet tutarı ' . number_format($coupon->min_cart_total, 2) . ' ₺ olmalıdır.';
+            return;
+        }
+
+        // İndirim hesapla
+        if ($coupon->type === 'percentage') {
+            $this->coupon_discount = round($subtotal * ($coupon->value / 100), 2);
+        } else {
+            $this->coupon_discount = min($coupon->value, $subtotal);
+        }
+
+        $this->applied_coupon = $coupon;
+        $this->coupon_message = 'Kupon kodu uygulandı! ' . ($coupon->type === 'percentage' ? '%' . intval($coupon->value) : number_format($coupon->value, 2) . ' ₺') . ' indirim kazandınız.';
+        $this->coupon_error = '';
+    }
+
+    public function removeCoupon()
+    {
+        $this->applied_coupon = null;
+        $this->coupon_discount = 0;
+        $this->coupon_code = '';
+        $this->coupon_message = '';
+        $this->coupon_error = '';
+    }
+
     public function editInformation()
     {
         $this->paytr_token = null;
@@ -448,12 +528,16 @@ class Checkout extends Component
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
         $shippingPrice = $this->payment_method === 'cash_on_delivery' ? (200 + (1 * $totalItems)) : (1 * $totalItems);
-        $grandTotal = $subtotal + $shippingPrice;
+        
+        // Kupon indirimi uygula
+        $couponDiscount = $this->coupon_discount;
+        $grandTotal = max(0, $subtotal - $couponDiscount) + $shippingPrice;
 
         return view('livewire.frontend.checkout', [
             'cartItems' => $cart->items,
             'subtotal' => $subtotal,
             'shippingPrice' => $shippingPrice,
+            'couponDiscount' => $couponDiscount,
             'grandTotal' => $grandTotal,
         ])->layout('components.layouts.app');
     }

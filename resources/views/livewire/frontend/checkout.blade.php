@@ -260,12 +260,68 @@
                         @endforelse
                     </div>
 
+                    <!-- Kupon Kodu -->
+                    <div class="mt-5 pt-4 border-t border-gray-100">
+                        @if($applied_coupon)
+                            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                                    <div>
+                                        <span class="text-sm font-bold text-emerald-800">{{ $applied_coupon->code }}</span>
+                                        <span class="text-xs text-emerald-600 block">-{{ number_format($coupon_discount, 2) }} ₺ indirim</span>
+                                    </div>
+                                </div>
+                                <button wire:click="removeCoupon" type="button" class="text-emerald-600 hover:text-red-500 transition-colors p-1" title="Kuponu Kaldır">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+                        @else
+                            <div x-data="{ open: false }">
+                                <button type="button" @click="open = !open" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors w-full">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                                    <span>İndirim Kodu Ekle</span>
+                                    <svg class="w-3.5 h-3.5 ml-auto transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div x-show="open" x-collapse x-cloak class="mt-3">
+                                    <div class="flex gap-2">
+                                        <input type="text" wire:model="coupon_code" wire:keydown.enter="applyCoupon" class="flex-1 px-3 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors uppercase placeholder:normal-case" placeholder="Kupon kodunuz">
+                                        <button wire:click="applyCoupon" type="button" class="px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-sm font-bold rounded-xl transition-colors whitespace-nowrap flex items-center gap-1.5">
+                                            <span wire:loading.remove wire:target="applyCoupon">Uygula</span>
+                                            <span wire:loading wire:target="applyCoupon"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                        </button>
+                                    </div>
+                                    @if($coupon_error)
+                                        <p class="text-xs text-red-500 mt-2 flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            {{ $coupon_error }}
+                                        </p>
+                                    @endif
+                                    @if($coupon_message)
+                                        <p class="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            {{ $coupon_message }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                     <!-- Fiyat Toplamları -->
-                    <div class="mt-6 pt-4 border-t border-gray-100 space-y-3">
+                    <div class="mt-5 pt-4 border-t border-gray-100 space-y-3">
                         <div class="flex justify-between text-sm text-gray-600">
                             <span>Ara Toplam</span>
                             <span>{{ number_format($subtotal, 2) }} ₺</span>
                         </div>
+                        @if($couponDiscount > 0)
+                        <div class="flex justify-between text-sm text-emerald-600">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                                İndirim
+                            </span>
+                            <span class="font-medium">-{{ number_format($couponDiscount, 2) }} ₺</span>
+                        </div>
+                        @endif
                         <div class="flex justify-between text-sm text-gray-600">
                             <span>Kargo <span class="text-[10px] text-gray-400 ml-1">{{ $payment_method === 'cash_on_delivery' ? '(200 ₺ Hizmet Bedeli + Ürün Başı 1 ₺)' : '(Ürün Başı 1 ₺)' }}</span></span>
                             <span class="text-gray-900 font-medium">{{ number_format($shippingPrice, 2) }} ₺</span>
