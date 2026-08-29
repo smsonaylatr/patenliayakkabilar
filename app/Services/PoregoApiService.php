@@ -278,6 +278,11 @@ class PoregoApiService
     /**
      * Porego'da sipariş için kargo barkodu/takip kodu oluşturur.
      * sendOrder() başarılı olduktan sonra otomatik çağrılır.
+     *
+     * Strateji:
+     * 1. Porego createbarcode API endpoint'ini dene
+     * 2. Başarısız olursa, Porego siparişi zaten trackingNumber atadığı için
+     *    GET /orders ile sipariş bilgisini çekip tracking code'u kaydet
      */
     public function createBarcode(Order $order, ?string $apiKey = null, ?string $apiSecret = null, ?string $apiUrl = null): array
     {
@@ -296,69 +301,42 @@ class PoregoApiService
             'Content-Type' => 'application/json',
         ];
 
-        // Porego kargo barkod oluşturma payload'ı
-        $payload = [
-            'platformOrderId' => (string)$order->id,
-            'platformOrderNumber' => $order->order_number,
-            'orderNumber' => $order->order_number,
-        ];
+        // 1. Porego createbarcode endpoint'ini dene
+        try {
+            $payload = [
+                'platformOrderId' => (string)$order->id,
+                'platformOrderNumber' => $order->order_number,
+                'orderNumber' => $order->order_number,
+            ];
 
-        // Birden fazla olası endpoint dene (Porego API yapısı farklılık gösterebilir)
-        $endpoints = [
-            ['method' => 'POST', 'url' => "{$apiUrl}/createbarcode"],
-            ['method' => 'POST', 'url' => "{$apiUrl}/shipments"],
-            ['method' => 'POST', 'url' => "{$apiUrl}/orders/{$order->order_number}/barcode"],
-            ['method' => 'POST', 'url' => "{$apiUrl}/orders/{$order->order_number}/createbarcode"],
-            ['method' => 'PUT',  'url' => "{$apiUrl}/orders/{$order->order_number}/ready"],
-            ['method' => 'POST', 'url' => "{$apiUrl}/orders/{$order->id}/barcode"],
-            ['method' => 'PUT',  'url' => "{$apiUrl}/orders/{$order->id}/ready"],
-        ];
+            $response = Http::withHeaders($headers)->timeout(10)
+                ->post("{$apiUrl}/createbarcode", $payload);
 
-        foreach ($endpoints as $endpoint) {
-            try {
-                $request = Http::withHeaders($headers)->timeout(10);
-
-                if ($endpoint['method'] === 'PUT') {
-                    $response = $request->put($endpoint['url'], $payload);
-                } else {
-                    $response = $request->post($endpoint['url'], $payload);
-                }
-
-                if ($response->successful()) {
-                    $responseData = $response->json();
-                    Log::info("Porego barkod oluşturma başarılı. Sipariş: #{$order->order_number}, Endpoint: {$endpoint['url']}", $responseData ?? []);
-
-                    // Response'tan tracking code'u çıkar ve kaydet
-                    $this->saveTrackingFromResponse($order, $responseData);
-
-                    return ['success' => true, 'message' => 'Kargo kodu başarıyla oluşturuldu.', 'data' => $responseData];
-                }
-
-                // 404/405 ise sonraki endpoint'i dene
-                if (in_array($response->status(), [404, 405])) {
-                    continue;
-                }
-
-                // Diğer hatalarda logla ve devam et
-                Log::info("Porego barkod endpoint yanıtı. URL: {$endpoint['url']}, Status: {$response->status()}, Body: " . substr($response->body(), 0, 500));
-
-            } catch (\Throwable $e) {
-                Log::info("Porego barkod endpoint erişilemedi. URL: {$endpoint['url']}, Hata: " . $e->getMessage());
-                continue;
+            if ($response->successful()) {
+                $responseData = $response->json();
+                Log::info("Porego createbarcode başarılı. Sipariş: #{$order->order_number}", $responseData ?? []);
+                $this->saveTrackingFromResponse($order, $responseData);
+                return ['success' => true, 'message' => 'Kargo kodu API ile oluşturuldu.'];
             }
+
+            Log::info("Porego createbarcode endpoint: Status {$response->status()} (Sipariş: #{$order->order_number})");
+        } catch (\Throwable $e) {
+            Log::info("Porego createbarcode erişilemedi: " . $e->getMessage());
         }
 
-        // Hiçbir endpoint çalışmadıysa, siparişi Porego'dan çekerek tracking code almayı dene
+        // 2. Porego, sipariş kabul ettiğinde otomatik trackingNumber atar.
+        //    GET /orders ile siparişi çekip tracking code'u kaydet.
         try {
             $trackingResult = $this->fetchAndSaveOrderTracking($order);
             if ($trackingResult && !empty($order->cargo_tracking_code)) {
-                return ['success' => true, 'message' => 'Kargo kodu senkronizasyon ile alındı.'];
+                Log::info("Kargo kodu Porego senkronizasyonu ile alındı. Sipariş: #{$order->order_number}, Kod: {$order->cargo_tracking_code}");
+                return ['success' => true, 'message' => "Kargo kodu alındı: {$order->cargo_tracking_code}"];
             }
         } catch (\Throwable $e) {
-            Log::warning("Porego senkronizasyon fallback hatası: " . $e->getMessage());
+            Log::warning("Porego kargo kodu senkronizasyon hatası: " . $e->getMessage());
         }
 
-        return ['success' => false, 'message' => 'Kargo kodu oluşturma endpoint\'leri yanıt vermedi. Porego panelinden manuel oluşturulması gerekebilir.'];
+        return ['success' => false, 'message' => 'Kargo kodu henüz oluşturulmadı. Porego siparişi işlendikten sonra senkronizasyonla alınacak.'];
     }
 
     /**
