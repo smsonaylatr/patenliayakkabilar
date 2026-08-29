@@ -713,6 +713,50 @@ Route::get('api/porego/stock', [\App\Http\Controllers\PoregoProductApiController
 // Telegram Bot Webhook (Inline buton callback'leri)
 Route::post('api/telegram/webhook', [\App\Http\Controllers\TelegramWebhookController::class, 'handle']);
 
+// Telegram Webhook Kurulum (tarayıcıdan aç → webhook kurulur)
+Route::get('api/telegram/setup-webhook', function () {
+    $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
+    if (!$token) {
+        return response()->json(['error' => 'Bot token bulunamadı. Admin panelinden ayarlayın.'], 400);
+    }
+
+    // Production domain — APP_URL localhost olsa bile doğru çalışır
+    $webhookUrl = 'https://patenliayakkabilar.com/api/telegram/webhook';
+
+    $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/setWebhook", [
+        'url' => $webhookUrl,
+    ]);
+
+    return response()->json([
+        'webhook_url' => $webhookUrl,
+        'telegram_response' => $response->json(),
+    ]);
+});
+
+Route::get('api/telegram/remove-webhook', function () {
+    $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
+    if (!$token) {
+        return response()->json(['error' => 'Bot token bulunamadı.'], 400);
+    }
+
+    $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/deleteWebhook");
+
+    return response()->json([
+        'telegram_response' => $response->json(),
+    ]);
+});
+
+Route::get('api/telegram/webhook-info', function () {
+    $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
+    if (!$token) {
+        return response()->json(['error' => 'Bot token bulunamadı.'], 400);
+    }
+
+    $response = \Illuminate\Support\Facades\Http::get("https://api.telegram.org/bot{$token}/getWebhookInfo");
+
+    return response()->json($response->json());
+});
+
 // Landing Page (Bilgi Sistemi)
 Route::get('bilgi', [\App\Http\Controllers\BilgiController::class, 'index'])->name('bilgi.index');
 Route::post('bilgi/submit', [\App\Http\Controllers\BilgiController::class, 'submit'])->name('bilgi.submit');
