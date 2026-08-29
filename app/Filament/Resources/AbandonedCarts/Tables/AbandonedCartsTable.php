@@ -115,7 +115,7 @@ class AbandonedCartsTable
                                 $messageTemplate = \App\Models\Setting::where('key', 'vatansms_abandoned_cart_message')->value('value');
                                 
                                 if (empty($messageTemplate)) {
-                                    $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için sitemizi ziyaret edin.";
+                                    $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için patenliayakkabilar.com adresini ziyaret edin.";
                                 } else {
                                     $message = str_replace(['{isim}', '{siparis_no}', '{tutar}'], [$name, '', ''], $messageTemplate);
                                 }
