@@ -136,6 +136,11 @@ class TelegramSettings extends Page implements HasForms
             ->success()
             ->title('Telegram ayarları başarıyla kaydedildi')
             ->send();
+
+        // Aktifse webhook'u otomatik kur
+        if (filter_var($data['telegram_active'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->setupWebhook();
+        }
     }
 
     public function sendTestMessage(): void

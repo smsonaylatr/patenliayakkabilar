@@ -76,7 +76,7 @@ class TelegramWebhookController extends Controller
                 // Telegram mesajını güncelle — butonu kaldır, onay notu ekle
                 if ($chatId && $messageId) {
                     $originalText = $callbackQuery['message']['text'] ?? '';
-                    $updatedText = $originalText . "\n\n✅ *SMS GÖNDERİLDİ* (" . now()->format('d.m.Y H:i') . ')';
+                    $updatedText = $originalText . "\n\n✅ <b>SMS GÖNDERİLDİ</b> (" . now()->format('d.m.Y H:i') . ')';
 
                     $this->editMessageText($chatId, $messageId, $updatedText);
                 }
@@ -118,7 +118,7 @@ class TelegramWebhookController extends Controller
             'chat_id' => $chatId,
             'message_id' => $messageId,
             'text' => $text,
-            'parse_mode' => 'Markdown',
+            'parse_mode' => 'HTML',
         ]);
     }
 }

@@ -34,17 +34,17 @@ class PotentialCustomer extends Model
 
                 if (!$token || !$chatId) return;
 
-                $productName = $potentialCustomer->product ? $potentialCustomer->product->name : 'Bilinmeyen Ürün';
-                $purpose = $potentialCustomer->buying_for ?? '-';
+                $productName = $potentialCustomer->product ? htmlspecialchars($potentialCustomer->product->name) : 'Bilinmeyen Ürün';
+                $purpose = htmlspecialchars($potentialCustomer->buying_for ?? '-');
                 $phone = $potentialCustomer->phone ?? '-';
 
-                $message = "🚨 *YENİ POTANSİYEL MÜŞTERİ!*\n\n";
-                $message .= "🛒 *İlgilendiği Ürün:* {$productName}\n";
-                $message .= "🎯 *Alım Amacı:* {$purpose}\n";
-                $message .= "📱 *Telefon:* {$phone}\n";
+                $message = "🚨 <b>YENİ POTANSİYEL MÜŞTERİ!</b>\n\n";
+                $message .= "🛒 <b>İlgilendiği Ürün:</b> {$productName}\n";
+                $message .= "🎯 <b>Alım Amacı:</b> {$purpose}\n";
+                $message .= "📱 <b>Telefon:</b> {$phone}\n";
                 
                 // Inline keyboard — "SMS Gönder" butonu
-                $inlineKeyboard = [
+                $replyMarkup = [
                     'inline_keyboard' => [
                         [
                             [
@@ -59,12 +59,16 @@ class PotentialCustomer extends Model
                     ],
                 ];
 
-                \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->asJson()->post("https://api.telegram.org/bot{$token}/sendMessage", [
                     'chat_id' => $chatId,
                     'text' => $message,
-                    'parse_mode' => 'Markdown',
-                    'reply_markup' => json_encode($inlineKeyboard),
+                    'parse_mode' => 'HTML',
+                    'reply_markup' => $replyMarkup,
                 ]);
+
+                if (!$response->successful() || !($response->json('ok') ?? false)) {
+                    \Illuminate\Support\Facades\Log::error('Telegram sendMessage failed: ' . $response->body());
+                }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Potential Customer Telegram notification failed: ' . $e->getMessage());
             }
