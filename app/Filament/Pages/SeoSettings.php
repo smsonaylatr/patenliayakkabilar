@@ -365,6 +365,58 @@ class SeoSettings extends FilamentPage implements HasForms
                                         ]),
                                     ]),
                             ]),
+
+                        // ==========================================
+                        // TAB 5: BACKLINK & OTORİTE STRATEJİSİ
+                        // ==========================================
+                        Tab::make('Backlink & Otorite')
+                            ->icon('heroicon-o-link')
+                            ->schema([
+                                Section::make('Backlink Yönetim Paneli')
+                                    ->description('Sitenizin alan adı otoritesini artırmak için hedef dizinler, profiller ve blog iş birliklerini yönetin.')
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('backlink_panel_info')
+                                            ->label('Backlink Takip Modülü')
+                                            ->content(new \Illuminate\Support\HtmlString(
+                                                '<div class="flex items-center gap-3 p-4 bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 rounded-xl">
+                                                    <div class="text-sm">
+                                                        <p class="font-semibold text-primary-900 dark:text-primary-100">Aktif Backlink Kaynakları ve Hedef Listesi</p>
+                                                        <p class="text-primary-700 dark:text-primary-300 text-xs mt-0.5">Sistemde kayıtlı DA puanlı dizinler, profil backlinkleri ve anne-çocuk blog outreach listesi.</p>
+                                                    </div>
+                                                    <a href="' . url('/admin/backlinks') . '" class="ml-auto inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                                                        Backlink Takip Modülünü Aç →
+                                                    </a>
+                                                </div>'
+                                            )),
+                                    ]),
+
+                                Section::make('Doğal Anchor Text (Bağlantı Metni) Oranları')
+                                    ->description('Arama motoru algoritmalarına karşı güvenli link dağılımı.')
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('anchor_rules')
+                                            ->label('')
+                                            ->content(new \Illuminate\Support\HtmlString(
+                                                '<div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+                                                    <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                        <div class="font-bold text-gray-900 dark:text-white text-sm">%50 Marka İsmi</div>
+                                                        <div class="text-gray-500 mt-1">Patenli Ayakkabılar, PatenliAyakkabilar.com</div>
+                                                    </div>
+                                                    <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                        <div class="font-bold text-gray-900 dark:text-white text-sm">%25 Hedef Kelime</div>
+                                                        <div class="text-gray-500 mt-1">patenli ayakkabı, tekerlekli ayakkabı, ışıklı paten</div>
+                                                    </div>
+                                                    <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                        <div class="font-bold text-gray-900 dark:text-white text-sm">%15 URL & Jenerik</div>
+                                                        <div class="text-gray-500 mt-1">https://patenliayakkabilar.com, web sitesi, inceleyin</div>
+                                                    </div>
+                                                    <div class="p-3 bg-gray-50 dark:bg-gray-800/60 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                        <div class="font-bold text-gray-900 dark:text-white text-sm">%10 LSI / Uzun Kuyruk</div>
+                                                        <div class="text-gray-500 mt-1">çocuklar için güvenli tekerlekli ayakkabı, hediye paten</div>
+                                                    </div>
+                                                </div>'
+                                            )),
+                                    ]),
+                            ]),
                     ]),
             ])
             ->statePath('data');
