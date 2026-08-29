@@ -42,6 +42,26 @@ Route::get('/admin/logout', function () {
 
 Route::get('/run-migrations', function () {
     try {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('backlinks')) {
+            \Illuminate\Support\Facades\Schema::create('backlinks', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->string('domain');
+                $table->string('target_url')->default('/');
+                $table->string('backlink_url')->nullable();
+                $table->string('category')->default('directory');
+                $table->string('anchor_text')->nullable();
+                $table->string('link_type')->default('dofollow');
+                $table->string('status')->default('pending');
+                $table->integer('domain_authority')->nullable();
+                $table->string('contact_email')->nullable();
+                $table->string('contact_name')->nullable();
+                $table->text('notes')->nullable();
+                $table->timestamp('published_at')->nullable();
+                $table->timestamps();
+            });
+        }
+
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         \Illuminate\Support\Facades\Artisan::call('db:seed', [
             '--class' => 'Database\\Seeders\\BacklinkSeeder',
