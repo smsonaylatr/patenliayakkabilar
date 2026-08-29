@@ -101,20 +101,102 @@
                             
                             <div class="md:col-span-2">
                                 <div class="flex items-center justify-between mb-1">
-                                    <label class="block text-sm font-medium text-gray-700">Mahalle</label>
+                                    <label class="block text-sm font-medium text-gray-700">Mahalle <span class="text-red-500">*</span></label>
                                     <span wire:loading wire:target="shipping_district" class="text-xs text-brand-orange font-medium animate-pulse">
                                         <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mahalleler yükleniyor...
                                     </span>
                                 </div>
                                 @if(!empty($neighborhoods))
-                                    <select wire:model.live="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
-                                        <option value="">Mahalle Seçiniz</option>
-                                        @foreach($neighborhoods as $neighborhood)
-                                            <option value="{{ $neighborhood }}">{{ $neighborhood }} Mah.</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{
+                                        open: false,
+                                        search: @entangle('shipping_neighborhood').live,
+                                        neighborhoods: @js($neighborhoods),
+                                        get filtered() {
+                                            if (!this.search || this.search.length === 0) return this.neighborhoods;
+                                            const s = this.search.toLocaleLowerCase('tr');
+                                            return this.neighborhoods.filter(n => n.toLocaleLowerCase('tr').includes(s));
+                                        },
+                                        select(item) {
+                                            this.search = item;
+                                            this.open = false;
+                                            $refs.searchInput.blur();
+                                        },
+                                        highlightIndex: -1,
+                                        navigateList(direction) {
+                                            if (!this.open) { this.open = true; return; }
+                                            if (direction === 'down') {
+                                                this.highlightIndex = this.highlightIndex < this.filtered.length - 1 ? this.highlightIndex + 1 : 0;
+                                            } else {
+                                                this.highlightIndex = this.highlightIndex > 0 ? this.highlightIndex - 1 : this.filtered.length - 1;
+                                            }
+                                            this.$nextTick(() => {
+                                                const el = document.querySelector('[data-neighborhood-index=\'' + this.highlightIndex + '\']');
+                                                if (el) el.scrollIntoView({ block: 'nearest' });
+                                            });
+                                        },
+                                        selectHighlighted() {
+                                            if (this.highlightIndex >= 0 && this.highlightIndex < this.filtered.length) {
+                                                this.select(this.filtered[this.highlightIndex]);
+                                            }
+                                        }
+                                    }" @click.away="open = false" class="relative">
+                                        <div class="relative">
+                                            <input
+                                                x-ref="searchInput"
+                                                type="text"
+                                                x-model="search"
+                                                @focus="open = true; highlightIndex = -1"
+                                                @input="open = true; highlightIndex = -1"
+                                                @keydown.arrow-down.prevent="navigateList('down')"
+                                                @keydown.arrow-up.prevent="navigateList('up')"
+                                                @keydown.enter.prevent="selectHighlighted()"
+                                                @keydown.escape="open = false; $refs.searchInput.blur()"
+                                                placeholder="Mahalle adı yazarak arayın..."
+                                                autocomplete="off"
+                                                class="w-full px-4 py-3 pr-10 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
+                                            >
+                                            <button type="button" @click="open = !open; if(open) $refs.searchInput.focus()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                                                <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </button>
+                                        </div>
+                                        <div
+                                            x-show="open && filtered.length > 0"
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="opacity-0 -translate-y-1"
+                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="opacity-100"
+                                            x-transition:leave-end="opacity-0"
+                                            class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                                            style="display: none;"
+                                        >
+                                            <template x-for="(item, index) in filtered" :key="index">
+                                                <button
+                                                    type="button"
+                                                    @click="select(item)"
+                                                    @mouseenter="highlightIndex = index"
+                                                    :data-neighborhood-index="index"
+                                                    class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
+                                                    :class="{
+                                                        'bg-black text-white hover:bg-gray-800': search === item,
+                                                        'bg-gray-100': highlightIndex === index && search !== item
+                                                    }"
+                                                >
+                                                    <span x-text="item + ' Mah.'"></span>
+                                                    <svg x-show="search === item" class="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                                </button>
+                                            </template>
+                                        </div>
+                                        <div
+                                            x-show="open && search && search.length > 0 && filtered.length === 0"
+                                            class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
+                                            style="display: none;"
+                                        >
+                                            <i class="fa-solid fa-search mr-1"></i> Sonuç bulunamadı
+                                        </div>
+                                    </div>
                                 @else
-                                    <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="{{ empty($shipping_district) ? 'Önce ilçe seçiniz...' : 'Mahalle adını yazınız veya seçiniz...' }}" {{ empty($shipping_district) ? 'disabled' : '' }}>
+                                    <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="{{ empty($shipping_district) ? 'Önce ilçe seçiniz...' : 'Mahalle adını yazınız...' }}" {{ empty($shipping_district) ? 'disabled' : '' }}>
                                 @endif
                                 @error('shipping_neighborhood') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
