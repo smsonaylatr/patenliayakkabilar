@@ -130,38 +130,80 @@ class OrderObserver
                 
                 $htmlMessage .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
-                $imageUrl = null;
-                $firstItem = $order->items->first();
-                if ($firstItem && $firstItem->product && $firstItem->product->images->count() > 0) {
-                    $imageUrl = $firstItem->product->images->first()->image_url;
-                    if (!empty($imageUrl) && !str_starts_with($imageUrl, 'http')) {
-                        $imageUrl = asset($imageUrl);
+                // Her ürünün ilk görselini topla
+                $imageUrls = [];
+                foreach ($order->items as $item) {
+                    if ($item->product && $item->product->images->count() > 0) {
+                        $imgUrl = $item->product->images->first()->raw_image_url;
+                        if (!empty($imgUrl)) {
+                            $imageUrls[] = $imgUrl;
+                        }
                     }
                 }
 
-                $payload = [
-                    'chat_id' => $chatId,
-                    'text' => $htmlMessage,
-                    'parse_mode' => 'HTML',
-                ];
+                if (count($imageUrls) > 1) {
+                    // Birden fazla ürün görseli varsa → sendMediaGroup ile hepsini gönder
+                    $media = [];
+                    foreach ($imageUrls as $index => $url) {
+                        $photoItem = [
+                            'type' => 'photo',
+                            'media' => $url,
+                        ];
+                        // İlk fotoğrafa caption olarak sipariş bilgisini ekle
+                        if ($index === 0) {
+                            $photoItem['caption'] = $htmlMessage;
+                            $photoItem['parse_mode'] = 'HTML';
+                        }
+                        $media[] = $photoItem;
+                    }
 
-                if (!empty($imageUrl)) {
-                    $payload['link_preview_options'] = [
-                        'url' => $imageUrl,
-                        'prefer_small_media' => true,
-                    ];
-                }
-
-                $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", $payload);
-
-                if ($response->failed()) {
-                    \Illuminate\Support\Facades\Log::warning('Telegram HTML notification failed, retrying plain text. Response: ' . $response->body());
-                    
-                    $plainText = strip_tags(str_replace(['<b>', '</b>', '<i>', '</i>', '<code>', '</code>'], ['', '', '', '', '', ''], $htmlMessage));
-                    \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)->asJson()->post("https://api.telegram.org/bot{$token}/sendMediaGroup", [
                         'chat_id' => $chatId,
-                        'text' => $plainText,
+                        'media' => $media,
                     ]);
+
+                    if ($response->failed()) {
+                        \Illuminate\Support\Facades\Log::warning('Telegram sendMediaGroup failed: ' . $response->body());
+                        // Fallback: sadece metin gönder
+                        \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                            'chat_id' => $chatId,
+                            'text' => $htmlMessage,
+                            'parse_mode' => 'HTML',
+                        ]);
+                    }
+                } elseif (count($imageUrls) === 1) {
+                    // Tek ürün görseli → sendPhoto ile gönder
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)->post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                        'chat_id' => $chatId,
+                        'photo' => $imageUrls[0],
+                        'caption' => $htmlMessage,
+                        'parse_mode' => 'HTML',
+                    ]);
+
+                    if ($response->failed()) {
+                        \Illuminate\Support\Facades\Log::warning('Telegram sendPhoto failed: ' . $response->body());
+                        \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                            'chat_id' => $chatId,
+                            'text' => $htmlMessage,
+                            'parse_mode' => 'HTML',
+                        ]);
+                    }
+                } else {
+                    // Görsel yok → sadece metin gönder
+                    $response = \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text' => $htmlMessage,
+                        'parse_mode' => 'HTML',
+                    ]);
+
+                    if ($response->failed()) {
+                        \Illuminate\Support\Facades\Log::warning('Telegram sendMessage failed: ' . $response->body());
+                        $plainText = strip_tags($htmlMessage);
+                        \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+                            'chat_id' => $chatId,
+                            'text' => $plainText,
+                        ]);
+                    }
                 }
             }
         } catch (\Throwable $e) {
