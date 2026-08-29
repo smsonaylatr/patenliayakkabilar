@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // ── Influencers ─────────────────────────────────────────
+        if (!Schema::hasTable('influencers')) {
         Schema::create('influencers', function (Blueprint $table) {
             $table->id();
             $table->string('channel_name');
@@ -36,8 +37,10 @@ return new class extends Migration
 
             $table->index(['status', 'tier', 'fit_score']);
         });
+        }
 
         // ── Influencer Campaigns ────────────────────────────────
+        if (!Schema::hasTable('influencer_campaigns')) {
         Schema::create('influencer_campaigns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('influencer_id')->constrained()->cascadeOnDelete();
@@ -60,8 +63,10 @@ return new class extends Migration
             $table->text('ai_generated_proposal')->nullable();
             $table->timestamps();
         });
+        }
 
         // ── Influencer Outreach Logs ────────────────────────────
+        if (!Schema::hasTable('influencer_outreach_logs')) {
         Schema::create('influencer_outreach_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('influencer_id')->constrained()->cascadeOnDelete();
@@ -74,6 +79,7 @@ return new class extends Migration
             $table->boolean('response_received')->default(false);
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

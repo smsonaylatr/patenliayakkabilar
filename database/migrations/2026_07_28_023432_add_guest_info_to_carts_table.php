@@ -11,9 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('carts', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('carts')) {
+            Schema::table('carts', function (Blueprint $table) {
+                if (!Schema::hasColumn('carts', 'guest_name')) {
+                    $table->string('guest_name')->nullable()->after('session_id');
+                }
+                if (!Schema::hasColumn('carts', 'guest_email')) {
+                    $table->string('guest_email')->nullable()->after('guest_name');
+                }
+                if (!Schema::hasColumn('carts', 'guest_phone')) {
+                    $table->string('guest_phone')->nullable()->after('guest_email');
+                }
+            });
+        }
     }
 
     /**
@@ -21,8 +31,22 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('carts', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('carts')) {
+            Schema::table('carts', function (Blueprint $table) {
+                $columns = [];
+                if (Schema::hasColumn('carts', 'guest_phone')) {
+                    $columns[] = 'guest_phone';
+                }
+                if (Schema::hasColumn('carts', 'guest_email')) {
+                    $columns[] = 'guest_email';
+                }
+                if (Schema::hasColumn('carts', 'guest_name')) {
+                    $columns[] = 'guest_name';
+                }
+                if (!empty($columns)) {
+                    $table->dropColumn($columns);
+                }
+            });
+        }
     }
 };

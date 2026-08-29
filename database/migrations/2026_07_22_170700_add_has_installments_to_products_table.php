@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            if (!Schema::hasColumn('products', 'has_installments')) {
-                $table->boolean('has_installments')->default(true)->after('is_cod_active');
-            }
-        });
+        if (Schema::hasTable('products')) {
+            Schema::table('products', function (Blueprint $table) {
+                if (!Schema::hasColumn('products', 'has_installments')) {
+                    $table->boolean('has_installments')->default(true)->after('is_cod_active');
+                }
+            });
+        }
     }
 
     /**
@@ -23,8 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('has_installments');
-        });
+        if (Schema::hasTable('products') && Schema::hasColumn('products', 'has_installments')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->dropColumn('has_installments');
+            });
+        }
     }
 };

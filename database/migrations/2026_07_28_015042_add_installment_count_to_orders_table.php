@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->integer('installment_count')->nullable()->default(1)->after('payment_method');
-        });
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                if (!Schema::hasColumn('orders', 'installment_count')) {
+                    $table->integer('installment_count')->nullable()->default(1)->after('payment_method');
+                }
+            });
+        }
     }
 
     /**
@@ -21,8 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('installment_count');
-        });
+        if (Schema::hasTable('orders') && Schema::hasColumn('orders', 'installment_count')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropColumn('installment_count');
+            });
+        }
     }
 };

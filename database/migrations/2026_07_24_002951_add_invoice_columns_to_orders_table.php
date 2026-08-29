@@ -11,10 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->boolean('is_invoiced')->default(false)->after('status');
-            $table->string('invoice_url')->nullable()->after('is_invoiced');
-        });
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                if (!Schema::hasColumn('orders', 'is_invoiced')) {
+                    $table->boolean('is_invoiced')->default(false)->after('status');
+                }
+                if (!Schema::hasColumn('orders', 'invoice_url')) {
+                    $table->string('invoice_url')->nullable()->after('is_invoiced');
+                }
+            });
+        }
     }
 
     /**
@@ -22,8 +28,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['is_invoiced', 'invoice_url']);
-        });
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $columns = [];
+                if (Schema::hasColumn('orders', 'is_invoiced')) {
+                    $columns[] = 'is_invoiced';
+                }
+                if (Schema::hasColumn('orders', 'invoice_url')) {
+                    $columns[] = 'invoice_url';
+                }
+                if (!empty($columns)) {
+                    $table->dropColumn($columns);
+                }
+            });
+        }
     }
 };
