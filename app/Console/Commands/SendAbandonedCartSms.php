@@ -75,16 +75,13 @@ class SendAbandonedCartSms extends Command
     }
 
     /**
-     * Telefon numarasına özel benzersiz kupon kodu üretir.
-     * Format: GERI-XXXXX (kolay okunur, 5 hane)
+     * Basit ve kolay okunur benzersiz kupon kodu üretir.
+     * Format: PATEN10-XXXX (4 haneli rakam)
      */
     private function generatePersonalCoupon(string $phone): string
     {
-        // Telefon son 4 hane + rastgele 3 karakter → kişiye özel
-        $phoneSuffix = substr(preg_replace('/[^0-9]/', '', $phone), -4);
-        
         do {
-            $code = 'GERI' . $phoneSuffix . strtoupper(Str::random(3));
+            $code = 'PATEN10-' . random_int(1000, 9999);
         } while (Coupon::where('code', $code)->exists());
 
         Coupon::create([

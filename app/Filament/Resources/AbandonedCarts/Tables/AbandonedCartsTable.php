@@ -119,9 +119,8 @@ class AbandonedCartsTable
                             $name = $record->user?->name ?? $record->guest_name ?? '';
 
                             // Kişiye özel %10 kupon oluştur
-                            $phoneSuffix = substr(preg_replace('/[^0-9]/', '', $phone), -4);
                             do {
-                                $couponCode = 'GERI' . $phoneSuffix . strtoupper(\Illuminate\Support\Str::random(3));
+                                $couponCode = 'PATEN10-' . random_int(1000, 9999);
                             } while (\App\Models\Coupon::where('code', $couponCode)->exists());
 
                             \App\Models\Coupon::create([

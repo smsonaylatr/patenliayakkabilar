@@ -79,7 +79,7 @@ class DetectAbandonedCarts implements ShouldQueue
                 ]);
 
                 // Kupon oluştur
-                $couponCode = 'GERIGEL10-' . strtoupper(\Illuminate\Support\Str::random(5));
+                $couponCode = 'PATEN10-' . random_int(1000, 9999);
                 \App\Models\Coupon::create([
                     'code' => $couponCode,
                     'type' => 'percentage',
