@@ -60,7 +60,7 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_api_key' => $settings['vatansms_api_key'] ?? '',
             'vatansms_sender' => $settings['vatansms_sender'] ?? '',
             'vatansms_active' => filter_var($settings['vatansms_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'vatansms_abandoned_cart_message' => $settings['vatansms_abandoned_cart_message'] ?? "Merhaba, sepetinizdeki ürünler sizi bekliyor! Satın alma işlemini tamamlamak için https://patenliayakkabilar.com adresini ziyaret edebilirsiniz.",
+            'vatansms_abandoned_cart_message' => $settings['vatansms_abandoned_cart_message'] ?? "Merhaba, sepetinizdeki urunler sizi bekliyor! Size ozel %5 indirim kodunuz: {kupon} (3 gun gecerli). Alisveris icin: https://patenliayakkabilar.com",
             'vatansms_new_order_message' => $settings['vatansms_new_order_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz başarıyla alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
             'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. https://patenliayakkabilar.com",
         ]);
@@ -110,7 +110,7 @@ class VatanSmsSettings extends Page implements HasForms
                             
                         Textarea::make('vatansms_abandoned_cart_message')
                             ->label('Sepet Hatırlatma Mesajı (Ticari)')
-                            ->helperText('Sadece ödeme sayfasında SMS izni veren müşterilere atılır.')
+                            ->helperText('SMS izni veren müşterilere atılır. {kupon} yazarsanız otomatik %5 kupon kodu eklenir.')
                             ->rows(3)
                             ->required(),
                     ])
