@@ -101,7 +101,7 @@
                             
                             <div class="md:col-span-2">
                                 <div class="flex items-center justify-between mb-1">
-                                    <label class="block text-sm font-medium text-gray-700">Mahalle <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700">Mahalle</label>
                                     <span wire:loading wire:target="shipping_district" class="text-xs text-brand-orange font-medium animate-pulse">
                                         <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mahalleler yükleniyor...
                                     </span>

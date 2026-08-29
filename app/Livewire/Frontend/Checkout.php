@@ -45,7 +45,7 @@ class Checkout extends Component
         'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
         'shipping_city' => 'required|string|max:100',
         'shipping_district' => 'required|string|max:100',
-        'shipping_neighborhood' => 'required|string|max:150',
+        'shipping_neighborhood' => 'nullable|string|max:150',
         'shipping_address' => 'required|string',
         'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
         'terms_consent' => 'accepted',
@@ -59,7 +59,6 @@ class Checkout extends Component
         'customer_phone.regex' => 'Lütfen başında 0 olacak şekilde 11 haneli geçerli bir numara giriniz (Örn: 05551234567).',
         'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
         'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
-        'shipping_neighborhood.required' => 'Lütfen mahalle bilginizi seçiniz.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
     ];
