@@ -60,9 +60,9 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_api_key' => $settings['vatansms_api_key'] ?? '',
             'vatansms_sender' => $settings['vatansms_sender'] ?? '',
             'vatansms_active' => filter_var($settings['vatansms_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
-            'vatansms_abandoned_cart_message' => $settings['vatansms_abandoned_cart_message'] ?? "Merhaba, sepetinizdeki ürünler sizi bekliyor! Satın alma işlemini tamamlamak için patenliayakkabilar.com adresini ziyaret edebilirsiniz.",
-            'vatansms_new_order_message' => $settings['vatansms_new_order_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz başarıyla alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz. patenliayakkabilar.com",
-            'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. patenliayakkabilar.com",
+            'vatansms_abandoned_cart_message' => $settings['vatansms_abandoned_cart_message'] ?? "Merhaba, sepetinizdeki ürünler sizi bekliyor! Satın alma işlemini tamamlamak için https://patenliayakkabilar.com adresini ziyaret edebilirsiniz.",
+            'vatansms_new_order_message' => $settings['vatansms_new_order_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz başarıyla alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
+            'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. https://patenliayakkabilar.com",
         ]);
     }
 
