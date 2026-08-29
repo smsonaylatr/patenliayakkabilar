@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'payment/paytr/webhook',
             'api/n8n/blog-publish',
             'api/porego/*',
+            'api/telegram/webhook',
             'admin/logout',
             'logout',
         ]);

@@ -710,6 +710,9 @@ Route::post('api/porego/webhook', [\App\Http\Controllers\PoregoWebhookController
 Route::get('api/porego/products', [\App\Http\Controllers\PoregoProductApiController::class, 'index']);
 Route::get('api/porego/stock', [\App\Http\Controllers\PoregoProductApiController::class, 'stock']);
 
+// Telegram Bot Webhook (Inline buton callback'leri)
+Route::post('api/telegram/webhook', [\App\Http\Controllers\TelegramWebhookController::class, 'handle']);
+
 // Landing Page (Bilgi Sistemi)
 Route::get('bilgi', [\App\Http\Controllers\BilgiController::class, 'index'])->name('bilgi.index');
 Route::post('bilgi/submit', [\App\Http\Controllers\BilgiController::class, 'submit'])->name('bilgi.submit');

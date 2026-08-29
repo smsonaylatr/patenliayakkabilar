@@ -96,7 +96,23 @@ class TelegramSettings extends Page implements HasForms
                 ->color('gray')
                 ->requiresConfirmation()
                 ->modalHeading('Test Bildirimi Gönderilecek')
-                ->modalDescription('Bu işlem şu anki kaydedilmiş ayarlarla Telegram\'a bir test mesajı gönderecektir. Emin misiniz?')
+                ->modalDescription('Bu işlem şu anki kaydedilmiş ayarlarla Telegram\'a bir test mesajı gönderecektir. Emin misiniz?'),
+
+            Action::make('setupWebhook')
+                ->label('🔗 Webhook Kur')
+                ->action('setupWebhook')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Telegram Webhook Kurulumu')
+                ->modalDescription('Telegram bot\'unuza webhook URL\'si tanımlanacak. Bu sayede Telegram\'daki "SMS Bilgilendir" butonları çalışacak. Devam etmek istiyor musunuz?'),
+
+            Action::make('removeWebhook')
+                ->label('Webhook Kaldır')
+                ->action('removeWebhook')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->modalHeading('Webhook Kaldırılacak')
+                ->modalDescription('Telegram bot webhook\'u kaldırılacak. Inline butonlar çalışmayacak. Emin misiniz?'),
         ];
     }
 
@@ -154,6 +170,54 @@ class TelegramSettings extends Page implements HasForms
             }
         } catch (\Exception $e) {
             Notification::make()->danger()->title('Hata Oluştu')->body($e->getMessage())->send();
+        }
+    }
+
+    public function setupWebhook(): void
+    {
+        $token = Setting::where('key', 'telegram_bot_token')->value('value');
+
+        if (empty($token)) {
+            Notification::make()->warning()->title('Webhook Kurulamadı')->body('Bot Token boş! Önce Token bilgisini kaydedin.')->send();
+            return;
+        }
+
+        $webhookUrl = url('/api/telegram/webhook');
+
+        try {
+            $response = Http::post("https://api.telegram.org/bot{$token}/setWebhook", [
+                'url' => $webhookUrl,
+            ]);
+
+            if ($response->successful() && ($response->json('ok') ?? false)) {
+                Notification::make()->success()->title('Webhook Başarıyla Kuruldu!')->body("URL: {$webhookUrl}")->send();
+            } else {
+                Notification::make()->danger()->title('Webhook Kurulum Hatası')->body($response->body())->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()->danger()->title('Hata')->body($e->getMessage())->send();
+        }
+    }
+
+    public function removeWebhook(): void
+    {
+        $token = Setting::where('key', 'telegram_bot_token')->value('value');
+
+        if (empty($token)) {
+            Notification::make()->warning()->title('Token Bulunamadı')->send();
+            return;
+        }
+
+        try {
+            $response = Http::post("https://api.telegram.org/bot{$token}/deleteWebhook");
+
+            if ($response->successful()) {
+                Notification::make()->success()->title('Webhook Kaldırıldı')->send();
+            } else {
+                Notification::make()->danger()->title('Hata')->body($response->body())->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()->danger()->title('Hata')->body($e->getMessage())->send();
         }
     }
 }
