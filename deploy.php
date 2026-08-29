@@ -62,6 +62,11 @@ exec('cd ' . escapeshellarg($basePath) . ' && php artisan migrate --force 2>&1',
 echo implode("\n", $migrationOutput) . "\n";
 echo $migrationCode === 0 ? "✅ Migration tamamlandı\n" : "⚠️ Migration hatası (kod: {$migrationCode})\n";
 
+// 1c. Seeders & SEO Linkleme
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\BacklinkSeeder" --force 2>&1');
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\LinkableAssetBlogPostSeeder" --force 2>&1');
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan seo:link-content 2>&1');
+
 // 2. Clear compiled views
 $viewsDir = $basePath . 'storage/framework/views/';
 if (is_dir($viewsDir)) {

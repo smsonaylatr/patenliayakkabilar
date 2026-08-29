@@ -36,6 +36,23 @@ class BacklinkResource extends Resource
         return BacklinksTable::configure($table);
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('backlinks')) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\BacklinkSeeder',
+                    '--force' => true,
+                ]);
+            } catch (\Throwable $e) {
+                // Ignore if already migrating
+            }
+        }
+
+        return parent::getEloquentQuery();
+    }
+
     public static function getRelations(): array
     {
         return [

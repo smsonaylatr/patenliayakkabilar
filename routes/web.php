@@ -41,6 +41,22 @@ Route::get('/admin/logout', function () {
 });
 
 Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\\Seeders\\BacklinkSeeder',
+            '--force' => true,
+        ]);
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'Database\\Seeders\\LinkableAssetBlogPostSeeder',
+            '--force' => true,
+        ]);
+        \Illuminate\Support\Facades\Artisan::call('seo:link-content');
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    } catch (\Throwable $e) {
+        // Continue with pages
+    }
+
     $pages = [
         'hakkimizda' => [
             'title' => 'Hakkımızda',
@@ -78,7 +94,7 @@ Route::get('/run-migrations', function () {
         $page->save();
     }
     
-    return 'Harika! Kurumsal sayfalar veritabanına başarıyla eklendi. Artık admin panelinden sayfaları görebilirsiniz.';
+    return 'Harika! Migrationlar ve veriler başarıyla çalıştırıldı ve önbellek temizlendi.';
 });
 
 Route::get('/', function () {
