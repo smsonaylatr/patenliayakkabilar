@@ -97,56 +97,73 @@ class AbandonedCartsTable
                         }
                     }),
                 Action::make('sms_remind')
-                    ->label('SMS Hatırlat')
+                    ->label('SMS + %10 Kupon')
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('SMS Hatırlatma Gönder')
-                    ->modalDescription('Müşteriye sepetindeki ürünleri hatırlatan bir SMS gönderilecektir. Onaylıyor musunuz?')
-                    ->modalSubmitActionLabel('Evet, SMS Gönder')
+                    ->modalHeading('Kuponlu SMS Gönder')
+                    ->modalDescription('Müşteriye kişiye özel %10 indirim kuponu oluşturulup SMS ile gönderilecektir.')
+                    ->modalSubmitActionLabel('Kuponu Oluştur ve Gönder')
                     ->visible(fn ($record) => !empty($record->user?->phone) || !empty($record->guest_phone))
                     ->action(function ($record) {
                         $phone = $record->user?->phone ?? $record->guest_phone;
-                        if ($phone) {
-                            try {
-                                \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS gönderimi başlatıldı: ' . $phone);
-                                
-                                $name = $record->user?->name ?? $record->guest_name ?? 'Müşterimiz';
-                                $messageTemplate = \App\Models\Setting::where('key', 'vatansms_abandoned_cart_message')->value('value');
-                                
-                                if (empty($messageTemplate)) {
-                                    $message = "Merhaba {$name}, sepetinizde ürünleriniz sizi bekliyor! Alışverişinizi tamamlamak için https://patenliayakkabilar.com adresini ziyaret edin.";
-                                } else {
-                                    $message = str_replace(['{isim}', '{siparis_no}', '{tutar}'], [$name, '', ''], $messageTemplate);
-                                }
+                        if (!$phone) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Telefon numarası bulunamadı!')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
 
-                                $vatanService = app(\App\Services\VatanSmsService::class);
-                                $result = $vatanService->send($phone, $message, 'turkce', 'ticari');
+                        try {
+                            $name = $record->user?->name ?? $record->guest_name ?? '';
 
-                                if ($result) {
-                                    \Illuminate\Support\Facades\Log::info('Sepeti terk etme SMS başarıyla gönderildi: ' . $phone);
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('SMS Hatırlatma Başarıyla Gönderildi')
-                                        ->success()
-                                        ->send();
-                                } else {
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('SMS Gönderilemedi')
-                                        ->body('VatanSMS API üzerinden gönderim başarısız oldu. API ayarlarınızı kontrol edin.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            } catch (\Exception $e) {
-                                \Illuminate\Support\Facades\Log::error('Sepeti terk etme SMS gönderilirken hata oluştu: ' . $e->getMessage());
+                            // Kişiye özel %10 kupon oluştur
+                            $phoneSuffix = substr(preg_replace('/[^0-9]/', '', $phone), -4);
+                            do {
+                                $couponCode = 'GERI' . $phoneSuffix . strtoupper(\Illuminate\Support\Str::random(3));
+                            } while (\App\Models\Coupon::where('code', $couponCode)->exists());
+
+                            \App\Models\Coupon::create([
+                                'code' => $couponCode,
+                                'type' => 'percentage',
+                                'value' => 10,
+                                'min_cart_total' => null,
+                                'usage_limit' => 1,
+                                'used_count' => 0,
+                                'expires_at' => now()->addDays(3),
+                                'status' => true,
+                            ]);
+
+                            // Mesajı oluştur
+                            $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
+                            $message = "{$greeting} urunler sizi bekliyor! "
+                                     . "Size ozel %10 indirim kodunuz: {$couponCode} "
+                                     . "(3 gun gecerli, tek kullanimlik). "
+                                     . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+
+                            $vatanService = app(\App\Services\VatanSmsService::class);
+                            $result = $vatanService->send($phone, $message, 'turkce', 'ticari');
+
+                            if ($result) {
+                                $record->update(['abandoned_sms_sent_at' => now()]);
+
                                 \Filament\Notifications\Notification::make()
-                                    ->title('SMS Gönderilirken Hata Oluştu!')
-                                    ->body($e->getMessage())
+                                    ->title('SMS + Kupon Gönderildi!')
+                                    ->body("Kupon: {$couponCode} (%10, 3 gün geçerli)")
+                                    ->success()
+                                    ->send();
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('SMS Gönderilemedi')
+                                    ->body('VatanSMS API hatası. Kupon oluşturuldu ama SMS gönderilemedi: ' . $couponCode)
                                     ->danger()
                                     ->send();
                             }
-                        } else {
+                        } catch (\Exception $e) {
                             \Filament\Notifications\Notification::make()
-                                ->title('Müşterinin telefon numarası bulunamadı!')
+                                ->title('Hata!')
+                                ->body($e->getMessage())
                                 ->danger()
                                 ->send();
                         }
