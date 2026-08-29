@@ -3,8 +3,10 @@
 namespace App\Livewire\Account;
 
 use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,14 +15,31 @@ class Orders extends Component
 {
     use WithPagination;
 
+    #[On('rating-submitted')]
+    public function refreshPage(): void
+    {
+        // Livewire otomatik re-render
+    }
+
     public function render()
     {
-        $orders = Order::where('user_id', Auth::id())
+        $userId = Auth::id();
+
+        $orders = Order::where('user_id', $userId)
+            ->with(['items.product.images'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        // Teslim edilmiş ama henüz değerlendirilmemiş sipariş ID'leri
+        $ratedOrderIds = Review::where('user_id', $userId)
+            ->whereNotNull('order_id')
+            ->pluck('order_id')
+            ->unique()
+            ->toArray();
+
         return view('livewire.account.orders', [
-            'orders' => $orders
+            'orders' => $orders,
+            'ratedOrderIds' => $ratedOrderIds,
         ]);
     }
 }

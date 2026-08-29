@@ -31,4 +31,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderStatusHistory::class)->latest('created_at');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

@@ -180,7 +180,7 @@
 
                         <!-- Yorum -->
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Yorumunuz</label>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1">Yorumunuz <span class="text-gray-400 font-normal text-[9px]">(İsteğe Bağlı)</span></label>
                             <textarea wire:model="comment" rows="2" class="w-full rounded-lg border-gray-200 bg-gray-50/50 shadow-inner focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-xs px-3 py-2 transition-all resize-none" placeholder="Ürün hakkında ne düşünüyorsunuz?"></textarea>
                             @error('comment') <p class="text-[11px] text-red-500 mt-1 font-medium">{{ $message }}</p> @enderror
                         </div>

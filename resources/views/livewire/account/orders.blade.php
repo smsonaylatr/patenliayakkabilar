@@ -104,6 +104,16 @@
                                     </div>
                                 @endif
                             </div>
+
+                            {{-- Teslim edilen siparişler için zorunlu yıldız değerlendirme --}}
+                            @if($order->status === 'delivered' && !in_array($order->id, $ratedOrderIds))
+                                <livewire:account.order-rating :order="$order" :key="'rating-'.$order->id" />
+                            @elseif($order->status === 'delivered' && in_array($order->id, $ratedOrderIds))
+                                <div class="mt-4 p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 text-emerald-600 text-xs font-medium flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    Bu siparişi değerlendirdiniz. Teşekkür ederiz!
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach
