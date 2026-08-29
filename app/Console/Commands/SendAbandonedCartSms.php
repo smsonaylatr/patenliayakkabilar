@@ -14,7 +14,7 @@ class SendAbandonedCartSms extends Command
 {
     protected $signature = 'app:send-abandoned-cart-sms';
 
-    protected $description = 'Sepeti terk eden ve SMS izni veren kullanıcılara %5 indirim kuponlu hatırlatma SMSi gönderir.';
+    protected $description = 'Sepeti terk eden kullanıcılara kişiye özel %10 indirim kuponuyla SMS gönderir.';
 
     public function handle(VatanSmsService $smsService)
     {
@@ -25,13 +25,7 @@ class SendAbandonedCartSms extends Command
             return;
         }
 
-        $messageTemplate = Setting::where('key', 'vatansms_abandoned_cart_message')->value('value');
-        if (empty($messageTemplate)) {
-            $this->error('Sepet hatırlatma mesaj şablonu bulunamadı.');
-            return;
-        }
-
-        // 1 saatten eski, 24 saatten yeni olan ve henüz SMS atılmamış sepetleri bul
+        // 1 saatten eski, 24 saatten yeni, henüz SMS atılmamış sepetler
         $carts = Cart::where('sms_consent', true)
             ->whereNotNull('guest_phone')
             ->whereNull('abandoned_sms_sent_at')
@@ -45,7 +39,7 @@ class SendAbandonedCartSms extends Command
                 continue;
             }
 
-            // Müşterinin son 24 saatte sipariş verdiyse atla
+            // Son 24 saatte sipariş verdiyse atla
             $hasRecentOrder = \App\Models\Order::where('customer_phone', $cart->guest_phone)
                 ->where('created_at', '>', Carbon::now()->subHours(24))
                 ->exists();
@@ -54,45 +48,17 @@ class SendAbandonedCartSms extends Command
                 continue;
             }
 
-            // Son 7 günde bu telefona zaten SEPET kuponu üretilmiş mi?
-            $existingCoupon = Coupon::where('code', 'like', 'SEPET-%')
-                ->where('created_at', '>', Carbon::now()->subDays(7))
-                ->where('used_count', 0)
-                ->where('status', true)
-                ->whereRaw("code IN (
-                    SELECT code FROM coupons 
-                    WHERE code LIKE 'SEPET-%' 
-                    AND created_at > ? 
-                    AND id IN (
-                        SELECT MAX(id) FROM coupons 
-                        WHERE code LIKE 'SEPET-%' 
-                        GROUP BY code
-                    )
-                )", [Carbon::now()->subDays(7)])
-                ->first();
+            // Kişiye özel %10 kupon oluştur
+            $couponCode = $this->generatePersonalCoupon($cart->guest_phone);
 
-            // Basit yaklaşım: her sepet için yeni kupon üret (çift gönderim abandoned_sms_sent_at ile engelleniyor)
-            $couponCode = $this->generateUniqueCouponCode();
-            
-            Coupon::create([
-                'code' => $couponCode,
-                'type' => 'percentage',
-                'value' => 5,
-                'min_cart_total' => null,
-                'usage_limit' => 1,
-                'used_count' => 0,
-                'expires_at' => Carbon::now()->addDays(3),
-                'status' => true,
-            ]);
+            // Mesajı oluştur — kupon her zaman dahil
+            $name = $cart->guest_name ?? '';
+            $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
 
-            // Mesaja kupon kodunu ekle
-            $message = $messageTemplate;
-
-            if (str_contains($message, '{kupon}')) {
-                $message = str_replace('{kupon}', $couponCode, $message);
-            } else {
-                $message .= " Size ozel %5 indirim kodunuz: " . $couponCode . " (3 gun gecerli)";
-            }
+            $message = "{$greeting} urunler sizi bekliyor! "
+                     . "Size ozel %10 indirim kodunuz: {$couponCode} "
+                     . "(3 gun gecerli, tek kullanimlik). "
+                     . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
 
             $success = $smsService->send($cart->guest_phone, $message, 'turkce', 'ticari');
 
@@ -109,13 +75,28 @@ class SendAbandonedCartSms extends Command
     }
 
     /**
-     * Benzersiz kupon kodu üret: SEPET-XXXXX
+     * Telefon numarasına özel benzersiz kupon kodu üretir.
+     * Format: GERI-XXXXX (kolay okunur, 5 hane)
      */
-    private function generateUniqueCouponCode(): string
+    private function generatePersonalCoupon(string $phone): string
     {
+        // Telefon son 4 hane + rastgele 3 karakter → kişiye özel
+        $phoneSuffix = substr(preg_replace('/[^0-9]/', '', $phone), -4);
+        
         do {
-            $code = 'SEPET-' . strtoupper(Str::random(5));
+            $code = 'GERI' . $phoneSuffix . strtoupper(Str::random(3));
         } while (Coupon::where('code', $code)->exists());
+
+        Coupon::create([
+            'code' => $code,
+            'type' => 'percentage',
+            'value' => 10,
+            'min_cart_total' => null,
+            'usage_limit' => 1,
+            'used_count' => 0,
+            'expires_at' => Carbon::now()->addDays(3),
+            'status' => true,
+        ]);
 
         return $code;
     }
