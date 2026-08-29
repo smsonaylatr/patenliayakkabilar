@@ -173,7 +173,12 @@ class PoregoApiService
             ])->post("{$apiUrl}/orders", $payload);
 
             if ($response->successful()) {
-                Log::info("Sipariş başarıyla Porego'ya iletildi. Sipariş No: {$order->order_number}", $response->json());
+                $responseData = $response->json();
+                Log::info("Sipariş başarıyla Porego'ya iletildi. Sipariş No: {$order->order_number}", $responseData);
+
+                // Porego response'undan kargo takip kodunu anında kaydet
+                $this->saveTrackingFromResponse($order, $responseData);
+
                 return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) başarıyla Porego'ya aktarıldı."];
             } else {
                 $err = $response->json('message') ?: ($response->json('error') ?: $response->body());
@@ -202,6 +207,7 @@ class PoregoApiService
                             
                             if ($updateResponse->successful()) {
                                 Log::info("Sipariş PUT ile güncellendi. Sipariş No: {$order->order_number}, URL: {$updateUrl}");
+                                $this->saveTrackingFromResponse($order, $updateResponse->json());
                                 return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'da güncellendi (ürün bilgileri dahil)."];
                             }
                         } catch (\Throwable $putEx) {
@@ -228,6 +234,7 @@ class PoregoApiService
                             
                             if ($recreateResponse->successful()) {
                                 Log::info("Sipariş Porego'da silindi ve yeniden oluşturuldu. Sipariş No: {$order->order_number}");
+                                $this->saveTrackingFromResponse($order, $recreateResponse->json());
                                 return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'da silindi ve ürün bilgileriyle yeniden oluşturuldu."];
                             }
                         }
@@ -251,6 +258,77 @@ class PoregoApiService
                 'error' => $e->getMessage()
             ]);
             return ['success' => false, 'message' => "İstisna: " . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Porego API response'undan kargo takip kodunu çıkarır ve siparişe anında kaydeder.
+     * sendOrder(), PUT güncelleme ve DELETE+POST akışlarının tümünde kullanılır.
+     */
+    private function saveTrackingFromResponse(Order $order, ?array $responseData): void
+    {
+        if (empty($responseData)) {
+            return;
+        }
+
+        // Porego response yapısı: doğrudan veya data/order anahtarı altında olabilir
+        $orderData = $responseData['data'] ?? $responseData['order'] ?? $responseData;
+
+        // Tracking number: birden fazla alan adı dene
+        $trackingCode = $orderData['trackingNumber']
+            ?? $orderData['carrierTrackingNumber']
+            ?? $orderData['platformCargoTrackingNumber']
+            ?? $orderData['tracking_number']
+            ?? $orderData['barcode']
+            ?? null;
+
+        // Kargo firması
+        $cargoCompany = $orderData['carrierName']
+            ?? $orderData['carrierCode']
+            ?? $orderData['platformCargoCompany']
+            ?? $orderData['cargo_company']
+            ?? null;
+
+        // Tracking URL
+        $trackingUrl = $orderData['carrierTrackingUrl']
+            ?? $orderData['trackingUrl']
+            ?? $orderData['tracking_url']
+            ?? null;
+
+        $cleanTrackingCode = trim((string)$trackingCode);
+        $cleanOrderNumber = trim((string)$order->order_number);
+        $cleanOrderId = trim((string)$order->id);
+
+        $changed = false;
+
+        // Geçerli bir tracking code varsa (sipariş numarasının kendisi değilse) kaydet
+        if (
+            !empty($cleanTrackingCode)
+            && $cleanTrackingCode !== $cleanOrderNumber
+            && $cleanTrackingCode !== $cleanOrderId
+            && $cleanTrackingCode !== '#' . $cleanOrderNumber
+        ) {
+            $order->cargo_tracking_code = $cleanTrackingCode;
+            $changed = true;
+            Log::info("Kargo takip kodu anında kaydedildi. Sipariş: #{$order->order_number}, Kod: {$cleanTrackingCode}");
+        }
+
+        // Kargo firması kaydet
+        if (!empty($cargoCompany)) {
+            $order->cargo_company = $cargoCompany;
+            $changed = true;
+        } elseif (empty($order->cargo_company)) {
+            $order->cargo_company = 'Porego Kargo';
+            $changed = true;
+        }
+
+        // Tracking URL varsa loga yaz (ileride DB alanı eklenebilir)
+        if (!empty($trackingUrl)) {
+            Log::info("Porego tracking URL: {$trackingUrl} (Sipariş: #{$order->order_number})");
+        }
+
+        if ($changed) {
+            $order->save();
         }
     }
 

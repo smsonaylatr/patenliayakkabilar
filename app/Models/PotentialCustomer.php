@@ -43,10 +43,27 @@ class PotentialCustomer extends Model
                 $message .= "🎯 *Alım Amacı:* {$purpose}\n";
                 $message .= "📱 *Telefon:* {$phone}\n";
                 
+                // Inline keyboard — "SMS Gönder" butonu
+                $inlineKeyboard = [
+                    'inline_keyboard' => [
+                        [
+                            [
+                                'text' => '📩 SMS Bilgilendir',
+                                'callback_data' => 'sms_send_' . $potentialCustomer->id,
+                            ],
+                            [
+                                'text' => '💬 WhatsApp',
+                                'url' => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $phone),
+                            ],
+                        ],
+                    ],
+                ];
+
                 \Illuminate\Support\Facades\Http::timeout(5)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                     'chat_id' => $chatId,
                     'text' => $message,
                     'parse_mode' => 'Markdown',
+                    'reply_markup' => json_encode($inlineKeyboard),
                 ]);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Potential Customer Telegram notification failed: ' . $e->getMessage());
