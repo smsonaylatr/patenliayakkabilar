@@ -9,6 +9,12 @@ use App\Models\Setting;
 class VatanSmsService
 {
     protected string $apiUrl = 'https://api.vatansms.net/api/v1/1toN';
+    public ?string $lastError = null;
+
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
 
     /**
      * @param array|string $phones Telefon numarası veya numaralar dizisi
@@ -19,9 +25,11 @@ class VatanSmsService
      */
     public function send($phones, string $message, string $messageType = 'turkce', string $contentType = 'bilgi'): bool
     {
+        $this->lastError = null;
         try {
             $isActive = filter_var(Setting::where('key', 'vatansms_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
             if (!$isActive) {
+                $this->lastError = 'VatanSMS panelden pasif durumda.';
                 return false;
             }
 
@@ -30,6 +38,7 @@ class VatanSmsService
             $sender = Setting::where('key', 'vatansms_sender')->value('value');
 
             if (empty($apiId) || empty($apiKey) || empty($sender)) {
+                $this->lastError = 'VatanSMS API ID, Key veya Başlık eksik.';
                 Log::warning('VatanSMS ayarları eksik. Lütfen admin panelinden ayarları yapılandırın.');
                 return false;
             }
@@ -60,6 +69,7 @@ class VatanSmsService
             $phones = array_values(array_filter($phones, fn($phone) => strlen($phone) === 10));
             
             if (empty($phones)) {
+                $this->lastError = 'Geçerli 10 haneli telefon numarası bulunamadı.';
                 Log::warning('VatanSMS Hata: Geçerli bir telefon numarası bulunamadı.');
                 return false;
             }
@@ -78,14 +88,25 @@ class VatanSmsService
                 'Content-Type' => 'application/json'
             ])->timeout(10)->post($this->apiUrl, $payload);
 
+            $resJson = $response->json();
+
             if ($response->successful()) {
+                // Bazı API'ler 200 dönüp gövdede status: false veya status: 'error' dönebilir
+                if (is_array($resJson) && isset($resJson['status']) && ($resJson['status'] === false || strtolower((string)$resJson['status']) === 'error')) {
+                    $this->lastError = $resJson['message'] ?? $resJson['description'] ?? $response->body();
+                    Log::error('VatanSMS API Hatası: ' . $response->body());
+                    return false;
+                }
                 return true;
             }
 
+            $errMsg = is_array($resJson) ? ($resJson['message'] ?? $resJson['description'] ?? $response->body()) : $response->body();
+            $this->lastError = $errMsg ?: 'HTTP ' . $response->status();
             Log::error('VatanSMS API Hatası: ' . $response->body());
             return false;
 
         } catch (\Throwable $th) {
+            $this->lastError = $th->getMessage();
             Log::error('VatanSMS İstek Hatası: ' . $th->getMessage());
             return false;
         }

@@ -81,7 +81,8 @@ class TelegramWebhookController extends Controller
                     $this->editMessageText($chatId, $messageId, $updatedText);
                 }
             } else {
-                $this->answerCallbackQuery($callbackQueryId, '❌ SMS gönderilemedi. VatanSMS API hatası.');
+                $err = $vatanService->getLastError() ?: 'API hatası';
+                $this->answerCallbackQuery($callbackQueryId, '❌ SMS gönderilemedi: ' . mb_substr($err, 0, 150));
             }
         } catch (\Throwable $e) {
             Log::error('Telegram webhook SMS gönderim hatası: ' . $e->getMessage());

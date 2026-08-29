@@ -277,6 +277,29 @@ Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
         }
         \Illuminate\Support\Facades\Artisan::call('migrate', $params);
         $output = \Illuminate\Support\Facades\Artisan::output();
+
+        // Eğer backlinks tablosu henüz yoksa doğrudan oluşturalım
+        if (!\Illuminate\Support\Facades\Schema::hasTable('backlinks')) {
+            \Illuminate\Support\Facades\Schema::create('backlinks', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->string('domain');
+                $table->string('target_url')->default('/');
+                $table->string('backlink_url')->nullable();
+                $table->string('category')->default('directory');
+                $table->string('anchor_text')->nullable();
+                $table->string('link_type')->default('dofollow');
+                $table->string('status')->default('pending');
+                $table->integer('domain_authority')->nullable();
+                $table->string('contact_email')->nullable();
+                $table->string('contact_name')->nullable();
+                $table->text('notes')->nullable();
+                $table->timestamp('published_at')->nullable();
+                $table->timestamps();
+            });
+            $output .= "\n✅ 'backlinks' tablosu doğrudan oluşturuldu.";
+        }
+
         return response()->json([
             'status' => 'success',
             'output' => $output,
