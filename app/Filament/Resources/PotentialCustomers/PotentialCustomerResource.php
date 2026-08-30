@@ -18,7 +18,13 @@ class PotentialCustomerResource extends Resource
 {
     protected static ?string $model = PotentialCustomer::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserPlus;
+
+    protected static ?string $modelLabel = 'Potansiyel Müşteri';
+
+    protected static ?string $pluralModelLabel = 'Potansiyel Müşteriler';
+
+    protected static ?string $navigationLabel = 'Potansiyel Müşteriler';
 
     public static function form(Schema $schema): Schema
     {
