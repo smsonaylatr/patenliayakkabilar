@@ -211,10 +211,10 @@
         x-transition:enter="ease-out duration-400"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
-        class="fixed inset-0 bg-black/50 backdrop-blur-lg"
+        class="fixed inset-0 bg-black/60 backdrop-blur-lg"
     ></div>
 
-    <div class="fixed inset-0 flex items-center justify-center p-4">
+    <div class="fixed inset-0 flex items-center justify-center p-5 sm:p-8">
         <div
             x-show="open"
             x-transition:enter="ease-out duration-300"
@@ -223,23 +223,34 @@
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+            class="w-full max-w-xl bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.25)] overflow-hidden"
         >
-            <div class="h-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-500"></div>
+            {{-- Üst gradient şerit --}}
+            <div class="h-1.5 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400"></div>
 
-            <div class="flex items-center justify-between px-7 py-5 border-b border-gray-100">
+            {{-- Başlık --}}
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-100">
                 <h3 class="text-xl font-black text-gray-900">Ürünü Değerlendir</h3>
             </div>
 
-            <div class="max-h-[65vh] overflow-y-auto">
+            {{-- İçerik --}}
+            <div class="max-h-[60vh] overflow-y-auto">
                 @foreach($order->items as $item)
                     @if($item->product)
-                        <div class="px-7 py-6 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
-                            <div class="flex items-start gap-5 mb-4">
+                        <div
+                            x-data="{ hoverStar: 0 }"
+                            class="px-6 sm:px-8 py-6 {{ !$loop->last ? 'border-b border-gray-100' : '' }}"
+                        >
+                            {{-- Ürün bilgisi --}}
+                            <div class="flex items-start gap-4 sm:gap-5 mb-5">
                                 @if($item->product->images->count() > 0)
-                                    <img src="{{ Storage::url($item->product->images->first()->image_path) }}" alt="{{ $item->product_name }}" class="w-24 h-24 rounded-xl object-cover border border-gray-200 flex-shrink-0">
+                                    <img
+                                        src="{{ Storage::url($item->product->images->first()->image_path) }}"
+                                        alt="{{ $item->product_name }}"
+                                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
+                                    >
                                 @else
-                                    <div class="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
+                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
                                         <i class="fa-solid fa-shoe-prints text-2xl"></i>
                                     </div>
                                 @endif
@@ -250,30 +261,64 @@
                                     @endif
                                 </div>
                             </div>
-                            <p class="text-sm text-gray-500 mb-4 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
-                            <div class="flex items-center justify-center gap-3 py-2 mb-5">
+
+                            {{-- Açıklama --}}
+                            <p class="text-sm text-gray-400 mb-4 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
+
+                            {{-- Yıldızlar - BÜYÜK, ORTALI, HOVER EFEKTLİ --}}
+                            <div
+                                class="flex items-center justify-center gap-2 sm:gap-3 py-3 mb-5"
+                                @mouseleave="hoverStar = 0"
+                            >
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" wire:click="setRating({{ $item->product_id }}, {{ $i }})" class="focus:outline-none transition-all duration-150 hover:scale-110 active:scale-90">
-                                        <i class="fa-solid fa-star text-[2.75rem] {{ ($ratings[$item->product_id] ?? 5) >= $i ? 'text-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.4)]' : 'text-gray-200 hover:text-amber-200' }} transition-colors"></i>
+                                    <button
+                                        type="button"
+                                        wire:click="setRating({{ $item->product_id }}, {{ $i }})"
+                                        @mouseenter="hoverStar = {{ $i }}"
+                                        class="focus:outline-none transition-all duration-200 ease-out active:scale-75"
+                                        :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'scale-110' : 'scale-100'"
+                                    >
+                                        <i
+                                            class="fa-solid fa-star text-[3rem] sm:text-[3.5rem] transition-all duration-200 ease-out"
+                                            :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'text-amber-400 drop-shadow-[0_3px_8px_rgba(251,191,36,0.5)]' : 'text-gray-200'"
+                                        ></i>
                                     </button>
                                 @endfor
                             </div>
+
+                            {{-- Yorum alanı --}}
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="text-sm font-bold text-gray-700">Yorumunu Yaz</label>
                                     <span class="text-xs text-gray-400">(İsteğe bağlı)</span>
                                 </div>
-                                <textarea wire:model="comments.{{ $item->product_id }}" rows="3" maxlength="2000" class="w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm px-4 py-3.5 placeholder:text-gray-300 transition-all resize-none" placeholder="Ürün hakkındaki deneyiminizi paylaşın..."></textarea>
+                                <textarea
+                                    wire:model="comments.{{ $item->product_id }}"
+                                    rows="3"
+                                    maxlength="2000"
+                                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm px-4 py-3.5 placeholder:text-gray-300 transition-all resize-none"
+                                    placeholder="Ürün hakkındaki deneyiminizi paylaşın..."
+                                ></textarea>
                             </div>
                         </div>
                     @endif
                 @endforeach
             </div>
 
-            <div class="px-7 py-5 border-t border-gray-100 bg-gray-50/50">
-                <button type="button" wire:click="submitRatings" wire:loading.attr="disabled" x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) open = false }, 600)" class="w-full py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-base font-extrabold shadow-lg shadow-orange-200/40 transition-all active:scale-[0.98] disabled:opacity-50">
+            {{-- Gönder butonu --}}
+            <div class="px-6 sm:px-8 py-5 border-t border-gray-100">
+                <button
+                    type="button"
+                    wire:click="submitRatings"
+                    wire:loading.attr="disabled"
+                    x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) open = false }, 600)"
+                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-base font-extrabold shadow-xl shadow-orange-300/40 transition-all active:scale-[0.97] disabled:opacity-50 tracking-wide"
+                >
                     <span wire:loading.remove wire:target="submitRatings">Gönder</span>
-                    <span wire:loading wire:target="submitRatings"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Gönderiliyor...</span>
+                    <span wire:loading wire:target="submitRatings" class="flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        Gönderiliyor...
+                    </span>
                 </button>
             </div>
         </div>
