@@ -53,7 +53,7 @@ class PoregoApiService
                 $order->setRelation('items', $items);
             }
 
-            // SKU ve Ürün listesi hazırlama (Strictly net SKU)
+            // SKU ve Ürün listesi hazırlama (Strictly net SKU & Porego format)
             $productSummaryList = [];
             $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
                 $rawSku = trim($item->variant?->sku ?: ($item->product?->sku ?: ''));
@@ -82,27 +82,52 @@ class PoregoApiService
 
                 $fullName = $variantInfo ? "{$productName} ({$variantInfo})" : $productName;
                 $qty = max(1, (int)$item->quantity);
+                $unitPrice = (float)($item->unit_price ?? 0);
+                $totalPrice = (float)($unitPrice * $qty);
 
                 $productSummaryList[] = "{$qty}x {$fullName}";
 
                 return [
-                    'sku'         => $rawSku,
-                    'code'        => $rawSku,
-                    'barcode'     => $rawSku,
-                    'productSku'  => $rawSku,
-                    'productCode' => $rawSku,
-                    'name'        => $fullName,
-                    'productName' => $fullName,
-                    'title'       => $fullName,
-                    'quantity'    => $qty,
-                    'count'       => $qty,
-                    'price'       => (float)($item->unit_price ?? 0),
-                    'unitPrice'   => (float)($item->unit_price ?? 0),
-                    'totalPrice'  => (float)(($item->unit_price ?? 0) * $qty),
+                    'id'                => $item->variant_id ?: $item->product_id,
+                    'productId'         => $item->product_id,
+                    'product_id'        => $item->product_id,
+                    'platformProductId' => (string)$item->product_id,
+                    'variantId'         => $item->variant_id,
+                    'variant_id'        => $item->variant_id,
+                    'platformVariantId' => $item->variant_id ? (string)$item->variant_id : null,
+                    'name'              => $fullName,
+                    'productName'       => $fullName,
+                    'title'             => $fullName,
+                    'productTitle'      => $fullName,
+                    'variantTitle'      => $variantInfo,
+                    'variant_title'     => $variantInfo,
+                    'sku'               => $rawSku,
+                    'productSku'        => $rawSku,
+                    'barcode'           => $rawSku,
+                    'code'              => $rawSku,
+                    'productCode'       => $rawSku,
+                    'description'       => $variantInfo ?: $fullName,
+                    'quantity'          => $qty,
+                    'count'             => $qty,
+                    'qty'               => $qty,
+                    'price'             => $unitPrice,
+                    'unitPrice'         => $unitPrice,
+                    'totalPrice'        => $totalPrice,
+                    'weight'            => 1,
+                    'deci'              => 1,
+                    'isFromStore'       => false,
+                    'storeProductId'    => null,
+                    'packMultiplier'    => 1,
+                    'baseQuantity'      => $qty,
                 ];
             })->values()->toArray();
 
             $productSummaryText = implode(', ', $productSummaryList);
+            $firstProductName = $order->items->first()?->product_name ?: $productSummaryText;
+
+            // Porego kargo etiketinde ürün bilgisini basabilmek için `products` alanını JSON string formatında bekler.
+            // Porego UI üzerinden 'Düzenle > Kaydet' yapıldığında gönderilen tam format: JSON stringified array.
+            $productsJsonString = json_encode($mappedItems, JSON_UNESCAPED_UNICODE);
 
             // Telefon numarasını standart formata getirelim
             $phone = preg_replace('/[^0-9]/', '', $order->customer_phone ?: '');
@@ -129,36 +154,50 @@ class PoregoApiService
             $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/i', '', $neighborhoodName));
 
             $payload = [
-                'customerName'        => $name,
-                'customerSurname'     => $surname,
-                'customerPhone'       => $phone,
-                'customerEmail'       => $order->customer_email ?: 'siparis@patenliayakkabilar.com',
-                'address'             => $rawAddress,
-                'city'                => trim($order->shipping_city) ?: 'İstanbul',
-                'cityName'            => trim($order->shipping_city) ?: 'İstanbul',
-                'district'            => trim($order->shipping_district) ?: 'Merkez',
-                'districtName'        => trim($order->shipping_district) ?: 'Merkez',
-                'neighborhood'        => $cleanMah,
-                'neighbourhood'       => $cleanMah, // British spelling used in Porego
-                'neighbourhoodName'   => $cleanMah,
-                'neighborhoodName'    => $cleanMah,
-                'neighborhood_name'   => $cleanMah,
+                'customerName'          => $name,
+                'customerSurname'       => $surname,
+                'customerPhone'         => $phone,
+                'customerEmail'         => $order->customer_email ?: 'siparis@patenliayakkabilar.com',
+                'address'               => $rawAddress,
+                'city'                  => trim($order->shipping_city) ?: 'İstanbul',
+                'cityName'              => trim($order->shipping_city) ?: 'İstanbul',
+                'district'              => trim($order->shipping_district) ?: 'Merkez',
+                'districtName'          => trim($order->shipping_district) ?: 'Merkez',
+                'neighborhood'          => $cleanMah,
+                'neighbourhood'         => $cleanMah, // British spelling used in Porego
+                'neighbourhoodName'     => $cleanMah,
+                'neighborhoodName'      => $cleanMah,
+                'neighborhood_name'     => $cleanMah,
                 'shipping_neighborhood' => $cleanMah,
-                'mahalle'             => $cleanMah,
-                'mahalleName'         => $cleanMah,
-                'subdistrict'         => $cleanMah,
-                'town'                => $cleanMah,
-                'paymentType'         => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
-                'platformOrderId'     => (string)$order->id,
-                'platformOrderNumber' => $order->order_number,
-                'productInfo'         => $productSummaryText,
-                'note'                => $productSummaryText,
-                'description'         => $productSummaryText,
-                'orderNote'           => $productSummaryText,
-                'items'               => $mappedItems,
-                'products'            => $mappedItems,
-                'orderItems'          => $mappedItems,
-                'orderProducts'       => $mappedItems,
+                'mahalle'               => $cleanMah,
+                'mahalleName'           => $cleanMah,
+                'subdistrict'           => $cleanMah,
+                'town'                  => $cleanMah,
+                'postalCode'            => $order->shipping_postal_code ?: '',
+                'paymentType'           => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
+                'platform'              => 'WOOCOMMERCE',
+                'platformOrderId'       => (string)$order->id,
+                'platformOrderNumber'   => $order->order_number,
+                'orderNumber'           => $order->order_number,
+                'products'              => $productsJsonString, // Porego etiket motorunun beklediği JSON string
+                'items'                 => $mappedItems,
+                'orderItems'            => $mappedItems,
+                'orderProducts'         => $mappedItems,
+                'lineItems'             => $mappedItems,
+                'line_items'            => $mappedItems,
+                'productName'           => $firstProductName,
+                'productTitle'          => $firstProductName,
+                'productInfo'           => $productSummaryText,
+                'productDescription'    => $productSummaryText,
+                'note'                  => $productSummaryText,
+                'notes'                 => $productSummaryText,
+                'description'           => $productSummaryText,
+                'orderNote'             => $productSummaryText,
+                'noteToCargoPersonnel'  => $productSummaryText,
+                'totalAmount'           => (float)$order->grand_total,
+                'totalWeight'           => max(1, count($mappedItems)),
+                'totalDeci'             => max(1, count($mappedItems)),
+                'currency'              => 'TRY',
             ];
 
             if ($order->payment_method === 'cash_on_delivery') {
@@ -303,10 +342,47 @@ class PoregoApiService
 
         // 1. Porego createbarcode endpoint'ini dene
         try {
+            $order->loadMissing(['items.product', 'items.variant']);
+            $productSummaryList = [];
+            $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
+                $rawSku = trim($item->variant?->sku ?: ($item->product?->sku ?: ''));
+                if (empty($rawSku) || $rawSku === '-' || $rawSku === 'SKU-') {
+                    $rawSku = 'SKU-' . ($item->variant_id ?: $item->product_id);
+                }
+                $productName = trim($item->product_name ?: ($item->product?->name ?: $rawSku));
+                $variantInfo = trim($item->variant_info ?? '');
+                $fullName = $variantInfo ? "{$productName} ({$variantInfo})" : $productName;
+                $qty = max(1, (int)$item->quantity);
+                $productSummaryList[] = "{$qty}x {$fullName}";
+                return [
+                    'sku' => $rawSku,
+                    'name' => $fullName,
+                    'title' => $fullName,
+                    'productTitle' => $fullName,
+                    'productName' => $fullName,
+                    'quantity' => $qty,
+                    'count' => $qty,
+                    'qty' => $qty,
+                    'price' => (float)($item->unit_price ?? 0),
+                    'weight' => 1,
+                    'deci' => 1,
+                ];
+            })->values()->toArray();
+
+            $productSummaryText = implode(', ', $productSummaryList);
+
             $payload = [
-                'platformOrderId' => (string)$order->id,
+                'platformOrderId'     => (string)$order->id,
                 'platformOrderNumber' => $order->order_number,
-                'orderNumber' => $order->order_number,
+                'orderNumber'         => $order->order_number,
+                'products'            => json_encode($mappedItems, JSON_UNESCAPED_UNICODE),
+                'items'               => $mappedItems,
+                'productInfo'         => $productSummaryText,
+                'note'                => $productSummaryText,
+                'notes'               => $productSummaryText,
+                'description'         => $productSummaryText,
+                'orderNote'           => $productSummaryText,
+                'noteToCargoPersonnel'=> $productSummaryText,
             ];
 
             $response = Http::withHeaders($headers)->timeout(10)
