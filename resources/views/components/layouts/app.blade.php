@@ -459,14 +459,29 @@
         @endif
 
         <!-- Google Customer Reviews -->
+        <style>
+            #gcr-badge-container {
+                position: fixed;
+                left: 16px;
+                bottom: calc(85px + env(safe-area-inset-bottom));
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                transition: all 0.3s ease;
+            }
+            @media (min-width: 768px) {
+                #gcr-badge-container {
+                    left: 24px;
+                    bottom: 24px;
+                }
+            }
+        </style>
+        <div id="gcr-badge-container"></div>
         <script src="https://apis.google.com/js/platform.js?onload=renderGoogleGCR" async defer></script>
         <script>
           window.renderGoogleGCR = function() {
-            var ratingBadgeContainer = document.createElement("div");
-            ratingBadgeContainer.id = "gcr-badge-container";
-            var bottomOffset = window.innerWidth < 768 ? '85px' : '0px';
-            ratingBadgeContainer.style.cssText = "position: fixed; bottom: " + bottomOffset + "; left: 0; z-index: 9990;";
-            document.body.appendChild(ratingBadgeContainer);
+            var ratingBadgeContainer = document.getElementById("gcr-badge-container");
+            if (!ratingBadgeContainer) return;
             window.gapi.load('ratingbadge', function() {
               window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "INLINE"});
             });
