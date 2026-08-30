@@ -218,9 +218,31 @@ class PoregoApiService
 
                 // 400 Bad Request: Sipariş zaten Porego'da kayıtlı - PUT ile güncellemeyi dene
                 if ($response->status() === 400) {
-                    Log::info("Porego API 400: Sipariş zaten mevcut, PUT ile güncelleme deneniyor. Sipariş No: {$order->order_number}");
+                    Log::info("Porego API 400: Sipariş zaten mevcut, mevcut sipariş verisi çekilip Dashboard API ile ürün güncellemesi deneniyor. Sipariş No: {$order->order_number}");
+
+                    // 1. Önce mevcut siparişi Porego'dan (Dashboard veya Merchant API) bulalım
+                    try {
+                        $existingOrderData = $this->findPoregoOrderData($order, $apiKey, $apiSecret, $apiUrl);
+                        if (!empty($existingOrderData)) {
+                            $this->saveTrackingFromResponse($order, $existingOrderData);
+
+                            $existingPoregoId = $existingOrderData['id'] ?? null;
+                            if ($existingPoregoId) {
+                                $updatedProducts = $this->updateOrderProductsViaDashboard((int)$existingPoregoId, $mappedItems, $order);
+                                if ($updatedProducts) {
+                                    try { $this->createBarcode($order, $apiKey, $apiSecret, $apiUrl); } catch (\Throwable $e) {}
+                                    return [
+                                        'success' => true,
+                                        'message' => "Mevcut sipariş (#{$order->order_number}) Porego'da bulundu ve ürün bilgileri başarıyla güncellendi!"
+                                    ];
+                                }
+                            }
+                        }
+                    } catch (\Throwable $getEx) {
+                        Log::warning("Porego mevcut sipariş bilgisi çekme hatası: " . $getEx->getMessage());
+                    }
                     
-                    // Porego API'sinde sipariş güncelleme endpoint'lerini dene
+                    // 2. Porego API'sinde standart güncelleme endpoint'lerini dene
                     $updateEndpoints = [
                         "{$apiUrl}/orders/{$order->order_number}",
                         "{$apiUrl}/orders/{$order->id}",
@@ -246,7 +268,7 @@ class PoregoApiService
                         }
                     }
                     
-                    // PUT da çalışmadıysa, siparişi Porego'dan silip yeniden oluşturmayı dene
+                    // 3. PUT da çalışmadıysa, siparişi Porego'dan silip yeniden oluşturmayı dene
                     try {
                         $deleteResponse = Http::withHeaders([
                             'X-Api-Key' => $apiKey,
@@ -265,7 +287,13 @@ class PoregoApiService
                             
                             if ($recreateResponse->successful()) {
                                 Log::info("Sipariş Porego'da silindi ve yeniden oluşturuldu. Sipariş No: {$order->order_number}");
-                                $this->saveTrackingFromResponse($order, $recreateResponse->json());
+                                $recreateData = $recreateResponse->json();
+                                $this->saveTrackingFromResponse($order, $recreateData);
+                                
+                                if (!empty($recreateData['id'])) {
+                                    $this->updateOrderProductsViaDashboard($recreateData['id'], $mappedItems, $order);
+                                }
+                                
                                 try { $this->createBarcode($order, $apiKey, $apiSecret, $apiUrl); } catch (\Throwable $e) {}
                                 return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'da silindi ve ürün bilgileriyle yeniden oluşturuldu."];
                             }
@@ -274,7 +302,7 @@ class PoregoApiService
                         Log::warning("Porego DELETE+POST denemesi başarısız: " . $delEx->getMessage());
                     }
                     
-                    $msg = "Bu sipariş (#{$order->order_number}) Porego sisteminde zaten mevcut. Güncelleme denenmiş ancak başarısız olmuştur. Porego panelinden siparişi silip tekrar gönderebilirsiniz.";
+                    $msg = "Bu sipariş (#{$order->order_number}) Porego sisteminde zaten mevcut. Ürün bilgisi güncellenemedi. Porego panelinden kontrol edebilirsiniz.";
                     return ['success' => false, 'message' => $msg];
                 }
 
@@ -955,58 +983,128 @@ class PoregoApiService
             'id' => $poregoOrderId,
         ];
 
-        // Yöntem 1: Session Cookie ile Dashboard API
-        if (!empty($sessionCookie)) {
-            try {
-                $response = Http::withHeaders([
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                    'Cookie' => $sessionCookie,
-                ])->withOptions([
-                    'verify' => false,
-                ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
-
-                if ($response->successful()) {
-                    Log::info("Porego Dashboard API: Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}, Porego ID: {$poregoOrderId}");
-                    return true;
-                }
-
-                Log::warning("Porego Dashboard API: Ürün güncelleme başarısız. Status: {$response->status()}, Sipariş: #{$order->order_number}");
-            } catch (\Throwable $e) {
-                Log::warning("Porego Dashboard API ürün güncelleme istisnası: " . $e->getMessage());
-            }
+        if (empty($sessionCookie)) {
+            Log::info("Porego Dashboard API: Session cookie tanımlı değil, ürün güncelleme atlanıyor. Sipariş: #{$order->order_number}");
+            return false;
         }
 
-        // Yöntem 2: Merchant API key ile deneme (genellikle 403 döner ama yine de dene)
-        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
-        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
-
-        if ($apiKey && $apiSecret) {
-            try {
-                $response = Http::withHeaders([
-                    'X-Api-Key' => $apiKey,
-                    'X-Api-Secret' => $apiSecret,
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
-
-                if ($response->successful()) {
-                    Log::info("Porego Dashboard API (API Key): Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}");
-                    return true;
-                }
-
-                Log::info("Porego Dashboard API (API Key): Status {$response->status()} (beklenen: Merchant API PUT desteği yok)");
-            } catch (\Throwable $e) {
-                Log::info("Porego Dashboard API (API Key) erişilemedi: " . $e->getMessage());
-            }
+        // app_token JWT'yi cookie string'inden çıkar
+        $jwtToken = $sessionCookie;
+        if (preg_match('/app_token=([^;]+)/', $sessionCookie, $m)) {
+            $jwtToken = trim($m[1]);
         }
 
-        // Ürün bilgisi etiket üzerine aktarılamadıysa loglayalım
+        // Yöntem 1: Authorization: Bearer JWT ile Dashboard API
+        try {
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer {$jwtToken}",
+            ])->withOptions([
+                'verify' => false,
+            ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
+
+            if ($response->successful()) {
+                Log::info("Porego Dashboard API (Bearer): Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}, Porego ID: {$poregoOrderId}");
+                return true;
+            }
+
+            Log::info("Porego Dashboard API (Bearer): Status {$response->status()}, Sipariş: #{$order->order_number}");
+        } catch (\Throwable $e) {
+            Log::warning("Porego Dashboard API (Bearer) istisnası: " . $e->getMessage());
+        }
+
+        // Yöntem 2: Cookie header ile Dashboard API
+        try {
+            $cookieHeader = str_contains($sessionCookie, '=') ? $sessionCookie : "app_token={$sessionCookie}";
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Cookie' => $cookieHeader,
+            ])->withOptions([
+                'verify' => false,
+            ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
+
+            if ($response->successful()) {
+                Log::info("Porego Dashboard API (Cookie): Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}, Porego ID: {$poregoOrderId}");
+                return true;
+            }
+
+            Log::warning("Porego Dashboard API (Cookie): Status {$response->status()}, Sipariş: #{$order->order_number}, Body: " . substr($response->body(), 0, 200));
+        } catch (\Throwable $e) {
+            Log::warning("Porego Dashboard API (Cookie) istisnası: " . $e->getMessage());
+        }
+
         Log::warning(
             "Porego ürün bilgisi etiket üzerine aktarılamadı. Sipariş: #{$order->order_number}. " .
-            "Çözüm: Porego panelinde siparişi açın, 'İşlem Düzenle' > 'Kaydet' yaparak ürün bilgisini etikete aktarın. " .
-            "Kalıcı çözüm: .env'de POREGO_SESSION_COOKIE değerini ayarlayın veya Porego destek ekibiyle Merchant API items→products mapping sorunu için iletişime geçin."
+            "Çözüm: Porego panelinde siparişi açın, 'İşlem Düzenle' > 'Kaydet' yaparak ürün bilgisini etikete aktarın."
         );
         return false;
     }
+
+    /**
+     * Porego'da daha önce oluşturulmuş siparişin detaylarını ve Porego ID'sini bulur.
+     */
+    public function findPoregoOrderData(Order $order, ?string $apiKey = null, ?string $apiSecret = null, ?string $apiUrl = null): ?array
+    {
+        $apiKey = $apiKey ?: ($this->apiKey);
+        $apiSecret = $apiSecret ?: ($this->apiSecret);
+        $apiUrl = $apiUrl ?: ($this->apiUrl);
+        $dashboardUrl = \App\Models\Setting::where('key', 'porego_dashboard_api_url')->value('value') ?: $this->dashboardApiUrl;
+        $sessionCookie = \App\Models\Setting::where('key', 'porego_session_cookie')->value('value') ?: $this->sessionCookie;
+
+        // 1. Merchant API GET /orders/{order_number}
+        try {
+            $resp = Http::withHeaders([
+                'X-Api-Key' => $apiKey,
+                'X-Api-Secret' => $apiSecret,
+                'Accept' => 'application/json',
+            ])->timeout(8)->get("{$apiUrl}/orders/{$order->order_number}");
+
+            if ($resp->successful() && !empty($resp->json('id'))) {
+                return $resp->json();
+            }
+        } catch (\Throwable $e) {
+            Log::info("findPoregoOrderData Merchant API get: " . $e->getMessage());
+        }
+
+        // 2. Dashboard API GET /orders listesinden platformOrderNumber veya orderNumber ile ara
+        if (!empty($sessionCookie)) {
+            $jwtToken = $sessionCookie;
+            if (preg_match('/app_token=([^;]+)/', $sessionCookie, $m)) {
+                $jwtToken = trim($m[1]);
+            }
+
+            try {
+                $resp = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Authorization' => "Bearer {$jwtToken}",
+                ])->withOptions(['verify' => false])->timeout(8)->get("{$dashboardUrl}/orders?size=50");
+
+                if ($resp->successful()) {
+                    $body = $resp->json();
+                    $list = $body['content'] ?? ($body['data'] ?? (is_array($body) ? $body : []));
+                    foreach ($list as $item) {
+                        $pNo = (string)($item['platformOrderNumber'] ?? '');
+                        $pId = (string)($item['platformOrderId'] ?? '');
+                        $oNo = (string)($item['orderNumber'] ?? '');
+
+                        if (
+                            $pNo === (string)$order->order_number
+                            || $pId === (string)$order->id
+                            || $oNo === (string)$order->order_number
+                        ) {
+                            return $item;
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::info("findPoregoOrderData Dashboard API get: " . $e->getMessage());
+            }
+        }
+
+        return null;
+    }
 }
+
