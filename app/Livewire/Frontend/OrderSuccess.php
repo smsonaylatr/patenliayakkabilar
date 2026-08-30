@@ -42,13 +42,17 @@ class OrderSuccess extends Component
             }
         }
 
-        // Zaten bu sipariş için değerlendirme yapılmış mı kontrol et
-        if (Auth::check()) {
-            $existingRatings = Review::where('order_id', $this->order->id)
-                ->where('user_id', Auth::id())
+        // Zaten bu sipariş için değerlendirme yapılmış mı kontrol et (Üye ve Misafir dahil)
+        $existingRatings = Review::where('order_id', $this->order->id)->exists()
+            || session("rated_order_{$this->order->id}", false);
+
+        if (!$existingRatings && Auth::check()) {
+            $existingRatings = Review::where('user_id', Auth::id())
+                ->where('order_id', $this->order->id)
                 ->exists();
-            $this->ratingsSubmitted = $existingRatings;
         }
+
+        $this->ratingsSubmitted = (bool) $existingRatings;
     }
 
     public function setRating(int $productId, int $rating): void
@@ -73,8 +77,6 @@ class OrderSuccess extends Component
             // Duplicate kontrolü
             $exists = Review::where('order_id', $this->order->id)
                 ->where('product_id', $productId)
-                ->when($user, fn($q) => $q->where('user_id', $user->id))
-                ->when(!$user, fn($q) => $q->where('name', $maskedName))
                 ->exists();
 
             if ($exists) {
@@ -93,6 +95,8 @@ class OrderSuccess extends Component
             ]);
         }
 
+        // Session'a kaydet (F5 yapıldığında pop-up tekrar açılmasın)
+        session()->put("rated_order_{$this->order->id}", true);
         $this->ratingsSubmitted = true;
     }
 
