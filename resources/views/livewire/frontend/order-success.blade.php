@@ -44,7 +44,7 @@
                             <iframe
                                 src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
                                 width="100%"
-                                height="200"
+                                class="w-full h-[200px] lg:h-[300px]"
                                 style="border:0;"
                                 allowfullscreen=""
                                 loading="lazy"
