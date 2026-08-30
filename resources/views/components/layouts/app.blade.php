@@ -460,30 +460,37 @@
 
         <!-- Google Customer Reviews -->
         <style>
-            #gcr-badge-container {
-                position: fixed;
-                left: 16px;
-                bottom: calc(85px + env(safe-area-inset-bottom));
-                z-index: 50;
-                display: flex;
-                align-items: center;
-                transition: all 0.3s ease;
-            }
-            @media (min-width: 768px) {
-                #gcr-badge-container {
-                    left: 24px;
-                    bottom: 24px;
+            @media (max-width: 767px) {
+                iframe[id*="gapi_ratingbadge"],
+                iframe[name*="gapi_ratingbadge"],
+                iframe[src*="ratingbadge"],
+                iframe[src*="customerreviews"],
+                gmp-ratingbadge {
+                    bottom: calc(85px + env(safe-area-inset-bottom)) !important;
                 }
             }
         </style>
-        <div id="gcr-badge-container"></div>
         <script src="https://apis.google.com/js/platform.js?onload=renderGoogleGCR" async defer></script>
         <script>
           window.renderGoogleGCR = function() {
-            var ratingBadgeContainer = document.getElementById("gcr-badge-container");
-            if (!ratingBadgeContainer) return;
+            var ratingBadgeContainer = document.createElement("div");
+            document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "INLINE"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+              
+              // Sadece mobilde alt menünün üstünde durması için
+              if (window.innerWidth < 768) {
+                var checkInterval = setInterval(function() {
+                  var badges = document.querySelectorAll('iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
+                  if (badges.length > 0) {
+                    badges.forEach(function(el) {
+                      el.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
+                    });
+                    clearInterval(checkInterval);
+                  }
+                }, 150);
+                setTimeout(function() { clearInterval(checkInterval); }, 5000);
+              }
             });
 
             if (typeof window.triggerGoogleOptIn === 'function') {
