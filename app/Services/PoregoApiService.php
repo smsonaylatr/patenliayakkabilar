@@ -88,45 +88,35 @@ class PoregoApiService
                 $productSummaryList[] = "{$qty}x {$fullName}";
 
                 return [
-                    'id'                => $item->variant_id ?: $item->product_id,
-                    'productId'         => $item->product_id,
-                    'product_id'        => $item->product_id,
-                    'platformProductId' => (string)$item->product_id,
-                    'variantId'         => $item->variant_id,
-                    'variant_id'        => $item->variant_id,
-                    'platformVariantId' => $item->variant_id ? (string)$item->variant_id : null,
+                    'sku'               => $rawSku,
                     'name'              => $fullName,
-                    'productName'       => $fullName,
+                    'quantity'          => $qty,
+                    'price'             => $unitPrice,
+                    'id'                => $item->variant_id ?: $item->product_id ?: $item->id,
                     'title'             => $fullName,
                     'productTitle'      => $fullName,
-                    'variantTitle'      => $variantInfo,
-                    'variant_title'     => $variantInfo,
-                    'sku'               => $rawSku,
+                    'productName'       => $fullName,
                     'productSku'        => $rawSku,
-                    'barcode'           => $rawSku,
-                    'code'              => $rawSku,
-                    'productCode'       => $rawSku,
                     'description'       => $variantInfo ?: $fullName,
-                    'quantity'          => $qty,
-                    'count'             => $qty,
-                    'qty'               => $qty,
-                    'price'             => $unitPrice,
-                    'unitPrice'         => $unitPrice,
                     'totalPrice'        => $totalPrice,
-                    'weight'            => 1,
-                    'deci'              => 1,
-                    'isFromStore'       => false,
-                    'storeProductId'    => null,
-                    'packMultiplier'    => 1,
-                    'baseQuantity'      => $qty,
+                    'unitPrice'         => $unitPrice,
                 ];
             })->values()->toArray();
 
             $productSummaryText = implode(', ', $productSummaryList);
             $firstProductName = $order->items->first()?->product_name ?: $productSummaryText;
 
-            // Porego kargo etiketinde ürün bilgisini basabilmek için `products` alanını JSON string formatında bekler.
-            // Porego UI üzerinden 'Düzenle > Kaydet' yapıldığında gönderilen tam format: JSON stringified array.
+            // Porego Merchant API standart OrderItem formatı (OpenAPI spec: sku, name, quantity, price)
+            $openApiItems = array_map(function ($it) {
+                return [
+                    'sku'      => (string)$it['sku'],
+                    'name'     => (string)$it['name'],
+                    'quantity' => (int)$it['quantity'],
+                    'price'    => (float)$it['price'],
+                ];
+            }, $mappedItems);
+
+            // Porego kargo etiket ve panel motorunun okuduğu products JSON string formatı
             $productsJsonString = json_encode($mappedItems, JSON_UNESCAPED_UNICODE);
 
             // Telefon numarasını standart formata getirelim
@@ -179,12 +169,10 @@ class PoregoApiService
                 'platformOrderId'       => (string)$order->id,
                 'platformOrderNumber'   => $order->order_number,
                 'orderNumber'           => $order->order_number,
-                'products'              => $productsJsonString, // Porego etiket motorunun beklediği JSON string
-                'items'                 => $mappedItems,
-                'orderItems'            => $mappedItems,
+                'products'              => $productsJsonString, // Porego etiket ve UI motoru için
+                'items'                 => $openApiItems,       // Porego Merchant API standardı (OpenAPI)
+                'orderItems'            => $openApiItems,
                 'orderProducts'         => $mappedItems,
-                'lineItems'             => $mappedItems,
-                'line_items'            => $mappedItems,
                 'productName'           => $firstProductName,
                 'productTitle'          => $firstProductName,
                 'productInfo'           => $productSummaryText,
