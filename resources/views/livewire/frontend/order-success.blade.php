@@ -43,9 +43,8 @@
                         <iframe
                             src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
                             width="100%"
-                            height="300"
-                            style="border: 0; width: 100%; height: 300px !important;"
-                            class="w-full h-[300px]"
+                            style="border: 0; width: 100%;"
+                            class="w-full order-success-map"
                             allowfullscreen=""
                             loading="lazy"
                         ></iframe>
@@ -54,6 +53,10 @@
                             <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
                         </div>
                     </div>
+                    <style>
+                        .order-success-map { height: 180px !important; }
+                        @media (min-width: 1024px) { .order-success-map { height: 300px !important; } }
+                    </style>
 
                     <div class="border-t border-gray-100 pt-4">
                         <h3 class="text-base font-bold text-gray-900">Siparişiniz doğrulandı</h3>
