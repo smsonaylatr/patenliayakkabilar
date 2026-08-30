@@ -461,12 +461,17 @@
         <!-- Google Customer Reviews -->
         <style>
             @media (max-width: 767px) {
+                #gcr-badge-container,
+                #gcr-badge-container iframe,
                 iframe[id*="gapi_ratingbadge"],
                 iframe[name*="gapi_ratingbadge"],
                 iframe[src*="ratingbadge"],
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
                     bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+                    left: 20px !important;
+                    width: 56px !important;
+                    height: 56px !important;
                 }
             }
         </style>
@@ -474,22 +479,29 @@
         <script>
           window.renderGoogleGCR = function() {
             var ratingBadgeContainer = document.createElement("div");
+            ratingBadgeContainer.id = "gcr-badge-container";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
               window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
               
-              // Sadece mobilde alt menünün üstünde durması için
+              // Sadece mobilde tam istenen konum ve boyutlara sabitle
               if (window.innerWidth < 768) {
-                var checkInterval = setInterval(function() {
-                  var badges = document.querySelectorAll('iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
-                  if (badges.length > 0) {
-                    badges.forEach(function(el) {
-                      el.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
-                    });
-                    clearInterval(checkInterval);
-                  }
-                }, 150);
-                setTimeout(function() { clearInterval(checkInterval); }, 5000);
+                var applyStyles = function() {
+                  var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
+                  elements.forEach(function(el) {
+                    el.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
+                    el.style.setProperty('left', '20px', 'important');
+                    el.style.setProperty('width', '56px', 'important');
+                    el.style.setProperty('height', '56px', 'important');
+                    if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
+                      el.parentElement.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
+                      el.parentElement.style.setProperty('left', '20px', 'important');
+                    }
+                  });
+                };
+
+                var checkInterval = setInterval(applyStyles, 100);
+                setTimeout(function() { clearInterval(checkInterval); }, 6000);
               }
             });
 
