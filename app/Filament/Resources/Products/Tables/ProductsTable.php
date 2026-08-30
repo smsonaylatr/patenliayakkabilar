@@ -137,8 +137,21 @@ class ProductsTable
                     }),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('duplicate')
+                    ->label('Çoğalt')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Ürünü Çoğalt')
+                    ->modalDescription('Bu ürünün varyantları, görselleri ve özellikleriyle birlikte bir kopyası (taslak olarak) oluşturulacaktır. Onaylıyor musunuz?')
+                    ->action(function (Product $record) {
+                        $record->duplicate();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Ürün başarıyla çoğaltıldı.')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
-
                 \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
@@ -147,41 +160,14 @@ class ProductsTable
                         ->label('Çoğalt')
                         ->icon('heroicon-o-document-duplicate')
                         ->requiresConfirmation()
+                        ->modalHeading('Seçili Ürünleri Çoğalt')
+                        ->modalDescription('Seçili ürünlerin varyantları, görselleri ve özellikleriyle birlikte kopyaları oluşturulacaktır. Onaylıyor musunuz?')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
                             foreach ($records as $record) {
-                                // Açıklamaları dışla (böylece boş kalır ve Model boot içinde otomatik dolar)
-                                $replica = $record->replicate(['slug', 'sku', 'homepage_sort', 'description', 'short_description']);
-                                $replica->name = $replica->name . ' (Kopya)';
-                                $replica->slug = \Illuminate\Support\Str::slug($replica->name) . '-' . time();
-                                $replica->status = false;
-                                
-                                // Tanıtımları boşalt ki "Product::boot()" otomatik olarak bu yeni (Kopya) isme göre yeni bir tanıtım üretsin.
-                                $replica->description = null;
-                                $replica->short_description = null;
-                                
-                                $replica->save();
-
-                                // İlişkileri (Özellikler, Kategoriler, Varyantlar, Resimler) kopyala
-                                foreach ($record->features as $feature) {
-                                    $replica->features()->create($feature->toArray());
-                                }
-                                
-                                if ($record->categories()->count() > 0) {
-                                    $replica->categories()->sync($record->categories->pluck('id')->toArray());
-                                }
-                                
-                                foreach ($record->variants as $variant) {
-                                    $newVariant = $variant->replicate(['product_id', 'sku']);
-                                    $newVariant->sku = $newVariant->sku ? $newVariant->sku . '-K' : null;
-                                    $replica->variants()->save($newVariant);
-                                }
-                                
-                                foreach ($record->images as $image) {
-                                    $replica->images()->create($image->toArray());
-                                }
+                                $record->duplicate();
                             }
                             \Filament\Notifications\Notification::make()
-                                ->title('Seçili ürünler çoğaltıldı.')
+                                ->title('Seçili ürünler başarıyla çoğaltıldı.')
                                 ->success()
                                 ->send();
                         })

@@ -634,4 +634,62 @@ class Product extends Model
     {
         return $this->status ? (int) $this->stock : 0;
     }
+
+    /**
+     * Ürünü ve alt ilişkilerini (varyantlar, resimler, özellikler, kategoriler) çoğaltır.
+     */
+    public function duplicate(): self
+    {
+        $except = [
+            'slug',
+            'sku',
+            'homepage_sort',
+            'description',
+            'short_description',
+            'variants_count',
+            'reviews_count',
+            'orders_count',
+        ];
+
+        // Filament query veya dynamic withCount ile gelen tüm *_count alanlarını dışla
+        $dynamicCountAttributes = array_keys(array_filter(
+            $this->getAttributes(),
+            fn ($key) => str_ends_with($key, '_count'),
+            ARRAY_FILTER_USE_KEY
+        ));
+
+        $replica = $this->replicate(array_unique(array_merge($except, $dynamicCountAttributes)));
+        $replica->name = $this->name . ' (Kopya)';
+        $replica->slug = Str::slug($replica->name) . '-' . time() . '-' . Str::random(4);
+        $replica->status = false;
+        $replica->description = null;
+        $replica->short_description = null;
+        $replica->save();
+
+        // Özellikleri kopyala
+        foreach ($this->features as $feature) {
+            $newFeature = $feature->replicate(['product_id']);
+            $replica->features()->save($newFeature);
+        }
+
+        // Kategorileri senkronize et
+        if ($this->categories()->exists()) {
+            $replica->categories()->sync($this->categories->pluck('id')->toArray());
+        }
+
+        // Varyantları kopyala
+        foreach ($this->variants as $variant) {
+            $newVariant = $variant->replicate(['product_id', 'sku']);
+            $newVariant->sku = null;
+            $replica->variants()->save($newVariant);
+        }
+
+        // Görselleri kopyala
+        foreach ($this->images as $image) {
+            $newImage = $image->replicate(['product_id']);
+            $replica->images()->save($newImage);
+        }
+
+        return $replica;
+    }
 }
