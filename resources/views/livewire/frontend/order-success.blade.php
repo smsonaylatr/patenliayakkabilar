@@ -73,6 +73,12 @@
                             @endif
                         </div>
 
+                        {{-- Kargo yöntemi --}}
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1.5">Kargo yöntemi</h4>
+                            <p class="text-sm text-gray-500">{{ $order->cargo_company ?? 'Standart' }}</p>
+                        </div>
+
                         {{-- Ödeme yöntemi --}}
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-1.5">Ödeme yöntemi</h4>
@@ -97,6 +103,9 @@
                                 <p>{{ $order->shipping_address }}</p>
                                 <p>{{ $order->shipping_district }} / {{ $order->shipping_city }}</p>
                                 <p>Türkiye</p>
+                                @if($order->customer_phone)
+                                    <p>{{ $order->customer_phone }}</p>
+                                @endif
                             </div>
                         </div>
 
@@ -109,6 +118,22 @@
                                     <p>{{ $order->billing_address }}</p>
                                     <p>{{ $order->billing_district }} / {{ $order->billing_city }}</p>
                                     <p>Türkiye</p>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Kupon --}}
+                        @if($order->coupon_code)
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 mb-1.5">Kupon</h4>
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-ticket" style="color: #16a34a;"></i>
+                                    <span class="text-sm text-gray-500">
+                                        {{ $order->coupon_code }}
+                                        @if($order->discount_total > 0)
+                                            · -{{ number_format($order->discount_total, 2, ',', '.') }} ₺
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
                         @endif
