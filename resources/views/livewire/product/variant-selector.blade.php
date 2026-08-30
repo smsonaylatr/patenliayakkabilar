@@ -60,7 +60,13 @@
                         <span x-text="variant.size" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>
                         
                         <template x-if="variant.stock > 0">
-                            <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100/60">Stokta Var</span>
+                            <span 
+                                class="text-xs font-semibold px-2.5 py-1 rounded-md border transition-colors"
+                                :class="variant.stock <= 3 
+                                    ? 'text-amber-700 bg-amber-50 border-amber-200/80' 
+                                    : 'text-emerald-700 bg-emerald-50 border-emerald-100/60'"
+                                x-text="variant.stock <= 3 ? ('Son ' + variant.stock + ' Adet') : (variant.stock + ' Adet Kaldı')"
+                            ></span>
                         </template>
                         <template x-if="variant.stock <= 0">
                             <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200/80">Tükendi</span>
