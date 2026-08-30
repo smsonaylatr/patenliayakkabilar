@@ -78,6 +78,7 @@ class SeoSettings extends FilamentPage implements HasForms
             'google_analytics_id', 'gtm_container_id',
             'shipping_info_text', 'return_policy_text',
             'return_policy_days',
+            'gemini_api_key', 'openai_api_key', 'groq_api_key',
         ];
 
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
@@ -106,6 +107,9 @@ class SeoSettings extends FilamentPage implements HasForms
             'shipping_info_text' => $settings['shipping_info_text'] ?? 'Türkiye genelinde 1-3 iş günü içinde kargo ile teslim.',
             'return_policy_text' => $settings['return_policy_text'] ?? '14 gün içinde koşulsuz iade hakkı.',
             'return_policy_days' => $settings['return_policy_days'] ?? '14',
+            'gemini_api_key' => $settings['gemini_api_key'] ?? '',
+            'openai_api_key' => $settings['openai_api_key'] ?? '',
+            'groq_api_key' => $settings['groq_api_key'] ?? '',
         ]);
 
         // SEO sağlık metriklerini hesapla
@@ -413,6 +417,53 @@ class SeoSettings extends FilamentPage implements HasForms
                                                         <div class="font-bold text-gray-900 dark:text-white text-sm">%10 LSI / Uzun Kuyruk</div>
                                                         <div class="text-gray-500 mt-1">çocuklar için güvenli tekerlekli ayakkabı, hediye paten</div>
                                                     </div>
+                                                </div>'
+                                            )),
+                                    ]),
+                            ]),
+
+                        // ==========================================
+                        // TAB 6: YAPAY ZEKA (AI / AIO) ENTEGRASYONU
+                        // ==========================================
+                        Tab::make('Yapay Zeka (AI)')
+                            ->icon('heroicon-o-cpu-chip')
+                            ->schema([
+                                Section::make('AI API Anahtarları (AIO & Otomasyon)')
+                                    ->description('Ürün sayfalarında otomatik SEO/AIO içerik üretimi ve akıllı açıklamalar için kullanılan yapay zeka modelleri.')
+                                    ->schema([
+                                        Grid::make(1)->schema([
+                                            TextInput::make('gemini_api_key')
+                                                ->label('Google Gemini API Anahtarı (Önerilen - Ücretsiz & Hızlı)')
+                                                ->password()
+                                                ->revealable()
+                                                ->placeholder('AIzaSy...')
+                                                ->helperText('Google AI Studio (aistudio.google.com) üzerinden ücretsiz alabilirsiniz. Gemini 2.0 Flash modeli kullanılır.'),
+
+                                            TextInput::make('groq_api_key')
+                                                ->label('Groq API Anahtarı (Ücretsiz & Ultra Hızlı)')
+                                                ->password()
+                                                ->revealable()
+                                                ->placeholder('gsk_...')
+                                                ->helperText('Groq Console (console.groq.com) üzerinden ücretsiz Llama 3.3 modeli için alabilirsiniz.'),
+
+                                            TextInput::make('openai_api_key')
+                                                ->label('OpenAI API Anahtarı')
+                                                ->password()
+                                                ->revealable()
+                                                ->placeholder('sk-proj-...')
+                                                ->helperText('OpenAI Platform üzerinden alınan GPT-4o-mini anahtarı.'),
+                                        ]),
+                                    ]),
+
+                                Section::make('Akıllı Yedek Motor (Fallback)')
+                                    ->description('API kredisi bittiğinde veya bağlantı kesildiğinde devreye giren sistem.')
+                                    ->schema([
+                                        \Filament\Forms\Components\Placeholder::make('fallback_info')
+                                            ->label('')
+                                            ->content(new \Illuminate\Support\HtmlString(
+                                                '<div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-900 dark:text-emerald-200">
+                                                    <p class="font-bold text-sm text-emerald-800 dark:text-emerald-300">✅ Kesintisiz Akıllı E-Ticaret Motoru Devrede</p>
+                                                    <p class="mt-1">Eğer harici AI sağlayıcılarının (OpenAI vb.) kredisi biterse, sistem hata vermek yerine ürünün marka, yaş grubu, cinsiyet ve özelliklerini analiz ederek yüksek kaliteli AIO özeti ve Sıkça Sorulan Soruları otomatik oluşturur.</p>
                                                 </div>'
                                             )),
                                     ]),

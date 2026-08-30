@@ -319,39 +319,7 @@ class ProductForm
                                         ->color('primary')
                                         ->size('lg')
                                         ->action(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
-                                            $apiKey = env('OPENAI_API_KEY');
-                                            if (empty($apiKey) || $apiKey === 'sk-your-openai-api-key-here') {
-                                                \Filament\Notifications\Notification::make()
-                                                    ->title('Hata: OpenAI API anahtarı eksik')
-                                                    ->body('Lütfen .env dosyanızdaki OPENAI_API_KEY değerini güncelleyin.')
-                                                    ->danger()
-                                                    ->send();
-                                                return;
-                                            }
-
                                             $name = $get('name');
-                                            $shortDesc = $get('short_description');
-                                            $desc = strip_tags($get('description') ?? '');
-                                            $brand = $get('brand');
-                                            $gender = $get('gender');
-                                            $ageGroup = $get('age_group');
-
-                                            $genderLabel = match ($gender) {
-                                                'erkek'       => 'Erkek',
-                                                'kadin'       => 'Kadın',
-                                                'erkek_cocuk' => 'Erkek Çocuk',
-                                                'kiz_cocuk'   => 'Kız Çocuk',
-                                                'unisex'      => 'Unisex',
-                                                default       => 'Belirtilmemiş',
-                                            };
-
-                                            $ageLabel = match ($ageGroup) {
-                                                'cocuk'    => 'Çocuk',
-                                                'genc'     => 'Genç',
-                                                'yetiskin' => 'Yetişkin',
-                                                default    => 'Belirtilmemiş',
-                                            };
-
                                             if (empty($name)) {
                                                 \Filament\Notifications\Notification::make()
                                                     ->title('Ürün adı gerekli')
@@ -360,65 +328,30 @@ class ProductForm
                                                 return;
                                             }
 
-                                            $prompt = "Aşağıdaki ürün bilgilerini inceleyerek bu ürün için:
-1. SEO uyumlu kısa bir TL;DR (AIO) özeti çıkar (max 2 cümle).
-2. Hedef AI arama motorları için 5 adet arama niyeti (prompt / keyword) listesi oluştur. Sadece kelimeleri liste olarak (array) ver.
-3. Ürünle ilgili müşterilerin sıkça sorabileceği 3 adet soru (question) ve cevap (answer) oluştur.
+                                            $result = app(\App\Services\AiContentService::class)->generateProductAio([
+                                                'name'              => $name,
+                                                'brand'             => $get('brand'),
+                                                'gender'            => $get('gender'),
+                                                'age_group'         => $get('age_group'),
+                                                'short_description' => $get('short_description'),
+                                                'description'       => $get('description'),
+                                                'price'             => $get('price'),
+                                            ]);
 
-Ürün Adı: {$name}
-Marka: {$brand}
-Cinsiyet Hedef Kitlesi: {$genderLabel}
-Yaş Grubu: {$ageLabel}
-Kısa Açıklama: {$shortDesc}
-Açıklama: {$desc}
+                                            if ($result['success']) {
+                                                $set('aio_summary', $result['aio_summary']);
+                                                $set('aio_target_keywords', $result['aio_target_keywords'] ?? []);
+                                                $set('faq_schema', $result['faq_schema'] ?? []);
 
-ÖNEMLİ NOT: Kısa açıklama veya açıklama metni içerisinde daha önceden kalma farklı cinsiyet/yaş hataları olabilir (Örneğin metinde 'Erkek' yazıp Cinsiyet Hedef Kitlesi 'Kız Çocuk' olabilir). Lütfen Cinsiyet Hedef Kitlesi ve Yaş Grubu bilgilerini BAZ ALARAK yanıt üret. Metinlerdeki hatalı bilgileri göz ardı et.
-
-
-Lütfen yanıtını aşağıdaki JSON formatında ver:
-{
-  \"aio_summary\": \"...\",
-  \"aio_target_keywords\": [\"keyword1\", \"keyword2\"],
-  \"faq_schema\": [
-    { \"question\": \"...\", \"answer\": \"...\" }
-  ]
-}";
-
-                                            try {
-                                                $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
-                                                    ->timeout(30)
-                                                    ->post('https://api.openai.com/v1/chat/completions', [
-                                                        'model' => 'gpt-3.5-turbo',
-                                                        'messages' => [
-                                                            ['role' => 'system', 'content' => 'Sen uzman bir SEO ve E-ticaret asistanısın. Sadece geçerli bir JSON objesi döndür. Markdown backtick kullanma.'],
-                                                            ['role' => 'user', 'content' => $prompt],
-                                                        ],
-                                                        'temperature' => 0.7,
-                                                    ]);
-
-                                                if ($response->successful()) {
-                                                    $content = $response->json('choices.0.message.content');
-                                                    $content = trim(preg_replace('/```json\s*|\s*```/', '', $content));
-                                                    $data = json_decode($content, true);
-
-                                                    if ($data && isset($data['aio_summary'])) {
-                                                        $set('aio_summary', $data['aio_summary']);
-                                                        $set('aio_target_keywords', $data['aio_target_keywords'] ?? []);
-                                                        $set('faq_schema', $data['faq_schema'] ?? []);
-                                                        \Filament\Notifications\Notification::make()
-                                                            ->title('Yapay zeka alanları doldurdu!')
-                                                            ->success()
-                                                            ->send();
-                                                    } else {
-                                                        throw new \Exception('JSON parse edilemedi.');
-                                                    }
-                                                } else {
-                                                    throw new \Exception('API Hatası: ' . $response->body());
-                                                }
-                                            } catch (\Exception $e) {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title("AIO Alanları Dolduruldu ({$result['provider']})")
+                                                    ->body($result['notice'] ?? 'Yapay zeka ve e-ticaret motoru ile alanlar başarıyla üretildi.')
+                                                    ->success()
+                                                    ->send();
+                                            } else {
                                                 \Filament\Notifications\Notification::make()
                                                     ->title('Hata oluştu')
-                                                    ->body($e->getMessage())
+                                                    ->body('AIO alanları oluşturulurken bir sorun meydana geldi.')
                                                     ->danger()
                                                     ->send();
                                             }
