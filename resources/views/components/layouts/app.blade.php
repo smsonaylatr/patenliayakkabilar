@@ -468,8 +468,8 @@
                 iframe[src*="ratingbadge"],
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
-                    bottom: calc(72px + env(safe-area-inset-bottom)) !important;
-                    left: 12px !important;
+                    bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+                    left: 10px !important;
                 }
             }
         </style>
@@ -487,11 +487,11 @@
                 var applyStyles = function() {
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
-                    el.style.setProperty('bottom', 'calc(72px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '12px', 'important');
+                    el.style.setProperty('bottom', 'calc(70px + env(safe-area-inset-bottom))', 'important');
+                    el.style.setProperty('left', '10px', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
-                      el.parentElement.style.setProperty('bottom', 'calc(72px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '12px', 'important');
+                      el.parentElement.style.setProperty('bottom', 'calc(70px + env(safe-area-inset-bottom))', 'important');
+                      el.parentElement.style.setProperty('left', '10px', 'important');
                     }
                   });
                 };
