@@ -80,8 +80,8 @@ class GenerateReviewsForEmptyProducts extends Command
             $name = $selectedNames[$i] ?? 'Müşteri';
             $comment = $selectedTemplates[$i];
             
-            // %90 5 yıldız, %10 4 yıldız
-            $rating = (rand(1, 10) <= 9) ? 5 : 4;
+            // Tüm yorumlar 5 yıldız
+            $rating = 5;
             
             // Son 2 ile 45 gün arasında rastgele bir tarih
             $daysAgo = rand(2, 45);
