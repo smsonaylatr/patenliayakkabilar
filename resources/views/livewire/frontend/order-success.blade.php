@@ -80,26 +80,17 @@
                         {{-- Ödeme yöntemi --}}
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-1.5">Ödeme yöntemi</h4>
-                            <div class="flex items-center gap-2.5">
+                            <p class="text-sm text-gray-500">
                                 @if($order->payment_method === 'credit_card')
-                                    <div class="w-8 h-5 bg-gradient-to-r from-blue-600 to-blue-400 rounded flex items-center justify-center flex-shrink-0">
-                                        <i class="fa-regular fa-credit-card text-white text-[10px]"></i>
-                                    </div>
-                                    <span class="text-sm text-gray-500">Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+                                    Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                                 @elseif($order->payment_method === 'cash_on_delivery')
-                                    <div class="w-8 h-5 bg-green-500 rounded flex items-center justify-center flex-shrink-0">
-                                        <i class="fa-solid fa-money-bill-wave text-white text-[10px]"></i>
-                                    </div>
-                                    <span class="text-sm text-gray-500">Kapıda Ödeme · {{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+                                    Kapıda Ödeme · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                                 @elseif($order->payment_method === 'wire_transfer')
-                                    <div class="w-8 h-5 bg-indigo-500 rounded flex items-center justify-center flex-shrink-0">
-                                        <i class="fa-solid fa-building-columns text-white text-[10px]"></i>
-                                    </div>
-                                    <span class="text-sm text-gray-500">Havale / EFT · {{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+                                    Havale / EFT · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                                 @else
-                                    <span class="text-sm text-gray-500">{{ $order->payment_method }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+                                    {{ $order->payment_method }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                                 @endif
-                            </div>
+                            </p>
                         </div>
 
                         {{-- Kargo adresi --}}
