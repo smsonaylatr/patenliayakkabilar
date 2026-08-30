@@ -23,7 +23,7 @@
                         <div>
                             <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
                             <h1 class="text-xl font-black text-gray-900 mt-0.5">
-                                Teşekkür ederiz {{ explode(' ', $order->customer_name)[0] }} 🎉
+                                Teşekkür ederiz {{ explode(' ', $order->customer_name)[0] }}
                             </h1>
                         </div>
                     </div>
