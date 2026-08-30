@@ -65,27 +65,27 @@
 
                 {{-- SİPARİŞ BİLGİLERİ --}}
                 <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                    <h3 class="text-lg font-black text-gray-900 mb-5">Sipariş Bilgileri</h3>
+                    <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Bilgileri</h3>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {{-- İletişim --}}
+                    {{-- İletişim + Kargo yöntemi --}}
+                    <div class="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
                         <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1.5">İletişim bilgileri</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1">İletişim bilgileri</h4>
                             <p class="text-sm text-gray-500">{{ $order->customer_email }}</p>
                             @if($order->customer_phone)
                                 <p class="text-sm text-gray-500">{{ $order->customer_phone }}</p>
                             @endif
                         </div>
-
-                        {{-- Kargo yöntemi --}}
                         <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1.5">Kargo yöntemi</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo yöntemi</h4>
                             <p class="text-sm text-gray-500">{{ $order->cargo_company ?? 'Standart' }}</p>
                         </div>
+                    </div>
 
-                        {{-- Ödeme yöntemi --}}
+                    {{-- Ödeme yöntemi + Kupon --}}
+                    <div class="grid grid-cols-2 gap-4 py-4 border-b border-gray-100">
                         <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1.5">Ödeme yöntemi</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1">Ödeme yöntemi</h4>
                             <p class="text-sm text-gray-500">
                                 @if($order->payment_method === 'credit_card')
                                     Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
@@ -98,10 +98,26 @@
                                 @endif
                             </p>
                         </div>
+                        @if($order->coupon_code)
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 mb-1">Kupon</h4>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fa-solid fa-ticket text-xs" style="color: #16a34a;"></i>
+                                    <span class="text-sm text-gray-500">
+                                        {{ $order->coupon_code }}
+                                        @if($order->discount_total > 0)
+                                            · -{{ number_format($order->discount_total, 2, ',', '.') }} ₺
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
 
-                        {{-- Kargo adresi --}}
+                    {{-- Kargo adresi + Fatura adresi --}}
+                    <div class="grid grid-cols-2 gap-4 pt-4">
                         <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1.5">Kargo adresi</h4>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo adresi</h4>
                             <div class="text-sm text-gray-500 leading-relaxed">
                                 <p>{{ $order->customer_name }}</p>
                                 <p>{{ $order->shipping_address }}</p>
@@ -112,32 +128,14 @@
                                 @endif
                             </div>
                         </div>
-
-                        {{-- Fatura adresi --}}
                         @if($order->billing_address)
                             <div>
-                                <h4 class="text-sm font-bold text-gray-700 mb-1.5">Fatura adresi</h4>
+                                <h4 class="text-sm font-bold text-gray-700 mb-1">Fatura adresi</h4>
                                 <div class="text-sm text-gray-500 leading-relaxed">
                                     <p>{{ $order->customer_name }}</p>
                                     <p>{{ $order->billing_address }}</p>
                                     <p>{{ $order->billing_district }} / {{ $order->billing_city }}</p>
                                     <p>Türkiye</p>
-                                </div>
-                            </div>
-                        @endif
-
-                        {{-- Kupon --}}
-                        @if($order->coupon_code)
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-700 mb-1.5">Kupon</h4>
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-ticket" style="color: #16a34a;"></i>
-                                    <span class="text-sm text-gray-500">
-                                        {{ $order->coupon_code }}
-                                        @if($order->discount_total > 0)
-                                            · -{{ number_format($order->discount_total, 2, ',', '.') }} ₺
-                                        @endif
-                                    </span>
                                 </div>
                             </div>
                         @endif
