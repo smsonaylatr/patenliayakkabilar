@@ -78,11 +78,11 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo yöntemi</h4>
-                            <p class="text-sm text-gray-500">{{ $order->cargo_company ?? 'Standart' }}</p>
+                            <p class="text-sm text-gray-500">Standart</p>
                         </div>
                     </div>
 
-                    {{-- Ödeme yöntemi + Kupon --}}
+                    {{-- Ödeme yöntemi + Kargo firması (+ Kupon) --}}
                     <div class="grid grid-cols-2 gap-4 py-4 border-b border-gray-100">
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-1">Ödeme yöntemi</h4>
@@ -97,21 +97,22 @@
                                     {{ $order->payment_method }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                                 @endif
                             </p>
-                        </div>
-                        @if($order->coupon_code)
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-700 mb-1">Kupon</h4>
-                                <div class="flex items-center gap-1.5">
+                            @if($order->coupon_code)
+                                <div class="flex items-center gap-1.5 mt-2">
                                     <i class="fa-solid fa-ticket text-xs" style="color: #16a34a;"></i>
-                                    <span class="text-sm text-gray-500">
-                                        {{ $order->coupon_code }}
+                                    <span class="text-xs text-gray-500">
+                                        Kupon: <span class="font-medium text-gray-700">{{ $order->coupon_code }}</span>
                                         @if($order->discount_total > 0)
-                                            · -{{ number_format($order->discount_total, 2, ',', '.') }} ₺
+                                            (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
                                         @endif
                                     </span>
                                 </div>
-                            </div>
-                        @endif
+                            @endif
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo firması</h4>
+                            <p class="text-sm text-gray-500">{{ $order->cargo_company ?? 'DHL eCommerce' }}</p>
+                        </div>
                     </div>
 
                     {{-- Kargo adresi + Fatura adresi --}}
