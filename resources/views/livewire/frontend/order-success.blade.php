@@ -39,21 +39,19 @@
 
                         $mapQuery = urlencode($cleanAddress . ', ' . $order->shipping_district . ', ' . $order->shipping_city);
                     @endphp
-                    <div class="rounded-xl overflow-hidden border border-gray-200 mb-5">
-                        <div class="relative">
-                            <iframe
-                                src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
-                                width="100%"
-                                class="w-full h-[200px] lg:h-[300px]"
-                                style="border:0;"
-                                allowfullscreen=""
-                                loading="lazy"
-                                class="w-full"
-                            ></iframe>
-                            <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md border border-gray-100 text-center">
-                                <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
-                                <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
-                            </div>
+                    <div class="rounded-xl overflow-hidden border border-gray-200 mb-5 relative">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
+                            width="100%"
+                            height="300"
+                            style="border: 0; width: 100%; height: 300px !important;"
+                            class="w-full h-[300px]"
+                            allowfullscreen=""
+                            loading="lazy"
+                        ></iframe>
+                        <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md border border-gray-100 text-center">
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
+                            <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
                         </div>
                     </div>
 
