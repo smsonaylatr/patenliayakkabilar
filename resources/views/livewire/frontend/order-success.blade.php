@@ -155,12 +155,12 @@
                             <div class="flex items-center gap-3">
                                 @if($item->product && $item->product->images->count() > 0)
                                     <div class="relative flex-shrink-0">
-                                        <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="w-16 h-16 rounded-lg object-cover border border-gray-200">
+                                        <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="rounded-xl object-cover border border-gray-200" style="width:100px;height:100px;">
                                         <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
                                     </div>
                                 @else
                                     <div class="relative flex-shrink-0">
-                                        <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300">
+                                        <div class="rounded-xl bg-gray-100 flex items-center justify-center text-gray-300" style="width:100px;height:100px;">
                                             <i class="fa-solid fa-shoe-prints text-sm"></i>
                                         </div>
                                         <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
