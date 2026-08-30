@@ -470,8 +470,6 @@
                 gmp-ratingbadge {
                     bottom: calc(85px + env(safe-area-inset-bottom)) !important;
                     left: 20px !important;
-                    width: 56px !important;
-                    height: 56px !important;
                 }
             }
         </style>
@@ -484,15 +482,13 @@
             window.gapi.load('ratingbadge', function() {
               window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
               
-              // Sadece mobilde tam istenen konum ve boyutlara sabitle
+              // Sadece mobilde alt menünün üstünde durması için
               if (window.innerWidth < 768) {
                 var applyStyles = function() {
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
                     el.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
                     el.style.setProperty('left', '20px', 'important');
-                    el.style.setProperty('width', '56px', 'important');
-                    el.style.setProperty('height', '56px', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                       el.parentElement.style.setProperty('bottom', 'calc(85px + env(safe-area-inset-bottom))', 'important');
                       el.parentElement.style.setProperty('left', '20px', 'important');
