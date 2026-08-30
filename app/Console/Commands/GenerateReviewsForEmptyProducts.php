@@ -53,16 +53,16 @@ class GenerateReviewsForEmptyProducts extends Command
     public static function generateReviewsForProduct(Product $product, int $count = 5): int
     {
         $namesPool = [
-            'Elif Kaya', 'Burak Yılmaz', 'Zeynep Demir', 'Mert Çelik', 'Selin Aydın',
-            'Ahmet Yıldız', 'Ayşe Öztürk', 'Emre Koç', 'Gamze Arslan', 'Kaan Doğan',
-            'Büşra Şahin', 'Tolga Özdemir', 'Derya Kılıç', 'Murat Güneş', 'Sevgi Tekin',
-            'Cemre Erdem', 'Onur Aksoy', 'Ece Polat', 'Sinan Çetin', 'Tuğba Kurt',
-            'Yasin Bulut', 'Ebru Yalçın', 'Deniz Yavuz', 'Gökhan Şen', 'Melis Uçar',
-            'Serkan Avcı', 'Damla Çakır', 'Oğuzhan Keskin', 'Gizem Taş', 'Fatih Yiğit',
-            'İrem Bayrak', 'Hakan Aslan', 'Ceren Şimşek', 'Berk Karahan', 'Hande Özkan',
+            'Osman S.', 'Elif K.', 'Burak Y.', 'Zeynep D.', 'Mert Ç.', 'Selin A.',
+            'Ahmet Y.', 'Ayşe Ö.', 'Emre K.', 'Gamze A.', 'Kaan D.',
+            'Büşra Ş.', 'Tolga Ö.', 'Derya K.', 'Murat G.', 'Sevgi T.',
+            'Cemre E.', 'Onur A.', 'Ece P.', 'Sinan Ç.', 'Tuğba K.',
+            'Yasin B.', 'Ebru Y.', 'Deniz Y.', 'Gökhan Ş.', 'Melis U.',
+            'Serkan A.', 'Damla Ç.', 'Oğuzhan K.', 'Gizem T.', 'Fatih Y.',
+            'İrem B.', 'Hakan A.', 'Ceren Ş.', 'Berk K.', 'Hande Ö.',
             'Ali Rıza T.', 'Yasemin G.', 'Ceyda B.', 'Tarkan M.', 'Aslıhan S.',
-            'Mehmet Emin K.', 'Fatma Zehra A.', 'Kerem Vural', 'Pelin Soylu', 'Cenk Önal',
-            'Dilara Ertekin', 'Volkan Saygın', 'Berna Altun', 'Barış Güler', 'Nihan Korkmaz'
+            'Mehmet Emin K.', 'Fatma Zehra A.', 'Kerem V.', 'Pelin S.', 'Cenk Ö.',
+            'Dilara E.', 'Volkan S.', 'Berna A.', 'Barış G.', 'Nihan K.'
         ];
 
         // İsimleri karıştır
