@@ -248,7 +248,7 @@
         class="fixed inset-0 bg-black/60 backdrop-blur-lg"
     ></div>
 
-    <div class="fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <div
             x-show="open"
             x-transition:enter="ease-out duration-300"
@@ -257,7 +257,7 @@
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="w-full max-w-lg bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.25)] overflow-hidden my-auto flex flex-col max-h-[92vh]"
+            class="relative w-full max-w-md sm:max-w-lg bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col max-h-[90vh] z-10"
         >
             <div class="h-1.5 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 flex-shrink-0"></div>
 
