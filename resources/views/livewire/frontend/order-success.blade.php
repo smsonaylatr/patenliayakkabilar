@@ -17,10 +17,8 @@
                 {{-- ONAY BAŞLIĞI + HARİTA --}}
                 <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                     <div class="flex items-start gap-4 mb-5">
-                        <div class="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #3b82f6;">
+                            <i class="fa-solid fa-check text-white text-lg"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
