@@ -20,6 +20,15 @@ class ReviewsTable
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
+                ImageColumn::make('product.images.image_path')
+                    ->label('Görsel')
+                    ->disk('public')
+                    ->square()
+                    ->limit(1)
+                    ->defaultImageUrl(fn () => 'https://placehold.co/60x60/f1f5f9/94a3b8?text=Ürün')
+                    ->width(46)
+                    ->height(46)
+                    ->extraImgAttributes(['class' => 'rounded-xl object-cover border border-gray-700']),
                 TextColumn::make('product.name')
                     ->label('Ürün')
                     ->searchable()
