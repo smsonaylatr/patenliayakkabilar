@@ -464,8 +464,8 @@
           window.renderGoogleGCR = function() {
             var ratingBadgeContainer = document.createElement("div");
             ratingBadgeContainer.id = "gcr-badge-container";
-            // Mobilde alt menü (navbar) ile çakışmaması için bottom-[85px] ekledik. Masaüstünde normal (bottom-0).
-            ratingBadgeContainer.className = "fixed left-0 z-[9990] bottom-[85px] md:bottom-0";
+            var bottomOffset = window.innerWidth < 768 ? '85px' : '0px';
+            ratingBadgeContainer.style.cssText = "position: fixed; bottom: " + bottomOffset + "; left: 0; z-index: 9990;";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
               window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "INLINE"});
