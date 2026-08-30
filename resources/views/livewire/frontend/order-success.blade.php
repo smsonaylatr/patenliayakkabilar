@@ -269,23 +269,24 @@
                             x-data="{ hoverStar: 0 }"
                             class="px-6 sm:px-8 py-6 {{ !$loop->last ? 'border-b border-gray-100' : '' }}"
                         >
-                            {{-- Ürün bilgisi --}}
-                            <div class="flex items-start gap-4 mb-4">
+                            {{-- Ürün bilgisi (2x Büyük Görsel) --}}
+                            <div class="flex items-start gap-4 sm:gap-5 mb-5">
                                 @if($item->product->images->count() > 0)
                                     <img
                                         src="{{ Storage::url($item->product->images->first()->image_path) }}"
                                         alt="{{ $item->product_name }}"
-                                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-200 flex-shrink-0"
+                                        class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
+                                        style="min-width: 110px; min-height: 110px;"
                                     >
                                 @else
-                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
-                                        <i class="fa-solid fa-shoe-prints text-xl"></i>
+                                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0 shadow-sm" style="min-width: 110px; min-height: 110px;">
+                                        <i class="fa-solid fa-shoe-prints text-3xl"></i>
                                     </div>
                                 @endif
-                                <div class="flex-1 min-w-0 pt-0.5">
-                                    <h4 class="text-sm sm:text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
+                                <div class="flex-1 min-w-0 pt-1">
+                                    <h4 class="text-base sm:text-lg font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
                                     @if($item->variant_info)
-                                        <p class="text-xs text-gray-400 mt-0.5">{{ $item->variant_info }}</p>
+                                        <p class="text-xs sm:text-sm text-gray-400 mt-1">{{ $item->variant_info }}</p>
                                     @endif
                                 </div>
                             </div>
