@@ -28,12 +28,17 @@
                 </button>
 
                 <!-- Image / Link -->
-                @if($linkUrl)
-                    <a href="{{ $linkUrl }}" class="block w-full h-full">
-                        <img src="{{ $imageUrl }}" alt="Site Pop-up" class="w-full h-auto object-cover block">
+                @php
+                    $finalImage = is_string($image ?? null) ? $image : (is_string($imageUrl ?? null) ? $imageUrl : (is_array($imageUrl ?? null) ? reset($imageUrl) : null));
+                    $finalLink = is_string($link ?? null) ? $link : (is_string($linkUrl ?? null) ? $linkUrl : (is_array($linkUrl ?? null) ? reset($linkUrl) : null));
+                @endphp
+
+                @if($finalLink)
+                    <a href="{{ $finalLink }}" class="block w-full h-full">
+                        <img src="{{ $finalImage }}" alt="Site Pop-up" class="w-full h-auto object-cover block">
                     </a>
-                @else
-                    <img src="{{ $imageUrl }}" alt="Site Pop-up" class="w-full h-auto object-cover block">
+                @elseif($finalImage)
+                    <img src="{{ $finalImage }}" alt="Site Pop-up" class="w-full h-auto object-cover block">
                 @endif
             </div>
         </div>
