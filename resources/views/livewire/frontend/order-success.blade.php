@@ -327,13 +327,14 @@
             </div>
 
             {{-- Gönder butonu - LACİVERT --}}
-            <div class="px-6 sm:px-8 py-5 border-t border-gray-100">
+            <div class="px-6 sm:px-8 py-5 border-t border-gray-100 bg-white">
                 <button
                     type="button"
                     wire:click="submitRatings"
                     wire:loading.attr="disabled"
                     x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) { open = false; $dispatch('show-toast', { message: 'Puanlamanız kaydedildi. Teşekkür ederiz! ⭐' }); } }, 600)"
-                    class="w-full py-4 rounded-2xl bg-[#1a2744] hover:bg-[#0f1a30] text-white text-base font-extrabold shadow-xl shadow-blue-900/20 transition-all active:scale-[0.97] disabled:opacity-50 tracking-wide"
+                    style="background-color: #1e3a8a !important; color: #ffffff !important;"
+                    class="w-full py-4 rounded-2xl text-white text-base font-extrabold shadow-xl shadow-blue-900/30 transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-50 tracking-wide cursor-pointer flex items-center justify-center"
                 >
                     <span wire:loading.remove wire:target="submitRatings">Gönder</span>
                     <span wire:loading wire:target="submitRatings" class="flex items-center justify-center gap-2">
