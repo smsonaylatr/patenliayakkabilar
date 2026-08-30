@@ -39,15 +39,14 @@ class ExceptionTelegramReporter
             }
         }
 
-        // Check if error was reported in the last 5 minutes
+        // Check if error was reported in the last 15 minutes (Atomic lock with Cache::add)
         $errorHash = md5($e->getMessage() . $e->getFile() . $e->getLine());
         $cacheKey = 'telegram_error_report_' . $errorHash;
 
-        if (Cache::has($cacheKey)) {
+        // Cache::add atomically returns false if the key already exists
+        if (!Cache::add($cacheKey, true, now()->addMinutes(15))) {
             return;
         }
-
-        Cache::put($cacheKey, true, now()->addMinutes(5));
 
         $errorMessage = htmlspecialchars(mb_substr($e->getMessage(), 0, 500), ENT_QUOTES, 'UTF-8');
         $exceptionClass = htmlspecialchars(get_class($e), ENT_QUOTES, 'UTF-8');
