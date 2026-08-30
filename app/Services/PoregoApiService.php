@@ -478,7 +478,7 @@ class PoregoApiService
             $order->cargo_company = $cargoCompany;
             $changed = true;
         } elseif (empty($order->cargo_company)) {
-            $order->cargo_company = 'Porego Kargo';
+            $order->cargo_company = 'DHL eCommerce';
             $changed = true;
         }
 
@@ -880,7 +880,7 @@ class PoregoApiService
                 
                 // Kargo firması için de aynısı
                 if (!empty($cargoCompany) || empty($order->cargo_company)) {
-                    $fallbackCompany = $cargoCompany ?: 'Porego Kargo';
+                    $fallbackCompany = $cargoCompany ?: 'DHL eCommerce';
                     if ($order->cargo_company !== $fallbackCompany) {
                         $order->cargo_company = $fallbackCompany;
                         $changed = true;
@@ -896,7 +896,7 @@ class PoregoApiService
             // Frontend için canlı veri döndür
             return [
                 'tracking_code'  => $cleanTrackingNumber ?: $order->cargo_tracking_code,
-                'cargo_name'     => $cargoCompany ?: ($order->cargo_company ?: 'Porego Kargo'),
+                'cargo_name'     => $cargoCompany ?: ($order->cargo_company ?: 'DHL eCommerce'),
                 'tracking_url'   => $trackingUrl,
                 'status'         => $order->status,
                 'payment_status' => $order->payment_status,

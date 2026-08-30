@@ -111,7 +111,15 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo firması</h4>
-                            <p class="text-sm text-gray-500">{{ $order->cargo_company ?? 'DHL eCommerce' }}</p>
+                            <p class="text-sm text-gray-500">
+                                @php
+                                    $cargoName = $order->cargo_company;
+                                    if (empty($cargoName) || stripos($cargoName, 'porego') !== false) {
+                                        $cargoName = 'DHL eCommerce';
+                                    }
+                                @endphp
+                                {{ $cargoName }}
+                            </p>
                         </div>
                     </div>
 
