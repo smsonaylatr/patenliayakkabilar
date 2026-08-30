@@ -459,21 +459,16 @@
         @endif
 
         <!-- Google Customer Reviews -->
-        <style>
-            @media (max-width: 767px) {
-                #gcr-badge-container iframe {
-                    bottom: 75px !important;
-                }
-            }
-        </style>
         <script src="https://apis.google.com/js/platform.js?onload=renderGoogleGCR" async defer></script>
         <script>
           window.renderGoogleGCR = function() {
             var ratingBadgeContainer = document.createElement("div");
             ratingBadgeContainer.id = "gcr-badge-container";
+            // Mobilde alt menü (navbar) ile çakışmaması için bottom-[85px] ekledik. Masaüstünde normal (bottom-0).
+            ratingBadgeContainer.className = "fixed left-0 z-[9990] bottom-[85px] md:bottom-0";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "INLINE"});
             });
 
             if (typeof window.triggerGoogleOptIn === 'function') {
