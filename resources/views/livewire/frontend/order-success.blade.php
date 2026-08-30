@@ -56,106 +56,110 @@
     role="dialog"
     aria-modal="true"
 >
-    {{-- Tam ekran bulanık arka plan — tıklanınca KAPANMAZ --}}
+    {{-- Bulanık arka plan --}}
     <div
         x-show="open"
-        x-transition:enter="ease-out duration-500"
+        x-transition:enter="ease-out duration-400"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
-        class="fixed inset-0 bg-black/60 backdrop-blur-md"
+        class="fixed inset-0 bg-black/50 backdrop-blur-lg"
     ></div>
 
-    {{-- Modal container --}}
-    <div class="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
+    {{-- Modal --}}
+    <div class="fixed inset-0 flex items-center justify-center p-4">
         <div
             x-show="open"
-            x-transition:enter="ease-out duration-400"
-            x-transition:enter-start="opacity-0 scale-90 translate-y-8"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-6"
             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-90"
-            class="relative w-full max-w-lg bg-white rounded-[2rem] shadow-[0_25px_60px_rgba(0,0,0,0.3)] overflow-hidden"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden"
         >
-            {{-- Üst dekoratif gradient --}}
-            <div class="h-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-500"></div>
-
-            {{-- Header --}}
-            <div class="pt-8 pb-2 px-8 text-center">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-yellow-50 mb-4 shadow-inner">
-                    <i class="fa-solid fa-star text-amber-400 text-4xl drop-shadow-sm"></i>
-                </div>
-                <h3 class="text-2xl font-black text-gray-900">Ürünlerimizi Puanlayın</h3>
-                <p class="text-sm text-gray-400 mt-1.5">Yıldızlara dokunarak puanınızı verin</p>
+            {{-- Başlık satırı --}}
+            <div class="flex items-center justify-between px-7 py-5 border-b border-gray-100">
+                <h3 class="text-xl font-black text-gray-900">Ürünü Değerlendir</h3>
             </div>
 
-            {{-- Ürünler --}}
-            <div class="px-6 sm:px-8 py-6 space-y-5 max-h-[50vh] overflow-y-auto">
-                @foreach($order->items as $item)
+            {{-- İçerik --}}
+            <div class="max-h-[65vh] overflow-y-auto">
+                @foreach($order->items as $itemIndex => $item)
                     @if($item->product)
-                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+                        <div class="px-7 py-6 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
+
                             {{-- Ürün bilgisi --}}
-                            <div class="flex items-center gap-4 mb-4">
+                            <div class="flex items-start gap-5 mb-5">
                                 @if($item->product->images->count() > 0)
                                     <img
                                         src="{{ Storage::url($item->product->images->first()->image_path) }}"
                                         alt="{{ $item->product_name }}"
-                                        class="w-20 h-20 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0"
+                                        class="w-24 h-24 rounded-xl object-cover border border-gray-200 flex-shrink-0"
                                     >
                                 @else
-                                    <div class="w-20 h-20 rounded-2xl bg-gray-200 flex items-center justify-center text-gray-400 flex-shrink-0 shadow-md">
-                                        <i class="fa-solid fa-shoe-prints text-xl"></i>
+                                    <div class="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
+                                        <i class="fa-solid fa-shoe-prints text-2xl"></i>
                                     </div>
                                 @endif
 
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-base font-bold text-gray-900 leading-snug line-clamp-2">{{ $item->product_name }}</h4>
+                                <div class="flex-1 min-w-0 pt-1">
+                                    <h4 class="text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
                                     @if($item->variant_info)
-                                        <p class="text-xs text-gray-400 mt-1">{{ $item->variant_info }}</p>
+                                        <p class="text-sm text-gray-400 mt-1">{{ $item->variant_info }}</p>
                                     @endif
                                 </div>
                             </div>
 
-                            {{-- Yıldızlar - BÜYÜK ve ORTALI --}}
-                            <div class="flex items-center justify-center gap-2 py-3">
+                            {{-- Açıklama --}}
+                            <p class="text-sm text-gray-500 mb-4 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
+
+                            {{-- Yıldız puanlama --}}
+                            <div class="flex items-center justify-center gap-3 py-2 mb-5">
                                 @for($i = 1; $i <= 5; $i++)
                                     <button
                                         type="button"
                                         wire:click="setRating({{ $item->product_id }}, {{ $i }})"
-                                        class="focus:outline-none transition-all duration-150 hover:scale-125 active:scale-90"
+                                        class="focus:outline-none transition-all duration-150 hover:scale-110 active:scale-90"
                                     >
-                                        <i class="fa-solid fa-star text-4xl sm:text-[2.5rem] {{ ($ratings[$item->product_id] ?? 5) >= $i ? 'text-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.4)]' : 'text-gray-200 hover:text-amber-200' }} transition-colors"></i>
+                                        <i class="fa-solid fa-star text-[2.75rem] {{ ($ratings[$item->product_id] ?? 5) >= $i ? 'text-amber-400' : 'text-gray-200' }} transition-colors"></i>
                                     </button>
                                 @endfor
                             </div>
 
-                            {{-- Yorum alanı --}}
-                            <textarea
-                                wire:model="comments.{{ $item->product_id }}"
-                                rows="2"
-                                class="mt-2 w-full rounded-xl border-gray-200 bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm px-4 py-3 placeholder:text-gray-300 transition-all resize-none"
-                                placeholder="Yorum bırakın (isteğe bağlı)"
-                            ></textarea>
+                            {{-- Yorum yaz --}}
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="text-sm font-bold text-gray-700">Yorumunu Yaz</label>
+                                    <span class="text-xs text-gray-400">(İsteğe bağlı)</span>
+                                </div>
+                                <div class="relative">
+                                    <textarea
+                                        wire:model="comments.{{ $item->product_id }}"
+                                        rows="3"
+                                        maxlength="2000"
+                                        class="w-full rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm px-4 py-3.5 placeholder:text-gray-300 transition-all resize-none"
+                                        placeholder="Ürün hakkındaki deneyiminizi paylaşın..."
+                                    ></textarea>
+                                    <span class="absolute bottom-3 right-3 text-[11px] text-gray-300">{{ strlen($comments[$item->product_id] ?? '') }}/2000</span>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 @endforeach
             </div>
 
             {{-- Gönder butonu --}}
-            <div class="px-6 sm:px-8 pb-8 pt-2">
+            <div class="px-7 py-5 border-t border-gray-100 bg-gray-50/50">
                 <button
                     type="button"
                     wire:click="submitRatings"
                     wire:loading.attr="disabled"
                     x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) open = false }, 600)"
-                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-500 to-orange-500 hover:from-amber-600 hover:via-amber-600 hover:to-orange-600 text-white text-base font-extrabold shadow-xl shadow-amber-400/30 transition-all active:scale-[0.97] disabled:opacity-50 tracking-wide"
+                    class="w-full py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-base font-extrabold shadow-lg shadow-orange-200/40 transition-all active:scale-[0.98] disabled:opacity-50"
                 >
-                    <span wire:loading.remove wire:target="submitRatings" class="flex items-center justify-center gap-2.5">
-                        <i class="fa-solid fa-paper-plane text-sm"></i>
-                        Puanlamayı Gönder
-                    </span>
-                    <span wire:loading wire:target="submitRatings" class="flex items-center justify-center gap-2.5">
-                        <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+                    <span wire:loading.remove wire:target="submitRatings">Gönder</span>
+                    <span wire:loading wire:target="submitRatings" class="flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
                         Gönderiliyor...
                     </span>
                 </button>
