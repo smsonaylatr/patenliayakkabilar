@@ -29,14 +29,18 @@
                     </div>
 
                     @php
-                        $mapQuery = urlencode($order->shipping_district . ', ' . $order->shipping_city . ', Türkiye');
+                        $mapQuery = urlencode(
+                            $order->shipping_address . ', '
+                            . $order->shipping_district . ', '
+                            . $order->shipping_city . ', Türkiye'
+                        );
                     @endphp
                     <div class="rounded-xl overflow-hidden border border-gray-200 mb-5">
                         <div class="relative">
                             <iframe
-                                src="https://maps.google.com/maps?q={{ $mapQuery }}&z=15&output=embed&hl=tr"
+                                src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
                                 width="100%"
-                                height="220"
+                                height="200"
                                 style="border:0;"
                                 allowfullscreen=""
                                 loading="lazy"
