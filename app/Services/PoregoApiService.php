@@ -11,13 +11,17 @@ class PoregoApiService
     protected $apiKey;
     protected $apiSecret;
     protected $apiUrl;
+    protected $dashboardApiUrl;
+    protected $sessionCookie;
 
     public function __construct()
     {
         $this->apiKey = env('POREGO_API_KEY');
         $this->apiSecret = env('POREGO_API_SECRET');
-        // Varsa Porego API URL'sini .env'den alalım, yoksa varsayılan veya placeholder bir adres
-        $this->apiUrl = env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1'); 
+        $this->apiUrl = env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1');
+        // Porego Dashboard API (cookie-based session auth) - products güncelleme için
+        $this->dashboardApiUrl = env('POREGO_DASHBOARD_API_URL', 'https://back.porego.com/depokargo/api/v1');
+        $this->sessionCookie = env('POREGO_SESSION_COOKIE', '');
     }
 
     /**
@@ -150,38 +154,17 @@ class PoregoApiService
                 'customerEmail'         => $order->customer_email ?: 'siparis@patenliayakkabilar.com',
                 'address'               => $rawAddress,
                 'city'                  => trim($order->shipping_city) ?: 'İstanbul',
-                'cityName'              => trim($order->shipping_city) ?: 'İstanbul',
                 'district'              => trim($order->shipping_district) ?: 'Merkez',
-                'districtName'          => trim($order->shipping_district) ?: 'Merkez',
-                'neighborhood'          => $cleanMah,
-                'neighbourhood'         => $cleanMah, // British spelling used in Porego
-                'neighbourhoodName'     => $cleanMah,
-                'neighborhoodName'      => $cleanMah,
-                'neighborhood_name'     => $cleanMah,
-                'shipping_neighborhood' => $cleanMah,
-                'mahalle'               => $cleanMah,
-                'mahalleName'           => $cleanMah,
-                'subdistrict'           => $cleanMah,
-                'town'                  => $cleanMah,
+                'neighbourhood'         => $cleanMah,
                 'postalCode'            => $order->shipping_postal_code ?: '',
                 'paymentType'           => $order->payment_method === 'cash_on_delivery' ? 'COD' : 'PREPAID',
-                'platform'              => 'WOOCOMMERCE',
                 'platformOrderId'       => (string)$order->id,
                 'platformOrderNumber'   => $order->order_number,
-                'orderNumber'           => $order->order_number,
-                'products'              => $productsJsonString, // Porego etiket ve UI motoru için
-                'items'                 => $openApiItems,       // Porego Merchant API standardı (OpenAPI)
-                'orderItems'            => $openApiItems,
-                'orderProducts'         => $mappedItems,
-                'productName'           => $firstProductName,
-                'productTitle'          => $firstProductName,
-                'productInfo'           => $productSummaryText,
-                'productDescription'    => $productSummaryText,
-                'note'                  => $productSummaryText,
-                'notes'                 => $productSummaryText,
-                'description'           => $productSummaryText,
-                'orderNote'             => $productSummaryText,
-                'noteToCargoPersonnel'  => $productSummaryText,
+                'items'                 => $openApiItems,
+                // Products JSON string — Dashboard API güncellemesi başarısız olursa
+                // en azından notes alanı etiketin "Sipariş Notu" bölümünde görünsün
+                'products'              => $productsJsonString,
+                'notes'                 => "📦 Ürünler: " . $productSummaryText,
                 'totalAmount'           => (float)$order->grand_total,
                 'totalWeight'           => max(1, count($mappedItems)),
                 'totalDeci'             => max(1, count($mappedItems)),
@@ -205,6 +188,13 @@ class PoregoApiService
 
                 // Porego response'undan kargo takip kodunu anında kaydet
                 $this->saveTrackingFromResponse($order, $responseData);
+
+                // Porego Dashboard API ile ürün bilgilerini güncelle
+                // (Merchant API products alanını etiket motoruna aktarmıyor - Porego bug)
+                $poregoOrderId = $responseData['id'] ?? null;
+                if ($poregoOrderId) {
+                    $this->updateOrderProductsViaDashboard($poregoOrderId, $mappedItems, $order);
+                }
 
                 // Porego'da otomatik barkod/kargo kodu oluştur
                 try {
@@ -932,5 +922,91 @@ class PoregoApiService
             Log::error("Porego Sipariş Durumu Senkronizasyon İstisnası: " . $e->getMessage());
             return ['success' => false, 'message' => 'Hata: ' . $e->getMessage(), 'updated_count' => 0];
         }
+    }
+
+    /**
+     * Porego Dashboard API üzerinden siparişin ürün bilgilerini günceller.
+     *
+     * Porego'nun Merchant API'si (POST /orders) items alanını kabul eder ama
+     * backend veritabanındaki "products" JSON sütununa aktarmaz. Etiket motoru
+     * bu sütundan ürün bilgisi okuduğu için kargo etiketlerinde "Ürün bilgisi yok"
+     * hatası oluşur.
+     *
+     * Bu method Porego Dashboard API'sine (PUT /orders/{id}) erişerek
+     * products alanını doğrudan günceller — tıpkı Porego panelinde
+     * "İşlem Düzenle > Kaydet" akışının yaptığı gibi.
+     *
+     * Auth Yöntemleri (öncelik sırasıyla):
+     * 1. POREGO_SESSION_COOKIE — Porego dashboard session cookie (withCredentials)
+     * 2. X-Api-Key / X-Api-Secret — Merchant API key (fallback, genellikle 403 döner)
+     */
+    protected function updateOrderProductsViaDashboard(int $poregoOrderId, array $mappedItems, Order $order): bool
+    {
+        $dashboardUrl = \App\Models\Setting::where('key', 'porego_dashboard_api_url')->value('value')
+            ?: $this->dashboardApiUrl;
+        $sessionCookie = \App\Models\Setting::where('key', 'porego_session_cookie')->value('value')
+            ?: $this->sessionCookie;
+
+        // Products JSON string — Porego frontend'inin okuduğu format
+        $productsJson = json_encode($mappedItems, JSON_UNESCAPED_UNICODE);
+
+        $updatePayload = [
+            'products' => $productsJson,
+            'id' => $poregoOrderId,
+        ];
+
+        // Yöntem 1: Session Cookie ile Dashboard API
+        if (!empty($sessionCookie)) {
+            try {
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'Cookie' => $sessionCookie,
+                ])->withOptions([
+                    'verify' => false,
+                ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
+
+                if ($response->successful()) {
+                    Log::info("Porego Dashboard API: Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}, Porego ID: {$poregoOrderId}");
+                    return true;
+                }
+
+                Log::warning("Porego Dashboard API: Ürün güncelleme başarısız. Status: {$response->status()}, Sipariş: #{$order->order_number}");
+            } catch (\Throwable $e) {
+                Log::warning("Porego Dashboard API ürün güncelleme istisnası: " . $e->getMessage());
+            }
+        }
+
+        // Yöntem 2: Merchant API key ile deneme (genellikle 403 döner ama yine de dene)
+        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
+        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
+
+        if ($apiKey && $apiSecret) {
+            try {
+                $response = Http::withHeaders([
+                    'X-Api-Key' => $apiKey,
+                    'X-Api-Secret' => $apiSecret,
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                ])->timeout(10)->put("{$dashboardUrl}/orders/{$poregoOrderId}", $updatePayload);
+
+                if ($response->successful()) {
+                    Log::info("Porego Dashboard API (API Key): Ürün bilgileri güncellendi. Sipariş: #{$order->order_number}");
+                    return true;
+                }
+
+                Log::info("Porego Dashboard API (API Key): Status {$response->status()} (beklenen: Merchant API PUT desteği yok)");
+            } catch (\Throwable $e) {
+                Log::info("Porego Dashboard API (API Key) erişilemedi: " . $e->getMessage());
+            }
+        }
+
+        // Ürün bilgisi etiket üzerine aktarılamadıysa loglayalım
+        Log::warning(
+            "Porego ürün bilgisi etiket üzerine aktarılamadı. Sipariş: #{$order->order_number}. " .
+            "Çözüm: Porego panelinde siparişi açın, 'İşlem Düzenle' > 'Kaydet' yaparak ürün bilgisini etikete aktarın. " .
+            "Kalıcı çözüm: .env'de POREGO_SESSION_COOKIE değerini ayarlayın veya Porego destek ekibiyle Merchant API items→products mapping sorunu için iletişime geçin."
+        );
+        return false;
     }
 }

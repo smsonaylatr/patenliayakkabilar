@@ -29,11 +29,15 @@
                     </div>
 
                     @php
-                        $mapQuery = urlencode(
-                            $order->shipping_address . ', '
-                            . $order->shipping_district . ', '
-                            . $order->shipping_city . ', Türkiye'
-                        );
+                        // Adresteki daire/blok/no gibi detayları temizle (geocoding'i bozuyorlar)
+                        $cleanAddress = $order->shipping_address;
+                        $cleanAddress = preg_replace('/\b(no|no\.|no:)\s*\d+\w*/iu', '', $cleanAddress);
+                        $cleanAddress = preg_replace('/\b(blok|daire|kat|apt|apartman|rezidans|site)\s*\w*/iu', '', $cleanAddress);
+                        $cleanAddress = preg_replace('/\bK\d+\b/i', '', $cleanAddress);
+                        $cleanAddress = preg_replace('/\s+/', ' ', trim($cleanAddress));
+                        $cleanAddress = rtrim($cleanAddress, ', .');
+
+                        $mapQuery = urlencode($cleanAddress . ', ' . $order->shipping_district . ', ' . $order->shipping_city);
                     @endphp
                     <div class="rounded-xl overflow-hidden border border-gray-200 mb-5">
                         <div class="relative">
