@@ -59,6 +59,8 @@ class OrderSuccess extends Component
     public function submitRatings(): void
     {
         $user = Auth::user();
+        $fullName = $user?->name ?? $this->order->customer_name;
+        $maskedName = $this->maskName($fullName);
 
         foreach ($this->order->items as $item) {
             if (!$item->product) {
@@ -72,7 +74,7 @@ class OrderSuccess extends Component
             $exists = Review::where('order_id', $this->order->id)
                 ->where('product_id', $productId)
                 ->when($user, fn($q) => $q->where('user_id', $user->id))
-                ->when(!$user, fn($q) => $q->where('name', $this->order->customer_name))
+                ->when(!$user, fn($q) => $q->where('name', $maskedName))
                 ->exists();
 
             if ($exists) {
@@ -83,15 +85,37 @@ class OrderSuccess extends Component
                 'product_id' => $productId,
                 'user_id' => $user?->id,
                 'order_id' => $this->order->id,
-                'name' => $user?->name ?? $this->order->customer_name,
+                'name' => $maskedName,
                 'email' => $user?->email ?? $this->order->customer_email,
                 'rating' => $rating,
                 'comment' => !empty($this->comments[$productId]) ? $this->comments[$productId] : null,
-                'status' => 1, // Sipariş bazlı değerlendirmeler otomatik onaylı
+                'status' => 1,
             ]);
         }
 
         $this->ratingsSubmitted = true;
+    }
+
+    /**
+     * Soyadını maskele: "Osman Sarıkaya" → "Osman S."
+     */
+    private function maskName(?string $name): string
+    {
+        if (empty($name)) {
+            return 'Müşteri';
+        }
+
+        $parts = explode(' ', trim($name));
+
+        if (count($parts) < 2) {
+            return $parts[0];
+        }
+
+        $lastName = array_pop($parts);
+        $initial = mb_strtoupper(mb_substr($lastName, 0, 1, 'UTF-8'), 'UTF-8') . '.';
+        $parts[] = $initial;
+
+        return implode(' ', $parts);
     }
 
     public function render()

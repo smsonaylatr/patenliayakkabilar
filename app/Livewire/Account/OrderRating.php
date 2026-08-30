@@ -39,7 +39,8 @@ class OrderRating extends Component
             return;
         }
 
-        // Her ürün için puan kaydı oluştur
+        $maskedName = $this->maskName($user->name);
+
         foreach ($this->order->items as $item) {
             if (!$item->product) {
                 continue;
@@ -48,7 +49,6 @@ class OrderRating extends Component
             $productId = $item->product_id;
             $rating = $this->ratings[$productId] ?? 5;
 
-            // Zaten bu sipariş + ürün + kullanıcı için yorum varsa atla
             $exists = Review::where('order_id', $this->order->id)
                 ->where('product_id', $productId)
                 ->where('user_id', $user->id)
@@ -62,17 +62,39 @@ class OrderRating extends Component
                 'product_id' => $productId,
                 'user_id' => $user->id,
                 'order_id' => $this->order->id,
-                'name' => $user->name,
+                'name' => $maskedName,
                 'email' => $user->email,
                 'rating' => $rating,
                 'comment' => !empty($this->comments[$productId]) ? $this->comments[$productId] : null,
-                'status' => 1, // Sipariş bazlı değerlendirmeler otomatik onaylı
+                'status' => 1,
             ]);
         }
 
         $this->showModal = false;
         $this->dispatch('rating-submitted');
         session()->flash('rating_success_' . $this->order->id, 'Değerlendirmeniz başarıyla kaydedildi. Teşekkür ederiz! ⭐');
+    }
+
+    /**
+     * Soyadını maskele: "Osman Sarıkaya" → "Osman S."
+     */
+    private function maskName(?string $name): string
+    {
+        if (empty($name)) {
+            return 'Müşteri';
+        }
+
+        $parts = explode(' ', trim($name));
+
+        if (count($parts) < 2) {
+            return $parts[0];
+        }
+
+        $lastName = array_pop($parts);
+        $initial = mb_strtoupper(mb_substr($lastName, 0, 1, 'UTF-8'), 'UTF-8') . '.';
+        $parts[] = $initial;
+
+        return implode(' ', $parts);
     }
 
     public function render()
