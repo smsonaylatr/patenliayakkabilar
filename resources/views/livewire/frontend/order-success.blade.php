@@ -248,30 +248,33 @@
                             x-data="{ hoverStar: 0 }"
                             class="px-6 sm:px-8 py-6 {{ !$loop->last ? 'border-b border-gray-100' : '' }}"
                         >
-                            <div class="flex items-start gap-4 sm:gap-5 mb-5">
+                            {{-- Ürün bilgisi --}}
+                            <div class="flex items-start gap-4 mb-4">
                                 @if($item->product->images->count() > 0)
                                     <img
                                         src="{{ Storage::url($item->product->images->first()->image_path) }}"
                                         alt="{{ $item->product_name }}"
-                                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
+                                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-200 flex-shrink-0"
                                     >
                                 @else
-                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
-                                        <i class="fa-solid fa-shoe-prints text-2xl"></i>
+                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
+                                        <i class="fa-solid fa-shoe-prints text-xl"></i>
                                     </div>
                                 @endif
-                                <div class="flex-1 min-w-0 pt-1">
-                                    <h4 class="text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
+                                <div class="flex-1 min-w-0 pt-0.5">
+                                    <h4 class="text-sm sm:text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
                                     @if($item->variant_info)
-                                        <p class="text-sm text-gray-400 mt-1">{{ $item->variant_info }}</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">{{ $item->variant_info }}</p>
                                     @endif
                                 </div>
                             </div>
 
-                            <p class="text-sm text-gray-400 mb-4 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
+                            {{-- Açıklama --}}
+                            <p class="text-sm text-gray-400 mb-3 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
 
+                            {{-- ⭐ YILDIZLAR - BÜYÜK ve MERKEZ --}}
                             <div
-                                class="flex items-center justify-center gap-2 sm:gap-3 py-3 mb-5"
+                                class="flex items-center justify-center gap-3 sm:gap-4 py-4 mb-4"
                                 @mouseleave="hoverStar = 0"
                             >
                                 @for($i = 1; $i <= 5; $i++)
@@ -283,13 +286,14 @@
                                         :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'scale-110' : 'scale-100'"
                                     >
                                         <i
-                                            class="fa-solid fa-star text-[3rem] sm:text-[3.5rem] transition-all duration-200 ease-out"
+                                            class="fa-solid fa-star text-[3.5rem] sm:text-[4rem] transition-all duration-200 ease-out"
                                             :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'text-amber-400 drop-shadow-[0_3px_8px_rgba(251,191,36,0.5)]' : 'text-gray-200'"
                                         ></i>
                                     </button>
                                 @endfor
                             </div>
 
+                            {{-- Yorum alanı --}}
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="text-sm font-bold text-gray-700">Yorumunu Yaz</label>
@@ -299,7 +303,7 @@
                                     wire:model="comments.{{ $item->product_id }}"
                                     rows="3"
                                     maxlength="2000"
-                                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 text-sm px-4 py-3.5 placeholder:text-gray-300 transition-all resize-none"
+                                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-sm px-4 py-3.5 placeholder:text-gray-300 transition-all resize-none"
                                     placeholder="Ürün hakkındaki deneyiminizi paylaşın..."
                                 ></textarea>
                             </div>
@@ -308,13 +312,14 @@
                 @endforeach
             </div>
 
+            {{-- Gönder butonu - LACİVERT --}}
             <div class="px-6 sm:px-8 py-5 border-t border-gray-100">
                 <button
                     type="button"
                     wire:click="submitRatings"
                     wire:loading.attr="disabled"
                     x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) { open = false; $dispatch('show-toast', { message: 'Puanlamanız kaydedildi. Teşekkür ederiz! ⭐' }); } }, 600)"
-                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-base font-extrabold shadow-xl shadow-orange-300/40 transition-all active:scale-[0.97] disabled:opacity-50 tracking-wide"
+                    class="w-full py-4 rounded-2xl bg-[#1a2744] hover:bg-[#0f1a30] text-white text-base font-extrabold shadow-xl shadow-blue-900/20 transition-all active:scale-[0.97] disabled:opacity-50 tracking-wide"
                 >
                     <span wire:loading.remove wire:target="submitRatings">Gönder</span>
                     <span wire:loading wire:target="submitRatings" class="flex items-center justify-center gap-2">
