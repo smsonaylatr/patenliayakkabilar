@@ -17,8 +17,8 @@
                 {{-- ONAY BAŞLIĞI + HARİTA --}}
                 <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
                     <div class="flex items-start gap-4 mb-5">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #3b82f6;">
-                            <i class="fa-solid fa-check text-white text-lg"></i>
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid #3b82f6;">
+                            <i class="fa-solid fa-check" style="color: #3b82f6; font-size: 1.1rem;"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
