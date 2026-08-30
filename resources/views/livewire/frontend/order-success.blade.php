@@ -293,9 +293,9 @@
                             {{-- Açıklama --}}
                             <p class="text-sm text-gray-400 mb-3 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
 
-                            {{-- ⭐ YILDIZLAR - BÜYÜK ve MERKEZ --}}
+                            {{-- ⭐ YILDIZLAR - BÜYÜK ve CANLI SARI (Trendyol Stili) --}}
                             <div
-                                class="flex items-center justify-center gap-3 sm:gap-4 py-4 mb-4"
+                                class="flex items-center justify-center gap-2 sm:gap-3 py-4 mb-4"
                                 @mouseleave="hoverStar = 0"
                             >
                                 @for($i = 1; $i <= 5; $i++)
@@ -303,13 +303,17 @@
                                         type="button"
                                         wire:click="setRating({{ $item->product_id }}, {{ $i }})"
                                         @mouseenter="hoverStar = {{ $i }}"
-                                        class="focus:outline-none transition-all duration-200 ease-out active:scale-75"
-                                        :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'scale-110' : 'scale-100'"
+                                        class="focus:outline-none transition-all duration-150 p-1 cursor-pointer active:scale-90"
                                     >
-                                        <i
-                                            class="fa-solid fa-star text-[3.5rem] sm:text-[4rem] transition-all duration-200 ease-out"
-                                            :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'text-amber-400 drop-shadow-[0_3px_8px_rgba(251,191,36,0.5)]' : 'text-gray-200'"
-                                        ></i>
+                                        <svg
+                                            class="w-12 h-12 sm:w-14 sm:h-14 transition-all duration-150"
+                                            :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'scale-110 drop-shadow-[0_4px_8px_rgba(255,184,0,0.4)]' : 'scale-100'"
+                                            viewBox="0 0 24 24"
+                                            :fill="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? '#ffb800' : '#e5e7eb'"
+                                            style="display: block;"
+                                        >
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                        </svg>
                                     </button>
                                 @endfor
                             </div>
