@@ -262,7 +262,7 @@
             <div class="h-1.5 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 flex-shrink-0"></div>
 
             <div class="px-5 sm:px-8 py-4 sm:py-5 border-b border-gray-100 flex-shrink-0">
-                <h3 class="text-lg sm:text-xl font-black text-gray-900 text-center sm:text-left">Ürünü Değerlendir</h3>
+                <h3 class="text-lg sm:text-xl font-black text-gray-900 text-left">Ürünü Değerlendir</h3>
             </div>
 
             <div class="overflow-y-auto flex-1 px-4 sm:px-8 py-4 sm:py-6">
@@ -272,23 +272,23 @@
                             x-data="{ hoverStar: 0 }"
                             class="{{ !$loop->last ? 'pb-6 mb-6 border-b border-gray-100' : '' }}"
                         >
-                            {{-- Ürün bilgisi (Mobil: Dikey ortalı, Masaüstü: Yan yana) --}}
-                            <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-3 sm:gap-5 mb-4">
+                            {{-- Ürün bilgisi (Görsel Solda, Bilgiler Sağda) --}}
+                            <div class="flex items-start text-left gap-3.5 sm:gap-4 mb-4">
                                 @if($item->product->images->count() > 0)
                                     <img
                                         src="{{ Storage::url($item->product->images->first()->image_path) }}"
                                         alt="{{ $item->product_name }}"
-                                        class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
+                                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
                                     >
                                 @else
-                                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0 shadow-sm">
+                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0 shadow-sm">
                                         <i class="fa-solid fa-shoe-prints text-2xl"></i>
                                     </div>
                                 @endif
-                                <div class="flex-1 min-w-0">
+                                <div class="flex-1 min-w-0 pt-0.5">
                                     <h4 class="text-sm sm:text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
                                     @if($item->variant_info)
-                                        <p class="text-xs sm:text-sm text-gray-400 mt-1">{{ $item->variant_info }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">{{ $item->variant_info }}</p>
                                     @endif
                                 </div>
                             </div>
