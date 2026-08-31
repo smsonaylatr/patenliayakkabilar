@@ -88,6 +88,26 @@ try {
     echo "📝 Karne blog SQL: " . implode("\n", $sqlOutput) . "\n";
     @unlink($runSqlScript); // Geçici script sil
 }
+// 1e. Beden rehberi SQL güncelleme
+$bedenSql = $basePath . 'beden_rehberi_update.sql';
+if (file_exists($bedenSql)) {
+    $runBedenScript = $basePath . 'run_beden_update.php';
+    file_put_contents($runBedenScript, '<?php
+require __DIR__ . "/vendor/autoload.php";
+$app = require_once __DIR__ . "/bootstrap/app.php";
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+try {
+    $sql = file_get_contents(__DIR__ . "/beden_rehberi_update.sql");
+    \Illuminate\Support\Facades\DB::unprepared($sql);
+    echo "Beden SQL OK";
+} catch (\Exception $e) {
+    echo "Beden SQL HATA: " . $e->getMessage();
+}
+');
+    exec('cd ' . escapeshellarg($basePath) . ' && php -d memory_limit=128M run_beden_update.php 2>&1', $bedenOutput);
+    echo "📏 Beden rehberi SQL: " . implode("\n", $bedenOutput) . "\n";
+    @unlink($runBedenScript);
+}
 
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan seo:link-content 2>&1');
 
