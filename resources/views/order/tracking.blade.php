@@ -242,13 +242,22 @@
                                                     ['label' => 'Kargoda', 'done' => in_array($order->status, ['shipped', 'delivered', 'completed'])],
                                                     ['label' => 'Teslim', 'done' => in_array($order->status, ['delivered', 'completed'])],
                                                 ];
+                                                // Aktif adımı bul (son tamamlanan)
+                                                $activeIndex = 0;
+                                                foreach ($steps as $i => $s) {
+                                                    if ($s['done']) $activeIndex = $i;
+                                                }
                                             @endphp
                                             @foreach($steps as $i => $step)
-                                                <div class="flex-1 flex flex-col items-center">
-                                                    <div class="w-full bg-gray-200 rounded-full h-1.5 {{ $i > 0 ? '' : '' }}">
-                                                        <div class="h-1.5 rounded-full transition-all duration-500 {{ $step['done'] ? 'bg-amber-500' : 'bg-gray-200' }}" style="width: 100%"></div>
-                                                    </div>
-                                                    <span class="text-[10px] mt-1 font-semibold {{ $step['done'] ? 'text-amber-800' : 'text-gray-400' }}">{{ $step['label'] }}</span>
+                                                <div class="flex-1 flex flex-col items-center relative">
+                                                    {{-- Çizgi (ilk adım hariç) --}}
+                                                    @if($i > 0)
+                                                        <div class="absolute top-[5px] -left-[calc(50%+2px)] w-[calc(100%+4px)] h-[3px] rounded-full {{ $step['done'] ? 'bg-orange-400' : 'bg-gray-200' }}"></div>
+                                                    @endif
+                                                    {{-- Nokta --}}
+                                                    <div class="relative z-10 w-[12px] h-[12px] rounded-full border-2 {{ $step['done'] ? 'bg-orange-500 border-orange-500' : 'bg-white border-gray-300' }} {{ $i === $activeIndex && !$steps[count($steps)-1]['done'] ? 'ring-4 ring-orange-200 animate-pulse' : '' }}"></div>
+                                                    {{-- Label --}}
+                                                    <span class="text-[10px] mt-1.5 font-semibold {{ $step['done'] ? 'text-orange-700' : 'text-gray-400' }}">{{ $step['label'] }}</span>
                                                 </div>
                                             @endforeach
                                         </div>
