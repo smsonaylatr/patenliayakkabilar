@@ -799,7 +799,7 @@ class PoregoApiService
             $poregoOrder = null;
             $page = 0;
 
-            while ($page < 10) {
+            while ($page < 30) {
                 $response = Http::withHeaders([
                     'X-Api-Key' => $apiKey,
                     'X-Api-Secret' => $apiSecret,
