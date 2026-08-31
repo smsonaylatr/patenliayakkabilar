@@ -239,7 +239,7 @@
                                                 $steps = [
                                                     ['label' => 'Sipariş', 'done' => true],
                                                     ['label' => 'Hazırlık', 'done' => in_array($order->status, ['processing', 'shipped', 'delivered', 'completed'])],
-                                                    ['label' => 'Kargoda', 'done' => in_array($order->status, ['delivered', 'completed'])],
+                                                    ['label' => 'Kargoda', 'done' => in_array($order->status, ['shipped', 'delivered', 'completed'])],
                                                     ['label' => 'Teslim', 'done' => in_array($order->status, ['delivered', 'completed'])],
                                                 ];
                                             @endphp

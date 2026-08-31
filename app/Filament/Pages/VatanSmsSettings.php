@@ -53,6 +53,7 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_abandoned_cart_message',
             'vatansms_new_order_message',
             'vatansms_shipped_message',
+            'vatansms_delivered_message',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -62,7 +63,8 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_active' => filter_var($settings['vatansms_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'vatansms_abandoned_cart_message' => $settings['vatansms_abandoned_cart_message'] ?? "Merhaba, sepetinizdeki urunler sizi bekliyor! Size ozel %5 indirim kodunuz: {kupon} (3 gun gecerli). Alisveris icin: https://patenliayakkabilar.com",
             'vatansms_new_order_message' => $settings['vatansms_new_order_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz başarıyla alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
-            'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. https://patenliayakkabilar.com",
+            'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. Kargo Takip No: {kargo_kodu} https://patenliayakkabilar.com/siparis-takip?order_number={siparis_no}",
+            'vatansms_delivered_message' => $settings['vatansms_delivered_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
         ]);
     }
 
@@ -104,6 +106,12 @@ class VatanSmsSettings extends Page implements HasForms
                             
                         Textarea::make('vatansms_shipped_message')
                             ->label('Kargoya Verildi Mesajı (Bilgi)')
+                            ->helperText('Değişkenler: {isim}, {siparis_no}, {tutar}, {kargo_kodu}')
+                            ->rows(2)
+                            ->required(),
+
+                        Textarea::make('vatansms_delivered_message')
+                            ->label('Teslim Edildi Mesajı (Bilgi)')
                             ->helperText('Değişkenler: {isim}, {siparis_no}, {tutar}')
                             ->rows(2)
                             ->required(),

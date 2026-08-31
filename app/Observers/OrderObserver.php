@@ -37,14 +37,9 @@ class OrderObserver
                     \Illuminate\Support\Facades\Log::error('Telegram notification error: ' . $e->getMessage());
                 }
                 
-                // Kapıda ödemeli siparişi doğrudan Porego'ya aktar
-                try {
-                    app(\App\Services\PoregoApiService::class)->sendOrder($order);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
-                }
+                // NOT: Porego'ya gönderim artık otomatik yapılmıyor.
+                // Admin panelden "Kargo Kodu Oluştur" butonu ile tetikleniyor.
 
-                
                 // Müşteriye SMS Gönder
                 try {
                     $this->sendCustomerSms($order, 'new_order');
@@ -67,13 +62,26 @@ class OrderObserver
             $messageTemplate = \App\Models\Setting::where('key', 'vatansms_new_order_message')->value('value');
         } elseif ($type === 'shipped') {
             $messageTemplate = \App\Models\Setting::where('key', 'vatansms_shipped_message')->value('value');
+        } elseif ($type === 'delivered') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_delivered_message')->value('value');
         }
 
         if (empty($messageTemplate)) return;
 
+        // Kargo takip kodu (330 ile başlayanları hariç tut)
+        $kargoKodu = trim((string)$order->cargo_tracking_code);
+        if (empty($kargoKodu) || str_starts_with($kargoKodu, '330')) {
+            $kargoKodu = '';
+        }
+
         $message = str_replace(
-            ['{isim}', '{siparis_no}', '{tutar}'],
-            [$order->customer_name, $order->order_number, number_format((float)$order->grand_total, 2) . ' TL'],
+            ['{isim}', '{siparis_no}', '{tutar}', '{kargo_kodu}'],
+            [
+                $order->customer_name, 
+                $order->order_number, 
+                number_format((float)$order->grand_total, 2) . ' TL',
+                $kargoKodu,
+            ],
             $messageTemplate
         );
 
@@ -228,15 +236,10 @@ class OrderObserver
                 \Illuminate\Support\Facades\Log::error('Telegram notification error on paid: ' . $e->getMessage());
             }
             
-            // 2. Tam Otomatik Porego Kargo Aktarımı
-            try {
-                app(\App\Services\PoregoApiService::class)->sendOrder($order);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
-            }
+            // NOT: Porego'ya gönderim artık otomatik yapılmıyor.
+            // Admin panelden "Kargo Kodu Oluştur" butonu ile tetikleniyor.
 
-            
-            // 4. Müşteriye SMS Gönder
+            // Müşteriye SMS Gönder
             try {
                 $this->sendCustomerSms($order, 'new_order');
             } catch (\Throwable $e) {
@@ -259,6 +262,15 @@ class OrderObserver
             } elseif ($order->status === 'delivered') {
                 app()->terminating(function () use ($order) {
                     $order->refresh();
+                    
+                    // Teslim Edildi SMS'i gönder
+                    try {
+                        $this->sendCustomerSms($order, 'delivered');
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('SMS notification error on delivered: ' . $e->getMessage());
+                    }
+                    
+                    // GİB E-Arşiv fatura oluştur
                     try {
                         app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
                     } catch (\Throwable $e) {

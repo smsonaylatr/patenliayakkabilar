@@ -418,24 +418,47 @@ class OrdersTable
                 Action::make('sendToPorego')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('Porego\'ya Kargo Gönder')
-                    ->icon('heroicon-o-paper-airplane')
+                    ->tooltip('Kargo Kodu Oluştur')
+                    ->icon('heroicon-o-cube')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->modalHeading('Porego\'ya Kargo Gönder')
-                    ->modalDescription('Sipariş bilgilerini ve net SKU listesini Porego Kargo sistemine aktarır.')
-                    ->modalSubmitActionLabel('Gönder')
+                    ->modalHeading('Kargo Kodu Oluştur')
+                    ->modalDescription('Sipariş Porego\'ya aktarılacak ve kargo barkodu oluşturulacaktır. Sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
+                    ->modalSubmitActionLabel('Oluştur')
                     ->action(function (Order $record): void {
                         $result = app(\App\Services\PoregoApiService::class)->sendOrder($record);
                         $isSuccess = is_array($result) ? ($result['success'] ?? false) : (bool)$result;
                         $message = is_array($result) ? ($result['message'] ?? '') : '';
 
                         if ($isSuccess) {
-                            \Filament\Notifications\Notification::make()
-                                ->title('Sipariş Porego\'ya başarıyla gönderildi')
-                                ->body($message ?: 'Sipariş detayları Porego sistemine iletildi.')
-                                ->success()
-                                ->send();
+                            $record->refresh();
+                            
+                            // Gerçek kargo kodu (330 ile başlamayan) var mı kontrol et
+                            $trackingCode = trim((string)$record->cargo_tracking_code);
+                            $hasRealCode = !empty($trackingCode) 
+                                && !str_starts_with($trackingCode, '330')
+                                && $trackingCode !== $record->order_number
+                                && $trackingCode !== (string)$record->id;
+                            
+                            if ($hasRealCode) {
+                                // Gerçek kargo kodu geldi → Kargoda
+                                $record->update(['status' => 'shipped']);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Kargo kodu oluşturuldu!')
+                                    ->body("Kargo Kodu: {$trackingCode}. Sipariş durumu: Kargoda. Müşteriye SMS gönderildi.")
+                                    ->success()
+                                    ->send();
+                            } else {
+                                // Henüz gerçek kod yok → Hazırlanıyor
+                                if ($record->status === 'pending') {
+                                    $record->update(['status' => 'processing']);
+                                }
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sipariş Porego\'ya aktarıldı')
+                                    ->body($message ?: 'Kargo kodu henüz oluşturulmadı. Porego senkronizasyonu ile otomatik gelecektir.')
+                                    ->success()
+                                    ->send();
+                            }
                         } else {
                             \Filament\Notifications\Notification::make()
                                 ->title('Porego Gönderim Uyarısı')

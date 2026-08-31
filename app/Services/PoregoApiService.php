@@ -489,6 +489,20 @@ class PoregoApiService
 
         if ($changed) {
             $order->save();
+            
+            // Gerçek kargo kodu kaydedildiyse ve sipariş henüz shipped değilse, otomatik shipped yap
+            $cleanCode = trim((string)$order->cargo_tracking_code);
+            if (
+                !empty($cleanCode) 
+                && !str_starts_with($cleanCode, '330')
+                && $cleanCode !== trim((string)$order->order_number)
+                && $cleanCode !== trim((string)$order->id)
+                && in_array($order->status, ['pending', 'processing'])
+            ) {
+                $order->status = 'shipped';
+                $order->save();
+                Log::info("Gerçek kargo kodu geldi, sipariş otomatik shipped yapıldı. Sipariş: #{$order->order_number}, Kod: {$cleanCode}");
+            }
         }
     }
 
