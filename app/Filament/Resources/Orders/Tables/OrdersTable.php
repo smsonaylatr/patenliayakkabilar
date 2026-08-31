@@ -418,14 +418,83 @@ class OrdersTable
                 Action::make('sendToPorego')
                     ->iconButton()
                     ->size('lg')
-                    ->tooltip('Kargo Kodu Oluştur')
-                    ->icon('heroicon-o-cube')
-                    ->color('warning')
-                    ->requiresConfirmation()
+                    ->visible(fn (Order $record): bool => !in_array($record->status, ['delivered', 'completed', 'cancelled']))
+                    ->tooltip(function (Order $record): string {
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        
+                        if ($hasReal && $record->status === 'shipped') {
+                            return 'Kargo Takip: ' . $code;
+                        }
+                        if (in_array($record->status, ['processing', 'shipped'])) {
+                            return 'Kargo Kodu Bekleniyor...';
+                        }
+                        return 'Kargo Kodu Oluştur';
+                    })
+                    ->icon(function (Order $record): string {
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        
+                        if ($hasReal && $record->status === 'shipped') {
+                            return 'heroicon-o-arrow-top-right-on-square';
+                        }
+                        if (in_array($record->status, ['processing'])) {
+                            return 'heroicon-o-clock';
+                        }
+                        return 'heroicon-o-cube';
+                    })
+                    ->color(function (Order $record): string {
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        
+                        if ($hasReal && $record->status === 'shipped') {
+                            return 'success';
+                        }
+                        if ($record->status === 'processing') {
+                            return 'info';
+                        }
+                        return 'warning';
+                    })
+                    ->url(function (Order $record): ?string {
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        
+                        if ($hasReal && $record->status === 'shipped') {
+                            $cargoName = strtolower((string)$record->cargo_company);
+                            if (str_contains($cargoName, 'dhl')) {
+                                return 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($code);
+                            }
+                            if (str_contains($cargoName, 'aras')) {
+                                return 'https://kargotakip.araskargo.com.tr/mainpage.aspx?code=' . urlencode($code);
+                            }
+                            if (str_contains($cargoName, 'yurtiçi') || str_contains($cargoName, 'yurtici')) {
+                                return 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=' . urlencode($code);
+                            }
+                            if (str_contains($cargoName, 'mng')) {
+                                return 'https://www.mngkargo.com.tr/gonderi-takip/?q=' . urlencode($code);
+                            }
+                            return 'https://kargotakip.dhlecommerce.com.tr/?takipNo=' . urlencode($code);
+                        }
+                        return null;
+                    })
+                    ->openUrlInNewTab()
+                    ->requiresConfirmation(function (Order $record): bool {
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        // Kargo takip linki açılacaksa onay isteme
+                        return !($hasReal && $record->status === 'shipped');
+                    })
                     ->modalHeading('Kargo Kodu Oluştur')
                     ->modalDescription('Sipariş Porego\'ya aktarılacak ve kargo barkodu oluşturulacaktır. Sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
                     ->modalSubmitActionLabel('Oluştur')
                     ->action(function (Order $record): void {
+                        // Eğer gerçek kargo kodu varsa action çalışmasın (link açılacak)
+                        $code = trim((string)$record->cargo_tracking_code);
+                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        if ($hasReal && $record->status === 'shipped') {
+                            return;
+                        }
+                        
                         $result = app(\App\Services\PoregoApiService::class)->sendOrder($record);
                         $isSuccess = is_array($result) ? ($result['success'] ?? false) : (bool)$result;
                         $message = is_array($result) ? ($result['message'] ?? '') : '';
@@ -433,7 +502,6 @@ class OrdersTable
                         if ($isSuccess) {
                             $record->refresh();
                             
-                            // Gerçek kargo kodu (330 ile başlamayan) var mı kontrol et
                             $trackingCode = trim((string)$record->cargo_tracking_code);
                             $hasRealCode = !empty($trackingCode) 
                                 && !str_starts_with($trackingCode, '330')
@@ -441,7 +509,6 @@ class OrdersTable
                                 && $trackingCode !== (string)$record->id;
                             
                             if ($hasRealCode) {
-                                // Gerçek kargo kodu geldi → Kargoda
                                 $record->update(['status' => 'shipped']);
                                 \Filament\Notifications\Notification::make()
                                     ->title('Kargo kodu oluşturuldu!')
@@ -449,7 +516,6 @@ class OrdersTable
                                     ->success()
                                     ->send();
                             } else {
-                                // Henüz gerçek kod yok → Hazırlanıyor
                                 if ($record->status === 'pending') {
                                     $record->update(['status' => 'processing']);
                                 }
