@@ -496,13 +496,7 @@ class Checkout extends Component
             return;
         }
 
-        // İndirim hesapla
-        if ($coupon->type === 'percentage') {
-            $this->coupon_discount = round($subtotal * ($coupon->value / 100), 2);
-        } else {
-            $this->coupon_discount = min($coupon->value, $subtotal);
-        }
-
+        // Kupon geçerli — sakla, indirim render'da hesaplanacak
         $this->applied_coupon = $coupon;
         $this->coupon_message = 'Kupon kodu uygulandı! ' . ($coupon->type === 'percentage' ? '%' . intval($coupon->value) : number_format($coupon->value, 2) . ' ₺') . ' indirim kazandınız.';
         $this->coupon_error = '';
@@ -529,9 +523,18 @@ class Checkout extends Component
         $totalItems = $cart->items->sum('quantity');
         $shippingPrice = $this->payment_method === 'cash_on_delivery' ? (200 + (1 * $totalItems)) : (1 * $totalItems);
         
-        // Kupon indirimi uygula
-        $couponDiscount = $this->coupon_discount;
-        $grandTotal = max(0, $subtotal - $couponDiscount) + $shippingPrice;
+        // Kupon indirimi genel toplam üzerinden hesapla (kargo dahil)
+        $couponDiscount = 0;
+        if ($this->applied_coupon) {
+            $totalBeforeDiscount = $subtotal + $shippingPrice;
+            if ($this->applied_coupon->type === 'percentage') {
+                $couponDiscount = round($totalBeforeDiscount * ($this->applied_coupon->value / 100), 2);
+            } else {
+                $couponDiscount = min($this->applied_coupon->value, $totalBeforeDiscount);
+            }
+            $this->coupon_discount = $couponDiscount;
+        }
+        $grandTotal = max(0, $subtotal + $shippingPrice - $couponDiscount);
 
         return view('livewire.frontend.checkout', [
             'cartItems' => $cart->items,
