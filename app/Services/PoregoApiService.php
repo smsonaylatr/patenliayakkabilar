@@ -453,6 +453,40 @@ class PoregoApiService
             } catch (\Throwable $e) {
                 Log::warning("Porego Dashboard kargo oluşturma hatası: " . $e->getMessage());
             }
+
+            // 2b. Fallback: PUT /orders/{id} ile durumu READY yaparak kargo oluşturmayı tetikle
+            try {
+                $putResp = Http::withHeaders($dashHeaders)
+                    ->withOptions(['verify' => false])
+                    ->timeout(10)
+                    ->put("{$dashboardUrl}/orders/{$poregoOrderId}", [
+                        'id' => $poregoOrderId,
+                        'status' => 'READY',
+                    ]);
+
+                Log::info("Porego PUT READY: Status {$putResp->status()}, Sipariş: #{$order->order_number}, Body: " . substr($putResp->body(), 0, 300));
+
+                if ($putResp->successful()) {
+                    $putData = $putResp->json();
+                    $this->saveTrackingFromResponse($order, $putData);
+                    $order->refresh();
+                    
+                    // 2 saniye bekleyip tracking bilgisini senkronize et
+                    usleep(2000000);
+                    $this->fetchAndSaveOrderTracking($order);
+                    $order->refresh();
+
+                    if (!empty($order->cargo_tracking_code)) {
+                        Log::info("Porego PUT READY ile kargo kodu oluştu: {$order->cargo_tracking_code}, Sipariş: #{$order->order_number}");
+                        return ['success' => true, 'message' => "Kargo kodu oluşturuldu: {$order->cargo_tracking_code}"];
+                    }
+
+                    Log::info("Porego PUT READY başarılı ama kargo kodu henüz atanmadı. Sipariş: #{$order->order_number}");
+                    return ['success' => true, 'message' => 'Sipariş Porego\'da HAZIR durumuna alındı. Kargo kodu kısa sürede oluşacaktır.'];
+                }
+            } catch (\Throwable $putEx) {
+                Log::info("Porego PUT READY hatası: " . $putEx->getMessage());
+            }
         }
 
         // 3. Merchant API: GET /orders/{orderNumber}/label ile etiket kontrolü
