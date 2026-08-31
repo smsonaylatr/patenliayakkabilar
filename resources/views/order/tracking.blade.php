@@ -229,7 +229,7 @@
                                             @else
                                                 Siparişiniz onay aşamasındadır. Kargo takip kodunuz, siparişiniz kargoya verildikten sonra bu alanda ve SMS ile telefonunuza otomatik olarak iletilecektir.
                                             @endif
-                                        </p>
+                                        </p><br>
                                     </div>
 
                                     {{-- İlerleme göstergesi --}}
