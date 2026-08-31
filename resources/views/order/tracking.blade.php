@@ -245,10 +245,10 @@
                                             @endphp
                                             @foreach($steps as $i => $step)
                                                 <div class="flex-1 flex flex-col items-center">
-                                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                                        <div class="h-1.5 rounded-full {{ $step['done'] ? 'bg-orange-500' : 'bg-gray-200' }}" style="width: 100%"></div>
+                                                    <div class="w-full rounded-full h-1.5" style="background-color: #e5e7eb;">
+                                                        <div class="h-1.5 rounded-full" style="width: 100%; background-color: {{ $step['done'] ? '#f97316' : '#e5e7eb' }};"></div>
                                                     </div>
-                                                    <span class="text-[10px] mt-1 font-semibold {{ $step['done'] ? 'text-orange-700' : 'text-gray-400' }}">{{ $step['label'] }}</span>
+                                                    <span class="text-[10px] mt-1 font-semibold" style="color: {{ $step['done'] ? '#c2410c' : '#9ca3af' }};">{{ $step['label'] }}</span>
                                                 </div>
                                             @endforeach
                                         </div>
