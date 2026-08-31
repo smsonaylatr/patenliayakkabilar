@@ -155,7 +155,7 @@
                                                 autocomplete="off"
                                                 class="w-full px-4 py-3 pr-10 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
                                             >
-                                            <button type="button" @click="open = !open; if(open) $refs.searchInput.focus()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                                            <button type="button" @click="open = !open; if(open) $refs.searchInput.focus()" aria-label="İl Seçimi Aç/Kapat" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                                                 <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </button>
                                         </div>
@@ -353,7 +353,7 @@
                                         <span class="text-xs text-emerald-600 block">-{{ number_format($coupon_discount, 2) }} ₺ indirim</span>
                                     </div>
                                 </div>
-                                <button wire:click="removeCoupon" type="button" class="text-emerald-600 hover:text-red-500 transition-colors p-1" title="Kuponu Kaldır">
+                                <button wire:click="removeCoupon" type="button" aria-label="Kuponu Kaldır" class="text-emerald-600 hover:text-red-500 transition-colors p-1" title="Kuponu Kaldır">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
@@ -490,7 +490,7 @@
                             Tam Sayfa
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </a>
-                        <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                        <button type="button" @click="activeModal = null" aria-label="Ön Bilgilendirme Formunu Kapat" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
                             <i class="fa-solid fa-xmark text-lg"></i>
                         </button>
                     </div>
@@ -540,7 +540,7 @@
                             Tam Sayfa
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </a>
-                        <button type="button" @click="activeModal = null" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
+                        <button type="button" @click="activeModal = null" aria-label="Mesafeli Satış Sözleşmesini Kapat" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-colors">
                             <i class="fa-solid fa-xmark text-lg"></i>
                         </button>
                     </div>
