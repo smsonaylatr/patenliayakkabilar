@@ -27,7 +27,7 @@ class PoregoApiService
     /**
      * Siparişi Porego'ya gönderir (Kargo oluşturma işlemi)
      */
-    public function sendOrder(Order $order)
+    public function sendOrder(Order $order, bool $skipBarcode = false)
     {
         $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
         $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
@@ -196,20 +196,22 @@ class PoregoApiService
                     $this->updateOrderProductsViaDashboard($poregoOrderId, $mappedItems, $order);
                 }
 
-                // Porego'da otomatik barkod/kargo kodu oluştur
-                try {
-                    $barcodeResult = $this->createBarcode($order, $apiKey, $apiSecret, $apiUrl);
-                    if ($barcodeResult['success']) {
-                        Log::info("Kargo kodu otomatik oluşturuldu. Sipariş: #{$order->order_number}, Kod: {$order->cargo_tracking_code}");
-                        return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'ya aktarıldı ve kargo kodu oluşturuldu: {$order->cargo_tracking_code}"];
-                    } else {
-                        Log::warning("Kargo kodu otomatik oluşturulamadı. Sipariş: #{$order->order_number}, Hata: {$barcodeResult['message']}");
+                // Porego'da otomatik barkod/kargo kodu oluştur (skipBarcode=true ise atla)
+                if (!$skipBarcode) {
+                    try {
+                        $barcodeResult = $this->createBarcode($order, $apiKey, $apiSecret, $apiUrl);
+                        if ($barcodeResult['success']) {
+                            Log::info("Kargo kodu otomatik oluşturuldu. Sipariş: #{$order->order_number}, Kod: {$order->cargo_tracking_code}");
+                            return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) Porego'ya aktarıldı ve kargo kodu oluşturuldu: {$order->cargo_tracking_code}"];
+                        } else {
+                            Log::warning("Kargo kodu otomatik oluşturulamadı. Sipariş: #{$order->order_number}, Hata: {$barcodeResult['message']}");
+                        }
+                    } catch (\Throwable $barcodeEx) {
+                        Log::warning("Kargo kodu oluşturma istisnası. Sipariş: #{$order->order_number}, Hata: " . $barcodeEx->getMessage());
                     }
-                } catch (\Throwable $barcodeEx) {
-                    Log::warning("Kargo kodu oluşturma istisnası. Sipariş: #{$order->order_number}, Hata: " . $barcodeEx->getMessage());
                 }
 
-                return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) başarıyla Porego'ya aktarıldı."];
+                return ['success' => true, 'message' => "Sipariş (#{$order->order_number}) başarıyla Porego'ya aktarıldı." . ($skipBarcode ? ' Barkod oluşturma bekleniyor.' : '')];
             } else {
                 $err = $response->json('message') ?: ($response->json('error') ?: $response->body());
                 if (empty($err)) {

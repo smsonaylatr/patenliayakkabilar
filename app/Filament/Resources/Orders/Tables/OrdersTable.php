@@ -485,17 +485,20 @@ class OrdersTable
                         return !($hasReal && $record->status === 'shipped');
                     })
                     ->modalHeading('Kargo Kodu Oluştur')
-                    ->modalDescription('Sipariş Porego\'ya aktarılacak ve kargo barkodu oluşturulacaktır. Sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
+                    ->modalDescription('Kargo barkodu oluşturulacak ve sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
                     ->modalSubmitActionLabel('Oluştur')
                     ->action(function (Order $record): void {
                         // Eğer gerçek kargo kodu varsa action çalışmasın (link açılacak)
                         $code = trim((string)$record->cargo_tracking_code);
                         $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
-                        if ($hasReal && $record->status === 'shipped') {
+                        if ($hasReal && in_array($record->status, ['shipped', 'processing'])) {
                             return;
                         }
                         
-                        $result = app(\App\Services\PoregoApiService::class)->sendOrder($record);
+                        $poregoService = app(\App\Services\PoregoApiService::class);
+                        
+                        // Sipariş Porego'ya gönder (barkod dahil)
+                        $result = $poregoService->sendOrder($record, skipBarcode: false);
                         $isSuccess = is_array($result) ? ($result['success'] ?? false) : (bool)$result;
                         $message = is_array($result) ? ($result['message'] ?? '') : '';
 
@@ -512,16 +515,17 @@ class OrdersTable
                                 $record->update(['status' => 'shipped']);
                                 \Filament\Notifications\Notification::make()
                                     ->title('Kargo kodu oluşturuldu!')
-                                    ->body("Kargo Kodu: {$trackingCode}. Sipariş durumu: Kargoda. Müşteriye SMS gönderildi.")
+                                    ->body("Kargo Kodu: {$trackingCode}. Sipariş durumu: Kargoda.")
                                     ->success()
                                     ->send();
                             } else {
-                                if ($record->status === 'pending') {
+                                // Barkod oluştu ama gerçek kargo kodu henüz yok → Hazırlanıyor
+                                if (in_array($record->status, ['pending'])) {
                                     $record->update(['status' => 'processing']);
                                 }
                                 \Filament\Notifications\Notification::make()
-                                    ->title('Sipariş Porego\'ya aktarıldı')
-                                    ->body($message ?: 'Kargo kodu henüz oluşturulmadı. Porego senkronizasyonu ile otomatik gelecektir.')
+                                    ->title('Barkod oluşturuldu')
+                                    ->body('Sipariş durumu: Hazırlanıyor. Gerçek kargo kodu Porego senkronizasyonu ile otomatik gelecektir.')
                                     ->success()
                                     ->send();
                             }

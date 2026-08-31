@@ -37,8 +37,12 @@ class OrderObserver
                     \Illuminate\Support\Facades\Log::error('Telegram notification error: ' . $e->getMessage());
                 }
                 
-                // NOT: Porego'ya gönderim artık otomatik yapılmıyor.
-                // Admin panelden "Kargo Kodu Oluştur" butonu ile tetikleniyor.
+                // Porego'ya siparişi aktar (barkod oluşturma YAPILMAZ — admin panelden tetiklenir)
+                try {
+                    app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
+                }
 
                 // Müşteriye SMS Gönder
                 try {
@@ -236,8 +240,12 @@ class OrderObserver
                 \Illuminate\Support\Facades\Log::error('Telegram notification error on paid: ' . $e->getMessage());
             }
             
-            // NOT: Porego'ya gönderim artık otomatik yapılmıyor.
-            // Admin panelden "Kargo Kodu Oluştur" butonu ile tetikleniyor.
+            // Porego'ya siparişi aktar (barkod oluşturma YAPILMAZ — admin panelden tetiklenir)
+            try {
+                app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
+            }
 
             // Müşteriye SMS Gönder
             try {
