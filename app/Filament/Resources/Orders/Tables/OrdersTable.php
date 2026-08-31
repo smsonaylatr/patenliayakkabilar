@@ -435,10 +435,10 @@ class OrdersTable
                         $code = trim((string)$record->cargo_tracking_code);
                         $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         
-                        if ($hasReal && $record->status === 'shipped') {
+                        if ($hasReal && in_array($record->status, ['shipped', 'processing'])) {
                             return 'heroicon-o-arrow-top-right-on-square';
                         }
-                        if (in_array($record->status, ['processing'])) {
+                        if (in_array($record->status, ['processing', 'shipped'])) {
                             return 'heroicon-o-clock';
                         }
                         return 'heroicon-o-cube';
