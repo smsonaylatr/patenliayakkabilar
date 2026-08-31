@@ -494,7 +494,7 @@ class PoregoApiService
             $cleanCode = trim((string)$order->cargo_tracking_code);
             if (
                 !empty($cleanCode) 
-                && !str_starts_with($cleanCode, '330')
+                && !str_starts_with($cleanCode, '33')
                 && $cleanCode !== trim((string)$order->order_number)
                 && $cleanCode !== trim((string)$order->id)
                 && in_array($order->status, ['pending', 'processing'])

@@ -421,7 +421,7 @@ class OrdersTable
                     ->visible(fn (Order $record): bool => !in_array($record->status, ['delivered', 'completed', 'cancelled']))
                     ->tooltip(function (Order $record): string {
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         
                         if ($hasReal && $record->status === 'shipped') {
                             return 'Kargo Takip: ' . $code;
@@ -433,7 +433,7 @@ class OrdersTable
                     })
                     ->icon(function (Order $record): string {
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         
                         if ($hasReal && $record->status === 'shipped') {
                             return 'heroicon-o-arrow-top-right-on-square';
@@ -445,7 +445,7 @@ class OrdersTable
                     })
                     ->color(function (Order $record): string {
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         
                         if ($hasReal && $record->status === 'shipped') {
                             return 'success';
@@ -457,7 +457,7 @@ class OrdersTable
                     })
                     ->url(function (Order $record): ?string {
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         
                         if ($hasReal && $record->status === 'shipped') {
                             $cargoName = strtolower((string)$record->cargo_company);
@@ -480,7 +480,7 @@ class OrdersTable
                     ->openUrlInNewTab()
                     ->requiresConfirmation(function (Order $record): bool {
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         // Kargo takip linki açılacaksa onay isteme
                         return !($hasReal && $record->status === 'shipped');
                     })
@@ -490,7 +490,7 @@ class OrdersTable
                     ->action(function (Order $record): void {
                         // Eğer gerçek kargo kodu varsa action çalışmasın (link açılacak)
                         $code = trim((string)$record->cargo_tracking_code);
-                        $hasReal = !empty($code) && !str_starts_with($code, '330') && $code !== $record->order_number && $code !== (string)$record->id;
+                        $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
                         if ($hasReal && $record->status === 'shipped') {
                             return;
                         }
@@ -504,7 +504,7 @@ class OrdersTable
                             
                             $trackingCode = trim((string)$record->cargo_tracking_code);
                             $hasRealCode = !empty($trackingCode) 
-                                && !str_starts_with($trackingCode, '330')
+                                && !str_starts_with($trackingCode, '33')
                                 && $trackingCode !== $record->order_number
                                 && $trackingCode !== (string)$record->id;
                             

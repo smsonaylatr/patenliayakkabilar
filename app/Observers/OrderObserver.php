@@ -70,7 +70,7 @@ class OrderObserver
 
         // Kargo takip kodu (330 ile başlayanları hariç tut)
         $kargoKodu = trim((string)$order->cargo_tracking_code);
-        if (empty($kargoKodu) || str_starts_with($kargoKodu, '330')) {
+        if (empty($kargoKodu) || str_starts_with($kargoKodu, '33')) {
             $kargoKodu = '';
         }
 
