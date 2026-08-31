@@ -44,7 +44,7 @@
             <div class="flex-1">
                 <p x-text="notification.message" class="text-sm font-semibold tracking-wide"></p>
             </div>
-            <button @click="remove(notification.id)" class="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10">
+            <button @click="remove(notification.id)" aria-label="Bildirimi Kapat" class="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10">
                 <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                 </svg>

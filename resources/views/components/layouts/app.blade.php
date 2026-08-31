@@ -26,7 +26,7 @@
         
 
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1">
         <!-- Tarayıcı ve Ana Ekran (Home Screen) İkonları -->
         <link rel="icon" type="image/png" href="/favicon.png?v={{ time() }}">
         <link rel="apple-touch-icon" href="/favicon.png?v={{ time() }}">
@@ -311,14 +311,14 @@
                     <span class="text-[10px] font-medium leading-none tracking-wide mt-1">Ana Sayfa</span>
                 </a>
                 
-                <button x-data @click="$dispatch('toggle-catalog')" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
+                <button x-data @click="$dispatch('toggle-catalog')" aria-label="Katalog" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-brand-orange transition-colors">
                     <svg class="w-[24px] h-[24px] mb-[4px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                     <span class="text-[10px] font-medium leading-none tracking-wide mt-1">Katalog</span>
                 </button>
                 
                 <!-- Center Floating Button (Sepet) -->
                 <div class="relative w-full flex justify-center h-full pointer-events-none">
-                    <button x-data @click="$dispatch('toggle-cart')" class="pointer-events-auto absolute flex items-center justify-center w-[68px] h-[68px] bg-black text-white rounded-full border-[6px] border-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] hover:bg-gray-900 hover:scale-105 transition-all duration-300" style="top: -32px;">
+                    <button x-data @click="$dispatch('toggle-cart')" aria-label="Sepetim" class="pointer-events-auto absolute flex items-center justify-center w-[68px] h-[68px] bg-black text-white rounded-full border-[6px] border-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] hover:bg-gray-900 hover:scale-105 transition-all duration-300" style="top: -32px;">
                         <svg class="w-[28px] h-[28px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </button>
                     <!-- Text below the floating button -->
@@ -369,7 +369,7 @@
                  class="fixed inset-x-0 bottom-0 top-[10vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden" style="z-index: 9996;">
                  
                  <div class="px-6 py-8 border-b border-gray-100 flex flex-col justify-between relative">
-                    <button @click="open = false" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
+                    <button @click="open = false" aria-label="Kataloğu Kapat" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                     <div>

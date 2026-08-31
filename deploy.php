@@ -65,6 +65,7 @@ echo $migrationCode === 0 ? "✅ Migration tamamlandı\n" : "⚠️ Migration ha
 // 1c. Seeders & SEO Linkleme
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\BacklinkSeeder" --force 2>&1');
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\LinkableAssetBlogPostSeeder" --force 2>&1');
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\KarneHediyesiBlogSeeder" --force 2>&1');
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan seo:link-content 2>&1');
 
 // 2. Clear compiled views

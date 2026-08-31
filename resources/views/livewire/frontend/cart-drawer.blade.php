@@ -81,9 +81,9 @@
                                                     <div class="flex flex-1 items-end justify-between text-sm mt-4">
                                                         <!-- Pill Quantity Selector -->
                                                         <div class="flex items-center bg-gray-50 rounded-full border border-gray-200 p-0.5">
-                                                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">-</button>
+                                                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" aria-label="Miktarı Azalt" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">-</button>
                                                             <span class="w-8 text-center font-medium text-gray-900">{{ $item->quantity }}</span>
-                                                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">+</button>
+                                                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" aria-label="Miktarı Artır" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">+</button>
                                                         </div>
 
                                                         <div class="flex">

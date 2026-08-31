@@ -63,7 +63,9 @@ class KarneHediyesiBlogSeeder extends Seeder
             ]
         );
 
-        $this->command->info('✅ "Karne Hediyesi" blog yazısı başarıyla veritabanına eklendi!');
+        if ($this->command) {
+            $this->command->info('✅ "Karne Hediyesi" blog yazısı başarıyla veritabanına eklendi!');
+        }
     }
 
     private function getContent(): string
