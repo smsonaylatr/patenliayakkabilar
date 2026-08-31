@@ -134,7 +134,7 @@
                             </div>
                             <h3 class="text-base font-extrabold text-gray-900" id="modal-title">Ürünü Değerlendir</h3>
                         </div>
-                        <button type="button" @click="showReviewModal = false" class="text-emerald-600 hover:text-emerald-800 transition-colors bg-white w-6 h-6 rounded-full flex items-center justify-center shadow-sm">
+                        <button type="button" @click="showReviewModal = false" aria-label="Kapat" class="text-emerald-600 hover:text-emerald-800 transition-colors bg-white w-6 h-6 rounded-full flex items-center justify-center shadow-sm">
                             <i class="fa-solid fa-xmark text-sm"></i>
                         </button>
                     </div>
@@ -146,7 +146,7 @@
                             <label class="block text-xs font-bold text-gray-700 mb-1.5">Ürüne Puanınız</label>
                             <div class="flex justify-center gap-1 text-xl text-yellow-400">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <button type="button" wire:click="$set('rating', {{ $i }})" class="focus:outline-none transition-transform hover:scale-110 active:scale-95">
+                                    <button type="button" wire:click="$set('rating', {{ $i }})" aria-label="{{ $i }} yıldız" class="focus:outline-none transition-transform hover:scale-110 active:scale-95">
                                         <i class="fa-{{ $rating >= $i ? 'solid' : 'regular' }} fa-star drop-shadow-sm"></i>
                                     </button>
                                 @endfor

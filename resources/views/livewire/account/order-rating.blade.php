@@ -73,6 +73,7 @@
                         <button
                             type="button"
                             wire:click="$set('showModal', false)"
+                            aria-label="Kapat"
                             class="text-gray-400 hover:text-gray-600 transition-colors bg-white w-7 h-7 rounded-full flex items-center justify-center shadow-sm border border-gray-200"
                         >
                             <i class="fa-solid fa-xmark text-sm"></i>
@@ -114,6 +115,7 @@
                                                     <button
                                                         type="button"
                                                         wire:click="setRating({{ $item->product_id }}, {{ $i }})"
+                                                        aria-label="{{ $i }} yıldız"
                                                         class="focus:outline-none transition-transform hover:scale-110 active:scale-90 {{ ($ratings[$item->product_id] ?? 5) >= $i ? 'text-yellow-400' : 'text-gray-300' }}"
                                                     >
                                                         <i class="fa-solid fa-star drop-shadow-sm"></i>

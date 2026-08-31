@@ -8,11 +8,11 @@
     <div class="flex items-center justify-between border border-gray-200 rounded-full h-14 px-5 bg-white">
         <span class="text-base font-medium text-gray-900">Adet</span>
         <div class="flex items-center gap-1">
-            <button type="button" @click="qty > 1 ? qty-- : null" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-9 h-9 flex items-center justify-center transition-colors">
+            <button type="button" @click="qty > 1 ? qty-- : null" aria-label="Adedi Azalt" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-9 h-9 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-minus text-[10px]"></i>
             </button>
             <span class="text-base font-medium text-gray-900 w-10 text-center" x-text="qty"></span>
-            <button type="button" @click="qty++" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-9 h-9 flex items-center justify-center transition-colors">
+            <button type="button" @click="qty++" aria-label="Adedi Artır" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-9 h-9 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-plus text-[10px]"></i>
             </button>
         </div>

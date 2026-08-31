@@ -69,7 +69,7 @@
 
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
 
-                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
+                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate tabindex="-1" aria-hidden="true" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
                             @if($product->images->count() > 1)
                                 <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="lazy" width="400" height="400">
@@ -128,7 +128,7 @@
                              style="width: 90%; max-width: 420px;">
                             
                             <!-- Close Button -->
-                            <button @click.prevent="showSizeModal = false" class="absolute z-20 text-gray-400 hover:text-black transition-colors rounded-full flex items-center justify-center shadow-sm border border-gray-200" style="top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(255,255,255,0.95);">
+                            <button @click.prevent="showSizeModal = false" aria-label="Kapat" class="absolute z-20 text-gray-400 hover:text-black transition-colors rounded-full flex items-center justify-center shadow-sm border border-gray-200" style="top: 16px; right: 16px; width: 32px; height: 32px; background: rgba(255,255,255,0.95);">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
 

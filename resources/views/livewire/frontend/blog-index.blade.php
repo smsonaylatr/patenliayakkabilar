@@ -90,7 +90,7 @@
                         @foreach($posts as $post)
                             <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow duration-300 group">
                                 @if($post->image_path)
-                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block aspect-[16/9] overflow-hidden">
+                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate tabindex="-1" aria-hidden="true" class="block aspect-[16/9] overflow-hidden">
                                         <img src="{{ asset('storage/' . $post->image_path) }}" 
                                              alt="{{ $post->image_alt ?? $post->title }}" 
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -107,7 +107,7 @@
                                     @if($post->excerpt)
                                         <p class="mt-3 text-sm text-gray-500 line-clamp-3">{{ $post->excerpt }}</p>
                                     @endif
-                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate tabindex="-1" aria-hidden="true" class="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">
                                         Devamını Oku
                                         <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                     </a>

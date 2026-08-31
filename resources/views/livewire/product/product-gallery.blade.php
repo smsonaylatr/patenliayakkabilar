@@ -49,13 +49,14 @@
         @forelse($product->images as $index => $image)
             <button @click="currentIndex = {{ $index }}; isZoomed = false;" 
                     type="button" 
+                    aria-label="Görsel {{ $index + 1 }}"
                     :class="currentIndex === {{ $index }} ? 'border-b-4 border-black shadow-sm opacity-100' : 'border border-transparent hover:border-gray-200 opacity-70 hover:opacity-100'"
                     class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden transition-all duration-200">
-                <img src="{{ $image->image_url }}" alt="" class="h-full w-full object-contain p-0">
+                <img src="{{ $image->image_url }}" alt="{{ $product->name }} - Görsel {{ $index + 1 }}" class="h-full w-full object-contain p-0">
             </button>
         @empty
-            <button type="button" class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
-                <img src="{{ asset('img/placeholder.svg') }}" alt="" class="h-full w-full object-contain p-0">
+            <button type="button" aria-label="Ürün Görseli" class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
+                <img src="{{ asset('img/placeholder.svg') }}" alt="Ürün görseli yok" class="h-full w-full object-contain p-0">
             </button>
         @endforelse
     </div>
@@ -97,10 +98,12 @@
 
             <!-- Navigation Arrows (Desktop) -->
             <button type="button" x-show="images.length > 1 && !isZoomed" @click.stop="currentIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1" 
+                    aria-label="Önceki Görsel"
                     class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md z-20 items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
             <button type="button" x-show="images.length > 1 && !isZoomed" @click.stop="currentIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0" 
+                    aria-label="Sonraki Görsel"
                     class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md z-20 items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>

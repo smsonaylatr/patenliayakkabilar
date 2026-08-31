@@ -306,6 +306,7 @@
                                         type="button"
                                         wire:click="setRating({{ $item->product_id }}, {{ $i }})"
                                         @mouseenter="hoverStar = {{ $i }}"
+                                        aria-label="{{ $i }} yıldız"
                                         class="focus:outline-none transition-all duration-150 p-0.5 sm:p-1 cursor-pointer active:scale-90"
                                     >
                                         <svg

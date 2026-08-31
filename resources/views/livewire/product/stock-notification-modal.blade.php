@@ -7,7 +7,7 @@
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
                 <!-- Close Button -->
-                <button type="button" wire:click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center transition-colors">
+                <button type="button" wire:click="closeModal" aria-label="Kapat" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
 

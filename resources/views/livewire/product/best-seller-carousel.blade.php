@@ -90,10 +90,10 @@
                                 
                                 <!-- Hover Quick Add Button (Desktop only) -->
                                 <div class="absolute bottom-4 left-0 right-0 px-4 opacity-0 translate-y-4 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-300 hidden md:block">
-                                    <button class="w-full bg-white/90 backdrop-blur-sm text-black font-semibold py-3 px-4 rounded-xl shadow-lg border border-white hover:bg-black hover:text-white hover:border-black transition-colors flex justify-center items-center gap-2">
+                                    <span class="w-full bg-white/90 backdrop-blur-sm text-black font-semibold py-3 px-4 rounded-xl shadow-lg border border-white group-hover/card:bg-black group-hover/card:text-white group-hover/card:border-black transition-colors flex justify-center items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                                         Hemen İncele
-                                    </button>
+                                    </span>
                                 </div>
                             </div>
 
@@ -113,9 +113,9 @@
                                             <span class="text-lg font-black text-gray-900 leading-none">{{ number_format($displayPrice, 2) }} ₺</span>
                                         @endif
                                     </div>
-                                    <button class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-colors md:hidden border border-gray-100">
+                                    <span aria-hidden="true" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition-colors md:hidden border border-gray-100">
                                         <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                    </button>
+                                    </span>
                                 </div>
                             </div>
                         </a>
@@ -124,10 +124,10 @@
             </div>
             
             <!-- Controls (Visible on hover for desktop) -->
-            <button onclick="document.getElementById('best-seller-carousel').scrollBy({left: -300, behavior: 'smooth'})" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur text-black rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)] items-center justify-center border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-black hover:text-white cursor-pointer z-20 hover:scale-110 duration-200">
+            <button onclick="document.getElementById('best-seller-carousel').scrollBy({left: -300, behavior: 'smooth'})" aria-label="Önceki Ürünler" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur text-black rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)] items-center justify-center border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-black hover:text-white cursor-pointer z-20 hover:scale-110 duration-200">
                 <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-            <button onclick="document.getElementById('best-seller-carousel').scrollBy({left: 300, behavior: 'smooth'})" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur text-black rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)] items-center justify-center border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-black hover:text-white cursor-pointer z-20 hover:scale-110 duration-200">
+            <button onclick="document.getElementById('best-seller-carousel').scrollBy({left: 300, behavior: 'smooth'})" aria-label="Sonraki Ürünler" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur text-black rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)] items-center justify-center border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex hover:bg-black hover:text-white cursor-pointer z-20 hover:scale-110 duration-200">
                 <svg class="w-6 h-6 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
         </div>
