@@ -336,19 +336,76 @@ class PoregoApiService
         $apiKey = $apiKey ?: (\App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey);
         $apiSecret = $apiSecret ?: (\App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret);
         $apiUrl = $apiUrl ?: (\App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl);
+        $dashboardUrl = \App\Models\Setting::where('key', 'porego_dashboard_api_url')->value('value') ?: $this->dashboardApiUrl;
+        $sessionCookie = \App\Models\Setting::where('key', 'porego_session_cookie')->value('value') ?: $this->sessionCookie;
 
         if (!$apiKey || !$apiSecret) {
             return ['success' => false, 'message' => 'API kimlik bilgileri eksik.'];
         }
 
-        $headers = [
+        $merchantHeaders = [
             'X-Api-Key' => $apiKey,
             'X-Api-Secret' => $apiSecret,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ];
 
-        // 1. Porego createbarcode endpoint'ini dene
+        // Önce Porego'daki sipariş ID'sini bul
+        $poregoOrderId = null;
+        try {
+            $orderData = $this->findPoregoOrderData($order, $apiKey, $apiSecret, $apiUrl);
+            if ($orderData) {
+                $poregoOrderId = $orderData['id'] ?? null;
+                Log::info("Porego sipariş bulundu. Sipariş: #{$order->order_number}, Porego ID: {$poregoOrderId}");
+            }
+        } catch (\Throwable $e) {
+            Log::info("Porego sipariş arama hatası: " . $e->getMessage());
+        }
+
+        // JWT Token hazırla
+        $jwtToken = $sessionCookie;
+        if (preg_match('/app_token=([^;]+)/', $sessionCookie, $m)) {
+            $jwtToken = trim($m[1]);
+        }
+
+        // 1. Dashboard API ile barkod oluştur (Bearer JWT)
+        if (!empty($jwtToken) && $poregoOrderId) {
+            $dashboardEndpoints = [
+                ['method' => 'POST', 'url' => "{$dashboardUrl}/orders/{$poregoOrderId}/createbarcode"],
+                ['method' => 'POST', 'url' => "{$dashboardUrl}/createbarcode", 'payload' => ['orderId' => $poregoOrderId, 'platformOrderNumber' => $order->order_number]],
+                ['method' => 'POST', 'url' => "{$dashboardUrl}/orders/{$poregoOrderId}/barcode"],
+                ['method' => 'PUT',  'url' => "{$dashboardUrl}/orders/{$poregoOrderId}", 'payload' => ['status' => 'READY', 'createBarcode' => true]],
+            ];
+
+            foreach ($dashboardEndpoints as $endpoint) {
+                try {
+                    $payload = $endpoint['payload'] ?? [
+                        'platformOrderId' => (string) $order->id,
+                        'platformOrderNumber' => $order->order_number,
+                        'orderId' => $poregoOrderId,
+                    ];
+
+                    $method = strtolower($endpoint['method']);
+                    $response = Http::withHeaders([
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                        'Authorization' => "Bearer {$jwtToken}",
+                    ])->withOptions(['verify' => false])->timeout(10)->{$method}($endpoint['url'], $payload);
+
+                    Log::info("Porego Dashboard barkod denemesi. URL: {$endpoint['url']}, Status: {$response->status()}, Body: " . substr($response->body(), 0, 300));
+
+                    if ($response->successful()) {
+                        $responseData = $response->json();
+                        $this->saveTrackingFromResponse($order, $responseData);
+                        return ['success' => true, 'message' => 'Kargo kodu Dashboard API ile oluşturuldu.'];
+                    }
+                } catch (\Throwable $e) {
+                    Log::info("Porego Dashboard barkod endpoint hatası ({$endpoint['url']}): " . $e->getMessage());
+                }
+            }
+        }
+
+        // 2. Merchant API /createbarcode endpoint'ini dene
         try {
             $order->loadMissing(['items.product', 'items.variant']);
             $productSummaryList = [];
@@ -393,23 +450,22 @@ class PoregoApiService
                 'noteToCargoPersonnel'=> $productSummaryText,
             ];
 
-            $response = Http::withHeaders($headers)->timeout(10)
+            $response = Http::withHeaders($merchantHeaders)->timeout(10)
                 ->post("{$apiUrl}/createbarcode", $payload);
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                Log::info("Porego createbarcode başarılı. Sipariş: #{$order->order_number}", $responseData ?? []);
+                Log::info("Porego Merchant createbarcode başarılı. Sipariş: #{$order->order_number}", $responseData ?? []);
                 $this->saveTrackingFromResponse($order, $responseData);
-                return ['success' => true, 'message' => 'Kargo kodu API ile oluşturuldu.'];
+                return ['success' => true, 'message' => 'Kargo kodu Merchant API ile oluşturuldu.'];
             }
 
-            Log::info("Porego createbarcode endpoint: Status {$response->status()} (Sipariş: #{$order->order_number})");
+            Log::info("Porego Merchant createbarcode endpoint: Status {$response->status()} (Sipariş: #{$order->order_number})");
         } catch (\Throwable $e) {
-            Log::info("Porego createbarcode erişilemedi: " . $e->getMessage());
+            Log::info("Porego Merchant createbarcode erişilemedi: " . $e->getMessage());
         }
 
-        // 2. Porego, sipariş kabul ettiğinde otomatik trackingNumber atar.
-        //    GET /orders ile siparişi çekip tracking code'u kaydet.
+        // 3. Porego sipariş verisini çek, tracking code varsa kaydet
         try {
             $trackingResult = $this->fetchAndSaveOrderTracking($order);
             if ($trackingResult && !empty($order->cargo_tracking_code)) {
