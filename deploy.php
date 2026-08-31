@@ -66,6 +66,29 @@ echo $migrationCode === 0 ? "✅ Migration tamamlandı\n" : "⚠️ Migration ha
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\BacklinkSeeder" --force 2>&1');
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\LinkableAssetBlogPostSeeder" --force 2>&1');
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan db:seed --class="Database\\Seeders\\KarneHediyesiBlogSeeder" --force 2>&1');
+
+// 1d. Doğrudan SQL ile blog ekleme (seeder başarısız olursa yedek)
+$sqlFile = $basePath . 'karne_blog_insert.sql';
+if (file_exists($sqlFile)) {
+    $runSqlScript = $basePath . 'run_sql_insert.php';
+    // Geçici script oluştur
+    file_put_contents($runSqlScript, '<?php
+require __DIR__ . "/vendor/autoload.php";
+$app = require_once __DIR__ . "/bootstrap/app.php";
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+try {
+    $sql = file_get_contents(__DIR__ . "/karne_blog_insert.sql");
+    \Illuminate\Support\Facades\DB::unprepared($sql);
+    echo "SQL OK";
+} catch (\Exception $e) {
+    echo "SQL HATA: " . $e->getMessage();
+}
+');
+    exec('cd ' . escapeshellarg($basePath) . ' && php -d memory_limit=128M run_sql_insert.php 2>&1', $sqlOutput);
+    echo "📝 Karne blog SQL: " . implode("\n", $sqlOutput) . "\n";
+    @unlink($runSqlScript); // Geçici script sil
+}
+
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan seo:link-content 2>&1');
 
 // 2. Clear compiled views
