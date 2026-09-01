@@ -43,6 +43,12 @@ class TopSellingProducts extends BaseWidget
                 Tables\Columns\TextColumn::make('row_number')
                     ->label('#')
                     ->rowIndex(),
+                Tables\Columns\ImageColumn::make('product_image')
+                    ->label('Görsel')
+                    ->getStateUsing(fn ($record) => $record->images()->orderBy('sort_order')->first()?->image_path)
+                    ->disk('public')
+                    ->circular()
+                    ->size(40),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Ürün Adı')
                     ->searchable()
