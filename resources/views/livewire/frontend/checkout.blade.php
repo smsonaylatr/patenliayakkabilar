@@ -86,7 +86,7 @@
                         @if($address_mode === 'autocomplete')
                         {{-- ═══════════════ AUTOCOMPLETE MODU ═══════════════ --}}
                         <div class="space-y-4"
-                            x-data="{ addressSelected: $wire.entangle('address_selected'), ...addressAutocomplete() }"
+                            x-data="{ addressSelected: @json($address_selected), ...addressAutocomplete() }"
                             x-init="initAutocomplete()"
                         >
                             {{-- ▶ Seçili Adres Kartı --}}
