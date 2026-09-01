@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class SupplierWaybillController extends Controller
 {
@@ -110,7 +109,7 @@ class SupplierWaybillController extends Controller
         $fullPath = storage_path('app/public/' . $path);
         if (file_exists($fullPath)) {
             try {
-                $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+                $type = pathinfo($fullPath, PATHINFO_EXTENSION) ?: 'jpeg';
                 $data = file_get_contents($fullPath);
                 return 'data:image/' . $type . ';base64,' . base64_encode($data);
             } catch (\Throwable $e) {
@@ -122,7 +121,7 @@ class SupplierWaybillController extends Controller
     }
 
     /**
-     * PDF Dosyasını İndirir.
+     * PDF Dosyasını İndirir veya Yazdırma Görünümüne Yönlendirir.
      */
     public function downloadPdf(Request $request)
     {
@@ -131,15 +130,23 @@ class SupplierWaybillController extends Controller
             return redirect()->back()->with('error', 'Lütfen en az bir sipariş seçin.');
         }
 
-        $data = $this->prepareData($ids);
+        // Eğer DomPDF paketi yüklüyse PDF oluştur
+        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+            try {
+                $data = $this->prepareData($ids);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.supplier-waybill', $data);
+                $pdf->setPaper('A4', 'portrait');
+                $pdf->setOption(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
 
-        $pdf = Pdf::loadView('pdf.supplier-waybill', $data);
-        $pdf->setPaper('A4', 'portrait');
-        $pdf->setOption(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                $fileName = 'tedarikci-irsaliye-' . now()->format('Y-m-d-His') . '.pdf';
+                return $pdf->download($fileName);
+            } catch (\Throwable $e) {
+                // PDF motoru hata verirse yazdırma sayfasına yönlendir
+            }
+        }
 
-        $fileName = 'tedarikci-irsaliye-' . now()->format('Y-m-d-His') . '.pdf';
-
-        return $pdf->download($fileName);
+        // DomPDF yoksa doğrudan tarayıcı yazdırma/PDF ekranına yönlendir
+        return redirect()->route('admin.orders.supplier-waybill.print', ['ids' => implode(',', $ids), 'auto_print' => 1]);
     }
 
     /**

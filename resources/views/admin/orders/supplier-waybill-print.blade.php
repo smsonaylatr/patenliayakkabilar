@@ -186,7 +186,14 @@
             Patenli Ayakkabılar · www.patenliayakkabilar.com · Bu belge tedarikçi sipariş hazırlığı için sistem tarafından otomatik oluşturulmuştur.
         </div>
 
-    </div>
-
+    @if(request('auto_print'))
+        <script>
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    window.print();
+                }, 400);
+            });
+        </script>
+    @endif
 </body>
 </html>
