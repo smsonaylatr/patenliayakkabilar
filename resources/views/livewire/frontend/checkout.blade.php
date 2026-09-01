@@ -91,7 +91,7 @@
                         >
                             {{-- Adres Seçildiyse: Seçili Adres Özeti --}}
                             @if($address_selected)
-                            <div class="space-y-4">
+                            <div class="space-y-4" wire:key="address-selected">
                                 {{-- Seçili Adres Gösterimi --}}
                                 <div class="relative">
                                     <div class="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
@@ -131,7 +131,7 @@
                             </div>
                             @else
                             {{-- Adres Arama Input'u --}}
-                            <div class="relative" @click.away="showSuggestions = false">
+                            <div class="relative" wire:key="address-search" @click.away="showSuggestions = false">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Adres <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <input
