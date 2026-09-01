@@ -242,6 +242,12 @@
                                             return;
                                         }
 
+                                        if (!this.autocompleteService && typeof google !== 'undefined' && google.maps && google.maps.places) {
+                                            this.autocompleteService = new google.maps.places.AutocompleteService();
+                                            this.placesService = new google.maps.places.PlacesService(document.createElement('div'));
+                                            this.sessionToken = new google.maps.places.AutocompleteSessionToken();
+                                        }
+
                                         if (!this.autocompleteService) {
                                             return;
                                         }
@@ -598,9 +604,10 @@
                                 <div x-data="{
                                     open: false,
                                     search: @entangle('tax_office'),
-                                    offices: @js($taxOffices),
+                                    offices: @js($taxOffices ?? []),
                                     highlightIndex: -1,
                                     get filtered() {
+                                        if (!this.offices || !Array.isArray(this.offices)) return [];
                                         if (!this.search || this.search.length === 0) return this.offices.slice(0, 50);
                                         const s = this.search.toLocaleLowerCase('tr');
                                         return this.offices.filter(n => n.toLocaleLowerCase('tr').includes(s)).slice(0, 50);
