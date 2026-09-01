@@ -513,11 +513,11 @@
                             Ödeme Yöntemi
                         </h2>
                         
-                        <div class="space-y-3">
+                        <div class="space-y-3" x-data="{ selectedPayment: @json($payment_method) }">
                             <!-- Kredi Kartı Seçeneği (PayTR) -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'credit_card' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'credit_card' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'">
                                 <div class="flex items-center h-5">
-                                    <input wire:model.live="payment_method" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                    <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
@@ -532,9 +532,9 @@
                             </label>
 
                             <!-- Havale/EFT Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200' }}">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'">
                                 <div class="flex items-center h-5">
-                                    <input wire:model.live="payment_method" type="radio" value="wire_transfer" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                    <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="wire_transfer" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
@@ -549,9 +549,9 @@
 
                             @if($isCodAllowed)
                             <!-- Kapıda Ödeme Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors {{ $payment_method === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200' }}">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200'">
                                 <div class="flex items-center h-5">
-                                    <input wire:model.live="payment_method" type="radio" value="cash_on_delivery" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
+                                    <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="cash_on_delivery" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
                                 </div>
                                 <div class="ml-3">
                                     <span class="block text-sm font-bold text-gray-900">Kapıda Ödeme</span>
