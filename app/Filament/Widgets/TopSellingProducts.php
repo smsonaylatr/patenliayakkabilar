@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\CartItem;
+use App\Models\Product;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -18,27 +18,27 @@ class TopSellingProducts extends BaseWidget
 
     public function table(Table $table): Table
     {
+        // Sipariş edilen ürünlerin ID'lerini satış adedine göre sırala
+        $topProductIds = OrderItem::query()
+            ->select('product_id', DB::raw('SUM(quantity) as total_qty'))
+            ->whereNotNull('product_id')
+            ->groupBy('product_id')
+            ->orderByDesc('total_qty')
+            ->limit(50)
+            ->pluck('total_qty', 'product_id');
+
+        $orderedIds = $topProductIds->keys()->toArray();
+
         return $table
             ->query(
                 Product::query()
-                    ->select('products.*')
-                    ->addSelect([
-                        'total_sold' => OrderItem::query()
-                            ->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
-                            ->whereColumn('order_items.product_id', 'products.id'),
-                        'abandoned_count' => CartItem::query()
-                            ->selectRaw('COALESCE(SUM(cart_items.quantity), 0)')
-                            ->whereColumn('cart_items.product_id', 'products.id')
-                            ->join('carts', 'carts.id', '=', 'cart_items.cart_id')
-                            ->where('carts.updated_at', '<=', now()->subHours(2)),
-                    ])
-                    ->whereExists(function ($query) {
-                        $query->select(DB::raw(1))
-                            ->from('order_items')
-                            ->whereColumn('order_items.product_id', 'products.id');
-                    })
-                    ->orderByDesc('total_sold')
-                    ->limit(50)
+                    ->withTrashed()
+                    ->whereIn('id', $orderedIds ?: [0])
+                    ->orderByRaw(
+                        $orderedIds
+                            ? 'FIELD(id, ' . implode(',', $orderedIds) . ')'
+                            : 'id'
+                    )
             )
             ->columns([
                 Tables\Columns\TextColumn::make('row_number')
@@ -50,17 +50,16 @@ class TopSellingProducts extends BaseWidget
                     ->disk('public')
                     ->square()
                     ->size(56),
-                Tables\Columns\TextColumn::make('product_sku')
+                Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
-                    ->getStateUsing(fn ($record) => $record->sku)
-                    ->searchable(query: fn ($query, string $search) => $query->where('products.sku', 'like', "%{$search}%"))
                     ->weight('bold')
+                    ->searchable()
                     ->tooltip(fn ($record) => $record->name),
-                Tables\Columns\TextColumn::make('total_sold')
+                Tables\Columns\TextColumn::make('sold_qty')
                     ->label('Satış Adedi')
+                    ->getStateUsing(fn ($record) => OrderItem::where('product_id', $record->id)->sum('quantity'))
                     ->badge()
                     ->color('success')
-                    ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('size_breakdown')
                     ->label('Numara Bazlı Satış')
@@ -81,13 +80,18 @@ class TopSellingProducts extends BaseWidget
                             ->map(fn ($item) => $item->size . ': ' . $item->qty . ' ad.')
                             ->implode(' | ');
                     })
-                    ->wrap()
-                    ->html(),
-                Tables\Columns\TextColumn::make('abandoned_count')
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('abandoned_qty')
                     ->label('Sepette Terk')
+                    ->getStateUsing(function ($record) {
+                        return CartItem::query()
+                            ->where('cart_items.product_id', $record->id)
+                            ->join('carts', 'carts.id', '=', 'cart_items.cart_id')
+                            ->where('carts.updated_at', '<=', now()->subHours(2))
+                            ->sum('cart_items.quantity');
+                    })
                     ->badge()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'gray')
-                    ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('abandoned_size_breakdown')
                     ->label('Terk — Numara Detayı')
@@ -111,10 +115,6 @@ class TopSellingProducts extends BaseWidget
                             ->implode(' | ');
                     })
                     ->wrap(),
-                Tables\Columns\TextColumn::make('price')
-                    ->label('Fiyat')
-                    ->getStateUsing(fn ($record) => number_format($record->discount_price ?? $record->price, 2) . ' ₺')
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Mevcut Stok')
                     ->badge()
@@ -126,7 +126,6 @@ class TopSellingProducts extends BaseWidget
                     ->sortable()
                     ->alignCenter(),
             ])
-            ->defaultSort('total_sold', 'desc')
             ->paginated([10, 25, 50])
             ->defaultPaginationPageOption(50)
             ->striped()
