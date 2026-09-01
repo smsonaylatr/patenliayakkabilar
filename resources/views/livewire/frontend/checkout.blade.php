@@ -260,7 +260,6 @@
                                         this.autocompleteService.getPlacePredictions({
                                             input: cleanQuery,
                                             componentRestrictions: { country: 'tr' },
-                                            types: ['geocode', 'establishment'],
                                             sessionToken: this.sessionToken,
                                             language: 'tr',
                                         }, (predictions, status) => {
