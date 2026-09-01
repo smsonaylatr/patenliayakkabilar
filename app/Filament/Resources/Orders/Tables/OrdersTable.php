@@ -205,6 +205,13 @@ class OrdersTable
                         'cash_on_delivery' => 'Kapıda Ödeme',
                     ])
                     ->native(false),
+                SelectFilter::make('invoice_type')
+                    ->label('Fatura Tipi')
+                    ->options([
+                        'individual' => 'Bireysel',
+                        'corporate' => 'Kurumsal',
+                    ])
+                    ->native(false),
             ])
             ->actions([
                 Action::make('viewDetails')

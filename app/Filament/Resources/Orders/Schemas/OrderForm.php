@@ -159,6 +159,41 @@ class OrderForm
                             ->columnSpanFull(),
                     ]),
 
+                Section::make('Fatura Bilgileri')
+                    ->icon('heroicon-o-building-office')
+                    ->columns(2)
+                    ->collapsible()
+                    ->schema([
+                        Select::make('invoice_type')
+                            ->label('Fatura Tipi')
+                            ->options([
+                                'individual' => 'Bireysel',
+                                'corporate' => 'Kurumsal',
+                            ])
+                            ->default('individual')
+                            ->required()
+                            ->native(false)
+                            ->live(),
+
+                        TextInput::make('company_name')
+                            ->label('Firma Adı')
+                            ->maxLength(255)
+                            ->visible(fn ($get) => $get('invoice_type') === 'corporate')
+                            ->required(fn ($get) => $get('invoice_type') === 'corporate'),
+
+                        TextInput::make('tax_office')
+                            ->label('Vergi Dairesi')
+                            ->maxLength(255)
+                            ->visible(fn ($get) => $get('invoice_type') === 'corporate')
+                            ->required(fn ($get) => $get('invoice_type') === 'corporate'),
+
+                        TextInput::make('tax_number')
+                            ->label('Vergi Numarası')
+                            ->maxLength(11)
+                            ->visible(fn ($get) => $get('invoice_type') === 'corporate')
+                            ->required(fn ($get) => $get('invoice_type') === 'corporate'),
+                    ]),
+
                 Section::make('Tutar Bilgileri')
                     ->icon('heroicon-o-currency-dollar')
                     ->columns(2)

@@ -505,6 +505,13 @@ td.fi-ta-actions-cell {
         @if($order->customer_note)
             <div class="td-muted" style="color: #f59e0b; margin-top:2px;">Not: {{ $order->customer_note }}</div>
         @endif
+        @if($order->invoice_type === 'corporate')
+            <div style="margin-top: 6px; padding: 6px 8px; background: #fef3c7; border-radius: 6px; border: 1px solid #fde68a;">
+              <div style="font-size: 0.65rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">🏢 Kurumsal Fatura</div>
+              <div class="td-bold" style="font-size: 0.8rem;">{{ $order->company_name }}</div>
+              <div class="td-muted" style="font-size: 0.75rem;">VD: {{ $order->tax_office }} — VN: {{ $order->tax_number }}</div>
+            </div>
+        @endif
       </div>
     </div>
 
