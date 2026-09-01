@@ -49,17 +49,11 @@ class TopSellingProducts extends BaseWidget
                     ->disk('public')
                     ->circular()
                     ->size(40),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Ürün Adı')
-                    ->searchable()
-                    ->weight('bold')
-                    ->limit(50)
-                    ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
-                    ->color('gray')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->weight('bold')
+                    ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('total_sold')
                     ->label('Satış Adedi')
                     ->badge()
