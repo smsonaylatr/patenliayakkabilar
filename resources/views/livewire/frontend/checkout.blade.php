@@ -86,8 +86,10 @@
                         @if($address_mode === 'autocomplete')
                         {{-- ═══════════════ AUTOCOMPLETE MODU ═══════════════ --}}
                         <div class="space-y-4"
-                            x-data="addressAutocomplete()"
+                            x-data="{ addressSelected: @json($address_selected), ...addressAutocomplete() }"
                             x-init="initAutocomplete()"
+                            @address-updated.window="addressSelected = $event.detail[0]?.selected ?? true; query = $event.detail[0]?.query || query"
+                            @address-reset.window="addressSelected = false; query = ''; suggestions = []; showSuggestions = false"
                         >
                             {{-- ▶ Seçili Adres Kartı --}}
                             <div x-show="addressSelected" x-cloak class="space-y-4">
@@ -199,8 +201,7 @@
                         <script>
                             function addressAutocomplete() {
                                 return {
-                                    query: @entangle('address_search'),
-                                    addressSelected: @entangle('address_selected'),
+                                    query: @json($address_search ?: ''),
                                     suggestions: [],
                                     showSuggestions: false,
                                     loading: false,
@@ -239,12 +240,6 @@
                                             this.showSuggestions = false;
                                             this.searched = false;
                                             return;
-                                        }
-
-                                        if (!this.autocompleteService && typeof google !== 'undefined' && google.maps && google.maps.places) {
-                                            this.autocompleteService = new google.maps.places.AutocompleteService();
-                                            this.placesService = new google.maps.places.PlacesService(document.createElement('div'));
-                                            this.sessionToken = new google.maps.places.AutocompleteSessionToken();
                                         }
 
                                         if (!this.autocompleteService) {
@@ -403,7 +398,7 @@
                                     @if(!empty($neighborhoods))
                                         <div x-data="{
                                             open: false,
-                                            search: @entangle('shipping_neighborhood'),
+                                            search: @entangle('shipping_neighborhood').live,
                                             neighborhoods: @js($neighborhoods),
                                             get filtered() {
                                                 if (!this.search || this.search.length === 0) return this.neighborhoods;
@@ -564,139 +559,6 @@
                                 </div>
                             </label>
                             @endif
-                        </div>
-                    </div>
-
-                    <!-- Fatura Bilgileri -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ invoiceType: @entangle('invoice_type') }">
-                        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">4</span>
-                            Fatura Bilgileri
-                        </h2>
-
-                        <!-- Bireysel / Kurumsal Toggle -->
-                        <div class="flex rounded-xl border border-gray-200 overflow-hidden mb-4">
-                            <button type="button" @click="invoiceType = 'individual'" class="flex-1 py-3 px-4 text-sm font-bold text-center transition-all duration-200" :class="invoiceType === 'individual' ? 'bg-black text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'">
-                                <i class="fa-solid fa-user mr-1.5"></i> Bireysel
-                            </button>
-                            <button type="button" @click="invoiceType = 'corporate'" class="flex-1 py-3 px-4 text-sm font-bold text-center transition-all duration-200" :class="invoiceType === 'corporate' ? 'bg-black text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'">
-                                <i class="fa-solid fa-building mr-1.5"></i> Kurumsal
-                            </button>
-                        </div>
-
-                        <!-- Bireysel Bilgi Notu -->
-                        <div x-show="invoiceType === 'individual'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
-                            <div class="flex items-start gap-2.5 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
-                                <i class="fa-solid fa-circle-info text-gray-400 mt-0.5"></i>
-                                <span>Bireysel faturanız, siparişiniz teslim edildikten sonra iletişim bilgileriniz üzerinden düzenlenecektir.</span>
-                            </div>
-                        </div>
-
-                        <!-- Kurumsal Fatura Alanları -->
-                        <div x-show="invoiceType === 'corporate'" x-collapse x-cloak>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Firma Adı <span class="text-red-500">*</span></label>
-                                    <input type="text" wire:model.blur="company_name" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Firma / Şirket Adı">
-                                    @error('company_name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                                <div x-data="{
-                                    open: false,
-                                    search: @entangle('tax_office'),
-                                    offices: @js($taxOffices ?? []),
-                                    highlightIndex: -1,
-                                    get filtered() {
-                                        if (!this.offices || !Array.isArray(this.offices)) return [];
-                                        if (!this.search || this.search.length === 0) return this.offices.slice(0, 50);
-                                        const s = this.search.toLocaleLowerCase('tr');
-                                        return this.offices.filter(n => n.toLocaleLowerCase('tr').includes(s)).slice(0, 50);
-                                    },
-                                    select(item) {
-                                        this.search = item;
-                                        this.open = false;
-                                        this.$refs.taxOfficeInput.blur();
-                                    },
-                                    navigateList(direction) {
-                                        if (!this.open) { this.open = true; return; }
-                                        if (direction === 'down') {
-                                            this.highlightIndex = this.highlightIndex < this.filtered.length - 1 ? this.highlightIndex + 1 : 0;
-                                        } else {
-                                            this.highlightIndex = this.highlightIndex > 0 ? this.highlightIndex - 1 : this.filtered.length - 1;
-                                        }
-                                        this.$nextTick(() => {
-                                            const el = document.querySelector('[data-tax-index=\'' + this.highlightIndex + '\']');
-                                            if (el) el.scrollIntoView({ block: 'nearest' });
-                                        });
-                                    },
-                                    selectHighlighted() {
-                                        if (this.highlightIndex >= 0 && this.highlightIndex < this.filtered.length) {
-                                            this.select(this.filtered[this.highlightIndex]);
-                                        }
-                                    }
-                                }" @click.away="open = false" class="relative">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vergi Dairesi <span class="text-red-500">*</span></label>
-                                    <div class="relative">
-                                        <input
-                                            x-ref="taxOfficeInput"
-                                            type="text"
-                                            x-model="search"
-                                            @focus="open = true; highlightIndex = -1"
-                                            @input="open = true; highlightIndex = -1"
-                                            @keydown.arrow-down.prevent="navigateList('down')"
-                                            @keydown.arrow-up.prevent="navigateList('up')"
-                                            @keydown.enter.prevent="selectHighlighted()"
-                                            @keydown.escape="open = false; $refs.taxOfficeInput.blur()"
-                                            autocomplete="off"
-                                            class="w-full px-4 py-3 pr-10 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
-                                            placeholder="Vergi dairesi adı yazarak arayın..."
-                                        >
-                                        <button type="button" @click="open = !open; if(open) $refs.taxOfficeInput.focus()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
-                                            <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                        </button>
-                                    </div>
-                                    <div
-                                        x-show="open && filtered.length > 0"
-                                        x-transition:enter="transition ease-out duration-100"
-                                        x-transition:enter-start="opacity-0 -translate-y-1"
-                                        x-transition:enter-end="opacity-100 translate-y-0"
-                                        x-transition:leave="transition ease-in duration-75"
-                                        x-transition:leave-start="opacity-100"
-                                        x-transition:leave-end="opacity-0"
-                                        class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
-                                        style="display: none;"
-                                    >
-                                        <template x-for="(item, index) in filtered" :key="index">
-                                            <button
-                                                type="button"
-                                                @click="select(item)"
-                                                @mouseenter="highlightIndex = index"
-                                                :data-tax-index="index"
-                                                class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
-                                                :class="{
-                                                    'bg-black text-white hover:bg-gray-800': search === item,
-                                                    'bg-gray-100': highlightIndex === index && search !== item
-                                                }"
-                                            >
-                                                <span x-text="item"></span>
-                                                <svg x-show="search === item" class="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                            </button>
-                                        </template>
-                                    </div>
-                                    <div
-                                        x-show="open && search && search.length > 0 && filtered.length === 0"
-                                        class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
-                                        style="display: none;"
-                                    >
-                                        <i class="fa-solid fa-search mr-1"></i> Sonuç bulunamadı
-                                    </div>
-                                    @error('tax_office') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vergi Numarası <span class="text-red-500">*</span></label>
-                                    <input type="text" wire:model.blur="tax_number" maxlength="11" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="10 veya 11 haneli vergi/TC no">
-                                    @error('tax_number') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
                         </div>
                     </div>
 

@@ -21,21 +21,15 @@ class Checkout extends Component
     public $shipping_neighborhood;
     public $shipping_address;
 
-    // Adres Modu
-    public $address_mode = 'manual'; // 'manual' veya 'autocomplete'
+    // Adres Autocomplete
+    public $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
     public $address_search = '';
     public $address_detail = '';
-    public $address_selected = true;
+    public $address_selected = false;
     
     public $payment_method = 'credit_card';
     public $sms_consent = false;
     public $terms_consent = false;
-
-    // Fatura bilgileri
-    public $invoice_type = 'individual'; // 'individual' veya 'corporate'
-    public $company_name = '';
-    public $tax_office = '';
-    public $tax_number = '';
 
     public $cities = [];
     public $districts = [];
@@ -74,14 +68,6 @@ class Checkout extends Component
             $baseRules['shipping_address'] = 'required|string';
         }
 
-        // Fatura bilgileri
-        $baseRules['invoice_type'] = 'required|in:individual,corporate';
-        if ($this->invoice_type === 'corporate') {
-            $baseRules['company_name'] = 'required|string|max:255';
-            $baseRules['tax_office'] = 'required|string|max:255';
-            $baseRules['tax_number'] = 'required|string|min:10|max:11';
-        }
-
         return $baseRules;
     }
 
@@ -96,11 +82,6 @@ class Checkout extends Component
         'shipping_neighborhood.required' => 'Lütfen mahallenizi seçiniz veya yazınız.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
-        'company_name.required' => 'Kurumsal fatura için firma adı zorunludur.',
-        'tax_office.required' => 'Kurumsal fatura için vergi dairesi zorunludur.',
-        'tax_number.required' => 'Kurumsal fatura için vergi numarası zorunludur.',
-        'tax_number.min' => 'Vergi numarası en az 10 karakter olmalıdır.',
-        'tax_number.max' => 'Vergi numarası en fazla 11 karakter olmalıdır.',
     ];
 
     public $isCodAllowed = true;
@@ -147,14 +128,19 @@ class Checkout extends Component
         $this->address_detail = session('co_address_detail', $this->address_detail);
         $this->address_search = session('co_address_search', $this->address_search);
 
-        // Kurumsal fatura bilgilerini session'dan restore et (fatura tipi hariç — her zaman bireysel açılır)
-        $this->company_name = session('co_company_name', $this->company_name);
-        $this->tax_office = session('co_tax_office', $this->tax_office);
-        $this->tax_number = session('co_tax_number', $this->tax_number);
+        // Google Places API key yoksa doğrudan manual mode
+        if (empty(config('services.google_places.api_key'))) {
+            $this->address_mode = 'manual';
+            $this->address_selected = false;
+        } else {
+            $this->address_mode = session('co_address_mode', 'autocomplete');
+            $this->address_selected = session('co_address_selected', false);
+        }
 
-        // Adres modu varsayılan olarak manual
-        $this->address_mode = session('co_address_mode', 'manual');
-        $this->address_selected = true;
+        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et (fallback)
+        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district && empty($this->address_selected)) {
+            $this->address_selected = true;
+        }
     }
 
     public function updated($propertyName)
@@ -172,10 +158,6 @@ class Checkout extends Component
             'address_search' => 'co_address_search',
             'address_mode' => 'co_address_mode',
             'address_selected' => 'co_address_selected',
-            'invoice_type' => 'co_invoice_type',
-            'company_name' => 'co_company_name',
-            'tax_office' => 'co_tax_office',
-            'tax_number' => 'co_tax_number',
         ];
 
         if (array_key_exists($propertyName, $map)) {
@@ -344,15 +326,8 @@ class Checkout extends Component
 
         // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
         if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
-            if (!empty($this->address_search)) {
-                $this->address_selected = true;
-                if (empty($this->shipping_address)) {
-                    $this->shipping_address = $this->address_search;
-                }
-            } else {
-                $this->addError('shipping_city', 'Lütfen teslimat adresinizi giriniz veya arama kutusundan seçiniz.');
-                return;
-            }
+            $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
+            return;
         }
 
         $this->validate();
@@ -445,12 +420,6 @@ class Checkout extends Component
             'billing_district' => $this->shipping_district,
             'billing_neighborhood' => $neighborhood,
             'billing_address' => $formattedAddress,
-
-            // Fatura bilgileri
-            'invoice_type' => $this->invoice_type,
-            'company_name' => $this->invoice_type === 'corporate' ? $this->company_name : null,
-            'tax_office' => $this->invoice_type === 'corporate' ? $this->tax_office : null,
-            'tax_number' => $this->invoice_type === 'corporate' ? $this->tax_number : null,
 
             'ip_address' => request()->ip(),
         ]);
@@ -742,18 +711,12 @@ class Checkout extends Component
         }
         $grandTotal = max(0, $subtotal + $shippingPrice - $couponDiscount);
 
-        $taxOffices = [];
-        if (file_exists(database_path('data/tax-office-names.json'))) {
-            $taxOffices = json_decode(file_get_contents(database_path('data/tax-office-names.json')), true) ?: [];
-        }
-
         return view('livewire.frontend.checkout', [
             'cartItems' => $cart->items,
             'subtotal' => $subtotal,
             'shippingPrice' => $shippingPrice,
             'couponDiscount' => $couponDiscount,
             'grandTotal' => $grandTotal,
-            'taxOffices' => $taxOffices,
         ])->layout('components.layouts.app');
     }
 }
