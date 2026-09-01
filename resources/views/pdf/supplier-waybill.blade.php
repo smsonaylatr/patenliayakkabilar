@@ -5,7 +5,7 @@
     <title>Tedarikçi Sipariş İrsaliyesi</title>
     <style>
         @page {
-            margin: 12mm 10mm;
+            margin: 10mm 10mm;
         }
         * {
             margin: 0;
@@ -82,15 +82,16 @@
             color: #ffffff;
             font-size: 9px;
             text-transform: uppercase;
-            padding: 6px 8px;
-            text-align: left;
+            padding: 8px 10px;
+            text-align: center;
             font-weight: bold;
         }
         .table-custom td {
-            padding: 6px 8px;
+            padding: 8px 10px;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
-            font-size: 9px;
+            font-size: 10px;
+            text-align: center;
         }
         .table-custom tr:nth-child(even) td {
             background: #f8fafc;
@@ -117,42 +118,54 @@
             color: #475569;
             font-size: 8px;
             text-transform: uppercase;
-            padding: 4px 8px;
-            text-align: left;
+            padding: 6px 8px;
+            text-align: center;
         }
         .order-table td {
             padding: 6px 8px;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 9px;
+            font-size: 10px;
             vertical-align: middle;
+            text-align: center;
         }
 
         .badge-variant {
             background: #e0e7ff;
             color: #3730a3;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 3px 8px;
+            border-radius: 4px;
             font-weight: bold;
-            font-size: 9px;
+            font-size: 10px;
             display: inline-block;
         }
         .badge-qty {
             background: #f59e0b;
             color: #ffffff;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 3px 8px;
+            border-radius: 4px;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 11px;
             display: inline-block;
         }
 
-        .img-thumb {
-            width: 38px;
-            height: 38px;
+        .img-thumb-large {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .img-thumb-small {
+            width: 44px;
+            height: 44px;
             object-fit: cover;
             border-radius: 4px;
             border: 1px solid #cbd5e1;
             display: block;
+            margin: 0 auto;
         }
 
         .footer-text {
@@ -190,7 +203,7 @@
             </td>
             <td>
                 <div class="summary-num">{{ $totalProducts }}</div>
-                <div class="summary-lbl">Ürün Çeşidi</div>
+                <div class="summary-lbl">Ürün / Varyant</div>
             </td>
             <td>
                 <div class="summary-num" style="color: #d97706;">{{ $totalQuantity }}</div>
@@ -204,33 +217,29 @@
     <table class="table-custom">
         <thead>
             <tr>
-                <th style="width: 45px; text-align: center;">Görsel</th>
-                <th>Ürün Adı</th>
-                <th style="width: 70px; text-align: center;">Numara</th>
-                <th style="width: 70px; text-align: center;">Toplam Adet</th>
+                <th style="width: 80px;">Görsel</th>
+                <th>Numara / Beden</th>
+                <th style="width: 100px;">Toplam Adet</th>
             </tr>
         </thead>
         <tbody>
             @foreach($consolidated as $item)
                 <tr>
-                    <td style="text-align: center;">
-                        <img src="{{ $item['image'] }}" class="img-thumb" style="margin: 0 auto;">
+                    <td>
+                        <img src="{{ $item['image'] }}" class="img-thumb-large">
                     </td>
-                    <td style="font-weight: bold;">
-                        {{ $item['name'] }}
-                    </td>
-                    <td style="text-align: center;">
+                    <td>
                         <span class="badge-variant">{{ $item['variant'] ?: '-' }}</span>
                     </td>
-                    <td style="text-align: center;">
+                    <td>
                         <span class="badge-qty">x{{ $item['quantity'] }}</span>
                     </td>
                 </tr>
             @endforeach
             <tr style="background: #f1f5f9; font-weight: bold;">
-                <td colspan="3" style="text-align: right; padding-right: 12px;">GENEL TOPLAM:</td>
-                <td style="text-align: center;">
-                    <span style="background: #0f172a; color: #fff; padding: 3px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">
+                <td colspan="2" style="text-align: right; padding-right: 16px; font-size: 11px;">GENEL TOPLAM:</td>
+                <td>
+                    <span style="background: #0f172a; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">
                         x{{ $totalQuantity }}
                     </span>
                 </td>
@@ -246,7 +255,7 @@
             <div class="order-head">
                 <table width="100%" style="border-collapse: collapse;">
                     <tr>
-                        <td>
+                        <td style="text-align: left;">
                             <strong style="color: #1e1b4b; font-size: 10px;">#{{ $order['order_number'] }}</strong>
                             <span style="margin-left: 8px; font-weight: bold;">{{ $order['customer_name'] }}</span>
                             @if(!empty($order['customer_phone']))
@@ -263,23 +272,21 @@
             <table class="order-table">
                 <thead>
                     <tr>
-                        <th style="width: 45px; text-align: center;">Görsel</th>
-                        <th>Ürün</th>
-                        <th style="width: 70px; text-align: center;">Numara</th>
-                        <th style="width: 70px; text-align: center;">Adet</th>
+                        <th style="width: 70px;">Görsel</th>
+                        <th>Numara / Beden</th>
+                        <th style="width: 80px;">Adet</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($order['items'] as $item)
                         <tr>
-                            <td style="text-align: center;">
-                                <img src="{{ $item['image'] }}" class="img-thumb" style="margin: 0 auto;">
+                            <td>
+                                <img src="{{ $item['image'] }}" class="img-thumb-small">
                             </td>
-                            <td>{{ $item['name'] }}</td>
-                            <td style="text-align: center;">
+                            <td>
                                 <span class="badge-variant">{{ $item['variant'] ?: '-' }}</span>
                             </td>
-                            <td style="text-align: center;">
+                            <td>
                                 <span class="badge-qty">x{{ $item['quantity'] }}</span>
                             </td>
                         </tr>

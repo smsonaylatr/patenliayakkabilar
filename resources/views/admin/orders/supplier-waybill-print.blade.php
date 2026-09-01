@@ -18,12 +18,12 @@
 <body class="bg-slate-100 text-slate-800 font-sans antialiased p-4 md:p-8">
 
     {{-- Üst Kontrol Çubuğu (Yazdırmada Gizlenir) --}}
-    <div class="no-print max-w-5xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+    <div class="no-print max-w-4xl mx-auto mb-6 bg-white p-4 rounded-xl shadow-md border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-            <span class="text-2xl">📦</span>
+            <span class="text-3xl">📦</span>
             <div>
                 <h1 class="font-bold text-slate-900 text-lg">Tedarikçi Sipariş İrsaliyesi</h1>
-                <p class="text-xs text-slate-500">Seçilen {{ $totalOrders }} sipariş için irsaliye ve ürün listesi</p>
+                <p class="text-xs text-slate-500">Seçilen {{ $totalOrders }} sipariş için hazırlık ve paketleme listesi</p>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -40,7 +40,7 @@
     </div>
 
     {{-- Ana Belge --}}
-    <div class="print-container max-w-5xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+    <div class="print-container max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
         
         {{-- Header --}}
         <div class="bg-slate-900 text-white p-6 md:p-8 flex justify-between items-center border-b border-slate-800">
@@ -62,7 +62,7 @@
             </div>
             <div>
                 <div class="text-2xl font-black text-indigo-600">{{ $totalProducts }}</div>
-                <div class="text-xs uppercase font-semibold text-slate-500 mt-1">Ürün Çeşidi</div>
+                <div class="text-xs uppercase font-semibold text-slate-500 mt-1">Ürün / Varyant</div>
             </div>
             <div>
                 <div class="text-2xl font-black text-amber-600">{{ $totalQuantity }}</div>
@@ -85,37 +85,33 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-indigo-600 text-white text-xs uppercase font-semibold tracking-wider">
-                                <th class="p-3 w-16 text-center">Görsel</th>
-                                <th class="p-3">Ürün Adı</th>
-                                <th class="p-3 w-28 text-center">Numara</th>
-                                <th class="p-3 w-28 text-center">Toplam Adet</th>
+                                <th class="p-3.5 text-center w-36">Görsel</th>
+                                <th class="p-3.5 text-center">Numara / Beden</th>
+                                <th class="p-3.5 text-center w-36">Toplam Adet</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
                             @foreach($consolidated as $item)
                                 <tr class="hover:bg-slate-50 transition">
-                                    <td class="p-2.5 text-center">
-                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-14 h-14 object-cover rounded-lg border border-slate-200 shadow-sm mx-auto">
-                                    </td>
-                                    <td class="p-3 font-semibold text-slate-900">
-                                        {{ $item['name'] }}
+                                    <td class="p-3 text-center">
+                                        <img src="{{ $item['image'] }}" alt="Ürün" class="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border border-slate-200 shadow-sm mx-auto">
                                     </td>
                                     <td class="p-3 text-center">
-                                        <span class="inline-block bg-indigo-100 text-indigo-800 font-bold text-xs px-3 py-1 rounded-full">
+                                        <span class="inline-block bg-indigo-50 text-indigo-800 border border-indigo-200 font-black text-sm md:text-base px-4 py-2 rounded-xl">
                                             {{ $item['variant'] ?: '-' }}
                                         </span>
                                     </td>
                                     <td class="p-3 text-center">
-                                        <span class="inline-block bg-amber-500 text-white font-black text-sm px-3.5 py-1 rounded-lg shadow-sm">
+                                        <span class="inline-block bg-amber-500 text-white font-black text-base md:text-lg px-4 py-2 rounded-xl shadow-sm">
                                             x{{ $item['quantity'] }}
                                         </span>
                                     </td>
                                 </tr>
                             @endforeach
                             <tr class="bg-slate-100 font-bold text-slate-900">
-                                <td colspan="3" class="p-3 text-right">GENEL TOPLAM:</td>
-                                <td class="p-3 text-center">
-                                    <span class="inline-block bg-slate-900 text-white font-black text-base px-4 py-1.5 rounded-lg">
+                                <td colspan="2" class="p-4 text-right text-base">GENEL TOPLAM:</td>
+                                <td class="p-4 text-center">
+                                    <span class="inline-block bg-slate-900 text-white font-black text-lg px-5 py-2 rounded-xl">
                                         x{{ $totalQuantity }}
                                     </span>
                                 </td>
@@ -153,28 +149,24 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-semibold">
-                                        <th class="p-2.5 w-16 text-center">Görsel</th>
-                                        <th class="p-2.5">Ürün</th>
-                                        <th class="p-2.5 w-28 text-center">Numara</th>
-                                        <th class="p-2.5 w-28 text-center">Adet</th>
+                                        <th class="p-2.5 text-center w-28">Görsel</th>
+                                        <th class="p-2.5 text-center">Numara / Beden</th>
+                                        <th class="p-2.5 text-center w-28">Adet</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     @foreach($order['items'] as $item)
                                         <tr>
-                                            <td class="p-2 text-center">
-                                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-12 h-12 object-cover rounded-md border border-slate-200 shadow-sm mx-auto">
-                                            </td>
-                                            <td class="p-2.5 font-medium text-slate-800">
-                                                {{ $item['name'] }}
+                                            <td class="p-2.5 text-center">
+                                                <img src="{{ $item['image'] }}" alt="Ürün" class="w-16 h-16 object-cover rounded-lg border border-slate-200 shadow-sm mx-auto">
                                             </td>
                                             <td class="p-2.5 text-center">
-                                                <span class="inline-block bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-xs px-2.5 py-0.5 rounded">
+                                                <span class="inline-block bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold text-sm px-3 py-1 rounded-lg">
                                                     {{ $item['variant'] ?: '-' }}
                                                 </span>
                                             </td>
                                             <td class="p-2.5 text-center">
-                                                <span class="inline-block bg-amber-500 text-white font-bold text-xs px-3 py-1 rounded-md shadow-sm">
+                                                <span class="inline-block bg-amber-500 text-white font-bold text-sm px-3.5 py-1 rounded-lg shadow-sm">
                                                     x{{ $item['quantity'] }}
                                                 </span>
                                             </td>
