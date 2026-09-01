@@ -258,12 +258,10 @@ class Checkout extends Component
         }
 
         // Neighborhood boşsa formatted_address'ten çıkarmayı dene
-        // Google Places Türkiye'de mahalle bilgisini her zaman döndürmüyor
         if (empty($this->shipping_neighborhood) && !empty($this->address_search)) {
             $parts = explode(',', $this->address_search);
             if (count($parts) >= 3) {
                 $firstPart = trim($parts[0]);
-                // Sadece harflerden oluşuyorsa ve 2 karakterden uzunsa mahalle kabul et
                 if (preg_match('/^[\p{L}\s]+$/u', $firstPart) && mb_strlen($firstPart) > 2) {
                     $this->shipping_neighborhood = $firstPart;
                 }
@@ -277,7 +275,11 @@ class Checkout extends Component
             'co_neighborhood' => $this->shipping_neighborhood,
             'co_address' => $this->shipping_address,
             'co_address_search' => $this->address_search,
+            'co_address_selected' => true,
         ]);
+
+        // Alpine state'ini bozmamak için yeniden render etme
+        $this->skipRender();
     }
 
     /**
@@ -311,6 +313,9 @@ class Checkout extends Component
             'co_city', 'co_district', 'co_neighborhood', 'co_address',
             'co_address_search', 'co_address_detail', 'co_address_selected',
         ]);
+
+        // Alpine state'ini bozmamak için yeniden render etme
+        $this->skipRender();
     }
 
     public function placeOrder(CartService $cartService)
