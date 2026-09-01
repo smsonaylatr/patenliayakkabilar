@@ -26,16 +26,23 @@ class OrdersTable
                 ImageColumn::make('product_image')
                     ->label('')
                     ->getStateUsing(function (Order $record) {
-                        $firstItem = $record->items->first();
-                        if ($firstItem && $firstItem->product) {
-                            $firstItem->product->loadMissing('images');
-                            $img = $firstItem->product->images->first()?->image_url;
-                            if ($img) return $img;
+                        $images = [];
+                        foreach ($record->items as $item) {
+                            if ($item->product) {
+                                $item->product->loadMissing('images');
+                                $img = $item->product->images->first()?->image_url;
+                                if ($img) {
+                                    $images[] = $img;
+                                }
+                            }
                         }
-                        return asset('favicon.png');
+                        return !empty($images) ? $images : [asset('favicon.png')];
                     })
                     ->square()
                     ->size(60)
+                    ->stacked()
+                    ->limit(4)
+                    ->limitedRemainingText()
                     ->extraImgAttributes([
                         'style' => 'border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 8px !important; object-fit: cover !important; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease !important; cursor: zoom-in !important; transform-origin: center left !important; position: relative !important; z-index: 10 !important;',
                         'class' => 'hover:scale-[2.6] hover:z-[9999] hover:shadow-2xl hover:rounded-xl hover:border-2 hover:border-sky-400',
