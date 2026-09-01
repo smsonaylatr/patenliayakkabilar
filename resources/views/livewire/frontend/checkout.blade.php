@@ -249,30 +249,41 @@
                                         this.loading = true;
                                         this.searched = false;
 
-                                        // Türkçe mahalle eklerini sorgudan temizle (Google bunları anlamıyor)
+                                        // Türkçe adres kısaltmalarını sorgudan temizle
                                         let cleanQuery = this.query
-                                            .replace(/\b(mah\.|mahallesi|mahalle|mh\.)\b/gi, '')
+                                            .replace(/\b(mah\.|mahallesi|mahalle|mh\.|cad\.|caddesi|cadde|cd\.|sok\.|sokak|sokağı|sk\.|no[:\.]?\s*\d*|blok|kat[:\.]?\s*\d*|daire[:\.]?\s*\d*)\b/gi, '')
                                             .replace(/\s+/g, ' ')
                                             .trim();
 
-                                        this.autocompleteService.getPlacePredictions({
-                                            input: cleanQuery,
-                                            componentRestrictions: { country: 'tr' },
-                                            types: ['geocode'],
-                                            sessionToken: this.sessionToken,
-                                            language: 'tr',
-                                        }, (predictions, status) => {
-                                            this.loading = false;
-                                            this.searched = true;
-                                            if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-                                                this.suggestions = predictions;
-                                                this.showSuggestions = true;
-                                                this.highlightIndex = -1;
-                                            } else {
-                                                this.suggestions = [];
-                                                this.showSuggestions = true;
-                                            }
-                                        });
+                                        const doSearch = (query, types) => {
+                                            const opts = {
+                                                input: query,
+                                                componentRestrictions: { country: 'tr' },
+                                                sessionToken: this.sessionToken,
+                                                language: 'tr',
+                                            };
+                                            if (types) opts.types = types;
+
+                                            this.autocompleteService.getPlacePredictions(opts, (predictions, status) => {
+                                                if (status === google.maps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+                                                    this.loading = false;
+                                                    this.searched = true;
+                                                    this.suggestions = predictions;
+                                                    this.showSuggestions = true;
+                                                    this.highlightIndex = -1;
+                                                } else if (types) {
+                                                    // Sonuç yoksa types olmadan tekrar dene
+                                                    doSearch(query, null);
+                                                } else {
+                                                    this.loading = false;
+                                                    this.searched = true;
+                                                    this.suggestions = [];
+                                                    this.showSuggestions = true;
+                                                }
+                                            });
+                                        };
+
+                                        doSearch(cleanQuery, ['geocode']);
                                     },
 
                                     selectSuggestion(suggestion) {
