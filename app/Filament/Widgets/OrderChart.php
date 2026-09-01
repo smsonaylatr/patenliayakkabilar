@@ -16,7 +16,7 @@ class OrderChart extends ChartWidget
     protected function getData(): array
     {
         $days = collect(range(29, 0));
-        $activeOrders = fn () => Order::where('status', '!=', 'cancelled');
+        $activeOrders = fn () => Order::where('status', '!=', 'cancelled')->where('payment_status', 'paid');
 
         $labels = $days->map(fn ($daysAgo) =>
             Carbon::today()->subDays($daysAgo)->format('d.m')

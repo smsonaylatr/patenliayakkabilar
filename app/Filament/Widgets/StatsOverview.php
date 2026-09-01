@@ -16,8 +16,8 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        // İptal edilmemiş sipariş scope'u
-        $activeOrders = fn () => Order::where('status', '!=', 'cancelled');
+        // Sadece ödenen ve iptal edilmemiş siparişler
+        $activeOrders = fn () => Order::where('status', '!=', 'cancelled')->where('payment_status', 'paid');
 
         // Son 7 günlük gerçek ciro verileri
         $dailyRevenues = collect(range(6, 0))->map(function ($daysAgo) use ($activeOrders) {

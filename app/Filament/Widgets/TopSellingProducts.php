@@ -23,7 +23,8 @@ class TopSellingProducts extends BaseWidget
     {
         return OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.status', '!=', 'cancelled');
+            ->where('orders.status', '!=', 'cancelled')
+            ->where('orders.payment_status', 'paid');
     }
 
     public function table(Table $table): Table
