@@ -16,9 +16,12 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        // İptal edilmemiş sipariş scope'u
+        $activeOrders = fn () => Order::where('status', '!=', 'cancelled');
+
         // Son 7 günlük gerçek ciro verileri
-        $dailyRevenues = collect(range(6, 0))->map(function ($daysAgo) {
-            return (float) Order::whereDate('created_at', Carbon::today()->subDays($daysAgo))
+        $dailyRevenues = collect(range(6, 0))->map(function ($daysAgo) use ($activeOrders) {
+            return (float) $activeOrders()->whereDate('created_at', Carbon::today()->subDays($daysAgo))
                 ->sum('grand_total');
         })->toArray();
 
@@ -28,13 +31,13 @@ class StatsOverview extends StatsOverviewWidget
             ? round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100)
             : 0;
 
-        // Son 7 günlük sipariş sayıları
-        $dailyOrders = collect(range(6, 0))->map(function ($daysAgo) {
-            return Order::whereDate('created_at', Carbon::today()->subDays($daysAgo))->count();
+        // Son 7 günlük sipariş sayıları (iptal hariç)
+        $dailyOrders = collect(range(6, 0))->map(function ($daysAgo) use ($activeOrders) {
+            return $activeOrders()->whereDate('created_at', Carbon::today()->subDays($daysAgo))->count();
         })->toArray();
 
-        // Aylık ciro
-        $monthlyRevenue = Order::whereMonth('created_at', Carbon::now()->month)
+        // Aylık ciro (iptal hariç)
+        $monthlyRevenue = $activeOrders()->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->sum('grand_total');
 
@@ -46,8 +49,8 @@ class StatsOverview extends StatsOverviewWidget
         // Bekleyen siparişler
         $pendingOrders = Order::where('status', 'pending')->count();
 
-        // Ortalama sipariş tutarı
-        $avgOrderValue = Order::avg('grand_total') ?? 0;
+        // Ortalama sipariş tutarı (iptal hariç)
+        $avgOrderValue = $activeOrders()->avg('grand_total') ?? 0;
 
         return [
             Stat::make('Bugünkü Ciro', number_format($todayRevenue, 2) . ' ₺')

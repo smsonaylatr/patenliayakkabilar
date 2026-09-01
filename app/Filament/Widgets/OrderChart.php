@@ -16,18 +16,19 @@ class OrderChart extends ChartWidget
     protected function getData(): array
     {
         $days = collect(range(29, 0));
+        $activeOrders = fn () => Order::where('status', '!=', 'cancelled');
 
         $labels = $days->map(fn ($daysAgo) =>
             Carbon::today()->subDays($daysAgo)->format('d.m')
         )->toArray();
 
         $revenues = $days->map(fn ($daysAgo) =>
-            (float) Order::whereDate('created_at', Carbon::today()->subDays($daysAgo))
+            (float) $activeOrders()->whereDate('created_at', Carbon::today()->subDays($daysAgo))
                 ->sum('grand_total')
         )->toArray();
 
         $orderCounts = $days->map(fn ($daysAgo) =>
-            Order::whereDate('created_at', Carbon::today()->subDays($daysAgo))->count()
+            $activeOrders()->whereDate('created_at', Carbon::today()->subDays($daysAgo))->count()
         )->toArray();
 
         return [
