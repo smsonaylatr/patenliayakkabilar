@@ -249,6 +249,11 @@ class Checkout extends Component
         $this->address_search = $placeData['formatted_address'] ?? '';
         $this->address_selected = true;
 
+        // shipping_address boşsa formatted_address kullan
+        if (empty($this->shipping_address) && !empty($this->address_search)) {
+            $this->shipping_address = $this->address_search;
+        }
+
         // Session'a kaydet
         session([
             'co_city' => $this->shipping_city,
@@ -257,13 +262,6 @@ class Checkout extends Component
             'co_address' => $this->shipping_address,
             'co_address_search' => $this->address_search,
         ]);
-
-        // İlçe listesini yükle (gösterim için)
-        if ($this->shipping_city) {
-            $this->updatedShippingCity($this->shipping_city);
-            // Sonra district'i restore et çünkü updatedShippingCity sıfırlar
-            $this->shipping_district = $placeData['district'] ?? '';
-        }
     }
 
     /**

@@ -303,8 +303,12 @@
                                                         placeData.city = c.long_name;
                                                     } else if (types.includes('administrative_area_level_2')) {
                                                         placeData.district = c.long_name;
-                                                    } else if (types.includes('neighborhood') || types.includes('sublocality') || types.includes('sublocality_level_1')) {
-                                                        if (!placeData.neighborhood) placeData.neighborhood = c.long_name;
+                                                    } else if (types.includes('sublocality_level_1') || types.includes('sublocality')) {
+                                                        // İstanbul gibi büyükşehirlerde ilçe sublocality olarak gelir
+                                                        if (!placeData.district) placeData.district = c.long_name;
+                                                        else if (!placeData.neighborhood) placeData.neighborhood = c.long_name;
+                                                    } else if (types.includes('neighborhood')) {
+                                                        placeData.neighborhood = c.long_name;
                                                     } else if (types.includes('route')) {
                                                         route = c.long_name;
                                                     } else if (types.includes('street_number')) {
@@ -315,6 +319,12 @@
                                                 // Sokak adresini oluştur
                                                 if (route) {
                                                     placeData.street_address = route + (streetNumber ? ' No:' + streetNumber : '');
+                                                }
+
+                                                // Fallback: district boşsa formatted_address'ten tahmin et
+                                                if (!placeData.district && placeData.neighborhood) {
+                                                    placeData.district = placeData.neighborhood;
+                                                    placeData.neighborhood = '';
                                                 }
 
                                                 // Livewire'a gönder
