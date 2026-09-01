@@ -8,7 +8,6 @@ use App\Models\CartItem;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class TopSellingProducts extends BaseWidget
@@ -22,12 +21,9 @@ class TopSellingProducts extends BaseWidget
         return $table
             ->query(
                 Product::query()
-                    ->withSum(['variants as total_sold' => function (Builder $query) {
-                        // Varyant bazlı hesaplanamaz — direkt order_items'dan gidiyoruz
-                    }], 'stock')
                     ->addSelect([
                         'total_sold' => OrderItem::query()
-                            ->selectRaw('COALESCE(SUM(quantity), 0)')
+                            ->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
                             ->whereColumn('order_items.product_id', 'products.id'),
                         'abandoned_count' => CartItem::query()
                             ->selectRaw('COALESCE(SUM(cart_items.quantity), 0)')
@@ -68,7 +64,7 @@ class TopSellingProducts extends BaseWidget
                     ->label('Numara Bazlı Satış')
                     ->getStateUsing(function ($record) {
                         $breakdown = OrderItem::query()
-                            ->where('product_id', $record->id)
+                            ->where('order_items.product_id', $record->id)
                             ->join('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
                             ->select('product_variants.size', DB::raw('SUM(order_items.quantity) as qty'))
                             ->groupBy('product_variants.size')
