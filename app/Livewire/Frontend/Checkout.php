@@ -213,8 +213,18 @@ class Checkout extends Component
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
         $shippingPrice = $this->payment_method === 'cash_on_delivery' ? (200 + (1 * $totalItems)) : (1 * $totalItems);
-        $couponDiscount = $this->coupon_discount;
-        $grandTotal = max(0, $subtotal - $couponDiscount) + $shippingPrice;
+        
+        // Kupon indirimi genel toplam üzerinden hesapla (kargo dahil)
+        $couponDiscount = 0;
+        if ($this->applied_coupon) {
+            $totalBeforeDiscount = $subtotal + $shippingPrice;
+            if ($this->applied_coupon->type === 'percentage') {
+                $couponDiscount = round($totalBeforeDiscount * ($this->applied_coupon->value / 100), 2);
+            } else {
+                $couponDiscount = min($this->applied_coupon->value, $totalBeforeDiscount);
+            }
+        }
+        $grandTotal = max(0, $subtotal + $shippingPrice - $couponDiscount);
         $orderNumber = 'TR' . mt_rand(100000, 999999);
 
         // Sepet üzerinde misafir bilgilerini her ihtimale karşı güncelle
@@ -273,9 +283,13 @@ class Checkout extends Component
             'ip_address' => request()->ip(),
         ]);
 
-        // Kupon kullanım sayısını artır
+        // Kupon kullanım sayısını artır + müşteri bilgisini kaydet
         if ($this->applied_coupon) {
-            $this->applied_coupon->increment('used_count');
+            $this->applied_coupon->update([
+                'used_count' => $this->applied_coupon->used_count + 1,
+                'used_by_name' => $this->customer_name,
+                'used_by_phone' => $this->customer_phone,
+            ]);
         }
 
         // Create Order Items

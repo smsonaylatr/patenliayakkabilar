@@ -47,6 +47,12 @@ class CouponsTable
                     ->label('Limit')
                     ->getStateUsing(fn ($record) => $record->usage_limit ? "{$record->used_count} / {$record->usage_limit}" : "{$record->used_count} / Sınırsız")
                     ->sortable(['used_count', 'usage_limit']),
+                TextColumn::make('used_by_name')
+                    ->label('Kullanan Müşteri')
+                    ->getStateUsing(fn ($record) => $record->used_by_name
+                        ? $record->used_by_name . "\n" . $record->used_by_phone
+                        : '—')
+                    ->searchable(),
                 TextColumn::make('expires_at')
                     ->label('Bitiş Tarihi')
                     ->dateTime('d.m.Y H:i')
