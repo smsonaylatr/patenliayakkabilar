@@ -403,7 +403,7 @@
                                     @if(!empty($neighborhoods))
                                         <div x-data="{
                                             open: false,
-                                            search: @entangle('shipping_neighborhood').live,
+                                            search: @entangle('shipping_neighborhood'),
                                             neighborhoods: @js($neighborhoods),
                                             get filtered() {
                                                 if (!this.search || this.search.length === 0) return this.neighborhoods;

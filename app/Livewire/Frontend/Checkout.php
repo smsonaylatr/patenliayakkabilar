@@ -21,11 +21,11 @@ class Checkout extends Component
     public $shipping_neighborhood;
     public $shipping_address;
 
-    // Adres Autocomplete
-    public $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
+    // Adres Modu
+    public $address_mode = 'manual'; // 'manual' veya 'autocomplete'
     public $address_search = '';
     public $address_detail = '';
-    public $address_selected = false;
+    public $address_selected = true;
     
     public $payment_method = 'credit_card';
     public $sms_consent = false;
@@ -152,19 +152,9 @@ class Checkout extends Component
         $this->tax_office = session('co_tax_office', $this->tax_office);
         $this->tax_number = session('co_tax_number', $this->tax_number);
 
-        // Google Places API key yoksa doğrudan manual mode
-        if (empty(config('services.google_places.api_key'))) {
-            $this->address_mode = 'manual';
-            $this->address_selected = false;
-        } else {
-            $this->address_mode = session('co_address_mode', 'autocomplete');
-            $this->address_selected = session('co_address_selected', false);
-        }
-
-        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et (fallback)
-        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district && empty($this->address_selected)) {
-            $this->address_selected = true;
-        }
+        // Adres modu varsayılan olarak manual
+        $this->address_mode = session('co_address_mode', 'manual');
+        $this->address_selected = true;
     }
 
     public function updated($propertyName)
