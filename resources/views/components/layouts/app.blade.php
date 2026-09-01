@@ -134,6 +134,7 @@
                 animation: pageSlideHorizontal 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
             }
         </style>
+        @stack('head-scripts')
     </head>
     <body class="bg-brand-light text-brand-dark font-sans antialiased flex flex-col min-h-screen overflow-x-hidden">
         <!-- Google Tag Manager (noscript) -->

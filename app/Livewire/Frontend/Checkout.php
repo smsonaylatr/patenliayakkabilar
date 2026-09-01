@@ -20,6 +20,12 @@ class Checkout extends Component
     public $shipping_district;
     public $shipping_neighborhood;
     public $shipping_address;
+
+    // Adres Autocomplete
+    public $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
+    public $address_search = '';
+    public $address_detail = '';
+    public $address_selected = false;
     
     public $payment_method = 'credit_card';
     public $sms_consent = false;
@@ -105,6 +111,20 @@ class Checkout extends Component
         
         $this->shipping_address = session('co_address', $this->shipping_address);
         $this->customer_note = session('co_note', $this->customer_note);
+        $this->address_detail = session('co_address_detail', $this->address_detail);
+        $this->address_search = session('co_address_search', $this->address_search);
+
+        // Google Places API key yoksa doğrudan manual mode
+        if (empty(config('services.google_places.api_key'))) {
+            $this->address_mode = 'manual';
+        } else {
+            $this->address_mode = session('co_address_mode', 'autocomplete');
+        }
+
+        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et
+        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district) {
+            $this->address_selected = true;
+        }
     }
 
     public function updated($propertyName)
@@ -118,6 +138,9 @@ class Checkout extends Component
             'shipping_neighborhood' => 'co_neighborhood',
             'shipping_address' => 'co_address',
             'customer_note' => 'co_note',
+            'address_detail' => 'co_address_detail',
+            'address_search' => 'co_address_search',
+            'address_mode' => 'co_address_mode',
         ];
 
         if (array_key_exists($propertyName, $map)) {
@@ -199,6 +222,69 @@ class Checkout extends Component
         }
     }
 
+    /**
+     * Google Places Autocomplete'den seçilen adresi parse et ve form alanlarına dağıt.
+     * Alpine.js'den çağrılır: $wire.selectAddress(placeData)
+     */
+    public function selectAddress($placeData)
+    {
+        $this->shipping_city = $placeData['city'] ?? '';
+        $this->shipping_district = $placeData['district'] ?? '';
+        $this->shipping_neighborhood = $placeData['neighborhood'] ?? '';
+        $this->shipping_address = $placeData['street_address'] ?? '';
+        $this->address_search = $placeData['formatted_address'] ?? '';
+        $this->address_selected = true;
+
+        // Session'a kaydet
+        session([
+            'co_city' => $this->shipping_city,
+            'co_district' => $this->shipping_district,
+            'co_neighborhood' => $this->shipping_neighborhood,
+            'co_address' => $this->shipping_address,
+            'co_address_search' => $this->address_search,
+        ]);
+
+        // İlçe listesini yükle (gösterim için)
+        if ($this->shipping_city) {
+            $this->updatedShippingCity($this->shipping_city);
+            // Sonra district'i restore et çünkü updatedShippingCity sıfırlar
+            $this->shipping_district = $placeData['district'] ?? '';
+        }
+    }
+
+    /**
+     * Adres modunu değiştir (autocomplete ↔ manual)
+     */
+    public function switchAddressMode($mode)
+    {
+        $this->address_mode = $mode;
+        session(['co_address_mode' => $mode]);
+
+        if ($mode === 'manual' && !$this->address_selected) {
+            // Autocomplete'den bir şey seçilmediyse alanları temizle
+            $this->resetAutocomplete();
+        }
+    }
+
+    /**
+     * Autocomplete seçimini sıfırla (yeni arama yapabilmek için)
+     */
+    public function resetAutocomplete()
+    {
+        $this->address_search = '';
+        $this->address_detail = '';
+        $this->address_selected = false;
+        $this->shipping_city = '';
+        $this->shipping_district = '';
+        $this->shipping_neighborhood = '';
+        $this->shipping_address = '';
+
+        session()->forget([
+            'co_city', 'co_district', 'co_neighborhood', 'co_address',
+            'co_address_search', 'co_address_detail',
+        ]);
+    }
+
     public function placeOrder(CartService $cartService)
     {
         $this->validate();
@@ -244,6 +330,12 @@ class Checkout extends Component
         // Create Order
         $neighborhood = trim($this->shipping_neighborhood ?: '');
         $rawAddress = trim($this->shipping_address ?: '');
+
+        // Autocomplete modunda address_detail'i rawAddress'e birleştir
+        $addressDetail = trim($this->address_detail ?: '');
+        if (!empty($addressDetail)) {
+            $rawAddress = !empty($rawAddress) ? ($rawAddress . ' ' . $addressDetail) : $addressDetail;
+        }
 
         if (!empty($neighborhood) && stripos($rawAddress, $neighborhood) === false) {
             $formattedAddress = $neighborhood . (preg_match('/(mah|mahallesi|mh\.)/i', $neighborhood) ? '' : ' Mah.') . ' ' . $rawAddress;

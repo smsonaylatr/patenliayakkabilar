@@ -52,4 +52,8 @@ return [
         'site_id' => env('ETBIS_SITE_ID'),
     ],
 
+    'google_places' => [
+        'api_key' => env('GOOGLE_PLACES_API_KEY'),
+    ],
+
 ];

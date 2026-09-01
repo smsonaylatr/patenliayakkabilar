@@ -576,6 +576,87 @@ class OrdersTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('supplierWaybill')
+                        ->label('Tedarikçi İrsaliyesi (PDF)')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('info')
+                        ->action(function (Collection $records) {
+                            $records->load(['items.product.images', 'items.variant']);
+
+                            $ordersData = [];
+                            $consolidatedMap = [];
+                            $totalQuantity = 0;
+
+                            foreach ($records as $order) {
+                                $orderItems = [];
+                                foreach ($order->items as $item) {
+                                    $img = asset('favicon.png');
+                                    if ($item->product) {
+                                        $firstImg = $item->product->images->first();
+                                        if ($firstImg) {
+                                            $rawUrl = $firstImg->raw_image_url ?? $firstImg->image_url;
+                                            $img = $rawUrl;
+                                        }
+                                    }
+
+                                    $variant = $item->variant_info ?: ($item->variant?->size ?? ($item->variant?->name ?? '-'));
+                                    $name = $item->product_name ?: ($item->product?->name ?? 'Ürün');
+                                    $qty = $item->quantity ?? 1;
+                                    $totalQuantity += $qty;
+
+                                    $orderItems[] = [
+                                        'image' => $img,
+                                        'name' => $name,
+                                        'variant' => $variant,
+                                        'quantity' => $qty,
+                                    ];
+
+                                    // Konsolide özet
+                                    $key = ($item->product_id ?? 0) . '-' . $variant;
+                                    if (!isset($consolidatedMap[$key])) {
+                                        $consolidatedMap[$key] = [
+                                            'image' => $img,
+                                            'name' => $name,
+                                            'variant' => $variant,
+                                            'quantity' => 0,
+                                        ];
+                                    }
+                                    $consolidatedMap[$key]['quantity'] += $qty;
+                                }
+
+                                $ordersData[] = [
+                                    'order_number' => $order->order_number,
+                                    'customer_name' => $order->customer_name,
+                                    'city' => $order->shipping_city ?: ($order->billing_city ?: '-'),
+                                    'date' => $order->created_at?->format('d.m.Y H:i') ?? '-',
+                                    'items' => $orderItems,
+                                ];
+                            }
+
+                            // Konsolide listeyi numara/isime göre sırala
+                            $consolidated = collect(array_values($consolidatedMap))
+                                ->sortBy(['name', 'variant'])
+                                ->values()
+                                ->all();
+
+                            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.supplier-waybill', [
+                                'orders' => $ordersData,
+                                'consolidated' => $consolidated,
+                                'totalOrders' => $records->count(),
+                                'totalProducts' => count($consolidated),
+                                'totalQuantity' => $totalQuantity,
+                                'date' => now()->format('d.m.Y H:i'),
+                            ]);
+
+                            $pdf->setPaper('A4', 'portrait');
+
+                            return response()->streamDownload(
+                                fn () => print($pdf->output()),
+                                'tedarikci-irsaliye-' . now()->format('Y-m-d-His') . '.pdf',
+                                ['Content-Type' => 'application/pdf']
+                            );
+                        }),
+
                     BulkAction::make('bulkSendToPorego')
                         ->label('Porego\'ya Gönder')
                         ->icon('heroicon-o-paper-airplane')

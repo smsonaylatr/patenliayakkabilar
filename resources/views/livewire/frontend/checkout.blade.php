@@ -1,3 +1,8 @@
+@if(config('services.google_places.api_key'))
+@push('head-scripts')
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_places.api_key') }}&libraries=places&language=tr&region=TR&loading=async"></script>
+@endpush
+@endif
 <div class="min-h-screen bg-gray-50 pt-8 pb-24" x-data="{ activeModal: null }" @open-modal.window="activeModal = $event.detail">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
