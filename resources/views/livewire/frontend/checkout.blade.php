@@ -563,7 +563,7 @@
                     </div>
 
                     <!-- Fatura Bilgileri -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ invoiceType: @entangle('invoice_type').live }">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ invoiceType: @entangle('invoice_type') }">
                         <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">4</span>
                             Fatura Bilgileri
