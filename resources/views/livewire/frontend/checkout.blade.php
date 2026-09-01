@@ -711,39 +711,6 @@
                         </div>
                     </div>
 
-                    <!-- Desktop İçin Buton -->
-                    <div class="mt-8 hidden lg:block">
-                        <!-- SMS Consent (Desktop) -->
-                        <div class="mb-3">
-                            <label class="flex items-start cursor-pointer group">
-                                <div class="flex items-center h-5 mt-0.5">
-                                    <input wire:model="sms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
-                                </div>
-                                <div class="ml-3 text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
-                                    Kampanya, duyuru ve sepet hatırlatmalarından haberdar olmak için iletişim izni veriyorum.
-                                </div>
-                            </label>
-                        </div>
-                        <!-- Terms & Delivery Consent (Desktop) -->
-                        <div class="mb-4">
-                            <label class="flex items-start cursor-pointer group">
-                                <div class="flex items-center h-5 mt-0.5">
-                                    <input wire:model="terms_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
-                                </div>
-                                <div class="ml-3 text-xs text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">
-                                    <button type="button" @click="$dispatch('open-modal', 'on-bilgilendirme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Ön Bilgilendirme Formu</button> ve <button type="button" @click="$dispatch('open-modal', 'mesafeli-sozlesme')" class="font-bold text-black underline hover:text-brand-orange transition-colors">Mesafeli Satış Sözleşmesi</button>'ni okudum, kabul ediyorum.
-                                </div>
-                            </label>
-                            @error('terms_consent') <span class="text-red-500 text-xs mt-1 block font-medium">{{ $message }}</span> @enderror
-                        </div>
-                        @if(!$paytr_token)
-                            <button wire:click="placeOrder" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
-                                <span wire:loading wire:target="placeOrder">İşleniyor...</span>
-                                <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                            </button>
-                        @endif
-                    </div>
                     
                     <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
