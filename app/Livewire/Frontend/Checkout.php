@@ -314,6 +314,7 @@ class Checkout extends Component
 
         $this->validate();
 
+        try {
         $cart = $cartService->getCart();
         
         if (!$cart || $cart->items->count() === 0) {
@@ -452,10 +453,11 @@ class Checkout extends Component
             $this->paytr_token = $this->getPaytrToken($order, $cart->items, $this->payment_method);
             
             if (!$this->paytr_token) {
-                // Token alınamadıysa siparişi silip (veya hata verip) sepeti boşaltmıyoruz ki kullanıcı tekrar deneyebilsin.
+                // Token alınamadıysa siparişi silip sepeti boşaltmıyoruz ki kullanıcı tekrar deneyebilsin.
                 $order->items()->delete();
                 $order->delete();
-                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı. Lütfen mağaza yöneticisinin PayTR API ayarlarını yapmasını bekleyin.', type: 'error');
+                $this->created_order_number = null;
+                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı. Lütfen tekrar deneyiniz.', type: 'error');
                 return;
             }
             
@@ -463,11 +465,21 @@ class Checkout extends Component
             return;
         }
 
-        // Redirect to success page (Havale veya Kapıda ödeme)
-        return redirect()->route('order.success', [
+        // Redirect to success page (Kapıda ödeme)
+        $this->redirect(route('order.success', [
             'order_number' => $order->order_number, 
             'method' => $this->payment_method
-        ]);
+        ]));
+
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Sipariş oluşturma hatası: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'payment_method' => $this->payment_method ?? null,
+                'address_mode' => $this->address_mode ?? null,
+            ]);
+            $this->created_order_number = null;
+            $this->dispatch('notify', message: 'Sipariş oluşturulurken bir hata oluştu: ' . $e->getMessage(), type: 'error');
+        }
     }
 
     public function checkOrderStatus()
@@ -475,10 +487,10 @@ class Checkout extends Component
         if ($this->created_order_number) {
             $order = \App\Models\Order::where('order_number', $this->created_order_number)->first();
             if ($order && $order->payment_status === 'paid') {
-                return redirect()->route('order.success', [
+                $this->redirect(route('order.success', [
                     'order_number' => $this->created_order_number,
                     'method' => $order->payment_method === 'wire_transfer' ? 'wire_transfer' : 'cc'
-                ]);
+                ]));
             }
         }
     }
