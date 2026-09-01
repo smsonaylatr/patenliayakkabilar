@@ -161,10 +161,7 @@
                                         >
                                             <div class="flex items-start gap-3">
                                                 <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                                <div class="min-w-0">
-                                                    <p class="text-sm font-medium text-gray-900 truncate" x-text="suggestion.structured_formatting?.main_text || suggestion.description"></p>
-                                                    <p class="text-xs text-gray-500 truncate mt-0.5" x-text="suggestion.structured_formatting?.secondary_text || ''"></p>
-                                                </div>
+                                                <p class="text-sm font-medium text-gray-900 min-w-0" x-text="suggestion.description"></p>
                                             </div>
                                         </button>
                                     </template>
