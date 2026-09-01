@@ -354,8 +354,15 @@ class Checkout extends Component
 
         // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
         if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
-            $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
-            return;
+            if (!empty($this->address_search)) {
+                $this->address_selected = true;
+                if (empty($this->shipping_address)) {
+                    $this->shipping_address = $this->address_search;
+                }
+            } else {
+                $this->addError('shipping_city', 'Lütfen teslimat adresinizi giriniz veya arama kutusundan seçiniz.');
+                return;
+            }
         }
 
         $this->validate();
