@@ -60,16 +60,6 @@ class TopSellingProducts extends BaseWidget
                     ->disk('public')
                     ->square()
                     ->size(56),
-                Tables\Columns\TextColumn::make('sold_qty')
-                    ->label('Adet')
-                    ->getStateUsing(fn ($record) => $this->activeOrderItems()
-                        ->where('order_items.product_id', $record->id)
-                        ->sum('order_items.quantity')
-                    )
-                    ->badge()
-                    ->color('success')
-                    ->size(Tables\Columns\TextColumn\TextColumnSize::Large)
-                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
                     ->getStateUsing(fn ($record) => $record->sku ?: $record->name)
@@ -79,6 +69,15 @@ class TopSellingProducts extends BaseWidget
                     ->copyMessage('SKU kopyalandı!')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
+                Tables\Columns\TextColumn::make('sold_qty')
+                    ->label('Satış Adedi')
+                    ->getStateUsing(fn ($record) => $this->activeOrderItems()
+                        ->where('order_items.product_id', $record->id)
+                        ->sum('order_items.quantity')
+                    )
+                    ->badge()
+                    ->color('success')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('size_breakdown')
                     ->label('Numara Bazlı Satış')
                     ->getStateUsing(function ($record) {

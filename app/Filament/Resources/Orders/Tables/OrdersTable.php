@@ -28,17 +28,19 @@ class OrdersTable
                     ->label('')
                     ->view('filament.columns.order-product-images')
                     ->getStateUsing(function (Order $record) {
-                        $images = [];
+                        $items = [];
                         foreach ($record->items as $item) {
+                            $img = null;
                             if ($item->product) {
                                 $item->product->loadMissing('images');
                                 $img = $item->product->images->first()?->image_url;
-                                if ($img) {
-                                    $images[] = $img;
-                                }
                             }
+                            $items[] = [
+                                'image' => $img ?: asset('favicon.png'),
+                                'quantity' => $item->quantity ?? 1,
+                            ];
                         }
-                        return !empty($images) ? $images : [asset('favicon.png')];
+                        return !empty($items) ? $items : [['image' => asset('favicon.png'), 'quantity' => 1]];
                     }),
 
                 TextColumn::make('customer_name')
