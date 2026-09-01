@@ -194,7 +194,10 @@ class GibEArsivService
             
             $invoiceNote = $overrideData['invoice_note'] ?? ("Sipariş No: #" . $order->order_number . " - " . $productNames);
 
-            $isCorporate = strlen(trim($taxNumber)) === 10 || !empty($companyName);
+            // Kurumsal/Bireysel ayrımı: önce order->invoice_type, yoksa eski heuristic
+            $isCorporate = ($order->invoice_type === 'corporate')
+                || strlen(trim($taxNumber)) === 10
+                || !empty($companyName);
             
             $nameParts = explode(' ', trim($customerName));
             $surname = count($nameParts) > 1 ? array_pop($nameParts) : '';

@@ -64,6 +64,29 @@ class OrderInfolist
                 TextEntry::make('billing_address')
                     ->placeholder('-')
                     ->columnSpanFull(),
+                TextEntry::make('invoice_type')
+                    ->label('Fatura Tipi')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'corporate' => 'Kurumsal',
+                        default => 'Bireysel',
+                    })
+                    ->color(fn (?string $state) => match ($state) {
+                        'corporate' => 'warning',
+                        default => 'gray',
+                    }),
+                TextEntry::make('company_name')
+                    ->label('Firma Adı')
+                    ->placeholder('-')
+                    ->visible(fn ($record) => $record->invoice_type === 'corporate'),
+                TextEntry::make('tax_office')
+                    ->label('Vergi Dairesi')
+                    ->placeholder('-')
+                    ->visible(fn ($record) => $record->invoice_type === 'corporate'),
+                TextEntry::make('tax_number')
+                    ->label('Vergi Numarası')
+                    ->placeholder('-')
+                    ->visible(fn ($record) => $record->invoice_type === 'corporate'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

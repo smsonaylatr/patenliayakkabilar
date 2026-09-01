@@ -31,6 +31,12 @@ class Checkout extends Component
     public $sms_consent = false;
     public $terms_consent = false;
 
+    // Fatura bilgileri
+    public $invoice_type = 'individual'; // 'individual' veya 'corporate'
+    public $company_name = '';
+    public $tax_office = '';
+    public $tax_number = '';
+
     public $cities = [];
     public $districts = [];
     public $neighborhoods = [];
@@ -68,6 +74,14 @@ class Checkout extends Component
             $baseRules['shipping_address'] = 'required|string';
         }
 
+        // Fatura bilgileri
+        $baseRules['invoice_type'] = 'required|in:individual,corporate';
+        if ($this->invoice_type === 'corporate') {
+            $baseRules['company_name'] = 'required|string|max:255';
+            $baseRules['tax_office'] = 'required|string|max:255';
+            $baseRules['tax_number'] = 'required|string|min:10|max:11';
+        }
+
         return $baseRules;
     }
 
@@ -82,6 +96,11 @@ class Checkout extends Component
         'shipping_neighborhood.required' => 'Lütfen mahallenizi seçiniz veya yazınız.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
+        'company_name.required' => 'Kurumsal fatura için firma adı zorunludur.',
+        'tax_office.required' => 'Kurumsal fatura için vergi dairesi zorunludur.',
+        'tax_number.required' => 'Kurumsal fatura için vergi numarası zorunludur.',
+        'tax_number.min' => 'Vergi numarası en az 10 karakter olmalıdır.',
+        'tax_number.max' => 'Vergi numarası en fazla 11 karakter olmalıdır.',
     ];
 
     public $isCodAllowed = true;
@@ -128,6 +147,12 @@ class Checkout extends Component
         $this->address_detail = session('co_address_detail', $this->address_detail);
         $this->address_search = session('co_address_search', $this->address_search);
 
+        // Fatura bilgilerini session'dan restore et
+        $this->invoice_type = session('co_invoice_type', $this->invoice_type);
+        $this->company_name = session('co_company_name', $this->company_name);
+        $this->tax_office = session('co_tax_office', $this->tax_office);
+        $this->tax_number = session('co_tax_number', $this->tax_number);
+
         // Google Places API key yoksa doğrudan manual mode
         if (empty(config('services.google_places.api_key'))) {
             $this->address_mode = 'manual';
@@ -158,6 +183,10 @@ class Checkout extends Component
             'address_search' => 'co_address_search',
             'address_mode' => 'co_address_mode',
             'address_selected' => 'co_address_selected',
+            'invoice_type' => 'co_invoice_type',
+            'company_name' => 'co_company_name',
+            'tax_office' => 'co_tax_office',
+            'tax_number' => 'co_tax_number',
         ];
 
         if (array_key_exists($propertyName, $map)) {
@@ -420,6 +449,12 @@ class Checkout extends Component
             'billing_district' => $this->shipping_district,
             'billing_neighborhood' => $neighborhood,
             'billing_address' => $formattedAddress,
+
+            // Fatura bilgileri
+            'invoice_type' => $this->invoice_type,
+            'company_name' => $this->invoice_type === 'corporate' ? $this->company_name : null,
+            'tax_office' => $this->invoice_type === 'corporate' ? $this->tax_office : null,
+            'tax_number' => $this->invoice_type === 'corporate' ? $this->tax_number : null,
 
             'ip_address' => request()->ip(),
         ]);

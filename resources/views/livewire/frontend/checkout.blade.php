@@ -562,6 +562,53 @@
                         </div>
                     </div>
 
+                    <!-- Fatura Bilgileri -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ invoiceType: @entangle('invoice_type').live }">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">4</span>
+                            Fatura Bilgileri
+                        </h2>
+
+                        <!-- Bireysel / Kurumsal Toggle -->
+                        <div class="flex rounded-xl border border-gray-200 overflow-hidden mb-4">
+                            <button type="button" @click="invoiceType = 'individual'" class="flex-1 py-3 px-4 text-sm font-bold text-center transition-all duration-200" :class="invoiceType === 'individual' ? 'bg-black text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'">
+                                <i class="fa-solid fa-user mr-1.5"></i> Bireysel
+                            </button>
+                            <button type="button" @click="invoiceType = 'corporate'" class="flex-1 py-3 px-4 text-sm font-bold text-center transition-all duration-200" :class="invoiceType === 'corporate' ? 'bg-black text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'">
+                                <i class="fa-solid fa-building mr-1.5"></i> Kurumsal
+                            </button>
+                        </div>
+
+                        <!-- Bireysel Bilgi Notu -->
+                        <div x-show="invoiceType === 'individual'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
+                            <div class="flex items-start gap-2.5 p-3 bg-gray-50 rounded-xl text-xs text-gray-500">
+                                <i class="fa-solid fa-circle-info text-gray-400 mt-0.5"></i>
+                                <span>Bireysel faturanız, siparişiniz teslim edildikten sonra iletişim bilgileriniz üzerinden düzenlenecektir.</span>
+                            </div>
+                        </div>
+
+                        <!-- Kurumsal Fatura Alanları -->
+                        <div x-show="invoiceType === 'corporate'" x-collapse x-cloak>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Firma Adı <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model.blur="company_name" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Firma / Şirket Adı">
+                                    @error('company_name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vergi Dairesi <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model.blur="tax_office" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Ör: Kadıköy">
+                                    @error('tax_office') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vergi Numarası <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model.blur="tax_number" maxlength="11" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="10 veya 11 haneli vergi/TC no">
+                                    @error('tax_number') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Mobil İçin Buton (Sadece Mobilde Görünür) -->
                     <div class="mt-6">
                         <!-- SMS Consent (Mobil) -->
