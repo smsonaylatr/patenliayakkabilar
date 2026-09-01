@@ -50,9 +50,10 @@ class TopSellingProducts extends BaseWidget
                     ->disk('public')
                     ->square()
                     ->size(56),
-                Tables\Columns\TextColumn::make('sku')
+                Tables\Columns\TextColumn::make('product_sku')
                     ->label('SKU')
-                    ->searchable()
+                    ->getStateUsing(fn ($record) => $record->sku)
+                    ->searchable(query: fn ($query, string $search) => $query->where('products.sku', 'like', "%{$search}%"))
                     ->weight('bold')
                     ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('total_sold')
