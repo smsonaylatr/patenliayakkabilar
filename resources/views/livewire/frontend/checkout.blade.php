@@ -86,16 +86,16 @@
                         @if($address_mode === 'autocomplete')
                         {{-- ═══════════════ AUTOCOMPLETE MODU ═══════════════ --}}
                         <div class="space-y-4"
-                            x-data="addressAutocomplete()"
+                            x-data="{ addressSelected: $wire.entangle('address_selected'), ...addressAutocomplete() }"
                             x-init="initAutocomplete()"
                         >
                             {{-- ▶ Seçili Adres Kartı --}}
-                            <div x-show="$wire.address_selected" x-cloak class="space-y-4">
+                            <div x-show="addressSelected" x-cloak class="space-y-4">
                                 <div class="relative">
                                     <div class="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                                         <svg class="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                         <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-bold text-emerald-900 break-words" x-text="$wire.address_search || ''"></p>
+                                            <p class="text-sm font-bold text-emerald-900 break-words" x-text="query || ''"></p>
                                             <div class="flex flex-wrap gap-2 mt-2">
                                                 <template x-if="$wire.shipping_district">
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200" x-text="$wire.shipping_district"></span>
@@ -117,7 +117,7 @@
                             </div>
 
                             {{-- ▶ Adres Arama Input'u --}}
-                            <div x-show="!$wire.address_selected" class="relative" @click.away="showSuggestions = false">
+                            <div x-show="!addressSelected" class="relative" @click.away="showSuggestions = false">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Adres <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <input
@@ -231,6 +231,7 @@
                                         this.showSuggestions = false;
                                         this.highlightIndex = -1;
                                         this.searched = false;
+                                        this.addressSelected = false;
                                         this.$wire.resetAutocomplete();
                                     },
 
@@ -343,6 +344,7 @@
 
                                                 // Livewire'a gönder
                                                 this.$wire.selectAddress(placeData);
+                                                this.addressSelected = true;
                                                 this.query = placeData.formatted_address;
                                             }
 
