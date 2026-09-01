@@ -52,8 +52,10 @@ class TopSellingProducts extends BaseWidget
                     ->size(56),
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
+                    ->getStateUsing(fn ($record) => $record->sku ?: $record->name)
                     ->weight('bold')
                     ->searchable()
+                    ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('sold_qty')
                     ->label('Satış Adedi')
