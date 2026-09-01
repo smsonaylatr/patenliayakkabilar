@@ -99,9 +99,6 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-bold text-emerald-900 break-words">{{ $address_search }}</p>
                                             <div class="flex flex-wrap gap-2 mt-2">
-                                                @if($shipping_neighborhood)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_neighborhood }}</span>
-                                                @endif
                                                 @if($shipping_district)
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_district }}</span>
                                                 @endif
@@ -254,10 +251,16 @@
                                         this.loading = true;
                                         this.searched = false;
 
+                                        // Türkçe mahalle eklerini sorgudan temizle (Google bunları anlamıyor)
+                                        let cleanQuery = this.query
+                                            .replace(/\b(mah\.|mahallesi|mahalle|mh\.)\b/gi, '')
+                                            .replace(/\s+/g, ' ')
+                                            .trim();
+
                                         this.autocompleteService.getPlacePredictions({
-                                            input: this.query,
+                                            input: cleanQuery,
                                             componentRestrictions: { country: 'tr' },
-                                            types: ['address'],
+                                            types: ['geocode', 'establishment'],
                                             sessionToken: this.sessionToken,
                                             language: 'tr',
                                         }, (predictions, status) => {
