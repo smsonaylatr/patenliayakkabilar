@@ -309,7 +309,7 @@ class Checkout extends Component
 
         session()->forget([
             'co_city', 'co_district', 'co_neighborhood', 'co_address',
-            'co_address_search', 'co_address_detail',
+            'co_address_search', 'co_address_detail', 'co_address_selected',
         ]);
     }
 
