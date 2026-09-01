@@ -136,16 +136,31 @@ class PoregoApiService
 
             // Extract or resolve neighborhood name cleanly from model attribute or address
             $neighborhoodName = trim($order->shipping_neighborhood ?? '');
+
+            // Autocomplete modunda neighborhood boş olabilir — address'ten çıkarmayı dene
             if (empty($neighborhoodName)) {
-                if (preg_match('/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9\.\s]+?)(?:\s+mah|\s+mahalle|\s+mahallesi|\s+mh)/i', $rawAddress, $matches)) {
+                // Pattern 1: "Yeşilpınar Mah." veya "Yeşilpınar Mahallesi" formatı
+                if (preg_match('/([a-zA-ZçğıöşüÇĞİÖŞÜ0-9\.\s]+?)\s*(?:mah\.|mahalle|mahallesi|mh\.)/iu', $rawAddress, $matches)) {
                     $neighborhoodName = trim($matches[1]);
+                }
+            }
+            if (empty($neighborhoodName)) {
+                // Pattern 2: Virgülle ayrılmış formatted address'te ilk segment genelde mahalle olur
+                // Ör: "Yeşilpınar, Çiçeksuyu Cd. No:130, 34065 Eyüpsultan/İstanbul"
+                $addressParts = explode(',', $rawAddress);
+                if (count($addressParts) >= 3) {
+                    $firstPart = trim($addressParts[0]);
+                    // Sadece harf içeriyorsa (sokak numarası değilse) mahalle olarak kabul et
+                    if (preg_match('/^[a-zA-ZçğıöşüÇĞİÖŞÜ\s]+$/u', $firstPart) && mb_strlen($firstPart) > 2) {
+                        $neighborhoodName = $firstPart;
+                    }
                 }
             }
             if (empty($neighborhoodName)) {
                 $neighborhoodName = trim($order->shipping_district) ?: 'Merkez';
             }
 
-            $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/i', '', $neighborhoodName));
+            $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/iu', '', $neighborhoodName));
 
             $payload = [
                 'customerName'          => $name,
