@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use App\Models\Order;
@@ -23,8 +24,9 @@ class OrdersTable
     {
         return $table
             ->columns([
-                ImageColumn::make('product_image')
+                ViewColumn::make('product_image')
                     ->label('')
+                    ->view('filament.columns.order-product-images')
                     ->getStateUsing(function (Order $record) {
                         $images = [];
                         foreach ($record->items as $item) {
@@ -37,16 +39,7 @@ class OrdersTable
                             }
                         }
                         return !empty($images) ? $images : [asset('favicon.png')];
-                    })
-                    ->square()
-                    ->size(60)
-                    ->stacked()
-                    ->limit(4)
-                    ->limitedRemainingText()
-                    ->extraImgAttributes([
-                        'style' => 'border: 1px solid rgba(255, 255, 255, 0.18) !important; border-radius: 8px !important; object-fit: cover !important; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease !important; cursor: zoom-in !important; transform-origin: center left !important; position: relative !important; z-index: 10 !important;',
-                        'class' => 'hover:scale-[2.6] hover:z-[9999] hover:shadow-2xl hover:rounded-xl hover:border-2 hover:border-sky-400',
-                    ]),
+                    }),
 
                 TextColumn::make('customer_name')
                     ->label('MÜŞTERİ')
