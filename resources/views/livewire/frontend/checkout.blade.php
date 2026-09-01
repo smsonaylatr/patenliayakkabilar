@@ -81,141 +81,421 @@
                             Teslimat Adresi
                         </h2>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
-                                <select wire:model.live="shipping_city" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
-                                    <option value="">İl Seçiniz</option>
-                                    @foreach($cities as $city)
-                                        <option value="{{ $city }}">{{ $city }}</option>
-                                    @endforeach
-                                </select>
-                                @error('shipping_city') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
-                                <select wire:model.live="shipping_district" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
-                                    <option value="">İlçe Seçiniz</option>
-                                    @foreach($districts as $district)
-                                        <option value="{{ $district }}">{{ $district }}</option>
-                                    @endforeach
-                                </select>
-                                @error('shipping_district') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <div class="md:col-span-2">
-                                <div class="flex items-center justify-between mb-1">
-                                    <label class="block text-sm font-medium text-gray-700">Mahalle <span class="text-red-500">*</span></label>
-                                    <span wire:loading wire:target="shipping_district" class="text-xs text-brand-orange font-medium animate-pulse">
-                                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mahalleler yükleniyor...
-                                    </span>
-                                </div>
-                                @if(!empty($neighborhoods))
-                                    <div x-data="{
-                                        open: false,
-                                        search: @entangle('shipping_neighborhood').live,
-                                        neighborhoods: @js($neighborhoods),
-                                        get filtered() {
-                                            if (!this.search || this.search.length === 0) return this.neighborhoods;
-                                            const s = this.search.toLocaleLowerCase('tr');
-                                            return this.neighborhoods.filter(n => n.toLocaleLowerCase('tr').includes(s));
-                                        },
-                                        select(item) {
-                                            this.search = item;
-                                            this.open = false;
-                                            $refs.searchInput.blur();
-                                        },
-                                        highlightIndex: -1,
-                                        navigateList(direction) {
-                                            if (!this.open) { this.open = true; return; }
-                                            if (direction === 'down') {
-                                                this.highlightIndex = this.highlightIndex < this.filtered.length - 1 ? this.highlightIndex + 1 : 0;
-                                            } else {
-                                                this.highlightIndex = this.highlightIndex > 0 ? this.highlightIndex - 1 : this.filtered.length - 1;
-                                            }
-                                            this.$nextTick(() => {
-                                                const el = document.querySelector('[data-neighborhood-index=\'' + this.highlightIndex + '\']');
-                                                if (el) el.scrollIntoView({ block: 'nearest' });
-                                            });
-                                        },
-                                        selectHighlighted() {
-                                            if (this.highlightIndex >= 0 && this.highlightIndex < this.filtered.length) {
-                                                this.select(this.filtered[this.highlightIndex]);
-                                            }
-                                        }
-                                    }" @click.away="open = false" class="relative">
-                                        <div class="relative">
-                                            <input
-                                                x-ref="searchInput"
-                                                type="text"
-                                                x-model="search"
-                                                @focus="open = true; highlightIndex = -1"
-                                                @input="open = true; highlightIndex = -1"
-                                                @keydown.arrow-down.prevent="navigateList('down')"
-                                                @keydown.arrow-up.prevent="navigateList('up')"
-                                                @keydown.enter.prevent="selectHighlighted()"
-                                                @keydown.escape="open = false; $refs.searchInput.blur()"
-                                                placeholder="Mahalle adı yazarak arayın..."
-                                                autocomplete="off"
-                                                class="w-full px-4 py-3 pr-10 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
-                                            >
-                                            <button type="button" @click="open = !open; if(open) $refs.searchInput.focus()" aria-label="İl Seçimi Aç/Kapat" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
-                                                <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                            </button>
+                        @if($address_mode === 'autocomplete')
+                        {{-- ═══════════════ AUTOCOMPLETE MODU ═══════════════ --}}
+                        <div class="space-y-4"
+                            x-data="addressAutocomplete()"
+                            x-init="initAutocomplete()"
+                        >
+                            {{-- Adres Seçildiyse: Seçili Adres Özeti --}}
+                            @if($address_selected)
+                            <div class="space-y-4">
+                                {{-- Seçili Adres Gösterimi --}}
+                                <div class="relative">
+                                    <div class="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                                        <svg class="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold text-emerald-900 break-words">{{ $address_search }}</p>
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                @if($shipping_neighborhood)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_neighborhood }}</span>
+                                                @endif
+                                                @if($shipping_district)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_district }}</span>
+                                                @endif
+                                                @if($shipping_city)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_city }}</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div
-                                            x-show="open && filtered.length > 0"
-                                            x-transition:enter="transition ease-out duration-100"
-                                            x-transition:enter-start="opacity-0 -translate-y-1"
-                                            x-transition:enter-end="opacity-100 translate-y-0"
-                                            x-transition:leave="transition ease-in duration-75"
-                                            x-transition:leave-start="opacity-100"
-                                            x-transition:leave-end="opacity-0"
-                                            class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
-                                            style="display: none;"
-                                        >
-                                            <template x-for="(item, index) in filtered" :key="index">
-                                                <button
-                                                    type="button"
-                                                    @click="select(item)"
-                                                    @mouseenter="highlightIndex = index"
-                                                    :data-neighborhood-index="index"
-                                                    class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
-                                                    :class="{
-                                                        'bg-black text-white hover:bg-gray-800': search === item,
-                                                        'bg-gray-100': highlightIndex === index && search !== item
-                                                    }"
-                                                >
-                                                    <span x-text="item + ' Mah.'"></span>
-                                                    <svg x-show="search === item" class="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                                </button>
-                                            </template>
-                                        </div>
-                                        <div
-                                            x-show="open && search && search.length > 0 && filtered.length === 0"
-                                            class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
-                                            style="display: none;"
-                                        >
-                                            <i class="fa-solid fa-search mr-1"></i> Sonuç bulunamadı
-                                        </div>
+                                        <button type="button" wire:click="resetAutocomplete" class="text-emerald-600 hover:text-red-500 transition-colors p-1 flex-shrink-0" title="Adresi Değiştir">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
                                     </div>
-                                @else
-                                    <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="{{ empty($shipping_district) ? 'Önce ilçe seçiniz...' : 'Mahalle adını yazınız...' }}" {{ empty($shipping_district) ? 'disabled' : '' }}>
-                                @endif
-                                @error('shipping_neighborhood') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                {{-- Açık Adres Detayı (Bina No, Daire vb.) --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Bina No, Daire, Kat (Opsiyonel)</label>
+                                    <input type="text" wire:model.blur="address_detail" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Ör: Bina No: 5, Daire: 3, Kat: 2">
+                                </div>
+
+                                {{-- Gizli alanlar validation için --}}
+                                <input type="hidden" wire:model="shipping_city">
+                                <input type="hidden" wire:model="shipping_district">
+                                <input type="hidden" wire:model="shipping_neighborhood">
+                                <input type="hidden" wire:model="shipping_address">
+
+                                @error('shipping_city') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                                @error('shipping_district') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
+                                @error('shipping_address') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
                             </div>
-                            
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Açık Adres (Cadde, Sokak, Bina No, Daire)</label>
-                                <textarea wire:model.blur="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Cadde, sokak, bina ve daire no..."></textarea>
+                            @else
+                            {{-- Adres Arama Input'u --}}
+                            <div class="relative" @click.away="showSuggestions = false">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Adres <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input
+                                        x-ref="addressInput"
+                                        type="text"
+                                        x-model="query"
+                                        @input.debounce.300ms="onInput()"
+                                        @focus="if(suggestions.length > 0) showSuggestions = true"
+                                        @keydown.arrow-down.prevent="navigateList('down')"
+                                        @keydown.arrow-up.prevent="navigateList('up')"
+                                        @keydown.enter.prevent="selectHighlighted()"
+                                        @keydown.escape="showSuggestions = false"
+                                        autocomplete="off"
+                                        class="w-full pl-4 pr-12 py-3.5 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
+                                        placeholder="Adres aramak için yazmaya başlayın..."
+                                    >
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <svg x-show="!loading" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                        <svg x-show="loading" x-cloak class="w-5 h-5 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    </div>
+                                </div>
+
+                                {{-- Öneriler Dropdown --}}
+                                <div
+                                    x-show="showSuggestions && suggestions.length > 0"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0"
+                                    class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-72 overflow-y-auto custom-scrollbar"
+                                    style="display: none;"
+                                >
+                                    <template x-for="(suggestion, index) in suggestions" :key="suggestion.place_id">
+                                        <button
+                                            type="button"
+                                            @click="selectSuggestion(suggestion)"
+                                            @mouseenter="highlightIndex = index"
+                                            class="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                                            :class="{ 'bg-gray-100': highlightIndex === index }"
+                                        >
+                                            <div class="flex items-start gap-3">
+                                                <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                <div class="min-w-0">
+                                                    <p class="text-sm font-medium text-gray-900 truncate" x-text="suggestion.structured_formatting?.main_text || suggestion.description"></p>
+                                                    <p class="text-xs text-gray-500 truncate mt-0.5" x-text="suggestion.structured_formatting?.secondary_text || ''"></p>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </template>
+                                </div>
+
+                                {{-- Sonuç bulunamadı --}}
+                                <div
+                                    x-show="showSuggestions && suggestions.length === 0 && query.length >= 3 && !loading && searched"
+                                    class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
+                                    style="display: none;"
+                                >
+                                    <i class="fa-solid fa-search mr-1"></i> Adres bulunamadı
+                                </div>
+
+                                @error('shipping_city') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @error('shipping_district') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 @error('shipping_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
+                            @endif
 
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Sipariş Notu (Opsiyonel)</label>
-                                <textarea wire:model.blur="customer_note" rows="2" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Kuryeye veya mağazaya iletmek istedikleriniz..."></textarea>
+                            {{-- Manuel moda geçiş linki --}}
+                            <div class="flex items-center justify-between">
+                                <button type="button" wire:click="switchAddressMode('manual')" class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-black transition-colors group">
+                                    <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                    Adresinizi bulamıyor musunuz? Manuel olarak girin
+                                </button>
                             </div>
+                        </div>
+
+                        {{-- Alpine.js Google Places Autocomplete Component --}}
+                        <script>
+                            function addressAutocomplete() {
+                                return {
+                                    query: @json($address_search ?: ''),
+                                    suggestions: [],
+                                    showSuggestions: false,
+                                    loading: false,
+                                    searched: false,
+                                    highlightIndex: -1,
+                                    autocompleteService: null,
+                                    placesService: null,
+                                    sessionToken: null,
+
+                                    initAutocomplete() {
+                                        const waitForGoogle = () => {
+                                            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                                                this.autocompleteService = new google.maps.places.AutocompleteService();
+                                                this.placesService = new google.maps.places.PlacesService(document.createElement('div'));
+                                                this.sessionToken = new google.maps.places.AutocompleteSessionToken();
+                                            } else {
+                                                setTimeout(waitForGoogle, 200);
+                                            }
+                                        };
+                                        waitForGoogle();
+                                    },
+
+                                    onInput() {
+                                        if (!this.query || this.query.length < 3) {
+                                            this.suggestions = [];
+                                            this.showSuggestions = false;
+                                            this.searched = false;
+                                            return;
+                                        }
+
+                                        if (!this.autocompleteService) {
+                                            return;
+                                        }
+
+                                        this.loading = true;
+                                        this.searched = false;
+
+                                        this.autocompleteService.getPlacePredictions({
+                                            input: this.query,
+                                            componentRestrictions: { country: 'tr' },
+                                            types: ['address'],
+                                            sessionToken: this.sessionToken,
+                                            language: 'tr',
+                                        }, (predictions, status) => {
+                                            this.loading = false;
+                                            this.searched = true;
+                                            if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+                                                this.suggestions = predictions;
+                                                this.showSuggestions = true;
+                                                this.highlightIndex = -1;
+                                            } else {
+                                                this.suggestions = [];
+                                                this.showSuggestions = true;
+                                            }
+                                        });
+                                    },
+
+                                    selectSuggestion(suggestion) {
+                                        this.showSuggestions = false;
+                                        this.loading = true;
+                                        this.query = suggestion.description;
+
+                                        this.placesService.getDetails({
+                                            placeId: suggestion.place_id,
+                                            fields: ['address_components', 'formatted_address', 'geometry'],
+                                            sessionToken: this.sessionToken,
+                                        }, (place, status) => {
+                                            this.loading = false;
+
+                                            if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+                                                const components = place.address_components || [];
+                                                const placeData = {
+                                                    city: '',
+                                                    district: '',
+                                                    neighborhood: '',
+                                                    street_address: '',
+                                                    formatted_address: place.formatted_address || suggestion.description,
+                                                };
+
+                                                let streetNumber = '';
+                                                let route = '';
+
+                                                components.forEach(c => {
+                                                    const types = c.types;
+                                                    if (types.includes('administrative_area_level_1')) {
+                                                        placeData.city = c.long_name;
+                                                    } else if (types.includes('administrative_area_level_2')) {
+                                                        placeData.district = c.long_name;
+                                                    } else if (types.includes('neighborhood') || types.includes('sublocality') || types.includes('sublocality_level_1')) {
+                                                        if (!placeData.neighborhood) placeData.neighborhood = c.long_name;
+                                                    } else if (types.includes('route')) {
+                                                        route = c.long_name;
+                                                    } else if (types.includes('street_number')) {
+                                                        streetNumber = c.long_name;
+                                                    }
+                                                });
+
+                                                // Sokak adresini oluştur
+                                                if (route) {
+                                                    placeData.street_address = route + (streetNumber ? ' No:' + streetNumber : '');
+                                                }
+
+                                                // Livewire'a gönder
+                                                this.$wire.selectAddress(placeData);
+                                                this.query = placeData.formatted_address;
+                                            }
+
+                                            // Yeni session token oluştur (billing oturumu bitti)
+                                            this.sessionToken = new google.maps.places.AutocompleteSessionToken();
+                                        });
+                                    },
+
+                                    navigateList(direction) {
+                                        if (!this.showSuggestions || this.suggestions.length === 0) return;
+                                        if (direction === 'down') {
+                                            this.highlightIndex = this.highlightIndex < this.suggestions.length - 1 ? this.highlightIndex + 1 : 0;
+                                        } else {
+                                            this.highlightIndex = this.highlightIndex > 0 ? this.highlightIndex - 1 : this.suggestions.length - 1;
+                                        }
+                                    },
+
+                                    selectHighlighted() {
+                                        if (this.highlightIndex >= 0 && this.highlightIndex < this.suggestions.length) {
+                                            this.selectSuggestion(this.suggestions[this.highlightIndex]);
+                                        }
+                                    },
+                                };
+                            }
+                        </script>
+
+                        @else
+                        {{-- ═══════════════ MANUEL MOD (Mevcut Dropdown Sistemi) ═══════════════ --}}
+                        <div class="space-y-4">
+                            {{-- Autocomplete moduna dönüş linki (sadece API key varsa) --}}
+                            @if(config('services.google_places.api_key'))
+                            <div class="flex items-center justify-between mb-2">
+                                <button type="button" wire:click="switchAddressMode('autocomplete')" class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-black transition-colors group">
+                                    <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    Otomatik adres aramasına dön
+                                </button>
+                            </div>
+                            @endif
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
+                                    <select wire:model.live="shipping_city" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
+                                        <option value="">İl Seçiniz</option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city }}">{{ $city }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('shipping_city') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
+                                    <select wire:model.live="shipping_district" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
+                                        <option value="">İlçe Seçiniz</option>
+                                        @foreach($districts as $district)
+                                            <option value="{{ $district }}">{{ $district }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('shipping_district') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-sm font-medium text-gray-700">Mahalle <span class="text-red-500">*</span></label>
+                                        <span wire:loading wire:target="shipping_district" class="text-xs text-brand-orange font-medium animate-pulse">
+                                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mahalleler yükleniyor...
+                                        </span>
+                                    </div>
+                                    @if(!empty($neighborhoods))
+                                        <div x-data="{
+                                            open: false,
+                                            search: @entangle('shipping_neighborhood').live,
+                                            neighborhoods: @js($neighborhoods),
+                                            get filtered() {
+                                                if (!this.search || this.search.length === 0) return this.neighborhoods;
+                                                const s = this.search.toLocaleLowerCase('tr');
+                                                return this.neighborhoods.filter(n => n.toLocaleLowerCase('tr').includes(s));
+                                            },
+                                            select(item) {
+                                                this.search = item;
+                                                this.open = false;
+                                                $refs.searchInput.blur();
+                                            },
+                                            highlightIndex: -1,
+                                            navigateList(direction) {
+                                                if (!this.open) { this.open = true; return; }
+                                                if (direction === 'down') {
+                                                    this.highlightIndex = this.highlightIndex < this.filtered.length - 1 ? this.highlightIndex + 1 : 0;
+                                                } else {
+                                                    this.highlightIndex = this.highlightIndex > 0 ? this.highlightIndex - 1 : this.filtered.length - 1;
+                                                }
+                                                this.$nextTick(() => {
+                                                    const el = document.querySelector('[data-neighborhood-index=\'' + this.highlightIndex + '\']');
+                                                    if (el) el.scrollIntoView({ block: 'nearest' });
+                                                });
+                                            },
+                                            selectHighlighted() {
+                                                if (this.highlightIndex >= 0 && this.highlightIndex < this.filtered.length) {
+                                                    this.select(this.filtered[this.highlightIndex]);
+                                                }
+                                            }
+                                        }" @click.away="open = false" class="relative">
+                                            <div class="relative">
+                                                <input
+                                                    x-ref="searchInput"
+                                                    type="text"
+                                                    x-model="search"
+                                                    @focus="open = true; highlightIndex = -1"
+                                                    @input="open = true; highlightIndex = -1"
+                                                    @keydown.arrow-down.prevent="navigateList('down')"
+                                                    @keydown.arrow-up.prevent="navigateList('up')"
+                                                    @keydown.enter.prevent="selectHighlighted()"
+                                                    @keydown.escape="open = false; $refs.searchInput.blur()"
+                                                    placeholder="Mahalle adı yazarak arayın..."
+                                                    autocomplete="off"
+                                                    class="w-full px-4 py-3 pr-10 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors"
+                                                >
+                                                <button type="button" @click="open = !open; if(open) $refs.searchInput.focus()" aria-label="İl Seçimi Aç/Kapat" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                                                    <svg class="w-5 h-5 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </button>
+                                            </div>
+                                            <div
+                                                x-show="open && filtered.length > 0"
+                                                x-transition:enter="transition ease-out duration-100"
+                                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                                x-transition:enter-end="opacity-100 translate-y-0"
+                                                x-transition:leave="transition ease-in duration-75"
+                                                x-transition:leave-start="opacity-100"
+                                                x-transition:leave-end="opacity-0"
+                                                class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                                                style="display: none;"
+                                            >
+                                                <template x-for="(item, index) in filtered" :key="index">
+                                                    <button
+                                                        type="button"
+                                                        @click="select(item)"
+                                                        @mouseenter="highlightIndex = index"
+                                                        :data-neighborhood-index="index"
+                                                        class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
+                                                        :class="{
+                                                            'bg-black text-white hover:bg-gray-800': search === item,
+                                                            'bg-gray-100': highlightIndex === index && search !== item
+                                                        }"
+                                                    >
+                                                        <span x-text="item + ' Mah.'"></span>
+                                                        <svg x-show="search === item" class="w-4 h-4 ml-auto flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                                    </button>
+                                                </template>
+                                            </div>
+                                            <div
+                                                x-show="open && search && search.length > 0 && filtered.length === 0"
+                                                class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
+                                                style="display: none;"
+                                            >
+                                                <i class="fa-solid fa-search mr-1"></i> Sonuç bulunamadı
+                                            </div>
+                                        </div>
+                                    @else
+                                        <input type="text" wire:model.blur="shipping_neighborhood" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="{{ empty($shipping_district) ? 'Önce ilçe seçiniz...' : 'Mahalle adını yazınız...' }}" {{ empty($shipping_district) ? 'disabled' : '' }}>
+                                    @endif
+                                    @error('shipping_neighborhood') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Açık Adres (Cadde, Sokak, Bina No, Daire)</label>
+                                    <textarea wire:model.blur="shipping_address" autocomplete="street-address" rows="3" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Cadde, sokak, bina ve daire no..."></textarea>
+                                    @error('shipping_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Sipariş Notu (Her iki modda da gösterilir) --}}
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sipariş Notu (Opsiyonel)</label>
+                            <textarea wire:model.blur="customer_note" rows="2" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Kuryeye veya mağazaya iletmek istedikleriniz..."></textarea>
                         </div>
                     </div>
 
