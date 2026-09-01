@@ -21,6 +21,7 @@ class TopSellingProducts extends BaseWidget
         return $table
             ->query(
                 Product::query()
+                    ->select('products.*')
                     ->addSelect([
                         'total_sold' => OrderItem::query()
                             ->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
@@ -47,8 +48,8 @@ class TopSellingProducts extends BaseWidget
                     ->label('Görsel')
                     ->getStateUsing(fn ($record) => $record->images()->orderBy('sort_order')->first()?->image_path)
                     ->disk('public')
-                    ->circular()
-                    ->size(40),
+                    ->square()
+                    ->size(56),
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable()
