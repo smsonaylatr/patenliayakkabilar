@@ -153,8 +153,7 @@ class Checkout extends Component
         $this->address_detail = session('co_address_detail', $this->address_detail);
         $this->address_search = session('co_address_search', $this->address_search);
 
-        // Fatura bilgilerini session'dan restore et
-        $this->invoice_type = session('co_invoice_type', $this->invoice_type);
+        // Kurumsal fatura bilgilerini session'dan restore et (fatura tipi hariç — her zaman bireysel açılır)
         $this->company_name = session('co_company_name', $this->company_name);
         $this->tax_office = session('co_tax_office', $this->tax_office);
         $this->tax_number = session('co_tax_number', $this->tax_number);
