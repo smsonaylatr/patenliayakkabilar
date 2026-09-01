@@ -88,6 +88,8 @@
                         <div class="space-y-4"
                             x-data="{ addressSelected: @json($address_selected), ...addressAutocomplete() }"
                             x-init="initAutocomplete()"
+                            @address-updated.window="addressSelected = $event.detail[0]?.selected ?? true; query = $event.detail[0]?.query || query"
+                            @address-reset.window="addressSelected = false; query = ''; suggestions = []; showSuggestions = false"
                         >
                             {{-- ▶ Seçili Adres Kartı --}}
                             <div x-show="addressSelected" x-cloak class="space-y-4">

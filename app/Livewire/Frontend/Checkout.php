@@ -278,8 +278,8 @@ class Checkout extends Component
             'co_address_selected' => true,
         ]);
 
-        // Alpine state'ini bozmamak için yeniden render etme
-        $this->skipRender();
+        // Alpine state'ini koru — re-render sonrası event ile addressSelected ve query set edilir
+        $this->dispatch('address-updated', selected: true, query: $this->address_search);
     }
 
     /**
@@ -314,8 +314,8 @@ class Checkout extends Component
             'co_address_search', 'co_address_detail', 'co_address_selected',
         ]);
 
-        // Alpine state'ini bozmamak için yeniden render etme
-        $this->skipRender();
+        // Alpine state'ini koru
+        $this->dispatch('address-reset');
     }
 
     public function placeOrder(CartService $cartService)
