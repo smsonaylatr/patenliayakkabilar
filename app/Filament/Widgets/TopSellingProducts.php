@@ -55,6 +55,8 @@ class TopSellingProducts extends BaseWidget
                     ->getStateUsing(fn ($record) => $record->sku ?: $record->name)
                     ->weight('bold')
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('SKU kopyalandı!')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('sold_qty')
