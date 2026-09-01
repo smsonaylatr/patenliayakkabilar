@@ -45,17 +45,31 @@ class Checkout extends Component
     public $coupon_message = '';
     public $coupon_error = '';
 
-    protected $rules = [
-        'customer_name' => 'required|string|max:255',
-        'customer_email' => 'required|email|max:255',
-        'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
-        'shipping_city' => 'required|string|max:100',
-        'shipping_district' => 'required|string|max:100',
-        'shipping_neighborhood' => 'required|string|max:150',
-        'shipping_address' => 'required|string',
-        'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
-        'terms_consent' => 'accepted',
-    ];
+    protected function rules()
+    {
+        $baseRules = [
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email|max:255',
+            'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
+            'shipping_city' => 'required|string|max:100',
+            'shipping_district' => 'required|string|max:100',
+            'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
+            'terms_consent' => 'accepted',
+        ];
+
+        if ($this->address_mode === 'autocomplete') {
+            // Autocomplete modunda mahalle ve açık adres opsiyonel
+            // (Google Places her zaman neighborhood döndürmüyor)
+            $baseRules['shipping_neighborhood'] = 'nullable|string|max:150';
+            $baseRules['shipping_address'] = 'nullable|string';
+        } else {
+            // Manuel modda eski kurallar
+            $baseRules['shipping_neighborhood'] = 'required|string|max:150';
+            $baseRules['shipping_address'] = 'required|string';
+        }
+
+        return $baseRules;
+    }
 
     protected $messages = [
         'customer_name.required' => 'Lütfen adınızı ve soyadınızı giriniz.',
@@ -63,8 +77,8 @@ class Checkout extends Component
         'customer_email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
         'customer_phone.required' => 'Lütfen telefon numaranızı giriniz.',
         'customer_phone.regex' => 'Lütfen başında 0 olacak şekilde 11 haneli geçerli bir numara giriniz (Örn: 05551234567).',
-        'shipping_city.required' => 'Lütfen teslimat ilini seçiniz.',
-        'shipping_district.required' => 'Lütfen teslimat ilçesini seçiniz.',
+        'shipping_city.required' => 'Lütfen teslimat adresinizi seçiniz.',
+        'shipping_district.required' => 'Lütfen teslimat adresinizi seçiniz.',
         'shipping_neighborhood.required' => 'Lütfen mahallenizi seçiniz veya yazınız.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
@@ -287,6 +301,12 @@ class Checkout extends Component
 
     public function placeOrder(CartService $cartService)
     {
+        // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
+        if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
+            $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
+            return;
+        }
+
         $this->validate();
 
         $cart = $cartService->getCart();
@@ -330,6 +350,11 @@ class Checkout extends Component
         // Create Order
         $neighborhood = trim($this->shipping_neighborhood ?: '');
         $rawAddress = trim($this->shipping_address ?: '');
+
+        // Autocomplete modunda shipping_address boşsa address_search'i kullan
+        if ($this->address_mode === 'autocomplete' && empty($rawAddress) && !empty($this->address_search)) {
+            $rawAddress = trim($this->address_search);
+        }
 
         // Autocomplete modunda address_detail'i rawAddress'e birleştir
         $addressDetail = trim($this->address_detail ?: '');
