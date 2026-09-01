@@ -38,8 +38,10 @@
                                 </div>
                             </div>
                         @else
-                            <div wire:ignore>
-                                <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px; color-scheme: light;"></iframe>
+                            <div wire:poll.3s="checkOrderStatus">
+                                <div wire:ignore>
+                                    <iframe x-data x-init="$nextTick(() => { if(typeof iFrameResize !== 'undefined') { iFrameResize({ checkOrigin: false }, $el); } })" src="https://www.paytr.com/odeme/guvenli/{{ $paytr_token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%; min-height: 400px; color-scheme: light;"></iframe>
+                                </div>
                             </div>
                         @endif
                     </div>

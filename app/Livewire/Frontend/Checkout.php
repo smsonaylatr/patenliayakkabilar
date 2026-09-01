@@ -131,12 +131,14 @@ class Checkout extends Component
         // Google Places API key yoksa doğrudan manual mode
         if (empty(config('services.google_places.api_key'))) {
             $this->address_mode = 'manual';
+            $this->address_selected = false;
         } else {
             $this->address_mode = session('co_address_mode', 'autocomplete');
+            $this->address_selected = session('co_address_selected', false);
         }
 
-        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et
-        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district) {
+        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et (fallback)
+        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district && empty($this->address_selected)) {
             $this->address_selected = true;
         }
     }
@@ -155,6 +157,7 @@ class Checkout extends Component
             'address_detail' => 'co_address_detail',
             'address_search' => 'co_address_search',
             'address_mode' => 'co_address_mode',
+            'address_selected' => 'co_address_selected',
         ];
 
         if (array_key_exists($propertyName, $map)) {
@@ -299,6 +302,10 @@ class Checkout extends Component
 
     public function placeOrder(CartService $cartService)
     {
+        if ($this->paytr_token || $this->created_order_number) {
+            return;
+        }
+
         // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
         if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
             $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
@@ -309,7 +316,7 @@ class Checkout extends Component
 
         $cart = $cartService->getCart();
         
-        if ($cart->items->count() === 0) {
+        if (!$cart || $cart->items->count() === 0) {
             $this->dispatch('notify', message: 'Sepetiniz boş.', type: 'error');
             return;
         }
@@ -470,7 +477,7 @@ class Checkout extends Component
             if ($order && $order->payment_status === 'paid') {
                 return redirect()->route('order.success', [
                     'order_number' => $this->created_order_number,
-                    'method' => 'cc'
+                    'method' => $order->payment_method === 'wire_transfer' ? 'wire_transfer' : 'cc'
                 ]);
             }
         }
@@ -643,6 +650,15 @@ class Checkout extends Component
     public function editInformation()
     {
         $this->paytr_token = null;
+        
+        if ($this->created_order_number) {
+            $order = Order::where('order_number', $this->created_order_number)->first();
+            if ($order && $order->status === 'pending' && $order->payment_status === 'pending') {
+                $order->items()->delete();
+                $order->delete();
+            }
+            $this->created_order_number = null;
+        }
     }
 
     public function render(CartService $cartService)
