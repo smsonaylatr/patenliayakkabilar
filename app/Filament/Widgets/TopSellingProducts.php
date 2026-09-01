@@ -16,16 +16,26 @@ class TopSellingProducts extends BaseWidget
     protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = '🏆 En Çok Satan Ürünler (Top 50)';
 
+    /**
+     * İptal edilmemiş siparişlerin item sorgusu
+     */
+    private function activeOrderItems()
+    {
+        return OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', '!=', 'cancelled');
+    }
+
     public function table(Table $table): Table
     {
-        // Sipariş edilen ürünlerin ID'lerini satış adedine göre sırala
-        $topProductIds = OrderItem::query()
-            ->select('product_id', DB::raw('SUM(quantity) as total_qty'))
-            ->whereNotNull('product_id')
-            ->groupBy('product_id')
+        // İptal edilmemiş siparişlerden en çok satan 50 ürün
+        $topProductIds = $this->activeOrderItems()
+            ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_qty'))
+            ->whereNotNull('order_items.product_id')
+            ->groupBy('order_items.product_id')
             ->orderByDesc('total_qty')
             ->limit(50)
-            ->pluck('total_qty', 'product_id');
+            ->pluck('total_qty', 'order_items.product_id');
 
         $orderedIds = $topProductIds->keys()->toArray();
 
@@ -61,27 +71,46 @@ class TopSellingProducts extends BaseWidget
                     ->tooltip(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('sold_qty')
                     ->label('Satış Adedi')
-                    ->getStateUsing(fn ($record) => OrderItem::where('product_id', $record->id)->sum('quantity'))
+                    ->getStateUsing(fn ($record) => $this->activeOrderItems()
+                        ->where('order_items.product_id', $record->id)
+                        ->sum('order_items.quantity')
+                    )
                     ->badge()
                     ->color('success')
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('size_breakdown')
                     ->label('Numara Bazlı Satış')
                     ->getStateUsing(function ($record) {
-                        $breakdown = OrderItem::query()
+                        // variant_info formatı: "Renk / Beden: 33" veya "Beden: 33"
+                        $items = $this->activeOrderItems()
                             ->where('order_items.product_id', $record->id)
-                            ->join('product_variants', 'product_variants.id', '=', 'order_items.product_variant_id')
-                            ->select('product_variants.size', DB::raw('SUM(order_items.quantity) as qty'))
-                            ->groupBy('product_variants.size')
-                            ->orderBy('product_variants.size')
+                            ->whereNotNull('order_items.variant_info')
+                            ->select('order_items.variant_info', 'order_items.quantity')
                             ->get();
 
-                        if ($breakdown->isEmpty()) {
+                        $sizeMap = [];
+                        foreach ($items as $item) {
+                            // "Beden: 33" kısmını çıkar
+                            if (preg_match('/Beden:\s*(\d+)/i', $item->variant_info, $m)) {
+                                $size = $m[1];
+                            } else {
+                                // variant_info sadece sayıysa direkt kullan
+                                $size = trim($item->variant_info);
+                            }
+
+                            if ($size) {
+                                $sizeMap[$size] = ($sizeMap[$size] ?? 0) + $item->quantity;
+                            }
+                        }
+
+                        if (empty($sizeMap)) {
                             return '-';
                         }
 
-                        return $breakdown
-                            ->map(fn ($item) => $item->size . ': ' . $item->qty . ' ad.')
+                        ksort($sizeMap, SORT_NUMERIC);
+
+                        return collect($sizeMap)
+                            ->map(fn ($qty, $size) => $size . ': ' . $qty . ' ad.')
                             ->implode(' | ');
                     })
                     ->wrap(),
