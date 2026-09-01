@@ -586,7 +586,7 @@
                             @error('terms_consent') <span class="text-red-500 text-xs mt-1 block font-medium">{{ $message }}</span> @enderror
                         </div>
                         @if(!$paytr_token)
-                            <button type="submit" onclick="document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true}))" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                            <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-bold text-lg py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2">
                                 <span wire:loading.remove wire:target="placeOrder">Siparişi Onayla</span>
                                 <span wire:loading wire:target="placeOrder">İşleniyor...</span>
                                 <svg wire:loading.remove wire:target="placeOrder" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>

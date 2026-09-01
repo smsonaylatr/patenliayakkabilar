@@ -320,12 +320,27 @@ class Checkout extends Component
 
     public function placeOrder(CartService $cartService)
     {
+        \Illuminate\Support\Facades\Log::info('placeOrder ÇAĞRILDI', [
+            'payment_method' => $this->payment_method,
+            'address_mode' => $this->address_mode,
+            'address_selected' => $this->address_selected,
+            'shipping_city' => $this->shipping_city,
+            'shipping_district' => $this->shipping_district,
+            'customer_name' => $this->customer_name,
+            'customer_phone' => $this->customer_phone,
+            'terms_consent' => $this->terms_consent,
+            'paytr_token' => $this->paytr_token ? 'var' : 'yok',
+            'created_order_number' => $this->created_order_number,
+        ]);
+
         if ($this->paytr_token || $this->created_order_number) {
+            \Illuminate\Support\Facades\Log::info('placeOrder ENGEL: token veya order_number var');
             return;
         }
 
         // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
         if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
+            \Illuminate\Support\Facades\Log::info('placeOrder ENGEL: address_selected false');
             $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
             return;
         }
