@@ -89,49 +89,35 @@
                             x-data="addressAutocomplete()"
                             x-init="initAutocomplete()"
                         >
-                            {{-- Adres Seçildiyse: Seçili Adres Özeti --}}
-                            @if($address_selected)
-                            <div class="space-y-4" wire:key="address-selected">
-                                {{-- Seçili Adres Gösterimi --}}
+                            {{-- ▶ Seçili Adres Kartı --}}
+                            <div x-show="$wire.address_selected" x-cloak class="space-y-4">
                                 <div class="relative">
                                     <div class="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                                         <svg class="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                         <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-bold text-emerald-900 break-words">{{ $address_search }}</p>
+                                            <p class="text-sm font-bold text-emerald-900 break-words" x-text="$wire.address_search || ''"></p>
                                             <div class="flex flex-wrap gap-2 mt-2">
-                                                @if($shipping_district)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_district }}</span>
-                                                @endif
-                                                @if($shipping_city)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200">{{ $shipping_city }}</span>
-                                                @endif
+                                                <template x-if="$wire.shipping_district">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200" x-text="$wire.shipping_district"></span>
+                                                </template>
+                                                <template x-if="$wire.shipping_city">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white text-xs font-medium text-gray-700 border border-emerald-200" x-text="$wire.shipping_city"></span>
+                                                </template>
                                             </div>
                                         </div>
-                                        <button type="button" wire:click="resetAutocomplete" @click.stop="query = ''; results = []; selectedIndex = -1" class="text-emerald-600 hover:text-red-500 transition-colors p-1 flex-shrink-0" title="Adresi Değiştir">
+                                        <button type="button" @click="clearAddress()" class="text-emerald-600 hover:text-red-500 transition-colors p-1 flex-shrink-0" title="Adresi Değiştir">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                         </button>
                                     </div>
                                 </div>
-
-                                {{-- Açık Adres Detayı (Bina No, Daire vb.) --}}
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Bina No, Daire, Kat (Opsiyonel)</label>
                                     <input type="text" wire:model.blur="address_detail" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Ör: Bina No: 5, Daire: 3, Kat: 2">
                                 </div>
-
-                                {{-- Gizli alanlar validation için --}}
-                                <input type="hidden" wire:model="shipping_city">
-                                <input type="hidden" wire:model="shipping_district">
-                                <input type="hidden" wire:model="shipping_neighborhood">
-                                <input type="hidden" wire:model="shipping_address">
-
-                                @error('shipping_city') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
-                                @error('shipping_district') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
-                                @error('shipping_address') <span class="text-red-500 text-xs block">{{ $message }}</span> @enderror
                             </div>
-                            @else
-                            {{-- Adres Arama Input'u --}}
-                            <div class="relative" wire:key="address-search" @click.away="showSuggestions = false">
+
+                            {{-- ▶ Adres Arama Input'u --}}
+                            <div x-show="!$wire.address_selected" class="relative" @click.away="showSuggestions = false">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Adres <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <input
@@ -154,7 +140,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Öneriler Dropdown --}}
                                 <div
                                     x-show="showSuggestions && suggestions.length > 0"
                                     x-transition:enter="transition ease-out duration-100"
@@ -185,7 +170,6 @@
                                     </template>
                                 </div>
 
-                                {{-- Sonuç bulunamadı --}}
                                 <div
                                     x-show="showSuggestions && suggestions.length === 0 && query.length >= 3 && !loading && searched"
                                     class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-center text-sm text-gray-500"
@@ -198,9 +182,14 @@
                                 @error('shipping_district') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 @error('shipping_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
-                            @endif
 
-                            {{-- Manuel moda geçiş linki --}}
+                            {{-- Gizli alanlar (her zaman DOM'da) --}}
+                            <input type="hidden" wire:model="shipping_city">
+                            <input type="hidden" wire:model="shipping_district">
+                            <input type="hidden" wire:model="shipping_neighborhood">
+                            <input type="hidden" wire:model="shipping_address">
+
+                            {{-- Manuel moda geçiş --}}
                             <div class="flex items-center justify-between">
                                 <button type="button" wire:click="switchAddressMode('manual')" class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-black transition-colors group">
                                     <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
@@ -234,6 +223,15 @@
                                             }
                                         };
                                         waitForGoogle();
+                                    },
+
+                                    clearAddress() {
+                                        this.query = '';
+                                        this.suggestions = [];
+                                        this.showSuggestions = false;
+                                        this.highlightIndex = -1;
+                                        this.searched = false;
+                                        this.$wire.resetAutocomplete();
                                     },
 
                                     onInput() {
