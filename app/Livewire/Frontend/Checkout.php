@@ -36,6 +36,7 @@ class Checkout extends Component
     public $company_name = '';
     public $tax_office = '';
     public $tax_number = '';
+    public $taxOffices = [];
 
     public $cities = [];
     public $districts = [];
@@ -126,6 +127,11 @@ class Checkout extends Component
             if (isset($json['data'])) {
                 $this->cities = collect($json['data'])->pluck('name')->toArray();
             }
+        }
+
+        // Vergi dairesi listesini yükle
+        if (file_exists(database_path('data/tax-office-names.json'))) {
+            $this->taxOffices = json_decode(file_get_contents(database_path('data/tax-office-names.json')), true) ?: [];
         }
 
         $this->customer_name = session('co_name', $this->customer_name);
