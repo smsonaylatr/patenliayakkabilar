@@ -56,6 +56,11 @@ if (!is_link($publicStorage)) {
     echo "✅ Storage symlink zaten mevcut\n";
 }
 
+// 1a. Composer paketleri (varsa güncelle)
+echo "📦 Composer paketleri yükleniyor...\n";
+exec('cd ' . escapeshellarg($basePath) . ' && composer install --no-dev --optimize-autoloader 2>&1', $composerOutput);
+echo implode("\n", (array)$composerOutput) . "\n";
+
 // 1b. Migration çalıştır
 echo "📦 Migration çalıştırılıyor...\n";
 exec('cd ' . escapeshellarg($basePath) . ' && php artisan migrate --force 2>&1', $migrationOutput, $migrationCode);

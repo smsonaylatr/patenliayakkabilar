@@ -40,6 +40,14 @@ Route::get('/admin/logout', function () {
     return redirect('/admin/login');
 });
 
+// ========================
+// TEDARİKÇİ İRSALİYESİ (PDF & YAZDIR)
+// ========================
+Route::get('/admin/orders/supplier-waybill/download', [\App\Http\Controllers\Admin\SupplierWaybillController::class, 'downloadPdf'])
+    ->name('admin.orders.supplier-waybill.download');
+Route::get('/admin/orders/supplier-waybill/print', [\App\Http\Controllers\Admin\SupplierWaybillController::class, 'printView'])
+    ->name('admin.orders.supplier-waybill.print');
+
 Route::get('/run-migrations', function () {
     try {
         if (!\Illuminate\Support\Facades\Schema::hasTable('backlinks')) {
