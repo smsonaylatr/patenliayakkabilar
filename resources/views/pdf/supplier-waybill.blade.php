@@ -2,10 +2,10 @@
 <html lang="tr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Tedarikçi Sipariş Sevk İrsaliyesi</title>
+    <title>Tedarikçi Sipariş İrsaliyesi</title>
     <style>
         @page {
-            margin: 8mm 8mm;
+            margin: 10mm 10mm;
         }
         * {
             margin: 0;
@@ -15,85 +15,70 @@
         }
         body {
             font-size: 10px;
-            color: #111111;
+            color: #1e293b;
             background: #ffffff;
             line-height: 1.3;
         }
 
         .header-table {
             width: 100%;
-            background: #111111;
+            background: #0f172a;
             color: #ffffff;
             border-collapse: collapse;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             border-radius: 6px;
         }
         .header-table td {
-            padding: 14px 16px;
+            padding: 14px 18px;
             vertical-align: middle;
-        }
-
-        .stripe-banner {
-            background: #FF7A1A;
-            color: #ffffff;
-            font-size: 8px;
-            font-weight: bold;
-            padding: 4px 10px;
-            text-align: center;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            border-radius: 4px;
         }
 
         .summary-table {
             width: 100%;
             border-collapse: collapse;
-            background: #F6F6F6;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
             border-radius: 6px;
         }
         .summary-table td {
             width: 33.33%;
             text-align: center;
             padding: 10px;
-            border-right: 1px solid #e5e7eb;
+            border-right: 1px solid #e2e8f0;
         }
         .summary-table td:last-child {
             border-right: none;
         }
         .summary-num {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            color: #111111;
+            color: #4338ca;
         }
         .summary-lbl {
             font-size: 8px;
             text-transform: uppercase;
-            font-weight: bold;
-            color: #6b7280;
+            color: #64748b;
             margin-top: 2px;
         }
 
         .section-title {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
-            text-transform: uppercase;
-            color: #111111;
+            color: #0f172a;
             padding-bottom: 4px;
             margin-bottom: 8px;
-            border-bottom: 2px solid #111111;
+            border-bottom: 2px solid #4338ca;
         }
 
         .table-custom {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 16px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #cbd5e1;
         }
         .table-custom th {
-            background: #111111;
+            background: #4338ca;
             color: #ffffff;
             font-size: 9px;
             text-transform: uppercase;
@@ -103,25 +88,25 @@
         }
         .table-custom td {
             padding: 8px 10px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
             font-size: 10px;
             text-align: center;
         }
         .table-custom tr:nth-child(even) td {
-            background: #fafafa;
+            background: #f8fafc;
         }
 
         .order-box {
-            border: 1px solid #e5e7eb;
-            margin-bottom: 10px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 12px;
             page-break-inside: avoid;
             border-radius: 4px;
         }
         .order-head {
-            background: #F6F6F6;
+            background: #f1f5f9;
             padding: 6px 10px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #cbd5e1;
             font-size: 9px;
         }
         .order-table {
@@ -129,35 +114,34 @@
             border-collapse: collapse;
         }
         .order-table th {
-            background: #f3f4f6;
-            color: #374151;
+            background: #e2e8f0;
+            color: #475569;
             font-size: 8px;
             text-transform: uppercase;
-            padding: 5px 8px;
+            padding: 6px 8px;
             text-align: center;
         }
         .order-table td {
             padding: 6px 8px;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f1f5f9;
             font-size: 10px;
             vertical-align: middle;
             text-align: center;
         }
 
         .badge-variant {
-            background: #ffffff;
-            border: 2px solid #111111;
-            color: #111111;
-            padding: 4px 10px;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             display: inline-block;
         }
         .badge-qty {
-            background: #FF7A1A;
+            background: #f59e0b;
             color: #ffffff;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
             font-weight: bold;
             font-size: 11px;
@@ -165,35 +149,32 @@
         }
 
         .img-thumb-large {
-            width: 75px;
-            height: 75px;
+            width: 58px;
+            height: 58px;
             object-fit: cover;
             border-radius: 6px;
-            border: 2px solid #FF7A1A;
+            border: 1px solid #cbd5e1;
             display: block;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 2px;
         }
 
         .img-thumb-small {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             object-fit: cover;
             border-radius: 4px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #cbd5e1;
             display: block;
             margin: 0 auto;
-            background: #ffffff;
         }
 
         .footer-text {
             text-align: center;
             font-size: 8px;
-            color: #6b7280;
+            color: #94a3b8;
             margin-top: 10px;
-            padding-top: 6px;
-            border-top: 1px solid #e5e7eb;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 </head>
@@ -203,23 +184,15 @@
     <table class="header-table">
         <tr>
             <td>
-                <div style="font-size: 16px; font-weight: bold; color: #ffffff;">
-                    PATENLİ AYAKKABILAR®
-                </div>
-                <div style="font-size: 9px; color: #9ca3af; margin-top: 2px;">
-                    Tedarikçi Mal Kabul, Hazırlık & Sevkiyat İrsaliyesi
-                </div>
+                <div style="font-size: 16px; font-weight: bold;">📦 Tedarikçi Sipariş İrsaliyesi</div>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 2px;">Patenli Ayakkabılar · patenliayakkabilar.com</div>
             </td>
             <td style="text-align: right;">
-                <div style="font-size: 8px; color: #9ca3af; text-transform: uppercase;">Belge Tarihi</div>
-                <div style="font-size: 11px; font-weight: bold; color: #FF7A1A; margin-top: 2px;">{{ $date }}</div>
+                <div style="font-size: 8px; color: #94a3b8; text-transform: uppercase;">Belge Tarihi</div>
+                <div style="font-size: 11px; font-weight: bold; margin-top: 2px;">{{ $date }}</div>
             </td>
         </tr>
     </table>
-
-    <div class="stripe-banner">
-        HER YERDE KAY · TEDARİKÇİ SİPARİŞ PAKETLEME LİSTESİ
-    </div>
 
     {{-- SUMMARY --}}
     <table class="summary-table">
@@ -230,23 +203,23 @@
             </td>
             <td>
                 <div class="summary-num">{{ $totalProducts }}</div>
-                <div class="summary-lbl">Model / Çeşit</div>
+                <div class="summary-lbl">Ürün / Varyant</div>
             </td>
             <td>
-                <div class="summary-num" style="color: #FF7A1A;">{{ $totalQuantity }}</div>
-                <div class="summary-lbl" style="color: #FF7A1A;">Toplam Çift</div>
+                <div class="summary-num" style="color: #d97706;">{{ $totalQuantity }}</div>
+                <div class="summary-lbl">Toplam Adet</div>
             </td>
         </tr>
     </table>
 
     {{-- KONSOLİDE TABLO --}}
-    <div class="section-title">📋 Konsolide Hazırlık Listesi</div>
+    <div class="section-title">📋 Konsolide Ürün Özeti (Tedarikçi Hazırlık Listesi)</div>
     <table class="table-custom">
         <thead>
             <tr>
-                <th style="width: 100px;">Büyük Görsel</th>
-                <th>Beden / Numara Detayı</th>
-                <th style="width: 110px;">Hazırlanacak Adet</th>
+                <th style="width: 80px;">Görsel</th>
+                <th>Numara / Beden</th>
+                <th style="width: 100px;">Toplam Adet</th>
             </tr>
         </thead>
         <tbody>
@@ -259,17 +232,15 @@
                         <span class="badge-variant">{{ $item['variant'] ?: '-' }}</span>
                     </td>
                     <td>
-                        <span class="badge-qty">{{ $item['quantity'] }} Adet</span>
+                        <span class="badge-qty">x{{ $item['quantity'] }}</span>
                     </td>
                 </tr>
             @endforeach
-            <tr style="background: #111111; color: #ffffff; font-weight: bold;">
-                <td colspan="2" style="text-align: right; padding-right: 16px; font-size: 11px; color: #ffffff;">
-                    TOPLAM HAZIRLANACAK:
-                </td>
+            <tr style="background: #f1f5f9; font-weight: bold;">
+                <td colspan="2" style="text-align: right; padding-right: 16px; font-size: 11px;">GENEL TOPLAM:</td>
                 <td>
-                    <span style="background: #FF7A1A; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">
-                        {{ $totalQuantity }} Çift
+                    <span style="background: #0f172a; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">
+                        x{{ $totalQuantity }}
                     </span>
                 </td>
             </tr>
@@ -277,7 +248,7 @@
     </table>
 
     {{-- SİPARİŞ DETAYLARI --}}
-    <div class="section-title" style="margin-top: 14px;">🧾 Sipariş Bazında Koli Dağılımı</div>
+    <div class="section-title" style="margin-top: 14px;">🧾 Sipariş Detayları</div>
 
     @foreach($orders as $order)
         <div class="order-box">
@@ -285,14 +256,14 @@
                 <table width="100%" style="border-collapse: collapse;">
                     <tr>
                         <td style="text-align: left;">
-                            <strong style="color: #111111; font-size: 10px;">#{{ $order['order_number'] }}</strong>
-                            <span style="margin-left: 8px; font-weight: bold; color: #111111;">{{ $order['customer_name'] }}</span>
+                            <strong style="color: #1e1b4b; font-size: 10px;">#{{ $order['order_number'] }}</strong>
+                            <span style="margin-left: 8px; font-weight: bold;">{{ $order['customer_name'] }}</span>
                             @if(!empty($order['customer_phone']))
-                                <span style="color: #6b7280; margin-left: 6px;">({{ $order['customer_phone'] }})</span>
+                                <span style="color: #64748b; margin-left: 6px;">({{ $order['customer_phone'] }})</span>
                             @endif
                         </td>
-                        <td style="text-align: right; color: #FF7A1A; font-weight: bold;">
-                            📍 {{ $order['city'] }} · 🕒 {{ $order['date'] }}
+                        <td style="text-align: right; color: #64748b;">
+                            {{ $order['city'] }} · {{ $order['date'] }}
                         </td>
                     </tr>
                 </table>
@@ -301,9 +272,9 @@
             <table class="order-table">
                 <thead>
                     <tr>
-                        <th style="width: 65px;">Görsel</th>
+                        <th style="width: 70px;">Görsel</th>
                         <th>Numara / Beden</th>
-                        <th style="width: 75px;">Adet</th>
+                        <th style="width: 80px;">Adet</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -313,10 +284,10 @@
                                 <img src="{{ $item['image'] }}" class="img-thumb-small">
                             </td>
                             <td>
-                                <span class="badge-variant" style="font-size: 10px; padding: 2px 6px;">{{ $item['variant'] ?: '-' }}</span>
+                                <span class="badge-variant">{{ $item['variant'] ?: '-' }}</span>
                             </td>
                             <td>
-                                <span class="badge-qty" style="font-size: 10px; padding: 2px 8px;">×{{ $item['quantity'] }}</span>
+                                <span class="badge-qty">x{{ $item['quantity'] }}</span>
                             </td>
                         </tr>
                     @endforeach
@@ -326,7 +297,7 @@
     @endforeach
 
     <div class="footer-text">
-        Patenli Ayakkabılar® · www.patenliayakkabilar.com · Bu irsaliye sipariş hazırlığı ve koli kontrolü için sistem tarafından otomatik üretilmiştir.
+        Patenli Ayakkabılar · www.patenliayakkabilar.com · Bu irsaliye sipariş hazırlığı için sistem tarafından otomatik oluşturulmuştur.
     </div>
 
 </body>
