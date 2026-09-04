@@ -300,6 +300,8 @@ class OrdersTable
                             ->label('SMS Şifresi')
                             ->required(fn ($get) => (bool)$get('operation_id'))
                             ->placeholder('Telefonunuza gelen SMS şifresini girin')
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                            ->dehydrateStateUsing(fn ($state) => strtoupper(trim((string) $state)))
                             ->hidden(fn ($get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
@@ -377,7 +379,8 @@ class OrdersTable
 
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
-                            $result = $service->completeSmsVerification($data['sms_code'], $data['operation_id'], [$record->gib_invoice_uuid]);
+                            $smsCode = strtoupper(trim((string) $data['sms_code']));
+                            $result = $service->completeSmsVerification($smsCode, $data['operation_id'], [$record->gib_invoice_uuid]);
                             
                             if ($result['success']) {
                                 $newHtml = $service->getInvoiceHtml($record->gib_invoice_uuid);
@@ -774,7 +777,9 @@ class OrdersTable
                             \Filament\Forms\Components\TextInput::make('sms_code')
                                 ->label('SMS Şifresi')
                                 ->required()
-                                ->placeholder('Gelen şifreyi girin'),
+                                ->placeholder('Gelen şifreyi girin')
+                                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                ->dehydrateStateUsing(fn ($state) => strtoupper(trim((string) $state))),
                         ])
                         ->mountUsing(function (\Filament\Schemas\Schema $form, Collection $records) {
                             try {
@@ -821,7 +826,8 @@ class OrdersTable
                                 if (empty($uuids)) return;
 
                                 $service = app(\App\Services\GibEArsivService::class);
-                                $result = $service->completeSmsVerification($data['sms_code'], $data['operation_id'], $uuids);
+                                $smsCode = strtoupper(trim((string) $data['sms_code']));
+                                $result = $service->completeSmsVerification($smsCode, $data['operation_id'], $uuids);
                                 
                                 if ($result['success']) {
                                     foreach ($drafts as $record) {

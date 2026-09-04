@@ -508,6 +508,7 @@ HTML;
      */
     public function completeSmsVerification(string $smsCode, string $operationId, array $uuids): array
     {
+        $smsCode = strtoupper(trim($smsCode));
         $gib = null;
         try {
             $gib = $this->getGibClient();
