@@ -19,13 +19,28 @@ class StockManagement extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
-    protected static ?string $navigationLabel = 'Stok Yönetimi';
-    protected static ?string $title = 'Stok Yönetimi';
     protected static ?int $navigationSort = 3;
-    protected static string|\UnitEnum|null $navigationGroup = 'Mağaza';
-
     protected static string $view = 'filament.pages.stock-management';
+
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-cube';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Stok Yönetimi';
+    }
+
+    public function getTitle(): string
+    {
+        return 'Stok Yönetimi';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Mağaza';
+    }
 
     public function getViewData(): array
     {
