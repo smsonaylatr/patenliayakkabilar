@@ -6,44 +6,63 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Illuminate\Support\Str;
 
 class Checkout extends Component
 {
-    public $customer_name;
-    public $customer_email;
-    public $customer_phone;
-    public $customer_note = '';
+    // Form alanları (wire:model - kullanıcı girişi)
+    public string $customer_name = '';
+    public string $customer_email = '';
+    public string $customer_phone = '';
+    public string $customer_note = '';
     
-    public $shipping_city;
-    public $shipping_district;
-    public $shipping_neighborhood;
-    public $shipping_address;
+    public string $shipping_city = '';
+    public string $shipping_district = '';
+    public string $shipping_neighborhood = '';
+    public string $shipping_address = '';
 
     // Adres Autocomplete
-    public $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
-    public $address_search = '';
-    public $address_detail = '';
-    public $address_selected = false;
+    public string $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
+    public string $address_search = '';
+    public string $address_detail = '';
+    public bool $address_selected = false;
     
-    public $payment_method = 'credit_card';
-    public $sms_consent = false;
-    public $terms_consent = false;
+    public string $payment_method = 'credit_card';
+    public bool $sms_consent = false;
+    public bool $terms_consent = false;
 
-    public $cities = [];
-    public $districts = [];
-    public $neighborhoods = [];
+    // Sunucu tarafında yönetilen veriler
+    #[Locked]
+    public array $cities = [];
 
-    public $paytr_token = null;
-    public $created_order_number = null;
+    #[Locked]
+    public array $districts = [];
+
+    #[Locked]
+    public array $neighborhoods = [];
+
+    #[Locked]
+    public ?string $paytr_token = null;
+
+    #[Locked]
+    public ?string $created_order_number = null;
 
     // Kupon kodu
-    public $coupon_code = '';
-    public $applied_coupon = null;
-    public $coupon_discount = 0;
-    public $coupon_message = '';
-    public $coupon_error = '';
+    public string $coupon_code = '';
+
+    #[Locked]
+    public ?Coupon $applied_coupon = null;
+
+    #[Locked]
+    public float $coupon_discount = 0;
+
+    #[Locked]
+    public string $coupon_message = '';
+
+    #[Locked]
+    public string $coupon_error = '';
 
     protected function rules()
     {
@@ -84,7 +103,8 @@ class Checkout extends Component
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
     ];
 
-    public $isCodAllowed = true;
+    #[Locked]
+    public bool $isCodAllowed = true;
 
     public function mount(CartService $cartService)
     {

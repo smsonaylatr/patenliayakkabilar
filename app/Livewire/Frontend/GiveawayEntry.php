@@ -3,31 +3,45 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\GiveawayEntry as EntryModel;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Illuminate\Support\Str;
 
 class GiveawayEntry extends Component
 {
-    public $name = '';
-    public $instagram_username = '';
-    public $phone = '';
-    public $email = '';
-    public $shoe_size = '';
-    public $city = '';
-    public $district = '';
-    public $address = '';
+    // Form alanları (wire:model)
+    public string $name = '';
+    public string $instagram_username = '';
+    public string $phone = '';
+    public string $email = '';
+    public string $shoe_size = '';
+    public string $city = '';
+    public string $district = '';
+    public string $address = '';
     
-    public $followed_instagram = false;
-    public $kvkk_consent = false;
-    public $sms_consent = true;
+    public bool $followed_instagram = false;
+    public bool $kvkk_consent = false;
+    public bool $sms_consent = true;
 
-    public $cities = [];
-    public $districts = [];
+    // Sunucu tarafında yönetilen veriler
+    #[Locked]
+    public array $cities = [];
 
-    public $isSuccess = false;
-    public $ticketCode = null;
-    public $alreadyParticipated = false;
-    public $existingTicketCode = null;
+    #[Locked]
+    public array $districts = [];
+
+    // Durum flag'leri (sunucu tarafında set ediliyor)
+    #[Locked]
+    public bool $isSuccess = false;
+
+    #[Locked]
+    public ?string $ticketCode = null;
+
+    #[Locked]
+    public bool $alreadyParticipated = false;
+
+    #[Locked]
+    public ?string $existingTicketCode = null;
 
     protected $rules = [
         'name' => 'required|string|min:3|max:100',
@@ -67,7 +81,7 @@ class GiveawayEntry extends Component
         }
     }
 
-    public function updatedCity($value)
+    public function updatedCity(string $value)
     {
         $this->district = '';
         $this->districts = [];

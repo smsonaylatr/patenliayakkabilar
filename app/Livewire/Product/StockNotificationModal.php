@@ -5,6 +5,7 @@ namespace App\Livewire\Product;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockNotification;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
@@ -12,15 +13,24 @@ use Illuminate\Support\Facades\Auth;
 class StockNotificationModal extends Component
 {
     public bool $isOpen = false;
+
+    #[Locked]
     public ?Product $product = null;
+
+    #[Locked]
     public ?int $productId = null;
+
+    #[Locked]
     public ?int $variantId = null;
     
     public string $email = '';
     public string $phone = '';
     public bool $kvkkConsent = true;
 
+    #[Locked]
     public bool $isSuccess = false;
+
+    #[Locked]
     public string $message = '';
 
     #[On('open-stock-modal')]

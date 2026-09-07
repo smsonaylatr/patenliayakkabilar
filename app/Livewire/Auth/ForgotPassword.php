@@ -3,14 +3,17 @@
 namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Password;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class ForgotPassword extends Component
 {
-    public $email = '';
-    public $status = '';
+    public string $email = '';
 
-    protected $rules = [
+    #[Locked]
+    public string $status = '';
+
+    protected array $rules = [
         'email' => 'required|email',
     ];
 

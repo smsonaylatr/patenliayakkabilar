@@ -7,21 +7,23 @@ use App\Models\Product;
 use App\Models\Review;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Locked;
 
 class ReviewList extends Component
 {
     use WithPagination, WithFileUploads;
 
+    #[Locked]
     public Product $product;
 
     // Form fields
-    public $name = '';
-    public $email = '';
-    public $rating = 5;
-    public $comment = '';
-    public $media_files = [];
+    public string $name = '';
+    public string $email = '';
+    public int $rating = 5;
+    public string $comment = '';
+    public array $media_files = [];
 
-    public $showForm = false;
+    public bool $showForm = false;
 
     protected $rules = [
         'name' => 'required|string|max:255',

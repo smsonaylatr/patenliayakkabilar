@@ -8,38 +8,31 @@ use Livewire\Attributes\On;
 
 class CartDrawer extends Component
 {
-    public $items = [];
-    public $total = 0;
-
-    public function mount(CartService $cartService)
-    {
-        $this->loadCart($cartService);
-    }
-
     #[On('cart-updated')]
-    public function loadCart(CartService $cartService)
+    public function refreshCart(): void
     {
-        $cart = $cartService->getCart();
-        $this->items = $cart->items()->with(['product', 'variant'])->get();
-        $this->total = $cartService->getTotal();
+        // Livewire will re-render automatically
     }
 
-    public function removeItem(CartService $cartService, $itemId)
+    public function removeItem(CartService $cartService, int $itemId): void
     {
         $cartService->removeItem($itemId);
-        $this->loadCart($cartService);
         $this->dispatch('cart-updated');
     }
 
-    public function updateQuantity(CartService $cartService, $itemId, $quantity)
+    public function updateQuantity(CartService $cartService, int $itemId, int $quantity): void
     {
+        $quantity = max(1, min(10, $quantity));
         $cartService->updateQuantity($itemId, $quantity);
-        $this->loadCart($cartService);
         $this->dispatch('cart-updated');
     }
 
-    public function render()
+    public function render(CartService $cartService)
     {
-        return view('livewire.frontend.cart-drawer');
+        $cart = $cartService->getCart();
+        return view('livewire.frontend.cart-drawer', [
+            'items' => $cart->items()->with(['product', 'variant'])->get(),
+            'total' => $cartService->getTotal(),
+        ]);
     }
 }

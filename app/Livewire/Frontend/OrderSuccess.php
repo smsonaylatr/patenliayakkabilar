@@ -6,16 +6,23 @@ use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 
 class OrderSuccess extends Component
 {
-    public $order_number;
-    public $order;
+    #[Locked]
+    public string $order_number;
+
+    #[Locked]
+    public Order $order;
+
     public array $ratings = [];
     public array $comments = [];
+
+    #[Locked]
     public bool $ratingsSubmitted = false;
 
-    public function mount($order_number, \App\Services\CartService $cartService)
+    public function mount(string $order_number, \App\Services\CartService $cartService)
     {
         $this->order_number = $order_number;
         $this->order = Order::where('order_number', $order_number)
@@ -72,7 +79,8 @@ class OrderSuccess extends Component
             }
 
             $productId = $item->product_id;
-            $rating = $this->ratings[$productId] ?? 5;
+            $rating = isset($this->ratings[$productId]) ? max(1, min(5, (int) $this->ratings[$productId])) : 5;
+            $comment = isset($this->comments[$productId]) ? mb_substr(trim((string) $this->comments[$productId]), 0, 1000) : null;
 
             // Duplicate kontrolü
             $exists = Review::where('order_id', $this->order->id)
@@ -90,7 +98,7 @@ class OrderSuccess extends Component
                 'name' => $maskedName,
                 'email' => $user?->email ?? $this->order->customer_email,
                 'rating' => $rating,
-                'comment' => !empty($this->comments[$productId]) ? $this->comments[$productId] : null,
+                'comment' => !empty($comment) ? $comment : null,
                 'status' => 1,
             ]);
         }

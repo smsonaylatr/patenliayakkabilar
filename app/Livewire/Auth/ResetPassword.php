@@ -5,21 +5,26 @@ namespace App\Livewire\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use App\Models\User;
 
 class ResetPassword extends Component
 {
-    public $token;
-    public $email;
-    public $password;
-    public $password_confirmation;
-    public $status;
+    #[Locked]
+    public ?string $token = null;
+    
+    public string $email = '';
+    public string $password = '';
+    public string $password_confirmation = '';
+
+    #[Locked]
+    public string $status = '';
 
     public function mount($token)
     {
-        $this->token = $token;
-        $this->email = request()->query('email');
+        $this->token = (string) $token;
+        $this->email = (string) request()->query('email');
     }
 
     public function resetPassword()

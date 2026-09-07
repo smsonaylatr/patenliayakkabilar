@@ -10,7 +10,7 @@ class BlogIndex extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    public string $search = '';
 
     public function mount()
     {

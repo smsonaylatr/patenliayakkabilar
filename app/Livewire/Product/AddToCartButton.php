@@ -6,12 +6,15 @@ use Livewire\Component;
 use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Locked;
 
 class AddToCartButton extends Component
 {
+    #[Locked]
     public Product $product;
-    public $quantity = 1;
-    public $variantId = null;
+    
+    public int $quantity = 1;
+    public mixed $variantId = null;
 
     public function mount(Product $product)
     {
@@ -33,9 +36,17 @@ class AddToCartButton extends Component
             return;
         }
 
-        if ($this->product->variants->count() > 0 && !$this->variantId) {
-            $this->dispatch('open-variant-selector');
-            return;
+        $this->quantity = max(1, min(10, $this->quantity));
+
+        if ($this->product->variants->count() > 0) {
+            if (!$this->variantId) {
+                $this->dispatch('open-variant-selector');
+                return;
+            }
+
+            if (!$this->product->variants->where('id', $this->variantId)->first()) {
+                return;
+            }
         }
 
         $cartService->addItem($this->product->id, $this->variantId, $this->quantity);

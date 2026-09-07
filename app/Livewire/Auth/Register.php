@@ -9,12 +9,12 @@ use Livewire\Component;
 
 class Register extends Component
 {
-    public $name = '';
-    public $email = '';
-    public $password = '';
-    public $password_confirmation = '';
+    public string $name = '';
+    public string $email = '';
+    public string $password = '';
+    public string $password_confirmation = '';
 
-    protected $rules = [
+    protected array $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',

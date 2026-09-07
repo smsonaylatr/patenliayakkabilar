@@ -3,18 +3,20 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\ContactMessage;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class Contact extends Component
 {
-    public $name = '';
-    public $email = '';
-    public $subject = '';
-    public $message = '';
+    public string $name = '';
+    public string $email = '';
+    public string $subject = '';
+    public string $message = '';
 
-    public $isSuccess = false;
+    #[Locked]
+    public bool $isSuccess = false;
 
-    protected $rules = [
+    protected array $rules = [
         'name' => 'required|min:3',
         'email' => 'required|email',
         'subject' => 'nullable|min:3',

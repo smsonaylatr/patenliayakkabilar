@@ -5,12 +5,18 @@ namespace App\Livewire\Frontend;
 use Livewire\Component;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Locked;
 
 class SitePopup extends Component
 {
+    #[Locked]
     public bool $isActive = false;
-    public $imageUrl = null;
-    public $linkUrl = null;
+
+    #[Locked]
+    public ?string $imageUrl = null;
+
+    #[Locked]
+    public ?string $linkUrl = null;
 
     public function mount()
     {

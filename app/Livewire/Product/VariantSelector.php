@@ -4,11 +4,13 @@ namespace App\Livewire\Product;
 
 use Livewire\Component;
 use App\Models\Product;
+use Livewire\Attributes\Locked;
 
 class VariantSelector extends Component
 {
+    #[Locked]
     public Product $product;
-    public $selectedVariantId;
+    public mixed $selectedVariantId = null;
 
     public function mount(Product $product)
     {
@@ -20,7 +22,11 @@ class VariantSelector extends Component
 
     public function updatedSelectedVariantId($value)
     {
-        $this->dispatch('variant-selected', variantId: $value);
+        if ($value && !$this->product->variants->where('id', $value)->first()) {
+            return;
+        }
+
+        $this->dispatch('variant-selected', variantId: (string)$value);
     }
 
     public function render()

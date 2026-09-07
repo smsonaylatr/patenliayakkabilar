@@ -6,9 +6,11 @@ use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 
 class OrderRating extends Component
 {
+    #[Locked]
     public Order $order;
     public array $ratings = [];
     public array $comments = [];
@@ -35,7 +37,7 @@ class OrderRating extends Component
     public function submitRatings(): void
     {
         $user = Auth::user();
-        if (!$user) {
+        if (!$user || $this->order->user_id !== $user->id) {
             return;
         }
 
@@ -47,7 +49,8 @@ class OrderRating extends Component
             }
 
             $productId = $item->product_id;
-            $rating = $this->ratings[$productId] ?? 5;
+            $rating = isset($this->ratings[$productId]) ? max(1, min(5, (int) $this->ratings[$productId])) : 5;
+            $comment = isset($this->comments[$productId]) ? mb_substr(trim((string) $this->comments[$productId]), 0, 1000) : null;
 
             $exists = Review::where('order_id', $this->order->id)
                 ->where('product_id', $productId)
@@ -65,7 +68,7 @@ class OrderRating extends Component
                 'name' => $maskedName,
                 'email' => $user->email,
                 'rating' => $rating,
-                'comment' => !empty($this->comments[$productId]) ? $this->comments[$productId] : null,
+                'comment' => !empty($comment) ? $comment : null,
                 'status' => 1,
             ]);
         }

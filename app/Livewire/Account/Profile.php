@@ -10,11 +10,11 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Profile extends Component
 {
-    public $name;
-    public $email;
-    public $current_password;
-    public $new_password;
-    public $new_password_confirmation;
+    public string $name = '';
+    public string $email = '';
+    public string $current_password = '';
+    public string $new_password = '';
+    public string $new_password_confirmation = '';
 
     public function mount()
     {
