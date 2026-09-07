@@ -74,8 +74,8 @@ class StockManagement extends Page implements HasTable
                 Tables\Columns\ImageColumn::make('product.images.0.image_path')
                     ->label('Görsel')
                     ->disk('public')
-                    ->circular()
-                    ->size(40)
+                    ->square()
+                    ->size(76)
                     ->defaultImageUrl(url('/favicon.png'))
                     ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
                 Tables\Columns\TextColumn::make('product.name')
