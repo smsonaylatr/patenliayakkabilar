@@ -112,6 +112,28 @@
                                 </div>
                             </div>
 
+                            {{-- Ödeme Durumu --}}
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 sm:gap-0">
+                                <span class="text-gray-500 text-xs sm:text-sm">Ödeme Durumu:</span>
+                                <div>
+                                    @if($order->payment_status === 'paid')
+                                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Ödendi</span>
+                                    @elseif($order->payment_status === 'pending')
+                                        @if($order->payment_method === 'cash_on_delivery')
+                                            <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Kapıda Ödenecek</span>
+                                        @else
+                                            <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Beklemede</span>
+                                        @endif
+                                    @elseif($order->payment_status === 'refunded')
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">İade Edildi</span>
+                                    @elseif($order->payment_status === 'failed')
+                                        <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Başarısız</span>
+                                    @else
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{{ $order->payment_status ?? 'Bilinmiyor' }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
                             <!-- KARGO TAKİP KODU VE FİRMA BİLGİSİ ALANI -->
                             @if($hasRealTrackingCode)
                                 <div class="bg-white p-3 sm:p-4 rounded-xl border border-gray-200 space-y-3 mt-2 shadow-xs">
@@ -201,6 +223,47 @@
                                 @endif
                             @else
                                 {{-- Kargo takip kodu henüz oluşturulmamış --}}
+                                @if($order->status === 'cancelled')
+                                    {{-- İPTAL EDİLMİŞ SİPARİŞ --}}
+                                    <div class="bg-red-50/70 p-3 sm:p-4 rounded-xl border border-red-200/80 space-y-2.5 mt-2">
+                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 sm:gap-0">
+                                            <span class="text-xs font-bold uppercase tracking-wider text-red-800">SİPARİŞ DURUMU</span>
+                                            <span class="inline-flex items-center gap-1.5 text-xs text-red-700 font-bold">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                İptal Edildi
+                                            </span>
+                                        </div>
+                                        <div class="flex items-start gap-2.5 pt-1">
+                                            <div class="shrink-0 mt-0.5">
+                                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                </svg>
+                                            </div>
+                                            <p class="text-xs text-red-900 leading-relaxed font-medium">
+                                                Bu sipariş iptal edilmiştir. Herhangi bir sorunuz varsa lütfen bizimle iletişime geçiniz.
+                                            </p>
+                                        </div>
+                                        {{-- İptal durumu göstergesi --}}
+                                        <div class="pt-1">
+                                            <div class="flex items-center gap-1.5">
+                                                @php
+                                                    $cancelSteps = [
+                                                        ['label' => 'Sipariş', 'done' => true, 'color' => '#f97316'],
+                                                        ['label' => 'İptal', 'done' => true, 'color' => '#ef4444'],
+                                                    ];
+                                                @endphp
+                                                @foreach($cancelSteps as $step)
+                                                    <div class="flex-1 flex flex-col items-center">
+                                                        <div class="w-full rounded-full h-1.5" style="background-color: #e5e7eb;">
+                                                            <div class="h-1.5 rounded-full" style="width: 100%; background-color: {{ $step['color'] }};"></div>
+                                                        </div>
+                                                        <span class="text-[10px] mt-1 font-semibold" style="color: {{ $step['done'] ? $step['color'] : '#9ca3af' }};">{{ $step['label'] }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
                                 <div class="bg-amber-50/70 p-3 sm:p-4 rounded-xl border border-amber-200/80 space-y-2.5 mt-2">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 sm:gap-0">
                                         <span class="text-xs font-bold uppercase tracking-wider text-amber-800">KARGO TAKİP DURUMU</span>
@@ -254,6 +317,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             @endif
                             </div>
 

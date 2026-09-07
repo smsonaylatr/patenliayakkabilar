@@ -68,6 +68,21 @@
                                         </div>
                                     @endif
                                 </div>
+
+                                {{-- Ödeme Durumu Badge --}}
+                                <div class="mt-2 sm:mt-0">
+                                    @if($order->payment_status === 'paid')
+                                        <span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Ödendi</span>
+                                    @elseif($order->payment_status === 'pending' && $order->payment_method === 'cash_on_delivery')
+                                        <span class="bg-yellow-100 text-yellow-700 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Kapıda Ödenecek</span>
+                                    @elseif($order->payment_status === 'pending')
+                                        <span class="bg-yellow-100 text-yellow-700 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Ödeme Bekliyor</span>
+                                    @elseif($order->payment_status === 'refunded')
+                                        <span class="bg-gray-100 text-gray-600 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">İade Edildi</span>
+                                    @elseif($order->payment_status === 'failed')
+                                        <span class="bg-red-100 text-red-600 text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Ödeme Başarısız</span>
+                                    @endif
+                                </div>
                                 
                                 @if($order->cargo_company && $order->cargo_tracking_code)
                                     @php

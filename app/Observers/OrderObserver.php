@@ -68,6 +68,12 @@ class OrderObserver
             $messageTemplate = \App\Models\Setting::where('key', 'vatansms_shipped_message')->value('value');
         } elseif ($type === 'delivered') {
             $messageTemplate = \App\Models\Setting::where('key', 'vatansms_delivered_message')->value('value');
+        } elseif ($type === 'cancelled') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_cancelled_message')->value('value');
+            // Eğer özel iptal mesajı tanımlanmamışsa varsayılan mesaj kullan
+            if (empty($messageTemplate)) {
+                $messageTemplate = 'Sayın {isim}, {siparis_no} numaralı siparişiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz. - Patenli Ayakkabılar';
+            }
         }
 
         if (empty($messageTemplate)) return;
@@ -283,6 +289,17 @@ class OrderObserver
                         app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error on delivered: ' . $e->getMessage());
+                    }
+                });
+            } elseif ($order->status === 'cancelled') {
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    
+                    // İptal SMS'i gönder
+                    try {
+                        $this->sendCustomerSms($order, 'cancelled');
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('SMS notification error on cancelled: ' . $e->getMessage());
                     }
                 });
             }
