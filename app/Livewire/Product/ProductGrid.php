@@ -3,14 +3,18 @@
 namespace App\Livewire\Product;
 
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 use App\Models\Product;
 
 class ProductGrid extends Component
 {
     #[\Livewire\Attributes\Url]
-    public $category = '';
+    public string $category = '';
 
+    #[Locked]
     public bool $isFeaturedOnly = false;
+
+    #[Locked]
     public int $limit = 36;
 
     public function mount($isFeaturedOnly = false, $limit = 36)
