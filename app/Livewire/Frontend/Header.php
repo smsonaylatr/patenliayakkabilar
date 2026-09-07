@@ -9,12 +9,10 @@ use Livewire\Attributes\On;
 
 class Header extends Component
 {
-    public $cartCount = 0;
-    public $categories = [];
+    public int $cartCount = 0;
 
     public function mount(CartService $cartService)
     {
-        $this->categories = Category::whereNull('parent_id')->where('status', true)->get();
         $this->updateCartCount($cartService);
     }
 
@@ -26,6 +24,8 @@ class Header extends Component
 
     public function render()
     {
-        return view('livewire.frontend.header');
+        return view('livewire.frontend.header', [
+            'categories' => Category::whereNull('parent_id')->where('status', true)->get(),
+        ]);
     }
 }
