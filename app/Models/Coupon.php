@@ -12,4 +12,9 @@ class Coupon extends Model
         'expires_at' => 'datetime',
         'status' => 'boolean',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'coupon_code', 'code');
+    }
 }

@@ -36,4 +36,9 @@ class Order extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class, 'coupon_code', 'code');
+    }
 }
