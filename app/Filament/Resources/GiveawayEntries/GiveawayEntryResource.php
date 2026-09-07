@@ -34,7 +34,7 @@ class GiveawayEntryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'ticket_code';
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return GiveawayEntryForm::configure($schema);
     }

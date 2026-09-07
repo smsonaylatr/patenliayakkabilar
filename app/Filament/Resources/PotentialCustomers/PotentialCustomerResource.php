@@ -26,7 +26,7 @@ class PotentialCustomerResource extends Resource
 
     protected static ?string $navigationLabel = 'Potansiyel Müşteriler';
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return PotentialCustomerForm::configure($schema);
     }

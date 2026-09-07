@@ -36,7 +36,7 @@ class ContactMessageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'subject';
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return ContactMessageForm::configure($schema);
     }

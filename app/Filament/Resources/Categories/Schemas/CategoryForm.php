@@ -40,7 +40,7 @@ class CategoryForm
                                     ->label('Açıklama')
                                     ->default(null)
                                     ->columnSpanFull(),
-                                Select::make('parent_id')
+                                Select::make('parent_id')->native(false)
                                     ->label('Üst Kategori')
                                     ->relationship('parent', 'name')
                                     ->native(false)
@@ -106,3 +106,4 @@ class CategoryForm
             ]);
     }
 }
+

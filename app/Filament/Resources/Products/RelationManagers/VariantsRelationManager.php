@@ -22,11 +22,11 @@ class VariantsRelationManager extends RelationManager
     protected static ?string $modelLabel = 'Varyant';
     protected static ?string $pluralModelLabel = 'Varyantlar';
 
-    public function form(Schema $schema): Schema
+    public function schema(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Select::make('color')
+                Select::make('color')->native(false)
                     ->label('Renk')
                     ->options(ProductVariant::COLOR_OPTIONS)
                     ->multiple()
@@ -34,14 +34,14 @@ class VariantsRelationManager extends RelationManager
                     ->native(false)
                     ->required()
                     ->helperText('Birden fazla renk seçebilirsiniz'),
-                Select::make('size')
+                Select::make('size')->native(false)
                     ->label('Numara')
                     ->options(
                         collect(range(28, 45))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
                     )
                     ->searchable()
                     ->required(),
-                Select::make('wheel_type')
+                Select::make('wheel_type')->native(false)
                     ->label('Teker Tipi')
                     ->options([
                         'single' => 'Tek Teker',
@@ -121,3 +121,4 @@ class VariantsRelationManager extends RelationManager
             ]);
     }
 }
+

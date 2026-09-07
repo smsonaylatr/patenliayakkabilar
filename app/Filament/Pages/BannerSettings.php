@@ -5,7 +5,7 @@ namespace App\Filament\Pages;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ColorPicker;
@@ -84,7 +84,7 @@ class BannerSettings extends Page implements HasForms
         ]);
     }
 
-    public function form($form)
+    public function form(Schema $form): Schema
     {
         return $form
             ->schema([

@@ -32,7 +32,7 @@ class AbandonedCartResource extends Resource
         return ['user.name', 'user.email', 'user.phone'];
     }
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return $schema
             ->components([

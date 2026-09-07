@@ -37,7 +37,7 @@ class PageResource extends Resource
         return 'İçerik Yönetimi';
     }
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return $schema
             ->schema([

@@ -32,7 +32,7 @@ class SegmentResource extends Resource
     protected static ?string $pluralModelLabel = 'Müşteri Segmentleri';
     protected static ?int $navigationSort = 3;
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Segment Bilgileri')
@@ -48,7 +48,7 @@ class SegmentResource extends Resource
                         ->disabled()
                         ->dehydrated()
                         ->helperText('Otomatik oluşturulur'),
-                    Select::make('type')
+                    Select::make('type')->native(false)
                         ->label('Tür')
                         ->options([
                             'static' => 'Statik (Manuel)',

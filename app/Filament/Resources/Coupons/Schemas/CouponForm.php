@@ -23,7 +23,7 @@ class CouponForm
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->extraInputAttributes(['style' => 'text-transform: uppercase']),
-                        Select::make('type')
+                        Select::make('type')->native(false)
                             ->label('İndirim Tipi')
                             ->options([
                                 'percentage' => 'Yüzde (%)',
@@ -68,3 +68,4 @@ class CouponForm
             ]);
     }
 }
+

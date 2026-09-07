@@ -28,7 +28,7 @@ class ProductForm
                         Tab::make('Genel Bilgiler')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Select::make('categories')
+                                Select::make('categories')->native(false)
                                     ->label('Kategoriler')
                                     ->relationship('categories', 'name')
                                     ->searchable()
@@ -78,7 +78,7 @@ class ProductForm
                                     ->maxLength(255)
                                     ->default(null),
 
-                                Select::make('gender')
+                                Select::make('gender')->native(false)
                                     ->label('Cinsiyet')
                                     ->options([
                                         'erkek'       => 'Erkek',
@@ -90,7 +90,7 @@ class ProductForm
                                     ->placeholder('Cinsiyet seçiniz')
                                     ->default(null),
 
-                                Select::make('age_group')
+                                Select::make('age_group')->native(false)
                                     ->label('Yaş Grubu')
                                     ->options([
                                         'yetiskin' => 'Yetişkin',
@@ -396,7 +396,7 @@ class ProductForm
                                         ->color('success')
                                         ->size('lg')
                                         ->form([
-                                            Select::make('series_color')
+                                            Select::make('series_color')->native(false)
                                                 ->label('Renk')
                                                 ->options(ProductVariant::COLOR_OPTIONS)
                                                 ->multiple()
@@ -404,21 +404,21 @@ class ProductForm
                                                 ->native(false)
                                                 ->required()
                                                 ->helperText('Birden fazla renk seçebilirsiniz'),
-                                            Select::make('series_start')
+                                            Select::make('series_start')->native(false)
                                                 ->label('Başlangıç Numara')
                                                 ->options(
                                                     collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
                                                 )
                                                 ->default('26')
                                                 ->required(),
-                                            Select::make('series_end')
+                                            Select::make('series_end')->native(false)
                                                 ->label('Bitiş Numara')
                                                 ->options(
                                                     collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
                                                 )
                                                 ->default('34')
                                                 ->required(),
-                                            Select::make('series_wheel')
+                                            Select::make('series_wheel')->native(false)
                                                 ->label('Teker Tipi')
                                                 ->options([
                                                     'single' => 'Tek Teker',
@@ -509,7 +509,7 @@ class ProductForm
                                     ->relationship()
                                     ->label('')
                                     ->schema([
-                                        Select::make('color')
+                                        Select::make('color')->native(false)
                                             ->label('Renk')
                                             ->options(ProductVariant::COLOR_OPTIONS)
                                             ->multiple()
@@ -517,7 +517,7 @@ class ProductForm
                                             ->native(false)
                                             ->required()
                                             ->helperText('Birden fazla renk seçebilirsiniz'),
-                                        Select::make('size')
+                                        Select::make('size')->native(false)
                                             ->label('Numara')
                                             ->options(
                                                 collect(range(26, 44))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
@@ -535,7 +535,7 @@ class ProductForm
                                                     }
                                                 }
                                             }),
-                                        Select::make('wheel_type')
+                                        Select::make('wheel_type')->native(false)
                                             ->label('Teker Tipi')
                                             ->options([
                                                 'single' => 'Tek Teker',
@@ -600,3 +600,5 @@ class ProductForm
             ]);
     }
 }
+
+

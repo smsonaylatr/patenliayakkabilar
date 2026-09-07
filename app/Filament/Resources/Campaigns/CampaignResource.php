@@ -24,7 +24,7 @@ class CampaignResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
     protected static ?int $navigationSort = 3;
 
-    public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
             ->components([
@@ -34,13 +34,13 @@ class CampaignResource extends Resource
                             ->label('Kampanya Adı')
                             ->required()
                             ->maxLength(255),
-                        \Filament\Forms\Components\Select::make('customer_segment_id')
+                        \Filament\Forms\Components\Select::make('customer_segment_id')->native(false)
                             ->label('Hedef Segment')
                             ->relationship('customerSegment', 'name')
                             ->searchable()
                             ->preload()
                             ->nullable(),
-                        \Filament\Forms\Components\Select::make('channel')
+                        \Filament\Forms\Components\Select::make('channel')->native(false)
                             ->label('İletişim Kanalı')
                             ->options([
                                 'email' => 'E-posta',
@@ -59,7 +59,7 @@ class CampaignResource extends Resource
                     ])->columns(2),
                 \Filament\Schemas\Components\Section::make('Zamanlama ve Durum')
                     ->schema([
-                        \Filament\Forms\Components\Select::make('status')
+                        \Filament\Forms\Components\Select::make('status')->native(false)
                             ->label('Durum')
                             ->options([
                                 'draft' => 'Taslak',

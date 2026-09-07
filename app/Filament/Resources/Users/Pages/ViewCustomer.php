@@ -214,3 +214,4 @@ class ViewCustomer extends ViewRecord
         };
     }
 }
+

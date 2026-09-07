@@ -26,10 +26,8 @@ class UserForm
                 TextInput::make('password')
                     ->password()
                     ->required(),
-                Select::make('role')
-                    ->options(['admin' => 'Admin', 'customer' => 'Customer'])
-                    ->default('customer')
-                    ->required(),
+                Select::make('role')->options(['admin' => 'Admin', 'customer' => 'Customer'])->default('customer')->required()->native(false),
             ]);
     }
 }
+

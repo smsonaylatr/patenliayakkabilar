@@ -22,7 +22,7 @@ class ImagesRelationManager extends RelationManager
     protected static ?string $modelLabel = 'Görsel';
     protected static ?string $pluralModelLabel = 'Görseller';
 
-    public function form(Schema $schema): Schema
+    public function schema(Schema $schema): Schema
     {
         return $schema
             ->components([

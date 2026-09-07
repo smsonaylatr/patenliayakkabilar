@@ -22,7 +22,7 @@ class InfluencerResource extends Resource
     protected static ?string $pluralModelLabel = 'Influencer\'lar';
     protected static ?int $navigationSort = 2;
 
-    public static function form(Schema $schema): Schema
+    public static function schema(Schema $schema): Schema
     {
         return $schema->components([
             \Filament\Schemas\Components\Section::make('Kanal Bilgileri')
@@ -35,7 +35,7 @@ class InfluencerResource extends Resource
                         ->label('Kanal URL')
                         ->url()
                         ->maxLength(500),
-                    \Filament\Forms\Components\Select::make('platform')
+                    \Filament\Forms\Components\Select::make('platform')->native(false)
                         ->label('Platform')
                         ->options([
                             'youtube' => 'YouTube',
@@ -55,7 +55,7 @@ class InfluencerResource extends Resource
                         ->numeric()
                         ->step(0.01)
                         ->suffix('%'),
-                    \Filament\Forms\Components\Select::make('category')
+                    \Filament\Forms\Components\Select::make('category')->native(false)
                         ->label('Kategori')
                         ->options([
                             'kids_vlog' => 'Çocuk Vlog',
@@ -69,7 +69,7 @@ class InfluencerResource extends Resource
                         ])
                         ->default('kids_vlog')
                         ->native(false),
-                    \Filament\Forms\Components\Select::make('tier')
+                    \Filament\Forms\Components\Select::make('tier')->native(false)
                         ->label('Seviye')
                         ->options([
                             'nano' => 'Nano (1K-5K)',
@@ -106,7 +106,7 @@ class InfluencerResource extends Resource
 
             \Filament\Schemas\Components\Section::make('Değerlendirme')
                 ->schema([
-                    \Filament\Forms\Components\Select::make('status')
+                    \Filament\Forms\Components\Select::make('status')->native(false)
                         ->label('Durum')
                         ->options([
                             'discovered' => 'Keşfedildi',
@@ -283,7 +283,7 @@ class InfluencerResource extends Resource
                     ->icon('heroicon-o-envelope')
                     ->color('info')
                     ->form([
-                        \Filament\Forms\Components\Select::make('channel')
+                        \Filament\Forms\Components\Select::make('channel')->native(false)
                             ->label('Kanal')
                             ->options([
                                 'email' => 'E-posta',

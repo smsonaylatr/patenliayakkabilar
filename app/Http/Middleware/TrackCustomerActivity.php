@@ -33,17 +33,20 @@ class TrackCustomerActivity
             $eventType = 'page_view';
 
             // Ürün sayfası tespiti
-            if ($request->route() && $request->route()->getName() === 'product.show') {
+            if ($request->route() && $request->route()->getName() === 'products.show') {
                 $eventType = 'product_view';
-                $product = $request->route()->parameter('product');
-                if ($product) {
-                    $eventData['product_id'] = is_object($product) ? $product->id : $product;
+                $productSlug = $request->route()->parameter('slug');
+                if ($productSlug) {
+                    $product = \App\Models\Product::where('slug', $productSlug)->first();
+                    if ($product) {
+                        $eventData['product_id'] = $product->id;
+                    }
                 }
             }
 
             // Kategori sayfası tespiti
             if ($request->route() && $request->route()->getName() === 'category.show') {
-                $eventData['category_slug'] = $request->route()->parameter('category');
+                $eventData['category_slug'] = $request->route()->parameter('slug');
             }
 
             // Arama tespiti
