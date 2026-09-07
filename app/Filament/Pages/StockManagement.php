@@ -64,6 +64,12 @@ class StockManagement extends Page implements HasTable
                     ->with('product')
                     ->whereHas('product', fn ($q) => $q->where('status', true))
             )
+            ->groups([
+                Tables\Grouping\Group::make('product.name')
+                    ->label('Ürün')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('product.name')
             ->columns([
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Ürün Adı')
