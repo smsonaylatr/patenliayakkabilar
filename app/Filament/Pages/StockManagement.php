@@ -23,11 +23,7 @@ class StockManagement extends Page implements HasTable
     protected static ?string $navigationLabel = 'Stok Yönetimi';
     protected static ?string $title = 'Stok Yönetimi';
     protected static ?int $navigationSort = 3;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Mağaza';
-    }
+    protected static string|\UnitEnum|null $navigationGroup = 'Mağaza';
 
     protected static string $view = 'filament.pages.stock-management';
 
