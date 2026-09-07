@@ -37,7 +37,7 @@
         .blog-content code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
         .blog-content pre { background: #1f2937; color: #e5e7eb; padding: 1.2rem; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; }
         .blog-content pre code { background: none; padding: 0; color: inherit; }
-        .blog-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .blog-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; display: block; overflow-x: auto; white-space: nowrap; }
         .blog-content th, .blog-content td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
         .blog-content th { background: #f9fafb; font-weight: 700; color: #111827; }
         .blog-content hr { border: none; border-top: 2px solid #f3f4f6; margin: 2rem 0; }

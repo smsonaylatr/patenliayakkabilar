@@ -4,7 +4,7 @@
             <h2 class="text-3xl font-extrabold text-brand-dark">Farkımız Ortada</h2>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full min-w-[600px] text-left border-collapse">
                 <thead>
                     <tr>
                         <th class="p-4 border-b-2 border-gray-200">Özellik</th>
