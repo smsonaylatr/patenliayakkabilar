@@ -314,9 +314,52 @@ class OrderObserver
             ]);
 
             if ($order->status === 'cancelled') {
+                // Stok geri yükleme
+                $order->loadMissing(['items.product', 'items.variant']);
+                foreach ($order->items as $item) {
+                    if ($item->variant) {
+                        $item->variant->increment('stock', $item->quantity);
+                    }
+                    if ($item->product) {
+                        $item->product->increment('stock', $item->quantity);
+                    }
+                }
+                \Illuminate\Support\Facades\Log::info("Sipariş iptal stok geri yükleme: #{$order->order_number}");
+
+                // Ödeme iade durumuna al (eğer ödenmişse)
+                if ($order->payment_status === 'paid') {
+                    $order->payment_status = 'refunded';
+                    $order->saveQuietly();
+                }
+
+                // Porego'ya iptal bildirimi gönder
+                app()->terminating(function () use ($order) {
+                    try {
+                        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: env('POREGO_API_KEY');
+                        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: env('POREGO_API_SECRET');
+                        $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1');
+
+                        if ($apiKey && $apiSecret) {
+                            // Porego'daki siparişi iptal et
+                            \Illuminate\Support\Facades\Http::withHeaders([
+                                'X-Api-Key' => $apiKey,
+                                'X-Api-Secret' => $apiSecret,
+                                'Accept' => 'application/json',
+                                'Content-Type' => 'application/json',
+                            ])->put("{$apiUrl}/orders/{$order->order_number}", [
+                                'status' => 'CANCELLED',
+                            ]);
+
+                            \Illuminate\Support\Facades\Log::info("Porego'ya iptal bildirimi gönderildi: #{$order->order_number}");
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error("Porego iptal bildirimi hatası: " . $e->getMessage());
+                    }
+                });
+
                 Notification::make()
                     ->title('Sipariş İptal Edildi')
-                    ->body("{$order->order_number} numaralı sipariş iptal edildi.")
+                    ->body("{$order->order_number} numaralı sipariş iptal edildi. Stok geri yüklendi.")
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());

@@ -480,6 +480,14 @@ class Checkout extends Component
                 'unit_price' => $item->price,
                 'total_price' => $item->price * $item->quantity,
             ]);
+
+            // Stok düşür
+            if ($item->variant) {
+                $item->variant->decrement('stock', $item->quantity);
+            }
+            if ($item->product) {
+                $item->product->decrement('stock', $item->quantity);
+            }
         }
 
         // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet (Sepet boşaltma vs. için)
