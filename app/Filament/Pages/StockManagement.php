@@ -26,7 +26,7 @@ class StockManagement extends Page implements HasTable
         return 'filament.pages.stock-management';
     }
 
-    public static function getNavigationIcon(): ?string
+    public static function getNavigationIcon(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
         return 'heroicon-o-cube';
     }
@@ -36,7 +36,7 @@ class StockManagement extends Page implements HasTable
         return 'Stok Yönetimi';
     }
 
-    public function getTitle(): string
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
         return 'Stok Yönetimi';
     }
@@ -125,7 +125,7 @@ class StockManagement extends Page implements HasTable
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('update_stock')
+                \Filament\Actions\Action::make('update_stock')
                     ->label('Stok Güncelle')
                     ->icon('heroicon-o-pencil')
                     ->color('warning')
@@ -163,7 +163,7 @@ class StockManagement extends Page implements HasTable
                             ->success()
                             ->send();
                     }),
-                Tables\Actions\Action::make('add_stock')
+                \Filament\Actions\Action::make('add_stock')
                     ->label('Stok Ekle')
                     ->icon('heroicon-o-plus-circle')
                     ->color('success')
@@ -193,38 +193,40 @@ class StockManagement extends Page implements HasTable
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('bulk_add_stock')
-                    ->label('Toplu Stok Ekle')
-                    ->icon('heroicon-o-plus')
-                    ->color('success')
-                    ->form([
-                        TextInput::make('amount')
-                            ->label('Her Varyanta Eklenecek Miktar')
-                            ->numeric()
-                            ->required()
-                            ->minValue(1)
-                            ->default(10),
-                    ])
-                    ->action(function (Collection $records, array $data): void {
-                        $amount = (int) $data['amount'];
-                        if ($amount <= 0) return;
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('bulk_add_stock')
+                        ->label('Toplu Stok Ekle')
+                        ->icon('heroicon-o-plus')
+                        ->color('success')
+                        ->form([
+                            TextInput::make('amount')
+                                ->label('Her Varyanta Eklenecek Miktar')
+                                ->numeric()
+                                ->required()
+                                ->minValue(1)
+                                ->default(10),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $amount = (int) $data['amount'];
+                            if ($amount <= 0) return;
 
-                        foreach ($records as $record) {
-                            $record->safeIncrement(
-                                $amount,
-                                StockMovement::TYPE_RESTOCK,
-                                null,
-                                "Toplu stok ekleme"
-                            );
-                            $record->product?->syncFromVariants();
-                        }
+                            foreach ($records as $record) {
+                                $record->safeIncrement(
+                                    $amount,
+                                    StockMovement::TYPE_RESTOCK,
+                                    null,
+                                    "Toplu stok ekleme"
+                                );
+                                $record->product?->syncFromVariants();
+                            }
 
-                        Notification::make()
-                            ->title($records->count() . " varyanta {$amount}'er adet stok eklendi")
-                            ->success()
-                            ->send();
-                    })
-                    ->deselectRecordsAfterCompletion(),
+                            Notification::make()
+                                ->title($records->count() . " varyanta {$amount}'er adet stok eklendi")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                ]),
             ]);
     }
 }
