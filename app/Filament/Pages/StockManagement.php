@@ -20,7 +20,11 @@ class StockManagement extends Page implements HasTable
     use InteractsWithTable;
 
     protected static ?int $navigationSort = 3;
-    protected static string $view = 'filament.pages.stock-management';
+
+    public function getView(): string
+    {
+        return 'filament.pages.stock-management';
+    }
 
     public static function getNavigationIcon(): ?string
     {
