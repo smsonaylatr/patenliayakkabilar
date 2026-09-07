@@ -5,16 +5,19 @@ namespace App\Livewire\Admin;
 use App\Models\StockMovement;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 
-class StockMovementHistory extends Component implements HasForms, HasTable
+class StockMovementHistory extends Component implements HasForms, HasTable, HasActions
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use InteractsWithActions;
 
     public function table(Table $table): Table
     {
