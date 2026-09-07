@@ -61,7 +61,7 @@ class StockManagement extends Page implements HasTable
         return $table
             ->query(
                 ProductVariant::query()
-                    ->with('product')
+                    ->with(['product.images'])
                     ->whereHas('product', fn ($q) => $q->where('status', true))
             )
             ->groups([
@@ -71,6 +71,13 @@ class StockManagement extends Page implements HasTable
             ])
             ->defaultGroup('product.name')
             ->columns([
+                Tables\Columns\ImageColumn::make('product.images.0.image_path')
+                    ->label('Görsel')
+                    ->disk('public')
+                    ->circular()
+                    ->size(40)
+                    ->defaultImageUrl(url('/favicon.png'))
+                    ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Ürün Adı')
                     ->searchable()
