@@ -481,12 +481,33 @@ class Checkout extends Component
                 'total_price' => $item->price * $item->quantity,
             ]);
 
-            // Stok düşür
+            // Güvenli atomik stok düşürme (race condition korumalı)
+            $stockOk = true;
             if ($item->variant) {
-                $item->variant->decrement('stock', $item->quantity);
+                $stockOk = $item->variant->safeDecrement(
+                    $item->quantity,
+                    $order->order_number,
+                    "Sipariş ile stok düşürüldü"
+                );
+                // Varyanttan sonra ürün toplam stoğunu senkronize et
+                $item->product?->syncFromVariants();
+            } elseif ($item->product) {
+                $stockOk = $item->product->safeDecrement(
+                    $item->quantity,
+                    $order->order_number,
+                    "Sipariş ile stok düşürüldü"
+                );
             }
-            if ($item->product) {
-                $item->product->decrement('stock', $item->quantity);
+
+            if (!$stockOk) {
+                // Stok yetersiz — tüm siparişi geri al
+                $order->items()->delete();
+                $order->delete();
+                $this->created_order_number = null;
+                $productName = $item->product?->name ?? 'Ürün';
+                $variantLabel = $item->variant ? " (Beden: {$item->variant->size})" : '';
+                $this->dispatch('notify', message: "{$productName}{$variantLabel} için yeterli stok kalmadı. Lütfen sepetinizi kontrol ediniz.", type: 'error');
+                return;
             }
         }
 

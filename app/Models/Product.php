@@ -636,6 +636,108 @@ class Product extends Model
     }
 
     /**
+     * Güvenli atomik stok düşürme.
+     * WHERE stock >= qty koşuluyla race condition engellenir.
+     * Negatif stok oluşması imkansızdır.
+     *
+     * @return bool Başarılı mı (yeterli stok var mıydı)
+     */
+    public function safeDecrement(int $qty, ?string $reference = null, ?string $note = null): bool
+    {
+        if ($qty <= 0) return false;
+
+        $oldStock = (int) $this->stock;
+        $affected = static::where('id', $this->id)
+            ->where('stock', '>=', $qty)
+            ->update(['stock' => \Illuminate\Support\Facades\DB::raw("stock - {$qty}")]);
+
+        if ($affected > 0) {
+            $this->refresh();
+            StockMovement::record(
+                productId: $this->id,
+                variantId: null,
+                type: StockMovement::TYPE_SALE,
+                quantity: $qty,
+                oldStock: $oldStock,
+                newStock: (int) $this->stock,
+                reference: $reference,
+                note: $note,
+            );
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Güvenli stok artırma (iptal, iade, yenileme).
+     */
+    public function safeIncrement(int $qty, string $type = 'restock', ?string $reference = null, ?string $note = null): void
+    {
+        if ($qty <= 0) return;
+
+        $oldStock = (int) $this->stock;
+        $this->increment('stock', $qty);
+        $this->refresh();
+
+        StockMovement::record(
+            productId: $this->id,
+            variantId: null,
+            type: $type,
+            quantity: $qty,
+            oldStock: $oldStock,
+            newStock: (int) $this->stock,
+            reference: $reference,
+            note: $note,
+        );
+    }
+
+    /**
+     * Stok düşük mü? (Varsayılan eşik: 5 adet)
+     */
+    public function isLowStock(int $threshold = 5): bool
+    {
+        return $this->status && $this->stock > 0 && $this->stock <= $threshold;
+    }
+
+    /**
+     * Stok tamamen tükenmiş mi?
+     */
+    public function isOutOfStock(): bool
+    {
+        return !$this->status || $this->stock <= 0;
+    }
+
+    /**
+     * Stok durumu label'ı (admin/frontend için)
+     */
+    public function getStockStatusAttribute(): string
+    {
+        if (!$this->status) return 'Pasif';
+        if ($this->stock <= 0) return 'Tükendi';
+        if ($this->stock <= 3) return 'Kritik';
+        if ($this->stock <= 5) return 'Düşük';
+        return 'Yeterli';
+    }
+
+    /**
+     * Stok durumu rengi (Filament badge)
+     */
+    public function getStockColorAttribute(): string
+    {
+        if (!$this->status) return 'gray';
+        if ($this->stock <= 0) return 'danger';
+        if ($this->stock <= 3) return 'danger';
+        if ($this->stock <= 5) return 'warning';
+        return 'success';
+    }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /**
      * Ürünü ve alt ilişkilerini (varyantlar, resimler, özellikler, kategoriler) çoğaltır.
      */
     public function duplicate(): self

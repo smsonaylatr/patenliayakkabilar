@@ -90,10 +90,20 @@ class PoregoWebhookController extends Controller
                         if ($newStatus === 'cancelled') {
                             foreach ($order->items as $item) {
                                 if ($item->variant) {
-                                    $item->variant->increment('stock', $item->quantity);
-                                }
-                                if ($item->product) {
-                                    $item->product->increment('stock', $item->quantity);
+                                    $item->variant->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $order->order_number,
+                                        "Porego webhook iptali ile stok geri yüklendi"
+                                    );
+                                    $item->product?->syncFromVariants();
+                                } elseif ($item->product) {
+                                    $item->product->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $order->order_number,
+                                        "Porego webhook iptali ile stok geri yüklendi"
+                                    );
                                 }
                             }
                             Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildiği için stoklar geri yüklendi.");
@@ -114,13 +124,35 @@ class PoregoWebhookController extends Controller
                 if ($sku && $newStock !== null) {
                     $variant = \App\Models\ProductVariant::where('sku', $sku)->first();
                     if ($variant) {
+                        $oldStock = (int) $variant->stock;
                         $variant->update(['stock' => $newStock]);
                         $variant->product?->syncFromVariants();
+                        \App\Models\StockMovement::record(
+                            productId: $variant->product_id,
+                            variantId: $variant->id,
+                            type: \App\Models\StockMovement::TYPE_SYNC,
+                            quantity: abs($newStock - $oldStock),
+                            oldStock: $oldStock,
+                            newStock: $newStock,
+                            reference: 'porego-webhook',
+                            note: "Porego webhook ile stok senkronize edildi",
+                        );
                         Log::info("Porego Webhook: Varyant ({$sku}) stoğu '{$newStock}' olarak güncellendi.");
                     } else {
                         $product = \App\Models\Product::where('sku', $sku)->first();
                         if ($product) {
+                            $oldStock = (int) $product->stock;
                             $product->update(['stock' => $newStock]);
+                            \App\Models\StockMovement::record(
+                                productId: $product->id,
+                                variantId: null,
+                                type: \App\Models\StockMovement::TYPE_SYNC,
+                                quantity: abs($newStock - $oldStock),
+                                oldStock: $oldStock,
+                                newStock: $newStock,
+                                reference: 'porego-webhook',
+                                note: "Porego webhook ile stok senkronize edildi",
+                            );
                             Log::info("Porego Webhook: Ürün ({$sku}) stoğu '{$newStock}' olarak güncellendi.");
                         }
                     }

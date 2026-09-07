@@ -314,14 +314,24 @@ class OrderObserver
             ]);
 
             if ($order->status === 'cancelled') {
-                // Stok geri yükleme
+                // Stok geri yükleme (güvenli, hareket kaydı ile)
                 $order->loadMissing(['items.product', 'items.variant']);
                 foreach ($order->items as $item) {
                     if ($item->variant) {
-                        $item->variant->increment('stock', $item->quantity);
-                    }
-                    if ($item->product) {
-                        $item->product->increment('stock', $item->quantity);
+                        $item->variant->safeIncrement(
+                            $item->quantity,
+                            \App\Models\StockMovement::TYPE_CANCEL,
+                            $order->order_number,
+                            "Sipariş iptali ile stok geri yüklendi"
+                        );
+                        $item->product?->syncFromVariants();
+                    } elseif ($item->product) {
+                        $item->product->safeIncrement(
+                            $item->quantity,
+                            \App\Models\StockMovement::TYPE_CANCEL,
+                            $order->order_number,
+                            "Sipariş iptali ile stok geri yüklendi"
+                        );
                     }
                 }
                 \Illuminate\Support\Facades\Log::info("Sipariş iptal stok geri yükleme: #{$order->order_number}");

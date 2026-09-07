@@ -99,4 +99,76 @@ class ProductVariant extends Model
     {
         return $this->hasMany(StockNotification::class);
     }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class, 'variant_id');
+    }
+
+    /**
+     * Güvenli atomik stok düşürme (race condition korumalı).
+     * WHERE stock >= qty koşuluyla negatif stok oluşması engellenir.
+     *
+     * @return bool Yeterli stok var mıydı ve düşüldü mü
+     */
+    public function safeDecrement(int $qty, ?string $reference = null, ?string $note = null): bool
+    {
+        if ($qty <= 0) return false;
+
+        $oldStock = (int) $this->stock;
+        $affected = static::where('id', $this->id)
+            ->where('stock', '>=', $qty)
+            ->update(['stock' => \Illuminate\Support\Facades\DB::raw("stock - {$qty}")]);
+
+        if ($affected > 0) {
+            $this->refresh();
+            StockMovement::record(
+                productId: $this->product_id,
+                variantId: $this->id,
+                type: StockMovement::TYPE_SALE,
+                quantity: $qty,
+                oldStock: $oldStock,
+                newStock: (int) $this->stock,
+                reference: $reference,
+                note: $note,
+            );
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Güvenli stok artırma (iptal, iade, yenileme).
+     */
+    public function safeIncrement(int $qty, string $type = 'restock', ?string $reference = null, ?string $note = null): void
+    {
+        if ($qty <= 0) return;
+
+        $oldStock = (int) $this->stock;
+        $this->increment('stock', $qty);
+        $this->refresh();
+
+        StockMovement::record(
+            productId: $this->product_id,
+            variantId: $this->id,
+            type: $type,
+            quantity: $qty,
+            oldStock: $oldStock,
+            newStock: (int) $this->stock,
+            reference: $reference,
+            note: $note,
+        );
+    }
+
+    /**
+     * Stok durumu label'ı
+     */
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->stock <= 0) return 'Tükendi';
+        if ($this->stock <= 3) return 'Kritik';
+        if ($this->stock <= 5) return 'Düşük';
+        return 'Yeterli';
+    }
 }
