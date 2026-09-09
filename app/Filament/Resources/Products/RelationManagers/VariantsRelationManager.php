@@ -72,6 +72,7 @@ class VariantsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->defaultSort('size')
             ->columns([
                 TextColumn::make('color')
                     ->label('Renk')

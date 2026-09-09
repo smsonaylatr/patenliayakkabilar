@@ -507,6 +507,7 @@ class ProductForm
 
                                 Repeater::make('variants')
                                     ->relationship()
+                                    ->orderColumn('size')
                                     ->label('')
                                     ->schema([
                                         Select::make('color')->native(false)

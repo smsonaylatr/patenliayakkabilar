@@ -599,6 +599,24 @@ class SchemaService
      * @param string $fallback
      * @return string
      */
+    /**
+     * Türkçe karakterleri ASCII karşılıklarına dönüştürür.
+     * İ→I, ı→i, Ş→S, ş→s, Ç→C, ç→c, Ğ→G, ğ→g, Ü→U, ü→u, Ö→O, ö→o
+     */
+    public static function turkishToAscii(string $text): string
+    {
+        $map = [
+            'İ' => 'I', 'ı' => 'i',
+            'Ş' => 'S', 'ş' => 's',
+            'Ç' => 'C', 'ç' => 'c',
+            'Ğ' => 'G', 'ğ' => 'g',
+            'Ü' => 'U', 'ü' => 'u',
+            'Ö' => 'O', 'ö' => 'o',
+        ];
+
+        return str_replace(array_keys($map), array_values($map), $text);
+    }
+
     public static function sanitizeSku(?string $sku, string $fallback = ''): string
     {
         $sku = trim((string) $sku);
@@ -607,13 +625,17 @@ class SchemaService
             $sku = trim($fallback);
         }
 
-        // Türkçe karakter ve geçersiz özel karakter temizliği (Alfanümerik + tire/alt tire)
+        // Önce Türkçe karakterleri ASCII'ye dönüştür
+        $sku = self::turkishToAscii($sku);
+
+        // Geçersiz özel karakter temizliği (Alfanümerik + tire/alt tire)
         $cleanSku = preg_replace('/[^a-zA-Z0-9\-_]/', '-', $sku);
         $cleanSku = preg_replace('/-+/', '-', $cleanSku);
         $cleanSku = strtoupper(trim($cleanSku, '-'));
 
         if (empty($cleanSku)) {
-            $fallbackClean = preg_replace('/[^a-zA-Z0-9\-_]/', '-', trim($fallback));
+            $fallbackClean = self::turkishToAscii(trim($fallback));
+            $fallbackClean = preg_replace('/[^a-zA-Z0-9\-_]/', '-', $fallbackClean);
             $cleanSku = strtoupper(trim(preg_replace('/-+/', '-', $fallbackClean), '-'));
         }
 

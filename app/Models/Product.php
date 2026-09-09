@@ -319,7 +319,7 @@ class Product extends Model
 
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(ProductVariant::class)->orderByRaw('CAST(size AS UNSIGNED) ASC');
     }
 
     public function images()
