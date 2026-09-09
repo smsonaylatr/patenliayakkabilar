@@ -54,7 +54,7 @@ class Product extends Model
 
         static::saving(function (Product $product) {
             if (empty($product->sku)) {
-                $cleanSlug = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', Str::slug($product->name ?: 'PRODUCT')));
+                $cleanSlug = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', Str::slug(\App\Services\SchemaService::turkishToAscii($product->name ?: 'PRODUCT'))));
                 if (strlen($cleanSlug) > 15) {
                     $cleanSlug = substr($cleanSlug, 0, 15);
                 }

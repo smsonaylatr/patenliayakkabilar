@@ -51,7 +51,7 @@ class ProductVariant extends Model
             if (empty($variant->sku) && $variant->product_id) {
                 $product = Product::find($variant->product_id);
                 if ($product) {
-                    $slug = strtoupper(\Illuminate\Support\Str::slug($product->name));
+                    $slug = strtoupper(\Illuminate\Support\Str::slug(\App\Services\SchemaService::turkishToAscii($product->name)));
                     // Birden fazla renk varsa ilk iki harflerini birleştir
                     $colors = $variant->color ?? [];
                     if (is_string($colors)) {

@@ -453,7 +453,7 @@ class ProductForm
                                         ->modalSubmitActionLabel('Seriyi Oluştur')
                                         ->action(function (array $data, Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
                                             $existing = $get('variants') ?? [];
-                                            $slug = \Illuminate\Support\Str::slug($get('name') ?: 'URUN');
+                                            $slug = \Illuminate\Support\Str::slug(\App\Services\SchemaService::turkishToAscii($get('name') ?: 'URUN'));
 
                                             // Çoklu renk desteği
                                             $colors = $data['series_color'] ?? [];

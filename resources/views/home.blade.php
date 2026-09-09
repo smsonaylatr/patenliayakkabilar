@@ -84,5 +84,4 @@
         </div>
     @endif
 
-    <livewire:frontend.newsletter-form />
 </x-layouts.app>
