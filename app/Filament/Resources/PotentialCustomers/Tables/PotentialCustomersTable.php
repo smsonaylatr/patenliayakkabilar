@@ -96,7 +96,7 @@ class PotentialCustomersTable
                         } else {
                             \Filament\Notifications\Notification::make()
                                 ->title('SMS Gönderilemedi')
-                                ->body('VatanSMS API üzerinden gönderim başarısız oldu.')
+                                ->body('SMS API üzerinden gönderim başarısız oldu.')
                                 ->danger()
                                 ->send();
                         }

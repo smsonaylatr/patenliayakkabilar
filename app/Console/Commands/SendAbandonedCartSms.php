@@ -21,7 +21,7 @@ class SendAbandonedCartSms extends Command
         $isActive = filter_var(Setting::where('key', 'vatansms_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
         
         if (!$isActive) {
-            $this->info('VatanSMS aktif değil. İşlem iptal edildi.');
+            $this->info('WaMessage SMS aktif değil. İşlem iptal edildi.');
             return;
         }
 

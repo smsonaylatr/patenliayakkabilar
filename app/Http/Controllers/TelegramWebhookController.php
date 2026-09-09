@@ -63,7 +63,7 @@ class TelegramWebhookController extends Controller
 
         $smsMessage = "Merhaba, ilgilendiğiniz {$productName} hakkında bilgi vermek için ulaşıyoruz. İncelemek ve sipariş vermek için tıklayın: {$productUrl}";
 
-        // VatanSMS ile gönder
+        // WaMessage SMS ile gönder
         try {
             $vatanService = app(VatanSmsService::class);
             $result = $vatanService->send($customer->phone, $smsMessage, 'turkce', 'ticari');

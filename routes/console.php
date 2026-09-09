@@ -31,7 +31,7 @@ Artisan::command('segments:sync', function () {
 })->purpose('Sync customers into dynamic segments');
 
 
-// ─── VatanSMS: Sepeti Terk Edenlere SMS Gönder (Her saat başı) ───────────
+// ─── WaMessage SMS: Sepeti Terk Edenlere SMS Gönder (Her saat başı) ───────────
 Schedule::command('app:send-abandoned-cart-sms')->hourly();
 
 // ─── Porego: Sipariş & Kargo Durumlarını Otomatik Senkronize Et (Her 5 dk) ───

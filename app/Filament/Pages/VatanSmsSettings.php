@@ -26,7 +26,7 @@ class VatanSmsSettings extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return 'VatanSMS (Müşteri)';
+        return 'WaMessage SMS';
     }
 
     public static function getNavigationGroup(): ?string
@@ -36,7 +36,7 @@ class VatanSmsSettings extends Page implements HasForms
 
     public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
-        return 'VatanSMS Ayarları';
+        return 'WaMessage SMS Ayarları';
     }
 
     protected string $view = 'filament.pages.vatan-sms-settings';
@@ -46,7 +46,6 @@ class VatanSmsSettings extends Page implements HasForms
     public function mount(): void
     {
         $settings = Setting::whereIn('key', [
-            'vatansms_api_id',
             'vatansms_api_key',
             'vatansms_sender',
             'vatansms_active',
@@ -57,7 +56,6 @@ class VatanSmsSettings extends Page implements HasForms
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
-            'vatansms_api_id' => $settings['vatansms_api_id'] ?? '',
             'vatansms_api_key' => $settings['vatansms_api_key'] ?? '',
             'vatansms_sender' => $settings['vatansms_sender'] ?? '',
             'vatansms_active' => filter_var($settings['vatansms_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
@@ -73,27 +71,22 @@ class VatanSmsSettings extends Page implements HasForms
         return $form
             ->schema([
                 Section::make('API Ayarları')
-                    ->description('VatanSMS paneli "API Bilgilerim" kısmından alacağınız bilgiler.')
+                    ->description('WaMessage paneli → SMS Ayarları → API bölümünden alacağınız bilgiler.')
                     ->schema([
                         Toggle::make('vatansms_active')
                             ->label('SMS Gönderimini Aktifleştir')
                             ->helperText('Sistemin müşterilere SMS atıp atmayacağını belirler.'),
-                        
-                        TextInput::make('vatansms_api_id')
-                            ->label('API ID')
-                            ->required(),
 
                         TextInput::make('vatansms_api_key')
-                            ->label('API KEY')
+                            ->label('API Key')
                             ->password()
                             ->revealable()
+                            ->helperText('WaMessage panelinden alınan API anahtarınız.')
                             ->required(),
                             
                         TextInput::make('vatansms_sender')
                             ->label('Gönderici Adı (Sender)')
-                            ->helperText('VatanSMS panelinden onaylanmış gönderici başlığınız. Max 11 karakter, sadece harf/rakam. (Örn: PATENLI)')
-                            ->maxLength(11)
-                            ->regex('/^[a-zA-Z0-9ÇçĞğİıÖöŞşÜü ]{1,11}$/')
+                            ->helperText('WaMessage panelinden onaylanmış gönderici başlığınız. /senders endpoint ile listeleyebilirsiniz.')
                             ->required(),
                     ]),
                     
@@ -159,7 +152,7 @@ class VatanSmsSettings extends Page implements HasForms
                     }
 
                     $service = app(VatanSmsService::class);
-                    $result = $service->send($phone, "Bu bir test mesajıdır. VatanSMS entegrasyonu başarıyla çalışıyor.", 'turkce', 'bilgi');
+                    $result = $service->send($phone, "Bu bir test mesajıdır. WaMessage SMS entegrasyonu başarıyla çalışıyor.", 'turkce', 'bilgi');
 
                     if ($result) {
                         Notification::make()->success()->title('Test mesajı gönderildi!')->body('Lütfen telefonunuzu kontrol edin.')->send();
@@ -168,7 +161,7 @@ class VatanSmsSettings extends Page implements HasForms
                     }
                 })
                 ->modalHeading('Test Mesajı Gönder')
-                ->modalDescription('Bu işlem girdiğiniz numaraya VatanSMS üzerinden bir test mesajı gönderecektir.')
+                ->modalDescription('Bu işlem girdiğiniz numaraya WaMessage SMS API üzerinden bir test mesajı gönderecektir.')
         ];
     }
 
@@ -185,7 +178,7 @@ class VatanSmsSettings extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title('VatanSMS ayarları başarıyla kaydedildi')
+            ->title('SMS ayarları başarıyla kaydedildi')
             ->send();
     }
 }

@@ -8,7 +8,7 @@ use App\Models\Setting;
 
 class VatanSmsService
 {
-    protected string $apiUrl = 'https://api.vatansms.net/api/v1/1toN';
+    protected string $apiBaseUrl = 'https://api.toplusms.app/api/v1';
     public ?string $lastError = null;
 
     public function getLastError(): ?string
@@ -17,6 +17,8 @@ class VatanSmsService
     }
 
     /**
+     * WaMessage (TopluSMS) API üzerinden SMS gönderir.
+     * 
      * @param array|string $phones Telefon numarası veya numaralar dizisi
      * @param string $message Gönderilecek mesaj metni
      * @param string $messageType 'normal' veya 'turkce' (Türkçe karakter destekli)
@@ -29,24 +31,16 @@ class VatanSmsService
         try {
             $isActive = filter_var(Setting::where('key', 'vatansms_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
             if (!$isActive) {
-                $this->lastError = 'VatanSMS panelden pasif durumda.';
+                $this->lastError = 'SMS panelden pasif durumda.';
                 return false;
             }
 
-            $apiId = Setting::where('key', 'vatansms_api_id')->value('value');
-            $apiKey = Setting::where('key', 'vatansms_api_key')->value('value');
+            $apiKey = trim((string) Setting::where('key', 'vatansms_api_key')->value('value'));
             $sender = trim((string) Setting::where('key', 'vatansms_sender')->value('value'));
 
-            if (empty($apiId) || empty($apiKey) || empty($sender)) {
-                $this->lastError = 'VatanSMS API ID, Key veya Başlık eksik.';
-                Log::warning('VatanSMS ayarları eksik. Lütfen admin panelinden ayarları yapılandırın.');
-                return false;
-            }
-
-            // Sender adı sadece harf, rakam ve boşluk içerebilir (VatanSMS kuralı)
-            if (!preg_match('/^[a-zA-Z0-9ÇçĞğİıÖöŞşÜü ]{1,11}$/', $sender)) {
-                $this->lastError = "Geçersiz gönderici adı: '{$sender}'. Sender en fazla 11 karakter, sadece harf/rakam olmalıdır.";
-                Log::error("VatanSMS: Geçersiz sender adı: '{$sender}'. VatanSMS panelinden onaylı başlığınızı kontrol edin.");
+            if (empty($apiKey) || empty($sender)) {
+                $this->lastError = 'SMS API Key veya Gönderici Başlığı eksik.';
+                Log::warning('WaMessage SMS ayarları eksik. Lütfen admin panelinden ayarları yapılandırın.');
                 return false;
             }
 
@@ -54,67 +48,80 @@ class VatanSmsService
                 $phones = [$phones];
             }
 
-            // Numaraları 10 haneli (başında 0 olmadan) olacak şekilde temizle
+            // Numaraları 905xxxxxxxxx formatına çevir (WaMessage ülke kodu ister)
             $phones = array_map(function ($phone) {
                 // Sadece rakamları bırak
                 $phone = preg_replace('/[^0-9]/', '', (string)$phone);
                 
-                // Başında 90 varsa ve 12 haneliyse, 90'ı sil
-                if (strlen($phone) === 12 && str_starts_with($phone, '90')) {
-                    $phone = substr($phone, 2);
+                // 10 haneli ise başına 90 ekle (5xxxxxxxxx)
+                if (strlen($phone) === 10 && str_starts_with($phone, '5')) {
+                    $phone = '90' . $phone;
                 }
                 
-                // Başında 0 varsa ve 11 haneliyse, 0'ı sil
+                // 11 haneli ve 0 ile başlıyorsa, 0'ı 90 ile değiştir (05xxxxxxxxx)
                 if (strlen($phone) === 11 && str_starts_with($phone, '0')) {
-                    $phone = substr($phone, 1);
+                    $phone = '90' . substr($phone, 1);
                 }
                 
                 return $phone;
             }, $phones);
             
-            // Boş veya 10 haneli olmayanları filtrele ve indisleri sıfırla
-            $phones = array_values(array_filter($phones, fn($phone) => strlen($phone) === 10));
+            // Boş veya 12 haneli olmayanları filtrele
+            $phones = array_values(array_filter($phones, fn($phone) => strlen($phone) === 12 && str_starts_with($phone, '90')));
             
             if (empty($phones)) {
-                $this->lastError = 'Geçerli 10 haneli telefon numarası bulunamadı.';
-                Log::warning('VatanSMS Hata: Geçerli bir telefon numarası bulunamadı.');
+                $this->lastError = 'Geçerli telefon numarası bulunamadı (905xxxxxxxxx formatında olmalı).';
+                Log::warning('WaMessage Hata: Geçerli bir telefon numarası bulunamadı.');
                 return false;
             }
 
+            // WaMessage message_type mapping: turkce -> normal (WaMessage Türkçe karakteri otomatik algılar)
+            $wamMessageType = 'normal';
+
             $payload = [
-                'api_id' => $apiId,
                 'api_key' => $apiKey,
                 'sender' => $sender,
-                'message_type' => $messageType,
+                'message_type' => $wamMessageType,
                 'message' => $message,
                 'message_content_type' => $contentType,
                 'phones' => $phones,
             ];
 
+            // Ticari iletilerde iptal linki ekle
+            if ($contentType === 'ticari') {
+                $payload['add_cancel_link'] = true;
+            }
+
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json'
-            ])->timeout(10)->post($this->apiUrl, $payload);
+            ])->timeout(15)->post($this->apiBaseUrl . '/1toN', $payload);
 
             $resJson = $response->json();
 
             if ($response->successful()) {
-                // Bazı API'ler 200 dönüp gövdede status: false veya status: 'error' dönebilir
-                if (is_array($resJson) && isset($resJson['status']) && ($resJson['status'] === false || strtolower((string)$resJson['status']) === 'error')) {
-                    $this->lastError = $resJson['message'] ?? $resJson['description'] ?? $response->body();
-                    Log::error("VatanSMS API Hatası (sender: '{$sender}'): " . $response->body());
+                // WaMessage başarılı yanıt: {"code": 200, "status": "success", ...}
+                if (is_array($resJson) && isset($resJson['status'])) {
+                    $status = strtolower((string)$resJson['status']);
+                    if ($status === 'success') {
+                        Log::info("WaMessage SMS başarıyla gönderildi. ID: " . ($resJson['id'] ?? '-') . ", Kalan kredi: " . ($resJson['quantity'] ?? '-'));
+                        return true;
+                    }
+                    // Status error/false
+                    $this->lastError = $resJson['description'] ?? $resJson['message'] ?? $response->body();
+                    Log::error("WaMessage API Hatası (sender: '{$sender}'): " . $response->body());
                     return false;
                 }
                 return true;
             }
 
-            $errMsg = is_array($resJson) ? ($resJson['message'] ?? $resJson['description'] ?? $response->body()) : $response->body();
+            $errMsg = is_array($resJson) ? ($resJson['description'] ?? $resJson['message'] ?? $response->body()) : $response->body();
             $this->lastError = $errMsg ?: 'HTTP ' . $response->status();
-            Log::error("VatanSMS API Hatası (sender: '{$sender}', HTTP {$response->status()}): " . $response->body());
+            Log::error("WaMessage API Hatası (sender: '{$sender}', HTTP {$response->status()}): " . $response->body());
             return false;
 
         } catch (\Throwable $th) {
             $this->lastError = $th->getMessage();
-            Log::error('VatanSMS İstek Hatası: ' . $th->getMessage());
+            Log::error('WaMessage SMS İstek Hatası: ' . $th->getMessage());
             return false;
         }
     }
