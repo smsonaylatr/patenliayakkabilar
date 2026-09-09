@@ -85,7 +85,7 @@ class PotentialCustomersTable
                         $message = "Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek ve sipariş vermek için tıklayın: " . route('products.show', $record->product->slug);
                         
                         $vatanService = app(\App\Services\VatanSmsService::class);
-                        $result = $vatanService->send($record->phone, $message, 'turkce', 'ticari');
+                        $result = $vatanService->send($record->phone, $message, 'turkce', 'bilgi');
 
                         if ($result) {
                             $record->update(['status' => 'contacted']);

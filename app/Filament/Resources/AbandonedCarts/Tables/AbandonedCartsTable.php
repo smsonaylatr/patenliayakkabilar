@@ -142,7 +142,7 @@ class AbandonedCartsTable
                                      . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
 
                             $vatanService = app(\App\Services\VatanSmsService::class);
-                            $result = $vatanService->send($phone, $message, 'turkce', 'ticari');
+                            $result = $vatanService->send($phone, $message, 'turkce', 'bilgi');
 
                             if ($result) {
                                 $record->update(['abandoned_sms_sent_at' => now()]);

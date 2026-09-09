@@ -66,7 +66,7 @@ class TelegramWebhookController extends Controller
         // WaMessage SMS ile gönder
         try {
             $vatanService = app(VatanSmsService::class);
-            $result = $vatanService->send($customer->phone, $smsMessage, 'turkce', 'ticari');
+            $result = $vatanService->send($customer->phone, $smsMessage, 'turkce', 'bilgi');
 
             if ($result) {
                 $customer->update(['status' => 'contacted']);

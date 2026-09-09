@@ -60,7 +60,7 @@ class SendAbandonedCartSms extends Command
                      . "(3 gun gecerli, tek kullanimlik). "
                      . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
 
-            $success = $smsService->send($cart->guest_phone, $message, 'turkce', 'ticari');
+            $success = $smsService->send($cart->guest_phone, $message, 'turkce', 'bilgi');
 
             if ($success) {
                 $cart->update(['abandoned_sms_sent_at' => Carbon::now()]);
