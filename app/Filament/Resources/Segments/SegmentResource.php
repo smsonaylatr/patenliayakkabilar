@@ -32,7 +32,7 @@ class SegmentResource extends Resource
     protected static ?string $pluralModelLabel = 'Müşteri Segmentleri';
     protected static ?int $navigationSort = 3;
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Section::make('Segment Bilgileri')

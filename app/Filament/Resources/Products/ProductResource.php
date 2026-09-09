@@ -33,7 +33,7 @@ class ProductResource extends Resource
         return ['name', 'sku', 'brand', 'slug'];
     }
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return ProductForm::configure($schema);
     }

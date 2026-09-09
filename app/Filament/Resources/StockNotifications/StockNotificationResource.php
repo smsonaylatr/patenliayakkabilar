@@ -30,7 +30,7 @@ class StockNotificationResource extends Resource
         return 'Gelince Haber Ver';
     }
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return StockNotificationForm::configure($schema);
     }

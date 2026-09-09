@@ -31,7 +31,7 @@ class UserResource extends Resource
         return ['name', 'email', 'phone'];
     }
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
     }

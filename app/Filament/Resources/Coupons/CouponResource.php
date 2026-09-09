@@ -26,7 +26,7 @@ class CouponResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'code';
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return CouponForm::configure($schema);
     }

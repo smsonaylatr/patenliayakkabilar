@@ -27,7 +27,7 @@ class BlogPostResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return BlogPostForm::configure($schema);
     }

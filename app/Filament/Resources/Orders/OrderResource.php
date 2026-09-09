@@ -41,7 +41,7 @@ class OrderResource extends Resource
         return ['order_number', 'customer_name', 'customer_phone', 'customer_email'];
     }
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return OrderForm::configure($schema);
     }

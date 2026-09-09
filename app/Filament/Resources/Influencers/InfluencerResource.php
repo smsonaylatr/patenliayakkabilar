@@ -22,7 +22,7 @@ class InfluencerResource extends Resource
     protected static ?string $pluralModelLabel = 'Influencer\'lar';
     protected static ?int $navigationSort = 2;
 
-    public static function schema(Schema $schema): Schema
+    public static function form(Schema $schema): Schema
     {
         return $schema->components([
             \Filament\Schemas\Components\Section::make('Kanal Bilgileri')

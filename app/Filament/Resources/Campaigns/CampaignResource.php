@@ -24,7 +24,7 @@ class CampaignResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
     protected static ?int $navigationSort = 3;
 
-    public static function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
             ->components([
