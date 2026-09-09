@@ -92,6 +92,7 @@ class OrdersTable
                         'processing' => 'info',
                         'shipped' => 'primary',
                         'delivered' => 'success',
+                        'returned' => 'pink',
                         'cancelled' => 'danger',
                         default => 'gray',
                     })
@@ -100,6 +101,7 @@ class OrdersTable
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
+                        'returned' => 'İade',
                         'cancelled' => 'İptal',
                         default => $state,
                     })
@@ -116,6 +118,7 @@ class OrdersTable
                                         'processing' => 'Hazırlanıyor',
                                         'shipped' => 'Kargoda',
                                         'delivered' => 'Teslim Edildi',
+                                        'returned' => 'İade',
                                         'cancelled' => 'İptal',
                                     ])
                                     ->placeholder('Seçiniz')
@@ -186,6 +189,7 @@ class OrdersTable
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
+                        'returned' => 'İade',
                         'cancelled' => 'İptal',
                     ])
                     ->native(false),
@@ -551,6 +555,70 @@ class OrdersTable
                                 ->send();
                         }
                     }),
+
+                Action::make('returnOrder')
+                    ->iconButton()
+                    ->size('lg')
+                    ->tooltip('İade Al')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('pink')
+                    ->modalHeading('Sipariş İade İşlemi')
+                    ->modalDescription('Sipariş iade edilecek, stoklar geri yüklenecek ve muhasebe kaydı oluşturulacaktır.')
+                    ->modalSubmitActionLabel('İade İşlemini Tamamla')
+                    ->modalCancelActionLabel('Vazgeç')
+                    ->form([
+                        Select::make('return_reason')
+                            ->label('İade Nedeni')
+                            ->options(\App\Models\AccountingEntry::RETURN_REASONS)
+                            ->required()
+                            ->native(false),
+                        \Filament\Forms\Components\Textarea::make('return_note')
+                            ->label('İade Notu')
+                            ->placeholder('İade ile ilgili ek bilgi girebilirsiniz...')
+                            ->rows(3),
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        // 1. Sipariş durumunu iade yap
+                        $record->update([
+                            'status' => 'returned',
+                            'payment_status' => 'refunded',
+                        ]);
+
+                        // 2. Stokları geri yükle
+                        $record->loadMissing(['items.product', 'items.variant']);
+                        foreach ($record->items as $item) {
+                            if ($item->variant) {
+                                $item->variant->safeIncrement(
+                                    $item->quantity,
+                                    \App\Models\StockMovement::TYPE_RETURN,
+                                    $record->order_number,
+                                    "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
+                                );
+                                $item->product?->syncFromVariants();
+                            } elseif ($item->product) {
+                                $item->product->safeIncrement(
+                                    $item->quantity,
+                                    \App\Models\StockMovement::TYPE_RETURN,
+                                    $record->order_number,
+                                    "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
+                                );
+                            }
+                        }
+
+                        // 3. Muhasebe iade kaydı
+                        \App\Models\AccountingEntry::recordRefund(
+                            $record,
+                            $data['return_reason'],
+                            $data['return_note'] ?? null,
+                        );
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Sipariş iade alındı')
+                            ->body("#{$record->order_number} siparişi iade edildi. Stoklar geri yüklendi ve muhasebe kaydı oluşturuldu.")
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Order $record): bool => in_array($record->status, ['shipped', 'delivered'])),
 
                 Action::make('cancelOrder')
                     ->iconButton()

@@ -74,6 +74,11 @@ class OrderObserver
             if (empty($messageTemplate)) {
                 $messageTemplate = 'Sayın {isim}, {siparis_no} numaralı siparişiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz. - Patenli Ayakkabılar';
             }
+        } elseif ($type === 'returned') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_returned_message')->value('value');
+            if (empty($messageTemplate)) {
+                $messageTemplate = 'Sayın {isim}, {siparis_no} numaralı siparişinizin iade işlemi tamamlanmıştır. İade tutarı en kısa sürede hesabınıza yansıtılacaktır. - Patenli Ayakkabılar';
+            }
         }
 
         if (empty($messageTemplate)) return;
@@ -290,7 +295,79 @@ class OrderObserver
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('GİB E-Arşiv error on delivered: ' . $e->getMessage());
                     }
+
+                    // Muhasebe satış kaydı oluştur
+                    try {
+                        // Mükerrer kayıt önleme
+                        $existingSale = \App\Models\AccountingEntry::where('order_id', $order->id)
+                            ->where('type', \App\Models\AccountingEntry::TYPE_SALE)
+                            ->first();
+                        if (!$existingSale) {
+                            \App\Models\AccountingEntry::recordSale($order);
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Muhasebe satış kaydı hatası: ' . $e->getMessage());
+                    }
                 });
+            } elseif ($order->status === 'returned') {
+                // İade işleme
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    
+                    // İade SMS'i gönder
+                    try {
+                        $this->sendCustomerSms($order, 'returned');
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('SMS notification error on returned: ' . $e->getMessage());
+                    }
+                });
+
+                // Stok geri yükleme (güvenli, hareket kaydı ile)
+                $order->loadMissing(['items.product', 'items.variant']);
+                foreach ($order->items as $item) {
+                    if ($item->variant) {
+                        $item->variant->safeIncrement(
+                            $item->quantity,
+                            \App\Models\StockMovement::TYPE_RETURN,
+                            $order->order_number,
+                            "Sipariş iadesi ile stok geri yüklendi"
+                        );
+                        $item->product?->syncFromVariants();
+                    } elseif ($item->product) {
+                        $item->product->safeIncrement(
+                            $item->quantity,
+                            \App\Models\StockMovement::TYPE_RETURN,
+                            $order->order_number,
+                            "Sipariş iadesi ile stok geri yüklendi"
+                        );
+                    }
+                }
+                \Illuminate\Support\Facades\Log::info("Sipariş iade stok geri yükleme: #{$order->order_number}");
+
+                // Ödeme iade durumuna al (eğer ödenmişse)
+                if (in_array($order->payment_status, ['paid', 'pending'])) {
+                    $order->payment_status = 'refunded';
+                    $order->saveQuietly();
+                }
+
+                // Muhasebe iade kaydı (Observer'dan tetiklendiğinde — genel kayıt)
+                try {
+                    $existingRefund = \App\Models\AccountingEntry::where('order_id', $order->id)
+                        ->where('type', \App\Models\AccountingEntry::TYPE_REFUND)
+                        ->first();
+                    if (!$existingRefund) {
+                        \App\Models\AccountingEntry::recordRefund($order);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Muhasebe iade kaydı hatası: ' . $e->getMessage());
+                }
+
+                Notification::make()
+                    ->title('Sipariş İade Edildi')
+                    ->body("{$order->order_number} numaralı sipariş iade alındı. Stok geri yüklendi.")
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
             } elseif ($order->status === 'cancelled') {
                 app()->terminating(function () use ($order) {
                     $order->refresh();

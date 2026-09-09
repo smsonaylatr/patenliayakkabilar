@@ -33,6 +33,7 @@ class OrderForm
                                 'processing' => 'Hazırlanıyor',
                                 'shipped' => 'Kargoda',
                                 'delivered' => 'Teslim Edildi',
+                                'returned' => 'İade',
                                 'cancelled' => 'İptal',
                             ])
                             ->default('pending')
