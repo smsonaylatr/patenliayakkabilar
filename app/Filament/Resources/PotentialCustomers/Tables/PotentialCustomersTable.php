@@ -94,9 +94,10 @@ class PotentialCustomersTable
                                 ->success()
                                 ->send();
                         } else {
+                            $errorDetail = $vatanService->getLastError() ?? 'Bilinmeyen hata';
                             \Filament\Notifications\Notification::make()
                                 ->title('SMS Gönderilemedi')
-                                ->body('SMS API üzerinden gönderim başarısız oldu.')
+                                ->body("Hata: {$errorDetail}")
                                 ->danger()
                                 ->send();
                         }
