@@ -525,7 +525,7 @@ class ProductForm
                                             ->searchable()
                                             ->required()
                                             ->live()
-                                            ->afterStateUpdated(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get, $state) {
+                                            ->afterStateUpdated(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, $state) {
                                                 $sku = $get('sku');
                                                 if ($sku && $state) {
                                                     if (preg_match('/-(\d+)$/', $sku)) {
@@ -567,7 +567,7 @@ class ProductForm
                                         TextInput::make('sku')
                                             ->label('SKU')
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(function (\Filament\Forms\Set $set, \Filament\Forms\Get $get, ?string $state) {
+                                            ->afterStateUpdated(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, ?string $state) {
                                                 $size = $get('size');
                                                 if ($state && $size) {
                                                     if (!preg_match('/-(\d+)$/', $state)) {
