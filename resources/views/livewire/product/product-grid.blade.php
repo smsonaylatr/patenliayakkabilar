@@ -163,12 +163,22 @@
                                 <h5 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center" style="margin-bottom: 20px;">Bedeninizi Seçin</h5>
                                 <div class="flex flex-wrap justify-center" style="gap: 12px;">
                                     @foreach($product->variants as $variant)
-                                        <button wire:click="addToCart({{ $product->id }}, {{ $variant->id }})" 
-                                                @click="showSizeModal = false" 
-                                                class="flex items-center justify-center bg-white border border-gray-300 text-gray-800 font-bold text-sm rounded-xl hover:border-black hover:bg-black hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-sm"
-                                                style="width: 48px; height: 48px; border-width: 2px;">
-                                            {{ $variant->size }}
-                                        </button>
+                                        @php $variantStock = $product->status ? $variant->stock : 0; @endphp
+                                        @if($variantStock > 0)
+                                            <button wire:click="addToCart({{ $product->id }}, {{ $variant->id }})" 
+                                                    @click="showSizeModal = false" 
+                                                    class="flex items-center justify-center bg-white border border-gray-300 text-gray-800 font-bold text-sm rounded-xl hover:border-black hover:bg-black hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+                                                    style="width: 48px; height: 48px; border-width: 2px;">
+                                                {{ $variant->size }}
+                                            </button>
+                                        @else
+                                            <button disabled 
+                                                    class="flex items-center justify-center bg-gray-50 border border-gray-200 text-gray-300 font-bold text-sm rounded-xl cursor-not-allowed line-through"
+                                                    style="width: 48px; height: 48px; border-width: 2px;"
+                                                    title="Bu beden tükenmiştir">
+                                                {{ $variant->size }}
+                                            </button>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>
