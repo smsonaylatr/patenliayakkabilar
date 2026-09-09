@@ -492,6 +492,39 @@ class ProductForm
 
                                             $set('variants', array_merge($existing, $newVariants));
                                         }),
+                                    \Filament\Actions\Action::make('add_koli')
+                                        ->label('📦 +Koli Ekle')
+                                        ->icon('heroicon-o-plus-circle')
+                                        ->color('info')
+                                        ->size('lg')
+                                        ->form([
+                                            TextInput::make('koli_amount')
+                                                ->label('Eklenecek Koli (Adet)')
+                                                ->numeric()
+                                                ->default(1)
+                                                ->minValue(1)
+                                                ->required()
+                                                ->helperText('Her varyantın stokuna bu kadar adet eklenecek.'),
+                                        ])
+                                        ->modalHeading('📦 Mevcut Varyantlara Stok Ekle')
+                                        ->modalDescription('Tüm mevcut varyantların stokuna girdiğiniz adet kadar stok eklenir.')
+                                        ->modalSubmitActionLabel('Stok Ekle')
+                                        ->action(function (array $data, Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
+                                            $variants = $get('variants') ?? [];
+                                            $amount = (int) ($data['koli_amount'] ?? 1);
+
+                                            foreach ($variants as $key => $variant) {
+                                                $variants[$key]['stock'] = ((int) ($variant['stock'] ?? 0)) + $amount;
+                                            }
+
+                                            $set('variants', $variants);
+
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Stok güncellendi')
+                                                ->body(count($variants) . ' varyanta +' . $amount . ' adet eklendi. Kaydetmeyi unutmayın!')
+                                                ->success()
+                                                ->send();
+                                        }),
                                     \Filament\Actions\Action::make('clear_all_variants')
                                         ->label('🗑️ Tüm Varyantları Sil')
                                         ->color('danger')
