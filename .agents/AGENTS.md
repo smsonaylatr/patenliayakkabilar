@@ -12,6 +12,10 @@ Bu workspace kurallarını her zaman takip et.
 
 ## Kodlama Kuralları
 - Filament v5.6: `Filament\Schemas\Schema` kullan (Form değil)
+- **Resource** dosyalarında method adı `form(Schema $schema)` olmalı (base class `form()` tanımlıyor, `schema()` DEĞİL!)
+- **RelationManager** dosyalarında method adı `schema(Schema $schema)` olmalı
+- **Settings Page** dosyalarında method adı `schema(Schema $schema)` olmalı
+- Set/Get type hints: `Filament\Schemas\Components\Utilities\Set` ve `Get` kullan (`Filament\Forms\Set` ÇALIŞMAZ!)
 - TableWidget `$heading` → `static`, ChartWidget `$heading` → non-static
 - Select bileşenleri → `->native(false)`
 - Para gösterimi → `number_format($value, 2) . ' ₺'`
