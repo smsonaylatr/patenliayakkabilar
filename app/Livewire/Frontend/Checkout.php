@@ -203,8 +203,8 @@ class Checkout extends Component
 
     public function updatedShippingCity($value)
     {
-        $this->shipping_district = null;
-        $this->shipping_neighborhood = null;
+        $this->shipping_district = '';
+        $this->shipping_neighborhood = '';
         $this->districts = [];
         $this->neighborhoods = [];
 
@@ -221,7 +221,7 @@ class Checkout extends Component
 
     public function updatedShippingDistrict($value)
     {
-        $this->shipping_neighborhood = null;
+        $this->shipping_neighborhood = '';
         $this->neighborhoods = [];
 
         if ($value) {
