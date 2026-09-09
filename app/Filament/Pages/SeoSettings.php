@@ -143,9 +143,9 @@ class SeoSettings extends FilamentPage implements HasForms
             })->count();
     }
 
-    public function form(\Filament\Schemas\Schema $form): \Filament\Schemas\Schema
+    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Tabs::make('SEO Ayarları')
                     ->tabs([

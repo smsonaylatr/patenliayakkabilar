@@ -57,9 +57,9 @@ class TelegramSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(Schema $form): Schema
+    public function schema(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('Telegram Bot Ayarları')
                     ->description('Yeni sipariş geldiğinde anında Telegram üzerinden bildirim almak için gerekli bilgileri doldurun.')

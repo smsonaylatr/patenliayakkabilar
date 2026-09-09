@@ -84,9 +84,9 @@ class BannerSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(Schema $form): Schema
+    public function schema(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('Renk Ayarları (Arka Plan Gradyanı)')
                     ->schema([

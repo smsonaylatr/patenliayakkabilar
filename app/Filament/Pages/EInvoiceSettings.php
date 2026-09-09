@@ -95,9 +95,9 @@ class EInvoiceSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(\Filament\Schemas\Schema $form): \Filament\Schemas\Schema
+    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('GİB E-Arşiv Portal Ayarları (mlevent/fatura)')
                     ->description('Gelir İdaresi Başkanlığı E-Arşiv portalı üzerinden resmi fatura kesebilmek için portal kullanıcı bilgileri.')

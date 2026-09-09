@@ -66,9 +66,9 @@ class VatanSmsSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(Schema $form): Schema
+    public function schema(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('API Ayarları')
                     ->description('WaMessage paneli → SMS Ayarları → API bölümünden alacağınız bilgiler.')

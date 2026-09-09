@@ -63,9 +63,9 @@ class FooterSettings extends Page implements HasForms
         ]);
     }
 
-    public function form(\Filament\Schemas\Schema $form): \Filament\Schemas\Schema
+    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('Metin Ayarları')
                     ->schema([
