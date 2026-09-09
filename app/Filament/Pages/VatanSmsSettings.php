@@ -91,7 +91,9 @@ class VatanSmsSettings extends Page implements HasForms
                             
                         TextInput::make('vatansms_sender')
                             ->label('Gönderici Adı (Sender)')
-                            ->helperText('Onaylı gönderici başlığınız. (Örn: PATENLI)')
+                            ->helperText('VatanSMS panelinden onaylanmış gönderici başlığınız. Max 11 karakter, sadece harf/rakam. (Örn: PATENLI)')
+                            ->maxLength(11)
+                            ->regex('/^[a-zA-Z0-9ÇçĞğİıÖöŞşÜü ]{1,11}$/')
                             ->required(),
                     ]),
                     

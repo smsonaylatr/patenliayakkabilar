@@ -153,9 +153,10 @@ class AbandonedCartsTable
                                     ->success()
                                     ->send();
                             } else {
+                                $errorDetail = $vatanService->getLastError() ?? 'Bilinmeyen hata';
                                 \Filament\Notifications\Notification::make()
                                     ->title('SMS Gönderilemedi')
-                                    ->body('VatanSMS API hatası. Kupon oluşturuldu ama SMS gönderilemedi: ' . $couponCode)
+                                    ->body("Hata: {$errorDetail}. Kupon oluşturuldu: {$couponCode}")
                                     ->danger()
                                     ->send();
                             }

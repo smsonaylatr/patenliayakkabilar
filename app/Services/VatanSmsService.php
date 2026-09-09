@@ -35,11 +35,18 @@ class VatanSmsService
 
             $apiId = Setting::where('key', 'vatansms_api_id')->value('value');
             $apiKey = Setting::where('key', 'vatansms_api_key')->value('value');
-            $sender = Setting::where('key', 'vatansms_sender')->value('value');
+            $sender = trim((string) Setting::where('key', 'vatansms_sender')->value('value'));
 
             if (empty($apiId) || empty($apiKey) || empty($sender)) {
                 $this->lastError = 'VatanSMS API ID, Key veya Başlık eksik.';
                 Log::warning('VatanSMS ayarları eksik. Lütfen admin panelinden ayarları yapılandırın.');
+                return false;
+            }
+
+            // Sender adı sadece harf, rakam ve boşluk içerebilir (VatanSMS kuralı)
+            if (!preg_match('/^[a-zA-Z0-9ÇçĞğİıÖöŞşÜü ]{1,11}$/', $sender)) {
+                $this->lastError = "Geçersiz gönderici adı: '{$sender}'. Sender en fazla 11 karakter, sadece harf/rakam olmalıdır.";
+                Log::error("VatanSMS: Geçersiz sender adı: '{$sender}'. VatanSMS panelinden onaylı başlığınızı kontrol edin.");
                 return false;
             }
 
@@ -94,7 +101,7 @@ class VatanSmsService
                 // Bazı API'ler 200 dönüp gövdede status: false veya status: 'error' dönebilir
                 if (is_array($resJson) && isset($resJson['status']) && ($resJson['status'] === false || strtolower((string)$resJson['status']) === 'error')) {
                     $this->lastError = $resJson['message'] ?? $resJson['description'] ?? $response->body();
-                    Log::error('VatanSMS API Hatası: ' . $response->body());
+                    Log::error("VatanSMS API Hatası (sender: '{$sender}'): " . $response->body());
                     return false;
                 }
                 return true;
@@ -102,7 +109,7 @@ class VatanSmsService
 
             $errMsg = is_array($resJson) ? ($resJson['message'] ?? $resJson['description'] ?? $response->body()) : $response->body();
             $this->lastError = $errMsg ?: 'HTTP ' . $response->status();
-            Log::error('VatanSMS API Hatası: ' . $response->body());
+            Log::error("VatanSMS API Hatası (sender: '{$sender}', HTTP {$response->status()}): " . $response->body());
             return false;
 
         } catch (\Throwable $th) {
