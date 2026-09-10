@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->authGuard('admin')
             ->brandName('Patenli Ayakkabılar')
-            ->favicon(asset('favicon.png'))
+            ->favicon(asset('admin-favicon.png'))
             ->font('Outfit')
             ->colors([
                 'primary' => \Filament\Support\Colors\Color::hex('#ff4e00'),
@@ -76,7 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn () => new \Illuminate\Support\HtmlString('
-                    <link rel="apple-touch-icon" sizes="180x180" href="' . asset('favicon.png') . '">
+                    <link rel="apple-touch-icon" sizes="180x180" href="' . asset('admin-favicon.png') . '">
                     <link rel="manifest" href="/admin-manifest.json">
                     <meta name="theme-color" content="#ff4e00">
                     <meta name="apple-mobile-web-app-capable" content="yes">
