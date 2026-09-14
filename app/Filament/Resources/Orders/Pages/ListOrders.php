@@ -24,8 +24,8 @@ class ListOrders extends ListRecords
     {
         parent::mount();
 
-        // Sayfa her yüklendiğinde/yenilendiğinde 30 saniyede bir otomatik Porego durumlarını günceller
-        \Illuminate\Support\Facades\Cache::remember('porego_auto_order_sync', 30, function () {
+        // Sayfa her yüklendiğinde/yenilendiğinde 10 saniyede bir otomatik Porego durumlarını günceller
+        \Illuminate\Support\Facades\Cache::remember('porego_auto_order_sync', 10, function () {
             return app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
         });
     }
