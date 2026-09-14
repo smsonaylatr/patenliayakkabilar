@@ -66,7 +66,7 @@ class Checkout extends Component
             'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
             'shipping_city' => 'required|string|max:100',
             'shipping_district' => 'required|string|max:100',
-            'shipping_neighborhood' => 'nullable|string|max:150',
+            'shipping_neighborhood' => 'required|string|max:150',
             'shipping_address' => 'required|string',
             'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
             'terms_consent' => 'accepted',
@@ -206,14 +206,14 @@ class Checkout extends Component
             $neighborhoods = \Illuminate\Support\Facades\Cache::get($cacheKey);
 
             if ($neighborhoods === null) {
-                $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://turkiyeapi.dev/api/v1/districts', [
-                    'name' => $district
+                $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://turkiyeapi.dev/api/v1/neighborhoods', [
+                    'district' => $district
                 ]);
 
                 if ($response->successful()) {
                     $data = $response->json('data');
-                    if (!empty($data[0]['neighborhoods'])) {
-                        $neighborhoods = collect($data[0]['neighborhoods'])->pluck('name')->sort()->values()->toArray();
+                    if (!empty($data) && is_array($data)) {
+                        $neighborhoods = collect($data)->pluck('name')->sort()->values()->toArray();
                     }
                 }
 
