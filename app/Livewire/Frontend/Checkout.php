@@ -66,12 +66,11 @@ class Checkout extends Component
             'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
             'shipping_city' => 'required|string|max:100',
             'shipping_district' => 'required|string|max:100',
+            'shipping_neighborhood' => 'required|string|max:150',
+            'shipping_address' => 'required|string',
             'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
             'terms_consent' => 'accepted',
         ];
-
-            'shipping_neighborhood' => 'required|string|max:150',
-            'shipping_address' => 'required|string',
 
         return $baseRules;
     }
