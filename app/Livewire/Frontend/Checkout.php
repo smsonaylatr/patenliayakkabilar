@@ -203,19 +203,25 @@ class Checkout extends Component
 
         try {
             $cacheKey = 'district_neighborhoods_' . \Illuminate\Support\Str::slug($district);
-            $neighborhoods = \Illuminate\Support\Facades\Cache::remember($cacheKey, 86400 * 30, function () use ($district) {
-                $response = \Illuminate\Support\Facades\Http::timeout(4)->get('https://turkiyeapi.dev/api/v1/districts', [
+            $neighborhoods = \Illuminate\Support\Facades\Cache::get($cacheKey);
+
+            if ($neighborhoods === null) {
+                $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://turkiyeapi.dev/api/v1/districts', [
                     'name' => $district
                 ]);
 
                 if ($response->successful()) {
                     $data = $response->json('data');
                     if (!empty($data[0]['neighborhoods'])) {
-                        return collect($data[0]['neighborhoods'])->pluck('name')->sort()->values()->toArray();
+                        $neighborhoods = collect($data[0]['neighborhoods'])->pluck('name')->sort()->values()->toArray();
                     }
                 }
-                return [];
-            });
+
+                // Sadece dolu sonuçları cache'le (30 gün)
+                if (!empty($neighborhoods)) {
+                    \Illuminate\Support\Facades\Cache::put($cacheKey, $neighborhoods, 86400 * 30);
+                }
+            }
 
             $this->neighborhoods = $neighborhoods ?: [];
         } catch (\Throwable $e) {
