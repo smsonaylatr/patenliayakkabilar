@@ -33,6 +33,7 @@ class OrderForm
                                 'processing' => 'Hazırlanıyor',
                                 'shipped' => 'Kargoda',
                                 'delivered' => 'Teslim Edildi',
+                                'return_started' => 'İade Süreci Başlatıldı',
                                 'returned' => 'İade',
                                 'cancelled' => 'İptal',
                             ])

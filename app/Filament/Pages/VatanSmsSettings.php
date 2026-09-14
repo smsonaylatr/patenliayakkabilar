@@ -53,6 +53,9 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_new_order_message',
             'vatansms_shipped_message',
             'vatansms_delivered_message',
+            'vatansms_return_started_message',
+            'vatansms_cancelled_message',
+            'vatansms_returned_message',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -63,6 +66,9 @@ class VatanSmsSettings extends Page implements HasForms
             'vatansms_new_order_message' => $settings['vatansms_new_order_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz başarıyla alınmıştır. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
             'vatansms_shipped_message' => $settings['vatansms_shipped_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. Kargo Takip No: {kargo_kodu} https://patenliayakkabilar.com/siparis-takip?order_number={siparis_no}",
             'vatansms_delivered_message' => $settings['vatansms_delivered_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
+            'vatansms_return_started_message' => $settings['vatansms_return_started_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz için iade süreci başlatılmıştır. İade süreciniz hakkında sizi bilgilendireceğiz. - Patenli Ayakkabılar",
+            'vatansms_cancelled_message' => $settings['vatansms_cancelled_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz. - Patenli Ayakkabılar",
+            'vatansms_returned_message' => $settings['vatansms_returned_message'] ?? "Sayın {isim}, {siparis_no} numaralı siparişinizin iade işlemi tamamlanmıştır. İade tutarı en kısa sürede hesabınıza yansıtılacaktır. - Patenli Ayakkabılar",
         ]);
     }
 
@@ -115,6 +121,24 @@ class VatanSmsSettings extends Page implements HasForms
                             ->label('Sepet Hatırlatma Mesajı (Ticari)')
                             ->helperText('SMS izni veren müşterilere atılır. {kupon} yazarsanız otomatik %5 kupon kodu eklenir.')
                             ->rows(3)
+                            ->required(),
+
+                        Textarea::make('vatansms_return_started_message')
+                            ->label('İade Süreci Başlatıldı Mesajı (Bilgi)')
+                            ->helperText('Değişkenler: {isim}, {siparis_no}, {tutar}')
+                            ->rows(2)
+                            ->required(),
+
+                        Textarea::make('vatansms_cancelled_message')
+                            ->label('Sipariş İptal Mesajı (Bilgi)')
+                            ->helperText('Değişkenler: {isim}, {siparis_no}, {tutar}')
+                            ->rows(2)
+                            ->required(),
+
+                        Textarea::make('vatansms_returned_message')
+                            ->label('İade Tamamlandı Mesajı (Bilgi)')
+                            ->helperText('Değişkenler: {isim}, {siparis_no}, {tutar}')
+                            ->rows(2)
                             ->required(),
                     ])
             ])

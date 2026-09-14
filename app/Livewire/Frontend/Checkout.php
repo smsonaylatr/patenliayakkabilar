@@ -22,12 +22,6 @@ class Checkout extends Component
     public string $shipping_district = '';
     public string $shipping_neighborhood = '';
     public string $shipping_address = '';
-
-    // Adres Autocomplete
-    public string $address_mode = 'autocomplete'; // 'autocomplete' veya 'manual'
-    public string $address_search = '';
-    public string $address_detail = '';
-    public bool $address_selected = false;
     
     public string $payment_method = 'credit_card';
     public bool $sms_consent = false;
@@ -76,16 +70,8 @@ class Checkout extends Component
             'terms_consent' => 'accepted',
         ];
 
-        if ($this->address_mode === 'autocomplete') {
-            // Autocomplete modunda mahalle ve açık adres opsiyonel
-            // (Google Places her zaman neighborhood döndürmüyor)
-            $baseRules['shipping_neighborhood'] = 'nullable|string|max:150';
-            $baseRules['shipping_address'] = 'nullable|string';
-        } else {
-            // Manuel modda eski kurallar
-            $baseRules['shipping_neighborhood'] = 'required|string|max:150';
-            $baseRules['shipping_address'] = 'required|string';
-        }
+            'shipping_neighborhood' => 'required|string|max:150',
+            'shipping_address' => 'required|string',
 
         return $baseRules;
     }
@@ -145,22 +131,6 @@ class Checkout extends Component
         
         $this->shipping_address = session('co_address', $this->shipping_address);
         $this->customer_note = session('co_note', $this->customer_note);
-        $this->address_detail = session('co_address_detail', $this->address_detail);
-        $this->address_search = session('co_address_search', $this->address_search);
-
-        // Google Places API key yoksa doğrudan manual mode
-        if (empty(config('services.google_places.api_key'))) {
-            $this->address_mode = 'manual';
-            $this->address_selected = false;
-        } else {
-            $this->address_mode = session('co_address_mode', 'autocomplete');
-            $this->address_selected = session('co_address_selected', false);
-        }
-
-        // Autocomplete modunda önceden seçilmiş adres varsa flag'i restore et (fallback)
-        if ($this->address_mode === 'autocomplete' && $this->shipping_city && $this->shipping_district && empty($this->address_selected)) {
-            $this->address_selected = true;
-        }
     }
 
     public function updated($propertyName)
@@ -174,10 +144,6 @@ class Checkout extends Component
             'shipping_neighborhood' => 'co_neighborhood',
             'shipping_address' => 'co_address',
             'customer_note' => 'co_note',
-            'address_detail' => 'co_address_detail',
-            'address_search' => 'co_address_search',
-            'address_mode' => 'co_address_mode',
-            'address_selected' => 'co_address_selected',
         ];
 
         if (array_key_exists($propertyName, $map)) {
@@ -259,94 +225,10 @@ class Checkout extends Component
         }
     }
 
-    /**
-     * Google Places Autocomplete'den seçilen adresi parse et ve form alanlarına dağıt.
-     * Alpine.js'den çağrılır: $wire.selectAddress(placeData)
-     */
-    public function selectAddress($placeData)
-    {
-        $this->shipping_city = $placeData['city'] ?? '';
-        $this->shipping_district = $placeData['district'] ?? '';
-        $this->shipping_neighborhood = $placeData['neighborhood'] ?? '';
-        $this->shipping_address = $placeData['street_address'] ?? '';
-        $this->address_search = $placeData['formatted_address'] ?? '';
-        $this->address_selected = true;
-
-        // shipping_address boşsa formatted_address kullan
-        if (empty($this->shipping_address) && !empty($this->address_search)) {
-            $this->shipping_address = $this->address_search;
-        }
-
-        // Neighborhood boşsa formatted_address'ten çıkarmayı dene
-        if (empty($this->shipping_neighborhood) && !empty($this->address_search)) {
-            $parts = explode(',', $this->address_search);
-            if (count($parts) >= 3) {
-                $firstPart = trim($parts[0]);
-                if (preg_match('/^[\p{L}\s]+$/u', $firstPart) && mb_strlen($firstPart) > 2) {
-                    $this->shipping_neighborhood = $firstPart;
-                }
-            }
-        }
-
-        // Session'a kaydet
-        session([
-            'co_city' => $this->shipping_city,
-            'co_district' => $this->shipping_district,
-            'co_neighborhood' => $this->shipping_neighborhood,
-            'co_address' => $this->shipping_address,
-            'co_address_search' => $this->address_search,
-            'co_address_selected' => true,
-        ]);
-
-        // Alpine state'ini koru — re-render sonrası event ile addressSelected ve query set edilir
-        $this->dispatch('address-updated', selected: true, query: $this->address_search);
-    }
-
-    /**
-     * Adres modunu değiştir (autocomplete ↔ manual)
-     */
-    public function switchAddressMode($mode)
-    {
-        $this->address_mode = $mode;
-        session(['co_address_mode' => $mode]);
-
-        if ($mode === 'manual' && !$this->address_selected) {
-            // Autocomplete'den bir şey seçilmediyse alanları temizle
-            $this->resetAutocomplete();
-        }
-    }
-
-    /**
-     * Autocomplete seçimini sıfırla (yeni arama yapabilmek için)
-     */
-    public function resetAutocomplete()
-    {
-        $this->address_search = '';
-        $this->address_detail = '';
-        $this->address_selected = false;
-        $this->shipping_city = '';
-        $this->shipping_district = '';
-        $this->shipping_neighborhood = '';
-        $this->shipping_address = '';
-
-        session()->forget([
-            'co_city', 'co_district', 'co_neighborhood', 'co_address',
-            'co_address_search', 'co_address_detail', 'co_address_selected',
-        ]);
-
-        // Alpine state'ini koru
-        $this->dispatch('address-reset');
-    }
 
     public function placeOrder(CartService $cartService)
     {
         if ($this->paytr_token || $this->created_order_number) {
-            return;
-        }
-
-        // Autocomplete modunda adres seçilmeden sipariş vermeye çalışırsa
-        if ($this->address_mode === 'autocomplete' && !$this->address_selected) {
-            $this->addError('shipping_city', 'Lütfen adres arama kutusundan teslimat adresinizi seçiniz.');
             return;
         }
 
@@ -394,17 +276,6 @@ class Checkout extends Component
         // Create Order
         $neighborhood = trim($this->shipping_neighborhood ?: '');
         $rawAddress = trim($this->shipping_address ?: '');
-
-        // Autocomplete modunda shipping_address boşsa address_search'i kullan
-        if ($this->address_mode === 'autocomplete' && empty($rawAddress) && !empty($this->address_search)) {
-            $rawAddress = trim($this->address_search);
-        }
-
-        // Autocomplete modunda address_detail'i rawAddress'e birleştir
-        $addressDetail = trim($this->address_detail ?: '');
-        if (!empty($addressDetail)) {
-            $rawAddress = !empty($rawAddress) ? ($rawAddress . ' ' . $addressDetail) : $addressDetail;
-        }
 
         if (!empty($neighborhood) && stripos($rawAddress, $neighborhood) === false) {
             $formattedAddress = $neighborhood . (preg_match('/(mah|mahallesi|mh\.)/i', $neighborhood) ? '' : ' Mah.') . ' ' . $rawAddress;
@@ -542,7 +413,6 @@ class Checkout extends Component
             \Illuminate\Support\Facades\Log::error('Sipariş oluşturma hatası: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'payment_method' => $this->payment_method ?? null,
-                'address_mode' => $this->address_mode ?? null,
             ]);
             $this->created_order_number = null;
             $this->dispatch('notify', message: 'Sipariş oluşturulurken bir hata oluştu: ' . $e->getMessage(), type: 'error');

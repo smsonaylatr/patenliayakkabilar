@@ -92,6 +92,7 @@ class OrdersTable
                         'processing' => 'info',
                         'shipped' => 'primary',
                         'delivered' => 'success',
+                        'return_started' => 'orange',
                         'returned' => 'pink',
                         'cancelled' => 'danger',
                         default => 'gray',
@@ -101,6 +102,7 @@ class OrdersTable
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
+                        'return_started' => 'İade Başlatıldı',
                         'returned' => 'İade',
                         'cancelled' => 'İptal',
                         default => $state,
@@ -118,6 +120,7 @@ class OrdersTable
                                         'processing' => 'Hazırlanıyor',
                                         'shipped' => 'Kargoda',
                                         'delivered' => 'Teslim Edildi',
+                                        'return_started' => 'İade Süreci Başlatıldı',
                                         'returned' => 'İade',
                                         'cancelled' => 'İptal',
                                     ])
@@ -189,6 +192,7 @@ class OrdersTable
                         'processing' => 'Hazırlanıyor',
                         'shipped' => 'Kargoda',
                         'delivered' => 'Teslim Edildi',
+                        'return_started' => 'İade Başlatıldı',
                         'returned' => 'İade',
                         'cancelled' => 'İptal',
                     ])

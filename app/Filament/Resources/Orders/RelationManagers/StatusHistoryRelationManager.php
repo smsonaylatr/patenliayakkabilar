@@ -64,6 +64,8 @@ class StatusHistoryRelationManager extends RelationManager
             'processing' => 'info',
             'shipped' => 'primary',
             'delivered' => 'success',
+            'return_started' => 'orange',
+            'returned' => 'pink',
             'cancelled' => 'danger',
             default => 'gray',
         };
@@ -76,6 +78,8 @@ class StatusHistoryRelationManager extends RelationManager
             'processing' => 'Hazırlanıyor',
             'shipped' => 'Kargoda',
             'delivered' => 'Teslim Edildi',
+            'return_started' => 'İade Başlatıldı',
+            'returned' => 'İade',
             'cancelled' => 'İptal',
             default => $status ?? '-',
         };

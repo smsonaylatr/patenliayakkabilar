@@ -74,6 +74,11 @@ class OrderObserver
             if (empty($messageTemplate)) {
                 $messageTemplate = 'Sayın {isim}, {siparis_no} numaralı siparişiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz. - Patenli Ayakkabılar';
             }
+        } elseif ($type === 'return_started') {
+            $messageTemplate = \App\Models\Setting::where('key', 'vatansms_return_started_message')->value('value');
+            if (empty($messageTemplate)) {
+                $messageTemplate = 'Sayın {isim}, {siparis_no} numaralı siparişiniz için iade süreci başlatılmıştır. İade süreciniz hakkında sizi bilgilendireceğiz. - Patenli Ayakkabılar';
+            }
         } elseif ($type === 'returned') {
             $messageTemplate = \App\Models\Setting::where('key', 'vatansms_returned_message')->value('value');
             if (empty($messageTemplate)) {
@@ -309,6 +314,24 @@ class OrderObserver
                         \Illuminate\Support\Facades\Log::error('Muhasebe satış kaydı hatası: ' . $e->getMessage());
                     }
                 });
+            } elseif ($order->status === 'return_started') {
+                // İade süreci başlatıldı — müşteriye bilgilendirme SMS'i gönder
+                app()->terminating(function () use ($order) {
+                    $order->refresh();
+                    
+                    try {
+                        $this->sendCustomerSms($order, 'return_started');
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('SMS notification error on return_started: ' . $e->getMessage());
+                    }
+                });
+
+                Notification::make()
+                    ->title('İade Süreci Başlatıldı')
+                    ->body("{$order->order_number} numaralı sipariş için iade süreci başlatıldı.")
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
             } elseif ($order->status === 'returned') {
                 // İade işleme
                 app()->terminating(function () use ($order) {
