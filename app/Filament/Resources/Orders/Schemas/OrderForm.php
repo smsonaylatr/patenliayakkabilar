@@ -82,13 +82,19 @@ class OrderForm
                         Select::make('cargo_company')
                             ->label('Kargo Firması')
                             ->options([
+                                'DHL eCommerce' => 'DHL eCommerce',
+                                'DHL eCommerce (MNG Kargo)' => 'DHL eCommerce (MNG Kargo)',
                                 'yurtici' => 'Yurtiçi Kargo',
                                 'aras' => 'Aras Kargo',
                                 'mng' => 'MNG Kargo',
+                                'surat' => 'Sürat Kargo',
+                                'hepsijet' => 'HepsiJet',
                                 'ptt' => 'PTT Kargo',
                                 'ups' => 'UPS',
+                                'trendyol_express' => 'Trendyol Express',
                                 'other' => 'Diğer',
                             ])
+                            ->searchable()
                             ->native(false),
 
                         TextInput::make('cargo_tracking_code')
