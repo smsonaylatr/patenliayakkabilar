@@ -37,11 +37,13 @@ class OrderObserver
                     \Illuminate\Support\Facades\Log::error('Telegram notification error: ' . $e->getMessage());
                 }
                 
-                // Porego'ya siparişi aktar (barkod oluşturma YAPILMAZ — admin panelden tetiklenir)
-                try {
-                    app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
+                // Porego'ya siparişi aktar (Kapıda ödeme hariç — admin onayı sonrası gönderilir)
+                if ($order->payment_method !== 'cash_on_delivery') {
+                    try {
+                        app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
+                    }
                 }
 
                 // Müşteriye SMS Gönder

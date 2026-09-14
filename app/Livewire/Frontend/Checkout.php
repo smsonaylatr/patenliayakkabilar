@@ -61,7 +61,7 @@ class Checkout extends Component
     protected function rules()
     {
         $baseRules = [
-            'customer_name' => 'required|string|max:255',
+            'customer_name' => ['required', 'string', 'max:255', 'regex:/^\S+\s+\S+/'],
             'customer_email' => 'required|email|max:255',
             'customer_phone' => ['required', 'string', 'regex:/^(05[0-9]{9}|0 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|\\+90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2}|90 \\(5[0-9]{2}\\) [0-9]{3} [0-9]{2} [0-9]{2})$/'],
             'shipping_city' => 'required|string|max:100',
@@ -77,6 +77,7 @@ class Checkout extends Component
 
     protected $messages = [
         'customer_name.required' => 'Lütfen adınızı ve soyadınızı giriniz.',
+        'customer_name.regex' => 'Lütfen hem adınızı hem soyadınızı giriniz.',
         'customer_email.required' => 'Lütfen e-posta adresinizi giriniz.',
         'customer_email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
         'customer_phone.required' => 'Lütfen telefon numaranızı giriniz.',
