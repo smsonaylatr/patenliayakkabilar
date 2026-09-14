@@ -213,7 +213,7 @@
                             </div>
                         </div>
 
-                        {{-- Sipariş Notu (Her iki modda da gösterilir) --}}
+                        {{-- Sipariş Notu --}}
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Sipariş Notu (Opsiyonel)</label>
                             <textarea wire:model.blur="customer_note" rows="2" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors custom-scrollbar" placeholder="Kuryeye veya mağazaya iletmek istedikleriniz..."></textarea>
