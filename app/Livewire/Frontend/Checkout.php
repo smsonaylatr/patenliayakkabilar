@@ -202,18 +202,35 @@ class Checkout extends Component
         }
 
         try {
-            $cacheKey = 'district_neighborhoods_' . \Illuminate\Support\Str::slug($district);
+            $cacheKey = 'district_neighborhoods_' . \Illuminate\Support\Str::slug($district) . '_' . \Illuminate\Support\Str::slug($this->shipping_city);
             $neighborhoods = \Illuminate\Support\Facades\Cache::get($cacheKey);
 
             if ($neighborhoods === null) {
-                $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://turkiyeapi.dev/api/v1/neighborhoods', [
-                    'district' => $district
-                ]);
+                // cities.json'dan districtId bul
+                $districtId = null;
+                if (file_exists(database_path('data/cities.json'))) {
+                    $json = json_decode(file_get_contents(database_path('data/cities.json')), true);
+                    if (isset($json['data'])) {
+                        $cityData = collect($json['data'])->firstWhere('name', $this->shipping_city);
+                        if ($cityData && isset($cityData['districts'])) {
+                            $districtData = collect($cityData['districts'])->firstWhere('name', $district);
+                            if ($districtData) {
+                                $districtId = $districtData['id'];
+                            }
+                        }
+                    }
+                }
 
-                if ($response->successful()) {
-                    $data = $response->json('data');
-                    if (!empty($data) && is_array($data)) {
-                        $neighborhoods = collect($data)->pluck('name')->sort()->values()->toArray();
+                if ($districtId) {
+                    $response = \Illuminate\Support\Facades\Http::timeout(8)->get('https://turkiyeapi.dev/api/v1/neighborhoods', [
+                        'districtId' => $districtId
+                    ]);
+
+                    if ($response->successful()) {
+                        $data = $response->json('data');
+                        if (!empty($data) && is_array($data)) {
+                            $neighborhoods = collect($data)->pluck('name')->sort()->values()->toArray();
+                        }
                     }
                 }
 
