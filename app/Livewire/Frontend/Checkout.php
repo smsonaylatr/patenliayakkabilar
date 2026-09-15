@@ -23,6 +23,12 @@ class Checkout extends Component
     public string $shipping_neighborhood = '';
     public string $shipping_address = '';
     
+    // Fatura Bilgileri
+    public string $invoice_type = 'individual';
+    public string $company_name = '';
+    public string $tax_office = '';
+    public string $tax_number = '';
+
     public string $payment_method = 'credit_card';
     public bool $sms_consent = false;
     public bool $terms_consent = false;
@@ -68,6 +74,10 @@ class Checkout extends Component
             'shipping_district' => 'required|string|max:100',
             'shipping_neighborhood' => 'required|string|max:150',
             'shipping_address' => 'required|string',
+            'invoice_type' => 'required|in:individual,corporate',
+            'company_name' => 'required_if:invoice_type,corporate|nullable|string|max:255',
+            'tax_office' => 'required_if:invoice_type,corporate|nullable|string|max:255',
+            'tax_number' => 'required_if:invoice_type,corporate|nullable|string|max:20',
             'payment_method' => 'required|in:cash_on_delivery,wire_transfer,credit_card',
             'terms_consent' => 'accepted',
         ];
@@ -87,6 +97,9 @@ class Checkout extends Component
         'shipping_neighborhood.required' => 'Lütfen mahallenizi seçiniz veya yazınız.',
         'shipping_address.required' => 'Lütfen açık adresinizi giriniz.',
         'terms_consent.accepted' => 'Devam etmek için Ön Bilgilendirme Formu ve Mesafeli Satış Sözleşmesi\'ni onaylamalısınız.',
+        'company_name.required_if' => 'Kurumsal fatura seçtiğinizde firma adı zorunludur.',
+        'tax_office.required_if' => 'Kurumsal fatura seçtiğinizde vergi dairesi zorunludur.',
+        'tax_number.required_if' => 'Kurumsal fatura seçtiğinizde vergi numarası zorunludur.',
     ];
 
     #[Locked]

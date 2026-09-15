@@ -77,8 +77,15 @@ class ItemsRelationManager extends RelationManager
                     $productId = $get('product_id');
                     if (!$productId) return [];
 
+                    $currentVariantId = $get('product_variant_id');
+
                     return ProductVariant::where('product_id', $productId)
-                        ->where('stock', '>', 0)
+                        ->where(function ($query) use ($currentVariantId) {
+                            $query->where('stock', '>', 0);
+                            if ($currentVariantId) {
+                                $query->orWhere('id', $currentVariantId);
+                            }
+                        })
                         ->get()
                         ->mapWithKeys(function (ProductVariant $variant) {
                             $colors = is_array($variant->color)
