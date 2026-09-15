@@ -348,6 +348,12 @@ class Checkout extends Component
             'billing_neighborhood' => $neighborhood,
             'billing_address' => $formattedAddress,
 
+            // Fatura bilgileri
+            'invoice_type' => $this->invoice_type,
+            'company_name' => $this->invoice_type === 'corporate' ? $this->company_name : null,
+            'tax_office' => $this->invoice_type === 'corporate' ? $this->tax_office : null,
+            'tax_number' => $this->invoice_type === 'corporate' ? $this->tax_number : null,
+
             'ip_address' => request()->ip(),
         ]);
 

@@ -220,10 +220,63 @@
                         </div>
                     </div>
 
+                    <!-- Fatura Bilgileri -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100" x-data="{ invoiceType: @entangle('invoice_type').live }">
+                        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">3</span>
+                            Fatura Bilgileri
+                        </h2>
+
+                        <div class="space-y-4">
+                            <!-- Fatura Tipi Seçimi -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="invoiceType === 'individual' ? 'border-black bg-gray-50' : 'border-gray-200'">
+                                    <input wire:model.live="invoice_type" x-model="invoiceType" type="radio" value="individual" class="w-4 h-4 text-black border-gray-300 focus:ring-0 focus:outline-none">
+                                    <div class="ml-2.5">
+                                        <span class="block text-sm font-bold text-gray-900">Bireysel</span>
+                                        <span class="block text-[11px] text-gray-500 mt-0.5">TC Kimlik ile fatura</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center p-3.5 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="invoiceType === 'corporate' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'">
+                                    <input wire:model.live="invoice_type" x-model="invoiceType" type="radio" value="corporate" class="w-4 h-4 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                    <div class="ml-2.5">
+                                        <span class="block text-sm font-bold text-gray-900">Kurumsal</span>
+                                        <span class="block text-[11px] text-gray-500 mt-0.5">Şirket faturası</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Kurumsal Fatura Alanları -->
+                            <div x-show="invoiceType === 'corporate'" x-collapse x-cloak class="space-y-3 pt-1">
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <p class="text-xs text-amber-800">Kurumsal fatura için firma bilgilerinizi doğru girdiğinizden emin olunuz. Fatura kesildikten sonra değişiklik yapılamaz.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Firma Adı <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model.blur="company_name" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Şirket / Firma unvanı">
+                                    @error('company_name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Vergi Dairesi <span class="text-red-500">*</span></label>
+                                        <input type="text" wire:model.blur="tax_office" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="Vergi dairesi adı">
+                                        @error('tax_office') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Vergi / TC Numarası <span class="text-red-500">*</span></label>
+                                        <input type="text" wire:model.blur="tax_number" x-mask="99999999999" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" placeholder="10 veya 11 haneli numara">
+                                        @error('tax_number') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Ödeme Yöntemi -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">3</span>
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-xs">4</span>
                             Ödeme Yöntemi
                         </h2>
                         
