@@ -275,33 +275,20 @@
                         </h2>
                         
                         <div class="space-y-3" x-data="{ selectedPayment: @entangle('payment_method') }">
-                            <label class="relative flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'credit_card' ? 'border-green-400/60 bg-green-50/30 shadow-sm ring-1 ring-green-400/20' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
-                                {{-- Önerilen Badge --}}
-                                <span class="absolute -top-2.5 left-4 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase" :class="selectedPayment === 'credit_card' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.403 12.652a3 3 0 010-5.304 3 3 0 00-3.75-3.751 3 3 0 00-5.305 0 3 3 0 00-3.751 3.75 3 3 0 000 5.305 3 3 0 003.75 3.751 3 3 0 005.305 0 3 3 0 003.751-3.75zm-2.546-4.46a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
-                                    Önerilen
-                                </span>
-                                {{-- Seçim Tiki --}}
+                            <!-- Kredi Kartı Seçeneği (PayTR) -->
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'credit_card' ? 'border-brand-orange/40 bg-orange-50/30 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
                                 <div class="flex items-center h-5">
-                                    <div class="relative">
-                                        <input x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-green-500 border-gray-300 focus:ring-green-400 focus:ring-offset-2">
-                                    </div>
+                                    <input x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
-                                        <div class="flex items-center gap-2">
-                                            <span class="block text-sm font-bold text-gray-900">Kredi / Banka Kartı</span>
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700">Taksit İmkanı</span>
-                                        </div>
-                                        <div class="flex items-center gap-1.5">
+                                        <span class="block text-sm font-bold text-gray-900">Kredi / Banka Kartı</span>
+                                        <div class="flex gap-1">
                                             <i class="fa-brands fa-cc-visa text-xl text-blue-800"></i>
                                             <i class="fa-brands fa-cc-mastercard text-xl text-red-600"></i>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-1.5 mt-1">
-                                        <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
-                                        <span class="block text-xs text-gray-500">PayTR güvencesiyle 256-bit SSL şifreli ödeme</span>
-                                    </div>
+                                    <span class="block text-xs text-gray-500 mt-0.5">PayTR güvencesiyle 256-bit SSL şifreli ödeme. (Taksit İmkanı)</span>
                                 </div>
                             </label>
 
