@@ -223,31 +223,37 @@ class ItemsRelationManager extends RelationManager
                 CreateAction::make()
                     ->label('Kalem Ekle')
                     ->icon('heroicon-o-plus-circle')
-                    ->before(function (CreateAction $action, array $data) {
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $qty = (int) ($data['quantity'] ?? 1);
+                        $unitPrice = (float) ($data['unit_price'] ?? 0);
+
                         // Stok kontrolü
                         if (!empty($data['product_variant_id'])) {
                             $variant = ProductVariant::find($data['product_variant_id']);
-                            if ($variant && $variant->stock < (int) $data['quantity']) {
+                            if ($variant && $variant->stock < $qty) {
                                 Notification::make()
                                     ->title('Stok Yetersiz')
                                     ->body("Bu varyant için sadece {$variant->stock} adet stok mevcut.")
                                     ->danger()
                                     ->send();
-                                $action->halt();
+                                throw new \Illuminate\Validation\ValidationException(
+                                    validator: validator([], []),
+                                );
                             }
                         } elseif (!empty($data['product_id'])) {
                             $product = Product::find($data['product_id']);
-                            if ($product && $product->stock < (int) $data['quantity']) {
+                            if ($product && $product->stock < $qty) {
                                 Notification::make()
                                     ->title('Stok Yetersiz')
                                     ->body("Bu ürün için sadece {$product->stock} adet stok mevcut.")
                                     ->danger()
                                     ->send();
-                                $action->halt();
+                                throw new \Illuminate\Validation\ValidationException(
+                                    validator: validator([], []),
+                                );
                             }
                         }
-                    })
-                    ->mutateFormDataUsing(function (array $data): array {
+
                         // product_name ve variant_info doldur
                         if (empty($data['product_name']) && !empty($data['product_id'])) {
                             $product = Product::find($data['product_id']);
@@ -260,7 +266,7 @@ class ItemsRelationManager extends RelationManager
                                 $data['variant_info'] = "Numara: {$variant->size}" . ($colors ? " | Renk: {$colors}" : '');
                             }
                         }
-                        $data['total_price'] = round(((int) $data['quantity']) * ((float) $data['unit_price']), 2);
+                        $data['total_price'] = round($qty * $unitPrice, 2);
                         return $data;
                     })
                     ->after(function () {
@@ -274,12 +280,13 @@ class ItemsRelationManager extends RelationManager
             ->actions([
                 EditAction::make()
                     ->label('Düzenle')
-                    ->before(function (EditAction $action, array $data, $record) {
-                        // Miktar artıyorsa stok kontrolü
-                        $newQty = (int) $data['quantity'];
-                        $oldQty = (int) $record->quantity;
+                    ->mutateFormDataUsing(function (array $data, $record): array {
+                        $newQty = (int) ($data['quantity'] ?? 1);
+                        $unitPrice = (float) ($data['unit_price'] ?? 0);
+                        $oldQty = (int) ($record?->quantity ?? 0);
                         $diff = $newQty - $oldQty;
 
+                        // Miktar artıyorsa stok kontrolü
                         if ($diff > 0) {
                             if (!empty($data['product_variant_id'])) {
                                 $variant = ProductVariant::find($data['product_variant_id']);
@@ -289,7 +296,9 @@ class ItemsRelationManager extends RelationManager
                                         ->body("Ek {$diff} adet için stok yetersiz. Mevcut stok: {$variant->stock}")
                                         ->danger()
                                         ->send();
-                                    $action->halt();
+                                    throw new \Illuminate\Validation\ValidationException(
+                                        validator: validator([], []),
+                                    );
                                 }
                             } elseif (!empty($data['product_id'])) {
                                 $product = Product::find($data['product_id']);
@@ -299,13 +308,14 @@ class ItemsRelationManager extends RelationManager
                                         ->body("Ek {$diff} adet için stok yetersiz. Mevcut stok: {$product->stock}")
                                         ->danger()
                                         ->send();
-                                    $action->halt();
+                                    throw new \Illuminate\Validation\ValidationException(
+                                        validator: validator([], []),
+                                    );
                                 }
                             }
                         }
-                    })
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['total_price'] = round(((int) $data['quantity']) * ((float) $data['unit_price']), 2);
+
+                        $data['total_price'] = round($newQty * $unitPrice, 2);
                         if (empty($data['product_name']) && !empty($data['product_id'])) {
                             $data['product_name'] = Product::find($data['product_id'])?->name ?? '';
                         }
