@@ -276,7 +276,7 @@
                         
                         <div class="space-y-3" x-data="{ selectedPayment: @json($payment_method) }">
                             <!-- Kredi Kartı Seçeneği (PayTR) -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'credit_card' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'">
+                            <label class="flex items-start p-4 rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'credit_card' ? 'bg-orange-50/50 ring-1 ring-brand-orange/40 shadow-sm' : 'bg-gray-50/80 hover:bg-gray-100/60'">
                                 <div class="flex items-center h-5">
                                     <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
@@ -293,7 +293,7 @@
                             </label>
 
                             <!-- Havale/EFT Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'wire_transfer' ? 'border-brand-orange bg-orange-50/30' : 'border-gray-200'">
+                            <label class="flex items-start p-4 rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'wire_transfer' ? 'bg-orange-50/50 ring-1 ring-brand-orange/40 shadow-sm' : 'bg-gray-50/80 hover:bg-gray-100/60'">
                                 <div class="flex items-center h-5">
                                     <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="wire_transfer" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
                                 </div>
@@ -310,7 +310,7 @@
 
                             @if($isCodAllowed)
                             <!-- Kapıda Ödeme Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" :class="selectedPayment === 'cash_on_delivery' ? 'border-black bg-gray-50' : 'border-gray-200'">
+                            <label class="flex items-start p-4 rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'cash_on_delivery' ? 'bg-gray-100 ring-1 ring-gray-300 shadow-sm' : 'bg-gray-50/80 hover:bg-gray-100/60'">
                                 <div class="flex items-center h-5">
                                     <input wire:model="payment_method" x-model="selectedPayment" type="radio" value="cash_on_delivery" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
                                 </div>
