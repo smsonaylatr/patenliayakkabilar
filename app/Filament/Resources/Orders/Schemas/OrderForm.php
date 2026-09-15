@@ -211,7 +211,10 @@ class OrderForm
                             ->numeric()
                             ->required()
                             ->prefix('₺')
-                            ->inputMode('decimal'),
+                            ->inputMode('decimal')
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->dehydrated()
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Kalem ekle/sil ile otomatik güncellenir' : null),
 
                         TextInput::make('shipping_price')
                             ->label('Kargo Ücreti')
@@ -234,7 +237,10 @@ class OrderForm
                             ->numeric()
                             ->required()
                             ->prefix('₺')
-                            ->inputMode('decimal'),
+                            ->inputMode('decimal')
+                            ->disabled(fn (string $operation): bool => $operation === 'edit')
+                            ->dehydrated()
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Kalem ekle/sil ile otomatik güncellenir' : null),
                     ]),
 
                 Section::make('Notlar')

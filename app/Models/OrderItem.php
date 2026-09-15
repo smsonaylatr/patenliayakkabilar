@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\OrderItemObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy(OrderItemObserver::class)]
 class OrderItem extends Model
 {
     protected $guarded = [];
