@@ -276,9 +276,9 @@
                         
                         <div class="space-y-3" x-data="{ selectedPayment: @entangle('payment_method') }">
                             <!-- Kredi Kartı Seçeneği (PayTR) -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'credit_card' ? 'border-brand-orange/40 bg-orange-50/30 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'credit_card' ? 'border-gray-300 bg-gray-50 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
                                 <div class="flex items-center h-5">
-                                    <input x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                    <input x-model="selectedPayment" type="radio" value="credit_card" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
                                 </div>
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
@@ -293,9 +293,9 @@
                             </label>
 
                             <!-- Havale/EFT Seçeneği -->
-                            <label class="flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'wire_transfer' ? 'border-brand-orange/40 bg-orange-50/30 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
+                            <label class="flex items-start p-4 border rounded-xl cursor-pointer transition-all duration-200" :class="selectedPayment === 'wire_transfer' ? 'border-gray-300 bg-gray-50 shadow-sm' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/50'">
                                 <div class="flex items-center h-5">
-                                    <input x-model="selectedPayment" type="radio" value="wire_transfer" class="w-5 h-5 text-brand-orange border-gray-300 focus:ring-brand-orange focus:ring-offset-2">
+                                    <input x-model="selectedPayment" type="radio" value="wire_transfer" class="w-5 h-5 text-black border-gray-300 focus:ring-0 focus:outline-none">
                                 </div>
                                 <div class="ml-3 flex-1">
                                     <div class="flex justify-between items-center">
