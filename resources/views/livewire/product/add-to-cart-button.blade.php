@@ -17,13 +17,6 @@
             </button>
         </div>
     </div>
-    <!-- Stok uyarısı -->
-    <template x-if="maxStock > 0 && maxStock <= 5">
-        <p class="text-xs text-amber-600 font-medium text-center -mt-3">
-            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-            Bu üründen stokta sadece <span x-text="maxStock"></span> adet kaldı
-        </p>
-    </template>
     @endif
 
     <!-- Sepete Ekle / Tükendi Butonu -->

@@ -213,7 +213,7 @@ class OrderForm
                             ->prefix('₺')
                             ->inputMode('decimal')
                             ->disabled(fn (string $operation): bool => $operation === 'edit')
-                            ->dehydrated()
+                            ->dehydrated(fn (string $operation): bool => $operation !== 'edit')
                             ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Kalem ekle/sil ile otomatik güncellenir' : null),
 
                         TextInput::make('shipping_price')
@@ -239,7 +239,7 @@ class OrderForm
                             ->prefix('₺')
                             ->inputMode('decimal')
                             ->disabled(fn (string $operation): bool => $operation === 'edit')
-                            ->dehydrated()
+                            ->dehydrated(fn (string $operation): bool => $operation !== 'edit')
                             ->helperText(fn (string $operation): ?string => $operation === 'edit' ? 'Kalem ekle/sil ile otomatik güncellenir' : null),
                     ]),
 
