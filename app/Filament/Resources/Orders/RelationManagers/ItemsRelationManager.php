@@ -28,139 +28,133 @@ class ItemsRelationManager extends RelationManager
 
     public function schema(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Select::make('product_id')
-                    ->label('Ürün')
-                    ->options(function () {
-                        return Product::query()
-                            ->where('status', true)
-                            ->orderBy('name')
-                            ->pluck('name', 'id');
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->native(false)
-                    ->live()
-                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
-                        $set('product_variant_id', null);
-                        $set('variant_info', null);
+        return $schema->components($this->getFormComponents());
+    }
 
-                        if (!$state) {
-                            $set('unit_price', 0);
-                            $set('product_name', '');
-                            return;
-                        }
+    /**
+     * Form bileşenlerini döndür — hem schema() hem action'lar tarafından kullanılır
+     */
+    protected function getFormComponents(): array
+    {
+        return [
+            Select::make('product_id')
+                ->label('Ürün')
+                ->options(function () {
+                    return Product::query()
+                        ->where('status', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id');
+                })
+                ->searchable()
+                ->preload()
+                ->required()
+                ->native(false)
+                ->live()
+                ->afterStateUpdated(function (Set $set, ?string $state) {
+                    $set('product_variant_id', null);
+                    $set('variant_info', null);
 
-                        $product = Product::find($state);
-                        if (!$product) return;
+                    if (!$state) {
+                        $set('unit_price', 0);
+                        $set('product_name', '');
+                        return;
+                    }
 
-                        $set('product_name', $product->name);
+                    $product = Product::find($state);
+                    if (!$product) return;
 
-                        // Varyantı yoksa ürün fiyatını kullan
-                        if ($product->variants()->count() === 0) {
-                            $price = $product->discount_price ?: $product->price;
-                            $set('unit_price', $price);
-                        }
-                    }),
+                    $set('product_name', $product->name);
 
-                Select::make('product_variant_id')
-                    ->label('Varyant (Numara / Renk)')
-                    ->options(function (Get $get) {
-                        $productId = $get('product_id');
-                        if (!$productId) return [];
-
-                        return ProductVariant::where('product_id', $productId)
-                            ->where('stock', '>', 0)
-                            ->get()
-                            ->mapWithKeys(function (ProductVariant $variant) {
-                                $colors = is_array($variant->color)
-                                    ? implode('/', $variant->color)
-                                    : ($variant->color ?? '');
-                                $label = "Numara: {$variant->size}";
-                                if ($colors) {
-                                    $label .= " | Renk: {$colors}";
-                                }
-                                $label .= " | Stok: {$variant->stock}";
-                                $price = $variant->discount_price ?: $variant->price;
-                                if ($price) {
-                                    $label .= " | " . number_format($price, 2) . " ₺";
-                                }
-                                return [$variant->id => $label];
-                            });
-                    })
-                    ->searchable()
-                    ->native(false)
-                    ->live()
-                    ->visible(function (Get $get) {
-                        $productId = $get('product_id');
-                        if (!$productId) return false;
-                        return ProductVariant::where('product_id', $productId)->exists();
-                    })
-                    ->required(function (Get $get) {
-                        $productId = $get('product_id');
-                        if (!$productId) return false;
-                        return ProductVariant::where('product_id', $productId)->exists();
-                    })
-                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
-                        if (!$state) return;
-
-                        $variant = ProductVariant::find($state);
-                        if (!$variant) return;
-
-                        $price = $variant->discount_price ?: $variant->price;
+                    if ($product->variants()->count() === 0) {
+                        $price = $product->discount_price ?: $product->price;
                         $set('unit_price', $price);
+                    }
+                }),
 
-                        // variant_info oluştur
-                        $colors = is_array($variant->color)
-                            ? implode('/', $variant->color)
-                            : ($variant->color ?? '');
-                        $info = "Numara: {$variant->size}";
-                        if ($colors) {
-                            $info .= " | Renk: {$colors}";
-                        }
-                        $set('variant_info', $info);
-                    }),
+            Select::make('product_variant_id')
+                ->label('Varyant (Numara / Renk)')
+                ->options(function (Get $get) {
+                    $productId = $get('product_id');
+                    if (!$productId) return [];
 
-                TextInput::make('quantity')
-                    ->label('Adet')
-                    ->numeric()
-                    ->required()
-                    ->default(1)
-                    ->minValue(1)
-                    ->maxValue(fn (Get $get) => $this->getMaxQuantity($get))
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Set $set, Get $get) {
-                        $qty = (int) ($get('quantity') ?: 1);
-                        $price = (float) ($get('unit_price') ?: 0);
-                        $set('total_price', round($qty * $price, 2));
-                    }),
+                    return ProductVariant::where('product_id', $productId)
+                        ->where('stock', '>', 0)
+                        ->get()
+                        ->mapWithKeys(function (ProductVariant $variant) {
+                            $colors = is_array($variant->color)
+                                ? implode('/', $variant->color)
+                                : ($variant->color ?? '');
+                            $label = "Numara: {$variant->size}";
+                            if ($colors) {
+                                $label .= " | Renk: {$colors}";
+                            }
+                            $label .= " | Stok: {$variant->stock}";
+                            $price = $variant->discount_price ?: $variant->price;
+                            if ($price) {
+                                $label .= " | " . number_format($price, 2) . " ₺";
+                            }
+                            return [$variant->id => $label];
+                        });
+                })
+                ->searchable()
+                ->native(false)
+                ->live()
+                ->afterStateUpdated(function (Set $set, ?string $state) {
+                    if (!$state) return;
 
-                TextInput::make('unit_price')
-                    ->label('Birim Fiyat')
-                    ->numeric()
-                    ->required()
-                    ->prefix('₺')
-                    ->inputMode('decimal')
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Set $set, Get $get) {
-                        $qty = (int) ($get('quantity') ?: 1);
-                        $price = (float) ($get('unit_price') ?: 0);
-                        $set('total_price', round($qty * $price, 2));
-                    }),
+                    $variant = ProductVariant::find($state);
+                    if (!$variant) return;
 
-                TextInput::make('total_price')
-                    ->label('Toplam Tutar')
-                    ->numeric()
-                    ->prefix('₺')
-                    ->disabled()
-                    ->dehydrated()
-                    ->inputMode('decimal'),
+                    $price = $variant->discount_price ?: $variant->price;
+                    $set('unit_price', $price);
 
-                Hidden::make('product_name'),
-                Hidden::make('variant_info'),
-            ]);
+                    $colors = is_array($variant->color)
+                        ? implode('/', $variant->color)
+                        : ($variant->color ?? '');
+                    $info = "Numara: {$variant->size}";
+                    if ($colors) {
+                        $info .= " | Renk: {$colors}";
+                    }
+                    $set('variant_info', $info);
+                }),
+
+            TextInput::make('quantity')
+                ->label('Adet')
+                ->numeric()
+                ->required()
+                ->default(1)
+                ->minValue(1)
+                ->live(onBlur: true)
+                ->afterStateUpdated(function (Set $set, Get $get) {
+                    $qty = (int) ($get('quantity') ?: 1);
+                    $price = (float) ($get('unit_price') ?: 0);
+                    $set('total_price', round($qty * $price, 2));
+                }),
+
+            TextInput::make('unit_price')
+                ->label('Birim Fiyat')
+                ->numeric()
+                ->required()
+                ->prefix('₺')
+                ->inputMode('decimal')
+                ->live(onBlur: true)
+                ->afterStateUpdated(function (Set $set, Get $get) {
+                    $qty = (int) ($get('quantity') ?: 1);
+                    $price = (float) ($get('unit_price') ?: 0);
+                    $set('total_price', round($qty * $price, 2));
+                }),
+
+            TextInput::make('total_price')
+                ->label('Toplam Tutar')
+                ->numeric()
+                ->prefix('₺')
+                ->disabled()
+                ->dehydrated()
+                ->inputMode('decimal'),
+
+            Hidden::make('product_name'),
+            Hidden::make('variant_info'),
+        ];
     }
 
     public function table(Table $table): Table
@@ -223,6 +217,7 @@ class ItemsRelationManager extends RelationManager
                 CreateAction::make()
                     ->label('Kalem Ekle')
                     ->icon('heroicon-o-plus-circle')
+                    ->schema($this->getFormComponents())
                     ->mutateFormDataUsing(function (array $data): array {
                         $qty = (int) ($data['quantity'] ?? 1);
                         $unitPrice = (float) ($data['unit_price'] ?? 0);
@@ -280,6 +275,7 @@ class ItemsRelationManager extends RelationManager
             ->actions([
                 EditAction::make()
                     ->label('Düzenle')
+                    ->schema($this->getFormComponents())
                     ->mutateFormDataUsing(function (array $data, $record): array {
                         $newQty = (int) ($data['quantity'] ?? 1);
                         $unitPrice = (float) ($data['unit_price'] ?? 0);
