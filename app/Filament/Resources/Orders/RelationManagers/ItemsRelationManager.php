@@ -277,6 +277,9 @@ class ItemsRelationManager extends RelationManager
                             ->body('Sipariş kalemi başarıyla eklendi. Stok ve tutarlar güncellendi.')
                             ->success()
                             ->send();
+
+                        // Sayfayı yenileyerek güncel tutarları göster
+                        redirect(request()->header('Referer'));
                     }),
             ])
             ->actions([
@@ -330,6 +333,8 @@ class ItemsRelationManager extends RelationManager
                             ->body('Sipariş kalemi, stok ve tutarlar güncellendi.')
                             ->success()
                             ->send();
+
+                        redirect(request()->header('Referer'));
                     }),
                 DeleteAction::make()
                     ->label('Sil')
@@ -339,6 +344,8 @@ class ItemsRelationManager extends RelationManager
                             ->body('Sipariş kalemi silindi. Stok geri yüklendi ve tutarlar güncellendi.')
                             ->success()
                             ->send();
+
+                        redirect(request()->header('Referer'));
                     }),
             ])
             ->paginated(false);
