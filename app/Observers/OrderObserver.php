@@ -12,6 +12,10 @@ class OrderObserver
      */
     public function created(Order $order): void
     {
+        // Sipariş count cache'lerini temizle
+        \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
+        \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
+
         // Send a database notification to admins when a new order is placed.
         Notification::make()
             ->title('Yeni Sipariş Geldi')
@@ -247,6 +251,12 @@ class OrderObserver
      */
     public function updated(Order $order): void
     {
+        // Sipariş count cache'lerini temizle (durum veya ödeme değişikliklerinde badge'ler güncel kalsın)
+        if ($order->wasChanged(['status', 'payment_status', 'payment_method'])) {
+            \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
+            \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
+        }
+
         // PayTR veya Admin panel üzerinden ödeme 'paid' (ödendi) durumuna geçtiğinde
         if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
             $order->loadMissing(['items.product', 'items.variant']);
