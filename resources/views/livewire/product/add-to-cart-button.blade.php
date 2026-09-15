@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity') }">
+<div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
     @php
         $isOutOfStock = !$product->inStock();
     @endphp
@@ -12,11 +12,18 @@
                 <i class="fa-solid fa-minus text-[10px]"></i>
             </button>
             <span class="text-base font-medium text-gray-900 w-10 text-center" x-text="qty"></span>
-            <button type="button" @click="qty++" aria-label="Adedi Artır" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
+            <button type="button" @click="qty < maxStock ? qty++ : null" :disabled="qty >= maxStock" aria-label="Adedi Artır" :class="qty >= maxStock ? 'text-gray-300 bg-gray-50 cursor-not-allowed' : 'text-gray-500 bg-gray-50 hover:bg-gray-100'" class="rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-plus text-[10px]"></i>
             </button>
         </div>
     </div>
+    <!-- Stok uyarısı -->
+    <template x-if="maxStock > 0 && maxStock <= 5">
+        <p class="text-xs text-amber-600 font-medium text-center -mt-3">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+            Bu üründen stokta sadece <span x-text="maxStock"></span> adet kaldı
+        </p>
+    </template>
     @endif
 
     <!-- Sepete Ekle / Tükendi Butonu -->

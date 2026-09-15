@@ -31,7 +31,12 @@ class ProductGrid extends Component
             $variantId = $product->variants->first()->id; 
         }
         
-        $cartService->addItem($productId, $variantId, 1);
+        $result = $cartService->addItem($productId, $variantId, 1);
+        
+        if (!empty($result['error'])) {
+            $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+            return;
+        }
         
         $this->dispatch('cart-updated');
         $this->dispatch('open-cart');

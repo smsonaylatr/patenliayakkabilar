@@ -4,6 +4,9 @@ namespace App\Filament\Resources\Orders\RelationManagers;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,7 +15,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class ItemsRelationManager extends RelationManager
@@ -163,7 +167,7 @@ class ItemsRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('product.images.image_path')
+                ImageColumn::make('product.images.image_path')
                     ->label('')
                     ->disk('public')
                     ->square()
@@ -172,26 +176,26 @@ class ItemsRelationManager extends RelationManager
                     ->defaultImageUrl(fn () => 'https://placehold.co/40x40/f1f5f9/94a3b8?text=Görsel')
                     ->width(40)
                     ->height(40),
-                Tables\Columns\TextColumn::make('product.name')
+                TextColumn::make('product.name')
                     ->label('Ürün')
                     ->searchable()
                     ->weight('bold')
                     ->limit(40),
-                Tables\Columns\TextColumn::make('sku')
+                TextColumn::make('sku')
                     ->label('Stok Kodu (SKU)')
                     ->getStateUsing(fn ($record) => $record->variant?->sku ?: ($record->product?->sku ?: '-'))
                     ->copyable()
                     ->badge()
                     ->color('warning'),
-                Tables\Columns\TextColumn::make('variant.color')
+                TextColumn::make('variant.color')
                     ->label('Renk')
                     ->badge()
                     ->formatStateUsing(fn ($state): string => is_array($state) ? implode(' / ', $state) : ($state ?? '-'))
                     ->default('-'),
-                Tables\Columns\TextColumn::make('variant.size')
+                TextColumn::make('variant.size')
                     ->label('Numara')
                     ->default('-'),
-                Tables\Columns\TextColumn::make('variant.stock')
+                TextColumn::make('variant.stock')
                     ->label('Kalan Stok')
                     ->badge()
                     ->color(fn ($state) => match (true) {
@@ -201,25 +205,25 @@ class ItemsRelationManager extends RelationManager
                         default => 'success',
                     })
                     ->default('-'),
-                Tables\Columns\TextColumn::make('quantity')
+                TextColumn::make('quantity')
                     ->label('Adet')
                     ->sortable()
                     ->alignCenter(),
-                Tables\Columns\TextColumn::make('unit_price')
+                TextColumn::make('unit_price')
                     ->label('Birim Fiyat')
                     ->getStateUsing(fn ($record) => number_format($record->unit_price, 2) . ' ₺')
                     ->alignEnd(),
-                Tables\Columns\TextColumn::make('total_price')
+                TextColumn::make('total_price')
                     ->label('Toplam')
                     ->getStateUsing(fn ($record) => number_format($record->quantity * $record->unit_price, 2) . ' ₺')
                     ->weight('bold')
                     ->alignEnd(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Kalem Ekle')
                     ->icon('heroicon-o-plus-circle')
-                    ->before(function (Tables\Actions\CreateAction $action, array $data) {
+                    ->before(function (CreateAction $action, array $data) {
                         // Stok kontrolü
                         if (!empty($data['product_variant_id'])) {
                             $variant = ProductVariant::find($data['product_variant_id']);
@@ -268,9 +272,9 @@ class ItemsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                EditAction::make()
                     ->label('Düzenle')
-                    ->before(function (Tables\Actions\EditAction $action, array $data, $record) {
+                    ->before(function (EditAction $action, array $data, $record) {
                         // Miktar artıyorsa stok kontrolü
                         $newQty = (int) $data['quantity'];
                         $oldQty = (int) $record->quantity;
@@ -314,7 +318,7 @@ class ItemsRelationManager extends RelationManager
                             ->success()
                             ->send();
                     }),
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->label('Sil')
                     ->after(function () {
                         Notification::make()

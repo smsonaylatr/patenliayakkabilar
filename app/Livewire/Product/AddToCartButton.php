@@ -4,6 +4,7 @@ namespace App\Livewire\Product;
 
 use Livewire\Component;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\CartService;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -15,6 +16,7 @@ class AddToCartButton extends Component
     
     public int $quantity = 1;
     public mixed $variantId = null;
+    public int $maxStock = 10;
 
     public function mount(Product $product)
     {
@@ -22,12 +24,31 @@ class AddToCartButton extends Component
         if ($this->product->variants->count() > 0) {
             $this->variantId = '';
         }
+        $this->updateMaxStock();
     }
 
     #[On('variant-selected')]
     public function setVariant($variantId)
     {
         $this->variantId = $variantId;
+        $this->updateMaxStock();
+        // Mevcut miktar yeni seçilen bedenin stoğunu aşıyorsa düzelt
+        if ($this->quantity > $this->maxStock) {
+            $this->quantity = max(1, $this->maxStock);
+        }
+    }
+
+    /**
+     * Seçili variant'a göre max stok miktarını günceller
+     */
+    private function updateMaxStock(): void
+    {
+        if ($this->variantId) {
+            $variant = ProductVariant::find($this->variantId);
+            $this->maxStock = $variant ? max(0, (int) $variant->stock) : 0;
+        } else {
+            $this->maxStock = max(0, (int) $this->product->stock);
+        }
     }
 
     public function addToCart(CartService $cartService)
@@ -36,7 +57,8 @@ class AddToCartButton extends Component
             return;
         }
 
-        $this->quantity = max(1, min(10, $this->quantity));
+        $this->updateMaxStock();
+        $this->quantity = max(1, min($this->maxStock, $this->quantity));
 
         if ($this->product->variants->count() > 0) {
             if (!$this->variantId) {
@@ -49,7 +71,12 @@ class AddToCartButton extends Component
             }
         }
 
-        $cartService->addItem($this->product->id, $this->variantId, $this->quantity);
+        $result = $cartService->addItem($this->product->id, $this->variantId, $this->quantity);
+        
+        if (!empty($result['error'])) {
+            $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+            return;
+        }
         
         $this->dispatch('cart-updated');
         $this->dispatch('open-cart');

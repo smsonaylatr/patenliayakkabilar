@@ -509,5 +509,28 @@
         </script>
 
         @livewireScripts
+
+        <!-- Global Toast Notification -->
+        <div x-data="{ show: false, message: '', type: 'warning' }"
+             @show-notification.window="message = $event.detail.message; type = $event.detail.type || 'warning'; show = true; setTimeout(() => show = false, 4000)"
+             x-show="show"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-2"
+             x-cloak
+             class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[100] max-w-md w-[calc(100%-2rem)]">
+            <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border"
+                 :class="type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-red-50 border-red-200 text-red-800'">
+                <i class="fa-solid fa-triangle-exclamation text-lg shrink-0"
+                   :class="type === 'warning' ? 'text-amber-500' : 'text-red-500'"></i>
+                <p class="text-sm font-medium flex-1" x-text="message"></p>
+                <button @click="show = false" class="shrink-0 text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
     </body>
 </html>

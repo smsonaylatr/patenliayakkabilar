@@ -22,16 +22,30 @@ class CartDrawer extends Component
 
     public function updateQuantity(CartService $cartService, int $itemId, int $quantity): void
     {
-        $quantity = max(1, min(10, $quantity));
-        $cartService->updateQuantity($itemId, $quantity);
+        $quantity = max(1, $quantity);
+        $result = $cartService->updateQuantity($itemId, $quantity);
+        
+        if (!empty($result['error'])) {
+            $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+        }
+        
         $this->dispatch('cart-updated');
     }
 
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
+        $items = $cart->items()->with(['product', 'variant'])->get();
+        
+        // Her item için max stok bilgisini hesapla
+        $items->each(function ($item) use ($cartService) {
+            $item->maxStock = $item->product 
+                ? $cartService->getAvailableStock($item->product, $item->product_variant_id)
+                : 0;
+        });
+
         return view('livewire.frontend.cart-drawer', [
-            'items' => $cart->items()->with(['product', 'variant'])->get(),
+            'items' => $items,
             'total' => $cartService->getTotal(),
         ]);
     }

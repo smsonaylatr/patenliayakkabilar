@@ -83,7 +83,11 @@
                                                         <div class="flex items-center bg-gray-50 rounded-full border border-gray-200 p-0.5">
                                                             <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" aria-label="Miktarı Azalt" class="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">-</button>
                                                             <span class="w-10 sm:w-8 text-center font-medium text-gray-900">{{ $item->quantity }}</span>
-                                                            <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" aria-label="Miktarı Artır" class="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">+</button>
+                                                            @if($item->quantity >= ($item->maxStock ?? 999))
+                                                                <button disabled aria-label="Miktarı Artır" class="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-gray-300 bg-gray-50 cursor-not-allowed">+</button>
+                                                            @else
+                                                                <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" aria-label="Miktarı Artır" class="w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all">+</button>
+                                                            @endif
                                                         </div>
 
                                                         <div class="flex">

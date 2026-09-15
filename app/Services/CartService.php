@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,8 +36,11 @@ class CartService
         $product = Product::findOrFail($productId);
         
         if (!$product->inStock()) {
-            return $cart;
+            return ['cart' => $cart, 'error' => 'Bu ürün stokta yok.'];
         }
+
+        // Stok limitini belirle: variant varsa variant stoğu, yoksa ürün stoğu
+        $availableStock = $this->getAvailableStock($product, $variantId);
         
         $price = $product->discount_price ?? $product->price;
 
@@ -44,6 +48,18 @@ class CartService
             ->where('product_id', $productId)
             ->where('product_variant_id', $variantId)
             ->first();
+
+        $currentQty = $cartItem ? $cartItem->quantity : 0;
+        $requestedTotal = $currentQty + $quantity;
+
+        // Stok aşılıyorsa miktar sınırla
+        if ($requestedTotal > $availableStock) {
+            $allowedQty = $availableStock - $currentQty;
+            if ($allowedQty <= 0) {
+                return ['cart' => $cart, 'error' => 'Bu üründen stokta sadece ' . $availableStock . ' adet var. Sepetinizde zaten ' . $currentQty . ' adet mevcut.'];
+            }
+            $quantity = $allowedQty;
+        }
 
         if ($cartItem) {
             $cartItem->quantity += $quantity;
@@ -58,7 +74,7 @@ class CartService
             ]);
         }
 
-        return $cart;
+        return ['cart' => $cart, 'error' => null];
     }
 
     public function removeItem($cartItemId)
@@ -70,9 +86,25 @@ class CartService
     {
         if ($quantity <= 0) {
             $this->removeItem($cartItemId);
-        } else {
-            CartItem::where('id', $cartItemId)->update(['quantity' => $quantity]);
+            return ['error' => null];
         }
+
+        $cartItem = CartItem::with(['product', 'variant'])->find($cartItemId);
+        if (!$cartItem) {
+            return ['error' => 'Sepet öğesi bulunamadı.'];
+        }
+
+        // Stok kontrolü
+        $availableStock = $this->getAvailableStock($cartItem->product, $cartItem->product_variant_id);
+        if ($quantity > $availableStock) {
+            // Miktar stok sınırına çekilir
+            $quantity = $availableStock;
+            CartItem::where('id', $cartItemId)->update(['quantity' => $quantity]);
+            return ['error' => 'Stokta sadece ' . $availableStock . ' adet var. Miktar güncellendi.', 'maxStock' => $availableStock];
+        }
+
+        CartItem::where('id', $cartItemId)->update(['quantity' => $quantity]);
+        return ['error' => null];
     }
 
     public function getTotal()
@@ -87,5 +119,21 @@ class CartService
     {
         $cart = $this->getCart();
         return $cart->items->sum('quantity');
+    }
+
+    /**
+     * Belirli bir ürün+variant için mevcut stok miktarını döndürür.
+     * Variant varsa variant stoğu, yoksa ürün stoğu kullanılır.
+     */
+    public function getAvailableStock(Product $product, $variantId = null): int
+    {
+        if ($variantId) {
+            $variant = ProductVariant::find($variantId);
+            if ($variant) {
+                return max(0, (int) $variant->stock);
+            }
+        }
+
+        return max(0, (int) $product->stock);
     }
 }
