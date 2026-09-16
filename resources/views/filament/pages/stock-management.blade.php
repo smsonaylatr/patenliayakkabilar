@@ -29,6 +29,8 @@
         </x-filament::section>
     </div>
 
+    @livewire(\App\Livewire\Admin\StockChart::class)
+
     {{ $this->table }}
 
     <div class="mt-8">

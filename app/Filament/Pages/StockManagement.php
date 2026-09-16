@@ -10,7 +10,8 @@ use Filament\Tables;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
-use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\TextInput;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -48,11 +49,38 @@ class StockManagement extends Page implements HasTable
 
     public function getViewData(): array
     {
+        $activeProducts = Product::with('variants')->where('status', true)->get();
+        $matrix = [];
+        $sizes = range(28, 40);
+
+        foreach ($activeProducts as $product) {
+            if ($product->variants->isEmpty()) continue;
+            
+            $productRow = [
+                'name' => $product->name,
+                'sizes' => [],
+                'total' => 0,
+            ];
+            
+            foreach ($sizes as $size) {
+                $variant = $product->variants->where('size', (string)$size)->first();
+                $stock = $variant ? $variant->stock : null;
+                $productRow['sizes'][$size] = $stock;
+                if ($stock !== null) {
+                    $productRow['total'] += $stock;
+                }
+            }
+            
+            $matrix[] = $productRow;
+        }
+
         return [
             'totalProducts' => Product::where('status', true)->count(),
             'inStock'       => Product::where('status', true)->where('stock', '>', 0)->count(),
             'outOfStock'    => Product::where('status', true)->where('stock', '<=', 0)->count(),
             'lowStock'      => Product::where('status', true)->where('stock', '>', 0)->where('stock', '<=', 5)->count(),
+            'matrix'        => $matrix,
+            'sizes'         => $sizes,
         ];
     }
 
@@ -136,13 +164,30 @@ class StockManagement extends Page implements HasTable
                             default        => $query,
                         };
                     }),
+                Tables\Filters\SelectFilter::make('size')
+                    ->label('Beden')
+                    ->options(array_combine(range(28, 45), range(28, 45)))
+                    ->multiple()
+                    ->native(false),
             ])
             ->actions([
+                \Filament\Actions\Action::make('view_detail')
+                    ->label('Detay')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
+                    ->modalWidth('xl')
+                    ->modalHeading(fn (ProductVariant $record) => $record->product?->name . ' - Stok Detayı')
+                    ->modalContent(fn (ProductVariant $record) => view('filament.pages.product-stock-detail-modal', [
+                        'product' => $record->product,
+                        'movements' => StockMovement::where('product_id', $record->product_id)->latest()->take(10)->get(),
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(fn (\Filament\Actions\StaticAction $action) => $action->label('Kapat')),
                 \Filament\Actions\Action::make('update_stock')
                     ->label('Stok Güncelle')
                     ->icon('heroicon-o-pencil')
                     ->color('warning')
-                    ->form([
+                    ->schema([
                         TextInput::make('new_stock')
                             ->label('Yeni Stok Miktarı')
                             ->numeric()
@@ -180,7 +225,7 @@ class StockManagement extends Page implements HasTable
                     ->label('Stok Ekle')
                     ->icon('heroicon-o-plus-circle')
                     ->color('success')
-                    ->form([
+                    ->schema([
                         TextInput::make('add_amount')
                             ->label('Eklenecek Miktar')
                             ->numeric()
@@ -207,11 +252,81 @@ class StockManagement extends Page implements HasTable
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('bulk_set_stock')
+                        ->label('Toplu Stok Ayarla')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->schema([
+                            TextInput::make('new_stock')
+                                ->label('Yeni Stok Miktarı')
+                                ->numeric()
+                                ->required()
+                                ->minValue(0)
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $newStock = (int) $data['new_stock'];
+                            foreach ($records as $record) {
+                                $oldStock = (int) $record->stock;
+                                if ($oldStock === $newStock) continue;
+                                
+                                $record->update(['stock' => $newStock]);
+                                $record->product?->syncFromVariants();
+                                
+                                StockMovement::record(
+                                    productId: $record->product_id,
+                                    variantId: $record->id,
+                                    type: StockMovement::TYPE_ADJUSTMENT,
+                                    quantity: abs($newStock - $oldStock),
+                                    oldStock: $oldStock,
+                                    newStock: $newStock,
+                                    reference: null,
+                                    note: "Admin panelden toplu stok ayarlama ({$oldStock} → {$newStock})",
+                                );
+                            }
+                            Notification::make()
+                                ->title("Seçili varyantların stoğu {$newStock} olarak ayarlandı.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    \Filament\Actions\BulkAction::make('bulk_zero_stock')
+                        ->label('Stoğu Sıfırla')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            foreach ($records as $record) {
+                                $oldStock = (int) $record->stock;
+                                if ($oldStock === 0) continue;
+                                
+                                $record->update(['stock' => 0]);
+                                $record->product?->syncFromVariants();
+                                
+                                StockMovement::record(
+                                    productId: $record->product_id,
+                                    variantId: $record->id,
+                                    type: StockMovement::TYPE_ADJUSTMENT,
+                                    quantity: $oldStock,
+                                    oldStock: $oldStock,
+                                    newStock: 0,
+                                    reference: null,
+                                    note: "Admin panelden toplu stok sıfırlama ({$oldStock} → 0)",
+                                );
+                            }
+                            Notification::make()
+                                ->title("Seçili varyantların stoğu sıfırlandı.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     \Filament\Actions\BulkAction::make('bulk_add_stock')
                         ->label('Toplu Stok Ekle')
                         ->icon('heroicon-o-plus')
                         ->color('success')
-                        ->form([
+                        ->schema([
                             TextInput::make('amount')
                                 ->label('Her Varyanta Eklenecek Miktar')
                                 ->numeric()

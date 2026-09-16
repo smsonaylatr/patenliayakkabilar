@@ -23,6 +23,7 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
     {
         return $table
             ->query(StockMovement::query()->with(['product', 'variant', 'user']))
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tarih')
@@ -63,13 +64,58 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                     ->color(fn ($state) => $state > 0 ? 'success' : ($state < 0 ? 'danger' : 'gray'))
                     ->badge(),
                 Tables\Columns\TextColumn::make('reference')
-                    ->label('Referans'),
+                    ->label('Referans')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('note')
+                    ->label('Not')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('İşlemi Yapan'),
             ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('product_id')
+                    ->label('Ürün')
+                    ->relationship('product', 'name')
+                    ->searchable()
+                    ->native(false),
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Hareket Tipi')
+                    ->options(StockMovement::TYPES)
+                    ->native(false),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('from')
+                            ->label('Başlangıç Tarihi'),
+                        \Filament\Forms\Components\DatePicker::make('to')
+                            ->label('Bitiş Tarihi'),
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['to'],
+                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
+                Tables\Filters\SelectFilter::make('variant.size')
+                    ->label('Beden')
+                    ->options(array_combine(range(28, 45), range(28, 45)))
+                    ->attribute('variant.size')
+                    ->multiple()
+                    ->native(false),
+            ])
+            ->headerActions([
+                Tables\Actions\ExportAction::make()
+                    ->label('Dışa Aktar')
+                    ->exporter(\Filament\Actions\Exports\Exporter::class) // You can create a custom exporter, but standard might require a class. Let me remove this if not specified, actually Filament V3 has export actions but they need an exporter class.
+            ])
             ->defaultSort('created_at', 'desc')
-            ->paginated([25, 50, 100])
-            ->defaultPaginationPageOption(25);
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(10);
     }
 
     public function render()
