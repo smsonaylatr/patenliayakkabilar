@@ -109,9 +109,37 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                     ->native(false),
             ])
             ->headerActions([
-                Tables\Actions\ExportAction::make()
+                \Filament\Actions\Action::make('export')
                     ->label('Dışa Aktar')
-                    ->exporter(\App\Filament\Exports\StockMovementExporter::class)
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->action(function () {
+                        $movements = \App\Models\StockMovement::with(['product', 'variant', 'user'])
+                            ->orderByDesc('created_at')
+                            ->limit(5000)
+                            ->get();
+
+                        $csv = "Tarih;Ürün;Beden;Tip;Eski Stok;Yeni Stok;Değişim;Referans;Not;İşlemi Yapan\n";
+                        foreach ($movements as $m) {
+                            $delta = $m->new_stock - $m->old_stock;
+                            $csv .= implode(';', [
+                                $m->created_at->format('d.m.Y H:i'),
+                                $m->product?->name ?? '-',
+                                $m->variant?->size ?? '-',
+                                \App\Models\StockMovement::TYPES[$m->type] ?? $m->type,
+                                $m->old_stock,
+                                $m->new_stock,
+                                ($delta > 0 ? "+{$delta}" : $delta),
+                                $m->reference ?? '-',
+                                str_replace(';', ',', $m->note ?? '-'),
+                                $m->user?->name ?? 'Sistem',
+                            ]) . "\n";
+                        }
+
+                        return response()->streamDownload(function () use ($csv) {
+                            echo "\xEF\xBB\xBF" . $csv; // UTF-8 BOM for Excel
+                        }, 'stok-hareketleri-' . now()->format('Y-m-d') . '.csv');
+                    })
             ])
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
