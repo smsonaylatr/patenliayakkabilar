@@ -43,7 +43,7 @@ class StockManagement extends Page implements HasTable
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Mağaza';
+        return 'Satışlar';
     }
 
     public function getViewData(): array
