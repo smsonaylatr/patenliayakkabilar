@@ -50,14 +50,14 @@
                     @foreach($matrix as $rowIndex => $row)
                         <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.backgroundColor='#f0f9ff'" onmouseout="this.style.backgroundColor='transparent'">
                             {{-- Ürün --}}
-                            <td style="padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:500;color:#1f2937;" title="{{ $row['name'] }}">
+                            <td style="padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:500;" title="{{ $row['name'] }}">
                                 <div style="display:flex;align-items:center;gap:6px;">
                                     @if($row['image'])
                                         <img src="{{ asset('storage/' . $row['image']) }}" style="width:24px;height:24px;border-radius:4px;object-fit:cover;flex-shrink:0;" loading="lazy">
                                     @else
-                                        <span style="width:24px;height:24px;border-radius:4px;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;">👟</span>
+                                        <span style="width:24px;height:24px;border-radius:4px;background:#374151;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;">👟</span>
                                     @endif
-                                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $row['name'] }}</span>
+                                    <span class="text-gray-900 dark:text-white" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $row['name'] }}</span>
                                 </div>
                             </td>
 
