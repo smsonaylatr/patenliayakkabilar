@@ -48,7 +48,7 @@ class StockManagement extends Page implements HasTable
 
     public function getViewData(): array
     {
-        $activeProducts = Product::with('variants')->where('status', true)->get();
+        $activeProducts = Product::with(['variants', 'images'])->where('status', true)->orderBy('name')->get();
         $matrix = [];
         $sizes = range(28, 40);
 
@@ -56,17 +56,21 @@ class StockManagement extends Page implements HasTable
             if ($product->variants->isEmpty()) continue;
             
             $productRow = [
+                'product_id' => $product->id,
                 'name' => $product->name,
+                'image' => $product->images->first()?->image_path,
                 'sizes' => [],
                 'total' => 0,
             ];
             
             foreach ($sizes as $size) {
                 $variant = $product->variants->where('size', (string)$size)->first();
-                $stock = $variant ? $variant->stock : null;
-                $productRow['sizes'][$size] = $stock;
-                if ($stock !== null) {
-                    $productRow['total'] += $stock;
+                $productRow['sizes'][$size] = [
+                    'stock' => $variant ? (int) $variant->stock : null,
+                    'variant_id' => $variant?->id,
+                ];
+                if ($variant) {
+                    $productRow['total'] += (int) $variant->stock;
                 }
             }
             
@@ -81,6 +85,39 @@ class StockManagement extends Page implements HasTable
             'matrix'        => $matrix,
             'sizes'         => $sizes,
         ];
+    }
+
+    /**
+     * Beden matrisinden inline stok güncelleme
+     */
+    public function updateMatrixStock(int $variantId, int $newStock): void
+    {
+        $variant = ProductVariant::find($variantId);
+        if (!$variant) return;
+
+        $oldStock = (int) $variant->stock;
+        if ($newStock === $oldStock) return;
+        if ($newStock < 0) $newStock = 0;
+
+        $variant->update(['stock' => $newStock]);
+        $variant->product?->syncFromVariants();
+
+        StockMovement::record(
+            productId: $variant->product_id,
+            variantId: $variant->id,
+            type: StockMovement::TYPE_ADJUSTMENT,
+            quantity: abs($newStock - $oldStock),
+            oldStock: $oldStock,
+            newStock: $newStock,
+            reference: null,
+            note: "Beden matrisinden hızlı güncelleme ({$oldStock} → {$newStock})",
+        );
+
+        Notification::make()
+            ->title('Stok güncellendi')
+            ->body("{$variant->product?->name} (Beden: {$variant->size}) → {$oldStock} → {$newStock}")
+            ->success()
+            ->send();
     }
 
     public function table(Table $table): Table
