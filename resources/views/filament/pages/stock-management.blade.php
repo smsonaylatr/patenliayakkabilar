@@ -2,43 +2,20 @@
     {{-- İstatistik Kartları --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-500/10 text-xl">📦</div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Toplam Ürün</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalProducts }}</p>
-                </div>
-            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">📦 Toplam Ürün</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalProducts }}</p>
         </div>
-
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-success-50 dark:bg-success-500/10 text-xl">✅</div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Stokta</p>
-                    <p class="text-2xl font-bold text-success-600">{{ $inStock }}</p>
-                </div>
-            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">✅ Stokta</p>
+            <p class="text-2xl font-bold text-success-600">{{ $inStock }}</p>
         </div>
-
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-danger-50 dark:bg-danger-500/10 text-xl">❌</div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Tükenen</p>
-                    <p class="text-2xl font-bold text-danger-600">{{ $outOfStock }}</p>
-                </div>
-            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">❌ Tükenen</p>
+            <p class="text-2xl font-bold text-danger-600">{{ $outOfStock }}</p>
         </div>
-
         <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-warning-50 dark:bg-warning-500/10 text-xl">⚠️</div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Düşük Stok</p>
-                    <p class="text-2xl font-bold text-warning-600">{{ $lowStock }}</p>
-                </div>
-            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">⚠️ Düşük Stok</p>
+            <p class="text-2xl font-bold text-warning-600">{{ $lowStock }}</p>
         </div>
     </div>
 
@@ -51,39 +28,36 @@
             🗂️ Beden Stok Matrisi — <span class="text-xs font-normal text-gray-400">Hücreye tıklayarak stok düzenleyebilirsiniz</span>
         </x-slot>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border-collapse">
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+                <colgroup>
+                    <col style="width:200px;">
+                    @foreach($sizes as $size)
+                        <col style="width:44px;">
+                    @endforeach
+                    <col style="width:56px;">
+                </colgroup>
                 <thead>
-                    <tr>
-                        <th class="sticky left-0 z-10 bg-gray-50 dark:bg-gray-800 px-3 py-2.5 text-left font-semibold text-gray-700 dark:text-gray-300 border-b-2 border-gray-200 dark:border-gray-700 min-w-[220px]">
-                            Ürün
-                        </th>
+                    <tr style="border-bottom:2px solid #e5e7eb;">
+                        <th style="padding:8px 6px;text-align:left;font-size:12px;font-weight:600;color:#6b7280;">Ürün</th>
                         @foreach($sizes as $size)
-                            <th class="px-1 py-2.5 text-center font-semibold text-gray-600 dark:text-gray-400 border-b-2 border-gray-200 dark:border-gray-700 w-[46px]">
-                                {{ $size }}
-                            </th>
+                            <th style="padding:8px 2px;text-align:center;font-size:11px;font-weight:700;color:#4b5563;">{{ $size }}</th>
                         @endforeach
-                        <th class="px-3 py-2.5 text-center font-bold text-gray-700 dark:text-gray-300 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 w-[60px]">
-                            Toplam
-                        </th>
+                        <th style="padding:8px 4px;text-align:center;font-size:11px;font-weight:700;color:#374151;background:#f9fafb;">Top.</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($matrix as $rowIndex => $row)
-                        <tr class="group border-b border-gray-100 dark:border-gray-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                            {{-- Ürün Adı + Görsel --}}
-                            <td class="sticky left-0 z-10 bg-white dark:bg-gray-900 group-hover:bg-blue-50/30 dark:group-hover:bg-blue-900/10 px-3 py-1.5 transition-colors">
-                                <div class="flex items-center gap-2">
+                        <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.backgroundColor='#f0f9ff'" onmouseout="this.style.backgroundColor='transparent'">
+                            {{-- Ürün --}}
+                            <td style="padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:500;color:#1f2937;" title="{{ $row['name'] }}">
+                                <div style="display:flex;align-items:center;gap:6px;">
                                     @if($row['image'])
-                                        <img src="{{ asset('storage/' . $row['image']) }}" 
-                                             alt="" 
-                                             class="h-8 w-8 rounded object-cover ring-1 ring-gray-200 dark:ring-gray-700 flex-shrink-0"
-                                             style="max-width:32px;max-height:32px;"
-                                             loading="lazy">
+                                        <img src="{{ asset('storage/' . $row['image']) }}" style="width:24px;height:24px;border-radius:4px;object-fit:cover;flex-shrink:0;" loading="lazy">
                                     @else
-                                        <div class="h-8 w-8 rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-xs">👟</div>
+                                        <span style="width:24px;height:24px;border-radius:4px;background:#f3f4f6;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;">👟</span>
                                     @endif
-                                    <span class="font-medium text-gray-800 dark:text-gray-200 text-xs leading-tight truncate max-w-[160px]" title="{{ $row['name'] }}">{{ $row['name'] }}</span>
+                                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $row['name'] }}</span>
                                 </div>
                             </td>
 
@@ -94,24 +68,24 @@
                                     $stock = $sizeData['stock'];
                                     $variantId = $sizeData['variant_id'];
                                 @endphp
-                                <td class="px-0.5 py-1 text-center">
+                                <td style="padding:2px 1px;text-align:center;vertical-align:middle;">
                                     @if($stock !== null && $variantId)
                                         <div x-data="{ editing: false, value: {{ $stock }}, original: {{ $stock }} }">
-                                            {{-- Gösterim --}}
                                             <button
                                                 x-show="!editing"
                                                 x-cloak
-                                                @click="editing = true; $nextTick(() => { let el = $refs['i{{ $variantId }}']; if(el) el.select(); })"
-                                                class="w-10 h-7 rounded text-xs font-bold cursor-pointer transition-all hover:scale-110 hover:shadow-md inline-flex items-center justify-center
-                                                    @if($stock <= 0) bg-red-500 text-white
-                                                    @elseif($stock <= 3) bg-orange-400 text-white
-                                                    @elseif($stock <= 5) bg-amber-400 text-gray-900
-                                                    @else bg-emerald-500 text-white
+                                                @click="editing = true; $nextTick(() => { let el = $refs['i{{ $variantId }}']; if(el){el.focus();el.select();} })"
+                                                style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.15s;
+                                                    @if($stock <= 0) background:#ef4444;color:#fff;
+                                                    @elseif($stock <= 3) background:#f97316;color:#fff;
+                                                    @elseif($stock <= 5) background:#eab308;color:#111827;
+                                                    @else background:#22c55e;color:#fff;
                                                     @endif
                                                 "
+                                                onmouseover="this.style.transform='scale(1.15)'"
+                                                onmouseout="this.style.transform='scale(1)'"
                                             >{{ $stock }}</button>
 
-                                            {{-- Düzenleme --}}
                                             <input
                                                 x-show="editing"
                                                 x-cloak
@@ -121,22 +95,21 @@
                                                 @keydown.enter="if(value!==original&&value>=0){$wire.updateMatrixStock({{ $variantId }},value);original=value}editing=false"
                                                 @keydown.escape="value=original;editing=false"
                                                 @click.outside="if(value!==original&&value>=0){$wire.updateMatrixStock({{ $variantId }},value);original=value}editing=false"
-                                                class="w-10 h-7 rounded text-xs font-bold text-center border-2 border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                style="max-width:40px;"
+                                                style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;text-align:center;border:2px solid #6366f1;outline:none;-moz-appearance:textfield;"
                                             >
                                         </div>
                                     @else
-                                        <span class="inline-flex w-10 h-7 items-center justify-center rounded bg-gray-100 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 text-xs">—</span>
+                                        <span style="display:inline-flex;width:38px;height:26px;align-items:center;justify-content:center;border-radius:4px;background:#f3f4f6;color:#d1d5db;font-size:11px;">—</span>
                                     @endif
                                 </td>
                             @endforeach
 
                             {{-- Toplam --}}
-                            <td class="px-2 py-1 text-center bg-gray-50/50 dark:bg-gray-800/30">
-                                <span class="inline-flex items-center justify-center h-6 px-2 rounded-full text-xs font-bold
-                                    @if($row['total'] <= 0) bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400
-                                    @elseif($row['total'] <= 10) bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400
-                                    @else bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400
+                            <td style="padding:2px 4px;text-align:center;background:#f9fafb;vertical-align:middle;">
+                                <span style="display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:12px;font-size:11px;font-weight:700;
+                                    @if($row['total'] <= 0) background:#fecaca;color:#b91c1c;
+                                    @elseif($row['total'] <= 10) background:#fef3c7;color:#92400e;
+                                    @else background:#d1fae5;color:#065f46;
                                     @endif
                                 ">{{ $row['total'] }}</span>
                             </td>
@@ -146,12 +119,12 @@
             </table>
 
             {{-- Renk Açıklaması --}}
-            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-                <span class="text-gray-400">Renk:</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-red-500 inline-block"></span> Tükendi</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-400 inline-block"></span> Kritik (1-3)</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-400 inline-block"></span> Düşük (4-5)</span>
-                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Yeterli (6+)</span>
+            <div style="display:flex;align-items:center;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6;font-size:11px;color:#6b7280;">
+                <span style="color:#9ca3af;">Renk:</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:#ef4444;display:inline-block;"></span> Tükendi</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:#f97316;display:inline-block;"></span> Kritik (1-3)</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:#eab308;display:inline-block;"></span> Düşük (4-5)</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:3px;background:#22c55e;display:inline-block;"></span> Yeterli (6+)</span>
             </div>
         </div>
     </x-filament::section>
