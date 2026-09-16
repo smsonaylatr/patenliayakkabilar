@@ -93,6 +93,7 @@ class PaytrWebhookController extends Controller
                 if ($order->payment_status !== 'failed') {
                     $order->update([
                         'payment_status' => 'failed',
+                        'status' => 'cancelled',
                     ]);
                 }
             }

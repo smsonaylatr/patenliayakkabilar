@@ -440,9 +440,7 @@ class Checkout extends Component
             }
         }
 
-        // Stok kontrolü geçti — order items oluştur ve stok düş
-        $decrementedVariants = []; // Rollback için tutulan kayıt
-        $decrementedProducts = [];
+        // Stok ön kontrolü geçti — order items oluştur (stok düşürme ödeme yöntemine göre yapılacak)
 
         foreach ($cartItems as $item) {
             $vColor = null;
@@ -470,157 +468,43 @@ class Checkout extends Component
                 'unit_price' => $item->price,
                 'total_price' => $item->price * $item->quantity,
             ]);
-
-            // Güvenli atomik stok düşürme
-            // ÖNEMLİ: RoadRunner/Octane'de model cache sorunu olabilir, DB'den TAZE çek
-            $stockOk = true;
-            if ($item->product_variant_id) {
-                $freshVariant = \App\Models\ProductVariant::find($item->product_variant_id);
-                
-                if ($freshVariant) {
-                    \Illuminate\Support\Facades\Log::info("Stok düşürme girişimi", [
-                        'order' => $order->order_number,
-                        'variant_id' => $freshVariant->id,
-                        'variant_size' => $freshVariant->size,
-                        'db_stock' => (int) $freshVariant->stock,
-                        'requested_qty' => $item->quantity,
-                        'product' => $item->product?->name,
-                    ]);
-                    
-                    $stockOk = $freshVariant->safeDecrement(
-                        $item->quantity,
-                        $order->order_number,
-                        "Sipariş ile stok düşürüldü"
-                    );
-                    
-                    if ($stockOk) {
-                        $decrementedVariants[] = ['variant' => $freshVariant, 'qty' => $item->quantity];
-                        $item->product?->refresh();
-                        $item->product?->syncFromVariants();
-                    } else {
-                        // safeDecrement başarısız — DB'den stok tekrar kontrol et
-                        $freshVariant->refresh();
-                        $realStock = (int) $freshVariant->stock;
-                        
-                        \Illuminate\Support\Facades\Log::warning("safeDecrement başarısız, retry kontrol", [
-                            'order' => $order->order_number,
-                            'variant_id' => $freshVariant->id,
-                            'real_stock_after_refresh' => $realStock,
-                            'requested_qty' => $item->quantity,
-                        ]);
-                        
-                        // Stok gerçekten varsa doğrudan DB update ile düş
-                        if ($realStock >= $item->quantity) {
-                            $affected = \App\Models\ProductVariant::where('id', $freshVariant->id)
-                                ->where('stock', '>=', $item->quantity)
-                                ->update(['stock' => \Illuminate\Support\Facades\DB::raw("stock - {$item->quantity}")]);
-                            
-                            if ($affected > 0) {
-                                $stockOk = true;
-                                $freshVariant->refresh();
-                                $decrementedVariants[] = ['variant' => $freshVariant, 'qty' => $item->quantity];
-                                $item->product?->refresh();
-                                $item->product?->syncFromVariants();
-                                
-                                \Illuminate\Support\Facades\Log::info("Stok düşürme retry BAŞARILI", [
-                                    'order' => $order->order_number,
-                                    'variant_id' => $freshVariant->id,
-                                    'new_stock' => (int) $freshVariant->stock,
-                                ]);
-                            }
-                        }
-                    }
-                } else {
-                    // Variant bulunamadı ama product_variant_id set — variant silinmiş
-                    \Illuminate\Support\Facades\Log::error("Variant bulunamadı", [
-                        'product_variant_id' => $item->product_variant_id,
-                        'product' => $item->product?->name,
-                    ]);
-                    // Variantsız ürün gibi devam et
-                    if ($item->product) {
-                        $freshProduct = Product::find($item->product_id);
-                        if ($freshProduct) {
-                            $stockOk = $freshProduct->safeDecrement(
-                                $item->quantity,
-                                $order->order_number,
-                                "Sipariş ile stok düşürüldü (variant bulunamadı)"
-                            );
-                            if ($stockOk) {
-                                $decrementedProducts[] = ['product' => $freshProduct, 'qty' => $item->quantity];
-                            }
-                        }
-                    }
-                }
-            } elseif ($item->product) {
-                $freshProduct = Product::find($item->product_id);
-                if ($freshProduct) {
-                    $stockOk = $freshProduct->safeDecrement(
-                        $item->quantity,
-                        $order->order_number,
-                        "Sipariş ile stok düşürüldü"
-                    );
-                    if ($stockOk) {
-                        $decrementedProducts[] = ['product' => $freshProduct, 'qty' => $item->quantity];
-                    }
-                }
-            }
-
-            if (!$stockOk) {
-                // ROLLBACK: Daha önce düşürülen stokları geri ekle
-                foreach ($decrementedVariants as $dv) {
-                    $dv['variant']->safeIncrement($dv['qty'], 'rollback', $order->order_number, 'Stok yetersizliği nedeniyle sipariş geri alındı');
-                    $dv['variant']->product?->syncFromVariants();
-                }
-                foreach ($decrementedProducts as $dp) {
-                    $dp['product']->safeIncrement($dp['qty'], 'rollback', $order->order_number, 'Stok yetersizliği nedeniyle sipariş geri alındı');
-                }
-
-                $order->items()->delete();
-                $order->delete();
-                $this->created_order_number = null;
-                $productName = $item->product?->name ?? 'Ürün';
-                $variantLabel = $item->variant ? " (Beden: {$item->variant->size})" : '';
-                
-                \Illuminate\Support\Facades\Log::error("Stok düşürme tamamen başarısız - sipariş geri alındı", [
-                    'order_number' => $order->order_number,
-                    'product' => $productName,
-                    'variant_id' => $item->product_variant_id,
-                    'requested_qty' => $item->quantity,
-                    'customer' => $this->customer_name,
-                ]);
-                
-                $this->dispatch('notify', message: "{$productName}{$variantLabel} için stok sorunu oluştu. Lütfen tekrar deneyiniz.", type: 'warning');
-                $this->dispatch('cart-updated');
-                return;
-            }
         }
 
-        // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet (Sepet boşaltma vs. için)
+        // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet
         session(['last_order_number' => $order->order_number]);
         $this->created_order_number = $order->order_number;
 
-        // IF KREDI KARTI VEYA HAVALE/EFT, PAYTR TOKEN AL
-        if (in_array($this->payment_method, ['credit_card', 'wire_transfer'])) {
-            $this->paytr_token = $this->getPaytrToken($order, $cart->items, $this->payment_method);
-            
-            if (!$this->paytr_token) {
-                // Token alınamadıysa siparişi silip sepeti boşaltmıyoruz ki kullanıcı tekrar deneyebilsin.
-                $order->items()->delete();
-                $order->delete();
-                $this->created_order_number = null;
-                $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı. Lütfen tekrar deneyiniz.', type: 'error');
-                return;
-            }
-            
-            // Render kısmında iframe açılacak. Yönlendirme YAPMIYORUZ. Sepeti BURADA BOŞALTMIYORUZ.
+        // ======================================================================
+        // STOK DÜŞÜRME STRATEJİSİ:
+        // - Kapıda Ödeme: Stok HEMEN düşürülür (sipariş = onay)
+        // - Kredi Kartı / Havale: Stok DÜŞÜRÜLMEZ! 
+        //   PayTR webhook'tan payment_status=paid geldiğinde OrderObserver düşürür.
+        // ======================================================================
+        if ($this->payment_method === 'cash_on_delivery') {
+            $this->decrementStockForOrder($order);
+
+            // Redirect to success page (Kapıda ödeme)
+            $this->redirect(route('order.success', [
+                'order_number' => $order->order_number, 
+                'method' => $this->payment_method
+            ]));
             return;
         }
 
-        // Redirect to success page (Kapıda ödeme)
-        $this->redirect(route('order.success', [
-            'order_number' => $order->order_number, 
-            'method' => $this->payment_method
-        ]));
+        // Kredi Kartı veya Havale/EFT — PayTR token al
+        $this->paytr_token = $this->getPaytrToken($order, $cart->items, $this->payment_method);
+        
+        if (!$this->paytr_token) {
+            // Token alınamadı — siparişi sil (stok düşürülmedi, geri eklemeye gerek yok)
+            $order->items()->delete();
+            $order->delete();
+            $this->created_order_number = null;
+            $this->dispatch('notify', message: 'Ödeme sistemi ile iletişim kurulamadı. Lütfen tekrar deneyiniz.', type: 'error');
+            return;
+        }
+        
+        // Render kısmında iframe açılacak. Stok düşürme PayTR onayına kadar bekleniyor.
+        return;
 
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Sipariş oluşturma hatası: ' . $e->getMessage(), [
@@ -643,6 +527,45 @@ class Checkout extends Component
                 ]));
             }
         }
+    }
+
+    /**
+     * Siparişteki ürünlerin stoğunu düşür.
+     * Kapıda ödeme → checkout'tan çağrılır
+     * Kredi kartı/Havale → OrderObserver'dan çağrılır (payment_status=paid)
+     */
+    public static function decrementStockForOrder(Order $order): void
+    {
+        $order->loadMissing(['items.product', 'items.variant']);
+
+        foreach ($order->items as $orderItem) {
+            if ($orderItem->product_variant_id) {
+                $variant = \App\Models\ProductVariant::find($orderItem->product_variant_id);
+                if ($variant) {
+                    $variant->safeDecrement(
+                        $orderItem->quantity,
+                        $order->order_number,
+                        "Ödeme onayı ile stok düşürüldü"
+                    );
+                    $variant->product?->syncFromVariants();
+                }
+            } elseif ($orderItem->product) {
+                $product = Product::find($orderItem->product_id);
+                if ($product) {
+                    $product->safeDecrement(
+                        $orderItem->quantity,
+                        $order->order_number,
+                        "Ödeme onayı ile stok düşürüldü"
+                    );
+                }
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info("Stok düşürme tamamlandı", [
+            'order_number' => $order->order_number,
+            'payment_method' => $order->payment_method,
+            'items_count' => $order->items->count(),
+        ]);
     }
 
     private function getPaytrToken(Order $order, $cartItems, $payment_method = 'credit_card')

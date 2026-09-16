@@ -261,6 +261,18 @@ class OrderObserver
         if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
             $order->loadMissing(['items.product', 'items.variant']);
 
+            // Stok düşürme: Sadece kredi kartı ve havale için
+            // Kapıda ödeme'de stok checkout'ta zaten düşürüldü
+            if (in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
+                try {
+                    \App\Livewire\Frontend\Checkout::decrementStockForOrder($order);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Stok düşürme hatası (paid): ' . $e->getMessage(), [
+                        'order_number' => $order->order_number,
+                    ]);
+                }
+            }
+
             // 1. Telegram Bildirimi Gönder
             try {
                 $this->sendTelegramNotification($order, 'paid');
