@@ -704,10 +704,18 @@ class OrdersTable
                             ->rows(3),
                     ])
                     ->action(function (Order $record, array $data): void {
-                        // 1. Sipariş durumunu iade yap
-                        $record->update([
-                            'status' => 'returned',
-                            'payment_status' => 'refunded',
+                        // 1. Sipariş durumunu iade yap (saveQuietly: Observer'ın çift stok iadesi yapmasını önle)
+                        $record->status = 'returned';
+                        $record->payment_status = 'refunded';
+                        $record->saveQuietly();
+
+                        // Audit log kaydı (Observer devre dışı olduğu için manuel ekle)
+                        \App\Models\OrderStatusHistory::create([
+                            'order_id' => $record->id,
+                            'old_status' => $record->getOriginal('status'),
+                            'new_status' => 'returned',
+                            'changed_by' => auth()->id(),
+                            'note' => 'İade işlemi admin panel üzerinden yapıldı. Neden: ' . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason']),
                         ]);
 
                         // 2. Stokları geri yükle
@@ -758,19 +766,74 @@ class OrdersTable
                     ->modalSubmitActionLabel('Evet, İptal Et')
                     ->modalCancelActionLabel('Vazgeç')
                     ->action(function (Order $record): void {
-                        $record->update(['status' => 'cancelled']);
+                        $oldStatus = $record->status;
                         
-                        foreach ($record->items as $item) {
-                            if ($item->variant) {
-                                $variant = clone $item->variant;
-                                $variant->increment('stock', $item->quantity);
-                            }
-                            
-                            $product = clone $item->product;
-                            if ($product) {
-                                $product->increment('stock', $item->quantity);
+                        // saveQuietly: Observer'ın çift stok iadesi yapmasını önle
+                        $record->status = 'cancelled';
+                        if ($record->payment_status === 'paid') {
+                            $record->payment_status = 'refunded';
+                        }
+                        $record->saveQuietly();
+
+                        // Audit log kaydı (Observer devre dışı olduğu için manuel ekle)
+                        \App\Models\OrderStatusHistory::create([
+                            'order_id' => $record->id,
+                            'old_status' => $oldStatus,
+                            'new_status' => 'cancelled',
+                            'changed_by' => auth()->id(),
+                            'note' => 'Sipariş admin panel üzerinden iptal edildi.',
+                        ]);
+
+                        // Stok geri yükleme — SADECE daha önce stok düşürülmüş siparişlerde
+                        $wasStockDecremented = $record->payment_method === 'cash_on_delivery' 
+                            || in_array($oldStatus, ['processing', 'shipped', 'delivered'])
+                            || $record->payment_status === 'refunded'; // Az önce refunded yaptık → paid idi
+
+                        if ($wasStockDecremented) {
+                            $record->loadMissing(['items.product', 'items.variant']);
+                            foreach ($record->items as $item) {
+                                if ($item->variant) {
+                                    $item->variant->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $record->order_number,
+                                        "Sipariş iptali ile stok geri yüklendi"
+                                    );
+                                    $item->product?->syncFromVariants();
+                                } elseif ($item->product) {
+                                    $item->product->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $record->order_number,
+                                        "Sipariş iptali ile stok geri yüklendi"
+                                    );
+                                }
                             }
                         }
+
+                        // Porego'ya iptal bildirimi gönder
+                        try {
+                            $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: env('POREGO_API_KEY');
+                            $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: env('POREGO_API_SECRET');
+                            $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1');
+
+                            if ($apiKey && $apiSecret) {
+                                \Illuminate\Support\Facades\Http::withHeaders([
+                                    'X-Api-Key' => $apiKey,
+                                    'X-Api-Secret' => $apiSecret,
+                                    'Accept' => 'application/json',
+                                    'Content-Type' => 'application/json',
+                                ])->put("{$apiUrl}/orders/{$record->order_number}", [
+                                    'status' => 'CANCELLED',
+                                ]);
+                            }
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::error("Porego iptal bildirimi hatası: " . $e->getMessage());
+                        }
+
+                        // Cache temizle
+                        \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
+                        \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
 
                         \Filament\Notifications\Notification::make()
                             ->title('Sipariş iptal edildi ve stoklar güncellendi.')

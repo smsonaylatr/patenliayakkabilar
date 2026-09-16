@@ -977,6 +977,19 @@ class PoregoApiService
             $changed = false;
             $newStatus = null;
 
+            // ===== Statü ilerleme sırası (düşükten yükseğe) =====
+            // Admin tarafından yapılan statü değişikliklerinin Porego tarafından ezilmesini önlemek için
+            // sadece İLERİ YÖNLÜ statü geçişlerine izin verilir.
+            $statusOrder = [
+                'pending'       => 1,
+                'processing'    => 2,
+                'shipped'       => 3,
+                'delivered'     => 4,
+                'return_started'=> 5,
+                'returned'      => 6,
+                'cancelled'     => 99, // İptal her zaman kabul edilir (özel durum)
+            ];
+
             // Durum eşleştirmesi
             if ($status) {
                 $upperStatus = strtoupper((string)$status);
@@ -989,8 +1002,35 @@ class PoregoApiService
                 };
 
                 if ($newStatus && $order->status !== $newStatus) {
-                    $order->status = $newStatus;
-                    $changed = true;
+                    $currentLevel = $statusOrder[$order->status] ?? 0;
+                    $newLevel = $statusOrder[$newStatus] ?? 0;
+
+                    // Admin tarafından son 24 saatte değiştirilmiş mi kontrol et
+                    $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                        ->whereNotNull('changed_by')
+                        ->where('created_at', '>=', now()->subHours(24))
+                        ->latest('created_at')
+                        ->first();
+
+                    // SADECE ileri yönlü geçişlere izin ver (ör: shipped→delivered OK)
+                    // GERİ yönlü geçişleri ENGELLE (ör: shipped→processing ENGELLE)
+                    // İptal (cancelled) her zaman kabul edilir
+                    $isForwardTransition = ($newLevel > $currentLevel) || $newStatus === 'cancelled';
+
+                    // Admin değişikliği varsa VE Porego geri almaya çalışıyorsa → ENGELLE
+                    if ($recentAdminChange && !$isForwardTransition) {
+                        Log::info("Porego Senkronizasyonu: Admin tarafından değiştirilmiş sipariş korunuyor. Sipariş: #{$order->order_number}, " .
+                            "Mevcut: {$order->status}, Porego: {$newStatus}, Admin değişikliği: {$recentAdminChange->created_at}");
+                        $newStatus = null; // Statü güncellenmeyecek
+                    } elseif (!$isForwardTransition) {
+                        // Admin değişikliği olmasa bile geri yönlü geçişlere izin verme
+                        Log::info("Porego Senkronizasyonu: Geri yönlü statü geçişi engellendi. Sipariş: #{$order->order_number}, " .
+                            "Mevcut: {$order->status} (seviye: {$currentLevel}), Porego: {$newStatus} (seviye: {$newLevel})");
+                        $newStatus = null;
+                    } else {
+                        $order->status = $newStatus;
+                        $changed = true;
+                    }
                 }
             }
 

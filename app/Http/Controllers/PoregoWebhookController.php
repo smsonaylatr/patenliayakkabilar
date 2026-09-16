@@ -63,22 +63,56 @@ class PoregoWebhookController extends Controller
                         default => null
                     };
 
+                    // Statü ilerleme sırası — geri yönlü geçişleri engelle
+                    $statusOrder = [
+                        'pending'       => 1,
+                        'processing'    => 2,
+                        'shipped'       => 3,
+                        'delivered'     => 4,
+                        'return_started'=> 5,
+                        'returned'      => 6,
+                        'cancelled'     => 99,
+                    ];
+
+                    $statusAllowed = false;
                     if ($newStatus && $order->status !== $newStatus) {
+                        $currentLevel = $statusOrder[$order->status] ?? 0;
+                        $newLevel = $statusOrder[$newStatus] ?? 0;
+                        $isForward = ($newLevel > $currentLevel) || $newStatus === 'cancelled';
+
+                        // Admin son 24 saatte değiştirmişse geri yönlü geçişi engelle
+                        $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                            ->whereNotNull('changed_by')
+                            ->where('created_at', '>=', now()->subHours(24))
+                            ->latest('created_at')
+                            ->first();
+
+                        if ($recentAdminChange && !$isForward) {
+                            Log::info("Porego Webhook: Admin değişikliği korunuyor. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
+                        } elseif (!$isForward) {
+                            Log::info("Porego Webhook: Geri yönlü geçiş engellendi. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
+                        } else {
+                            $statusAllowed = true;
+                        }
+                    }
+
+                    // Kargo bilgisi güncelleme (statüden bağımsız, her zaman yapılabilir)
+                    $cargoChanged = false;
+                    if ($trackingCode) {
+                        if (!empty($orderData['carrierTrackingNumber']) || !empty($orderData['platformCargoTrackingNumber']) || empty($order->cargo_tracking_code)) {
+                            $order->cargo_tracking_code = $trackingCode;
+                            $cargoChanged = true;
+                        }
+                    }
+                    if ($cargoCompany) {
+                        if (!empty($orderData['carrierName']) || !empty($orderData['platformCargoCompany']) || empty($order->cargo_company)) {
+                            $order->cargo_company = $cargoCompany;
+                            $cargoChanged = true;
+                        }
+                    }
+
+                    if ($statusAllowed) {
                         $order->status = $newStatus;
-                        
-                        // Gerçek kargo firması ve takip kodu varsa DB'yi güncelle
-                        if ($trackingCode) {
-                            // Eğer gelen kod gerçek barkod ise VEYA DB'de kayıtlı kod yoksa kaydet. (Gerçek kodu ezme)
-                            if (!empty($orderData['carrierTrackingNumber']) || !empty($orderData['platformCargoTrackingNumber']) || empty($order->cargo_tracking_code)) {
-                                $order->cargo_tracking_code = $trackingCode;
-                            }
-                        }
-                        
-                        if ($cargoCompany) {
-                            if (!empty($orderData['carrierName']) || !empty($orderData['platformCargoCompany']) || empty($order->cargo_company)) {
-                                $order->cargo_company = $cargoCompany;
-                            }
-                        }
 
                         // Kapıda Ödeme (COD) siparişi teslim edildiğinde ödeme durumunu 'paid' (Ödendi) yapıyoruz
                         if ($newStatus === 'delivered' && $order->payment_method === 'cash_on_delivery' && $order->payment_status !== 'paid') {
@@ -110,6 +144,9 @@ class PoregoWebhookController extends Controller
                         }
 
                         Log::info("Porego Webhook: Sipariş (#{$order->order_number}) durumu '{$newStatus}' olarak güncellendi.");
+                    } elseif ($cargoChanged) {
+                        $order->saveQuietly(); // Sadece kargo bilgisi güncelle, observer tetikleme
+                        Log::info("Porego Webhook: Sipariş (#{$order->order_number}) kargo bilgisi güncellendi (statü korundu: {$order->status}).");
                     }
                 } else {
                     Log::warning("Porego Webhook: Sipariş ID ({$platformOrderId}) bulunamadı.");
