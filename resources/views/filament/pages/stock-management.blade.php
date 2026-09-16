@@ -67,6 +67,15 @@
                                     $sizeData = $row['sizes'][$size];
                                     $stock = $sizeData['stock'];
                                     $variantId = $sizeData['variant_id'];
+                                    
+                                    if ($stock !== null) {
+                                        if ($stock <= 0) { $bg = '#ef4444'; $fg = '#fff'; }
+                                        elseif ($stock <= 3) { $bg = '#f97316'; $fg = '#fff'; }
+                                        elseif ($stock <= 5) { $bg = '#eab308'; $fg = '#111'; }
+                                        else { $bg = '#22c55e'; $fg = '#fff'; }
+                                    } else {
+                                        $bg = '#374151'; $fg = '#6b7280';
+                                    }
                                 @endphp
                                 <td style="padding:2px 1px;text-align:center;vertical-align:middle;">
                                     @if($stock !== null && $variantId)
@@ -75,13 +84,7 @@
                                                 x-show="!editing"
                                                 x-cloak
                                                 @click="editing = true; $nextTick(() => { let el = $refs['i{{ $variantId }}']; if(el){el.focus();el.select();} })"
-                                                style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.15s;
-                                                    @if($stock <= 0) background:#ef4444;color:#fff;
-                                                    @elseif($stock <= 3) background:#f97316;color:#fff;
-                                                    @elseif($stock <= 5) background:#eab308;color:#111827;
-                                                    @else background:#22c55e;color:#fff;
-                                                    @endif
-                                                "
+                                                style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.15s;background:{{ $bg }};color:{{ $fg }};"
                                                 onmouseover="this.style.transform='scale(1.15)'"
                                                 onmouseout="this.style.transform='scale(1)'"
                                             >{{ $stock }}</button>
@@ -99,19 +102,19 @@
                                             >
                                         </div>
                                     @else
-                                        <span style="display:inline-flex;width:38px;height:26px;align-items:center;justify-content:center;border-radius:4px;background:#f3f4f6;color:#d1d5db;font-size:11px;">—</span>
+                                        <span style="display:inline-flex;width:38px;height:26px;align-items:center;justify-content:center;border-radius:4px;background:#374151;color:#6b7280;font-size:11px;">—</span>
                                     @endif
                                 </td>
                             @endforeach
 
                             {{-- Toplam --}}
-                            <td style="padding:2px 4px;text-align:center;background:#f9fafb;vertical-align:middle;">
-                                <span style="display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:12px;font-size:11px;font-weight:700;
-                                    @if($row['total'] <= 0) background:#fecaca;color:#b91c1c;
-                                    @elseif($row['total'] <= 10) background:#fef3c7;color:#92400e;
-                                    @else background:#d1fae5;color:#065f46;
-                                    @endif
-                                ">{{ $row['total'] }}</span>
+                            @php
+                                if ($row['total'] <= 0) { $tbg = '#fecaca'; $tfg = '#b91c1c'; }
+                                elseif ($row['total'] <= 10) { $tbg = '#fef3c7'; $tfg = '#92400e'; }
+                                else { $tbg = '#d1fae5'; $tfg = '#065f46'; }
+                            @endphp
+                            <td style="padding:2px 4px;text-align:center;vertical-align:middle;">
+                                <span style="display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 8px;border-radius:12px;font-size:11px;font-weight:700;background:{{ $tbg }};color:{{ $tfg }};">{{ $row['total'] }}</span>
                             </td>
                         </tr>
                     @endforeach
