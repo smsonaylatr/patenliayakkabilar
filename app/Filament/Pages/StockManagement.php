@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockMovement;
+use App\Models\OrderItem;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Contracts\HasTable;
@@ -111,6 +112,15 @@ class StockManagement extends Page implements HasTable
             $chartIn[] = (int) ($movements[$key]->total_in ?? 0);
             $chartOut[] = (int) ($movements[$key]->total_out ?? 0);
         }
+        // En çok sipariş edilen beden numaraları
+        $orderedSizes = OrderItem::query()
+            ->join('product_variants', 'order_items.product_variant_id', '=', 'product_variants.id')
+            ->selectRaw('product_variants.size, SUM(order_items.quantity) as total_ordered')
+            ->whereNotNull('order_items.product_variant_id')
+            ->groupBy('product_variants.size')
+            ->orderBy('product_variants.size')
+            ->pluck('total_ordered', 'size')
+            ->toArray();
 
         return [
             'totalProducts'    => Product::where('status', true)->count(),
@@ -119,6 +129,7 @@ class StockManagement extends Page implements HasTable
             'lowStock'         => Product::where('status', true)->where('stock', '>', 0)->where('stock', '<=', 5)->count(),
             'totalStock'       => (int) $totalStock,
             'sizeDistribution' => $sizeDistribution,
+            'orderedSizes'     => $orderedSizes,
             'chartLabels'      => $chartLabels,
             'chartIn'          => $chartIn,
             'chartOut'         => $chartOut,

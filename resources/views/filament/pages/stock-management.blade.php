@@ -49,25 +49,70 @@
         </div>
     </div>
 
-    {{-- Beden Bazlı Stok Dağılımı (Horizontal Bar) --}}
-    <div style="background:#111827;border-radius:12px;padding:16px 20px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.08);">
-        <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">👟 Beden Bazlı Stok Dağılımı</h3>
-        <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
-            @php $maxSize = max(array_values($sizeDistribution) ?: [1]); @endphp
-            @foreach($sizeDistribution as $sizeNum => $sizeTotal)
-                @php
-                    $pct = $maxSize > 0 ? ($sizeTotal / $maxSize * 100) : 0;
-                    if ($sizeTotal <= 0) $barColor = '#ef4444';
-                    elseif ($sizeTotal <= 10) $barColor = '#f97316';
-                    elseif ($sizeTotal <= 20) $barColor = '#eab308';
-                    else $barColor = '#22c55e';
+    {{-- Beden Grafikleri: Stok Dağılımı + Sipariş Dağılımı --}}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        
+        {{-- SOL: Beden Bazlı Stok Dağılımı --}}
+        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);">
+            <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">📦 Beden Bazlı Stok Dağılımı</h3>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
+                @php $maxSize = max(array_values($sizeDistribution) ?: [1]); @endphp
+                @foreach($sizeDistribution as $sizeNum => $sizeTotal)
+                    @php
+                        $pct = $maxSize > 0 ? ($sizeTotal / $maxSize * 100) : 0;
+                        if ($sizeTotal <= 0) $barColor = '#ef4444';
+                        elseif ($sizeTotal <= 10) $barColor = '#f97316';
+                        elseif ($sizeTotal <= 20) $barColor = '#eab308';
+                        else $barColor = '#22c55e';
+                    @endphp
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                        <span style="font-size:9px;color:#fff;font-weight:600;">{{ $sizeTotal }}</span>
+                        <div style="width:100%;height:{{ max($pct * 0.4, 2) }}px;background:{{ $barColor }};border-radius:3px 3px 0 0;"></div>
+                        <span style="font-size:9px;color:#6b7280;">{{ $sizeNum }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- SAĞ: En Çok Sipariş Edilen Bedenler --}}
+        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);">
+            <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">🏆 En Çok Sipariş Edilen Bedenler</h3>
+            @if(empty($orderedSizes))
+                <div style="display:flex;align-items:center;justify-content:center;height:60px;color:#6b7280;font-size:12px;">Henüz sipariş verisi yok.</div>
+            @else
+                @php 
+                    $maxOrdered = max(array_values($orderedSizes) ?: [1]);
+                    $totalOrdered = array_sum($orderedSizes);
+                    // En çok siparişe göre sırala
+                    arsort($orderedSizes);
+                    $topSizes = array_slice($orderedSizes, 0, 3, true);
+                    // Tekrar beden sırasına dön
+                    ksort($orderedSizes);
                 @endphp
-                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
-                    <span style="font-size:9px;color:#fff;font-weight:600;">{{ $sizeTotal }}</span>
-                    <div style="width:100%;height:{{ max($pct * 0.4, 2) }}px;background:{{ $barColor }};border-radius:3px 3px 0 0;transition:height 0.3s;"></div>
-                    <span style="font-size:9px;color:#6b7280;">{{ $sizeNum }}</span>
+                <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
+                    @foreach($orderedSizes as $sizeNum => $sizeOrdered)
+                        @php
+                            $pct = $maxOrdered > 0 ? ($sizeOrdered / $maxOrdered * 100) : 0;
+                            $isTop = array_key_exists($sizeNum, $topSizes);
+                            $barColor = $isTop ? '#6366f1' : '#3b82f6';
+                            $orderPct = $totalOrdered > 0 ? round($sizeOrdered / $totalOrdered * 100) : 0;
+                        @endphp
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;" title="{{ $sizeNum }} numara: {{ $sizeOrdered }} sipariş (%{{ $orderPct }})">
+                            <span style="font-size:9px;color:{{ $isTop ? '#a5b4fc' : '#93c5fd' }};font-weight:{{ $isTop ? '800' : '600' }};">{{ $sizeOrdered }}</span>
+                            <div style="width:100%;height:{{ max($pct * 0.4, 2) }}px;background:{{ $barColor }};border-radius:3px 3px 0 0;{{ $isTop ? 'box-shadow:0 0 6px rgba(99,102,241,0.5);' : '' }}"></div>
+                            <span style="font-size:9px;color:{{ $isTop ? '#a5b4fc' : '#6b7280' }};font-weight:{{ $isTop ? '700' : '400' }};">{{ $sizeNum }}</span>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
+                {{-- Top 3 etiket --}}
+                <div style="display:flex;gap:12px;margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
+                    @foreach($topSizes as $topSize => $topCount)
+                        @php $topPct = $totalOrdered > 0 ? round($topCount / $totalOrdered * 100) : 0; @endphp
+                        <span style="font-size:10px;color:#a5b4fc;">🥇 {{ $topSize }} No: <strong>{{ $topCount }}</strong> adet (%{{ $topPct }})</span>
+                        @php break; @endphp
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
