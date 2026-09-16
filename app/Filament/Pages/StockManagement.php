@@ -182,7 +182,7 @@ class StockManagement extends Page implements HasTable
                     ->formatStateUsing(fn ($state) => number_format((float) $state, 2) . ' ₺')
                     ->sortable(),
             ])
-            ->defaultSort('stock', 'asc')
+            ->defaultSort('product.name', 'asc')
             ->filters([
                 Tables\Filters\SelectFilter::make('stock_status')
                     ->label('Stok Durumu')
