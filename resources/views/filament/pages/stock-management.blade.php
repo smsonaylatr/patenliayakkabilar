@@ -48,7 +48,7 @@
                 </thead>
                 <tbody>
                     @foreach($matrix as $rowIndex => $row)
-                        <tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.backgroundColor='#f0f9ff'" onmouseout="this.style.backgroundColor='transparent'">
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                             {{-- Ürün --}}
                             <td style="padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;font-weight:500;" title="{{ $row['name'] }}">
                                 <div style="display:flex;align-items:center;gap:8px;">
