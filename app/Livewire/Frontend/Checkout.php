@@ -366,8 +366,85 @@ class Checkout extends Component
             ]);
         }
 
-        // Create Order Items
-        foreach ($cart->items as $item) {
+        // Create Order Items — Eager load ile ilişkileri yükle
+        $cartItems = $cart->items()->with(['product', 'variant'])->get();
+
+        // ÖN KONTROL: Sipariş oluşturmadan ÖNCE tüm stokları kontrol et
+        foreach ($cartItems as $item) {
+            if (!$item->product) {
+                $order->delete();
+                $this->created_order_number = null;
+                $this->dispatch('notify', message: 'Sepetinizdeki bir ürün artık mevcut değil. Lütfen sepetinizi güncelleyiniz.', type: 'error');
+                return;
+            }
+
+            if ($item->product_variant_id && $item->variant) {
+                // Variant'ın güncel stoğunu DB'den taze çek
+                $freshVariant = \App\Models\ProductVariant::find($item->product_variant_id);
+                $currentStock = $freshVariant ? (int) $freshVariant->stock : 0;
+                
+                if ($currentStock < $item->quantity) {
+                    $order->delete();
+                    $this->created_order_number = null;
+                    $productName = $item->product->name ?? 'Ürün';
+                    $variantLabel = $item->variant->size ? " (Beden: {$item->variant->size})" : '';
+                    
+                    \Illuminate\Support\Facades\Log::warning("Stok yetersiz - sipariş iptal", [
+                        'product' => $productName,
+                        'variant_id' => $item->product_variant_id,
+                        'variant_size' => $item->variant->size ?? null,
+                        'requested_qty' => $item->quantity,
+                        'available_stock' => $currentStock,
+                        'customer' => $this->customer_name,
+                    ]);
+
+                    if ($currentStock > 0) {
+                        // Stok var ama yetersiz — sepetteki miktarı güncelle
+                        $item->update(['quantity' => $currentStock]);
+                        $this->dispatch('notify', message: "{$productName}{$variantLabel} için stokta sadece {$currentStock} adet kaldı. Sepetiniz güncellendi, lütfen tekrar deneyiniz.", type: 'warning');
+                    } else {
+                        // Stok tamamen bitti — sepetten sil
+                        $item->delete();
+                        $this->dispatch('notify', message: "{$productName}{$variantLabel} tükenmiştir. Ürün sepetinizden çıkarıldı.", type: 'error');
+                    }
+                    $this->dispatch('cart-updated');
+                    return;
+                }
+            } elseif ($item->product) {
+                $freshProduct = Product::find($item->product_id);
+                $currentStock = $freshProduct ? (int) $freshProduct->stock : 0;
+                
+                if ($currentStock < $item->quantity) {
+                    $order->delete();
+                    $this->created_order_number = null;
+                    $productName = $item->product->name ?? 'Ürün';
+
+                    \Illuminate\Support\Facades\Log::warning("Stok yetersiz (variantsız) - sipariş iptal", [
+                        'product' => $productName,
+                        'product_id' => $item->product_id,
+                        'requested_qty' => $item->quantity,
+                        'available_stock' => $currentStock,
+                        'customer' => $this->customer_name,
+                    ]);
+
+                    if ($currentStock > 0) {
+                        $item->update(['quantity' => $currentStock]);
+                        $this->dispatch('notify', message: "{$productName} için stokta sadece {$currentStock} adet kaldı. Sepetiniz güncellendi, lütfen tekrar deneyiniz.", type: 'warning');
+                    } else {
+                        $item->delete();
+                        $this->dispatch('notify', message: "{$productName} tükenmiştir. Ürün sepetinizden çıkarıldı.", type: 'error');
+                    }
+                    $this->dispatch('cart-updated');
+                    return;
+                }
+            }
+        }
+
+        // Stok kontrolü geçti — order items oluştur ve stok düş
+        $decrementedVariants = []; // Rollback için tutulan kayıt
+        $decrementedProducts = [];
+
+        foreach ($cartItems as $item) {
             $vColor = null;
             if ($item->variant && !empty($item->variant->color)) {
                 $vColor = is_array($item->variant->color) ? implode(', ', $item->variant->color) : $item->variant->color;
@@ -402,24 +479,50 @@ class Checkout extends Component
                     $order->order_number,
                     "Sipariş ile stok düşürüldü"
                 );
-                // Varyanttan sonra ürün toplam stoğunu senkronize et
-                $item->product?->syncFromVariants();
+                if ($stockOk) {
+                    $decrementedVariants[] = ['variant' => $item->variant, 'qty' => $item->quantity];
+                    // Varyanttan sonra ürün toplam stoğunu senkronize et
+                    $item->product?->syncFromVariants();
+                }
             } elseif ($item->product) {
                 $stockOk = $item->product->safeDecrement(
                     $item->quantity,
                     $order->order_number,
                     "Sipariş ile stok düşürüldü"
                 );
+                if ($stockOk) {
+                    $decrementedProducts[] = ['product' => $item->product, 'qty' => $item->quantity];
+                }
             }
 
             if (!$stockOk) {
-                // Stok yetersiz — tüm siparişi geri al
+                // ROLLBACK: Daha önce düşürülen stokları geri ekle
+                foreach ($decrementedVariants as $dv) {
+                    $dv['variant']->safeIncrement($dv['qty'], 'rollback', $order->order_number, 'Stok yetersizliği nedeniyle sipariş geri alındı');
+                    $dv['variant']->product?->syncFromVariants();
+                }
+                foreach ($decrementedProducts as $dp) {
+                    $dp['product']->safeIncrement($dp['qty'], 'rollback', $order->order_number, 'Stok yetersizliği nedeniyle sipariş geri alındı');
+                }
+
                 $order->items()->delete();
                 $order->delete();
                 $this->created_order_number = null;
                 $productName = $item->product?->name ?? 'Ürün';
                 $variantLabel = $item->variant ? " (Beden: {$item->variant->size})" : '';
-                $this->dispatch('notify', message: "{$productName}{$variantLabel} için yeterli stok kalmadı. Lütfen sepetinizi kontrol ediniz.", type: 'error');
+                
+                \Illuminate\Support\Facades\Log::error("Stok düşürme başarısız (safeDecrement) - sipariş geri alındı", [
+                    'order_number' => $order->order_number,
+                    'product' => $productName,
+                    'variant_id' => $item->product_variant_id,
+                    'requested_qty' => $item->quantity,
+                    'customer' => $this->customer_name,
+                    'rollback_variants' => count($decrementedVariants),
+                    'rollback_products' => count($decrementedProducts),
+                ]);
+                
+                $this->dispatch('notify', message: "{$productName}{$variantLabel} için stok güncelleniyor. Lütfen tekrar deneyiniz.", type: 'warning');
+                $this->dispatch('cart-updated');
                 return;
             }
         }
