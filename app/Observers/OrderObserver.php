@@ -303,20 +303,22 @@ class OrderObserver
 
         if ($order->wasChanged('status')) {
             if ($order->status === 'shipped') {
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    $this->sendCustomerSms($order, 'shipped');
-                });
+                // SMS artık admin panelden taslak önizleme ile gönderiliyor (OrdersTable updateStatus)
+                // app()->terminating(function () use ($order) {
+                //     $order->refresh();
+                //     $this->sendCustomerSms($order, 'shipped');
+                // });
             } elseif ($order->status === 'delivered') {
                 app()->terminating(function () use ($order) {
                     $order->refresh();
                     
+                    // SMS artık admin panelden taslak önizleme ile gönderiliyor (OrdersTable updateStatus)
                     // Teslim Edildi SMS'i gönder
-                    try {
-                        $this->sendCustomerSms($order, 'delivered');
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('SMS notification error on delivered: ' . $e->getMessage());
-                    }
+                    // try {
+                    //     $this->sendCustomerSms($order, 'delivered');
+                    // } catch (\Throwable $e) {
+                    //     \Illuminate\Support\Facades\Log::error('SMS notification error on delivered: ' . $e->getMessage());
+                    // }
                     
                     // GİB E-Arşiv fatura oluştur
                     try {
@@ -339,16 +341,15 @@ class OrderObserver
                     }
                 });
             } elseif ($order->status === 'return_started') {
-                // İade süreci başlatıldı — müşteriye bilgilendirme SMS'i gönder
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    
-                    try {
-                        $this->sendCustomerSms($order, 'return_started');
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('SMS notification error on return_started: ' . $e->getMessage());
-                    }
-                });
+                // İade süreci başlatıldı — SMS artık admin panelden taslak önizleme ile gönderiliyor
+                // app()->terminating(function () use ($order) {
+                //     $order->refresh();
+                //     try {
+                //         $this->sendCustomerSms($order, 'return_started');
+                //     } catch (\Throwable $e) {
+                //         \Illuminate\Support\Facades\Log::error('SMS notification error on return_started: ' . $e->getMessage());
+                //     }
+                // });
 
                 Notification::make()
                     ->title('İade Süreci Başlatıldı')
@@ -357,17 +358,15 @@ class OrderObserver
                     ->color('warning')
                     ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
             } elseif ($order->status === 'returned') {
-                // İade işleme
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    
-                    // İade SMS'i gönder
-                    try {
-                        $this->sendCustomerSms($order, 'returned');
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('SMS notification error on returned: ' . $e->getMessage());
-                    }
-                });
+                // İade işleme — SMS artık admin panelden taslak önizleme ile gönderiliyor
+                // app()->terminating(function () use ($order) {
+                //     $order->refresh();
+                //     try {
+                //         $this->sendCustomerSms($order, 'returned');
+                //     } catch (\Throwable $e) {
+                //         \Illuminate\Support\Facades\Log::error('SMS notification error on returned: ' . $e->getMessage());
+                //     }
+                // });
 
                 // Stok geri yükleme (güvenli, hareket kaydı ile)
                 $order->loadMissing(['items.product', 'items.variant']);

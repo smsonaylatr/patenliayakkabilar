@@ -10,8 +10,7 @@ use Filament\Tables;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\TextInput;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -187,7 +186,7 @@ class StockManagement extends Page implements HasTable
                     ->label('Stok Güncelle')
                     ->icon('heroicon-o-pencil')
                     ->color('warning')
-                    ->schema([
+                    ->form([
                         TextInput::make('new_stock')
                             ->label('Yeni Stok Miktarı')
                             ->numeric()
@@ -225,7 +224,7 @@ class StockManagement extends Page implements HasTable
                     ->label('Stok Ekle')
                     ->icon('heroicon-o-plus-circle')
                     ->color('success')
-                    ->schema([
+                    ->form([
                         TextInput::make('add_amount')
                             ->label('Eklenecek Miktar')
                             ->numeric()
@@ -257,7 +256,7 @@ class StockManagement extends Page implements HasTable
                         ->icon('heroicon-o-pencil-square')
                         ->color('warning')
                         ->requiresConfirmation()
-                        ->schema([
+                        ->form([
                             TextInput::make('new_stock')
                                 ->label('Yeni Stok Miktarı')
                                 ->numeric()
@@ -326,7 +325,7 @@ class StockManagement extends Page implements HasTable
                         ->label('Toplu Stok Ekle')
                         ->icon('heroicon-o-plus')
                         ->color('success')
-                        ->schema([
+                        ->form([
                             TextInput::make('amount')
                                 ->label('Her Varyanta Eklenecek Miktar')
                                 ->numeric()
