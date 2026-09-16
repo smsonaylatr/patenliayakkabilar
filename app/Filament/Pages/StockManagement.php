@@ -50,7 +50,7 @@ class StockManagement extends Page implements HasTable
     {
         $activeProducts = Product::with(['variants', 'images'])->where('status', true)->orderBy('name')->get();
         $matrix = [];
-        $sizes = range(28, 40);
+        $sizes = range(29, 42);
 
         foreach ($activeProducts as $product) {
             if ($product->variants->isEmpty()) continue;
