@@ -112,6 +112,7 @@ class OrdersTable
                             ->modalHeading('Durumu Güncelle')
                             ->modalSubmitActionLabel('Kaydet')
                             ->modalCancelActionLabel('Vazgeç')
+                            ->modalWidth('lg')
                             ->form([
                                 Select::make('status')
                                     ->label('Durum')
@@ -127,14 +128,135 @@ class OrdersTable
                                     ->placeholder('Seçiniz')
                                     ->default(fn (Order $record) => $record->status)
                                     ->native(false)
-                                    ->required(),
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, \Filament\Schemas\Components\Utilities\Set $set, Order $record) {
+                                        $smsTypeMap = [
+                                            'shipped' => 'shipped',
+                                            'delivered' => 'delivered',
+                                            'return_started' => 'return_started',
+                                            'returned' => 'returned',
+                                            'cancelled' => 'cancelled',
+                                        ];
+
+                                        if (!isset($smsTypeMap[$state])) {
+                                            $set('sms_send', false);
+                                            $set('sms_draft', '');
+                                            $set('sms_phone_display', '');
+                                            return;
+                                        }
+
+                                        $phone = $record->customer_phone ?? '';
+                                        $set('sms_phone_display', $phone ?: 'Telefon numarası yok');
+
+                                        // SMS şablonunu al
+                                        $templateKey = match ($state) {
+                                            'shipped' => 'vatansms_shipped_message',
+                                            'delivered' => 'vatansms_delivered_message',
+                                            'return_started' => 'vatansms_return_started_message',
+                                            'returned' => 'vatansms_returned_message',
+                                            'cancelled' => 'vatansms_cancelled_message',
+                                            default => null,
+                                        };
+
+                                        $template = $templateKey 
+                                            ? \App\Models\Setting::where('key', $templateKey)->value('value') 
+                                            : '';
+
+                                        if (empty($template)) {
+                                            $template = match ($state) {
+                                                'shipped' => "Sayın {isim}, {siparis_no} numaralı siparişiniz kargoya verilmiştir. Kargo Takip No: {kargo_kodu} https://patenliayakkabilar.com/siparis-takip?order_number={siparis_no}",
+                                                'delivered' => "Sayın {isim}, {siparis_no} numaralı siparişiniz teslim edilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz. https://patenliayakkabilar.com",
+                                                'return_started' => "Sayın {isim}, {siparis_no} numaralı siparişiniz için iade süreci başlatılmıştır. İade süreciniz hakkında sizi bilgilendireceğiz. - Patenli Ayakkabılar",
+                                                'returned' => "Sayın {isim}, {siparis_no} numaralı siparişinizin iade işlemi tamamlanmıştır. İade tutarı en kısa sürede hesabınıza yansıtılacaktır. - Patenli Ayakkabılar",
+                                                'cancelled' => "Sayın {isim}, {siparis_no} numaralı siparişiniz iptal edilmiştir. Sorularınız için bizimle iletişime geçebilirsiniz. - Patenli Ayakkabılar",
+                                                default => '',
+                                            };
+                                        }
+
+                                        // Kargo takip kodu
+                                        $kargoKodu = trim((string) $record->cargo_tracking_code);
+                                        if (empty($kargoKodu) || str_starts_with($kargoKodu, '33')) {
+                                            $kargoKodu = '';
+                                        }
+
+                                        // Şablondaki değişkenleri doldur
+                                        $message = str_replace(
+                                            ['{isim}', '{siparis_no}', '{tutar}', '{kargo_kodu}'],
+                                            [
+                                                $record->customer_name,
+                                                $record->order_number,
+                                                number_format((float) $record->grand_total, 2) . ' TL',
+                                                $kargoKodu,
+                                            ],
+                                            $template
+                                        );
+
+                                        $set('sms_draft', $message);
+                                        $set('sms_send', !empty($phone));
+                                    }),
+
+                                \Filament\Schemas\Components\Section::make('📱 SMS Bildirimi')
+                                    ->description(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('sms_phone_display') ? '📞 ' . $get('sms_phone_display') : '')
+                                    ->schema([
+                                        \Filament\Forms\Components\Toggle::make('sms_send')
+                                            ->label('SMS Gönder')
+                                            ->helperText('Kapatırsanız müşteriye SMS gönderilmez.')
+                                            ->default(false)
+                                            ->live(),
+
+                                        \Filament\Forms\Components\Textarea::make('sms_draft')
+                                            ->label('SMS Taslağı')
+                                            ->rows(4)
+                                            ->helperText('Mesajı düzenleyebilirsiniz.')
+                                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => (bool) $get('sms_send')),
+
+                                        \Filament\Forms\Components\Hidden::make('sms_phone_display'),
+                                    ])
+                                    ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => in_array($get('status'), ['shipped', 'delivered', 'return_started', 'returned', 'cancelled']))
+                                    ->collapsed(false),
                             ])
                             ->action(function (Order $record, array $data): void {
                                 $record->update(['status' => $data['status']]);
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Sipariş durumu güncellendi')
-                                    ->success()
-                                    ->send();
+
+                                // SMS gönder (admin onayladıysa)
+                                if (!empty($data['sms_send']) && !empty($data['sms_draft']) && !empty($record->customer_phone)) {
+                                    try {
+                                        $result = app(\App\Services\VatanSmsService::class)->send(
+                                            $record->customer_phone,
+                                            $data['sms_draft'],
+                                            'turkce',
+                                            'bilgi'
+                                        );
+
+                                        if ($result) {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Sipariş durumu güncellendi + SMS gönderildi')
+                                                ->body('📱 ' . $record->customer_phone . ' numarasına SMS başarıyla gönderildi.')
+                                                ->success()
+                                                ->send();
+                                        } else {
+                                            $error = app(\App\Services\VatanSmsService::class)->getLastError() ?? 'Bilinmeyen hata';
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Durum güncellendi ama SMS gönderilemedi')
+                                                ->body("Hata: {$error}")
+                                                ->warning()
+                                                ->send();
+                                        }
+                                    } catch (\Throwable $e) {
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Durum güncellendi ama SMS hatası oluştu')
+                                            ->body($e->getMessage())
+                                            ->warning()
+                                            ->send();
+                                    }
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Sipariş durumu güncellendi')
+                                        ->body(!empty($data['sms_send']) ? 'SMS gönderilmedi: Telefon numarası bulunamadı.' : 'SMS gönderilmedi (atlandı).')
+                                        ->success()
+                                        ->send();
+                                }
                             })
                     ),
 

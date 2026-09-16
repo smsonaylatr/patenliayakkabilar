@@ -100,12 +100,33 @@ class AbandonedCartsTable
                     ->label('SMS + %10 Kupon')
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Kuponlu SMS Gönder')
-                    ->modalDescription('Müşteriye kişiye özel %10 indirim kuponu oluşturulup SMS ile gönderilecektir.')
-                    ->modalSubmitActionLabel('Kuponu Oluştur ve Gönder')
+                    ->modalHeading('📱 SMS Taslağı — Kuponlu Hatırlatma')
+                    ->modalDescription(fn ($record) => '📞 Telefon: ' . ($record->user?->phone ?? $record->guest_phone ?? 'Yok'))
+                    ->modalSubmitActionLabel('📩 Gönder')
+                    ->modalCancelActionLabel('⏩ Atla')
+                    ->modalWidth('lg')
                     ->visible(fn ($record) => !empty($record->user?->phone) || !empty($record->guest_phone))
-                    ->action(function ($record) {
+                    ->form([
+                        \Filament\Forms\Components\Textarea::make('sms_message')
+                            ->label('SMS Taslağı')
+                            ->rows(5)
+                            ->helperText('Mesajı düzenleyebilirsiniz. Kupon kodu gönderim sırasında otomatik oluşturulup mesaja eklenecektir.')
+                            ->required(),
+                    ])
+                    ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
+                        $name = $record->user?->name ?? $record->guest_name ?? '';
+                        $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
+
+                        $message = "{$greeting} urunler sizi bekliyor! "
+                                 . "Size ozel %10 indirim kodunuz: {KUPON_KODU} "
+                                 . "(3 gun gecerli, tek kullanimlik). "
+                                 . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+
+                        $form->fill([
+                            'sms_message' => $message,
+                        ]);
+                    })
+                    ->action(function ($record, array $data) {
                         $phone = $record->user?->phone ?? $record->guest_phone;
                         if (!$phone) {
                             \Filament\Notifications\Notification::make()
@@ -116,8 +137,6 @@ class AbandonedCartsTable
                         }
 
                         try {
-                            $name = $record->user?->name ?? $record->guest_name ?? '';
-
                             // Kişiye özel %10 kupon oluştur
                             do {
                                 $couponCode = 'PATEN10-' . random_int(1000, 9999);
@@ -134,12 +153,8 @@ class AbandonedCartsTable
                                 'status' => true,
                             ]);
 
-                            // Mesajı oluştur
-                            $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
-                            $message = "{$greeting} urunler sizi bekliyor! "
-                                     . "Size ozel %10 indirim kodunuz: {$couponCode} "
-                                     . "(3 gun gecerli, tek kullanimlik). "
-                                     . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+                            // Mesajdaki placeholder'ı gerçek kupon koduyla değiştir
+                            $message = str_replace('{KUPON_KODU}', $couponCode, $data['sms_message']);
 
                             $vatanService = app(\App\Services\VatanSmsService::class);
                             $result = $vatanService->send($phone, $message, 'turkce', 'bilgi');

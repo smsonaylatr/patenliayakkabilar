@@ -415,16 +415,15 @@ class OrderObserver
                     ->color('warning')
                     ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
             } elseif ($order->status === 'cancelled') {
-                app()->terminating(function () use ($order) {
-                    $order->refresh();
-                    
-                    // İptal SMS'i gönder
-                    try {
-                        $this->sendCustomerSms($order, 'cancelled');
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('SMS notification error on cancelled: ' . $e->getMessage());
-                    }
-                });
+                // İptal SMS'i artık admin panelden taslak önizleme ile gönderiliyor
+                // app()->terminating(function () use ($order) {
+                //     $order->refresh();
+                //     try {
+                //         $this->sendCustomerSms($order, 'cancelled');
+                //     } catch (\Throwable $e) {
+                //         \Illuminate\Support\Facades\Log::error('SMS notification error on cancelled: ' . $e->getMessage());
+                //     }
+                // });
             }
 
             // Audit Log: Durum değişikliği

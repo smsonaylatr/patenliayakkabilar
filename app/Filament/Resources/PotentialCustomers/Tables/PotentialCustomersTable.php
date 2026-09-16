@@ -77,15 +77,28 @@ class PotentialCustomersTable
                     ->label('SMS')
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('info')
-                    ->requiresConfirmation()
-                    ->modalHeading('SMS Gönder')
-                    ->modalDescription('Müşteriye ürün linki içeren bir SMS gönderilecektir.')
-                    ->modalSubmitActionLabel('Gönder')
-                    ->action(function (\App\Models\PotentialCustomer $record) {
+                    ->modalHeading('📱 SMS Taslağı')
+                    ->modalDescription(fn (\App\Models\PotentialCustomer $record) => '📞 Telefon: ' . ($record->phone ?? 'Yok'))
+                    ->modalSubmitActionLabel('📩 Gönder')
+                    ->modalCancelActionLabel('⏩ Atla')
+                    ->modalWidth('lg')
+                    ->form([
+                        \Filament\Forms\Components\Textarea::make('sms_message')
+                            ->label('SMS Taslağı')
+                            ->rows(4)
+                            ->helperText('Mesajı düzenleyebilirsiniz.')
+                            ->required(),
+                    ])
+                    ->mountUsing(function (\Filament\Schemas\Schema $form, \App\Models\PotentialCustomer $record) {
                         $message = "Merhaba, ilgilendiğiniz {$record->product->name} ürünü hakkında bilgi vermek için ulaşıyoruz. Ürünü incelemek ve sipariş vermek için tıklayın: " . route('products.show', $record->product->slug);
-                        
+
+                        $form->fill([
+                            'sms_message' => $message,
+                        ]);
+                    })
+                    ->action(function (\App\Models\PotentialCustomer $record, array $data) {
                         $vatanService = app(\App\Services\VatanSmsService::class);
-                        $result = $vatanService->send($record->phone, $message, 'turkce', 'bilgi');
+                        $result = $vatanService->send($record->phone, $data['sms_message'], 'turkce', 'bilgi');
 
                         if ($result) {
                             $record->update(['status' => 'contacted']);
