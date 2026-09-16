@@ -438,27 +438,36 @@ class OrderObserver
             ]);
 
             if ($order->status === 'cancelled') {
-                // Stok geri yükleme (güvenli, hareket kaydı ile)
-                $order->loadMissing(['items.product', 'items.variant']);
-                foreach ($order->items as $item) {
-                    if ($item->variant) {
-                        $item->variant->safeIncrement(
-                            $item->quantity,
-                            \App\Models\StockMovement::TYPE_CANCEL,
-                            $order->order_number,
-                            "Sipariş iptali ile stok geri yüklendi"
-                        );
-                        $item->product?->syncFromVariants();
-                    } elseif ($item->product) {
-                        $item->product->safeIncrement(
-                            $item->quantity,
-                            \App\Models\StockMovement::TYPE_CANCEL,
-                            $order->order_number,
-                            "Sipariş iptali ile stok geri yüklendi"
-                        );
+                // Stok geri yükleme — SADECE daha önce stok düşürülmüş siparişlerde
+                // Kapıda ödeme: her zaman düşürülmüştü
+                // Kredi kartı/Havale: sadece payment_status=paid ise düşürülmüştü
+                $wasStockDecremented = $order->payment_method === 'cash_on_delivery' 
+                    || in_array($order->getOriginal('payment_status') ?? $order->payment_status, ['paid', 'refunded']);
+                
+                if ($wasStockDecremented) {
+                    $order->loadMissing(['items.product', 'items.variant']);
+                    foreach ($order->items as $item) {
+                        if ($item->variant) {
+                            $item->variant->safeIncrement(
+                                $item->quantity,
+                                \App\Models\StockMovement::TYPE_CANCEL,
+                                $order->order_number,
+                                "Sipariş iptali ile stok geri yüklendi"
+                            );
+                            $item->product?->syncFromVariants();
+                        } elseif ($item->product) {
+                            $item->product->safeIncrement(
+                                $item->quantity,
+                                \App\Models\StockMovement::TYPE_CANCEL,
+                                $order->order_number,
+                                "Sipariş iptali ile stok geri yüklendi"
+                            );
+                        }
                     }
+                    \Illuminate\Support\Facades\Log::info("Sipariş iptal stok geri yükleme: #{$order->order_number}");
+                } else {
+                    \Illuminate\Support\Facades\Log::info("Sipariş iptal - stok geri yükleme atlandı (stok düşürülmemişti): #{$order->order_number}, payment_status: {$order->payment_status}");
                 }
-                \Illuminate\Support\Facades\Log::info("Sipariş iptal stok geri yükleme: #{$order->order_number}");
 
                 // Ödeme iade durumuna al (eğer ödenmişse)
                 if ($order->payment_status === 'paid') {
