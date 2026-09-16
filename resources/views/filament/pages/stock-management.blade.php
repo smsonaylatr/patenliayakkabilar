@@ -31,6 +31,47 @@
 
     @livewire(\App\Livewire\Admin\StockChart::class)
 
+    <x-filament::section class="mb-6">
+        <x-slot name="heading">Beden Matrisi Görünümü</x-slot>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-800">
+                        <th class="p-2 border dark:border-gray-700">Ürün Adı</th>
+                        @foreach($sizes as $size)
+                            <th class="p-2 border dark:border-gray-700 text-center">{{ $size }}</th>
+                        @endforeach
+                        <th class="p-2 border dark:border-gray-700 text-center">Toplam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($matrix as $row)
+                        <tr>
+                            <td class="p-2 border dark:border-gray-700 font-medium">{{ $row['name'] }}</td>
+                            @foreach($sizes as $size)
+                                @php
+                                    $stock = $row['sizes'][$size];
+                                    $style = '';
+                                    if ($stock !== null) {
+                                        if ($stock === 0) $style = 'background-color: #ef4444; color: white;';
+                                        elseif ($stock <= 3) $style = 'background-color: #f97316; color: white;';
+                                        elseif ($stock <= 5) $style = 'background-color: #eab308; color: white;';
+                                        else $style = 'background-color: #22c55e; color: white;';
+                                    }
+                                @endphp
+                                <td class="p-2 border dark:border-gray-700 text-center" style="{{ $style }}">
+                                    {{ $stock !== null ? $stock : '-' }}
+                                </td>
+                            @endforeach
+                            <td class="p-2 border dark:border-gray-700 text-center font-bold">{{ $row['total'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </x-filament::section>
+
     {{ $this->table }}
 
     <div class="mt-8">
