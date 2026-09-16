@@ -111,7 +111,7 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
             ->headerActions([
                 Tables\Actions\ExportAction::make()
                     ->label('Dışa Aktar')
-                    ->exporter(\Filament\Actions\Exports\Exporter::class) // You can create a custom exporter, but standard might require a class. Let me remove this if not specified, actually Filament V3 has export actions but they need an exporter class.
+                    ->exporter(\App\Filament\Exports\StockMovementExporter::class)
             ])
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25, 50, 100])
