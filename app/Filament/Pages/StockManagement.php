@@ -77,13 +77,53 @@ class StockManagement extends Page implements HasTable
             $matrix[] = $productRow;
         }
 
+        // Toplam stok adedi
+        $totalStock = ProductVariant::whereHas('product', fn($q) => $q->where('status', true))->sum('stock');
+
+        // Beden bazlı stok dağılımı (chart için)
+        $sizeDistribution = ProductVariant::query()
+            ->whereHas('product', fn($q) => $q->where('status', true))
+            ->selectRaw('size, SUM(stock) as total')
+            ->groupBy('size')
+            ->orderBy('size')
+            ->pluck('total', 'size')
+            ->toArray();
+
+        // Son 14 gün stok hareketleri
+        $startDate = now()->subDays(13)->startOfDay();
+        $movements = StockMovement::query()
+            ->selectRaw('DATE(created_at) as date, 
+                SUM(CASE WHEN type IN ("restock","cancel","return") THEN quantity ELSE 0 END) as total_in,
+                SUM(CASE WHEN type = "sale" THEN quantity ELSE 0 END) as total_out')
+            ->where('created_at', '>=', $startDate)
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $chartLabels = [];
+        $chartIn = [];
+        $chartOut = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $d = now()->subDays($i);
+            $key = $d->format('Y-m-d');
+            $chartLabels[] = $d->format('d.m');
+            $chartIn[] = (int) ($movements[$key]->total_in ?? 0);
+            $chartOut[] = (int) ($movements[$key]->total_out ?? 0);
+        }
+
         return [
-            'totalProducts' => Product::where('status', true)->count(),
-            'inStock'       => Product::where('status', true)->where('stock', '>', 0)->count(),
-            'outOfStock'    => Product::where('status', true)->where('stock', '<=', 0)->count(),
-            'lowStock'      => Product::where('status', true)->where('stock', '>', 0)->where('stock', '<=', 5)->count(),
-            'matrix'        => $matrix,
-            'sizes'         => $sizes,
+            'totalProducts'    => Product::where('status', true)->count(),
+            'inStock'          => Product::where('status', true)->where('stock', '>', 0)->count(),
+            'outOfStock'       => Product::where('status', true)->where('stock', '<=', 0)->count(),
+            'lowStock'         => Product::where('status', true)->where('stock', '>', 0)->where('stock', '<=', 5)->count(),
+            'totalStock'       => (int) $totalStock,
+            'sizeDistribution' => $sizeDistribution,
+            'chartLabels'      => $chartLabels,
+            'chartIn'          => $chartIn,
+            'chartOut'         => $chartOut,
+            'matrix'           => $matrix,
+            'sizes'            => $sizes,
         ];
     }
 

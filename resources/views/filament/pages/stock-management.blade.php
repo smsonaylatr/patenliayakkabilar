@@ -1,26 +1,133 @@
 <x-filament-panels::page>
-    {{-- İstatistik Kartları --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400">📦 Toplam Ürün</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalProducts }}</p>
+    {{-- Dashboard Üst Bölüm: İstatistik + Grafikler --}}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+
+        {{-- SOL: Stok Durumu Özet + Donut --}}
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+            <h3 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;">📊 Stok Durumu</h3>
+            <div style="display:flex;align-items:center;gap:20px;">
+                {{-- Donut Chart --}}
+                <div style="position:relative;width:130px;height:130px;flex-shrink:0;" wire:ignore>
+                    <canvas id="donutChart" width="130" height="130"></canvas>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                        <div style="font-size:22px;font-weight:800;color:#fff;">{{ $totalStock }}</div>
+                        <div style="font-size:10px;color:#9ca3af;">Toplam Adet</div>
+                    </div>
+                </div>
+                {{-- İstatistikler --}}
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+                        <span style="color:#9ca3af;font-size:12px;flex:1;">Stokta</span>
+                        <span style="color:#fff;font-size:14px;font-weight:700;">{{ $inStock }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#eab308;display:inline-block;"></span>
+                        <span style="color:#9ca3af;font-size:12px;flex:1;">Düşük Stok</span>
+                        <span style="color:#fff;font-size:14px;font-weight:700;">{{ $lowStock }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+                        <span style="color:#9ca3af;font-size:12px;flex:1;">Tükenen</span>
+                        <span style="color:#fff;font-size:14px;font-weight:700;">{{ $outOfStock }}</span>
+                    </div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:4px;display:flex;align-items:center;gap:8px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block;"></span>
+                        <span style="color:#9ca3af;font-size:12px;flex:1;">Toplam Ürün</span>
+                        <span style="color:#fff;font-size:14px;font-weight:700;">{{ $totalProducts }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400">✅ Stokta</p>
-            <p class="text-2xl font-bold text-success-600">{{ $inStock }}</p>
-        </div>
-        <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400">❌ Tükenen</p>
-            <p class="text-2xl font-bold text-danger-600">{{ $outOfStock }}</p>
-        </div>
-        <div class="fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 p-4">
-            <p class="text-sm text-gray-500 dark:text-gray-400">⚠️ Düşük Stok</p>
-            <p class="text-2xl font-bold text-warning-600">{{ $lowStock }}</p>
+
+        {{-- SAĞ: Son 14 Gün Hareketleri --}}
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+            <h3 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;">📈 Son 14 Gün Stok Hareketleri</h3>
+            <div style="position:relative;width:100%;height:140px;" wire:ignore>
+                <canvas id="movementChart" style="width:100%;height:140px;"></canvas>
+            </div>
         </div>
     </div>
 
-    {{-- Stok Değişim Grafiği --}}
-    @livewire(\App\Livewire\Admin\StockChart::class)
+    {{-- Beden Bazlı Stok Dağılımı (Horizontal Bar) --}}
+    <div style="background:#111827;border-radius:12px;padding:16px 20px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.08);">
+        <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">👟 Beden Bazlı Stok Dağılımı</h3>
+        <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
+            @php $maxSize = max(array_values($sizeDistribution) ?: [1]); @endphp
+            @foreach($sizeDistribution as $sizeNum => $sizeTotal)
+                @php
+                    $pct = $maxSize > 0 ? ($sizeTotal / $maxSize * 100) : 0;
+                    if ($sizeTotal <= 0) $barColor = '#ef4444';
+                    elseif ($sizeTotal <= 10) $barColor = '#f97316';
+                    elseif ($sizeTotal <= 20) $barColor = '#eab308';
+                    else $barColor = '#22c55e';
+                @endphp
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+                    <span style="font-size:9px;color:#fff;font-weight:600;">{{ $sizeTotal }}</span>
+                    <div style="width:100%;height:{{ max($pct * 0.4, 2) }}px;background:{{ $barColor }};border-radius:3px 3px 0 0;transition:height 0.3s;"></div>
+                    <span style="font-size:9px;color:#6b7280;">{{ $sizeNum }}</span>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Chart.js Script --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+    (function() {
+        function init() {
+            // Donut
+            var dc = document.getElementById('donutChart');
+            if (dc) {
+                new Chart(dc.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Stokta', 'Düşük', 'Tükenen'],
+                        datasets: [{
+                            data: [{{ $inStock - $lowStock }}, {{ $lowStock }}, {{ $outOfStock }}],
+                            backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+                            borderWidth: 0,
+                            borderRadius: 3,
+                        }]
+                    },
+                    options: {
+                        responsive: false,
+                        cutout: '70%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Bar
+            var mc = document.getElementById('movementChart');
+            if (mc) {
+                new Chart(mc.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: @json($chartLabels),
+                        datasets: [
+                            { label: 'Giriş', data: @json($chartIn), backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 3 },
+                            { label: 'Çıkış', data: @json($chartOut), backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 3 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: '#6b7280', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } }
+                        },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: '#9ca3af', boxWidth: 12, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+        }
+        if (typeof Chart !== 'undefined') init();
+        else document.addEventListener('DOMContentLoaded', function(){ setTimeout(init, 300); });
+    })();
+    </script>
 
     {{-- Beden Matrisi --}}
     <x-filament::section class="mb-6">
