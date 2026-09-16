@@ -1105,7 +1105,16 @@ class PoregoApiService
                           $subQ->where('payment_method', 'cash_on_delivery')
                                ->where('payment_status', '!=', 'paid');
                       });
-                })->get();
+                })
+                // Admin tarafından son 1 saatte statüsü değiştirilmiş siparişleri hariç tut
+                // Böylece gereksiz API çağrıları yapılmaz ve admin override'lar korunur
+                ->whereNotIn('id', function($subQuery) {
+                    $subQuery->select('order_id')
+                        ->from('order_status_histories')
+                        ->whereNotNull('changed_by')
+                        ->where('created_at', '>=', now()->subHour());
+                })
+                ->get();
             $updatedCount = 0;
 
             foreach ($activeOrders as $order) {
