@@ -116,6 +116,18 @@ class ProductVariant extends Model
         if ($qty <= 0) return false;
 
         $oldStock = (int) $this->stock;
+        
+        // DB'den taze stok değerini al (Octane cache bypass)
+        $dbStock = (int) static::where('id', $this->id)->value('stock');
+        
+        \Illuminate\Support\Facades\Log::info("safeDecrement çağrıldı", [
+            'variant_id' => $this->id,
+            'model_stock' => $oldStock,
+            'db_stock' => $dbStock,
+            'requested_qty' => $qty,
+            'reference' => $reference,
+        ]);
+        
         $affected = static::where('id', $this->id)
             ->where('stock', '>=', $qty)
             ->update(['stock' => \Illuminate\Support\Facades\DB::raw("stock - {$qty}")]);
@@ -127,13 +139,20 @@ class ProductVariant extends Model
                 variantId: $this->id,
                 type: StockMovement::TYPE_SALE,
                 quantity: $qty,
-                oldStock: $oldStock,
+                oldStock: $dbStock,
                 newStock: (int) $this->stock,
                 reference: $reference,
                 note: $note,
             );
             return true;
         }
+
+        \Illuminate\Support\Facades\Log::error("safeDecrement BAŞARISIZ - WHERE stock >= {$qty} koşulu sağlanmadı", [
+            'variant_id' => $this->id,
+            'model_stock' => $oldStock,
+            'db_stock' => $dbStock,
+            'requested_qty' => $qty,
+        ]);
 
         return false;
     }

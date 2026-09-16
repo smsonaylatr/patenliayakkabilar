@@ -471,27 +471,97 @@ class Checkout extends Component
                 'total_price' => $item->price * $item->quantity,
             ]);
 
-            // Güvenli atomik stok düşürme (race condition korumalı)
+            // Güvenli atomik stok düşürme
+            // ÖNEMLİ: RoadRunner/Octane'de model cache sorunu olabilir, DB'den TAZE çek
             $stockOk = true;
-            if ($item->variant) {
-                $stockOk = $item->variant->safeDecrement(
-                    $item->quantity,
-                    $order->order_number,
-                    "Sipariş ile stok düşürüldü"
-                );
-                if ($stockOk) {
-                    $decrementedVariants[] = ['variant' => $item->variant, 'qty' => $item->quantity];
-                    // Varyanttan sonra ürün toplam stoğunu senkronize et
-                    $item->product?->syncFromVariants();
+            if ($item->product_variant_id) {
+                $freshVariant = \App\Models\ProductVariant::find($item->product_variant_id);
+                
+                if ($freshVariant) {
+                    \Illuminate\Support\Facades\Log::info("Stok düşürme girişimi", [
+                        'order' => $order->order_number,
+                        'variant_id' => $freshVariant->id,
+                        'variant_size' => $freshVariant->size,
+                        'db_stock' => (int) $freshVariant->stock,
+                        'requested_qty' => $item->quantity,
+                        'product' => $item->product?->name,
+                    ]);
+                    
+                    $stockOk = $freshVariant->safeDecrement(
+                        $item->quantity,
+                        $order->order_number,
+                        "Sipariş ile stok düşürüldü"
+                    );
+                    
+                    if ($stockOk) {
+                        $decrementedVariants[] = ['variant' => $freshVariant, 'qty' => $item->quantity];
+                        $item->product?->refresh();
+                        $item->product?->syncFromVariants();
+                    } else {
+                        // safeDecrement başarısız — DB'den stok tekrar kontrol et
+                        $freshVariant->refresh();
+                        $realStock = (int) $freshVariant->stock;
+                        
+                        \Illuminate\Support\Facades\Log::warning("safeDecrement başarısız, retry kontrol", [
+                            'order' => $order->order_number,
+                            'variant_id' => $freshVariant->id,
+                            'real_stock_after_refresh' => $realStock,
+                            'requested_qty' => $item->quantity,
+                        ]);
+                        
+                        // Stok gerçekten varsa doğrudan DB update ile düş
+                        if ($realStock >= $item->quantity) {
+                            $affected = \App\Models\ProductVariant::where('id', $freshVariant->id)
+                                ->where('stock', '>=', $item->quantity)
+                                ->update(['stock' => \Illuminate\Support\Facades\DB::raw("stock - {$item->quantity}")]);
+                            
+                            if ($affected > 0) {
+                                $stockOk = true;
+                                $freshVariant->refresh();
+                                $decrementedVariants[] = ['variant' => $freshVariant, 'qty' => $item->quantity];
+                                $item->product?->refresh();
+                                $item->product?->syncFromVariants();
+                                
+                                \Illuminate\Support\Facades\Log::info("Stok düşürme retry BAŞARILI", [
+                                    'order' => $order->order_number,
+                                    'variant_id' => $freshVariant->id,
+                                    'new_stock' => (int) $freshVariant->stock,
+                                ]);
+                            }
+                        }
+                    }
+                } else {
+                    // Variant bulunamadı ama product_variant_id set — variant silinmiş
+                    \Illuminate\Support\Facades\Log::error("Variant bulunamadı", [
+                        'product_variant_id' => $item->product_variant_id,
+                        'product' => $item->product?->name,
+                    ]);
+                    // Variantsız ürün gibi devam et
+                    if ($item->product) {
+                        $freshProduct = Product::find($item->product_id);
+                        if ($freshProduct) {
+                            $stockOk = $freshProduct->safeDecrement(
+                                $item->quantity,
+                                $order->order_number,
+                                "Sipariş ile stok düşürüldü (variant bulunamadı)"
+                            );
+                            if ($stockOk) {
+                                $decrementedProducts[] = ['product' => $freshProduct, 'qty' => $item->quantity];
+                            }
+                        }
+                    }
                 }
             } elseif ($item->product) {
-                $stockOk = $item->product->safeDecrement(
-                    $item->quantity,
-                    $order->order_number,
-                    "Sipariş ile stok düşürüldü"
-                );
-                if ($stockOk) {
-                    $decrementedProducts[] = ['product' => $item->product, 'qty' => $item->quantity];
+                $freshProduct = Product::find($item->product_id);
+                if ($freshProduct) {
+                    $stockOk = $freshProduct->safeDecrement(
+                        $item->quantity,
+                        $order->order_number,
+                        "Sipariş ile stok düşürüldü"
+                    );
+                    if ($stockOk) {
+                        $decrementedProducts[] = ['product' => $freshProduct, 'qty' => $item->quantity];
+                    }
                 }
             }
 
@@ -511,17 +581,15 @@ class Checkout extends Component
                 $productName = $item->product?->name ?? 'Ürün';
                 $variantLabel = $item->variant ? " (Beden: {$item->variant->size})" : '';
                 
-                \Illuminate\Support\Facades\Log::error("Stok düşürme başarısız (safeDecrement) - sipariş geri alındı", [
+                \Illuminate\Support\Facades\Log::error("Stok düşürme tamamen başarısız - sipariş geri alındı", [
                     'order_number' => $order->order_number,
                     'product' => $productName,
                     'variant_id' => $item->product_variant_id,
                     'requested_qty' => $item->quantity,
                     'customer' => $this->customer_name,
-                    'rollback_variants' => count($decrementedVariants),
-                    'rollback_products' => count($decrementedProducts),
                 ]);
                 
-                $this->dispatch('notify', message: "{$productName}{$variantLabel} için stok güncelleniyor. Lütfen tekrar deneyiniz.", type: 'warning');
+                $this->dispatch('notify', message: "{$productName}{$variantLabel} için stok sorunu oluştu. Lütfen tekrar deneyiniz.", type: 'warning');
                 $this->dispatch('cart-updated');
                 return;
             }
