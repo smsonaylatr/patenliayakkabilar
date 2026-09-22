@@ -9,7 +9,7 @@ use Filament\Schemas\Schema;
 class MailLogResource extends Resource
 {
     protected static ?string $model = MailLog::class;
-    protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paper-airplane';
     protected static ?string $navigationLabel = 'E-Posta Logları';
     protected static \UnitEnum|string|null $navigationGroup = 'Site Yönetimi';
     protected static ?string $modelLabel = 'E-Posta Logu';
