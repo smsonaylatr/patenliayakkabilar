@@ -11,6 +11,8 @@ class Cart extends Model
     protected $casts = [
         'sms_consent' => 'boolean',
         'abandoned_sms_sent_at' => 'datetime',
+        'reminder_mail_sent_at' => 'datetime',
+        'coupon_mail_sent_at' => 'datetime',
     ];
 
     public function user()
