@@ -21,9 +21,9 @@ class MailSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-envelope';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
     protected static ?string $navigationLabel = 'E-Posta Ayarları';
-    protected static ?string $navigationGroup = 'Site Yönetimi';
+    protected static \UnitEnum|string|null $navigationGroup = 'Site Yönetimi';
     protected static ?string $title = 'E-Posta Sunucusu & Gönderim Ayarları';
     protected static string $view = 'filament.pages.mail-settings';
 
