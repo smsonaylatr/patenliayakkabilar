@@ -117,7 +117,7 @@ class ProductSalesReport extends Page implements HasTable
             ->query(
                 OrderItem::query()
                     ->with(['order', 'product.images', 'variant'])
-                    ->whereHas('order', fn(Builder $q) => $q->whereIn('status', ['delivered', 'returned', 'return_started']))
+                    ->whereHas('order', fn(Builder $q) => $q->whereIn('status', ['processing', 'shipped', 'delivered', 'returned', 'return_started']))
                     ->latest('order_items.created_at')
             )
             ->columns([
@@ -167,15 +167,19 @@ class ProductSalesReport extends Page implements HasTable
                     ->badge()
                     ->size('sm')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'delivered' => 'Teslim',
-                        'returned' => 'İade',
-                        'return_started' => 'İade Sür.',
+                        'processing' => '⏳ Hazırlanıyor',
+                        'shipped' => '🚚 Kargoda',
+                        'delivered' => '✅ Teslim Edildi',
+                        'returned' => '🔄 İade Edildi',
+                        'return_started' => '📦 İade Sürecinde',
                         default => $state ?? '-',
                     })
                     ->color(fn (?string $state) => match ($state) {
+                        'processing' => 'info',
+                        'shipped' => 'warning',
                         'delivered' => 'success',
                         'returned' => 'danger',
-                        'return_started' => 'warning',
+                        'return_started' => 'danger',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -234,6 +238,8 @@ class ProductSalesReport extends Page implements HasTable
                 Tables\Filters\SelectFilter::make('order_status')
                     ->label('Durum')
                     ->options([
+                        'processing' => '⏳ Hazırlanıyor',
+                        'shipped' => '🚚 Kargoda',
                         'delivered' => '✅ Teslim Edildi',
                         'returned' => '🔄 İade Edildi',
                         'return_started' => '📦 İade Sürecinde',
@@ -255,7 +261,7 @@ class ProductSalesReport extends Page implements HasTable
                 Tables\Filters\SelectFilter::make('variant_info')
                     ->label('Beden')
                     ->options(fn () => OrderItem::query()
-                        ->whereHas('order', fn($q) => $q->whereIn('status', ['delivered', 'returned', 'return_started']))
+                        ->whereHas('order', fn($q) => $q->whereIn('status', ['processing', 'shipped', 'delivered', 'returned', 'return_started']))
                         ->whereNotNull('variant_info')
                         ->distinct()
                         ->pluck('variant_info', 'variant_info')
@@ -313,7 +319,7 @@ class ProductSalesReport extends Page implements HasTable
                 Tables\Filters\SelectFilter::make('shipping_city')
                     ->label('Şehir')
                     ->options(fn () => \App\Models\Order::query()
-                        ->whereIn('status', ['delivered', 'returned', 'return_started'])
+                        ->whereIn('status', ['processing', 'shipped', 'delivered', 'returned', 'return_started'])
                         ->whereNotNull('shipping_city')
                         ->distinct()
                         ->pluck('shipping_city', 'shipping_city')
@@ -331,7 +337,7 @@ class ProductSalesReport extends Page implements HasTable
             ->defaultSort('order_items.created_at', 'desc')
             ->striped()
             ->paginated([10, 25, 50, 100])
-            ->defaultPaginationPageOption(25)
+            ->defaultPaginationPageOption(50)
             ->poll('60s');
     }
 }
