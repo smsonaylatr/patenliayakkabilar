@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Services\VatanSmsService;
 
 class DetectAbandonedCarts implements ShouldQueue
 {
@@ -23,15 +24,15 @@ class DetectAbandonedCarts implements ShouldQueue
      */
     public function handle(): void
     {
-        // 1. 2 Saatlik Kuponsuz Sepet Hatırlatması
+        // 1. 2 Saatlik Kuponsuz Sepet Hatırlatması (Mail + SMS)
         $this->processTwoHourCarts();
 
-        // 2. 24 Saatlik %10 Kuponlu Geri Kazanım Maili
+        // 2. 24 Saatlik %10 Kuponlu Geri Kazanım (Mail + SMS)
         $this->processTwentyFourHourCarts();
     }
 
     /**
-     * 2 saat sonra kuponsuz hatırlatma maili gönderir.
+     * 2 saat sonra kuponsuz hatırlatma maili + SMS gönderir.
      */
     private function processTwoHourCarts(): void
     {
@@ -39,16 +40,21 @@ class DetectAbandonedCarts implements ShouldQueue
             ->where('updated_at', '<=', now()->subHours(2))
             ->where('updated_at', '>', now()->subHours(24))
             ->whereHas('items')
-            ->whereNull('reminder_mail_sent_at') // Daha önce gönderilmemişlere
+            ->whereNull('reminder_mail_sent_at')
             ->where(function ($q) {
                 $q->whereNotNull('user_id')
-                  ->orWhereNotNull('guest_email');
+                  ->orWhereNotNull('guest_email')
+                  ->orWhereNotNull('guest_phone');
             })
             ->get();
 
+        $smsService = app(VatanSmsService::class);
+
         foreach ($carts as $cart) {
             $email = $cart->user?->email ?? $cart->guest_email;
-            if (!$email) {
+            $phone = $cart->user?->phone ?? $cart->guest_phone;
+
+            if (!$email && !$phone) {
                 continue;
             }
 
@@ -62,30 +68,55 @@ class DetectAbandonedCarts implements ShouldQueue
                 continue;
             }
 
-            try {
-                // Event oluştur
-                CustomerEvent::create([
-                    'user_id' => $cart->user_id,
-                    'session_id' => $cart->session_id,
-                    'event_type' => 'cart_abandoned_2h',
-                    'event_data' => ['cart_id' => $cart->id],
-                ]);
+            // Event oluştur
+            CustomerEvent::create([
+                'user_id' => $cart->user_id,
+                'session_id' => $cart->session_id,
+                'event_type' => 'cart_abandoned_2h',
+                'event_data' => ['cart_id' => $cart->id],
+            ]);
 
-                // Kuponsuz hatırlatma maili gönder
-                Mail::to($email)->send(new \App\Mail\AbandonedCartReminderMail($cart));
+            // ─── Mail Gönderimi ────────────────────────────────────
+            if ($email) {
+                try {
+                    Mail::to($email)->send(new \App\Mail\AbandonedCartReminderMail($cart));
+                    $cart->update(['reminder_mail_sent_at' => now()]);
+                    Log::info("Kuponsuz hatırlatma maili gönderildi: {$email} (Sepet #{$cart->id})");
+                } catch (\Exception $e) {
+                    Log::error("Hatırlatma maili gönderilemedi: {$email} - " . $e->getMessage());
+                }
+            }
 
-                // Gönderim zamanını kaydet
+            // ─── SMS Gönderimi (Kuponsuz) ──────────────────────────
+            if ($phone) {
+                try {
+                    $name = $cart->user?->name ?? $cart->guest_name ?? '';
+                    $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
+
+                    $smsMessage = "{$greeting} urunler sizi bekliyor! "
+                                . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+
+                    $result = $smsService->send($phone, $smsMessage, 'turkce', 'bilgi');
+
+                    if ($result) {
+                        Log::info("Kuponsuz hatırlatma SMS gönderildi: {$phone} (Sepet #{$cart->id})");
+                    } else {
+                        Log::warning("Hatırlatma SMS gönderilemedi: {$phone} - " . ($smsService->getLastError() ?? 'Bilinmeyen hata'));
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Hatırlatma SMS hatası: {$phone} - " . $e->getMessage());
+                }
+            }
+
+            // Mail olmasa bile SMS gittiyse takip alanını güncelle
+            if (!$email && $phone) {
                 $cart->update(['reminder_mail_sent_at' => now()]);
-
-                Log::info("Sepet hatırlatma maili gönderildi: {$email} (Sepet #{$cart->id})");
-            } catch (\Exception $e) {
-                Log::error("Sepet hatırlatma maili gönderilemedi: {$email} - " . $e->getMessage());
             }
         }
     }
 
     /**
-     * 24 saat sonra %10 kuponlu geri kazanım maili gönderir.
+     * 24 saat sonra %10 kuponlu geri kazanım maili + SMS gönderir.
      */
     private function processTwentyFourHourCarts(): void
     {
@@ -93,17 +124,22 @@ class DetectAbandonedCarts implements ShouldQueue
             ->where('updated_at', '<=', now()->subHours(24))
             ->where('updated_at', '>', now()->subHours(48))
             ->whereHas('items')
-            ->whereNotNull('reminder_mail_sent_at') // Önce kuponsuz mail gitmiş olmalı
-            ->whereNull('coupon_mail_sent_at')       // Kuponlu mail henüz gitmemiş olmalı
+            ->whereNotNull('reminder_mail_sent_at')  // Önce kuponsuz gönderim yapılmış olmalı
+            ->whereNull('coupon_mail_sent_at')        // Kuponlu henüz gitmemiş olmalı
             ->where(function ($q) {
                 $q->whereNotNull('user_id')
-                  ->orWhereNotNull('guest_email');
+                  ->orWhereNotNull('guest_email')
+                  ->orWhereNotNull('guest_phone');
             })
             ->get();
 
+        $smsService = app(VatanSmsService::class);
+
         foreach ($carts as $cart) {
             $email = $cart->user?->email ?? $cart->guest_email;
-            if (!$email) {
+            $phone = $cart->user?->phone ?? $cart->guest_phone;
+
+            if (!$email && !$phone) {
                 continue;
             }
 
@@ -146,17 +182,47 @@ class DetectAbandonedCarts implements ShouldQueue
                     ],
                 ]);
 
-                // %10 kuponlu mail gönder
-                Mail::to($email)->send(
-                    new \App\Mail\AbandonedCartCouponMail($cart, $couponCode, $expiresAt->format('d.m.Y H:i'))
-                );
+                // ─── Kuponlu Mail Gönderimi ────────────────────────
+                if ($email) {
+                    try {
+                        Mail::to($email)->send(
+                            new \App\Mail\AbandonedCartCouponMail($cart, $couponCode, $expiresAt->format('d.m.Y H:i'))
+                        );
+                        Log::info("Kuponlu mail gönderildi: {$email} (Kupon: {$couponCode}, Sepet #{$cart->id})");
+                    } catch (\Exception $e) {
+                        Log::error("Kuponlu mail gönderilemedi: {$email} - " . $e->getMessage());
+                    }
+                }
+
+                // ─── Kuponlu SMS Gönderimi ─────────────────────────
+                if ($phone) {
+                    try {
+                        $name = $cart->user?->name ?? $cart->guest_name ?? '';
+                        $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
+
+                        $smsMessage = "{$greeting} urunler sizi bekliyor! "
+                                    . "Size ozel %10 indirim kodunuz: {$couponCode} "
+                                    . "(48 saat gecerli, tek kullanimlik). "
+                                    . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+
+                        $result = $smsService->send($phone, $smsMessage, 'turkce', 'bilgi');
+
+                        if ($result) {
+                            $cart->update(['abandoned_sms_sent_at' => now()]);
+                            Log::info("Kuponlu SMS gönderildi: {$phone} (Kupon: {$couponCode}, Sepet #{$cart->id})");
+                        } else {
+                            Log::warning("Kuponlu SMS gönderilemedi: {$phone} - " . ($smsService->getLastError() ?? 'Bilinmeyen hata'));
+                        }
+                    } catch (\Exception $e) {
+                        Log::error("Kuponlu SMS hatası: {$phone} - " . $e->getMessage());
+                    }
+                }
 
                 // Gönderim zamanını kaydet
                 $cart->update(['coupon_mail_sent_at' => now()]);
 
-                Log::info("Kuponlu geri kazanım maili gönderildi: {$email} (Kupon: {$couponCode}, Sepet #{$cart->id})");
             } catch (\Exception $e) {
-                Log::error("Kuponlu mail gönderilemedi: {$email} - " . $e->getMessage());
+                Log::error("Kuponlu geri kazanım hatası (Sepet #{$cart->id}): " . $e->getMessage());
             }
         }
     }
