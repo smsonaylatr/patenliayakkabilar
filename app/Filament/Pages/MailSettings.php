@@ -25,7 +25,7 @@ class MailSettings extends Page implements HasForms
     protected static ?string $navigationLabel = 'E-Posta Ayarları';
     protected static \UnitEnum|string|null $navigationGroup = 'Site Yönetimi';
     protected static ?string $title = 'E-Posta Sunucusu & Gönderim Ayarları';
-    protected static string $view = 'filament.pages.mail-settings';
+    protected string $view = 'filament.pages.mail-settings';
 
     public ?array $data = [];
 
