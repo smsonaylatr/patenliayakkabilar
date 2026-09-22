@@ -48,11 +48,8 @@ class ProductSalesReport extends Page implements HasTable
      */
     public function getViewData(): array
     {
-        // Teslim edilen siparişlerdeki toplam satış rakamları
-        $deliveredQuery = OrderItem::whereHas('order', function ($q) {
-            $q->where('status', 'delivered');
-        });
-
+        // Teslim edilen siparişler
+        $deliveredQuery = OrderItem::whereHas('order', fn($q) => $q->where('status', 'delivered'));
         $totalDelivered = (clone $deliveredQuery)->sum('quantity');
         $totalRevenue = (clone $deliveredQuery)->sum('total_price');
         $uniqueCustomers = OrderItem::whereHas('order', fn($q) => $q->where('status', 'delivered'))
@@ -61,7 +58,13 @@ class ProductSalesReport extends Page implements HasTable
             ->count('orders.customer_phone');
         $uniqueProducts = (clone $deliveredQuery)->distinct('product_id')->count('product_id');
 
-        // Ürün bazlı satış özeti (en çok satan → en az satan)
+        // İade edilen siparişler
+        $returnedQuery = OrderItem::whereHas('order', fn($q) => $q->whereIn('status', ['returned', 'return_started']));
+        $totalReturned = (clone $returnedQuery)->sum('quantity');
+        $totalReturnedRevenue = (clone $returnedQuery)->sum('total_price');
+        $returnRate = $totalDelivered > 0 ? round(($totalReturned / ($totalDelivered + $totalReturned)) * 100, 1) : 0;
+
+        // Ürün bazlı satış özeti (teslim edilen)
         $productSummary = OrderItem::query()
             ->select('product_id', 'product_name')
             ->selectRaw('SUM(quantity) as total_qty')
@@ -72,7 +75,18 @@ class ProductSalesReport extends Page implements HasTable
             ->orderByDesc('total_qty')
             ->get();
 
-        // Beden bazlı satış dağılımı
+        // Ürün bazlı iade özeti
+        $returnSummary = OrderItem::query()
+            ->select('product_id', 'product_name')
+            ->selectRaw('SUM(quantity) as total_qty')
+            ->selectRaw('SUM(total_price) as total_revenue')
+            ->selectRaw('COUNT(DISTINCT order_id) as order_count')
+            ->whereHas('order', fn($q) => $q->whereIn('status', ['returned', 'return_started']))
+            ->groupBy('product_id', 'product_name')
+            ->orderByDesc('total_qty')
+            ->get();
+
+        // Beden bazlı satış dağılımı (teslim edilen)
         $sizeSummary = OrderItem::query()
             ->select('variant_info')
             ->selectRaw('SUM(quantity) as total_qty')
@@ -88,7 +102,11 @@ class ProductSalesReport extends Page implements HasTable
             'totalRevenue' => $totalRevenue,
             'uniqueCustomers' => (int) $uniqueCustomers,
             'uniqueProducts' => (int) $uniqueProducts,
+            'totalReturned' => (int) $totalReturned,
+            'totalReturnedRevenue' => $totalReturnedRevenue,
+            'returnRate' => $returnRate,
             'productSummary' => $productSummary,
+            'returnSummary' => $returnSummary,
             'sizeSummary' => $sizeSummary,
         ];
     }
@@ -99,7 +117,7 @@ class ProductSalesReport extends Page implements HasTable
             ->query(
                 OrderItem::query()
                     ->with(['order', 'product.images', 'variant'])
-                    ->whereHas('order', fn(Builder $q) => $q->where('status', 'delivered'))
+                    ->whereHas('order', fn(Builder $q) => $q->whereIn('status', ['delivered', 'returned', 'return_started']))
                     ->latest('order_items.created_at')
             )
             ->columns([
@@ -131,18 +149,33 @@ class ProductSalesReport extends Page implements HasTable
                     ->sortable()
                     ->alignCenter()
                     ->badge()
-                    ->color('success'),
-
-                Tables\Columns\TextColumn::make('unit_price')
-                    ->label('Birim Fiyat')
-                    ->money('TRY')
-                    ->sortable(),
+                    ->color(fn (OrderItem $record) => match ($record->order?->status) {
+                        'returned', 'return_started' => 'danger',
+                        default => 'success',
+                    }),
 
                 Tables\Columns\TextColumn::make('total_price')
                     ->label('Toplam')
                     ->money('TRY')
                     ->sortable()
                     ->weight('bold'),
+
+                Tables\Columns\TextColumn::make('order.status')
+                    ->label('Durum')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'delivered' => '✅ Teslim Edildi',
+                        'returned' => '🔄 İade Edildi',
+                        'return_started' => '📦 İade Sürecinde',
+                        default => $state ?? '-',
+                    })
+                    ->color(fn (?string $state) => match ($state) {
+                        'delivered' => 'success',
+                        'returned' => 'danger',
+                        'return_started' => 'warning',
+                        default => 'gray',
+                    })
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('order.order_number')
                     ->label('Sipariş No')
@@ -188,6 +221,20 @@ class ProductSalesReport extends Page implements HasTable
                     ->color('gray'),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('order_status')
+                    ->label('Durum')
+                    ->options([
+                        'delivered' => '✅ Teslim Edildi',
+                        'returned' => '🔄 İade Edildi',
+                        'return_started' => '📦 İade Sürecinde',
+                    ])
+                    ->query(fn (Builder $query, array $data) =>
+                        $query->when($data['value'] ?? null, fn($q, $v) =>
+                            $q->whereHas('order', fn($oq) => $oq->where('status', $v))
+                        )
+                    )
+                    ->native(false),
+
                 Tables\Filters\SelectFilter::make('product_id')
                     ->label('Ürün')
                     ->options(fn () => Product::where('status', true)->orderBy('name')->pluck('name', 'id')->toArray())
@@ -198,7 +245,7 @@ class ProductSalesReport extends Page implements HasTable
                 Tables\Filters\SelectFilter::make('variant_info')
                     ->label('Beden')
                     ->options(fn () => OrderItem::query()
-                        ->whereHas('order', fn($q) => $q->where('status', 'delivered'))
+                        ->whereHas('order', fn($q) => $q->whereIn('status', ['delivered', 'returned', 'return_started']))
                         ->whereNotNull('variant_info')
                         ->distinct()
                         ->pluck('variant_info', 'variant_info')
@@ -256,7 +303,7 @@ class ProductSalesReport extends Page implements HasTable
                 Tables\Filters\SelectFilter::make('shipping_city')
                     ->label('Şehir')
                     ->options(fn () => \App\Models\Order::query()
-                        ->where('status', 'delivered')
+                        ->whereIn('status', ['delivered', 'returned', 'return_started'])
                         ->whereNotNull('shipping_city')
                         ->distinct()
                         ->pluck('shipping_city', 'shipping_city')

@@ -179,7 +179,7 @@ class PoregoApiService
                 // Products JSON string — Dashboard API güncellemesi başarısız olursa
                 // en azından notes alanı etiketin "Sipariş Notu" bölümünde görünsün
                 'products'              => $productsJsonString,
-                'notes'                 => "📦 Ürünler: " . $productSummaryText,
+                'notes'                 => "📦 Ürünler: " . $productSummaryText . (!empty($order->customer_note) ? "\n📝 Müşteri Notu: " . $order->customer_note : ''),
                 'totalAmount'           => (float)$order->grand_total,
                 'totalWeight'           => max(1, count($mappedItems)),
                 'totalDeci'             => max(1, count($mappedItems)),
