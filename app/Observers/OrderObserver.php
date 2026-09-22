@@ -56,6 +56,16 @@ class OrderObserver
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::error('SMS notification error: ' . $e->getMessage());
                 }
+
+                // Müşteriye sipariş onay e-postası gönder
+                try {
+                    if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_order_confirmation')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                        \Illuminate\Support\Facades\Mail::to($order->customer_email)
+                            ->queue(new \App\Mail\OrderConfirmationMail($order));
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Sipariş onay maili hatası: ' . $e->getMessage());
+                }
             });
         }
     }
@@ -293,6 +303,16 @@ class OrderObserver
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('SMS notification error on paid: ' . $e->getMessage());
             }
+
+            // Müşteriye sipariş onay e-postası gönder (ödeme başarılı)
+            try {
+                if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_order_confirmation')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                    \Illuminate\Support\Facades\Mail::to($order->customer_email)
+                        ->queue(new \App\Mail\OrderConfirmationMail($order));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Sipariş onay maili hatası (paid): ' . $e->getMessage());
+            }
         } elseif ($order->wasChanged('payment_status') && $order->payment_status === 'failed') {
             try {
                 $this->sendTelegramNotification($order, 'failed');
@@ -304,10 +324,16 @@ class OrderObserver
         if ($order->wasChanged('status')) {
             if ($order->status === 'shipped') {
                 // SMS artık admin panelden taslak önizleme ile gönderiliyor (OrdersTable updateStatus)
-                // app()->terminating(function () use ($order) {
-                //     $order->refresh();
-                //     $this->sendCustomerSms($order, 'shipped');
-                // });
+
+                // Müşteriye kargo güncelleme e-postası gönder
+                try {
+                    if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                        \Illuminate\Support\Facades\Mail::to($order->customer_email)
+                            ->queue(new \App\Mail\ShippingUpdateMail($order));
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Kargo güncelleme maili hatası: ' . $e->getMessage());
+                }
             } elseif ($order->status === 'delivered') {
                 app()->terminating(function () use ($order) {
                     $order->refresh();
@@ -338,6 +364,16 @@ class OrderObserver
                         }
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('Muhasebe satış kaydı hatası: ' . $e->getMessage());
+                    }
+
+                    // Müşteriye teslim edildi bildirimi gönder
+                    try {
+                        if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                            \Illuminate\Support\Facades\Mail::to($order->customer_email)
+                                ->queue(new \App\Mail\ShippingUpdateMail($order));
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Teslim edildi maili hatası: ' . $e->getMessage());
                     }
                 });
             } elseif ($order->status === 'return_started') {

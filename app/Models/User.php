@@ -52,6 +52,18 @@ class User extends Authenticatable implements FilamentUser
                 \App\Models\NewsletterSubscriber::firstOrCreate([
                     'email' => $user->email
                 ]);
+
+                // Yeni üyeye hoşgeldin maili gönder (admin kullanıcılara gönderme)
+                if ($user->role !== 'admin') {
+                    try {
+                        if (filter_var(\App\Models\Setting::where('key', 'mail_welcome')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                            \Illuminate\Support\Facades\Mail::to($user->email)
+                                ->queue(new \App\Mail\WelcomeMail($user));
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Hoşgeldin maili hatası: ' . $e->getMessage());
+                    }
+                }
             }
         });
     }
