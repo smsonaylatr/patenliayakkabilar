@@ -55,6 +55,7 @@ class ListOrders extends ListRecords
                     $q->where('payment_status', '!=', 'paid')
                       ->where('payment_method', '!=', 'cash_on_delivery');
                 })->count(),
+                'cancelled_returned' => Order::whereIn('status', ['cancelled', 'return_started', 'returned'])->count(),
                 'all' => Order::count(),
             ];
         });
@@ -75,6 +76,11 @@ class ListOrders extends ListRecords
                       ->where('payment_method', '!=', 'cash_on_delivery');
                 }))
                 ->badge($counts['abandoned']),
+
+            'cancelled_returned' => Tab::make('İptal / İade')
+                ->icon('heroicon-m-arrow-uturn-left')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', ['cancelled', 'return_started', 'returned']))
+                ->badge($counts['cancelled_returned']),
                 
             'all' => Tab::make('Tüm Kayıtlar')
                 ->icon('heroicon-m-list-bullet')
