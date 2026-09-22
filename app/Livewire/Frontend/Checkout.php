@@ -541,6 +541,15 @@ class Checkout extends Component
      */
     public static function decrementStockForOrder(Order $order): void
     {
+        // Mükerrer stok düşmeyi engelle — zaten düşürülmüşse atla
+        if ($order->stock_decremented) {
+            \Illuminate\Support\Facades\Log::info("Stok düşürme ATLANDI (zaten düşürülmüş)", [
+                'order_number' => $order->order_number,
+                'stock_decremented' => true,
+            ]);
+            return;
+        }
+
         $order->loadMissing(['items.product', 'items.variant']);
 
         foreach ($order->items as $orderItem) {
@@ -566,10 +575,15 @@ class Checkout extends Component
             }
         }
 
+        // Flag'i güncelle — artık stok düşürülmüş olarak işaretle
+        $order->stock_decremented = true;
+        $order->saveQuietly();
+
         \Illuminate\Support\Facades\Log::info("Stok düşürme tamamlandı", [
             'order_number' => $order->order_number,
             'payment_method' => $order->payment_method,
             'items_count' => $order->items->count(),
+            'stock_decremented' => true,
         ]);
     }
 

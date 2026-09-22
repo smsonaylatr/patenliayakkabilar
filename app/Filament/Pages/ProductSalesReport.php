@@ -11,6 +11,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class ProductSalesReport extends Page implements HasTable
 {
@@ -121,32 +122,32 @@ class ProductSalesReport extends Page implements HasTable
                     ->latest('order_items.created_at')
             )
             ->columns([
-                Tables\Columns\ImageColumn::make('product.images.0.image_path')
-                    ->label('')
-                    ->disk('public')
-                    ->square()
-                    ->size(32)
-                    ->defaultImageUrl(url('/favicon.png'))
-                    ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
-
                 Tables\Columns\TextColumn::make('product_name')
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
                     ->size('sm')
-                    ->limit(30)
+                    ->limit(25)
                     ->tooltip(fn ($record) => $record->product_name),
 
                 Tables\Columns\TextColumn::make('variant_info')
                     ->label('Beden')
                     ->searchable()
-                    ->sortable()
                     ->size('sm')
+                    ->formatStateUsing(function (?string $state) {
+                        if (!$state) return '-';
+                        // "Beyaz, Siyah / Beden: 30" → "30"
+                        if (preg_match('/Beden:\s*(\d+)/', $state, $m)) {
+                            return $m[1];
+                        }
+                        return Str::limit($state, 15);
+                    })
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->tooltip(fn ($record) => $record->variant_info),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('Adet')
+                    ->label('Ad.')
                     ->sortable()
                     ->alignCenter()
                     ->size('sm')
@@ -157,19 +158,19 @@ class ProductSalesReport extends Page implements HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('total_price')
-                    ->label('Toplam')
-                    ->money('TRY')
+                    ->label('Tutar')
                     ->sortable()
-                    ->size('sm'),
+                    ->size('sm')
+                    ->formatStateUsing(fn ($state) => number_format($state, 0) . ' ₺'),
 
                 Tables\Columns\TextColumn::make('order.status')
                     ->label('Durum')
                     ->badge()
                     ->size('sm')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'delivered' => 'Teslim',
-                        'returned' => 'İade',
-                        'return_started' => 'İade Sür.',
+                        'delivered' => '✅ Teslim',
+                        'returned' => '❌ İade',
+                        'return_started' => '⏳ İade Sür.',
                         default => $state ?? '-',
                     })
                     ->color(fn (?string $state) => match ($state) {
@@ -196,7 +197,7 @@ class ProductSalesReport extends Page implements HasTable
                     ->searchable()
                     ->sortable()
                     ->size('sm')
-                    ->limit(20)
+                    ->limit(18)
                     ->tooltip(fn ($record) => $record->order?->customer_name),
 
                 Tables\Columns\TextColumn::make('order.customer_phone')
@@ -210,25 +211,32 @@ class ProductSalesReport extends Page implements HasTable
                     ->searchable()
                     ->sortable()
                     ->size('sm')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('order.payment_method')
                     ->label('Ödeme')
                     ->size('sm')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'credit_card' => '💳 Kart',
-                        'cash_on_delivery' => '🚚 Kapıda',
-                        'wire_transfer' => '🏦 Havale',
-                        default => $state ?? '-',
+                        'credit_card' => '💳',
+                        'cash_on_delivery' => '🚚',
+                        'wire_transfer' => '🏦',
+                        default => '-',
                     })
-                    ->toggleable(),
+                    ->tooltip(fn ($record) => match ($record->order?->payment_method) {
+                        'credit_card' => 'Kredi Kartı',
+                        'cash_on_delivery' => 'Kapıda Ödeme',
+                        'wire_transfer' => 'Havale/EFT',
+                        default => '-',
+                    })
+                    ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('order.created_at')
                     ->label('Tarih')
                     ->dateTime('d.m.Y')
                     ->sortable()
                     ->size('sm')
-                    ->color('gray'),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('order_status')

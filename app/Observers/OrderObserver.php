@@ -261,16 +261,14 @@ class OrderObserver
         if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
             $order->loadMissing(['items.product', 'items.variant']);
 
-            // Stok düşürme: Sadece kredi kartı ve havale için
-            // Kapıda ödeme'de stok checkout'ta zaten düşürüldü
-            if (in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
-                try {
-                    \App\Livewire\Frontend\Checkout::decrementStockForOrder($order);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Stok düşürme hatası (paid): ' . $e->getMessage(), [
-                        'order_number' => $order->order_number,
-                    ]);
-                }
+            // Stok düşürme: stock_decremented flag kontrolü decrementStockForOrder içinde
+            // Kapıda ödeme checkout'ta zaten düşürüldüyse flag=true olur, tekrar düşürülmez
+            try {
+                \App\Livewire\Frontend\Checkout::decrementStockForOrder($order);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Stok düşürme hatası (paid): ' . $e->getMessage(), [
+                    'order_number' => $order->order_number,
+                ]);
             }
 
             // 1. Telegram Bildirimi Gönder
@@ -368,33 +366,40 @@ class OrderObserver
                 //     }
                 // });
 
-                // Stok geri yükleme (güvenli, hareket kaydı ile)
-                $order->loadMissing(['items.product', 'items.variant']);
-                foreach ($order->items as $item) {
-                    if ($item->variant) {
-                        $item->variant->safeIncrement(
-                            $item->quantity,
-                            \App\Models\StockMovement::TYPE_RETURN,
-                            $order->order_number,
-                            "Sipariş iadesi ile stok geri yüklendi"
-                        );
-                        $item->product?->syncFromVariants();
-                    } elseif ($item->product) {
-                        $item->product->safeIncrement(
-                            $item->quantity,
-                            \App\Models\StockMovement::TYPE_RETURN,
-                            $order->order_number,
-                            "Sipariş iadesi ile stok geri yüklendi"
-                        );
+                // Stok geri yükleme — SADECE stok düşürülmüşse (flag kontrolü)
+                if ($order->stock_decremented) {
+                    $order->loadMissing(['items.product', 'items.variant']);
+                    foreach ($order->items as $item) {
+                        if ($item->variant) {
+                            $item->variant->safeIncrement(
+                                $item->quantity,
+                                \App\Models\StockMovement::TYPE_RETURN,
+                                $order->order_number,
+                                "Sipariş iadesi ile stok geri yüklendi"
+                            );
+                            $item->product?->syncFromVariants();
+                        } elseif ($item->product) {
+                            $item->product->safeIncrement(
+                                $item->quantity,
+                                \App\Models\StockMovement::TYPE_RETURN,
+                                $order->order_number,
+                                "Sipariş iadesi ile stok geri yüklendi"
+                            );
+                        }
                     }
+                    \Illuminate\Support\Facades\Log::info("Sipariş iade stok geri yükleme: #{$order->order_number}");
+
+                    // Flag'i sıfırla — stok geri yüklendi
+                    $order->stock_decremented = false;
+                } else {
+                    \Illuminate\Support\Facades\Log::info("Sipariş iade stok geri yükleme ATLANDI (stok düşürülmemişti): #{$order->order_number}");
                 }
-                \Illuminate\Support\Facades\Log::info("Sipariş iade stok geri yükleme: #{$order->order_number}");
 
                 // Ödeme iade durumuna al (eğer ödenmişse)
                 if (in_array($order->payment_status, ['paid', 'pending'])) {
                     $order->payment_status = 'refunded';
-                    $order->saveQuietly();
                 }
+                $order->saveQuietly();
 
                 // Muhasebe iade kaydı (Observer'dan tetiklendiğinde — genel kayıt)
                 try {
@@ -460,13 +465,8 @@ class OrderObserver
             ]);
 
             if ($order->status === 'cancelled') {
-                // Stok geri yükleme — SADECE daha önce stok düşürülmüş siparişlerde
-                // Kapıda ödeme: her zaman düşürülmüştü
-                // Kredi kartı/Havale: sadece payment_status=paid ise düşürülmüştü
-                $wasStockDecremented = $order->payment_method === 'cash_on_delivery' 
-                    || in_array($order->getOriginal('payment_status') ?? $order->payment_status, ['paid', 'refunded']);
-                
-                if ($wasStockDecremented) {
+                // Stok geri yükleme — stock_decremented flag ile kesin kontrol
+                if ($order->stock_decremented) {
                     $order->loadMissing(['items.product', 'items.variant']);
                     foreach ($order->items as $item) {
                         if ($item->variant) {
@@ -487,15 +487,18 @@ class OrderObserver
                         }
                     }
                     \Illuminate\Support\Facades\Log::info("Sipariş iptal stok geri yükleme: #{$order->order_number}");
+
+                    // Flag'i sıfırla — stok geri yüklendi
+                    $order->stock_decremented = false;
                 } else {
-                    \Illuminate\Support\Facades\Log::info("Sipariş iptal - stok geri yükleme atlandı (stok düşürülmemişti): #{$order->order_number}, payment_status: {$order->payment_status}");
+                    \Illuminate\Support\Facades\Log::info("Sipariş iptal - stok geri yükleme atlandı (stok düşürülmemişti): #{$order->order_number}");
                 }
 
                 // Ödeme iade durumuna al (eğer ödenmişse)
                 if ($order->payment_status === 'paid') {
                     $order->payment_status = 'refunded';
-                    $order->saveQuietly();
                 }
+                $order->saveQuietly();
 
                 // Porego'ya iptal bildirimi gönder
                 app()->terminating(function () use ($order) {
