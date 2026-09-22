@@ -15,6 +15,7 @@ class Order extends Model
         'sms_consent' => 'boolean',
         'is_invoiced' => 'boolean',
         'gib_invoice_date' => 'datetime',
+        'porego_sync_locked' => 'boolean',
     ];
 
     public function user()

@@ -414,6 +414,30 @@ class OrderObserver
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
                     ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
+
+                // Porego'ya iade bildirimi gönder
+                app()->terminating(function () use ($order) {
+                    try {
+                        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: env('POREGO_API_KEY');
+                        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: env('POREGO_API_SECRET');
+                        $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1');
+
+                        if ($apiKey && $apiSecret) {
+                            \Illuminate\Support\Facades\Http::withHeaders([
+                                'X-Api-Key' => $apiKey,
+                                'X-Api-Secret' => $apiSecret,
+                                'Accept' => 'application/json',
+                                'Content-Type' => 'application/json',
+                            ])->put("{$apiUrl}/orders/{$order->order_number}", [
+                                'status' => 'RETURNED',
+                            ]);
+
+                            \Illuminate\Support\Facades\Log::info("Porego'ya iade bildirimi gönderildi: #{$order->order_number}");
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error("Porego iade bildirimi hatası: " . $e->getMessage());
+                    }
+                });
             } elseif ($order->status === 'cancelled') {
                 // İptal SMS'i artık admin panelden taslak önizleme ile gönderiliyor
                 // app()->terminating(function () use ($order) {

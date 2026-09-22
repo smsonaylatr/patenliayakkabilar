@@ -59,7 +59,9 @@ class PoregoWebhookController extends Controller
                     $newStatus = match ($upperStatus) {
                         'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
                         'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
-                        'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                        'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
+                        'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                        'FAILED' => 'cancelled',
                         default => null
                     };
 
@@ -76,23 +78,28 @@ class PoregoWebhookController extends Controller
 
                     $statusAllowed = false;
                     if ($newStatus && $order->status !== $newStatus) {
-                        $currentLevel = $statusOrder[$order->status] ?? 0;
-                        $newLevel = $statusOrder[$newStatus] ?? 0;
-                        $isForward = ($newLevel > $currentLevel) || $newStatus === 'cancelled';
-
-                        // Admin son 24 saatte değiştirmişse geri yönlü geçişi engelle
-                        $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
-                            ->whereNotNull('changed_by')
-                            ->where('created_at', '>=', now()->subHours(24))
-                            ->latest('created_at')
-                            ->first();
-
-                        if ($recentAdminChange && !$isForward) {
-                            Log::info("Porego Webhook: Admin değişikliği korunuyor. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
-                        } elseif (!$isForward) {
-                            Log::info("Porego Webhook: Geri yönlü geçiş engellendi. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
+                        // Admin panelden porego_sync_locked=true yapılmışsa → Porego statü değişikliğini TAMAMEN ENGELLE
+                        if ($order->porego_sync_locked) {
+                            Log::info("Porego Webhook: Admin kilidi aktif, statü korunuyor. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
                         } else {
-                            $statusAllowed = true;
+                            $currentLevel = $statusOrder[$order->status] ?? 0;
+                            $newLevel = $statusOrder[$newStatus] ?? 0;
+                            $isForward = ($newLevel > $currentLevel);
+
+                            // Admin son 48 saatte değiştirmişse TÜM Porego geçişlerini engelle
+                            $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                                ->whereNotNull('changed_by')
+                                ->where('created_at', '>=', now()->subHours(48))
+                                ->latest('created_at')
+                                ->first();
+
+                            if ($recentAdminChange && !$isForward) {
+                                Log::info("Porego Webhook: Admin değişikliği korunuyor. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
+                            } elseif (!$isForward) {
+                                Log::info("Porego Webhook: Geri yönlü geçiş engellendi. Sipariş: #{$order->order_number}, Mevcut: {$order->status}, Porego: {$newStatus}");
+                            } else {
+                                $statusAllowed = true;
+                            }
                         }
                     }
 

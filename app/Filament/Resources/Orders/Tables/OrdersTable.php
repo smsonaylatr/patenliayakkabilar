@@ -217,7 +217,13 @@ class OrdersTable
                                     ->collapsed(false),
                             ])
                             ->action(function (Order $record, array $data): void {
-                                $record->update(['status' => $data['status']]);
+                                // Admin panelden statü değiştirildiğinde Porego senkronizasyonunu kilitle
+                                $lockStatuses = ['returned', 'return_started', 'cancelled', 'pending', 'processing'];
+                                $shouldLock = in_array($data['status'], $lockStatuses);
+                                $record->update([
+                                    'status' => $data['status'],
+                                    'porego_sync_locked' => $shouldLock,
+                                ]);
 
                                 // SMS gönder (admin onayladıysa)
                                 if (!empty($data['sms_send']) && !empty($data['sms_draft']) && !empty($record->customer_phone)) {
@@ -707,6 +713,7 @@ class OrdersTable
                         // 1. Sipariş durumunu iade yap (saveQuietly: Observer'ın çift stok iadesi yapmasını önle)
                         $record->status = 'returned';
                         $record->payment_status = 'refunded';
+                        $record->porego_sync_locked = true; // Porego senkronizasyonu bu siparişi artık ezmeyecek
                         $record->saveQuietly();
 
                         // Audit log kaydı (Observer devre dışı olduğu için manuel ekle)
@@ -770,6 +777,7 @@ class OrdersTable
                         
                         // saveQuietly: Observer'ın çift stok iadesi yapmasını önle
                         $record->status = 'cancelled';
+                        $record->porego_sync_locked = true; // Porego senkronizasyonu bu siparişi artık ezmeyecek
                         if ($record->payment_status === 'paid') {
                             $record->payment_status = 'refunded';
                         }

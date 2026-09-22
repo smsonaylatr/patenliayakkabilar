@@ -996,40 +996,49 @@ class PoregoApiService
                 $newStatus = match ($upperStatus) {
                     'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
                     'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
-                    'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED', 'FAILED_DELIVERY', 'DELETED', 'REFUNDED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                    'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
+                    'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                    'FAILED' => 'cancelled',
                     'READY' => 'processing',
                     default => null
                 };
 
                 if ($newStatus && $order->status !== $newStatus) {
-                    $currentLevel = $statusOrder[$order->status] ?? 0;
-                    $newLevel = $statusOrder[$newStatus] ?? 0;
-
-                    // Admin tarafından son 24 saatte değiştirilmiş mi kontrol et
-                    $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
-                        ->whereNotNull('changed_by')
-                        ->where('created_at', '>=', now()->subHours(24))
-                        ->latest('created_at')
-                        ->first();
-
-                    // SADECE ileri yönlü geçişlere izin ver (ör: shipped→delivered OK)
-                    // GERİ yönlü geçişleri ENGELLE (ör: shipped→processing ENGELLE)
-                    // İptal (cancelled) her zaman kabul edilir
-                    $isForwardTransition = ($newLevel > $currentLevel) || $newStatus === 'cancelled';
-
-                    // Admin değişikliği varsa VE Porego geri almaya çalışıyorsa → ENGELLE
-                    if ($recentAdminChange && !$isForwardTransition) {
-                        Log::info("Porego Senkronizasyonu: Admin tarafından değiştirilmiş sipariş korunuyor. Sipariş: #{$order->order_number}, " .
-                            "Mevcut: {$order->status}, Porego: {$newStatus}, Admin değişikliği: {$recentAdminChange->created_at}");
-                        $newStatus = null; // Statü güncellenmeyecek
-                    } elseif (!$isForwardTransition) {
-                        // Admin değişikliği olmasa bile geri yönlü geçişlere izin verme
-                        Log::info("Porego Senkronizasyonu: Geri yönlü statü geçişi engellendi. Sipariş: #{$order->order_number}, " .
-                            "Mevcut: {$order->status} (seviye: {$currentLevel}), Porego: {$newStatus} (seviye: {$newLevel})");
+                    // Admin panelden porego_sync_locked=true yapılmışsa → Porego statü değişikliğini TAMAMEN ENGELLE
+                    if ($order->porego_sync_locked) {
+                        Log::info("Porego Senkronizasyonu: Admin kilidi aktif, statü korunuyor. Sipariş: #{$order->order_number}, " .
+                            "Mevcut: {$order->status}, Porego: {$newStatus}");
                         $newStatus = null;
                     } else {
-                        $order->status = $newStatus;
-                        $changed = true;
+                        $currentLevel = $statusOrder[$order->status] ?? 0;
+                        $newLevel = $statusOrder[$newStatus] ?? 0;
+
+                        // Admin tarafından son 48 saatte değiştirilmiş mi kontrol et
+                        $recentAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                            ->whereNotNull('changed_by')
+                            ->where('created_at', '>=', now()->subHours(48))
+                            ->latest('created_at')
+                            ->first();
+
+                        // SADECE ileri yönlü geçişlere izin ver (ör: shipped→delivered OK)
+                        // GERİ yönlü geçişleri ENGELLE (ör: shipped→processing ENGELLE)
+                        // İptal ve iade: admin değişikliği YOKSA kabul edilir
+                        $isForwardTransition = ($newLevel > $currentLevel);
+
+                        // Admin değişikliği varsa → TÜM Porego geçişlerini engelle (cancelled/returned dahil)
+                        if ($recentAdminChange && !$isForwardTransition) {
+                            Log::info("Porego Senkronizasyonu: Admin tarafından değiştirilmiş sipariş korunuyor. Sipariş: #{$order->order_number}, " .
+                                "Mevcut: {$order->status}, Porego: {$newStatus}, Admin değişikliği: {$recentAdminChange->created_at}");
+                            $newStatus = null; // Statü güncellenmeyecek
+                        } elseif (!$isForwardTransition) {
+                            // Admin değişikliği olmasa bile geri yönlü geçişlere izin verme
+                            Log::info("Porego Senkronizasyonu: Geri yönlü statü geçişi engellendi. Sipariş: #{$order->order_number}, " .
+                                "Mevcut: {$order->status} (seviye: {$currentLevel}), Porego: {$newStatus} (seviye: {$newLevel})");
+                            $newStatus = null;
+                        } else {
+                            $order->status = $newStatus;
+                            $changed = true;
+                        }
                     }
                 }
             }
@@ -1098,7 +1107,7 @@ class PoregoApiService
         }
 
         try {
-            $activeOrders = Order::whereNotIn('status', ['cancelled'])
+            $activeOrders = Order::whereNotIn('status', ['cancelled', 'returned', 'return_started'])
                 ->where(function($q) {
                     $q->whereNotIn('status', ['delivered'])
                       ->orWhere(function($subQ) {
@@ -1106,13 +1115,18 @@ class PoregoApiService
                                ->where('payment_status', '!=', 'paid');
                       });
                 })
-                // Admin tarafından son 1 saatte statüsü değiştirilmiş siparişleri hariç tut
+                // Admin tarafından porego_sync_locked=true yapılmış siparişleri hariç tut
+                ->where(function($q) {
+                    $q->whereNull('porego_sync_locked')
+                      ->orWhere('porego_sync_locked', false);
+                })
+                // Admin tarafından son 48 saatte statüsü değiştirilmiş siparişleri hariç tut
                 // Böylece gereksiz API çağrıları yapılmaz ve admin override'lar korunur
                 ->whereNotIn('id', function($subQuery) {
                     $subQuery->select('order_id')
                         ->from('order_status_histories')
                         ->whereNotNull('changed_by')
-                        ->where('created_at', '>=', now()->subHour());
+                        ->where('created_at', '>=', now()->subHours(48));
                 })
                 ->get();
             $updatedCount = 0;
