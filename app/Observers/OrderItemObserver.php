@@ -11,7 +11,7 @@ class OrderItemObserver
     /**
      * Sipariş kalemi oluşturulduğunda stok düş + tutar güncelle.
      * Not: Sadece admin panelden manuel ekleme için çalışır.
-     * Checkout flow'da stok düşme ayrıca yönetilir.
+     * Checkout flow'da stok düşme ayrıca yönetilir (Checkout::decrementStockForOrder).
      */
     public function created(OrderItem $item): void
     {
@@ -19,8 +19,16 @@ class OrderItemObserver
         $item->total_price = $item->quantity * $item->unit_price;
         $item->saveQuietly();
 
-        // Stok düş
-        $this->decrementStock($item);
+        // Checkout flow'dan geliyorsa stok düşürme — ödeme yöntemine göre
+        // Checkout veya OrderObserver ayrıca yönetir.
+        // Sadece admin panelden manuel ekleme durumunda stok düş.
+        $order = $item->order;
+        $isCheckoutFlow = $order && in_array($order->payment_status, ['pending', 'awaiting_payment'])
+            && $order->wasRecentlyCreated;
+
+        if (!$isCheckoutFlow) {
+            $this->decrementStock($item);
+        }
 
         // Sipariş toplamlarını güncelle
         $this->recalculateOrderTotals($item);

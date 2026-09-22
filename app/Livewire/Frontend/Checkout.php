@@ -441,34 +441,39 @@ class Checkout extends Component
         }
 
         // Stok ön kontrolü geçti — order items oluştur (stok düşürme ödeme yöntemine göre yapılacak)
+        // Observer'ı bypass et: Checkout akışında stok düşürme ödeme yöntemine göre
+        // Checkout::decrementStockForOrder veya OrderObserver tarafından ayrıca yönetilir.
+        // Observer yalnızca admin panelden manuel ekleme için çalışmalıdır.
 
-        foreach ($cartItems as $item) {
-            $vColor = null;
-            if ($item->variant && !empty($item->variant->color)) {
-                $vColor = is_array($item->variant->color) ? implode(', ', $item->variant->color) : $item->variant->color;
+        OrderItem::withoutEvents(function () use ($cartItems, $order) {
+            foreach ($cartItems as $item) {
+                $vColor = null;
+                if ($item->variant && !empty($item->variant->color)) {
+                    $vColor = is_array($item->variant->color) ? implode(', ', $item->variant->color) : $item->variant->color;
+                }
+                $vSize = $item->variant?->size;
+
+                $variantInfo = null;
+                if ($vColor && $vSize) {
+                    $variantInfo = "{$vColor} / Beden: {$vSize}";
+                } elseif ($vSize) {
+                    $variantInfo = "Beden: {$vSize}";
+                } elseif ($vColor) {
+                    $variantInfo = $vColor;
+                }
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id,
+                    'product_name' => $item->product ? $item->product->name : 'Bilinmeyen Ürün',
+                    'variant_info' => $variantInfo,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->price,
+                    'total_price' => $item->price * $item->quantity,
+                ]);
             }
-            $vSize = $item->variant?->size;
-
-            $variantInfo = null;
-            if ($vColor && $vSize) {
-                $variantInfo = "{$vColor} / Beden: {$vSize}";
-            } elseif ($vSize) {
-                $variantInfo = "Beden: {$vSize}";
-            } elseif ($vColor) {
-                $variantInfo = $vColor;
-            }
-
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'product_variant_id' => $item->product_variant_id,
-                'product_name' => $item->product ? $item->product->name : 'Bilinmeyen Ürün',
-                'variant_info' => $variantInfo,
-                'quantity' => $item->quantity,
-                'unit_price' => $item->price,
-                'total_price' => $item->price * $item->quantity,
-            ]);
-        }
+        });
 
         // Tüm ödeme yöntemleri için session'a sipariş numarasını kaydet
         session(['last_order_number' => $order->order_number]);
