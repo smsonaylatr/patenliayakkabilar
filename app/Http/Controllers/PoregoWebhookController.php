@@ -129,9 +129,25 @@ class PoregoWebhookController extends Controller
                         $order->save();
 
                         if ($newStatus === 'cancelled') {
-                            // Stok geri yükleme OrderObserver tarafından stock_decremented flag ile yönetilir
-                            // $order->save() Observer'ı tetikler, çift geri yükleme riski yok
-                            Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildi, stok geri yükleme Observer'a bırakıldı.");
+                            foreach ($order->items as $item) {
+                                if ($item->variant) {
+                                    $item->variant->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $order->order_number,
+                                        "Porego webhook iptali ile stok geri yüklendi"
+                                    );
+                                    $item->product?->syncFromVariants();
+                                } elseif ($item->product) {
+                                    $item->product->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_CANCEL,
+                                        $order->order_number,
+                                        "Porego webhook iptali ile stok geri yüklendi"
+                                    );
+                                }
+                            }
+                            Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildiği için stoklar geri yüklendi.");
                         }
 
                         Log::info("Porego Webhook: Sipariş (#{$order->order_number}) durumu '{$newStatus}' olarak güncellendi.");

@@ -304,21 +304,7 @@ class OrdersTable
                                     ->required(),
                             ])
                             ->action(function (Order $record, array $data): void {
-                                $newStatus = $data['payment_status'];
-
-                                // Güvenlik: Stok zaten düşürülmüş siparişte "paid" yapılırsa
-                                // Observer'ın tekrar stok düşürmesini engelle
-                                if ($newStatus === 'paid' && $record->stock_decremented) {
-                                    $record->payment_status = $newStatus;
-                                    $record->saveQuietly(); // Observer tetiklenmez
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Ödeme durumu güncellendi (stok zaten düşürülmüş, tekrar düşürülmedi)')
-                                        ->success()
-                                        ->send();
-                                    return;
-                                }
-
-                                $record->update(['payment_status' => $newStatus]);
+                                $record->update(['payment_status' => $data['payment_status']]);
                                 \Filament\Notifications\Notification::make()
                                     ->title('Ödeme durumu güncellendi')
                                     ->success()
@@ -812,8 +798,12 @@ class OrdersTable
                             'note' => 'Sipariş admin panel üzerinden iptal edildi.',
                         ]);
 
-                        // Stok geri yükleme — stock_decremented flag ile kesin kontrol
-                        if ($record->stock_decremented) {
+                        // Stok geri yükleme — SADECE daha önce stok düşürülmüş siparişlerde
+                        $wasStockDecremented = $record->payment_method === 'cash_on_delivery' 
+                            || in_array($oldStatus, ['processing', 'shipped', 'delivered'])
+                            || $record->payment_status === 'refunded'; // Az önce refunded yaptık → paid idi
+
+                        if ($wasStockDecremented) {
                             $record->loadMissing(['items.product', 'items.variant']);
                             foreach ($record->items as $item) {
                                 if ($item->variant) {
@@ -833,10 +823,6 @@ class OrdersTable
                                     );
                                 }
                             }
-
-                            // Flag'i sıfırla — stok geri yüklendi
-                            $record->stock_decremented = false;
-                            $record->saveQuietly();
                         }
 
                         // Porego'ya iptal bildirimi gönder

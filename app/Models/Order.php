@@ -16,7 +16,6 @@ class Order extends Model
         'is_invoiced' => 'boolean',
         'gib_invoice_date' => 'datetime',
         'porego_sync_locked' => 'boolean',
-        'stock_decremented' => 'boolean',
     ];
 
     public function user()
