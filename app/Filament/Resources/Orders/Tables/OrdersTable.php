@@ -739,25 +739,31 @@ class OrdersTable
                             'note' => 'İade işlemi admin panel üzerinden yapıldı. Neden: ' . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason']),
                         ]);
 
-                        // 2. Stokları geri yükle
-                        $record->loadMissing(['items.product', 'items.variant']);
-                        foreach ($record->items as $item) {
-                            if ($item->variant) {
-                                $item->variant->safeIncrement(
-                                    $item->quantity,
-                                    \App\Models\StockMovement::TYPE_RETURN,
-                                    $record->order_number,
-                                    "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
-                                );
-                                $item->product?->syncFromVariants();
-                            } elseif ($item->product) {
-                                $item->product->safeIncrement(
-                                    $item->quantity,
-                                    \App\Models\StockMovement::TYPE_RETURN,
-                                    $record->order_number,
-                                    "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
-                                );
+                        // 2. Stokları geri yükle — SADECE stok düşürülmüşse
+                        if ($record->stock_decremented) {
+                            $record->loadMissing(['items.product', 'items.variant']);
+                            foreach ($record->items as $item) {
+                                if ($item->variant) {
+                                    $item->variant->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_RETURN,
+                                        $record->order_number,
+                                        "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
+                                    );
+                                    $item->product?->syncFromVariants();
+                                } elseif ($item->product) {
+                                    $item->product->safeIncrement(
+                                        $item->quantity,
+                                        \App\Models\StockMovement::TYPE_RETURN,
+                                        $record->order_number,
+                                        "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
+                                    );
+                                }
                             }
+
+                            // Flag'i sıfırla — stok geri yüklendi
+                            $record->stock_decremented = false;
+                            $record->saveQuietly();
                         }
 
                         // 3. Muhasebe iade kaydı
