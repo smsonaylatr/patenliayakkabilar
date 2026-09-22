@@ -11,7 +11,7 @@ class MailLogResource extends Resource
     protected static ?string $model = MailLog::class;
     protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
     protected static ?string $navigationLabel = 'E-Posta Logları';
-    protected static ?string $navigationGroup = 'Site Yönetimi';
+    protected static \UnitEnum|string|null $navigationGroup = 'Site Yönetimi';
     protected static ?string $modelLabel = 'E-Posta Logu';
     protected static ?string $pluralModelLabel = 'E-Posta Logları';
     protected static ?int $navigationSort = 99;
