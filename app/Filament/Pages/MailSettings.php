@@ -4,27 +4,42 @@ namespace App\Filament\Pages;
 
 use App\Models\Setting;
 use Filament\Pages\Page;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Placeholder;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
-use Filament\Notifications\Notification;
 
 class MailSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
-    protected static ?string $navigationLabel = 'E-Posta Ayarları';
-    protected static \UnitEnum|string|null $navigationGroup = 'Site Yönetimi';
-    protected static ?string $title = 'E-Posta Sunucusu & Gönderim Ayarları';
+    public static function getNavigationIcon(): string|\Illuminate\Contracts\Support\Htmlable|null
+    {
+        return 'heroicon-o-envelope';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'E-Posta Ayarları';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Site Yönetimi';
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return 'E-Posta Sunucusu & Gönderim Ayarları';
+    }
+
     protected string $view = 'filament.pages.mail-settings';
 
     public ?array $data = [];
@@ -39,13 +54,13 @@ class MailSettings extends Page implements HasForms
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
-            'smtp_host' => $settings['smtp_host'] ?? '',
-            'smtp_port' => $settings['smtp_port'] ?? 465,
+            'smtp_host' => $settings['smtp_host'] ?? config('mail.mailers.smtp.host', ''),
+            'smtp_port' => $settings['smtp_port'] ?? config('mail.mailers.smtp.port', 465),
             'smtp_encryption' => $settings['smtp_encryption'] ?? 'ssl',
-            'smtp_username' => $settings['smtp_username'] ?? '',
+            'smtp_username' => $settings['smtp_username'] ?? config('mail.mailers.smtp.username', ''),
             'smtp_password' => $settings['smtp_password'] ?? '',
-            'smtp_from_address' => $settings['smtp_from_address'] ?? '',
-            'smtp_from_name' => $settings['smtp_from_name'] ?? '',
+            'smtp_from_address' => $settings['smtp_from_address'] ?? config('mail.from.address', ''),
+            'smtp_from_name' => $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar'),
             'mail_order_confirmation' => filter_var($settings['mail_order_confirmation'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_shipping_update' => filter_var($settings['mail_shipping_update'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_welcome' => filter_var($settings['mail_welcome'] ?? true, FILTER_VALIDATE_BOOLEAN),
@@ -55,10 +70,9 @@ class MailSettings extends Page implements HasForms
         ]);
     }
 
-    public function schema(Schema $schema): Schema
+    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
-            ->statePath('data')
             ->schema([
                 Section::make('SMTP Sunucu Ayarları')
                     ->schema([
@@ -129,26 +143,23 @@ class MailSettings extends Page implements HasForms
                             ->label('Fatura E-Postası')
                             ->default(true),
                     ])->columns(3),
-
-                Section::make('Son Gönderilen E-Postalar')
-                    ->schema([
-                        Placeholder::make('stats')
-                            ->label('İstatistikler')
-                            ->content('İstatistikler Mail Logları sayfasından detaylı incelenebilir.'),
-                    ]),
-            ]);
+            ])
+            ->statePath('data');
     }
 
     public function save(): void
     {
         $data = $this->form->getState();
 
-        // Her ayarı updateOrCreate ile kaydediyoruz
         foreach ($data as $key => $value) {
-            Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+            // Placeholder alanlarını kaydetme
+            if (in_array($key, ['info', 'siparis', 'destek', 'isbirligi', 'stats'])) {
+                continue;
+            }
+            Setting::updateOrCreate(['key' => $key], ['value' => is_bool($value) ? ($value ? '1' : '0') : $value]);
         }
 
-        // Değişikliklerin uygulanması için cache'i siliyoruz
+        // SMTP config cache'ini temizle
         Cache::forget('mail_smtp_settings');
 
         Notification::make()
@@ -157,31 +168,42 @@ class MailSettings extends Page implements HasForms
             ->send();
     }
 
-    protected function getFormActions(): array
-    {
-        return [
-            Action::make('save')
-                ->label('Kaydet')
-                ->submit('save')
-                ->color('primary'),
-            Action::make('testMail')
-                ->label('Test Mail Gönder')
-                ->color('secondary')
-                ->action('sendTestMail'),
-        ];
-    }
-
     public function sendTestMail(): void
     {
         try {
-            // Admin kullanıcısına test maili at
-            Mail::raw('Bu bir test e-postasıdır.', function ($message) {
+            // Önce form state'ini uygula
+            $data = $this->form->getState();
+
+            // SMTP ayarlarını geçici olarak config'e yaz
+            if (!empty($data['smtp_host'])) {
+                $port = (int)($data['smtp_port'] ?? 465);
+                $encryption = $data['smtp_encryption'] ?? 'ssl';
+
+                config([
+                    'mail.mailers.smtp.host' => $data['smtp_host'],
+                    'mail.mailers.smtp.port' => $port,
+                    'mail.mailers.smtp.username' => $data['smtp_username'] ?? null,
+                    'mail.mailers.smtp.password' => $data['smtp_password'] ?? null,
+                ]);
+
+                if ($port === 465 || $encryption === 'ssl') {
+                    config(['mail.mailers.smtp.scheme' => 'smtps']);
+                } elseif ($port === 587 || $encryption === 'tls') {
+                    config(['mail.mailers.smtp.scheme' => 'smtp']);
+                }
+
+                // Transport'u yeniden oluştur
+                app('mail.manager')->purge('smtp');
+            }
+
+            Mail::raw('Bu bir test e-postasıdır. Patenli Ayakkabılar mail sunucusu düzgün çalışıyor! ✅', function ($message) {
                 $message->to(auth()->user()->email)
                     ->subject('Patenli Ayakkabılar — Test E-Postası ✅');
             });
 
             Notification::make()
-                ->title('Test Maili Gönderildi')
+                ->title('Test Maili Gönderildi ✅')
+                ->body(auth()->user()->email . ' adresine gönderildi.')
                 ->success()
                 ->send();
         } catch (\Exception $e) {
