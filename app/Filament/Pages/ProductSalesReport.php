@@ -125,7 +125,7 @@ class ProductSalesReport extends Page implements HasTable
                     ->label('')
                     ->disk('public')
                     ->square()
-                    ->size(45)
+                    ->size(32)
                     ->defaultImageUrl(url('/favicon.png'))
                     ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
 
@@ -133,14 +133,15 @@ class ProductSalesReport extends Page implements HasTable
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold')
-                    ->wrap()
-                    ->limit(50),
+                    ->size('sm')
+                    ->limit(30)
+                    ->tooltip(fn ($record) => $record->product_name),
 
                 Tables\Columns\TextColumn::make('variant_info')
-                    ->label('Beden / Renk')
+                    ->label('Beden')
                     ->searchable()
                     ->sortable()
+                    ->size('sm')
                     ->badge()
                     ->color('info'),
 
@@ -148,6 +149,7 @@ class ProductSalesReport extends Page implements HasTable
                     ->label('Adet')
                     ->sortable()
                     ->alignCenter()
+                    ->size('sm')
                     ->badge()
                     ->color(fn (OrderItem $record) => match ($record->order?->status) {
                         'returned', 'return_started' => 'danger',
@@ -158,15 +160,16 @@ class ProductSalesReport extends Page implements HasTable
                     ->label('Toplam')
                     ->money('TRY')
                     ->sortable()
-                    ->weight('bold'),
+                    ->size('sm'),
 
                 Tables\Columns\TextColumn::make('order.status')
                     ->label('Durum')
                     ->badge()
+                    ->size('sm')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'delivered' => '✅ Teslim Edildi',
-                        'returned' => '🔄 İade Edildi',
-                        'return_started' => '📦 İade Sürecinde',
+                        'delivered' => 'Teslim',
+                        'returned' => 'İade',
+                        'return_started' => 'İade Sür.',
                         default => $state ?? '-',
                     })
                     ->color(fn (?string $state) => match ($state) {
@@ -178,9 +181,10 @@ class ProductSalesReport extends Page implements HasTable
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('order.order_number')
-                    ->label('Sipariş No')
+                    ->label('Sipariş')
                     ->searchable()
                     ->sortable()
+                    ->size('sm')
                     ->color('warning')
                     ->url(fn (OrderItem $record) => $record->order
                         ? \App\Filament\Resources\Orders\OrderResource::getUrl('edit', ['record' => $record->order_id])
@@ -191,33 +195,39 @@ class ProductSalesReport extends Page implements HasTable
                     ->label('Müşteri')
                     ->searchable()
                     ->sortable()
-                    ->icon('heroicon-m-user'),
+                    ->size('sm')
+                    ->limit(20)
+                    ->tooltip(fn ($record) => $record->order?->customer_name),
 
                 Tables\Columns\TextColumn::make('order.customer_phone')
                     ->label('Telefon')
                     ->searchable()
+                    ->size('sm')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('order.shipping_city')
                     ->label('Şehir')
                     ->searchable()
                     ->sortable()
+                    ->size('sm')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('order.payment_method')
                     ->label('Ödeme')
+                    ->size('sm')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'credit_card' => '💳 Kredi Kartı',
-                        'cash_on_delivery' => '🚚 Kapıda Ödeme',
-                        'wire_transfer' => '🏦 Havale/EFT',
+                        'credit_card' => '💳 Kart',
+                        'cash_on_delivery' => '🚚 Kapıda',
+                        'wire_transfer' => '🏦 Havale',
                         default => $state ?? '-',
                     })
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('order.created_at')
-                    ->label('Sipariş Tarihi')
-                    ->dateTime('d.m.Y H:i')
+                    ->label('Tarih')
+                    ->dateTime('d.m.Y')
                     ->sortable()
+                    ->size('sm')
                     ->color('gray'),
             ])
             ->filters([
