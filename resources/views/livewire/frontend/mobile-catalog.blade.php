@@ -6,7 +6,7 @@
 
         <!-- Full Screen Panel — aşağıdan yukarı kayan perde -->
         <div x-show="open"
-             x-transition:enter="transition ease-out duration-400"
+             x-transition:enter="transition ease-out duration-[400ms]"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0"
              x-transition:leave="transition ease-in duration-300"
@@ -39,7 +39,7 @@
                            class="flex items-center justify-between py-5 border-b border-gray-800/60 active:opacity-60 transition-opacity group">
                             <span class="text-xl text-white font-light tracking-wide" style="font-family: Georgia, 'Times New Roman', serif;">{{ $category->name }}</span>
                             <div class="flex items-center gap-4">
-                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">{{ $category->products()->count() }} Ürün</span>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">{{ $category->products_count }} Ürün</span>
                                 <span class="text-gray-500 text-lg leading-none group-hover:text-white transition-colors">+</span>
                             </div>
                         </a>

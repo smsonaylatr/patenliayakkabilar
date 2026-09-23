@@ -10,7 +10,10 @@ class MobileCatalog extends Component
     public function render()
     {
         return view('livewire.frontend.mobile-catalog', [
-            'categories' => Category::whereNull('parent_id')->where('status', true)->get(),
+            'categories' => Category::whereNull('parent_id')
+                ->where('status', true)
+                ->withCount(['products' => fn($q) => $q->where('status', true)])
+                ->get(),
         ]);
     }
 }
