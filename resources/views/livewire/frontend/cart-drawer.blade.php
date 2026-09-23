@@ -24,8 +24,8 @@
 
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
-            <!-- Shorten the drawer on mobile to stop exactly at the navbar (64px) -->
-            <div class="pointer-events-none fixed top-0 bottom-[64px] md:bottom-0 md:inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
+            <!-- Shorten the drawer on mobile to stop exactly at the navbar -->
+            <div class="pointer-events-none fixed top-0 bottom-[76px] md:bottom-0 md:inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
                 <div x-show="open" 
                      x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700" 
                      x-transition:enter-start="translate-x-full" 
