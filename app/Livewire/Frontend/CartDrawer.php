@@ -54,7 +54,7 @@ class CartDrawer extends Component
                     $q->whereIn('categories.id', $categoryIds);
                 })
                     ->whereNotIn('id', $cartProductIds)
-                    ->where('is_active', true)
+                    ->where('status', true)
                     ->with('images')
                     ->inRandomOrder()
                     ->take(5)
