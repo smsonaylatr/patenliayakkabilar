@@ -16,27 +16,29 @@
 >
     <!-- Backdrop -->
     <div x-show="open" 
-         x-transition:enter="transition-opacity duration-[800ms] ease-[cubic-bezier(.7,0,.2,1)]" 
+         x-transition:enter="transition-opacity duration-500 ease-out" 
          x-transition:enter-start="opacity-0" 
          x-transition:enter-end="opacity-100" 
-         x-transition:leave="transition-opacity duration-[800ms] ease-[cubic-bezier(.7,0,.2,1)]" 
+         x-transition:leave="transition-opacity duration-500 ease-in" 
          x-transition:leave-start="opacity-100" 
          x-transition:leave-end="opacity-0" 
-         class="fixed inset-0 bg-black/70 sm:bg-gradient-to-l sm:from-black/50 sm:via-black/30 sm:to-black/20" 
+         class="fixed inset-0 bg-black/60" 
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed top-0 left-0 right-0 bottom-[76px] md:bottom-0 pointer-events-none flex items-end md:justify-end">
+    <div class="fixed inset-x-0 bottom-[76px] md:bottom-0 top-0 pointer-events-none flex items-end md:justify-end">
         <div x-show="open" 
-             x-transition:enter="transform transition duration-[600ms] ease-[cubic-bezier(.7,0,.2,1)]" 
-             x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full" 
-             x-transition:enter-end="translate-y-0 md:translate-x-0" 
-             x-transition:leave="transform transition duration-[600ms] ease-[cubic-bezier(.7,0,.2,1)]" 
-             x-transition:leave-start="translate-y-0 md:translate-x-0" 
-             x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full" 
-             class="pointer-events-auto w-full md:max-w-[36rem] md:h-full max-h-[calc(100%-60px)] md:max-h-full">
+             x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
+             x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
+             x-transition:enter-end="translate-y-0 md:translate-x-0 opacity-100" 
+             x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
+             x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
+             x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
+             class="pointer-events-auto w-full md:max-w-[36rem] md:h-full shadow-2xl"
+             style="max-height: calc(100% - 48px); max-height: calc(100dvh - 76px - 48px);"
+             :style="window.innerWidth >= 768 ? 'max-height: 100%' : ''">
 
-            <div class="flex flex-col h-full bg-white rounded-t-[20px] md:rounded-t-none md:rounded-l-[34px] overflow-hidden">
+            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-t-none md:rounded-l-[34px] overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
                 
                 <!-- Drag Pill (Mobile) -->
                 <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0">
