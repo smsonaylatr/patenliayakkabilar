@@ -39,7 +39,7 @@
         @endif
 
         {{-- %5 İNDİRİM Dikey Yazı --}}
-        <a href="{{ route('catalog') }}"
+        <a href="{{ route('products.index') }}"
            class="block border border-gray-300 rounded-full px-1.5 py-3 mt-0.5 hover:border-gray-500 transition-colors group"
         >
             <span class="[writing-mode:vertical-lr] text-[10px] font-semibold tracking-[0.15em] text-black group-hover:text-gray-600 transition-colors whitespace-nowrap">%5 İNDİRİM</span>
