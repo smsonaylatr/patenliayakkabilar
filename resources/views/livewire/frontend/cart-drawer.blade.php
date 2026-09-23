@@ -81,7 +81,7 @@
                             <div class="flex-1 overflow-y-auto overscroll-contain px-5 lg:px-12 py-6 lg:py-8" style="scrollbar-width: thin;">
                                 <ul class="flex flex-col">
                                     @foreach($items as $index => $item)
-                                        <li class="flex gap-4 md:gap-6 {{ $index > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : '' }} {{ !$loop->last ? 'pb-4 md:pb-6' : '' }}">
+                                        <li class="flex gap-4 md:gap-6 {{ $index > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : '' }} pb-4 md:pb-6">
                                             <!-- Product Image -->
                                             <a href="{{ route('products.show', $item->product->slug) }}" wire:navigate 
                                                class="block shrink-0 grow-0 rounded-lg overflow-hidden" style="width:80px;height:80px;">
@@ -99,33 +99,58 @@
                                                 @if($item->variant)
                                                     <span class="text-xs text-black/40">{{ $item->variant->size }}</span>
                                                 @endif
-                                                <span class="text-sm">{{ number_format($item->price * $item->quantity, 2) }}TL</span>
+                                                <span class="text-sm">{{ number_format($item->price, 2) }}TL</span>
                                             </div>
 
                                             <!-- Quantity & Remove -->
                                             <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
-                                                <!-- Quantity Box -->
                                                 <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:48px;height:36px;">
                                                     <span class="text-sm text-center">{{ $item->quantity }}</span>
-                                                    <!-- Desktop +/- buttons -->
                                                     <div class="absolute right-0 hidden lg:flex flex-col items-center justify-center h-full w-5">
-                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" 
-                                                                class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
+                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
                                                             <svg class="w-2 h-2" viewBox="0 0 8 6" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 4.75L4 1.25L7.5 4.75"/></svg>
                                                         </button>
-                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" 
-                                                                class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
+                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
                                                             <svg class="w-2 h-2" viewBox="0 0 8 6" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 1.25L4 4.75L7.5 1.25"/></svg>
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <!-- Remove -->
-                                                <button wire:click="removeItem({{ $item->id }})" 
-                                                        class="text-xs text-black/40 hover:text-black transition-colors">Kaldır</button>
+                                                <button wire:click="removeItem({{ $item->id }})" class="text-xs text-black/40 hover:text-black transition-colors">Kaldır</button>
                                             </div>
                                         </li>
                                     @endforeach
                                 </ul>
+
+                                <!-- Beğenebilirsiniz (Recommendations) -->
+                                @if($recommendations->count() > 0)
+                                    <div class="mt-4 pt-6 border-t border-black/[0.06]">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <p class="font-medium text-lg">Beğenebilirsiniz</p>
+                                            <div class="flex gap-2">
+                                                <button class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 6L8 12L14 18"/></svg>
+                                                </button>
+                                                <button class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6L16 12L10 18"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @foreach($recommendations->take(2) as $rec)
+                                            <div class="flex items-center gap-4 {{ !$loop->last ? 'mb-4 pb-4 border-b border-black/[0.06]' : '' }}">
+                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
+                                                    <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
+                                                </a>
+                                                <div class="flex-1 min-w-0">
+                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1">{{ $rec->name }}</a>
+                                                    <span class="text-sm text-black/60">{{ number_format($rec->price, 2) }}TL</span>
+                                                </div>
+                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0 w-10 h-10 rounded-full bg-black flex items-center justify-center text-white hover:bg-black/80 transition-colors">
+                                                    <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Footer -->

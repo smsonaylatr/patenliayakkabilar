@@ -35,7 +35,7 @@ class CartDrawer extends Component
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
-        $items = $cart->items()->with(['product.images', 'variant'])->get();
+        $items = $cart->items()->with(['product.images', 'product.category', 'variant'])->get();
         
         // Her item için max stok bilgisini hesapla
         $items->each(function ($item) use ($cartService) {
@@ -44,9 +44,26 @@ class CartDrawer extends Component
                 : 0;
         });
 
+        // Beğenebilirsiniz: Sepetteki ürünlerin kategorisinden öneriler
+        $recommendations = collect();
+        $cartProductIds = $items->pluck('product_id')->toArray();
+        if (!empty($cartProductIds)) {
+            $categoryIds = $items->pluck('product.category_id')->filter()->unique()->toArray();
+            if (!empty($categoryIds)) {
+                $recommendations = \App\Models\Product::whereIn('category_id', $categoryIds)
+                    ->whereNotIn('id', $cartProductIds)
+                    ->where('is_active', true)
+                    ->with('images')
+                    ->inRandomOrder()
+                    ->take(5)
+                    ->get();
+            }
+        }
+
         return view('livewire.frontend.cart-drawer', [
             'items' => $items,
             'total' => $cartService->getTotal(),
+            'recommendations' => $recommendations,
         ]);
     }
 }
