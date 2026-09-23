@@ -303,56 +303,67 @@
         @endpersist
 
         @persist('mobile-bottom-nav')
-        <!-- Mobile Bottom Navigation Bar — Halikoy Style (6 eşit öğe) -->
+        <!-- Mobile Bottom Navigation Bar — Halikoy Referans Tasarım -->
         <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-200 z-[9999]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
-            <div class="grid grid-cols-6 h-[60px] w-full">
+            <div class="grid grid-cols-6 h-[58px] w-full">
                 
-                {{-- 1. Anasayfa --}}
-                <a href="{{ route('home') }}" wire:navigate class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+                {{-- 1. Anasayfa — Arch/kemer tarzı ev ikonu --}}
+                <a href="{{ route('home') }}" wire:navigate class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors">
+                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <path d="M12 3C7.03 3 3 7.03 3 12v8a1 1 0 001 1h4v-7h8v7h4a1 1 0 001-1v-8c0-4.97-4.03-9-9-9z" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span class="text-[10px] font-medium leading-none">Anasayfa</span>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900">Anasayfa</span>
                 </a>
 
-                {{-- 2. Menü --}}
-                <button x-data @click="$dispatch('open-mobile-menu')" class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/>
+                {{-- 2. Menü — Üç yatay çizgi (hamburger) --}}
+                <button x-data @click="$dispatch('open-mobile-menu')" class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors">
+                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span class="text-[10px] font-medium leading-none">Menü</span>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900">Menü</span>
                 </button>
 
-                {{-- 3. Arama --}}
-                <button x-data @click="$dispatch('open-search')" class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                {{-- 3. Arama — Büyüteç (Q şekilli) --}}
+                <button x-data @click="$dispatch('open-search')" class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors">
+                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="M16.5 16.5L21 21" stroke-linecap="round"/>
                     </svg>
-                    <span class="text-[10px] font-medium leading-none">Arama</span>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900">Arama</span>
                 </button>
 
-                {{-- 4. Tüm Ürünler --}}
-                <a href="{{ route('products.index') }}" wire:navigate class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 8.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25A2.25 2.25 0 0113.5 8.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+                {{-- 4. Tüm Ürünler — 4 kare grid (aralıklı) --}}
+                <a href="{{ route('products.index') }}" wire:navigate class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors">
+                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <rect x="3" y="3" width="7.5" height="7.5" rx="1" stroke-linejoin="round"/>
+                        <rect x="13.5" y="3" width="7.5" height="7.5" rx="1" stroke-linejoin="round"/>
+                        <rect x="3" y="13.5" width="7.5" height="7.5" rx="1" stroke-linejoin="round"/>
+                        <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1" stroke-linejoin="round"/>
                     </svg>
-                    <span class="text-[10px] font-medium leading-none whitespace-nowrap">Tüm Ürünler</span>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900 whitespace-nowrap">Tüm Ürünler</span>
                 </a>
 
-                {{-- 5. Sepetim --}}
-                <button x-data @click="$dispatch('toggle-cart')" class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors relative">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
-                    </svg>
-                    <span class="text-[10px] font-medium leading-none">Sepetim</span>
+                {{-- 5. Sepetim — Alışveriş sepeti + adet badge --}}
+                <button x-data @click="$dispatch('toggle-cart')" class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors relative">
+                    <div class="relative">
+                        <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                            <path d="M6 6h15l-1.5 9h-12z" stroke-linejoin="round"/>
+                            <path d="M6 6L5.25 3H2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="9" cy="19.5" r="1.5"/>
+                            <circle cx="18" cy="19.5" r="1.5"/>
+                        </svg>
+                        <span class="absolute -top-1.5 -right-2 bg-gray-900 text-white text-[8px] font-bold min-w-[14px] h-[14px] flex items-center justify-center rounded-full leading-none cart-badge-count" style="display: none;"></span>
+                    </div>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900">Sepetim</span>
                 </button>
 
-                {{-- 6. Hesabım --}}
-                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center gap-1 text-gray-800 active:text-black transition-colors">
-                    <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                {{-- 6. Hesabım — Kullanıcı ikonu (daire kafa + omuz) --}}
+                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center gap-[5px] text-gray-900 active:text-black transition-colors">
+                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M5 20c0-3.87 3.13-7 7-7s7 3.13 7 7" stroke-linecap="round"/>
                     </svg>
-                    <span class="text-[10px] font-medium leading-none">Hesabım</span>
+                    <span class="text-[9.5px] font-medium leading-none text-gray-900">Hesabım</span>
                 </a>
 
             </div>
