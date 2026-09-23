@@ -304,8 +304,8 @@
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
-        <div class="md:hidden fixed inset-x-0 bottom-0 w-full z-[9999]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
-            <div class="bg-white rounded-t-2xl shadow-[0_-2px_16px_rgba(0,0,0,0.08)]">
+        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+            <div>
                 <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
                     
                     {{-- 1. Anasayfa — Halikoy home icon --}}
