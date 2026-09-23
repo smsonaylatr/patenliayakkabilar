@@ -13,10 +13,10 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              @click="open = false"
-             class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9998]"
+             class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[10000]"
              style="display: none;"></div>
 
-        <!-- Catalog Panel (bottom slide-up) -->
+        <!-- Catalog Panel -->
         <div x-show="open"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="translate-y-full"
@@ -24,8 +24,8 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed inset-x-0 z-[9998] bg-white rounded-t-3xl shadow-2xl max-h-[70vh] overflow-hidden flex flex-col md:hidden"
-             style="display: none; bottom: calc(76px + env(safe-area-inset-bottom));">
+             class="fixed left-0 right-0 bottom-0 z-[10001] bg-white rounded-t-3xl shadow-2xl flex flex-col md:hidden"
+             style="display: none; max-height: 75vh;">
 
             <!-- Drag Handle -->
             <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -61,8 +61,8 @@
                 </div>
             </div>
 
-            <!-- Tüm Ürünler Button (fixed at bottom of panel) -->
-            <div class="flex-shrink-0 px-4 pb-5 pt-3 border-t border-gray-100 bg-white">
+            <!-- Tüm Ürünler Button (sabit alt) -->
+            <div class="flex-shrink-0 px-4 pt-3 border-t border-gray-100 bg-white" style="padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));">
                 <a href="{{ route('products.index') }}"
                    @click="open = false"
                    wire:navigate
