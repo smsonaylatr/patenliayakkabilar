@@ -26,7 +26,7 @@
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed inset-x-0 bottom-[76px] md:bottom-0 top-0 pointer-events-none flex items-end md:justify-end">
+    <div class="fixed inset-x-0 bottom-[76px] md:bottom-0 top-0 pointer-events-none flex items-end md:items-stretch md:justify-end">
         <div x-show="open" 
              x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
@@ -34,11 +34,9 @@
              x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
              x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
-             class="pointer-events-auto w-full md:max-w-[36rem] md:h-full shadow-2xl"
-             style="max-height: calc(100% - 48px); max-height: calc(100dvh - 76px - 48px);"
-             :style="window.innerWidth >= 768 ? 'max-height: 100%' : ''">
+             class="pointer-events-auto w-full md:max-w-[380px] lg:max-w-[420px] max-h-[calc(100%-48px)] md:max-h-full shadow-2xl">
 
-            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-t-none md:rounded-l-[34px] overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
+            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
                 
                 <!-- Drag Pill (Mobile) -->
                 <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0">
@@ -146,8 +144,15 @@
                                                     <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1">{{ $rec->name }}</a>
                                                     <span class="text-sm text-black/60">{{ number_format($rec->price, 2) }}TL</span>
                                                 </div>
-                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0 w-10 h-10 rounded-full bg-black flex items-center justify-center text-white hover:bg-black/80 transition-colors">
-                                                    <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0">
+                                                    {{-- Mobile: siyah yuvarlak + --}}
+                                                    <span class="md:hidden w-10 h-10 rounded-full bg-black flex items-center justify-center text-white">
+                                                        <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                    </span>
+                                                    {{-- Desktop: pill buton --}}
+                                                    <span class="hidden md:inline-flex items-center gap-1 px-3 py-2 text-xs font-medium border border-black rounded-full hover:bg-black hover:text-white transition-colors">
+                                                        + Hızlı Ekleme
+                                                    </span>
                                                 </a>
                                             </div>
                                         @endforeach
