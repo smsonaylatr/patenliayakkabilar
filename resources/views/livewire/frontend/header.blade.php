@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-none">
+    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" :class="mobileMenuOpen ? 'z-[10000]' : 'z-40'" class="sticky top-0 bg-white border-b border-gray-200 shadow-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
