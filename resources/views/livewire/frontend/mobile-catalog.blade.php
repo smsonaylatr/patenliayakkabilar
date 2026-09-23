@@ -24,8 +24,8 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed inset-x-0 bottom-0 z-[9998] bg-white rounded-t-3xl shadow-2xl max-h-[80vh] overflow-hidden flex flex-col md:hidden"
-             style="display: none; padding-bottom: calc(76px + env(safe-area-inset-bottom));">
+             class="fixed inset-x-0 z-[9998] bg-white rounded-t-3xl shadow-2xl max-h-[70vh] overflow-hidden flex flex-col md:hidden"
+             style="display: none; bottom: calc(76px + env(safe-area-inset-bottom));">
 
             <!-- Drag Handle -->
             <div class="flex justify-center pt-3 pb-1">
