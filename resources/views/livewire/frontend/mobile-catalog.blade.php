@@ -12,8 +12,8 @@
              x-transition:leave="transition ease-in duration-300"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed inset-0 z-[10001] bg-black flex flex-col md:hidden"
-             style="display: none;">
+             class="fixed top-0 left-0 right-0 bottom-0 flex flex-col md:hidden"
+             style="display: none; z-index: 99999; background-color: #000;">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
@@ -27,10 +27,10 @@
             </div>
 
             <!-- Divider -->
-            <div class="mx-6 border-t border-gray-800"></div>
+            <div class="mx-6 border-t border-gray-800 flex-shrink-0"></div>
 
             <!-- Categories List -->
-            <div class="flex-1 overflow-y-auto overscroll-contain">
+            <div class="flex-1 overflow-y-auto overscroll-contain min-h-0">
                 <div class="px-6">
                     @foreach($categories as $category)
                         <a href="{{ route('category.show', ['slug' => $category->slug]) }}"
@@ -48,7 +48,7 @@
             </div>
 
             <!-- Close Button -->
-            <div class="flex-shrink-0 px-6 py-6 border-t border-gray-800">
+            <div class="flex-shrink-0 px-6 py-6 border-t border-gray-800" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));">
                 <button @click="open = false" class="w-full py-4 text-center text-sm text-gray-400 uppercase tracking-[0.2em] hover:text-white transition-colors">
                     ✕ Kapat
                 </button>
