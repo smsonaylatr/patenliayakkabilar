@@ -553,14 +553,25 @@
              x-cloak
              class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[100] max-w-md w-[calc(100%-2rem)]">
             <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border"
-                 :class="type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-red-50 border-red-200 text-red-800'">
-                <i class="fa-solid fa-triangle-exclamation text-lg shrink-0"
-                   :class="type === 'warning' ? 'text-amber-500' : 'text-red-500'"></i>
+                 :class="{
+                     'bg-amber-50 border-amber-200 text-amber-800': type === 'warning',
+                     'bg-green-50 border-green-200 text-green-800': type === 'success',
+                     'bg-red-50 border-red-200 text-red-800': type !== 'warning' && type !== 'success'
+                 }">
+                <i class="text-lg shrink-0"
+                   :class="{
+                       'fa-solid fa-triangle-exclamation text-amber-500': type === 'warning',
+                       'fa-solid fa-circle-check text-green-500': type === 'success',
+                       'fa-solid fa-triangle-exclamation text-red-500': type !== 'warning' && type !== 'success'
+                   }"></i>
                 <p class="text-sm font-medium flex-1" x-text="message"></p>
                 <button @click="show = false" class="shrink-0 text-gray-400 hover:text-gray-600">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
+
+        {{-- Floating Social Sidebar + İndirim Kuponu --}}
+        @include('components.frontend.floating-sidebar')
     </body>
 </html>
