@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <header x-data="{ mobileMenuOpen: false, catalogAutoOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen; catalogAutoOpen = false" @open-mobile-catalog.window="mobileMenuOpen = true; catalogAutoOpen = true" class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-none">
+    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
@@ -125,7 +125,7 @@
                 <a href="{{ route('home') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Ana Sayfa</a>
                 
                 <!-- Mobile Catalog Dropdown -->
-                <div x-data="{ open: catalogAutoOpen }" x-init="$watch('catalogAutoOpen', v => open = v)" class="space-y-1">
+                <div x-data="{ open: false }" class="space-y-1">
                     <button @click="open = !open" class="w-full flex justify-between items-center px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide">
                         Katalog
                         <svg :class="{'rotate-180': open}" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
