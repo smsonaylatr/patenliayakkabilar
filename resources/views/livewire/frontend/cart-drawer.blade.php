@@ -26,7 +26,7 @@
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed inset-0 bottom-[76px] md:bottom-0 pointer-events-none flex items-end md:justify-end">
+    <div class="fixed top-0 left-0 right-0 bottom-[76px] md:bottom-0 pointer-events-none flex items-end md:justify-end">
         <div x-show="open" 
              x-transition:enter="transform transition duration-[600ms] ease-[cubic-bezier(.7,0,.2,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full" 
@@ -74,7 +74,7 @@
                 <div class="flex-1 flex flex-col overflow-hidden min-h-0">
 
                     <!-- Cart Panel -->
-                    <div x-show="activeTab === 'cart'" x-cloak class="flex flex-col h-full">
+                    <div x-show="activeTab === 'cart'" class="flex flex-col h-full">
                         
                         @if(count($items) > 0)
                             <!-- Scrollable: Products -->
@@ -201,7 +201,7 @@
                     </div>
 
                     <!-- Recently Viewed Panel -->
-                    <div x-show="activeTab === 'recent'" x-cloak class="flex-1 overflow-y-auto px-5 lg:px-12 py-8">
+                    <div x-show="activeTab === 'recent'" class="flex-1 overflow-y-auto px-5 lg:px-12 py-8">
                         <div class="flex flex-col items-center justify-center py-12 text-center">
                             <svg class="w-12 h-12 text-black/10 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <p class="text-black/40 text-sm">Henüz incelediğiniz ürün yok</p>

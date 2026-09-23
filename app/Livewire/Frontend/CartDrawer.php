@@ -35,7 +35,7 @@ class CartDrawer extends Component
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
-        $items = $cart->items()->with(['product', 'variant'])->get();
+        $items = $cart->items()->with(['product.images', 'variant'])->get();
         
         // Her item için max stok bilgisini hesapla
         $items->each(function ($item) use ($cartService) {
