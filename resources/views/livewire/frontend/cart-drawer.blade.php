@@ -197,10 +197,6 @@
 
                                     <!-- Action Buttons -->
                                     <div class="grid gap-4">
-                                        <a href="{{ route('checkout') }}?payment=havale" @click="open = false" wire:navigate
-                                           class="flex items-center justify-center w-full py-4 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">
-                                            % 5 Havale indirimi
-                                        </a>
                                         <a href="{{ route('checkout') }}" @click="open = false" wire:navigate
                                            class="flex items-center justify-center gap-2 w-full py-4 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">
                                             <svg class="w-4 h-4 hidden sm:block" viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1"><path stroke-linecap="round" d="M5.833 6.667V5.833c0-1.086 0-1.628.139-2.069a2.667 2.667 0 011.959-1.959c.44-.138.983-.138 2.069-.138s1.628 0 2.069.138a2.667 2.667 0 011.959 1.959c.138.44.138.983.138 2.069v.834M10 11.667v1.666M8.333 18.333h3.334c1.707 0 2.561 0 3.242-.256a3.333 3.333 0 001.834-1.834c.257-.681.257-1.535.257-3.243 0-1.707 0-2.561-.257-3.242a3.333 3.333 0 00-1.834-1.834c-.681-.257-1.535-.257-3.242-.257H8.333c-1.707 0-2.561 0-3.242.257a3.333 3.333 0 00-1.834 1.834C3 12.105 3 12.959 3 14.667c0 1.707 0 2.561.257 3.242a3.333 3.333 0 001.834 1.834c.681.257 1.535.257 3.242.257z"/></svg>
