@@ -35,7 +35,7 @@ class CartDrawer extends Component
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
-        $items = $cart->items()->with(['product.images', 'product.category', 'variant'])->get();
+        $items = $cart->items()->with(['product.images', 'product.categories', 'variant'])->get();
         
         // Her item için max stok bilgisini hesapla
         $items->each(function ($item) use ($cartService) {
@@ -48,9 +48,11 @@ class CartDrawer extends Component
         $recommendations = collect();
         $cartProductIds = $items->pluck('product_id')->toArray();
         if (!empty($cartProductIds)) {
-            $categoryIds = $items->pluck('product.category_id')->filter()->unique()->toArray();
+            $categoryIds = $items->pluck('product.categories')->flatten()->pluck('id')->filter()->unique()->toArray();
             if (!empty($categoryIds)) {
-                $recommendations = \App\Models\Product::whereIn('category_id', $categoryIds)
+                $recommendations = \App\Models\Product::whereHas('categories', function ($q) use ($categoryIds) {
+                    $q->whereIn('categories.id', $categoryIds);
+                })
                     ->whereNotIn('id', $cartProductIds)
                     ->where('is_active', true)
                     ->with('images')
