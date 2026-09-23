@@ -56,7 +56,7 @@
     <button 
         @click="$dispatch('open-stock-modal', { productId: {{ $product->id }}, variantId: '{{ $variantId }}' })"
         type="button" 
-        class="w-full h-14 flex items-center justify-center gap-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-[0_8px_25px_rgba(245,158,11,0.25)] transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+        class="w-full h-14 flex items-center justify-center gap-2.5 rounded-full bg-brand-orange hover:bg-[#e56a10] text-white font-bold text-base shadow-[0_8px_25px_rgba(255,122,26,0.3)] transition-all duration-300 hover:scale-[1.02] cursor-pointer">
         <i class="fa-solid fa-bell"></i>
         <span>Gelince Haber Ver</span>
     </button>
