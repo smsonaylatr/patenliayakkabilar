@@ -317,7 +317,7 @@
                     </a>
 
                     {{-- 2. Katalog — Halikoy hamburger icon --}}
-                    <button x-data @click="$dispatch('open-mobile-menu')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
+                    <button x-data @click="$dispatch('open-mobile-catalog')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
                         <svg class="w-[24px] h-[24px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" d="M3 6H21M3 12H11M3 18H16"/>
                         </svg>
