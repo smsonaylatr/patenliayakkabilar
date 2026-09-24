@@ -43,6 +43,26 @@ class CartDrawer extends Component
         $this->dispatch('cart-updated');
     }
 
+    public function quickAddToCart(CartService $cartService, int $productId): void
+    {
+        $product = \App\Models\Product::findOrFail($productId);
+        
+        $variantId = null;
+        if ($product->variants()->exists()) {
+            $variantId = $product->variants->first()->id;
+        }
+        
+        $result = $cartService->addItem($productId, $variantId, 1);
+        
+        if (!empty($result['error'])) {
+            $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+            return;
+        }
+        
+        $this->dispatch('cart-updated');
+        $this->dispatch('show-notification', type: 'success', message: $product->name . ' sepete eklendi!');
+    }
+
     public function render(CartService $cartService)
     {
         $cart = $cartService->getCart();
