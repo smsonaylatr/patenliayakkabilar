@@ -126,26 +126,30 @@
                                     @endforeach
                                 </ul>
 
-                                <!-- Beğenebilirsiniz (Recommendations) -->
+                                <!-- Beğenebilirsiniz (Horizontal Carousel) -->
                                 @if($recommendations->count() > 0)
                                     <div class="mt-4 pt-6 border-t border-black/[0.06]">
-                                        <div class="flex justify-between items-center mb-4">
+                                        <div class="flex justify-between items-center mb-3">
                                             <p class="font-medium text-lg">Beğenebilirsiniz</p>
+                                            <div class="flex items-center gap-1 text-black/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                                            </div>
                                         </div>
-                                        <div class="flex flex-col">
+                                        <div class="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 lg:-mx-12 lg:px-12 snap-x snap-mandatory scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;">
                                             @foreach($recommendations as $rec)
-                                                <div class="flex items-center gap-4 {{ !$loop->last ? 'mb-4 pb-4 border-b border-black/[0.06]' : '' }}">
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
-                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
-                                                    </a>
-                                                    <div class="flex-1 min-w-0">
-                                                        <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1 block">{{ $rec->name }}</a>
-                                                        <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
+                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="snap-start shrink-0 flex flex-col items-center rounded-xl border border-black/[0.06] p-3 hover:border-black/20 transition-colors group" style="width: 130px;">
+                                                    <div class="rounded-lg overflow-hidden mb-2 relative" style="width:80px;height:80px;">
+                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="80" height="80" class="w-full h-full object-cover" loading="lazy">
+                                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
+                                                            <span class="w-7 h-7 rounded-full bg-black flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <svg class="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0 w-10 h-10 rounded-full bg-black flex items-center justify-center text-white hover:bg-black/80 transition-colors">
-                                                        <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
-                                                    </a>
-                                                </div>
+                                                    <p class="text-xs font-medium leading-tight text-center line-clamp-2 mb-1 w-full">{{ $rec->name }}</p>
+                                                    <span class="text-xs font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
+                                                </a>
                                             @endforeach
                                         </div>
                                     </div>
