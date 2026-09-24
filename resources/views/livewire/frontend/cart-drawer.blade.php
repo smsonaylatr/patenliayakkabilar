@@ -7,7 +7,7 @@
     x-on:toggle-cart.window="open = !open"
     @keydown.escape.window="open = false"
     x-cloak
-    class="relative z-[65]" 
+    class="relative z-[9998]" 
     aria-labelledby="cart-drawer-title" 
     role="dialog" 
     aria-modal="true"
@@ -26,7 +26,7 @@
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed inset-x-0 bottom-[76px] md:bottom-0 top-0 pointer-events-none flex items-end md:items-stretch md:justify-end">
+    <div class="fixed inset-x-0 bottom-0 md:bottom-0 md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="top: 25%;">
         <div x-show="open" 
              x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
@@ -34,7 +34,7 @@
              x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
              x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
-             class="pointer-events-auto w-full md:max-w-[380px] lg:max-w-[420px] max-h-[calc(100%-48px)] md:max-h-full shadow-2xl">
+             class="pointer-events-auto w-full md:max-w-[380px] lg:max-w-[420px] h-full md:max-h-full shadow-2xl">
 
             <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
                 
@@ -188,7 +188,7 @@
                                 </div>
 
                                 <!-- Summary & Buttons -->
-                                <div class="bg-black/[0.025] px-5 lg:px-12 py-6 lg:py-8">
+                                <div class="bg-black/[0.025] px-5 lg:px-12 py-6 lg:py-8" style="padding-bottom: calc(1.5rem + 76px + env(safe-area-inset-bottom, 0px));">
                                     <!-- Subtotal Row -->
                                     <div class="grid grid-cols-2 gap-4 mb-6">
                                         <div class="text-sm leading-[1.375] text-black/60">
