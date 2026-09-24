@@ -9,6 +9,19 @@ use App\Livewire\Account\Profile;
 use App\Livewire\Account\Orders;
 
 // ========================
+// CART COUNT API (Mobile Navbar Badge)
+// ========================
+Route::get('/api/cart-count', function () {
+    $count = \App\Models\CartItem::where(function ($q) {
+        $q->where('session_id', session()->getId());
+        if (auth()->id()) {
+            $q->orWhere('user_id', auth()->id());
+        }
+    })->sum('quantity');
+    return response()->json(['count' => (int) $count]);
+})->name('api.cart-count');
+
+// ========================
 // STORAGE FILE SERVE (RoadRunner symlink desteği olmadığı için)
 // ========================
 Route::get('/storage/{path}', function (string $path) {
