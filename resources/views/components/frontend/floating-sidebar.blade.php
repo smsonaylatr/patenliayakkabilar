@@ -11,16 +11,16 @@
     .newsletter-bar {
         position: fixed;
         left: 0;
-        top: 50vh;
         top: 50svh;
         transform: translateY(-50%);
-        width: 3.25rem;
-        margin-left: 1rem;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
+        width: 2.75rem;
+        margin-left: 0.5rem;
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
         backdrop-filter: blur(6px);
-        background-color: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        -webkit-backdrop-filter: blur(6px);
+        background-color: rgba(255, 255, 255, 0.85);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
         border-radius: 9999px;
         z-index: 30;
         display: none;
@@ -29,31 +29,32 @@
     @media screen and (min-width: 768px) {
         .newsletter-bar {
             display: grid;
-            gap: 0.75rem;
+            gap: 0.25rem;
         }
     }
 
-    @media screen and (min-width: 640px) {
+    @media screen and (min-width: 1024px) {
         .newsletter-bar {
-            margin-left: 1.5rem;
+            margin-left: 0.875rem;
+            width: 2.875rem;
         }
     }
 
     .newsletter-bar__social ul {
-        padding-top: 0.25rem;
+        padding-top: 0.125rem;
         flex-direction: column;
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
-        gap: 0.125rem;
+        gap: 0;
         list-style: none;
         margin: 0;
         padding-left: 0;
+        padding-right: 0;
     }
 
     .newsletter-bar__social ul li {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2.25rem;
+        height: 2rem;
     }
 
     .newsletter-bar__social .social_platform {
@@ -63,29 +64,33 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        color: inherit;
+        color: #171717;
         text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .newsletter-bar__social .social_platform:hover {
+        opacity: 0.55;
     }
 
     .newsletter-bar__social .social_platform svg {
-        width: 1rem;
-        height: 1rem;
+        width: 0.875rem;
+        height: 0.875rem;
         fill: currentColor;
     }
 
     .newsletter-bar__button {
         writing-mode: vertical-rl;
         transform: rotate(-180deg);
-        font-size: 0.625rem;
-        letter-spacing: 0.05em;
+        font-size: 0.5625rem;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        font-weight: 500;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        font-weight: 600;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        margin: 0 auto;
         color: #171717;
-        background-color: rgba(23, 23, 23, 0.045);
+        background-color: rgba(23, 23, 23, 0.04);
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -93,17 +98,24 @@
         cursor: pointer;
         text-decoration: none;
         border: none;
+        line-height: 1;
+        white-space: nowrap;
+        transition: background-color 0.2s ease;
+    }
+
+    .newsletter-bar__button:hover {
+        background-color: rgba(23, 23, 23, 0.08);
     }
 
     @media (pointer: fine) {
         .newsletter-bar__button:hover span {
-            animation: beat 0.6s infinite ease;
+            animation: nb-beat 0.6s infinite ease;
         }
     }
 
-    @keyframes beat {
+    @keyframes nb-beat {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+        50% { transform: scale(1.06); }
     }
 </style>
 

@@ -12,12 +12,15 @@ use App\Livewire\Account\Orders;
 // CART COUNT API (Mobile Navbar Badge)
 // ========================
 Route::get('/api/cart-count', function () {
-    $count = \App\Models\CartItem::where(function ($q) {
-        $q->where('session_id', session()->getId());
+    $cart = \App\Models\Cart::where(function ($q) {
         if (auth()->id()) {
-            $q->orWhere('user_id', auth()->id());
+            $q->where('user_id', auth()->id());
+        } else {
+            $q->where('session_id', session()->getId());
         }
-    })->sum('quantity');
+    })->first();
+    
+    $count = $cart ? $cart->items()->sum('quantity') : 0;
     return response()->json(['count' => (int) $count]);
 })->name('api.cart-count');
 
