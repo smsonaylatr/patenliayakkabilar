@@ -30,7 +30,7 @@
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 9998;">
+    <div class="fixed inset-x-0 bottom-[76px] md:bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 9998;">
         <div x-show="open" 
              x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
@@ -191,7 +191,7 @@
                                 </div>
 
                                 <!-- Summary & Buttons -->
-                                <div class="px-5 lg:px-12 py-5 lg:py-6" style="padding-bottom: calc(1.5rem + 0px + env(safe-area-inset-bottom, 0px));">
+                                <div class="px-5 lg:px-12 py-4 lg:py-6" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));" >
                                     <!-- Subtotal Row -->
                                     <div class="grid grid-cols-2 gap-4 mb-5">
                                         <div class="text-sm leading-[1.375] text-black/60">
