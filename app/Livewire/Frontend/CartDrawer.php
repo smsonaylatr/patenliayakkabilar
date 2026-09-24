@@ -55,13 +55,16 @@ class CartDrawer extends Component
                 : 0;
         });
 
-        // Beğenebilirsiniz: Sepetteki ürünler hariç aktif ürünlerden öneriler
+        // Beğenebilirsiniz: Güvenlik ekipmanları kategorisinden öneriler
         $cartProductIds = $items->pluck('product_id')->toArray();
-        $recommendations = \App\Models\Product::whereNotIn('id', $cartProductIds)
+        $recommendations = \App\Models\Product::whereHas('categories', function ($q) {
+            $q->where('categories.slug', 'guvenlik-ekipmanlari');
+        })
+            ->whereNotIn('id', $cartProductIds)
             ->where('status', true)
             ->with('images')
             ->inRandomOrder()
-            ->take(8)
+            ->take(10)
             ->get();
 
         return view('livewire.frontend.cart-drawer', [

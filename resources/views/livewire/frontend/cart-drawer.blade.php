@@ -128,39 +128,29 @@
 
                                 <!-- Beğenebilirsiniz (Recommendations) -->
                                 @if($recommendations->count() > 0)
-                                    <div class="mt-4 pt-6 border-t border-black/[0.06]">
+                                    <div class="mt-4 pt-6 border-t border-black/[0.06]" x-data="{ scrollEl: null }" x-init="scrollEl = $refs.recScroll">
                                         <div class="flex justify-between items-center mb-4">
                                             <p class="font-medium text-lg">Beğenebilirsiniz</p>
                                             <div class="flex gap-2">
-                                                <button class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
+                                                <button @click="scrollEl.scrollBy({ left: -200, behavior: 'smooth' })" class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
                                                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 6L8 12L14 18"/></svg>
                                                 </button>
-                                                <button class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
+                                                <button @click="scrollEl.scrollBy({ left: 200, behavior: 'smooth' })" class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
                                                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6L16 12L10 18"/></svg>
                                                 </button>
                                             </div>
                                         </div>
-                                        @foreach($recommendations as $rec)
-                                            <div class="flex items-center gap-4 {{ !$loop->last ? 'mb-4 pb-4 border-b border-black/[0.06]' : '' }}">
-                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
-                                                    <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
-                                                </a>
-                                                <div class="flex-1 min-w-0">
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1">{{ $rec->name }}</a>
+                                        <div x-ref="recScroll" class="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 lg:-mx-12 lg:px-12 snap-x snap-mandatory" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                            @foreach($recommendations as $rec)
+                                                <div class="flex-none w-[200px] snap-start">
+                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block rounded-lg overflow-hidden mb-2" style="height: 200px;">
+                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="200" height="200" class="w-full h-full object-cover" loading="lazy">
+                                                    </a>
+                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1 block">{{ $rec->name }}</a>
                                                     <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
                                                 </div>
-                                                <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0">
-                                                    {{-- Mobile: siyah yuvarlak + --}}
-                                                    <span class="md:hidden w-10 h-10 rounded-full bg-black flex items-center justify-center text-white">
-                                                        <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
-                                                    </span>
-                                                    {{-- Desktop: pill buton --}}
-                                                    <span class="hidden md:inline-flex items-center gap-1 px-3 py-2 text-xs font-medium border border-black rounded-full hover:bg-black hover:text-white transition-colors">
-                                                        + Hızlı Ekleme
-                                                    </span>
-                                                </a>
-                                            </div>
-                                        @endforeach
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @endif
                             </div>
