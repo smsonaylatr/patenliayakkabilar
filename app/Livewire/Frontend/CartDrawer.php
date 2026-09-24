@@ -8,10 +8,24 @@ use Livewire\Attributes\On;
 
 class CartDrawer extends Component
 {
+    public string $orderNote = '';
+    public string $couponCode = '';
+
     #[On('cart-updated')]
     public function refreshCart(): void
     {
         // Livewire will re-render automatically
+    }
+
+    public function applyCoupon(): void
+    {
+        if (empty($this->couponCode)) {
+            $this->dispatch('show-notification', type: 'warning', message: 'Lütfen bir indirim kodu girin.');
+            return;
+        }
+
+        // TODO: Kupon doğrulama ve uygulama mantığı
+        $this->dispatch('show-notification', type: 'info', message: 'İndirim kodu uygulandı.');
     }
 
     public function removeItem(CartService $cartService, int $itemId): void
