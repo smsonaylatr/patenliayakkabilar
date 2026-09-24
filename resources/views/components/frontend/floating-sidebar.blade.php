@@ -53,8 +53,8 @@
     }
 
     .newsletter-bar__social ul li {
-        width: 2.25rem;
-        height: 2rem;
+        width: 2.5rem;
+        height: 2.5rem;
     }
 
     .newsletter-bar__social .social_platform {
@@ -74,8 +74,8 @@
     }
 
     .newsletter-bar__social .social_platform svg {
-        width: 0.875rem;
-        height: 0.875rem;
+        width: 1rem;
+        height: 1rem;
         fill: currentColor;
     }
 
