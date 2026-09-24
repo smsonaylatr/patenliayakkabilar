@@ -17,6 +17,7 @@ class Product extends Model
         return [
             'is_cod_active' => 'boolean',
             'has_installments' => 'boolean',
+            'requires_size' => 'boolean',
             'is_indexable' => 'boolean',
             'aio_target_keywords' => 'array',
             'faq_schema' => 'array',
@@ -544,10 +545,12 @@ class Product extends Model
             $specs['Yaş Grubu'] = $ageLabel;
         }
 
-        // Varyantlardan numara aralığı
-        $sizes = $this->variants->pluck('size')->filter()->sort()->values();
-        if ($sizes->isNotEmpty()) {
-            $specs['Numara Aralığı'] = $sizes->first() . ' - ' . $sizes->last();
+        // Varyantlardan numara aralığı (sadece beden gerektiren ürünlerde)
+        if ($this->requires_size !== false) {
+            $sizes = $this->variants->pluck('size')->filter()->sort()->values();
+            if ($sizes->isNotEmpty()) {
+                $specs['Numara Aralığı'] = $sizes->first() . ' - ' . $sizes->last();
+            }
         }
 
         // Renkler (her varyantın color alanı artık array)

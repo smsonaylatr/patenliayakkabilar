@@ -10,7 +10,7 @@
     x-on:toggle-cart.window="open = !open"
     @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else open = false"
     x-cloak
-    class="relative" 
+    :class="(notePanel || shippingPanel || discountPanel) ? 'relative z-[10000]' : 'relative z-[9998]'" 
     aria-labelledby="cart-drawer-title" 
     role="dialog" 
     aria-modal="true"
