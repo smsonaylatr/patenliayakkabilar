@@ -166,9 +166,9 @@
                             </div>
 
                             <!-- Footer -->
-                            <div class="shrink-0" wire:ignore>
+                            <div class="shrink-0">
                                 <!-- Footer Icons: Sipariş Notu, Kargo, İndirim -->
-                                <div class="flex border-t border-black/[0.06]">
+                                <div class="flex border-t border-black/[0.06]" wire:ignore>
                                     <button @click="notePanel = true; shippingPanel = false; discountPanel = false" :class="notePanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
                                         <svg class="w-5 h-5" :class="notePanel ? 'opacity-80' : 'opacity-30'" viewBox="0 0 25 24" stroke="currentColor" fill="none" stroke-width="1">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 21.5V19.2C16.5 18.0799 16.5 17.5198 16.718 17.092C16.9097 16.7157 17.2157 16.4097 17.592 16.218C18.0198 16 18.5799 16 19.7 16H22M7.5 7H15.5M7.5 11H13.5M7.5 15H9.5M15.6716 22H12.1C8.73969 22 7.05953 22 5.77606 21.346C4.64708 20.7708 3.7292 19.8529 3.15396 18.7239C2.5 17.4405 2.5 15.7603 2.5 12.4V11.6C2.5 8.23969 2.5 6.55953 3.15396 5.27606C3.7292 4.14708 4.64708 3.2292 5.77606 2.65396C7.05953 2 8.73969 2 12.1 2H12.9C16.2603 2 17.9405 2 19.2239 2.65396C20.3529 3.2292 21.2708 4.14708 21.846 5.27606C22.5 6.55953 22.5 8.23969 22.5 11.6V15.1716C22.5 15.5088 22.5 15.6774 22.4912 15.8399C22.4171 17.2049 21.8791 18.5036 20.9663 19.5212C20.8577 19.6423 20.7385 19.7615 20.5 20C20.2615 20.2385 20.1423 20.3577 20.0212 20.4663C19.0036 21.3791 17.7049 21.9171 16.3399 21.9912C16.1774 22 16.0088 22 15.6716 22Z"/>
