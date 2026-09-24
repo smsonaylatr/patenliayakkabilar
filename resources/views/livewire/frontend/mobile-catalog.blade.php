@@ -24,8 +24,8 @@
              x-transition:leave="transition ease-in duration-300"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed left-0 right-0 flex flex-col md:hidden rounded-t-2xl shadow-2xl"
-             style="display: none; z-index: 9998; top: 50%; bottom: calc(75px + env(safe-area-inset-bottom, 0px)); background-color: #fff;">
+             class="fixed left-0 right-0 bottom-0 flex flex-col md:hidden rounded-t-2xl shadow-2xl"
+             style="display: none; z-index: 9998; top: 50%; background-color: #fff;">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
@@ -62,7 +62,7 @@
             </div>
 
             <!-- Close Button -->
-            <div class="flex-shrink-0 px-6 py-4 border-t border-gray-200">
+            <div class="flex-shrink-0 px-6 pt-4 border-t border-gray-200" style="padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));">
                 <button @click="open = false" class="w-full py-3 text-center text-sm text-gray-500 uppercase tracking-[0.2em] hover:text-black transition-colors flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
