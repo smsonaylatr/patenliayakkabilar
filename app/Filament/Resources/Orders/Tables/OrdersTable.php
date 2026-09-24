@@ -725,8 +725,13 @@ class OrdersTable
                             'note' => 'İade işlemi admin panel üzerinden yapıldı. Neden: ' . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason']),
                         ]);
 
-                        // 2. Stokları geri yükle — SADECE stok düşürülmüşse
-                        if ($record->stock_decremented) {
+                        // 2. Stokları geri yükle — SADECE daha önce stok düşürülmüş siparişlerde
+                        // Kapıda ödeme: her zaman düşürülmüştü
+                        // Kredi kartı/Havale: sadece payment_status paid/refunded ise düşürülmüştü
+                        $wasStockDecremented = $record->payment_method === 'cash_on_delivery'
+                            || in_array($record->getOriginal('payment_status') ?? $record->payment_status, ['paid', 'refunded']);
+
+                        if ($wasStockDecremented) {
                             $record->loadMissing(['items.product', 'items.variant']);
                             foreach ($record->items as $item) {
                                 if ($item->variant) {
@@ -746,10 +751,9 @@ class OrdersTable
                                     );
                                 }
                             }
-
-                            // Flag'i sıfırla — stok geri yüklendi
-                            $record->stock_decremented = false;
-                            $record->saveQuietly();
+                            \Illuminate\Support\Facades\Log::info("İade stok geri yükleme: #{$record->order_number}");
+                        } else {
+                            \Illuminate\Support\Facades\Log::info("İade stok geri yükleme atlandı (stok düşürülmemişti): #{$record->order_number}, payment_status: {$record->payment_status}");
                         }
 
                         // 3. Muhasebe iade kaydı

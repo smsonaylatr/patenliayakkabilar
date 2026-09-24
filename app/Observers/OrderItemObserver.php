@@ -19,6 +19,23 @@ class OrderItemObserver
         $item->total_price = $item->quantity * $item->unit_price;
         $item->saveQuietly();
 
+        $order = $item->order;
+
+        // İptal/iade durumundaki siparişlere ekleme yapılırsa stok düşürme
+        if ($order && in_array($order->status, ['cancelled', 'returned'])) {
+            Log::info("OrderItemObserver: Sipariş #{$order->order_number} iptal/iade durumunda, stok düşürme atlanıyor.");
+            $this->recalculateOrderTotals($item);
+            return;
+        }
+
+        // Henüz ödenmemiş kredi kartı/havale siparişlerine ekleme — stok düşürme
+        // (Stok, ödeme onaylandığında Observer tarafından düşürülecek)
+        if ($order && in_array($order->payment_method, ['credit_card', 'wire_transfer']) && $order->payment_status !== 'paid') {
+            Log::info("OrderItemObserver: Sipariş #{$order->order_number} henüz ödenmemiş ({$order->payment_method}), stok düşürme atlanıyor.");
+            $this->recalculateOrderTotals($item);
+            return;
+        }
+
         // Stok düş (admin panelden ekleme durumunda)
         $this->decrementStock($item);
 

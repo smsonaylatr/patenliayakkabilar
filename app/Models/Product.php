@@ -596,9 +596,33 @@ class Product extends Model
         $this->discount_price = $minDiscount;
 
         // Toplam stok
+        $oldStock = (int) $this->stock;
         $this->stock = $variants->sum('stock');
 
         $this->saveQuietly();
+
+        // Stok 0'a düştü ve ürün aktifse → otomatik pasife al
+        if ($this->stock <= 0 && $this->status && $oldStock > 0) {
+            $this->updateQuietly(['status' => false]);
+
+            \Filament\Notifications\Notification::make()
+                ->title('Ürün Pasife Alındı')
+                ->body("{$this->name} isimli ürünün stoku tükendiği için otomatik olarak pasife alındı.")
+                ->icon('heroicon-o-eye-slash')
+                ->color('warning')
+                ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
+
+            \Illuminate\Support\Facades\Log::info("Ürün otomatik pasife alındı (syncFromVariants): {$this->name} (ID: {$this->id})");
+
+            // Ürün cache temizle
+            \Illuminate\Support\Facades\Cache::forget('home_product_grid');
+            \Illuminate\Support\Facades\Cache::forget('best_seller_carousel_products');
+        }
+
+        // Stok yenilendiyse bekleyen bildirimleri gönder
+        if ($this->status && $this->stock > 0 && $oldStock <= 0) {
+            \App\Services\StockNotificationService::processNotifications($this);
+        }
     }
 
     public function stockNotifications()

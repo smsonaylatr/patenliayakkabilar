@@ -126,28 +126,99 @@ class PoregoWebhookController extends Controller
                             $order->payment_status = 'paid';
                         }
 
-                        $order->save();
+                        // saveQuietly: Observer'ın çift stok geri yükleme yapmasını önle
+                        // Stok yönetimi aşağıda webhook kodu tarafından yapılıyor
+                        $order->saveQuietly();
+
+                        // Audit log (Observer devre dışı olduğu için manuel)
+                        \App\Models\OrderStatusHistory::create([
+                            'order_id' => $order->id,
+                            'old_status' => $order->getOriginal('status'),
+                            'new_status' => $newStatus,
+                            'changed_by' => null,
+                            'note' => "Porego webhook ile durum güncellendi: {$newStatus}",
+                        ]);
 
                         if ($newStatus === 'cancelled') {
-                            foreach ($order->items as $item) {
-                                if ($item->variant) {
-                                    $item->variant->safeIncrement(
-                                        $item->quantity,
-                                        \App\Models\StockMovement::TYPE_CANCEL,
-                                        $order->order_number,
-                                        "Porego webhook iptali ile stok geri yüklendi"
-                                    );
-                                    $item->product?->syncFromVariants();
-                                } elseif ($item->product) {
-                                    $item->product->safeIncrement(
-                                        $item->quantity,
-                                        \App\Models\StockMovement::TYPE_CANCEL,
-                                        $order->order_number,
-                                        "Porego webhook iptali ile stok geri yüklendi"
-                                    );
+                            // Stok geri yükleme — SADECE daha önce stok düşürülmüşse
+                            $wasStockDecremented = $order->payment_method === 'cash_on_delivery'
+                                || in_array($order->getOriginal('payment_status') ?? $order->payment_status, ['paid', 'refunded']);
+
+                            if ($wasStockDecremented) {
+                                $order->loadMissing(['items.product', 'items.variant']);
+                                foreach ($order->items as $item) {
+                                    if ($item->variant) {
+                                        $item->variant->safeIncrement(
+                                            $item->quantity,
+                                            \App\Models\StockMovement::TYPE_CANCEL,
+                                            $order->order_number,
+                                            "Porego webhook iptali ile stok geri yüklendi"
+                                        );
+                                        $item->product?->syncFromVariants();
+                                    } elseif ($item->product) {
+                                        $item->product->safeIncrement(
+                                            $item->quantity,
+                                            \App\Models\StockMovement::TYPE_CANCEL,
+                                            $order->order_number,
+                                            "Porego webhook iptali ile stok geri yüklendi"
+                                        );
+                                    }
                                 }
+                                Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildiği için stoklar geri yüklendi.");
+                            } else {
+                                Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal — stok geri yükleme atlandı (stok düşürülmemişti).");
                             }
-                            Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iptal edildiği için stoklar geri yüklendi.");
+
+                            // Ödeme iade durumuna al
+                            if ($order->payment_status === 'paid') {
+                                $order->payment_status = 'refunded';
+                                $order->saveQuietly();
+                            }
+                        } elseif ($newStatus === 'returned') {
+                            // İade — stok geri yükleme
+                            $wasStockDecremented = $order->payment_method === 'cash_on_delivery'
+                                || in_array($order->getOriginal('payment_status') ?? $order->payment_status, ['paid', 'refunded']);
+
+                            if ($wasStockDecremented) {
+                                $order->loadMissing(['items.product', 'items.variant']);
+                                foreach ($order->items as $item) {
+                                    if ($item->variant) {
+                                        $item->variant->safeIncrement(
+                                            $item->quantity,
+                                            \App\Models\StockMovement::TYPE_RETURN,
+                                            $order->order_number,
+                                            "Porego webhook iadesi ile stok geri yüklendi"
+                                        );
+                                        $item->product?->syncFromVariants();
+                                    } elseif ($item->product) {
+                                        $item->product->safeIncrement(
+                                            $item->quantity,
+                                            \App\Models\StockMovement::TYPE_RETURN,
+                                            $order->order_number,
+                                            "Porego webhook iadesi ile stok geri yüklendi"
+                                        );
+                                    }
+                                }
+                                Log::info("Porego Webhook: Sipariş (#{$order->order_number}) iade edildiği için stoklar geri yüklendi.");
+                            }
+
+                            // Ödeme iade durumuna al
+                            if (in_array($order->payment_status, ['paid', 'pending'])) {
+                                $order->payment_status = 'refunded';
+                                $order->saveQuietly();
+                            }
+
+                            // Muhasebe iade kaydı
+                            try {
+                                $existingRefund = \App\Models\AccountingEntry::where('order_id', $order->id)
+                                    ->where('type', \App\Models\AccountingEntry::TYPE_REFUND)
+                                    ->first();
+                                if (!$existingRefund) {
+                                    \App\Models\AccountingEntry::recordRefund($order);
+                                }
+                            } catch (\Throwable $e) {
+                                Log::error("Porego Webhook muhasebe iade kaydı hatası: " . $e->getMessage());
+                            }
                         }
 
                         Log::info("Porego Webhook: Sipariş (#{$order->order_number}) durumu '{$newStatus}' olarak güncellendi.");

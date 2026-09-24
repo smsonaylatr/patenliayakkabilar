@@ -543,33 +543,59 @@ class Checkout extends Component
     {
         $order->loadMissing(['items.product', 'items.variant']);
 
+        $failedItems = [];
+
         foreach ($order->items as $orderItem) {
             if ($orderItem->product_variant_id) {
                 $variant = \App\Models\ProductVariant::find($orderItem->product_variant_id);
                 if ($variant) {
-                    $variant->safeDecrement(
+                    $success = $variant->safeDecrement(
                         $orderItem->quantity,
                         $order->order_number,
                         "Ödeme onayı ile stok düşürüldü"
                     );
-                    $variant->product?->syncFromVariants();
+                    if ($success) {
+                        $variant->product?->syncFromVariants();
+                    } else {
+                        $failedItems[] = "{$orderItem->product_name} (Beden: {$variant->size}) — istenen: {$orderItem->quantity}, stok: {$variant->stock}";
+                    }
                 }
             } elseif ($orderItem->product) {
                 $product = Product::find($orderItem->product_id);
                 if ($product) {
-                    $product->safeDecrement(
+                    $success = $product->safeDecrement(
                         $orderItem->quantity,
                         $order->order_number,
                         "Ödeme onayı ile stok düşürüldü"
                     );
+                    if (!$success) {
+                        $failedItems[] = "{$orderItem->product_name} — istenen: {$orderItem->quantity}, stok: {$product->stock}";
+                    }
                 }
             }
+        }
+
+        // Stok yetersizliği varsa admin'e bildirim gönder
+        if (!empty($failedItems)) {
+            $itemList = implode("\n", $failedItems);
+            \Illuminate\Support\Facades\Log::warning("Stok yetersizliği — sipariş ödendi ama stok düşürülemedi", [
+                'order_number' => $order->order_number,
+                'failed_items' => $failedItems,
+            ]);
+
+            \Filament\Notifications\Notification::make()
+                ->title('⚠️ Stok Yetersiz — Sipariş Kontrol Gerekli')
+                ->body("#{$order->order_number} siparişinde stok düşürülemedi:\n{$itemList}")
+                ->icon('heroicon-o-exclamation-triangle')
+                ->color('danger')
+                ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
         }
 
         \Illuminate\Support\Facades\Log::info("Stok düşürme tamamlandı", [
             'order_number' => $order->order_number,
             'payment_method' => $order->payment_method,
             'items_count' => $order->items->count(),
+            'failed_count' => count($failedItems),
         ]);
     }
 

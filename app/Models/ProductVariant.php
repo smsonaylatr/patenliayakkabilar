@@ -178,6 +178,15 @@ class ProductVariant extends Model
             reference: $reference,
             note: $note,
         );
+
+        // Stok geri geldiyse bekleyen "Gelince Haber Ver" bildirimlerini tetikle
+        if ($oldStock <= 0 && $this->stock > 0 && $this->product?->status) {
+            try {
+                \App\Services\StockNotificationService::processNotifications($this->product, $this);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Stok bildirim hatası (safeIncrement): " . $e->getMessage());
+            }
+        }
     }
 
     /**
