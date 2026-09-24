@@ -246,7 +246,7 @@
     <!-- Bottom Sheet: Sipariş Notu -->
     <div x-show="notePanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="notePanel = false">
         <div x-show="notePanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="notePanel = false" class="absolute inset-0 bg-black/40"></div>
-        <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+        <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6" style="padding-bottom: calc(2rem + 76px + env(safe-area-inset-bottom, 0px));">
             <div class="flex items-center justify-between mb-5">
                 <h4 class="text-base font-semibold">Özel talimatlar sipariş edin</h4>
                 <button @click="notePanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
@@ -261,7 +261,7 @@
     <!-- Bottom Sheet: Kargo Tahmini -->
     <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="shippingPanel = false">
         <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40"></div>
-        <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+        <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6" style="padding-bottom: calc(2rem + 76px + env(safe-area-inset-bottom, 0px));">
             <div class="flex items-center justify-between mb-5">
                 <h4 class="text-base font-semibold">Kargo tahmini</h4>
                 <button @click="shippingPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
@@ -278,7 +278,7 @@
     <!-- Bottom Sheet: İndirim Kodu -->
     <div x-show="discountPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" x-data="{ code: '' }" @keydown.escape.window.stop="discountPanel = false">
         <div x-show="discountPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="discountPanel = false" class="absolute inset-0 bg-black/40"></div>
-        <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+        <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6" style="padding-bottom: calc(2rem + 76px + env(safe-area-inset-bottom, 0px));">
             <div class="flex items-center justify-between mb-5">
                 <h4 class="text-base font-semibold">İndirim</h4>
                 <button @click="discountPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
