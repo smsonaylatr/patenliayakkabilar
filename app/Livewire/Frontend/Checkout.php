@@ -557,7 +557,8 @@ class Checkout extends Component
                     if ($success) {
                         $variant->product?->syncFromVariants();
                     } else {
-                        $failedItems[] = "{$orderItem->product_name} (Beden: {$variant->size}) — istenen: {$orderItem->quantity}, stok: {$variant->stock}";
+                        $variantLabel = $variant->size ? " (Beden: {$variant->size})" : '';
+                        $failedItems[] = "{$orderItem->product_name}{$variantLabel} — istenen: {$orderItem->quantity}, stok: {$variant->stock}";
                     }
                 }
             } elseif ($orderItem->product) {

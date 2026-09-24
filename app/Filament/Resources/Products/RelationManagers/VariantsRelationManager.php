@@ -18,61 +18,70 @@ use Filament\Tables\Table;
 class VariantsRelationManager extends RelationManager
 {
     protected static string $relationship = 'variants';
-    protected static ?string $title = 'Varyantlar (Numara / Renk)';
+    protected static ?string $title = 'Varyantlar';
     protected static ?string $modelLabel = 'Varyant';
     protected static ?string $pluralModelLabel = 'Varyantlar';
 
     public function schema(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Select::make('color')->native(false)
-                    ->label('Renk')
-                    ->options(ProductVariant::COLOR_OPTIONS)
-                    ->multiple()
-                    ->searchable()
-                    ->native(false)
-                    ->required()
-                    ->helperText('Birden fazla renk seçebilirsiniz'),
-                Select::make('size')->native(false)
-                    ->label('Numara')
-                    ->options(
-                        collect(range(28, 45))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
-                    )
-                    ->searchable()
-                    ->required(),
-                Select::make('wheel_type')->native(false)
-                    ->label('Teker Tipi')
-                    ->options([
-                        'single' => 'Tek Teker',
-                        'double' => 'Çift Teker',
-                        'quad' => 'Dört Teker',
-                        'led' => 'LED Tekerlekli',
-                    ])
-                    ->searchable(),
-                TextInput::make('stock')
-                    ->label('Stok')
-                    ->numeric()
-                    ->required()
-                    ->default(0)
-                    ->minValue(0),
-                TextInput::make('price_extra')
-                    ->label('Fiyat Farkı')
-                    ->numeric()
-                    ->prefix('₺')
-                    ->default(0)
-                    ->step(0.01)
-                    ->helperText('Ana fiyata eklenecek tutar'),
-                TextInput::make('sku')
-                    ->label('SKU')
-                    ->helperText('Boş bırakılırsa otomatik oluşturulur'),
-            ]);
+        $requiresSize = (bool) ($this->getOwnerRecord()?->requires_size ?? true);
+
+        $components = [
+            Select::make('color')->native(false)
+                ->label('Renk')
+                ->options(ProductVariant::COLOR_OPTIONS)
+                ->multiple()
+                ->searchable()
+                ->native(false)
+                ->required()
+                ->helperText('Birden fazla renk seçebilirsiniz'),
+        ];
+
+        if ($requiresSize) {
+            $components[] = Select::make('size')->native(false)
+                ->label('Numara')
+                ->options(
+                    collect(range(28, 45))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
+                )
+                ->searchable()
+                ->required();
+        }
+
+        $components[] = Select::make('wheel_type')->native(false)
+            ->label('Teker Tipi')
+            ->options([
+                'single' => 'Tek Teker',
+                'double' => 'Çift Teker',
+                'quad' => 'Dört Teker',
+                'led' => 'LED Tekerlekli',
+            ])
+            ->searchable();
+        $components[] = TextInput::make('stock')
+            ->label('Stok')
+            ->numeric()
+            ->required()
+            ->default(0)
+            ->minValue(0);
+        $components[] = TextInput::make('price_extra')
+            ->label('Fiyat Farkı')
+            ->numeric()
+            ->prefix('₺')
+            ->default(0)
+            ->step(0.01)
+            ->helperText('Ana fiyata eklenecek tutar');
+        $components[] = TextInput::make('sku')
+            ->label('SKU')
+            ->helperText('Boş bırakılırsa otomatik oluşturulur');
+
+        return $schema->components($components);
     }
 
     public function table(Table $table): Table
     {
+        $requiresSize = (bool) ($this->getOwnerRecord()?->requires_size ?? true);
+
         return $table
-            ->defaultSort('size')
+            ->defaultSort($requiresSize ? 'size' : 'created_at')
             ->columns([
                 TextColumn::make('color')
                     ->label('Renk')
@@ -82,7 +91,8 @@ class VariantsRelationManager extends RelationManager
                 TextColumn::make('size')
                     ->label('Numara')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->visible($requiresSize),
                 TextColumn::make('wheel_type')
                     ->label('Teker Tipi')
                     ->badge()

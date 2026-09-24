@@ -22,7 +22,12 @@ class AddToCartButton extends Component
     {
         $this->product = $product;
         if ($this->product->variants->count() > 0) {
-            $this->variantId = '';
+            // Bedensiz ürünlerde tek varyant varsa otomatik seç
+            if ($this->product->requires_size === false && $this->product->variants->count() === 1) {
+                $this->variantId = $this->product->variants->first()->id;
+            } else {
+                $this->variantId = '';
+            }
         }
         $this->updateMaxStock();
     }

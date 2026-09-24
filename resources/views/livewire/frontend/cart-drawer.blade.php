@@ -103,7 +103,15 @@
                                                 <a href="{{ route('products.show', $item->product->slug) }}" wire:navigate 
                                                    class="font-medium text-sm leading-tight line-clamp-2">{{ $item->product->name }}</a>
                                                 @if($item->variant)
-                                                    <span class="text-xs text-black/40">{{ $item->variant->size }}</span>
+                                                    @php
+                                                        $variantLabel = $item->variant->size;
+                                                        if (!$variantLabel && $item->variant->color) {
+                                                            $variantLabel = is_array($item->variant->color) ? implode(' / ', $item->variant->color) : $item->variant->color;
+                                                        }
+                                                    @endphp
+                                                    @if($variantLabel)
+                                                    <span class="text-xs text-black/40">{{ $variantLabel }}</span>
+                                                    @endif
                                                 @endif
                                                 <span class="text-sm">{{ number_format($item->price, 2) }}TL</span>
                                             </div>

@@ -165,9 +165,14 @@
 
                     {{-- Varyant Seçici --}}
                     @if($product->variants->count() > 0)
+                        @php
+                            $showVariantSelector = $product->requires_size !== false || $product->variants->count() > 1;
+                        @endphp
+                        @if($showVariantSelector)
                         <div class="mt-6">
                             <livewire:product.variant-selector :product="$product" />
                         </div>
+                        @endif
                     @endif
 
                     {{-- Sepete Ekle --}}

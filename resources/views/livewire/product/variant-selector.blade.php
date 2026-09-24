@@ -1,21 +1,28 @@
 <div class="mt-8" x-data="{ selectedId: @entangle('selectedVariantId').live }">
     @php
         $allOutOfStock = !$product->inStock() || $product->variants->every(fn($v) => !$product->status || $v->stock <= 0);
+        $requiresSize = $product->requires_size !== false;
     @endphp
 
     <div class="relative" x-data="{ 
         open: false,
+        requiresSize: {{ $requiresSize ? 'true' : 'false' }},
         variants: [
             @foreach($product->variants as $variant)
-                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', stock: {{ $product->status ? $variant->stock : 0 }} }{{ !$loop->last ? ',' : '' }}
+                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', color: '{{ addslashes(is_array($variant->color) ? implode(" / ", $variant->color) : ($variant->color ?? "")) }}', stock: {{ $product->status ? $variant->stock : 0 }} }{{ !$loop->last ? ',' : '' }}
             @endforeach
         ],
-        get selectedSize() {
+        get selectedLabel() {
             if (!this.selectedId) {
-                return '{{ $allOutOfStock ? "Beden (Tüm Stoklar Tükenmiştir)" : "Beden" }}';
+                @if($allOutOfStock)
+                    return this.requiresSize ? 'Beden (Tüm Stoklar Tükenmiştir)' : 'Seçenek (Tüm Stoklar Tükenmiştir)';
+                @else
+                    return this.requiresSize ? 'Beden' : 'Seçenek';
+                @endif
             }
             let v = this.variants.find(v => v.id == this.selectedId);
-            return v ? v.size : 'Beden';
+            if (!v) return this.requiresSize ? 'Beden' : 'Seçenek';
+            return this.requiresSize ? v.size : v.color;
         }
     }" @click.away="open = false" @open-variant-selector.window="open = true; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'center'}), 100)">
         
@@ -26,7 +33,7 @@
             class="flex items-center justify-between w-full h-14 rounded-full border border-gray-200 bg-white px-5 text-base font-medium focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:text-sm transition-colors cursor-pointer"
             :class="open ? 'border-gray-900 ring-1 ring-gray-900' : ''"
         >
-            <span x-text="selectedSize" class="{{ $allOutOfStock ? 'text-gray-400 font-medium' : 'text-gray-900' }}"></span>
+            <span x-text="selectedLabel" class="{{ $allOutOfStock ? 'text-gray-400 font-medium' : 'text-gray-900' }}"></span>
             <svg class="w-5 h-5 text-gray-800 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
@@ -57,7 +64,7 @@
                         }"
                         :disabled="variant.stock <= 0"
                     >
-                        <span x-text="variant.size" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>
+                        <span x-text="requiresSize ? variant.size : variant.color" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>
                         
                         
                         <template x-if="variant.stock <= 0">

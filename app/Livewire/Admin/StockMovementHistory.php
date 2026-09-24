@@ -31,7 +31,16 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Ürün'),
                 Tables\Columns\TextColumn::make('variant.size')
-                    ->label('Varyant'),
+                    ->label('Varyant')
+                    ->getStateUsing(function ($record) {
+                        if (!$record->variant) return '-';
+                        $color = is_array($record->variant->color) ? implode(' / ', $record->variant->color) : ($record->variant->color ?? '');
+                        $size = $record->variant->size;
+                        if ($color && $size) return "{$color} - {$size}";
+                        if ($size) return $size;
+                        if ($color) return $color;
+                        return '-';
+                    }),
                 Tables\Columns\TextColumn::make('type')
                     ->label('Tip')
                     ->badge()
@@ -119,13 +128,21 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                             ->limit(5000)
                             ->get();
 
-                        $csv = "Tarih;Ürün;Beden;Tip;Eski Stok;Yeni Stok;Değişim;Referans;Not;İşlemi Yapan\n";
+                        $csv = "Tarih;Ürün;Varyant;Tip;Eski Stok;Yeni Stok;Değişim;Referans;Not;İşlemi Yapan\n";
                         foreach ($movements as $m) {
                             $delta = $m->new_stock - $m->old_stock;
+                            $variantLabel = '-';
+                            if ($m->variant) {
+                                $color = is_array($m->variant->color) ? implode(' / ', $m->variant->color) : ($m->variant->color ?? '');
+                                $size = $m->variant->size;
+                                if ($color && $size) $variantLabel = "{$color} - {$size}";
+                                elseif ($size) $variantLabel = $size;
+                                elseif ($color) $variantLabel = $color;
+                            }
                             $csv .= implode(';', [
                                 $m->created_at->format('d.m.Y H:i'),
                                 $m->product?->name ?? '-',
-                                $m->variant?->size ?? '-',
+                                $variantLabel,
                                 \App\Models\StockMovement::TYPES[$m->type] ?? $m->type,
                                 $m->old_stock,
                                 $m->new_stock,
