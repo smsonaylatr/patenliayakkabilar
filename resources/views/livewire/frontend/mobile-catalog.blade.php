@@ -24,8 +24,8 @@
              x-transition:leave="transition ease-in duration-300"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed top-0 left-0 right-0 flex flex-col md:hidden"
-             style="display: none; z-index: 9998; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); background-color: #fff;">
+             class="fixed left-0 right-0 flex flex-col md:hidden rounded-t-2xl shadow-2xl"
+             style="display: none; z-index: 9998; top: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); background-color: #fff;">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
