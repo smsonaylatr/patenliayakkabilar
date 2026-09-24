@@ -35,7 +35,8 @@
              x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
              x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
-             class="pointer-events-auto w-full md:max-w-[380px] lg:max-w-[420px] h-full md:max-h-full shadow-2xl">
+             class="pointer-events-auto w-full md:max-w-[380px] lg:max-w-[420px] h-full md:max-h-full shadow-2xl"
+             style="will-change: transform; transform: translateZ(0); backface-visibility: hidden;">
 
             <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
                 

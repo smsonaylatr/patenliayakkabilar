@@ -14,18 +14,18 @@
              x-transition:leave-end="opacity-0"
              @click="open = false"
              class="fixed inset-0 bg-black/30"
-             style="display: none; z-index: 9998;"></div>
+             style="display: none; z-index: 9998; will-change: opacity;"></div>
 
         <!-- Panel — navbarın üstünden yukarı doğru kayıyor -->
         <div x-show="open"
-             x-transition:enter="transition ease-out duration-[400ms]"
+             x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="translate-y-full"
              x-transition:enter-end="translate-y-0"
-             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
              class="fixed left-0 right-0 bottom-0 flex flex-col md:hidden rounded-t-2xl shadow-2xl"
-             style="display: none; z-index: 9998; top: 50%; background-color: #fff;">
+             style="display: none; z-index: 9998; top: 50%; background-color: #fff; will-change: transform; transform: translateZ(0); backface-visibility: hidden;">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
