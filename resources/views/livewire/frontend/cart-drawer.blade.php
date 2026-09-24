@@ -169,19 +169,19 @@
                             <div class="shrink-0" wire:ignore>
                                 <!-- Footer Icons: Sipariş Notu, Kargo, İndirim -->
                                 <div class="flex border-t border-black/[0.06]">
-                                    <button @click="notePanel = !notePanel; shippingPanel = false; discountPanel = false" :class="notePanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
+                                    <button @click="notePanel = true; shippingPanel = false; discountPanel = false" :class="notePanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
                                         <svg class="w-5 h-5" :class="notePanel ? 'opacity-80' : 'opacity-30'" viewBox="0 0 25 24" stroke="currentColor" fill="none" stroke-width="1">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 21.5V19.2C16.5 18.0799 16.5 17.5198 16.718 17.092C16.9097 16.7157 17.2157 16.4097 17.592 16.218C18.0198 16 18.5799 16 19.7 16H22M7.5 7H15.5M7.5 11H13.5M7.5 15H9.5M15.6716 22H12.1C8.73969 22 7.05953 22 5.77606 21.346C4.64708 20.7708 3.7292 19.8529 3.15396 18.7239C2.5 17.4405 2.5 15.7603 2.5 12.4V11.6C2.5 8.23969 2.5 6.55953 3.15396 5.27606C3.7292 4.14708 4.64708 3.2292 5.77606 2.65396C7.05953 2 8.73969 2 12.1 2H12.9C16.2603 2 17.9405 2 19.2239 2.65396C20.3529 3.2292 21.2708 4.14708 21.846 5.27606C22.5 6.55953 22.5 8.23969 22.5 11.6V15.1716C22.5 15.5088 22.5 15.6774 22.4912 15.8399C22.4171 17.2049 21.8791 18.5036 20.9663 19.5212C20.8577 19.6423 20.7385 19.7615 20.5 20C20.2615 20.2385 20.1423 20.3577 20.0212 20.4663C19.0036 21.3791 17.7049 21.9171 16.3399 21.9912C16.1774 22 16.0088 22 15.6716 22Z"/>
                                         </svg>
                                         <span class="text-sm leading-tight">Sipariş notu</span>
                                     </button>
-                                    <button @click="shippingPanel = !shippingPanel; notePanel = false; discountPanel = false" :class="shippingPanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors border-x border-black/[0.06]">
+                                    <button @click="shippingPanel = true; notePanel = false; discountPanel = false" :class="shippingPanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors border-x border-black/[0.06]">
                                         <svg class="w-5 h-5" :class="shippingPanel ? 'opacity-80' : 'opacity-30'" viewBox="0 0 25 24" stroke="currentColor" fill="none" stroke-width="1">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.99988 9.5L17 4M12.5 12.5L21.5 7M12.5 12.5L3.5 7M12.5 12.5V22.5M2.5 9.71771V14.2823C2.5 15.2733 2.5 15.7688 2.64219 16.2141C2.76802 16.6081 2.97396 16.9718 3.24708 17.2824C3.55572 17.6334 3.98062 17.8884 4.83042 18.3983L10.0304 21.5183C10.9283 22.057 11.3773 22.3264 11.8565 22.4316C12.2805 22.5247 12.7195 22.5247 13.1435 22.4316C13.6227 22.3264 14.0717 22.057 14.9696 21.5183L20.1696 18.3983C21.0194 17.8884 21.4443 17.6334 21.7529 17.2824C22.026 16.9718 22.232 16.6081 22.3578 16.2141C22.5 15.7688 22.5 15.2733 22.5 14.2823V9.71771C22.5 8.72669 22.5 8.23117 22.3578 7.78593C22.232 7.39192 22.026 7.02818 21.7529 6.71757C21.4443 6.36657 21.0194 6.11163 20.1696 5.60175L14.9696 2.48175C14.0717 1.94301 13.6227 1.67364 13.1435 1.56839C12.7195 1.4753 12.2805 1.4753 11.8565 1.56839C11.3773 1.67364 10.9283 1.94301 10.0304 2.48175L4.83042 5.60175C3.98062 6.11163 3.55572 6.36657 3.24708 6.71757C2.97396 7.02818 2.76802 7.39192 2.64219 7.78593C2.5 8.23117 2.5 8.72669 2.5 9.71771Z"/>
                                         </svg>
                                         <span class="text-sm leading-tight">Kargo</span>
                                     </button>
-                                    <button @click="discountPanel = !discountPanel; notePanel = false; shippingPanel = false" :class="discountPanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
+                                    <button @click="discountPanel = true; notePanel = false; shippingPanel = false" :class="discountPanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
                                         <svg class="w-5 h-5" :class="discountPanel ? 'opacity-80' : 'opacity-30'" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1">
                                             <path stroke-linecap="round" d="M8.38 15.36L11.75 11.74L15.12 8.12M14.92 14.59C14.92 14.81 14.74 14.99 14.52 14.99C14.3 14.99 14.12 14.81 14.12 14.59M14.92 14.59C14.92 14.37 14.74 14.19 14.52 14.19C14.3 14.19 14.12 14.37 14.12 14.59M14.92 14.59H14.12M9.42 9.01C9.42 9.23 9.24 9.41 9.02 9.41C8.8 9.41 8.62 9.23 8.62 9.01M9.42 9.01C9.42 8.79 9.24 8.61 9.02 8.61C8.8 8.61 8.62 8.79 8.62 9.01M9.42 9.01H8.62"/>
                                         </svg>
@@ -189,43 +189,50 @@
                                     </button>
                                 </div>
 
-                                <!-- Sipariş Notu Paneli -->
-                                <div x-show="notePanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h4 class="text-base font-semibold">Sipariş Notu</h4>
-                                        <button @click="notePanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
-                                    </div>
-                                    <textarea rows="3" placeholder="Siparişinize eklemek istediğiniz notları yazın..." class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none"></textarea>
-                                </div>
-
-                                <!-- Kargo Tahmini Paneli -->
-                                <div x-show="shippingPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h4 class="text-base font-semibold">Kargo Tahmini</h4>
-                                        <button @click="shippingPanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
-                                    </div>
-                                    <div class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
-                                        <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <span class="text-sm text-green-700 font-medium">Bu sipariş için kargo ücretsizdir</span>
+                                <!-- Bottom Sheet: Sipariş Notu -->
+                                <div x-show="notePanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }">
+                                    <div x-show="notePanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="notePanel = false" class="absolute inset-0 bg-black/40"></div>
+                                    <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h4 class="text-base font-semibold">Özel talimatlar sipariş edin</h4>
+                                            <button @click="notePanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <textarea rows="4" placeholder="Sipariş notu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none mb-5"></textarea>
+                                        <button @click="notePanel = false" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
                                     </div>
                                 </div>
 
-                                <!-- İndirim Kodu Paneli -->
-                                <div x-show="discountPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;"
-                                     x-data="{ code: '' }">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h4 class="text-base font-semibold">İndirim</h4>
-                                        <button @click="discountPanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
+                                <!-- Bottom Sheet: Kargo Tahmini -->
+                                <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }">
+                                    <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40"></div>
+                                    <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h4 class="text-base font-semibold">Kargo tahmini</h4>
+                                            <button @click="shippingPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <div class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+                                            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span class="text-sm text-green-700 font-medium">Bu sipariş için kargo ücretsizdir</span>
+                                        </div>
                                     </div>
-                                    <div class="flex gap-3">
-                                        <input type="text" x-model="code" placeholder="İndirim kodu" class="flex-1 border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30">
-                                        <button @click="if(code) $wire.applyCoupon(code)" class="px-5 py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-black/90 transition-colors shrink-0">Uygula</button>
+                                </div>
+
+                                <!-- Bottom Sheet: İndirim Kodu -->
+                                <div x-show="discountPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" x-data="{ code: '' }">
+                                    <div x-show="discountPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="discountPanel = false" class="absolute inset-0 bg-black/40"></div>
+                                    <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h4 class="text-base font-semibold">İndirim</h4>
+                                            <button @click="discountPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <input type="text" x-model="code" placeholder="İndirim kodu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 mb-5">
+                                        <button @click="if(code) $wire.applyCoupon(code)" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
                                     </div>
                                 </div>
 
