@@ -10,7 +10,7 @@
     x-on:toggle-cart.window="open = !open"
     @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else open = false"
     x-cloak
-    class="relative z-[10001]" 
+    class="relative z-[9998]" 
     aria-labelledby="cart-drawer-title" 
     role="dialog" 
     aria-modal="true"
@@ -26,7 +26,7 @@
          x-transition:leave-start="opacity-100" 
          x-transition:leave-end="opacity-0" 
          class="fixed inset-0 bg-black/60" 
-         style="z-index: 10001;"
+         style="z-index: 9998;"
          @click="open = false"></div>
 
     <!-- Drawer Container -->
@@ -192,7 +192,7 @@
 
                                 <!-- Summary & Buttons -->
                                 <div class="cart-summary-footer px-5 lg:px-12 py-4 lg:py-6" style="padding-bottom: calc(1rem + 76px + env(safe-area-inset-bottom, 0px));">
-                                    <style>@media(min-width:768px){.cart-summary-footer{padding-bottom:1.5rem!important}}</style>
+                                    <style scoped>@media(min-width:768px){.cart-summary-footer{padding-bottom:1.5rem!important}}</style>
                                     <!-- Subtotal Row -->
                                     <div class="grid grid-cols-2 gap-4 mb-5">
                                         <div class="text-sm leading-[1.375] text-black/60">
