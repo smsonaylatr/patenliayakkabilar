@@ -166,7 +166,7 @@
                             </div>
 
                             <!-- Footer -->
-                            <div class="shrink-0">
+                            <div class="shrink-0" wire:ignore>
                                 <!-- Footer Icons: Sipariş Notu, Kargo, İndirim -->
                                 <div class="flex border-t border-black/[0.06]">
                                     <button @click="notePanel = !notePanel; shippingPanel = false; discountPanel = false" :class="notePanel ? 'text-black bg-black/[0.04]' : 'text-black/60 hover:text-black'" class="flex-1 flex items-center justify-center gap-[10px] py-3 md:py-4 transition-colors">
