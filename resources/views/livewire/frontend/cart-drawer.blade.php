@@ -70,7 +70,7 @@
                     </div>
                     <!-- Close Button (Desktop) -->
                     <button @click="open = false" 
-                            class="hidden sm:flex items-center justify-center w-12 h-12 rounded-full border border-black/10 text-black/40 hover:text-black hover:border-black/40 transition-all shrink-0 ml-auto">
+                            class="hidden sm:flex items-center justify-center w-9 h-9 rounded-full border border-black/10 text-black/40 hover:text-black hover:border-black/40 transition-all shrink-0 ml-auto">
                         <svg class="w-[14px] h-[14px]" viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15L15 5M5 5L15 15"/></svg>
                     </button>
                 </div>
