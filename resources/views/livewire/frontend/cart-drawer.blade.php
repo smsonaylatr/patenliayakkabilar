@@ -177,7 +177,7 @@
                                 </div>
 
                                 <!-- Summary & Buttons -->
-                                <div class="px-5 lg:px-12 py-5 lg:py-6" style="padding-bottom: calc(1.5rem + 76px + env(safe-area-inset-bottom, 0px));">
+                                <div class="px-5 lg:px-12 py-5 lg:py-6" style="padding-bottom: calc(1.5rem + 15px + env(safe-area-inset-bottom, 0px));">
                                     <!-- Subtotal Row -->
                                     <div class="grid grid-cols-2 gap-4 mb-5">
                                         <div class="text-sm leading-[1.375] text-black/60">
