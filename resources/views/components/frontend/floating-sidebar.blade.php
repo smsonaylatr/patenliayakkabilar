@@ -1,5 +1,5 @@
 {{-- Floating Social Sidebar + İndirim Kuponu Widget --}}
-{{-- Halıköy temasındaki newsletter-bar yapısının birebir kopyası --}}
+{{-- Beyaz zeminde opak siyah, siyah zeminde opak beyaz --}}
 @php
     $sidebarSettings = \App\Models\Setting::whereIn('key', [
         'footer_facebook',
@@ -17,13 +17,11 @@
         margin-left: 0.5rem;
         padding-top: 0.375rem;
         padding-bottom: 0.375rem;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        background-color: rgba(255, 255, 255, 0.85);
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+        background-color: #171717;
         border-radius: 9999px;
         z-index: 30;
         display: none;
+        transition: background-color 0.35s ease, box-shadow 0.35s ease;
     }
 
     @media screen and (min-width: 768px) {
@@ -40,6 +38,7 @@
         }
     }
 
+    /* ===== Varsayılan: Opak Siyah (beyaz zemin üzerinde) ===== */
     .newsletter-bar__social ul {
         padding-top: 0.125rem;
         flex-direction: column;
@@ -64,13 +63,13 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        color: #171717;
+        color: #ffffff;
         text-decoration: none;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.2s ease, color 0.35s ease;
     }
 
     .newsletter-bar__social .social_platform:hover {
-        opacity: 0.55;
+        opacity: 0.65;
     }
 
     .newsletter-bar__social .social_platform svg {
@@ -89,8 +88,8 @@
         padding-left: 0.75rem;
         padding-right: 0.75rem;
         margin: 0 auto;
-        color: #171717;
-        background-color: rgba(23, 23, 23, 0.04);
+        color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.1);
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -100,11 +99,30 @@
         border: none;
         line-height: 1;
         white-space: nowrap;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.2s ease, color 0.35s ease;
     }
 
     .newsletter-bar__button:hover {
-        background-color: rgba(23, 23, 23, 0.08);
+        background-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* ===== Ters mod: Opak Beyaz (siyah zemin üzerinde) ===== */
+    .newsletter-bar.is-light {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+    }
+
+    .newsletter-bar.is-light .social_platform {
+        color: #171717;
+    }
+
+    .newsletter-bar.is-light .newsletter-bar__button {
+        color: #171717;
+        background-color: rgba(23, 23, 23, 0.05);
+    }
+
+    .newsletter-bar.is-light .newsletter-bar__button:hover {
+        background-color: rgba(23, 23, 23, 0.1);
     }
 
     @media (pointer: fine) {
@@ -119,7 +137,7 @@
     }
 </style>
 
-<div class="newsletter-bar">
+<div class="newsletter-bar" id="floatingSidebar">
     {{-- Sosyal İkonlar --}}
     @if(!empty($sidebarSettings['footer_facebook']) || !empty($sidebarSettings['footer_instagram']))
     <div class="newsletter-bar__social">
@@ -159,3 +177,50 @@
         <span>%5 İNDİRİM</span>
     </a>
 </div>
+
+<script>
+    (function() {
+        var bar = document.getElementById('floatingSidebar');
+        if (!bar) return;
+
+        function checkBg() {
+            var rect = bar.getBoundingClientRect();
+            var cx = rect.left + rect.width / 2;
+            var cy = rect.top + rect.height / 2;
+
+            bar.style.pointerEvents = 'none';
+            var el = document.elementFromPoint(cx, cy);
+            bar.style.pointerEvents = '';
+
+            if (!el) return;
+
+            var dark = false;
+            var node = el;
+            while (node && node !== document.body) {
+                var bg = getComputedStyle(node).backgroundColor;
+                if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+                    var m = bg.match(/\d+/g);
+                    if (m) {
+                        var lum = (parseInt(m[0]) * 299 + parseInt(m[1]) * 587 + parseInt(m[2]) * 114) / 1000;
+                        dark = lum < 128;
+                    }
+                    break;
+                }
+                node = node.parentElement;
+            }
+
+            bar.classList.toggle('is-light', dark);
+        }
+
+        var ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(function() { checkBg(); ticking = false; });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        checkBg();
+        setTimeout(checkBg, 500);
+    })();
+</script>
