@@ -140,7 +140,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        @foreach($recommendations->take(2) as $rec)
+                                        @foreach($recommendations as $rec)
                                             <div class="flex items-center gap-4 {{ !$loop->last ? 'mb-4 pb-4 border-b border-black/[0.06]' : '' }}">
                                                 <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
                                                     <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
