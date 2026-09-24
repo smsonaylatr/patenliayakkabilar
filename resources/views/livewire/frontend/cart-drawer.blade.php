@@ -144,12 +144,7 @@
                                                 </a>
                                                 <div class="flex-1 min-w-0">
                                                     <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1">{{ $rec->name }}</a>
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
-                                                        @if($rec->discount_price && $rec->discount_price < $rec->price)
-                                                            <span class="text-xs text-black/40 line-through">{{ number_format($rec->price, 2) }} ₺</span>
-                                                        @endif
-                                                    </div>
+                                                    <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
                                                 </div>
                                                 <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0">
                                                     {{-- Mobile: siyah yuvarlak + --}}
