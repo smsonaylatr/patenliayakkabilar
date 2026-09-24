@@ -123,7 +123,73 @@ class AbandonedCartsTable
                             }
                         }),
 
-                    // ─── 2. %10 Kuponlu Mail Gönderimi ────────────────────
+                    // ─── 2. Kuponsuz SMS Hatırlatma ─────────────────────────
+                    Action::make('sms_remind_no_coupon')
+                        ->label('SMS Hatırlat')
+                        ->icon('heroicon-o-chat-bubble-left')
+                        ->color('warning')
+                        ->modalHeading('📱 Kuponsuz SMS Hatırlatma')
+                        ->modalDescription(fn ($record) => '📞 Telefon: ' . ($record->user?->phone ?? $record->guest_phone ?? 'Yok'))
+                        ->modalSubmitActionLabel('📩 Gönder')
+                        ->modalCancelActionLabel('İptal')
+                        ->modalWidth('lg')
+                        ->visible(fn ($record) => !empty($record->user?->phone) || !empty($record->guest_phone))
+                        ->form([
+                            \Filament\Forms\Components\Textarea::make('sms_message')
+                                ->label('SMS Taslağı')
+                                ->rows(4)
+                                ->helperText('Mesajı düzenleyebilirsiniz. Kuponsuz hatırlatma mesajıdır.')
+                                ->required(),
+                        ])
+                        ->mountUsing(function (\Filament\Schemas\Schema $form, $record) {
+                            $name = $record->user?->name ?? $record->guest_name ?? '';
+                            $greeting = $name ? "Sayin {$name}, sepetinizdeki" : "Merhaba, sepetinizdeki";
+
+                            $message = "{$greeting} urunler sizi bekliyor! "
+                                     . "Alisverisi tamamlamak icin: https://patenliayakkabilar.com/checkout";
+
+                            $form->fill([
+                                'sms_message' => $message,
+                            ]);
+                        })
+                        ->action(function ($record, array $data) {
+                            $phone = $record->user?->phone ?? $record->guest_phone;
+                            if (!$phone) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Telefon numarası bulunamadı!')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            try {
+                                $vatanService = app(\App\Services\VatanSmsService::class);
+                                $result = $vatanService->send($phone, $data['sms_message'], 'turkce', 'bilgi');
+
+                                if ($result) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Hatırlatma Gönderildi!')
+                                        ->body("Kuponsuz hatırlatma → {$phone}")
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    $errorDetail = $vatanService->getLastError() ?? 'Bilinmeyen hata';
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('SMS Gönderilemedi')
+                                        ->body("Hata: {$errorDetail}")
+                                        ->danger()
+                                        ->send();
+                                }
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Hata!')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
+
+                    // ─── 3. %10 Kuponlu Mail Gönderimi ────────────────────
                     Action::make('coupon_mail')
                         ->label(fn ($record) => $record->coupon_mail_sent_at
                             ? '✅ Kupon Gitti (' . $record->coupon_mail_sent_at->format('d.m H:i') . ')'
