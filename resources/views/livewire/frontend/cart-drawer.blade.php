@@ -11,7 +11,7 @@
     @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else open = false"
     x-cloak
     class="relative"
-    :style="{ zIndex: (notePanel || shippingPanel || discountPanel) ? 10000 : 9998 }"
+    style="z-index: 10000;"
     aria-labelledby="cart-drawer-title" 
     role="dialog" 
     aria-modal="true"
@@ -200,8 +200,7 @@
                                 </div>
 
                                 <!-- Summary & Buttons -->
-                                <div class="cart-summary-footer px-5 lg:px-12 py-4 lg:py-6" style="padding-bottom: calc(1rem + 76px + env(safe-area-inset-bottom, 0px));">
-                                    <style scoped>@media(min-width:768px){.cart-summary-footer{padding-bottom:1.5rem!important}}</style>
+                                <div class="px-5 lg:px-12 py-4 lg:py-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));">
                                     <!-- Subtotal Row -->
                                     <div class="grid grid-cols-2 gap-4 mb-5">
                                         <div class="text-sm leading-[1.375] text-black/60">
