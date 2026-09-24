@@ -17,11 +17,13 @@
         margin-left: 0.5rem;
         padding-top: 0.375rem;
         padding-bottom: 0.375rem;
-        background-color: #171717;
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        background-color: rgba(22, 22, 23, 0.8);
+        border: 0.5px solid rgba(255, 255, 255, 0.18);
         border-radius: 9999px;
         z-index: 30;
         display: none;
-        transition: background-color 0.35s ease, box-shadow 0.35s ease;
     }
 
     @media screen and (min-width: 768px) {
@@ -38,7 +40,6 @@
         }
     }
 
-    /* ===== Varsayılan: Opak Siyah (beyaz zemin üzerinde) ===== */
     .newsletter-bar__social ul {
         padding-top: 0.125rem;
         flex-direction: column;
@@ -63,13 +64,12 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        color: #ffffff;
+        color: rgba(255, 255, 255, 0.92);
         text-decoration: none;
-        transition: opacity 0.2s ease, color 0.35s ease;
     }
 
     .newsletter-bar__social .social_platform:hover {
-        opacity: 0.65;
+        color: rgba(255, 255, 255, 0.6);
     }
 
     .newsletter-bar__social .social_platform svg {
@@ -88,8 +88,8 @@
         padding-left: 0.75rem;
         padding-right: 0.75rem;
         margin: 0 auto;
-        color: #ffffff;
-        background-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.92);
+        background-color: rgba(255, 255, 255, 0.08);
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -99,30 +99,33 @@
         border: none;
         line-height: 1;
         white-space: nowrap;
-        transition: background-color 0.2s ease, color 0.35s ease;
     }
 
     .newsletter-bar__button:hover {
-        background-color: rgba(255, 255, 255, 0.18);
+        background-color: rgba(255, 255, 255, 0.15);
     }
 
-    /* ===== Ters mod: Opak Beyaz (siyah zemin üzerinde) ===== */
+    /* ===== Açık mod: beyaz cam (koyu zemin üzerinde) ===== */
     .newsletter-bar.is-light {
-        background-color: #ffffff;
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+        background-color: rgba(255, 255, 255, 0.72);
+        border-color: rgba(0, 0, 0, 0.08);
     }
 
     .newsletter-bar.is-light .social_platform {
-        color: #171717;
+        color: rgba(0, 0, 0, 0.85);
+    }
+
+    .newsletter-bar.is-light .social_platform:hover {
+        color: rgba(0, 0, 0, 0.5);
     }
 
     .newsletter-bar.is-light .newsletter-bar__button {
-        color: #171717;
-        background-color: rgba(23, 23, 23, 0.05);
+        color: rgba(0, 0, 0, 0.85);
+        background-color: rgba(0, 0, 0, 0.05);
     }
 
     .newsletter-bar.is-light .newsletter-bar__button:hover {
-        background-color: rgba(23, 23, 23, 0.1);
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
     @media (pointer: fine) {
