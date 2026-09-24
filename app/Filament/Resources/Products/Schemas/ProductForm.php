@@ -134,6 +134,13 @@ class ProductForm
                                     ->default(false)
                                     ->inline(false),
 
+                                Toggle::make('requires_size')
+                                    ->label('Beden/Numara Gerektirir')
+                                    ->helperText('Kapatırsanız (kask, dizlik vb.) varyantlarda numara alanı gizlenir, müşteriye beden sorulmaz.')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->live(),
+
 
                                 \Filament\Schemas\Components\Section::make('Ürün Özellikleri')
                                     ->icon('heroicon-o-sparkles')
@@ -395,64 +402,76 @@ class ProductForm
                                         ->icon('heroicon-o-squares-plus')
                                         ->color('success')
                                         ->size('lg')
-                                        ->form([
-                                            Select::make('series_color')->native(false)
-                                                ->label('Renk')
-                                                ->options(ProductVariant::COLOR_OPTIONS)
-                                                ->multiple()
-                                                ->searchable()
-                                                ->native(false)
-                                                ->required()
-                                                ->helperText('Birden fazla renk seçebilirsiniz'),
-                                            Select::make('series_start')->native(false)
-                                                ->label('Başlangıç Numara')
-                                                ->options(
-                                                    collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
-                                                )
-                                                ->default('26')
-                                                ->required(),
-                                            Select::make('series_end')->native(false)
-                                                ->label('Bitiş Numara')
-                                                ->options(
-                                                    collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
-                                                )
-                                                ->default('34')
-                                                ->required(),
-                                            Select::make('series_wheel')->native(false)
+                                        ->form(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                            $requiresSize = (bool) $get('requires_size');
+                                            $fields = [
+                                                Select::make('series_color')->native(false)
+                                                    ->label('Renk')
+                                                    ->options(ProductVariant::COLOR_OPTIONS)
+                                                    ->multiple()
+                                                    ->searchable()
+                                                    ->native(false)
+                                                    ->required()
+                                                    ->helperText('Birden fazla renk seçebilirsiniz'),
+                                            ];
+
+                                            if ($requiresSize) {
+                                                $fields[] = Select::make('series_start')->native(false)
+                                                    ->label('Başlangıç Numara')
+                                                    ->options(
+                                                        collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                    )
+                                                    ->default('26')
+                                                    ->required();
+                                                $fields[] = Select::make('series_end')->native(false)
+                                                    ->label('Bitiş Numara')
+                                                    ->options(
+                                                        collect(range(26, 44))->mapWithKeys(fn ($s) => [(string) $s => (string) $s])->toArray()
+                                                    )
+                                                    ->default('34')
+                                                    ->required();
+                                            }
+
+                                            $fields[] = Select::make('series_wheel')->native(false)
                                                 ->label('Teker Tipi')
                                                 ->options([
                                                     'single' => 'Tek Teker',
                                                     'double' => 'Çift Teker',
                                                     'quad' => 'Dört Teker',
                                                     'led' => 'LED Tekerlekli',
-                                                ]),
-                                            TextInput::make('series_price')
+                                                ]);
+                                            $fields[] = TextInput::make('series_price')
                                                 ->label('Fiyat (₺)')
                                                 ->numeric()
                                                 ->required()
                                                 ->prefix('₺')
-                                                ->default(0),
-                                            TextInput::make('series_discount')
+                                                ->default(0);
+                                            $fields[] = TextInput::make('series_discount')
                                                 ->label('İndirimli Fiyat (₺)')
                                                 ->numeric()
                                                 ->prefix('₺')
-                                                ->default(null),
-                                            TextInput::make('series_koli')
-                                                ->label('Koli Adedi')
+                                                ->default(null);
+                                            $fields[] = TextInput::make('series_koli')
+                                                ->label($requiresSize ? 'Koli Adedi' : 'Stok Adedi')
                                                 ->numeric()
                                                 ->default(1)
                                                 ->required()
-                                                ->helperText('Her numara için stok = koli adedi. Örn: 2 koli = her numaradan 2 adet.')
-                                                ->minValue(1),
-                                            TextInput::make('series_sku')
+                                                ->helperText($requiresSize ? 'Her numara için stok = koli adedi. Örn: 2 koli = her numaradan 2 adet.' : 'Bu varyant için stok adedi.')
+                                                ->minValue(1);
+                                            $fields[] = TextInput::make('series_sku')
                                                 ->label('Ana SKU (Opsiyonel)')
-                                                ->helperText('Girerseniz varyantlar "SKU-Numara" şeklinde üretilir.'),
-                                        ])
+                                                ->helperText($requiresSize ? 'Girerseniz varyantlar "SKU-Numara" şeklinde üretilir.' : 'Girerseniz bu SKU kullanılır.');
+
+                                            return $fields;
+                                        })
                                         ->modalHeading('📦 Varyant Serisi Oluştur')
-                                        ->modalDescription('Seçtiğiniz numara aralığında tüm varyantları otomatik oluşturur. SKU otomatik üretilir.')
+                                        ->modalDescription(fn (\Filament\Schemas\Components\Utilities\Get $get) => $get('requires_size')
+                                            ? 'Seçtiğiniz numara aralığında tüm varyantları otomatik oluşturur. SKU otomatik üretilir.'
+                                            : 'Seçtiğiniz renk ve özelliklerde varyant oluşturur (beden/numara olmadan).')
                                         ->modalSubmitActionLabel('Seriyi Oluştur')
                                         ->action(function (array $data, Set $set, \Filament\Schemas\Components\Utilities\Get $get) {
                                             $existing = $get('variants') ?? [];
+                                            $requiresSize = (bool) $get('requires_size');
                                             $slug = \Illuminate\Support\Str::slug(\App\Services\SchemaService::turkishToAscii($get('name') ?: 'URUN'));
 
                                             // Çoklu renk desteği
@@ -464,24 +483,43 @@ class ProductForm
                                                 ->map(fn ($c) => mb_strtoupper(mb_substr($c, 0, 2)))
                                                 ->implode('-') ?: 'XX';
 
-                                            $start = (int) $data['series_start'];
-                                            $end = (int) $data['series_end'];
-
-                                            if ($start > $end) {
-                                                [$start, $end] = [$end, $start];
-                                            }
-
                                             $newVariants = [];
-                                            for ($size = $start; $size <= $end; $size++) {
-                                                if (!empty($data['series_sku'])) {
-                                                    $sku = $data['series_sku'] . '-' . $size;
-                                                } else {
-                                                    $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
+
+                                            if ($requiresSize) {
+                                                // Beden gerektiren ürünler: numara serisi oluştur
+                                                $start = (int) $data['series_start'];
+                                                $end = (int) $data['series_end'];
+
+                                                if ($start > $end) {
+                                                    [$start, $end] = [$end, $start];
                                                 }
+
+                                                for ($size = $start; $size <= $end; $size++) {
+                                                    if (!empty($data['series_sku'])) {
+                                                        $sku = $data['series_sku'] . '-' . $size;
+                                                    } else {
+                                                        $sku = strtoupper($slug) . '-' . $colorCode . '-' . $size;
+                                                    }
+
+                                                    $newVariants[] = [
+                                                        'color'          => $colors,
+                                                        'size'           => (string) $size,
+                                                        'wheel_type'     => $data['series_wheel'] ?? null,
+                                                        'price'          => $data['series_price'],
+                                                        'discount_price' => $data['series_discount'] ?: null,
+                                                        'stock'          => (int) ($data['series_koli'] ?? 1),
+                                                        'sku'            => $sku,
+                                                    ];
+                                                }
+                                            } else {
+                                                // Bedensiz ürünler: tek varyant oluştur (size = null)
+                                                $sku = !empty($data['series_sku'])
+                                                    ? $data['series_sku']
+                                                    : strtoupper($slug) . '-' . $colorCode;
 
                                                 $newVariants[] = [
                                                     'color'          => $colors,
-                                                    'size'           => (string) $size,
+                                                    'size'           => null,
                                                     'wheel_type'     => $data['series_wheel'] ?? null,
                                                     'price'          => $data['series_price'],
                                                     'discount_price' => $data['series_discount'] ?: null,
@@ -541,34 +579,41 @@ class ProductForm
                                 Repeater::make('variants')
                                     ->relationship()
                                     ->label('')
-                                    ->schema([
-                                        Select::make('color')->native(false)
-                                            ->label('Renk')
-                                            ->options(ProductVariant::COLOR_OPTIONS)
-                                            ->multiple()
-                                            ->searchable()
-                                            ->native(false)
-                                            ->required()
-                                            ->helperText('Birden fazla renk seçebilirsiniz'),
-                                        Select::make('size')->native(false)
-                                            ->label('Numara')
-                                            ->options(
-                                                collect(range(26, 44))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
-                                            )
-                                            ->searchable()
-                                            ->required()
-                                            ->live()
-                                            ->afterStateUpdated(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, $state) {
-                                                $sku = $get('sku');
-                                                if ($sku && $state) {
-                                                    if (preg_match('/-(\d+)$/', $sku)) {
-                                                        $set('sku', preg_replace('/-\d+$/', '-' . $state, $sku));
-                                                    } else {
-                                                        $set('sku', $sku . '-' . $state);
+                                    ->schema(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                        $requiresSize = (bool) ($get('requires_size') ?? true);
+                                        $fields = [
+                                            Select::make('color')->native(false)
+                                                ->label('Renk')
+                                                ->options(ProductVariant::COLOR_OPTIONS)
+                                                ->multiple()
+                                                ->searchable()
+                                                ->native(false)
+                                                ->required()
+                                                ->helperText('Birden fazla renk seçebilirsiniz'),
+                                        ];
+
+                                        if ($requiresSize) {
+                                            $fields[] = Select::make('size')->native(false)
+                                                ->label('Numara')
+                                                ->options(
+                                                    collect(range(26, 44))->mapWithKeys(fn ($size) => [(string) $size => (string) $size])->toArray()
+                                                )
+                                                ->searchable()
+                                                ->required()
+                                                ->live()
+                                                ->afterStateUpdated(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, $state) {
+                                                    $sku = $get('sku');
+                                                    if ($sku && $state) {
+                                                        if (preg_match('/-(\d+)$/', $sku)) {
+                                                            $set('sku', preg_replace('/-\d+$/', '-' . $state, $sku));
+                                                        } else {
+                                                            $set('sku', $sku . '-' . $state);
+                                                        }
                                                     }
-                                                }
-                                            }),
-                                        Select::make('wheel_type')->native(false)
+                                                });
+                                        }
+
+                                        $fields[] = Select::make('wheel_type')->native(false)
                                             ->label('Teker Tipi')
                                             ->options([
                                                 'single' => 'Tek Teker',
@@ -576,28 +621,28 @@ class ProductForm
                                                 'quad' => 'Dört Teker',
                                                 'led' => 'LED Tekerlekli',
                                             ])
-                                            ->searchable(),
-                                        TextInput::make('price')
+                                            ->searchable();
+                                        $fields[] = TextInput::make('price')
                                             ->label('Fiyat')
                                             ->numeric()
                                             ->required()
                                             ->prefix('₺')
                                             ->minValue(0)
-                                            ->step(0.01),
-                                        TextInput::make('discount_price')
+                                            ->step(0.01);
+                                        $fields[] = TextInput::make('discount_price')
                                             ->label('İndirimli Fiyat')
                                             ->numeric()
                                             ->prefix('₺')
                                             ->minValue(0)
                                             ->step(0.01)
-                                            ->default(null),
-                                        TextInput::make('stock')
+                                            ->default(null);
+                                        $fields[] = TextInput::make('stock')
                                             ->label('Stok')
                                             ->numeric()
                                             ->required()
                                             ->default(0)
-                                            ->minValue(0),
-                                        TextInput::make('sku')
+                                            ->minValue(0);
+                                        $fields[] = TextInput::make('sku')
                                             ->label('SKU')
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, ?string $state) {
@@ -608,8 +653,10 @@ class ProductForm
                                                     }
                                                 }
                                             })
-                                            ->helperText('Manuel girebilirsiniz.'),
-                                    ])
+                                            ->helperText('Manuel girebilirsiniz.');
+
+                                        return $fields;
+                                    })
                                     ->columns(4)
                                     ->defaultItems(0)
                                     ->addActionLabel('Tek Varyant Ekle')
@@ -618,7 +665,7 @@ class ProductForm
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => 
                                         (is_array($state['color'] ?? null) ? implode(' / ', $state['color']) : ($state['color'] ?? '')) . 
-                                        ' - ' . ($state['size'] ?? '') . 
+                                        (($state['size'] ?? null) ? ' - ' . $state['size'] : '') . 
                                         ' | ' . number_format((float) ($state['price'] ?? 0), 0) . ' ₺' .
                                         ' (Stok: ' . ($state['stock'] ?? 0) . ')' .
                                         (($state['sku'] ?? null) ? ' [' . $state['sku'] . ']' : '')

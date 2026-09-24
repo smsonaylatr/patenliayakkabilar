@@ -60,7 +60,7 @@ class ProductVariant extends Model
                     $colorCode = collect($colors)
                         ->map(fn ($c) => mb_strtoupper(mb_substr($c, 0, 2)))
                         ->implode('-') ?: 'XX';
-                    $variant->sku = $slug . '-' . $colorCode . '-' . ($variant->size ?? '00');
+                    $variant->sku = $slug . '-' . $colorCode . ($variant->size ? '-' . $variant->size : '');
                 }
             }
         });
