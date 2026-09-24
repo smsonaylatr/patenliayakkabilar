@@ -143,7 +143,7 @@ class SeoSettings extends FilamentPage implements HasForms
             })->count();
     }
 
-    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
             ->schema([

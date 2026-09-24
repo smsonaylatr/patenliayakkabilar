@@ -65,7 +65,7 @@ class FooterSettings extends Page implements HasForms
         ]);
     }
 
-    public function schema(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
     {
         return $schema
             ->schema([

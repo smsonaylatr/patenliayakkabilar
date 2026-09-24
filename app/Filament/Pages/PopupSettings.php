@@ -59,7 +59,7 @@ class PopupSettings extends Page implements HasForms
         ]);
     }
 
-    public function schema(Schema $schema): Schema
+    public function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
