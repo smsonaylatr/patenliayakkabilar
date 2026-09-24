@@ -1,10 +1,22 @@
 <div>
-    <!-- Mobile Catalog — Full Screen Bottom Sheet -->
+    <!-- Mobile Catalog — Bottom Sheet from Navbar -->
     <div x-data="{ open: false }"
          @open-mobile-catalog.window="open = !open"
          x-cloak>
 
-        <!-- Full Screen Panel — aşağıdan yukarı kayan perde -->
+        <!-- Backdrop -->
+        <div x-show="open"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="open = false"
+             class="fixed inset-0 bg-black/30"
+             style="display: none; z-index: 9998;"></div>
+
+        <!-- Panel — navbarın üstünden yukarı doğru kayıyor -->
         <div x-show="open"
              x-transition:enter="transition ease-out duration-[400ms]"
              x-transition:enter-start="translate-y-full"
@@ -12,8 +24,8 @@
              x-transition:leave="transition ease-in duration-300"
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
-             class="fixed top-0 left-0 right-0 bottom-0 flex flex-col md:hidden"
-             style="display: none; z-index: 99999; background-color: #fff;">
+             class="fixed top-0 left-0 right-0 flex flex-col md:hidden"
+             style="display: none; z-index: 9998; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); background-color: #fff;">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
@@ -50,7 +62,7 @@
             </div>
 
             <!-- Close Button -->
-            <div class="flex-shrink-0 px-6 pt-4 border-t border-gray-200" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));">
+            <div class="flex-shrink-0 px-6 py-4 border-t border-gray-200">
                 <button @click="open = false" class="w-full py-3 text-center text-sm text-gray-500 uppercase tracking-[0.2em] hover:text-black transition-colors flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
