@@ -8,7 +8,7 @@
     }" 
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
-    @keydown.escape.window="open = false"
+    @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else open = false"
     x-cloak
     class="relative z-[9998]" 
     aria-labelledby="cart-drawer-title" 
@@ -30,7 +30,7 @@
          @click="open = false"></div>
 
     <!-- Drawer Container -->
-    <div class="fixed inset-x-0 bottom-0 md:bottom-0 md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="top: 12%; z-index: 9998;">
+    <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 9998;">
         <div x-show="open" 
              x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
@@ -189,53 +189,6 @@
                                     </button>
                                 </div>
 
-                                <!-- Bottom Sheet: Sipariş Notu -->
-                                <div x-show="notePanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }">
-                                    <div x-show="notePanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="notePanel = false" class="absolute inset-0 bg-black/40"></div>
-                                    <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
-                                        <div class="flex items-center justify-between mb-5">
-                                            <h4 class="text-base font-semibold">Özel talimatlar sipariş edin</h4>
-                                            <button @click="notePanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                        <textarea rows="4" placeholder="Sipariş notu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none mb-5"></textarea>
-                                        <button @click="notePanel = false" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
-                                    </div>
-                                </div>
-
-                                <!-- Bottom Sheet: Kargo Tahmini -->
-                                <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }">
-                                    <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40"></div>
-                                    <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
-                                        <div class="flex items-center justify-between mb-5">
-                                            <h4 class="text-base font-semibold">Kargo tahmini</h4>
-                                            <button @click="shippingPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                        <div class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
-                                            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            <span class="text-sm text-green-700 font-medium">Bu sipariş için kargo ücretsizdir</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Bottom Sheet: İndirim Kodu -->
-                                <div x-show="discountPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" x-data="{ code: '' }">
-                                    <div x-show="discountPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="discountPanel = false" class="absolute inset-0 bg-black/40"></div>
-                                    <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
-                                        <div class="flex items-center justify-between mb-5">
-                                            <h4 class="text-base font-semibold">İndirim</h4>
-                                            <button @click="discountPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                        <input type="text" x-model="code" placeholder="İndirim kodu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 mb-5">
-                                        <button @click="if(code) $wire.applyCoupon(code)" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
-                                    </div>
-                                </div>
-
                                 <!-- Summary & Buttons -->
                                 <div class="bg-black/[0.025] px-5 lg:px-12 py-6 lg:py-8" style="padding-bottom: calc(1.5rem + 76px + env(safe-area-inset-bottom, 0px));">
                                     <!-- Subtotal Row -->
@@ -287,6 +240,53 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Bottom Sheet: Sipariş Notu -->
+    <div x-show="notePanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="notePanel = false">
+        <div x-show="notePanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="notePanel = false" class="absolute inset-0 bg-black/40"></div>
+        <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+            <div class="flex items-center justify-between mb-5">
+                <h4 class="text-base font-semibold">Özel talimatlar sipariş edin</h4>
+                <button @click="notePanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <textarea rows="4" placeholder="Sipariş notu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none mb-5"></textarea>
+            <button @click="notePanel = false" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
+        </div>
+    </div>
+
+    <!-- Bottom Sheet: Kargo Tahmini -->
+    <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="shippingPanel = false">
+        <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40"></div>
+        <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+            <div class="flex items-center justify-between mb-5">
+                <h4 class="text-base font-semibold">Kargo tahmini</h4>
+                <button @click="shippingPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+                <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-sm text-green-700 font-medium">Bu sipariş için kargo ücretsizdir</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Sheet: İndirim Kodu -->
+    <div x-show="discountPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" x-data="{ code: '' }" @keydown.escape.window.stop="discountPanel = false">
+        <div x-show="discountPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="discountPanel = false" class="absolute inset-0 bg-black/40"></div>
+        <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6 pb-8">
+            <div class="flex items-center justify-between mb-5">
+                <h4 class="text-base font-semibold">İndirim</h4>
+                <button @click="discountPanel = false" class="w-9 h-9 flex items-center justify-center rounded-full border border-black/10 hover:border-black/30">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <input type="text" x-model="code" placeholder="İndirim kodu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 mb-5">
+            <button @click="if(code) $wire.applyCoupon(code)" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">Uygula</button>
         </div>
     </div>
 </div>
