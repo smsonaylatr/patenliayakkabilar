@@ -259,7 +259,8 @@
     </div>
 
     <!-- Bottom Sheet: Kargo Tahmini -->
-    <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="shippingPanel = false">
+    <div x-show="shippingPanel" style="display: none;" class="fixed inset-0" :style="{ zIndex: 10000 }" @keydown.escape.window.stop="shippingPanel = false"
+         x-data="{ city: '', postalCode: '', calculated: false }">
         <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40"></div>
         <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl px-6 pt-6" style="padding-bottom: calc(2rem + 76px + env(safe-area-inset-bottom, 0px));">
             <div class="flex items-center justify-between mb-5">
@@ -268,9 +269,103 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+            <!-- Şehir Seçici -->
+            <div class="relative mb-4">
+                <label class="text-xs text-black/40 mb-1 block">Ülke/bölge</label>
+                <select x-model="city" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 appearance-none bg-white">
+                    <option value="">---</option>
+                    <option value="adana">Adana</option>
+                    <option value="adiyaman">Adıyaman</option>
+                    <option value="afyon">Afyonkarahisar</option>
+                    <option value="agri">Ağrı</option>
+                    <option value="aksaray">Aksaray</option>
+                    <option value="amasya">Amasya</option>
+                    <option value="ankara">Ankara</option>
+                    <option value="antalya">Antalya</option>
+                    <option value="ardahan">Ardahan</option>
+                    <option value="artvin">Artvin</option>
+                    <option value="aydin">Aydın</option>
+                    <option value="balikesir">Balıkesir</option>
+                    <option value="bartin">Bartın</option>
+                    <option value="batman">Batman</option>
+                    <option value="bayburt">Bayburt</option>
+                    <option value="bilecik">Bilecik</option>
+                    <option value="bingol">Bingöl</option>
+                    <option value="bitlis">Bitlis</option>
+                    <option value="bolu">Bolu</option>
+                    <option value="burdur">Burdur</option>
+                    <option value="bursa">Bursa</option>
+                    <option value="canakkale">Çanakkale</option>
+                    <option value="cankiri">Çankırı</option>
+                    <option value="corum">Çorum</option>
+                    <option value="denizli">Denizli</option>
+                    <option value="diyarbakir">Diyarbakır</option>
+                    <option value="duzce">Düzce</option>
+                    <option value="edirne">Edirne</option>
+                    <option value="elazig">Elazığ</option>
+                    <option value="erzincan">Erzincan</option>
+                    <option value="erzurum">Erzurum</option>
+                    <option value="eskisehir">Eskişehir</option>
+                    <option value="gaziantep">Gaziantep</option>
+                    <option value="giresun">Giresun</option>
+                    <option value="gumushane">Gümüşhane</option>
+                    <option value="hakkari">Hakkari</option>
+                    <option value="hatay">Hatay</option>
+                    <option value="igdir">Iğdır</option>
+                    <option value="isparta">Isparta</option>
+                    <option value="istanbul">İstanbul</option>
+                    <option value="izmir">İzmir</option>
+                    <option value="kahramanmaras">Kahramanmaraş</option>
+                    <option value="karabuk">Karabük</option>
+                    <option value="karaman">Karaman</option>
+                    <option value="kars">Kars</option>
+                    <option value="kastamonu">Kastamonu</option>
+                    <option value="kayseri">Kayseri</option>
+                    <option value="kilis">Kilis</option>
+                    <option value="kirikkale">Kırıkkale</option>
+                    <option value="kirklareli">Kırklareli</option>
+                    <option value="kirsehir">Kırşehir</option>
+                    <option value="kocaeli">Kocaeli</option>
+                    <option value="konya">Konya</option>
+                    <option value="kutahya">Kütahya</option>
+                    <option value="malatya">Malatya</option>
+                    <option value="manisa">Manisa</option>
+                    <option value="mardin">Mardin</option>
+                    <option value="mersin">Mersin</option>
+                    <option value="mugla">Muğla</option>
+                    <option value="mus">Muş</option>
+                    <option value="nevsehir">Nevşehir</option>
+                    <option value="nigde">Niğde</option>
+                    <option value="ordu">Ordu</option>
+                    <option value="osmaniye">Osmaniye</option>
+                    <option value="rize">Rize</option>
+                    <option value="sakarya">Sakarya</option>
+                    <option value="samsun">Samsun</option>
+                    <option value="sanliurfa">Şanlıurfa</option>
+                    <option value="siirt">Siirt</option>
+                    <option value="sinop">Sinop</option>
+                    <option value="sirnak">Şırnak</option>
+                    <option value="sivas">Sivas</option>
+                    <option value="tekirdag">Tekirdağ</option>
+                    <option value="tokat">Tokat</option>
+                    <option value="trabzon">Trabzon</option>
+                    <option value="tunceli">Tunceli</option>
+                    <option value="usak">Uşak</option>
+                    <option value="van">Van</option>
+                    <option value="yalova">Yalova</option>
+                    <option value="yozgat">Yozgat</option>
+                    <option value="zonguldak">Zonguldak</option>
+                </select>
+                <svg class="w-4 h-4 absolute right-4 top-8 text-black/40 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <!-- Posta Kodu -->
+            <input type="text" x-model="postalCode" placeholder="Posta/Posta kodu" class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 mb-5">
+            <!-- Hesapla -->
+            <button @click="if(city) calculated = true" class="px-6 py-3 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors mb-4">Hesapla</button>
+            <!-- Sonuç -->
+            <div x-show="calculated" x-transition.opacity class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl mt-1">
                 <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-sm text-green-700 font-medium">Bu sipariş için kargo ücretsizdir</span>
+                <span class="text-sm text-green-700 font-medium">Ücretsiz kargo · Tahmini 2-4 iş günü</span>
             </div>
         </div>
     </div>
