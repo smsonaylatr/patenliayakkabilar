@@ -142,12 +142,17 @@
                                         </div>
                                         <div x-ref="recScroll" class="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 lg:-mx-12 lg:px-12 snap-x snap-mandatory" style="scrollbar-width: none; -ms-overflow-style: none;">
                                             @foreach($recommendations as $rec)
-                                                <div class="flex-none w-[200px] snap-start">
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block rounded-lg overflow-hidden mb-2" style="height: 200px;">
-                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="200" height="200" class="w-full h-full object-cover" loading="lazy">
+                                                <div class="flex-none w-[280px] snap-start flex items-center gap-3 border border-black/[0.06] rounded-xl p-3">
+                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
+                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
                                                     </a>
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1 block">{{ $rec->name }}</a>
-                                                    <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
+                                                    <div class="flex-1 min-w-0">
+                                                        <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-sm leading-tight line-clamp-2 mb-1 block">{{ $rec->name }}</a>
+                                                        <span class="text-sm font-semibold">{{ number_format($rec->discount_price ?? $rec->price, 2) }} ₺</span>
+                                                    </div>
+                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="shrink-0 w-10 h-10 rounded-full bg-black flex items-center justify-center text-white hover:bg-black/80 transition-colors">
+                                                        <svg class="w-4 h-4" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                    </a>
                                                 </div>
                                             @endforeach
                                         </div>
