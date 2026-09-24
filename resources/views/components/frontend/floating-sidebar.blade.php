@@ -1,5 +1,5 @@
 {{-- Floating Social Sidebar + İndirim Kuponu Widget --}}
-{{-- Beyaz zeminde opak siyah, siyah zeminde opak beyaz --}}
+{{-- Halıköy birebir klon: beyaz cam, ince border, magnet hover --}}
 @php
     $sidebarSettings = \App\Models\Setting::whereIn('key', [
         'footer_facebook',
@@ -13,14 +13,14 @@
         left: 0;
         top: 50svh;
         transform: translateY(-50%);
-        width: 2.75rem;
+        width: 3.25rem;
         margin-left: 0.5rem;
-        padding-top: 0.375rem;
-        padding-bottom: 0.375rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
         backdrop-filter: saturate(180%) blur(20px);
         -webkit-backdrop-filter: saturate(180%) blur(20px);
-        background-color: rgba(22, 22, 23, 0.8);
-        border: 0.5px solid rgba(255, 255, 255, 0.18);
+        background-color: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
         border-radius: 9999px;
         z-index: 30;
         display: none;
@@ -29,19 +29,18 @@
     @media screen and (min-width: 768px) {
         .newsletter-bar {
             display: grid;
-            gap: 0.25rem;
+            gap: 0.2rem;
         }
     }
 
     @media screen and (min-width: 1024px) {
         .newsletter-bar {
             margin-left: 0.875rem;
-            width: 2.875rem;
         }
     }
 
     .newsletter-bar__social ul {
-        padding-top: 0.125rem;
+        padding-top: 0.25rem;
         flex-direction: column;
         display: flex;
         align-items: center;
@@ -55,6 +54,9 @@
     .newsletter-bar__social ul li {
         width: 2.5rem;
         height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .newsletter-bar__social .social_platform {
@@ -63,33 +65,35 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
-        color: rgba(255, 255, 255, 0.92);
+        overflow: visible;
+        color: #1d1d1f;
         text-decoration: none;
-    }
-
-    .newsletter-bar__social .social_platform:hover {
-        color: rgba(255, 255, 255, 0.6);
+        position: relative;
     }
 
     .newsletter-bar__social .social_platform svg {
-        width: 1rem;
-        height: 1rem;
+        width: 0.9375rem;
+        height: 0.9375rem;
         fill: currentColor;
+        will-change: transform;
+        transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .newsletter-bar__social .social_platform:hover svg {
+        transform: scale(1.2);
     }
 
     .newsletter-bar__button {
         writing-mode: vertical-rl;
         transform: rotate(-180deg);
         font-size: 0.5625rem;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         font-weight: 600;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-        margin: 0 auto;
-        color: rgba(255, 255, 255, 0.92);
-        background-color: rgba(255, 255, 255, 0.08);
+        padding: 0.75rem 0.625rem;
+        margin: 0.125rem auto 0;
+        color: #1d1d1f;
+        background-color: rgba(0, 0, 0, 0.06);
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -102,29 +106,6 @@
     }
 
     .newsletter-bar__button:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-    }
-
-    /* ===== Açık mod: beyaz cam (koyu zemin üzerinde) ===== */
-    .newsletter-bar.is-light {
-        background-color: rgba(255, 255, 255, 0.72);
-        border-color: rgba(0, 0, 0, 0.08);
-    }
-
-    .newsletter-bar.is-light .social_platform {
-        color: rgba(0, 0, 0, 0.85);
-    }
-
-    .newsletter-bar.is-light .social_platform:hover {
-        color: rgba(0, 0, 0, 0.5);
-    }
-
-    .newsletter-bar.is-light .newsletter-bar__button {
-        color: rgba(0, 0, 0, 0.85);
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .newsletter-bar.is-light .newsletter-bar__button:hover {
         background-color: rgba(0, 0, 0, 0.1);
     }
 
@@ -132,6 +113,25 @@
         .newsletter-bar__button:hover span {
             animation: nb-beat 0.6s infinite ease;
         }
+    }
+
+    /* ===== Koyu zemin üzerinde: koyu cam ===== */
+    .newsletter-bar.is-dark {
+        background-color: rgba(22, 22, 23, 0.72);
+        box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.15);
+    }
+
+    .newsletter-bar.is-dark .social_platform {
+        color: rgba(255, 255, 255, 0.92);
+    }
+
+    .newsletter-bar.is-dark .newsletter-bar__button {
+        color: rgba(255, 255, 255, 0.92);
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .newsletter-bar.is-dark .newsletter-bar__button:hover {
+        background-color: rgba(255, 255, 255, 0.18);
     }
 
     @keyframes nb-beat {
@@ -182,48 +182,57 @@
 </div>
 
 <script>
-    (function() {
-        var bar = document.getElementById('floatingSidebar');
-        if (!bar) return;
+(function() {
+    var bar = document.getElementById('floatingSidebar');
+    if (!bar) return;
 
-        function checkBg() {
-            var rect = bar.getBoundingClientRect();
-            var cx = rect.left + rect.width / 2;
-            var cy = rect.top + rect.height / 2;
+    // === Magnet hover efekti (Halıköy klonu) ===
+    var MAGNET = 10;
+    bar.querySelectorAll('.social_platform').forEach(function(link) {
+        link.addEventListener('mousemove', function(e) {
+            var svg = link.querySelector('svg');
+            if (!svg) return;
+            var rect = link.getBoundingClientRect();
+            var dx = ((e.clientX - rect.left) / rect.width - 0.5) * MAGNET;
+            var dy = ((e.clientY - rect.top) / rect.height - 0.5) * MAGNET;
+            svg.style.transform = 'scale(1.2) translate(' + dx + 'px,' + dy + 'px)';
+        });
+        link.addEventListener('mouseleave', function() {
+            var svg = link.querySelector('svg');
+            if (svg) svg.style.transform = '';
+        });
+    });
 
-            bar.style.pointerEvents = 'none';
-            var el = document.elementFromPoint(cx, cy);
-            bar.style.pointerEvents = '';
-
-            if (!el) return;
-
-            var dark = false;
-            var node = el;
-            while (node && node !== document.body) {
-                var bg = getComputedStyle(node).backgroundColor;
-                if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-                    var m = bg.match(/\d+/g);
-                    if (m) {
-                        var lum = (parseInt(m[0]) * 299 + parseInt(m[1]) * 587 + parseInt(m[2]) * 114) / 1000;
-                        dark = lum < 128;
-                    }
-                    break;
+    // === Zemin renk algılama ===
+    function checkBg() {
+        var rect = bar.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        bar.style.pointerEvents = 'none';
+        var el = document.elementFromPoint(cx, cy);
+        bar.style.pointerEvents = '';
+        if (!el) return;
+        var node = el;
+        var dark = false;
+        while (node && node !== document.body) {
+            var bg = getComputedStyle(node).backgroundColor;
+            if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+                var m = bg.match(/\d+/g);
+                if (m) {
+                    dark = (parseInt(m[0]) * 299 + parseInt(m[1]) * 587 + parseInt(m[2]) * 114) / 1000 < 128;
                 }
-                node = node.parentElement;
+                break;
             }
-
-            bar.classList.toggle('is-light', dark);
+            node = node.parentElement;
         }
+        if (dark) { bar.classList.add('is-dark'); } else { bar.classList.remove('is-dark'); }
+    }
 
-        var ticking = false;
-        window.addEventListener('scroll', function() {
-            if (!ticking) {
-                requestAnimationFrame(function() { checkBg(); ticking = false; });
-                ticking = true;
-            }
-        }, { passive: true });
-
-        checkBg();
-        setTimeout(checkBg, 500);
-    })();
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) { requestAnimationFrame(function() { checkBg(); ticking = false; }); ticking = true; }
+    }, { passive: true });
+    checkBg();
+    setTimeout(checkBg, 300);
+})();
 </script>
