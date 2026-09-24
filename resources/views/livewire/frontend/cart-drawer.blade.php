@@ -190,18 +190,18 @@
                                 </div>
 
                                 <!-- Sipariş Notu Paneli -->
-                                <div x-show="notePanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white">
+                                <div x-show="notePanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;">
                                     <div class="flex items-center justify-between mb-3">
                                         <h4 class="text-base font-semibold">Sipariş Notu</h4>
                                         <button @click="notePanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>
-                                    <textarea wire:model.live="orderNote" rows="3" placeholder="Siparişinize eklemek istediğiniz notları yazın..." class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none"></textarea>
+                                    <textarea rows="3" placeholder="Siparişinize eklemek istediğiniz notları yazın..." class="w-full border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30 resize-none"></textarea>
                                 </div>
 
                                 <!-- Kargo Tahmini Paneli -->
-                                <div x-show="shippingPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white">
+                                <div x-show="shippingPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;">
                                     <div class="flex items-center justify-between mb-3">
                                         <h4 class="text-base font-semibold">Kargo Tahmini</h4>
                                         <button @click="shippingPanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
@@ -215,7 +215,8 @@
                                 </div>
 
                                 <!-- İndirim Kodu Paneli -->
-                                <div x-show="discountPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white">
+                                <div x-show="discountPanel" x-transition.opacity class="px-5 lg:px-12 py-5 border-t border-black/[0.06] bg-white" style="display: none;"
+                                     x-data="{ code: '' }">
                                     <div class="flex items-center justify-between mb-3">
                                         <h4 class="text-base font-semibold">İndirim</h4>
                                         <button @click="discountPanel = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5">
@@ -223,8 +224,8 @@
                                         </button>
                                     </div>
                                     <div class="flex gap-3">
-                                        <input type="text" wire:model="couponCode" placeholder="İndirim kodu" class="flex-1 border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30">
-                                        <button wire:click="applyCoupon" class="px-5 py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-black/90 transition-colors shrink-0">Uygula</button>
+                                        <input type="text" x-model="code" placeholder="İndirim kodu" class="flex-1 border border-black/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black/30">
+                                        <button @click="if(code) $wire.applyCoupon(code)" class="px-5 py-3 bg-black text-white text-sm font-medium rounded-xl hover:bg-black/90 transition-colors shrink-0">Uygula</button>
                                     </div>
                                 </div>
 
