@@ -45,6 +45,7 @@ class FooterSettings extends Page implements HasForms
         $settings = Setting::whereIn('key', [
             'footer_description',
             'footer_copyright',
+            'footer_whatsapp',
             'footer_facebook',
             'footer_instagram',
             'footer_tiktok',
@@ -55,6 +56,7 @@ class FooterSettings extends Page implements HasForms
         $this->form->fill([
             'footer_description' => $settings['footer_description'] ?? 'Çocukların eğlenirken güvende olması için ürün seçimini, kargo sürecini ve satış sonrası desteği kolaylaştırıyoruz.',
             'footer_copyright' => $settings['footer_copyright'] ?? '© 2026 Patenli Ayakkabılar. Tüm hakları saklıdır.',
+            'footer_whatsapp' => $settings['footer_whatsapp'] ?? '',
             'footer_facebook' => $settings['footer_facebook'] ?? '',
             'footer_instagram' => $settings['footer_instagram'] ?? '',
             'footer_tiktok' => $settings['footer_tiktok'] ?? '',
@@ -82,6 +84,11 @@ class FooterSettings extends Page implements HasForms
                 Section::make('Sosyal Medya Linkleri')
                     ->description('Linkini boş bıraktığınız sosyal medya ikonları sitede otomatik olarak gizlenecektir.')
                     ->schema([
+                        TextInput::make('footer_whatsapp')
+                            ->label('WhatsApp Numarası')
+                            ->placeholder('905xxxxxxxxx')
+                            ->helperText('Ülke kodu ile birlikte yazın (ör: 905551234567)'),
+
                         TextInput::make('footer_instagram')
                             ->label('Instagram URL')
                             ->url(),
