@@ -128,21 +128,13 @@
 
                                 <!-- Beğenebilirsiniz (Recommendations) -->
                                 @if($recommendations->count() > 0)
-                                    <div class="mt-4 pt-6 border-t border-black/[0.06]" x-data="{ scrollEl: null }" x-init="scrollEl = $refs.recScroll">
+                                    <div class="mt-4 pt-6 border-t border-black/[0.06]">
                                         <div class="flex justify-between items-center mb-4">
                                             <p class="font-medium text-lg">Beğenebilirsiniz</p>
-                                            <div class="flex gap-2">
-                                                <button @click="scrollEl.scrollBy({ left: -200, behavior: 'smooth' })" class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
-                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 6L8 12L14 18"/></svg>
-                                                </button>
-                                                <button @click="scrollEl.scrollBy({ left: 200, behavior: 'smooth' })" class="w-9 h-9 rounded-full border border-black/10 flex items-center justify-center text-black/30 hover:text-black hover:border-black/40 transition-all">
-                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6L16 12L10 18"/></svg>
-                                                </button>
-                                            </div>
                                         </div>
-                                        <div x-ref="recScroll" class="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 lg:-mx-12 lg:px-12 snap-x snap-mandatory" style="scrollbar-width: none; -ms-overflow-style: none;">
+                                        <div class="flex flex-col">
                                             @foreach($recommendations as $rec)
-                                                <div class="flex-none w-[280px] snap-start flex items-center gap-3 border border-black/[0.06] rounded-xl p-3">
+                                                <div class="flex items-center gap-4 {{ !$loop->last ? 'mb-4 pb-4 border-b border-black/[0.06]' : '' }}">
                                                     <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:72px;height:72px;">
                                                         <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="72" height="72" class="w-full h-full object-cover" loading="lazy">
                                                     </a>
@@ -199,10 +191,6 @@
 
                                     <!-- Action Buttons -->
                                     <div class="grid gap-3">
-                                        <a href="{{ route('checkout') }}?payment=havale" @click="open = false" wire:navigate
-                                           class="flex items-center justify-center gap-2 w-full py-4 border border-black text-black text-sm font-medium rounded-full hover:bg-black hover:text-white transition-colors">
-                                            % 5 Havale indirimi
-                                        </a>
                                         <a href="{{ route('checkout') }}" @click="open = false" wire:navigate
                                            class="flex items-center justify-center gap-2 w-full py-4 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">
                                             <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1"><path stroke-linecap="round" d="M5.833 6.667V5.833c0-1.086 0-1.628.139-2.069a2.667 2.667 0 011.959-1.959c.44-.138.983-.138 2.069-.138s1.628 0 2.069.138a2.667 2.667 0 011.959 1.959c.138.44.138.983.138 2.069v.834M10 11.667v1.666M8.333 18.333h3.334c1.707 0 2.561 0 3.242-.256a3.333 3.333 0 001.834-1.834c.257-.681.257-1.535.257-3.243 0-1.707 0-2.561-.257-3.242a3.333 3.333 0 00-1.834-1.834c-.681-.257-1.535-.257-3.242-.257H8.333c-1.707 0-2.561 0-3.242.257a3.333 3.333 0 00-1.834 1.834C3 12.105 3 12.959 3 14.667c0 1.707 0 2.561.257 3.242a3.333 3.333 0 001.834 1.834c.681.257 1.535.257 3.242.257z"/></svg>
