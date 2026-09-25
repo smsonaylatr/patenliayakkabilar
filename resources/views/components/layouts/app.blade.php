@@ -587,7 +587,7 @@
             iframe[src*="ratingbadge"],
             iframe[src*="customerreviews"],
             gmp-ratingbadge {
-                transform: scale(1.2) !important;
+                transform: scale(1.25) !important;
                 transform-origin: bottom right !important;
             }
             @media (max-width: 767px) {
