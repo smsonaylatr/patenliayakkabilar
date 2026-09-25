@@ -15,14 +15,11 @@
         },
         dragY: 0,
         dragging: false,
-        closing: false,
         touchStartY: 0,
-        _innerEl: null,
         startDrag(e) {
             if (window.innerWidth >= 768) return;
             this.touchStartY = e.touches[0].clientY;
             this.dragging = true;
-            this.closing = false;
             this.dragY = 0;
         },
         onDrag(e) {
@@ -33,37 +30,15 @@
         endDrag() {
             if (!this.dragging) return;
             this.dragging = false;
-            if (this.dragY > 120) {
-                this._dismissMobile();
-            } else {
-                this.dragY = 0;
-            }
-        },
-        _dismissMobile() {
-            this.closing = true;
-            requestAnimationFrame(() => {
-                this.dragY = window.innerHeight;
-            });
-            const el = this._innerEl;
-            if (el) {
-                const onEnd = () => {
-                    el.removeEventListener('transitionend', onEnd);
-                    this.open = false;
-                    this.dragY = 0;
-                    this.closing = false;
-                };
-                el.addEventListener('transitionend', onEnd, { once: true });
-                setTimeout(() => { el.removeEventListener('transitionend', onEnd); this.open = false; this.dragY = 0; this.closing = false; }, 350);
-            } else {
-                setTimeout(() => { this.open = false; this.dragY = 0; this.closing = false; }, 300);
-            }
-        },
-        closeDrawer() {
-            if (window.innerWidth < 768) {
-                this._dismissMobile();
-            } else {
+            if (this.dragY > 90) {
                 this.open = false;
             }
+            this.dragY = 0;
+        },
+        closeDrawer() {
+            this.open = false;
+            this.dragY = 0;
+            this.dragging = false;
         }
     }" 
     x-on:open-cart.window="open = true"
@@ -97,28 +72,24 @@
     <!-- Drawer Container -->
     <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 10001;">
         <div x-show="open" 
-             x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
-             x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
-             x-transition:enter-end="translate-y-0 md:translate-x-0 opacity-100" 
-             x-transition:leave="transition-[transform,opacity] duration-250 ease-[cubic-bezier(.32,.72,0,1)]" 
-             x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
-             x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
-             class="pointer-events-auto w-full h-full md:max-h-full shadow-2xl rounded-t-3xl md:rounded-none overflow-hidden cart-drawer-panel"
-             style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; contain: layout style paint;">
+             x-transition:enter="transition-transform duration-300 ease-out" 
+             x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full" 
+             x-transition:enter-end="translate-y-0 md:translate-x-0" 
+             x-transition:leave="transition-transform duration-200 ease-in" 
+             x-transition:leave-start="translate-y-0 md:translate-x-0" 
+             x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full" 
+             class="pointer-events-auto w-full h-full md:max-h-full bg-white rounded-t-2xl md:rounded-none md:rounded-l-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] md:shadow-[-4px_0_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden cart-drawer-panel"
+             :style="dragging ? 'transform: translateY(' + dragY + 'px) translateZ(0); transition: none;' : (dragY > 0 ? 'transform: translateY(0); transition: transform 0.2s ease-out;' : '')"
+             @touchend="endDrag()" 
+             @touchcancel="endDrag()">
              <style>@media(min-width:768px){.cart-drawer-panel{max-width:420px!important}}@media(min-width:1024px){.cart-drawer-panel{max-width:460px!important}}</style>
 
-            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]"
-                 x-ref="innerPanel"
-                 x-init="_innerEl = $refs.innerPanel"
-                 :style="'will-change: transform; transform: translateY(' + dragY + 'px) translateZ(0);' + (dragging ? 'transition: none;' : (closing ? 'transition: transform 0.3s ease-out;' : (dragY > 0 ? 'transition: transform 0.25s ease;' : 'transition: transform 0.25s ease;')))"
-                 @touchend="endDrag()" @touchcancel="endDrag()">
-                
-                <!-- Drag Pill (Mobile) -->
-                <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
-                     @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
-                     style="touch-action: none;">
-                    <div class="w-12 h-1 rounded-full bg-black/[0.06]"></div>
-                </div>
+            <!-- Drag Pill (Mobile) -->
+            <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
+                 @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
+                 style="touch-action: none;">
+                <div class="w-12 h-1 rounded-full bg-black/[0.08]"></div>
+            </div>
 
                 <!-- Header: Tabs -->
                 <div class="shrink-0 flex items-center justify-between px-5 lg:px-12 pt-6 md:pt-8 pb-5 md:pb-6 border-b border-black/[0.06]"
@@ -370,7 +341,6 @@
                     </div>
 
                 </div>
-            </div>
 
         </div>
     </div>

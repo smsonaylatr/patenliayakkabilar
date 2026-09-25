@@ -630,8 +630,12 @@
                 });
               };
 
-              var checkInterval = setInterval(applyStyles, 100);
-              setTimeout(function() { clearInterval(checkInterval); }, 6000);
+              applyStyles();
+              var observer = new MutationObserver(function() {
+                applyStyles();
+              });
+              observer.observe(ratingBadgeContainer, { childList: true, subtree: true });
+              setTimeout(function() { observer.disconnect(); }, 5000);
             });
 
             if (typeof window.triggerGoogleOptIn === 'function') {
