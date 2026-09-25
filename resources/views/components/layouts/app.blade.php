@@ -312,7 +312,7 @@
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
-        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999] rounded-b-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999] rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
             <div>
                 <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
                     
@@ -588,7 +588,7 @@
                 iframe[src*="ratingbadge"],
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
-                    bottom: calc(65px + env(safe-area-inset-bottom)) !important;
+                    bottom: calc(150px + env(safe-area-inset-bottom)) !important;
                     right: 5px !important;
                     left: auto !important;
                 }
@@ -608,11 +608,11 @@
                 var applyStyles = function() {
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
-                    el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                    el.style.setProperty('bottom', 'calc(150px + env(safe-area-inset-bottom))', 'important');
                     el.style.setProperty('right', '5px', 'important');
                     el.style.setProperty('left', 'auto', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
-                      el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                      el.parentElement.style.setProperty('bottom', 'calc(150px + env(safe-area-inset-bottom))', 'important');
                       el.parentElement.style.setProperty('right', '5px', 'important');
                       el.parentElement.style.setProperty('left', 'auto', 'important');
                     }
