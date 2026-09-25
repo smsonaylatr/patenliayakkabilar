@@ -6,7 +6,13 @@
         shippingPanel: false,
         discountPanel: false,
         recentProducts: [],
+        addedRecentId: null,
         loadRecent() { try { this.recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) { this.recentProducts = []; } },
+        addRecentToCart(id) {
+            Livewire.find('{{ $_instance->getId() }}').call('quickAddToCart', id);
+            this.addedRecentId = id;
+            setTimeout(() => { this.addedRecentId = null; }, 2500);
+        },
         dragY: 0,
         dragging: false,
         closing: false,
@@ -328,9 +334,22 @@
                                         <div class="flex-1 min-w-0">
                                             <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
                                             <div class="text-sm mt-0.5" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
-                                            <button @click="Livewire.find('{{ $_instance->getId() }}').call('quickAddToCart', rp.id)" class="inline-flex items-center gap-1 mt-1.5 px-3 py-1 bg-black text-white text-[11px] font-medium rounded-full hover:bg-black/80 transition-colors">
-                                                <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
-                                                Sepete Ekle
+                                            <button @click="addRecentToCart(rp.id)" 
+                                                :class="addedRecentId === rp.id ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-black hover:bg-black/80'"
+                                                class="inline-flex items-center gap-1 mt-1.5 px-3 py-1 text-white text-[11px] font-medium rounded-full transition-all duration-300"
+                                                :disabled="addedRecentId === rp.id">
+                                                <template x-if="addedRecentId !== rp.id">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                        Sepete Ekle
+                                                    </span>
+                                                </template>
+                                                <template x-if="addedRecentId === rp.id">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6L5 8.5L9.5 3.5"/></svg>
+                                                        Eklendi
+                                                    </span>
+                                                </template>
                                             </button>
                                         </div>
                                         <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="p-1.5 text-black/20 hover:text-red-400 transition-colors shrink-0 self-start" title="Kaldır">
