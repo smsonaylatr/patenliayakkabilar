@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('accounting_entries')) {
+            return;
+        }
+
         Schema::create('accounting_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();

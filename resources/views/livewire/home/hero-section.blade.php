@@ -43,7 +43,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       overflow: hidden;
       background: linear-gradient(180deg, {{ $bgColor1 }} 0%, {{ $bgColor2 }} 100%);
       font-family: 'Inter', sans-serif;
-      padding-top: 20px;
+      padding-top: 32px;
       padding-bottom: 30px;
     }
 
@@ -396,7 +396,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     }
 
     .card-float-1 {
-      top: -8%;
+      top: 3%;
       right: 5%;
       animation: float 9s ease-in-out infinite reverse;
     }
@@ -517,7 +517,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       }
       .card-float-1 {
         width: 140px; height: 110px;
-        top: -60px; right: 0px;
+        top: 10px; right: 0px;
       }
       .card-float-2 {
         width: 150px; height: 130px;
@@ -586,10 +586,10 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
         margin-top: 10px;
       }
       .hero-3d-stage {
-        height: 280px;
+        height: 290px;
         margin-top: 20px;
         margin-bottom: 10px;
-        overflow: hidden;
+        overflow: visible;
         width: 100%;
         max-width: 100%;
       }
@@ -600,7 +600,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       .card-float-1 {
         display: block;
         width: 110px; height: 90px;
-        top: 0px; right: 5px;
+        top: 10px; right: 5px;
       }
       .card-float-2 {
         display: block;

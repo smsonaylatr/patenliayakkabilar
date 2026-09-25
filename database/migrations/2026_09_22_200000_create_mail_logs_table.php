@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('mail_logs')) {
+            return;
+        }
+
         Schema::create('mail_logs', function (Blueprint $table) {
             $table->id();
             $table->string('mailable_class')->nullable(); // App\Mail\OrderConfirmationMail gibi
