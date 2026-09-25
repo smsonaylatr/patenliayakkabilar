@@ -114,7 +114,8 @@
                                 class="transition-opacity duration-300 relative">
                             <span class="text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">Sepet</span>
                             @if($items->sum('quantity') > 0)
-                                <span class="absolute -top-2 -right-5 min-w-[18px] h-[18px] flex items-center justify-center bg-black text-white text-[10px] font-semibold rounded-full px-1 leading-none">{{ $items->sum('quantity') }}</span>
+                                <span class="absolute font-medium text-xs lg:text-sm leading-none"
+                                      style="top: -2px; left: calc(100% + 4px);">{{ $items->sum('quantity') }}</span>
                             @endif
                         </button>
                         <!-- İnceledikleriniz Tab -->
