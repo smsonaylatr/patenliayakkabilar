@@ -1,4 +1,4 @@
-<div>
+<div class="bg-[#6b6b6b]">
     <div class="marquee-container bg-[#6b6b6b] text-white text-[10px] sm:text-xs font-semibold tracking-widest uppercase py-2.5 sm:py-3 overflow-hidden w-full relative">
         <div class="marquee-content flex whitespace-nowrap">
             <span class="mx-6 sm:mx-12">KAPIDA ÖDEME FIRSATI</span>
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-none">
+    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white rounded-t-2xl border-b border-gray-200 shadow-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
