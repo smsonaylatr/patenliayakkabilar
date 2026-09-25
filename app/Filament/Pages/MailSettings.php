@@ -121,6 +121,12 @@ class MailSettings extends Page implements HasForms
                             ->email(),
                         TextInput::make('smtp_from_name')
                             ->label('Gönderici Adı'),
+                        TextInput::make('test_recipient_email')
+                            ->label('Test Maili Alıcı Adresi')
+                            ->placeholder('info@patenliayakkabilar.com veya kişisel e-postanız (örn. Gmail)')
+                            ->email()
+                            ->helperText('Test mailinin iletileceği adres. Boş bırakırsanız mevcut oturum açan kullanıcı e-postası kullanılır.')
+                            ->columnSpan(2),
                     ])->columns(2),
 
                 Section::make('E-Posta Hesapları')
@@ -170,8 +176,8 @@ class MailSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
-            // Placeholder alanlarını kaydetme
-            if (in_array($key, ['info', 'siparis', 'destek', 'isbirligi', 'stats'])) {
+            // Placeholder ve geçici test alanlarını kaydetme
+            if (in_array($key, ['info', 'siparis', 'destek', 'isbirligi', 'stats', 'test_recipient_email'])) {
                 continue;
             }
             Setting::updateOrCreate(['key' => $key], ['value' => is_bool($value) ? ($value ? '1' : '0') : $value]);
@@ -223,14 +229,24 @@ class MailSettings extends Page implements HasForms
                 app('mail.manager')->purge('smtp');
             }
 
-            Mail::raw('Bu bir test e-postasıdır. Patenli Ayakkabılar mail sunucusu düzgün çalışıyor! ✅', function ($message) {
-                $message->to(auth()->user()->email)
+            $recipient = !empty($data['test_recipient_email'])
+                ? trim($data['test_recipient_email'])
+                : (auth()->user()?->email ?: ($data['smtp_username'] ?? 'info@patenliayakkabilar.com'));
+
+            $fromAddress = $data['smtp_from_address'] ?: ($data['smtp_username'] ?: config('mail.from.address'));
+            $fromName = $data['smtp_from_name'] ?: config('mail.from.name', 'Patenli Ayakkabılar');
+
+            Mail::raw('Bu bir test e-postasıdır. Patenli Ayakkabılar mail sunucusu düzgün çalışıyor! ✅', function ($message) use ($recipient, $fromAddress, $fromName) {
+                if (!empty($fromAddress)) {
+                    $message->from($fromAddress, $fromName);
+                }
+                $message->to($recipient)
                     ->subject('Patenli Ayakkabılar — Test E-Postası ✅');
             });
 
             Notification::make()
                 ->title('Test Maili Gönderildi ✅')
-                ->body(auth()->user()->email . ' adresine gönderildi.')
+                ->body($recipient . ' adresine başarıyla gönderildi.')
                 ->success()
                 ->send();
         } catch (\Exception $e) {
