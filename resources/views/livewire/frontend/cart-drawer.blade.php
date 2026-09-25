@@ -180,16 +180,14 @@
 
                                             <!-- Quantity & Remove -->
                                             <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
-                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:48px;height:36px;">
-                                                    <span class="text-sm text-center">{{ $item->quantity }}</span>
-                                                    <div class="absolute right-0 hidden lg:flex flex-col items-center justify-center h-full w-5">
-                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
-                                                            <svg class="w-2 h-2" viewBox="0 0 8 6" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 4.75L4 1.25L7.5 4.75"/></svg>
-                                                        </button>
-                                                        <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center w-full items-center h-[18px] text-black/30 hover:text-black">
-                                                            <svg class="w-2 h-2" viewBox="0 0 8 6" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 1.25L4 4.75L7.5 1.25"/></svg>
-                                                        </button>
-                                                    </div>
+                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:80px;height:36px;">
+                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors">
+                                                        <svg class="w-3 h-3" viewBox="0 0 12 2" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M1 1h10"/></svg>
+                                                    </button>
+                                                    <span class="text-sm text-center flex-1">{{ $item->quantity }}</span>
+                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors">
+                                                        <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M6 1v10M1 6h10"/></svg>
+                                                    </button>
                                                 </div>
                                                 <button wire:click="removeItem({{ $item->id }})" class="p-1.5 text-black/30 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all relative" style="right: 8px;" title="Kaldır" aria-label="Ürünü sepetten kaldır">
                                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
