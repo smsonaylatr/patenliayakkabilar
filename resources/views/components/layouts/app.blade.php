@@ -602,7 +602,7 @@
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
                     bottom: calc(65px + env(safe-area-inset-bottom)) !important;
-                    left: -10px !important;
+                    left: -5px !important;
                 }
             }
         </style>
@@ -621,10 +621,10 @@
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '-10px', 'important');
+                    el.style.setProperty('left', '-5px', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '-10px', 'important');
+                      el.parentElement.style.setProperty('left', '-5px', 'important');
                     }
                   });
                 };
