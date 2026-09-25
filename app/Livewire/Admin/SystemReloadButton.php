@@ -18,20 +18,44 @@ class SystemReloadButton extends Component
             // 1. php artisan optimize:clear
             Artisan::call('optimize:clear');
 
-            // 2. php artisan octane:reload
-            $octaneExitCode = Artisan::call('octane:reload');
-            $octaneOutput = trim(Artisan::output());
+            // 2. Ensure Octane commands are registered in web context
+            if (class_exists(\Laravel\Octane\Commands\ReloadCommand::class)) {
+                $kernel = app(\Illuminate\Contracts\Console\Kernel::class);
+                $kernel->registerCommand(app(\Laravel\Octane\Commands\ReloadCommand::class));
+            }
 
-            $statusText = 'Önbellek başarıyla temizlendi.';
-            if ($octaneExitCode === 0) {
-                $statusText .= ' Octane worker\'ları yeniden başlatıldı.';
+            $octaneSuccess = false;
+            $octaneOutput = '';
+
+            try {
+                $exitCode = Artisan::call('octane:reload');
+                $octaneOutput = trim(Artisan::output());
+                $octaneSuccess = ($exitCode === 0);
+            } catch (\Symfony\Component\Console\Exception\CommandNotFoundException) {
+                // Direct fallback to RoadRunner inspector if command registration was bypassed
+                if (app()->bound(\Laravel\Octane\RoadRunner\ServerProcessInspector::class)) {
+                    $inspector = app(\Laravel\Octane\RoadRunner\ServerProcessInspector::class);
+                    if ($inspector->serverIsRunning()) {
+                        $inspector->reloadServer();
+                        $octaneSuccess = true;
+                        $octaneOutput = 'Workers reloaded.';
+                    } else {
+                        $octaneOutput = 'Octane server is not running.';
+                    }
+                }
+            }
+
+            $body = 'Önbellek başarıyla temizlendi (optimize:clear).';
+            if ($octaneSuccess) {
+                $body .= ' Octane worker\'ları yeniden başlatıldı.';
             } elseif (! empty($octaneOutput)) {
-                $statusText .= " ({$octaneOutput})";
+                // Sadece bilgi amaçlı ekle
+                $body .= ' (Octane: ' . strip_tags($octaneOutput) . ')';
             }
 
             Notification::make()
                 ->title('Sistem Yenilendi')
-                ->body($statusText)
+                ->body($body)
                 ->success()
                 ->send();
         } catch (\Throwable $e) {
