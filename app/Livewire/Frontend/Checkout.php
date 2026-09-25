@@ -794,7 +794,7 @@ class Checkout extends Component
         }
 
         $this->dispatch('cart-updated');
-        $this->dispatch('notify', message: 'Ürün sepetten kaldırıldı.', type: 'success');
+
     }
 
     public function editInformation()

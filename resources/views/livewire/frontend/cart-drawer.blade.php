@@ -37,6 +37,21 @@
             } else {
                 this.dragY = 0;
             }
+        },
+        closeDrawer() {
+            if (window.innerWidth < 768) {
+                this.closing = true;
+                this.dragY = window.innerHeight;
+                setTimeout(() => {
+                    this.open = false;
+                    setTimeout(() => {
+                        this.dragY = 0;
+                        this.closing = false;
+                    }, 500);
+                }, 400);
+            } else {
+                this.open = false;
+            }
         }
     }" 
     x-on:open-cart.window="open = true"
@@ -61,7 +76,7 @@
          x-transition:leave-end="opacity-0" 
          class="fixed inset-0 bg-black/60" 
          style="z-index: 9998;"
-         @click="open = false"></div>
+         @click="closeDrawer()"></div>
 
     <!-- Drawer Container -->
     <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 10001;">
