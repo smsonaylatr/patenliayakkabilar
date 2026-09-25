@@ -41,7 +41,7 @@
 
                 <!-- CENTER (Logo on Mobile, Menu on Desktop) -->
                 <div class="flex flex-shrink-0 items-center justify-center">
-                    <a href="{{ route('home') }}" class="md:hidden text-xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
+                    <a href="{{ route('home') }}" class="md:hidden text-[22px] font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
                         PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                     <!-- Desktop Menu -->
@@ -87,7 +87,7 @@
 
                 <!-- Actions (Right) -->
                 <div class="flex flex-1 items-center justify-end space-x-4 md:space-x-6">
-                    <button x-data @click="$dispatch('open-search')" aria-label="Arama Yap" class="text-gray-900 hover:text-gray-500 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
+                    <button x-data @click="$dispatch('open-search')" aria-label="Arama Yap" class="hidden md:flex text-gray-900 hover:text-gray-500 transition-colors p-2 min-w-[44px] min-h-[44px] items-center justify-center">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
