@@ -235,7 +235,10 @@ Route::get('/urun/{slug}', function ($slug) {
 // Ürün Yorumları (Tümünü Gör)
 Route::get('/urun/{slug}/yorumlar', function ($slug) {
     $product = \App\Models\Product::where('slug', $slug)->firstOrFail();
-    $reviews = $product->reviews()->where('status', true)->latest('id')->paginate(20);
+    $reviews = $product->reviews()->where('status', true)
+        ->orderByRaw("CASE WHEN comment IS NOT NULL AND comment != '' THEN 0 ELSE 1 END")
+        ->latest('id')
+        ->paginate(20);
     $averageRating = $product->reviews()->where('status', true)->avg('rating') ?? 5.0;
     
     return view('products.reviews', compact('product', 'reviews', 'averageRating'));

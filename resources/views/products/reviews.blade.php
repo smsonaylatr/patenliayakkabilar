@@ -68,7 +68,14 @@
                                     @endfor
                                 </div>
                             </div>
-                            <p class="text-base text-gray-700 leading-relaxed">{{ $review->comment }}</p>
+                            @if($review->comment)
+                                <p class="text-base text-gray-700 leading-relaxed">{{ $review->comment }}</p>
+                            @else
+                                <p class="text-sm text-gray-400 italic flex items-center gap-1.5">
+                                    <i class="fa-solid fa-star text-yellow-400 text-xs"></i>
+                                    {{ $review->rating }}/5 puan verdi.
+                                </p>
+                            @endif
                         </div>
                     @empty
                         <div class="text-center py-12 text-gray-500">
