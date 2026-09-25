@@ -245,7 +245,7 @@
                          GÜVEN SİNYALLERİ — Minimalist
                     ======================================== --}}
                     @php $signals = $product->getTrustSignals(); @endphp
-                    <div class="mt-4 sm:mt-8 grid grid-cols-2 gap-1.5 sm:gap-2">
+                    <div class="mt-8 grid grid-cols-2 gap-2">
                         @php
                             $iconMap = [
                                 '🚚' => 'fa-solid fa-truck-fast',
@@ -267,7 +267,7 @@
                             ];
                         @endphp
                         @foreach($signals as $signal)
-                            <div class="flex items-center gap-3.5 px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center gap-3.5 px-4 py-3 rounded-lg border border-gray-100 bg-gray-50/50">
                                 <i class="{{ $iconMap[$signal['icon']] ?? 'fa-solid fa-check' }} {{ $colorMap[$signal['color']] ?? 'text-gray-500' }} text-sm w-5 flex-shrink-0 text-center"></i>
                                 <span class="text-xs font-medium text-gray-700">{{ $signal['text'] }}</span>
                             </div>
@@ -277,7 +277,7 @@
                     {{-- ========================================
                          AKORDİYON — Minimalist
                     ======================================== --}}
-                    <div class="mt-4 sm:mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
+                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp

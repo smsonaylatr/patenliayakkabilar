@@ -85,10 +85,6 @@ body {
         border-radius: 0.75rem;
     }
 
-    /* Grid layout'lar mobilde daha kompakt */
-    .grid {
-        gap: inherit;
-    }
 
     /* Buton tap alanları minimum 44px */
     button, a, [role="button"] {
