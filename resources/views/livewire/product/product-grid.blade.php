@@ -1,4 +1,4 @@
-<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12" style="perspective: 1200px;">
+<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10 sm:gap-x-8 sm:gap-y-12" style="perspective: 1200px;">
     @forelse($products as $product)
         <div 
             x-data="{
