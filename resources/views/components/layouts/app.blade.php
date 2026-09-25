@@ -312,7 +312,15 @@
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
-        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999] rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white z-[9999] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+            <!-- Inverted radius — sol üst köşe (SVG concave curve) -->
+            <svg class="absolute -top-[20px] left-0 w-[20px] h-[20px]" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 0 L0 20 L20 20 Q0 20 0 0" fill="white"/>
+            </svg>
+            <!-- Inverted radius — sağ üst köşe (SVG concave curve) -->
+            <svg class="absolute -top-[20px] right-0 w-[20px] h-[20px]" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 0 L20 20 L0 20 Q20 20 20 0" fill="white"/>
+            </svg>
             <div>
                 <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
                     
