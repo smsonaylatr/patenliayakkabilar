@@ -334,7 +334,7 @@
                                             <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2" x-text="rp.name"></a>
                                             <span class="text-sm" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></span>
                                         </div>
-                                        <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
+                                        <div class="shrink-0 flex flex-col items-end justify-center" style="min-height:80px;">
                                             <button @click="addRecentToCart(rp.id)" 
                                                 :class="addedRecentId === rp.id ? 'bg-emerald-600 border-emerald-600' : 'bg-black border-black hover:bg-black/80'"
                                                 class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300"
