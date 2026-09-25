@@ -86,11 +86,38 @@ class CartDrawer extends Component
             ->inRandomOrder()
             ->take(10)
             ->get();
+        // Kargo tahmini: sepetteki ürünlerin en uzun teslimat süresini bul
+        $deliveryEstimate = '1-3 iş günü';
+        if ($items->isNotEmpty()) {
+            $maxDays = 3;
+            foreach ($items as $item) {
+                if ($item->product && $item->product->delivery_time) {
+                    $raw = $item->product->delivery_time;
+                    // "7-14" veya "7-14 gün" gibi değerlerden max sayıyı çıkar
+                    preg_match_all('/\d+/', $raw, $matches);
+                    if (!empty($matches[0])) {
+                        $maxInProduct = (int) max($matches[0]);
+                        if ($maxInProduct > $maxDays) {
+                            $maxDays = $maxInProduct;
+                        }
+                    }
+                }
+            }
+            // En uzun süreye göre tahmini belirle
+            if ($maxDays <= 3) {
+                $deliveryEstimate = '1-3 iş günü';
+            } elseif ($maxDays <= 7) {
+                $deliveryEstimate = '3-7 iş günü';
+            } else {
+                $deliveryEstimate = '7-14 iş günü';
+            }
+        }
 
         return view('livewire.frontend.cart-drawer', [
             'items' => $items,
             'total' => $cartService->getTotal(),
             'recommendations' => $recommendations,
+            'deliveryEstimate' => $deliveryEstimate,
         ]);
     }
 }

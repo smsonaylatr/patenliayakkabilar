@@ -379,7 +379,7 @@
             <!-- Sonuç -->
             <div x-show="calculated" x-transition.opacity class="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl mt-1">
                 <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="text-sm text-green-700 font-medium">Ücretsiz kargo · Tahmini 2-4 iş günü</span>
+                <span class="text-sm text-green-700 font-medium">Ücretsiz kargo · Tahmini {{ $deliveryEstimate }}</span>
             </div>
         </div>
     </div>
