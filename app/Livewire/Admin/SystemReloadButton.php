@@ -10,6 +10,10 @@ class SystemReloadButton extends Component
 {
     public function reload(): void
     {
+        if (! filament()->auth()->check()) {
+            return;
+        }
+
         try {
             // 1. php artisan optimize:clear
             Artisan::call('optimize:clear');
