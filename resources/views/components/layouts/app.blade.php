@@ -559,6 +559,8 @@
                 bottom: calc(85px + env(safe-area-inset-bottom)); /* iOS'ta alt bar kapanınca kaymayı önlemek için */
                 box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
                 transition: all 0.3s ease;
+                transform: scale(0.8);
+                transform-origin: bottom right;
             }
             @media (min-width: 768px) {
                 .call-widget {
@@ -567,7 +569,7 @@
                 }
             }
             .call-widget:hover {
-                transform: scale(1.1);
+                transform: scale(0.88);
                 filter: brightness(1.25);
             }
         </style>
