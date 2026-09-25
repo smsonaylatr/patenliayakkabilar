@@ -27,8 +27,17 @@ class OrderObserver
         // Kredi kartı ve Havale/EFT ödemelerinde, müşteri ödeme sayfasına yönlendirildiğinde "Ödeme Aşamasında" bildirimi gönderiyoruz
         if (in_array($order->payment_method, ['credit_card', 'wire_transfer'])) {
             app()->terminating(function () use ($order) {
-                $order->refresh();
-                $this->sendTelegramNotification($order, 'pending');
+                try {
+                    $order->refresh();
+                    if (!$order->exists || $order->payment_status === 'paid') {
+                        return;
+                    }
+                    $this->sendTelegramNotification($order, 'pending');
+                } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                    return;
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Telegram pending notification error: ' . $e->getMessage());
+                }
             });
         } else {
             app()->terminating(function () use ($order) {
@@ -73,6 +82,17 @@ class OrderObserver
     private function sendCustomerSms(Order $order, string $type): void
     {
         if (empty($order->customer_phone)) return;
+
+        // Mükerrer SMS koruması (5 dakika içinde aynı sipariş ve tip için tekrar gönderme)
+        $dedupKey = "sms_sent_{$order->id}_{$type}";
+        try {
+            if (!\Illuminate\Support\Facades\Cache::add($dedupKey, true, now()->addMinutes(5))) {
+                \Illuminate\Support\Facades\Log::info("SMS mükerrer engellendi: #{$order->order_number} ({$type})");
+                return;
+            }
+        } catch (\Throwable $ce) {
+            \Illuminate\Support\Facades\Log::warning("SMS dedup cache hatası: " . $ce->getMessage());
+        }
 
         $isActive = filter_var(\App\Models\Setting::where('key', 'vatansms_active')->value('value'), FILTER_VALIDATE_BOOLEAN);
         if (!$isActive) return;
@@ -131,8 +151,22 @@ class OrderObserver
             $token = \App\Models\Setting::where('key', 'telegram_bot_token')->value('value');
             $chatId = \App\Models\Setting::where('key', 'telegram_chat_id')->value('value');
 
-            if ($isActive && !empty($token) && !empty($chatId)) {
-                $order->loadMissing(['items.product.images', 'items.variant']);
+            if (!$isActive || empty($token) || empty($chatId)) {
+                return;
+            }
+
+            // Mükerrer bildirim koruması (5 dakika içinde aynı sipariş ve durum için tekrar gönderme)
+            $dedupKey = "telegram_sent_{$order->id}_{$type}";
+            try {
+                if (!\Illuminate\Support\Facades\Cache::add($dedupKey, true, now()->addMinutes(5))) {
+                    \Illuminate\Support\Facades\Log::info("Telegram bildirimi mükerrer engellendi: #{$order->order_number} ({$type})");
+                    return;
+                }
+            } catch (\Throwable $ce) {
+                \Illuminate\Support\Facades\Log::warning("Telegram dedup cache hatası: " . $ce->getMessage());
+            }
+
+            $order->loadMissing(['items.product.images', 'items.variant']);
 
                 $paymentMethods = [
                     'credit_card' => 'Kredi Kartı',
@@ -249,7 +283,6 @@ class OrderObserver
                         ]);
                     }
                 }
-            }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Telegram notification failed: ' . $e->getMessage());
         }

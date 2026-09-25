@@ -41,7 +41,6 @@ class AppServiceProvider extends ServiceProvider
         }
 
         \App\Models\Product::observe(\App\Observers\ProductObserver::class);
-        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
 
         // Mail event subscriber — gönderilen tüm e-postaları loglar
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\MailEventSubscriber::class);
