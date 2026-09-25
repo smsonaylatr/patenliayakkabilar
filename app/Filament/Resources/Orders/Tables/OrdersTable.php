@@ -589,9 +589,6 @@ class OrdersTable
                         if (in_array($record->status, ['processing', 'shipped'])) {
                             return 'Kargo Kodu Bekleniyor...';
                         }
-                        if ($record->hasKickSpeedProducts()) {
-                            return 'Kick Speed: Onayla ve Porego\'ya Gönder';
-                        }
                         return 'Kargo Kodu Oluştur';
                     })
                     ->icon(function (Order $record): string {
@@ -647,14 +644,9 @@ class OrdersTable
                         // Kargo takip linki açılacaksa onay isteme
                         return !($hasReal && $record->status === 'shipped');
                     })
-                    ->modalHeading(fn (Order $record): string => $record->hasKickSpeedProducts() ? 'Kick Speed Siparişini Onayla & Porego\'ya Gönder' : 'Kargo Kodu Oluştur')
-                    ->modalDescription(function (Order $record): string {
-                        if ($record->hasKickSpeedProducts()) {
-                            return 'Bu sipariş Kick Speed marka ürün içermektedir. Kapıda ödeme siparişlerinde olduğu gibi yönetici onayı gereklidir. Onayladığınızda sipariş Porego sistemine iletilecek ve kargo barkodu oluşturulacaktır.';
-                        }
-                        return 'Kargo barkodu oluşturulacak ve sipariş durumu "Hazırlanıyor" olarak güncellenecektir.';
-                    })
-                    ->modalSubmitActionLabel(fn (Order $record): string => $record->hasKickSpeedProducts() ? 'Onayla ve Gönder' : 'Oluştur')
+                    ->modalHeading('Kargo Kodu Oluştur')
+                    ->modalDescription('Kargo barkodu oluşturulacak ve sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
+                    ->modalSubmitActionLabel('Oluştur')
                     ->action(function (Order $record): void {
                         // Eğer gerçek kargo kodu varsa action çalışmasın (link açılacak)
                         $code = trim((string)$record->cargo_tracking_code);
