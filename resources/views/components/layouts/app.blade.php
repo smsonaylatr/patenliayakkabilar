@@ -627,11 +627,23 @@
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
                     el.style.setProperty('z-index', '9990', 'important');
+                    el.style.setProperty('width', '56px', 'important');
+                    el.style.setProperty('height', '56px', 'important');
+                    el.style.setProperty('overflow', 'hidden', 'important');
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
                     el.style.setProperty('left', '5px', 'important');
+                    if (el.tagName === 'IFRAME') {
+                      el.style.setProperty('transform', 'scale(0.75)', 'important');
+                      el.style.setProperty('transform-origin', 'bottom left', 'important');
+                    }
+                    if (el.id === 'gcr-badge-container') {
+                      el.style.setProperty('border-radius', '50%', 'important');
+                    }
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
                       el.parentElement.style.setProperty('left', '5px', 'important');
+                      el.parentElement.style.setProperty('width', '56px', 'important');
+                      el.parentElement.style.setProperty('height', '56px', 'important');
                     }
                   });
                 };
