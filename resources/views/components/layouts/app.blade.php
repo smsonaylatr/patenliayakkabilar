@@ -463,7 +463,7 @@
                  @click="closeCatalog()"></div>
                  
             <!-- Drawer Container -->
-            <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-[15vh] pointer-events-none flex items-end" style="z-index: 9996;">
+            <div class="fixed inset-x-0 bottom-0 top-[40%] md:top-[15vh] pointer-events-none flex items-end" style="z-index: 9996;">
                 <div x-show="open" 
                      x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
                      x-transition:enter-start="translate-y-full opacity-95" 
