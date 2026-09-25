@@ -398,18 +398,16 @@
         <livewire:frontend.site-popup />
 
         <!-- Mobile Catalog Modal -->
+        <!-- Mobile Catalog Modal -->
         <div x-data="{ 
                 open: false,
                 dragY: 0,
                 dragging: false,
-                closing: false,
                 touchStartY: 0,
-                _catalogInnerEl: null,
                 startDrag(e) {
                     if (window.innerWidth >= 768) return;
                     this.touchStartY = e.touches[0].clientY;
                     this.dragging = true;
-                    this.closing = false;
                     this.dragY = 0;
                 },
                 onDrag(e) {
@@ -420,46 +418,15 @@
                 endDrag() {
                     if (!this.dragging) return;
                     this.dragging = false;
-                    if (this.dragY > 120) {
-                        this._dismissCatalog();
-                    } else {
-                        this.dragY = 0;
-                    }
-                },
-                _dismissCatalog() {
-                    this.closing = true;
-                    requestAnimationFrame(() => {
-                        this.dragY = window.innerHeight;
-                    });
-                    const el = this._catalogInnerEl;
-                    if (el) {
-                        const onEnd = () => {
-                            el.removeEventListener('transitionend', onEnd);
-                            this.open = false;
-                            this.dragY = 0;
-                            this.closing = false;
-                        };
-                        el.addEventListener('transitionend', onEnd, { once: true });
-                        setTimeout(() => {
-                            el.removeEventListener('transitionend', onEnd);
-                            this.open = false;
-                            this.dragY = 0;
-                            this.closing = false;
-                        }, 350);
-                    } else {
-                        setTimeout(() => {
-                            this.open = false;
-                            this.dragY = 0;
-                            this.closing = false;
-                        }, 300);
-                    }
-                },
-                closeCatalog() {
-                    if (window.innerWidth < 768) {
-                        this._dismissCatalog();
-                    } else {
+                    if (this.dragY > 90) {
                         this.open = false;
                     }
+                    this.dragY = 0;
+                },
+                closeCatalog() {
+                    this.open = false;
+                    this.dragY = 0;
+                    this.dragging = false;
                 }
             }" 
              x-init="$watch('open', value => {
@@ -480,7 +447,7 @@
                  x-transition:enter="transition-opacity duration-300 ease-out" 
                  x-transition:enter-start="opacity-0" 
                  x-transition:enter-end="opacity-100" 
-                 x-transition:leave="transition-opacity duration-250 ease-in" 
+                 x-transition:leave="transition-opacity duration-200 ease-in" 
                  x-transition:leave-start="opacity-100" 
                  x-transition:leave-end="opacity-0" 
                  class="fixed inset-0 bg-black/60" 
@@ -490,31 +457,27 @@
             <!-- Drawer Container (%70 açılış: top-[30%]) -->
             <div class="fixed inset-x-0 bottom-0 top-[30%] md:top-[15vh] pointer-events-none flex items-end" style="z-index: 9996;">
                 <div x-show="open" 
-                     x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
-                     x-transition:enter-start="translate-y-full opacity-95" 
-                     x-transition:enter-end="translate-y-0 opacity-100" 
-                     x-transition:leave="transition-[transform,opacity] duration-250 ease-[cubic-bezier(.32,.72,0,1)]" 
-                     x-transition:leave-start="translate-y-0 opacity-100" 
-                     x-transition:leave-end="translate-y-full opacity-0" 
-                     class="pointer-events-auto w-full h-full shadow-2xl rounded-t-3xl overflow-hidden"
-                     style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; contain: layout style paint;">
+                     x-transition:enter="transition-transform duration-300 ease-out" 
+                     x-transition:enter-start="translate-y-full" 
+                     x-transition:enter-end="translate-y-0" 
+                     x-transition:leave="transition-transform duration-200 ease-in" 
+                     x-transition:leave-start="translate-y-0" 
+                     x-transition:leave-end="translate-y-full" 
+                     class="pointer-events-auto w-full h-full bg-white rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden"
+                     :style="dragging ? 'transform: translateY(' + dragY + 'px) translateZ(0); transition: none;' : (dragY > 0 ? 'transform: translateY(0); transition: transform 0.2s ease-out;' : '')"
+                     @touchend="endDrag()" 
+                     @touchcancel="endDrag()">
 
-                    <div class="flex flex-col h-full bg-white rounded-t-[24px] overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
-                         x-ref="catalogInnerPanel"
-                         x-init="_catalogInnerEl = $refs.catalogInnerPanel"
-                         :style="'will-change: transform; transform: translateY(' + dragY + 'px) translateZ(0);' + (dragging ? 'transition: none;' : (closing ? 'transition: transform 0.3s ease-out;' : (dragY > 0 ? 'transition: transform 0.25s ease;' : 'transition: transform 0.25s ease;')))"
-                         @touchend="endDrag()" @touchcancel="endDrag()">
-                        
-                        <!-- Drag Pill (Mobile) -->
-                        <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
-                             @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
-                             style="touch-action: none;">
-                            <div class="w-12 h-1 rounded-full bg-black/[0.06]"></div>
-                        </div>
+                    <!-- Drag Pill (Mobile) -->
+                    <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
+                         @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
+                         style="touch-action: none;">
+                        <div class="w-12 h-1 rounded-full bg-black/[0.08]"></div>
+                    </div>
 
-                        <!-- Header -->
-                        <div class="shrink-0 px-5 pt-4 pb-5 border-b border-black/[0.06] flex items-start justify-between"
-                             @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)">
+                    <!-- Header -->
+                    <div class="shrink-0 px-5 pt-4 pb-5 border-b border-black/[0.06] flex items-start justify-between"
+                         @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)">
                             <div>
                                 <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">KOLEKSİYON / {{ date('Y') }}</p>
                                 <h2 class="text-2xl font-black text-gray-900 tracking-tighter">Katalog</h2>
@@ -552,7 +515,6 @@
                                 @endforeach
                             </ul>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
