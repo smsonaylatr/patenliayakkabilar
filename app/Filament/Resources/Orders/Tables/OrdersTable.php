@@ -49,19 +49,8 @@ class OrdersTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(function (Order $record) {
-                        $email = $record->customer_email ?: ($record->user?->email ?: '-');
-                        if ($record->hasKickSpeedProducts()) {
-                            $code = trim((string)$record->cargo_tracking_code);
-                            $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
-                            if (!$hasReal && !in_array($record->status, ['delivered', 'completed', 'cancelled'])) {
-                                return '⚡ Kick Speed (Onay Bekliyor) • ' . $email;
-                            }
-                            return '⚡ Kick Speed • ' . $email;
-                        }
-                        return $email;
-                    })
-                    ->limit(35),
+                    ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
+                    ->limit(30),
 
                 TextColumn::make('shipping_city')
                     ->label('ŞEHİR')

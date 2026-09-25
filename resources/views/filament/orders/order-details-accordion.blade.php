@@ -315,23 +315,6 @@ td.fi-ta-actions-cell {
   >
     <svg style="width:16px; height:16px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
     <span x-text="toastMsg"></span>
-  </div>
-
-  @if($order->hasKickSpeedProducts())
-    @php
-      $code = trim((string)$order->cargo_tracking_code);
-      $hasRealCode = !empty($code) && !str_starts_with($code, '33') && $code !== $order->order_number && $code !== (string)$order->id;
-    @endphp
-    @if(!$hasRealCode && !in_array($order->status, ['delivered', 'completed', 'cancelled']))
-      <div style="background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; font-size: 0.84rem; color: #92400e; display: flex; align-items: flex-start; gap: 10px;">
-        <svg style="width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <div>
-          <strong style="font-weight: 700;">Kick Speed Onay Bildirimi:</strong> Bu siparişte Kick Speed marka ürün bulunduğu için kapıda ödeme siparişlerinde olduğu gibi Porego sistemine otomatik aktarılmamıştır. Siparişi kontrol ettikten sonra tablodaki <strong>Kargo Kodu Oluştur</strong> butonu ile onaylayıp gönderebilirsiniz.
-        </div>
-      </div>
-    @endif
-  @endif
-
   <!-- Products -->
   <div class="detail-section">
     <div class="detail-title">Sipariş Ürünleri</div>
@@ -404,18 +387,7 @@ td.fi-ta-actions-cell {
                   </div>
                 </td>
                 <td style="vertical-align:middle;">
-                  @php
-                    $isKickSpeedItem = preg_match('/kick[\s_-]?speed/i', (string)($product?->brand ?? ''))
-                      || preg_match('/kick[\s_-]?speed/i', (string)$item->product_name)
-                      || preg_match('/kick[\s_-]?speed/i', (string)($product?->name ?? ''))
-                      || preg_match('/^KS[-_]|kick[\s_-]?speed/i', (string)($sku ?? ''));
-                  @endphp
-                  <div class="td-bold" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span>{{ $item->product_name }}</span>
-                    @if($isKickSpeedItem)
-                      <span style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">Kick Speed</span>
-                    @endif
-                  </div>
+                  <div class="td-bold">{{ $item->product_name }}</div>
                   @if($sku && $sku !== '-')
                   <div 
                     x-data="{ copied: false }" 
