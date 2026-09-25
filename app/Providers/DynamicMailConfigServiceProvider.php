@@ -60,11 +60,13 @@ class DynamicMailConfigServiceProvider extends ServiceProvider
                 
                 // Encryption/Scheme ayarı
                 $port = (int)($settings['smtp_port'] ?? 465);
-                $encryption = $settings['smtp_encryption'] ?? null;
+                $encryption = $settings['smtp_encryption'] ?? ($port === 465 ? 'ssl' : 'tls');
                 
-                if ($port === 465 || $encryption === 'ssl') {
+                // 465 doğrudan SSL (smtps), 587 ise STARTTLS (smtp) protokolü kullanır.
+                // Port 587 asla smtps (ssl://) şemasına zorlanamaz.
+                if ($port === 465 || ($encryption === 'ssl' && $port !== 587)) {
                     config(['mail.mailers.smtp.scheme' => 'smtps']);
-                } elseif ($port === 587 || $encryption === 'tls') {
+                } else {
                     config(['mail.mailers.smtp.scheme' => 'smtp']);
                 }
             }

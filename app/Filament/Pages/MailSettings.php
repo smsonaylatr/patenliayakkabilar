@@ -13,6 +13,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -82,7 +83,16 @@ class MailSettings extends Page implements HasForms
                         TextInput::make('smtp_port')
                             ->label('Port')
                             ->numeric()
-                            ->default(465),
+                            ->default(465)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if ((int)$state === 465) {
+                                    $set('smtp_encryption', 'ssl');
+                                } elseif ((int)$state === 587) {
+                                    $set('smtp_encryption', 'tls');
+                                }
+                            })
+                            ->helperText('Plesk/cPanel için önerilen SSL: 465 (STARTTLS: 587)'),
                         Select::make('smtp_encryption')
                             ->label('Şifreleme')
                             ->options([
@@ -90,7 +100,15 @@ class MailSettings extends Page implements HasForms
                                 'tls' => 'TLS (Port 587)',
                                 'none' => 'Şifreleme Yok',
                             ])
-                            ->native(false),
+                            ->native(false)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if ($state === 'ssl') {
+                                    $set('smtp_port', 465);
+                                } elseif ($state === 'tls') {
+                                    $set('smtp_port', 587);
+                                }
+                            }),
                         TextInput::make('smtp_username')
                             ->label('Kullanıcı Adı (E-Posta)')
                             ->email(),
@@ -177,7 +195,7 @@ class MailSettings extends Page implements HasForms
             // SMTP ayarlarını geçici olarak config'e yaz
             if (!empty($data['smtp_host'])) {
                 $port = (int)($data['smtp_port'] ?? 465);
-                $encryption = $data['smtp_encryption'] ?? 'ssl';
+                $encryption = $data['smtp_encryption'] ?? ($port === 465 ? 'ssl' : 'tls');
 
                 config([
                     'mail.mailers.smtp.host' => $data['smtp_host'],
@@ -186,9 +204,18 @@ class MailSettings extends Page implements HasForms
                     'mail.mailers.smtp.password' => $data['smtp_password'] ?? null,
                 ]);
 
-                if ($port === 465 || $encryption === 'ssl') {
+                if (!empty($data['smtp_from_address'])) {
+                    config([
+                        'mail.from.address' => $data['smtp_from_address'],
+                        'mail.from.name' => $data['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar'),
+                    ]);
+                }
+
+                // 465 portu doğrudan SSL bağlantısı (smtps) gerektirir.
+                // 587 portu ise STARTTLS (smtp) protokolü kullanır, asla smtps/ssl:// bağlanamaz!
+                if ($port === 465 || ($encryption === 'ssl' && $port !== 587)) {
                     config(['mail.mailers.smtp.scheme' => 'smtps']);
-                } elseif ($port === 587 || $encryption === 'tls') {
+                } else {
                     config(['mail.mailers.smtp.scheme' => 'smtp']);
                 }
 

@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->renderHook(
-                \Filament\View\PanelsRenderHook::USER_MENU_BEFORE,
+                \Filament\View\PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn () => view('filament.components.system-reload-button')
             )
             ->renderHook(
