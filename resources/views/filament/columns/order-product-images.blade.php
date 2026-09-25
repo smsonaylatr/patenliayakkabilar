@@ -10,11 +10,6 @@
             <span style="background: rgba(99,102,241,0.95); color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; display: inline-block; line-height: 1.4; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
                 x{{ $item['quantity'] }}
             </span>
-            @if(!empty($item['is_kick_speed']))
-                <span title="Kick Speed Ürünü" style="background: rgba(220, 38, 38, 0.95); color: #ffffff; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; display: inline-block; line-height: 1.3; letter-spacing: 0.5px;">
-                    KS
-                </span>
-            @endif
         </div>
     @endforeach
 </div>

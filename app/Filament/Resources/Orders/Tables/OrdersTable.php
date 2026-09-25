@@ -36,16 +36,12 @@ class OrdersTable
                                 $item->product->loadMissing('images');
                                 $img = $item->product->images->first()?->image_url;
                             }
-                            $isKick = preg_match('/kick[\s_-]?speed/i', (string)($item->product?->brand ?? ''))
-                                || preg_match('/kick[\s_-]?speed/i', (string)$item->product_name)
-                                || preg_match('/kick[\s_-]?speed/i', (string)($item->product?->name ?? ''));
                             $items[] = [
                                 'image' => $img ?: asset('favicon.png'),
                                 'quantity' => $item->quantity ?? 1,
-                                'is_kick_speed' => (bool)$isKick,
                             ];
                         }
-                        return !empty($items) ? $items : [['image' => asset('favicon.png'), 'quantity' => 1, 'is_kick_speed' => false]];
+                        return !empty($items) ? $items : [['image' => asset('favicon.png'), 'quantity' => 1]];
                     }),
 
                 TextColumn::make('customer_name')
