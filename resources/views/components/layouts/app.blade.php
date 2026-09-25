@@ -589,7 +589,8 @@
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
                     bottom: calc(65px + env(safe-area-inset-bottom)) !important;
-                    left: 5px !important;
+                    right: 5px !important;
+                    left: auto !important;
                 }
             }
         </style>
@@ -600,7 +601,7 @@
             ratingBadgeContainer.id = "gcr-badge-container";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_RIGHT"});
               
               // Sadece mobilde alt menünün üstünde durması için
               if (window.innerWidth < 768) {
@@ -608,10 +609,12 @@
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '5px', 'important');
+                    el.style.setProperty('right', '5px', 'important');
+                    el.style.setProperty('left', 'auto', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '5px', 'important');
+                      el.parentElement.style.setProperty('right', '5px', 'important');
+                      el.parentElement.style.setProperty('left', 'auto', 'important');
                     }
                   });
                 };
