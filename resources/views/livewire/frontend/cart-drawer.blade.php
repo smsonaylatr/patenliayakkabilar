@@ -56,7 +56,7 @@
     }" 
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
-    @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else open = false"
+    @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else closeDrawer()"
     x-cloak
     class="relative"
     style="z-index: 10000;"
@@ -124,7 +124,7 @@
                         </button>
                     </div>
                     <!-- Close Button (Desktop) -->
-                    <button @click="open = false" 
+                    <button @click="closeDrawer()" 
                             class="hidden sm:flex items-center justify-center w-9 h-9 rounded-full border border-black/10 text-black/40 hover:text-black hover:border-black/40 transition-all shrink-0 ml-auto">
                         <svg class="w-[14px] h-[14px]" viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15L15 5M5 5L15 15"/></svg>
                     </button>
@@ -296,7 +296,7 @@
                                     </div>
                                     <h3 class="text-lg font-medium mb-2">Sepetiniz Boş</h3>
                                     <p class="text-black/50 text-sm leading-tight mb-6">Alışverişe başlamak için ürünlerimize göz atın.</p>
-                                    <button @click="open = false" class="text-black font-semibold border-b-2 border-black pb-1 hover:text-black/60 hover:border-black/60 transition-colors">
+                                    <button @click="closeDrawer()" class="text-black font-semibold border-b-2 border-black pb-1 hover:text-black/60 hover:border-black/60 transition-colors">
                                         Alışverişe Devam Et
                                     </button>
                                 </div>
