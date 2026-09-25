@@ -396,7 +396,7 @@
                                         wire:confirm="Bu ürünü sepetten kaldırmak istediğinize emin misiniz?"
                                         wire:loading.attr="disabled"
                                         wire:target="removeCartItem({{ $item->id }})"
-                                        class="flex-shrink-0 self-center p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
+                                        class="flex-shrink-0 self-center p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
                                         title="Ürünü Kaldır"
                                         aria-label="Ürünü sepetten kaldır"
                                     >
