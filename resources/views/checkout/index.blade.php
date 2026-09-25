@@ -1,7 +1,7 @@
 <x-layouts.app>
-    <div class="bg-gray-50 py-12">
+    <div class="bg-gray-50 py-6 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-extrabold tracking-tight text-brand-dark mb-10">Güvenli Ödeme</h1>
+            <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight text-brand-dark mb-6 sm:mb-10">Güvenli Ödeme</h1>
             
             <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
                 <div class="lg:col-span-7">

@@ -162,10 +162,10 @@
 
         @persist('footer-wrapper')
             <!-- Bottom Marquee -->
-            <div class="bg-white border-y border-gray-200 py-5 sm:py-7 overflow-hidden w-full relative">
+            <div class="bg-white border-y border-gray-200 py-3 sm:py-7 overflow-hidden w-full relative">
                 <div class="marquee-content flex whitespace-nowrap items-center">
                     @for ($i = 0; $i < 24; $i++)
-                        <span class="text-black font-black text-xl sm:text-2xl md:text-3xl tracking-[0.2em] uppercase mx-6 md:mx-12">HER YERDE KAY</span>
+                        <span class="text-black font-black text-base sm:text-2xl md:text-3xl tracking-[0.2em] uppercase mx-3 sm:mx-6 md:mx-12">HER YERDE KAY</span>
                     @endfor
                 </div>
             </div>
@@ -185,9 +185,9 @@
                 $footerDesc = $footerSettings['footer_description'] ?? 'Çocukların eğlenirken güvende olması için ürün seçimini, kargo sürecini ve satış sonrası desteği kolaylaştırıyoruz.';
                 $footerCopy = $footerSettings['footer_copyright'] ?? '© ' . date('Y') . ' Patenli Ayakkabılar. Tüm hakları saklıdır.';
             @endphp
-            <footer class="bg-brand-black text-brand-white pt-16 pb-24 md:pb-8">
+            <footer class="bg-brand-black text-brand-white pt-10 sm:pt-16 pb-24 md:pb-8">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 mb-12">
                         <div class="col-span-2">
                             <a href="{{ route('home') }}" class="text-2xl font-black text-white tracking-tighter mb-4 inline-block" wire:navigate>
                                 PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
@@ -314,42 +314,42 @@
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
         <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999] rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
             <div>
-                <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
+                <div class="grid grid-cols-6 h-[66px] w-full px-2 py-1.5">
                     
                     {{-- 1. Anasayfa — Halikoy home icon --}}
                     <a href="{{ route('home') }}" wire:navigate class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
-                        <svg class="w-[24px] h-[24px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.3337 14.1667V10.4538C18.3337 9.09868 18.3337 8.42113 18.1681 7.79394C18.006 7.17971 17.7284 6.602 17.35 6.09172C16.9637 5.57066 16.4346 5.1474 15.3764 4.30088L14.9979 3.99805L14.9979 3.99804C13.2143 2.57117 12.3225 1.85774 11.3335 1.58413C10.4611 1.34279 9.53956 1.34279 8.66717 1.58413C7.67815 1.85774 6.78636 2.57118 5.00277 3.99805L5.00276 3.99805L4.62423 4.30088C3.56607 5.1474 3.037 5.57066 2.65064 6.09172C2.27227 6.602 1.99461 7.17971 1.83251 7.79394C1.66699 8.42113 1.66699 9.09868 1.66699 10.4538V14.1667C1.66699 16.4679 3.53247 18.3333 5.83366 18.3333C6.75413 18.3333 7.50033 17.5871 7.50033 16.6667V13.3333C7.50033 11.9526 8.61961 10.8333 10.0003 10.8333C11.381 10.8333 12.5003 11.9526 12.5003 13.3333V16.6667C12.5003 17.5871 13.2465 18.3333 14.167 18.3333C16.4682 18.3333 18.3337 16.4679 18.3337 14.1667Z"/>
                         </svg>
-                        <span class="text-[11px] font-normal leading-none text-gray-800">Anasayfa</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Anasayfa</span>
                     </a>
 
                     {{-- 2. Katalog — Halikoy grid icon --}}
                     <button x-data @click="$dispatch('open-mobile-catalog')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
-                        <svg class="w-[24px] h-[24px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M1.6665 4.8665C1.6665 3.7464 1.6665 3.18635 1.88449 2.75852C2.07624 2.3822 2.3822 2.07624 2.75852 1.88449C3.18635 1.6665 3.7464 1.6665 4.8665 1.6665H5.13317C6.25328 1.6665 6.81333 1.6665 7.24115 1.88449C7.61748 2.07624 7.92344 2.3822 8.11518 2.75852C8.33317 3.18635 8.33317 3.7464 8.33317 4.8665V5.13317C8.33317 6.25328 8.33317 6.81333 8.11518 7.24115C7.92344 7.61748 7.61748 7.92344 7.24115 8.11518C6.81333 8.33317 6.25328 8.33317 5.13317 8.33317H4.8665C3.7464 8.33317 3.18635 8.33317 2.75852 8.11518C2.3822 7.92344 2.07624 7.61748 1.88449 7.24115C1.6665 6.81333 1.6665 6.25328 1.6665 5.13317V4.8665Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.6665 4.8665C11.6665 3.7464 11.6665 3.18635 11.8845 2.75852C12.0762 2.3822 12.3822 2.07624 12.7585 1.88449C13.1864 1.6665 13.7464 1.6665 14.8665 1.6665H15.1332C16.2533 1.6665 16.8133 1.6665 17.2412 1.88449C17.6175 2.07624 17.9234 2.3822 18.1152 2.75852C18.3332 3.18635 18.3332 3.7464 18.3332 4.8665V5.13317C18.3332 6.25328 18.3332 6.81333 18.1152 7.24115C17.9234 7.61748 17.6175 7.92344 17.2412 8.11518C16.8133 8.33317 16.2533 8.33317 15.1332 8.33317H14.8665C13.7464 8.33317 13.1864 8.33317 12.7585 8.11518C12.3822 7.92344 12.0762 7.61748 11.8845 7.24115C11.6665 6.81333 11.6665 6.25328 11.6665 5.13317V4.8665Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M1.6665 14.8665C1.6665 13.7464 1.6665 13.1864 1.88449 12.7585C2.07624 12.3822 2.3822 12.0762 2.75852 11.8845C3.18635 11.6665 3.7464 11.6665 4.8665 11.6665H5.13317C6.25328 11.6665 6.81333 11.6665 7.24115 11.8845C7.61748 12.0762 7.92344 12.3822 8.11518 12.7585C8.33317 13.1864 8.33317 13.7464 8.33317 14.8665V15.1332C8.33317 16.2533 8.33317 16.8133 8.11518 17.2412C7.92344 17.6175 7.61748 17.9234 7.24115 18.1152C6.81333 18.3332 6.25328 18.3332 5.13317 18.3332H4.8665C3.7464 18.3332 3.18635 18.3332 2.75852 18.1152C2.3822 17.9234 2.07624 17.6175 1.88449 17.2412C1.6665 16.8133 1.6665 16.2533 1.6665 15.1332V14.8665Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11.6665 14.8665C11.6665 13.7464 11.6665 13.1864 11.8845 12.7585C12.0762 12.3822 12.3822 12.0762 12.7585 11.8845C13.1864 11.6665 13.7464 11.6665 14.8665 11.6665H15.1332C16.2533 11.6665 16.8133 11.6665 17.2412 11.8845C17.6175 12.0762 17.9234 12.3822 18.1152 12.7585C18.3332 13.1864 18.3332 13.7464 18.3332 14.8665V15.1332C18.3332 16.2533 18.3332 16.8133 18.1152 17.2412C17.9234 17.6175 17.6175 17.9234 17.2412 18.1152C16.8133 18.3332 16.2533 18.3332 15.1332 18.3332H14.8665C13.7464 18.3332 13.1864 18.3332 12.7585 18.1152C12.3822 17.9234 12.0762 17.6175 11.8845 17.2412C11.6665 16.8133 11.6665 16.2533 11.6665 15.1332V14.8665Z"/>
                         </svg>
-                        <span class="text-[11px] font-normal leading-none text-gray-800">Katalog</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Katalog</span>
                     </button>
 
                     {{-- 3. Arama — Halikoy search icon --}}
                     <button x-data @click="$dispatch('open-search')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
-                        <svg class="w-[24px] h-[24px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.4007 17.4998L15.3707 14.4698M15.3707 14.4698C16.7279 13.1126 17.5674 11.2376 17.5674 9.1665C17.5674 5.02437 14.2095 1.6665 10.0674 1.6665C5.92525 1.6665 2.56738 5.02437 2.56738 9.1665C2.56738 13.3086 5.92525 16.6665 10.0674 16.6665C12.1385 16.6665 14.0135 15.827 15.3707 14.4698Z"/>
                         </svg>
-                        <span class="text-[11px] font-normal leading-none text-gray-800">Arama</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Arama</span>
                     </button>
 
                     {{-- 4. Siparişim — Halikoy package icon --}}
                     <a href="/siparis-takip" wire:navigate class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
-                        <svg class="w-[24px] h-[24px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.0837 6.04167L10.0003 10M10.0003 10L2.91699 6.04167M10.0003 10V17.9167M17.5003 13.4308V6.56917C17.5003 6.28 17.5003 6.13542 17.4587 6.00583C17.4174 5.87646 17.3478 5.76042 17.2545 5.66583C17.1707 5.58083 17.0587 5.51708 16.8337 5.38917L10.467 1.76917C10.2518 1.64698 10.1441 1.58587 10.0295 1.56212C9.92843 1.5412 9.82401 1.5412 9.72293 1.56212C9.60837 1.58587 9.50066 1.64698 9.28535 1.76917L2.91869 5.38917C2.69372 5.51708 2.58162 5.58083 2.49787 5.66583C2.40445 5.76042 2.3349 5.87646 2.29357 6.00583C2.25195 6.13542 2.25195 6.28 2.25195 6.56917V13.4308C2.25195 13.72 2.25195 13.8646 2.29357 13.9942C2.3349 14.1235 2.40445 14.2396 2.49787 14.3342C2.58162 14.4192 2.69372 14.4829 2.91869 14.6108L9.28535 18.2308C9.50066 18.353 9.60837 18.4141 9.72293 18.4379C9.82401 18.4588 9.92843 18.4588 10.0295 18.4379C10.1441 18.4141 10.2518 18.353 10.467 18.2308L16.8337 14.6108C17.0587 14.4829 17.1707 14.4192 17.2545 14.3342C17.3478 14.2396 17.4174 14.1235 17.4587 13.9942C17.5003 13.8646 17.5003 13.72 17.5003 13.4308Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.75 8.02083L6.25 3.83333"/>
                         </svg>
-                        <span class="text-[11px] font-normal leading-none text-gray-800 whitespace-nowrap">Sipariş Takip</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800 whitespace-nowrap">Sipariş Takip</span>
                     </a>
 
                     {{-- 5. Sepetim — Halikoy cart icon --}}
@@ -369,22 +369,22 @@
                         @click="$dispatch('toggle-cart')" 
                         class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors relative">
                         <div class="relative">
-                            <svg class="w-[24px] h-[24px]" viewBox="0 0 21 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-[22px] h-[22px]" viewBox="0 0 21 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M1.13281 0.833547L1.54948 0.833496V0.833496C2.78264 0.833526 3.86637 1.65101 4.20515 2.83672L4.3471 3.33355M4.3471 3.33355L5.63992 7.85843C6.11531 9.5223 6.35301 10.3542 6.83827 10.9717C7.26659 11.5168 7.82919 11.9412 8.47093 12.2033C9.19799 12.5002 10.0632 12.5002 11.7937 12.5002H12.8091C13.8588 12.5002 14.3837 12.5002 14.8433 12.39C15.9407 12.127 16.8759 11.4127 17.4184 10.4232C17.6456 10.0087 17.7837 9.50235 18.0599 8.4896V8.4896C18.3964 7.2559 18.5646 6.63905 18.5321 6.13859C18.4535 4.93171 17.6578 3.89005 16.5142 3.49667C16.0399 3.33355 15.4005 3.33355 14.1218 3.33355H4.3471ZM10.2995 16.6668C10.2995 17.5873 9.55329 18.3335 8.63281 18.3335C7.71234 18.3335 6.96615 17.5873 6.96615 16.6668C6.96615 15.7464 7.71234 15.0002 8.63281 15.0002C9.55329 15.0002 10.2995 15.7464 10.2995 16.6668ZM16.9661 16.6668C16.9661 17.5873 16.22 18.3335 15.2995 18.3335C14.379 18.3335 13.6328 17.5873 13.6328 16.6668C13.6328 15.7464 14.379 15.0002 15.2995 15.0002C16.22 15.0002 16.9661 15.7464 16.9661 16.6668Z"/>
                             </svg>
                             <span x-show="count > 0" x-text="count" class="absolute -top-1.5 -right-2.5 bg-black text-white text-[8px] font-bold min-w-[15px] h-[15px] flex items-center justify-center rounded-full leading-none" style="display: none;"></span>
                         </div>
-                        <span class="text-[11px] font-normal leading-none text-gray-800">Sepetim</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Sepetim</span>
                     </button>
 
                     {{-- 6. Hesabım — Halikoy account icon --}}
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
-                        <svg class="w-[24px] h-[24px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <rect x="5.5" y="1.3335" width="9" height="9" rx="4.5"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 12.917C11.25 12.917 13.3333 13.1948 13.75 13.3337C14.1667 13.4725 16.8333 14.0003 17.5 15.0003C18.3333 16.2503 18.3333 16.667 18.3333 18.3337"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 12.917C8.75 12.917 6.66667 13.1948 6.25 13.3337C5.83333 13.4725 3.16667 14.0003 2.5 15.0003C1.66667 16.2503 1.66667 16.667 1.66667 18.3337"/>
                         </svg>
-                        <span class="text-[11px] font-normal leading-none text-gray-800">Hesabım</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Hesabım</span>
                     </a>
 
                 </div>

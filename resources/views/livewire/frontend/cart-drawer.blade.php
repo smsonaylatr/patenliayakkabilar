@@ -119,12 +119,12 @@
                 <!-- Header: Tabs -->
                 <div class="shrink-0 flex items-center justify-between px-5 lg:px-12 pt-6 md:pt-8 pb-5 md:pb-6 border-b border-black/[0.06]"
                      @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)">
-                    <div class="flex items-center gap-10">
+                    <div class="flex items-center gap-4 sm:gap-10">
                         <!-- Sepet Tab -->
                         <button @click="activeTab = 'cart'" 
                                 :class="activeTab === 'cart' ? 'opacity-100' : 'opacity-[0.2] hover:opacity-100'"
                                 class="transition-opacity duration-300 relative">
-                            <span class="text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">Sepet</span>
+                            <span class="text-xl sm:text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">Sepet</span>
                             @if($items->sum('quantity') > 0)
                                 <span class="absolute font-medium text-xs lg:text-sm leading-none"
                                       style="top: -2px; left: calc(100% + 4px);">{{ $items->sum('quantity') }}</span>
@@ -134,7 +134,7 @@
                         <button @click="activeTab = 'recent'; loadRecent()" 
                                 :class="activeTab === 'recent' ? 'opacity-100' : 'opacity-[0.2] hover:opacity-100'"
                                 class="transition-opacity duration-300">
-                            <span class="text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">İnceledikleriniz</span>
+                            <span class="text-lg sm:text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">İnceledikleriniz</span>
                         </button>
                     </div>
                     <!-- Close Button (Desktop) -->
