@@ -28,7 +28,7 @@
         x-transition:leave="transition-opacity duration-200 ease-in" 
         x-transition:leave-start="opacity-100" 
         x-transition:leave-end="opacity-0" 
-        class="fixed inset-0 bg-black/50"
+        class="fixed inset-0 bg-black/25"
         @click="closeSearch()"
     ></div>
 
