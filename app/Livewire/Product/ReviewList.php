@@ -89,6 +89,8 @@ class ReviewList extends Component
     {
         $reviews = $this->product->reviews()
             ->where('status', 1) // Only approved
+            ->whereNotNull('comment')
+            ->where('comment', '!=', '') // Yorumsuz değerlendirmeler önizlemede gösterilmez
             ->latest('id')
             ->take($this->product->has_installments ? 3 : 2)
             ->get();
