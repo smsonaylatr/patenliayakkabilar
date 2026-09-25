@@ -88,17 +88,17 @@
                 <!-- Actions (Right) -->
                 <div class="flex flex-1 items-center justify-end space-x-4 md:space-x-6">
                     <button x-data @click="$dispatch('open-search')" aria-label="Arama Yap" class="hidden md:flex text-gray-900 hover:text-gray-500 transition-colors p-2 min-w-[44px] min-h-[44px] items-center justify-center">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </button>
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" aria-label="Hesabım" class="text-gray-900 hover:text-gray-500 transition-colors hidden sm:flex items-center justify-center p-2 min-w-[44px] min-h-[44px]" title="Hesabım" wire:navigate>
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </a>
                     <button wire:click="$dispatch('toggle-cart')" aria-label="Sepetim" class="text-gray-900 hover:text-gray-500 transition-colors relative flex items-center justify-center p-2 min-w-[44px] min-h-[44px]">
-                        <svg class="h-5 w-5" viewBox="0 0 21 20" fill="none" stroke="currentColor" stroke-width="1">
+                        <svg class="h-6 w-6" viewBox="0 0 21 20" fill="none" stroke="currentColor" stroke-width="1">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M1.13281 0.833547L1.54948 0.833496V0.833496C2.78264 0.833526 3.86637 1.65101 4.20515 2.83672L4.3471 3.33355M4.3471 3.33355L5.63992 7.85843C6.11531 9.5223 6.35301 10.3542 6.83827 10.9717C7.26659 11.5168 7.82919 11.9412 8.47093 12.2033C9.19799 12.5002 10.0632 12.5002 11.7937 12.5002H12.8091C13.8588 12.5002 14.3837 12.5002 14.8433 12.39C15.9407 12.127 16.8759 11.4127 17.4184 10.4232C17.6456 10.0087 17.7837 9.50235 18.0599 8.4896V8.4896C18.3964 7.2559 18.5646 6.63905 18.5321 6.13859C18.4535 4.93171 17.6578 3.89005 16.5142 3.49667C16.0399 3.33355 15.4005 3.33355 14.1218 3.33355H4.3471ZM10.2995 16.6668C10.2995 17.5873 9.55329 18.3335 8.63281 18.3335C7.71234 18.3335 6.96615 17.5873 6.96615 16.6668C6.96615 15.7464 7.71234 15.0002 8.63281 15.0002C9.55329 15.0002 10.2995 15.7464 10.2995 16.6668ZM16.9661 16.6668C16.9661 17.5873 16.22 18.3335 15.2995 18.3335C14.379 18.3335 13.6328 17.5873 13.6328 16.6668C13.6328 15.7464 14.379 15.0002 15.2995 15.0002C16.22 15.0002 16.9661 15.7464 16.9661 16.6668Z"/>
                         </svg>
                         @if($cartCount > 0)
