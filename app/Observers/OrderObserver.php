@@ -50,13 +50,15 @@ class OrderObserver
                     \Illuminate\Support\Facades\Log::error('Telegram notification error: ' . $e->getMessage());
                 }
                 
-                // Porego'ya siparişi aktar (Kapıda ödeme hariç — admin onayı sonrası gönderilir)
-                if ($order->payment_method !== 'cash_on_delivery') {
+                // Porego'ya siparişi aktar (Kapıda ödeme ve Kick Speed marka ürünler hariç — admin onayı sonrası gönderilir)
+                if ($order->payment_method !== 'cash_on_delivery' && !$order->hasKickSpeedProducts()) {
                     try {
                         app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('Porego API error: ' . $e->getMessage());
                     }
+                } elseif ($order->hasKickSpeedProducts()) {
+                    \Illuminate\Support\Facades\Log::info("Sipariş #{$order->order_number} Kick Speed marka ürün içerdiği için Porego'ya otomatik aktarılmadı (Admin onayı bekleniyor).");
                 }
 
                 // Müşteriye SMS Gönder
@@ -205,6 +207,10 @@ class OrderObserver
                 if (!empty($order->customer_note)) {
                     $htmlMessage .= "📝 <b>Sipariş Notu:</b>\n" . htmlspecialchars($order->customer_note) . "\n\n";
                 }
+
+                if ($order->hasKickSpeedProducts()) {
+                    $htmlMessage .= "⚠️ <b>KICK SPEED UYARISI:</b> Sipariş Kick Speed marka ürün içerdiği için kapıda ödemede olduğu gibi Porego'ya otomatik iletilmedi. Lütfen admin panelinden onaylayıp kargo kodunu oluşturunuz.\n\n";
+                }
                 
                 $htmlMessage .= "Detaylar için admin panelini kontrol edebilirsiniz.";
 
@@ -323,11 +329,15 @@ class OrderObserver
                 \Illuminate\Support\Facades\Log::error('Telegram notification error on paid: ' . $e->getMessage());
             }
             
-            // Porego'ya siparişi aktar (barkod oluşturma YAPILMAZ — admin panelden tetiklenir)
-            try {
-                app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
+            // Porego'ya siparişi aktar (Kick Speed marka ürünler hariç — kapıda ödemede olduğu gibi admin onayı sonrası gönderilir)
+            if (!$order->hasKickSpeedProducts()) {
+                try {
+                    app(\App\Services\PoregoApiService::class)->sendOrder($order, skipBarcode: true);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Porego API error on paid: ' . $e->getMessage());
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::info("Sipariş #{$order->order_number} Kick Speed marka ürün içerdiği için Porego'ya otomatik aktarılmadı (Admin onayı bekleniyor).");
             }
 
             // Müşteriye SMS Gönder

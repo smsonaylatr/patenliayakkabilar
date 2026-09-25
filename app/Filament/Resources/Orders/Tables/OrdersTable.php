@@ -36,12 +36,16 @@ class OrdersTable
                                 $item->product->loadMissing('images');
                                 $img = $item->product->images->first()?->image_url;
                             }
+                            $isKick = preg_match('/kick[\s_-]?speed/i', (string)($item->product?->brand ?? ''))
+                                || preg_match('/kick[\s_-]?speed/i', (string)$item->product_name)
+                                || preg_match('/kick[\s_-]?speed/i', (string)($item->product?->name ?? ''));
                             $items[] = [
                                 'image' => $img ?: asset('favicon.png'),
                                 'quantity' => $item->quantity ?? 1,
+                                'is_kick_speed' => (bool)$isKick,
                             ];
                         }
-                        return !empty($items) ? $items : [['image' => asset('favicon.png'), 'quantity' => 1]];
+                        return !empty($items) ? $items : [['image' => asset('favicon.png'), 'quantity' => 1, 'is_kick_speed' => false]];
                     }),
 
                 TextColumn::make('customer_name')
@@ -49,8 +53,19 @@ class OrdersTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
-                    ->limit(30),
+                    ->description(function (Order $record) {
+                        $email = $record->customer_email ?: ($record->user?->email ?: '-');
+                        if ($record->hasKickSpeedProducts()) {
+                            $code = trim((string)$record->cargo_tracking_code);
+                            $hasReal = !empty($code) && !str_starts_with($code, '33') && $code !== $record->order_number && $code !== (string)$record->id;
+                            if (!$hasReal && !in_array($record->status, ['delivered', 'completed', 'cancelled'])) {
+                                return '⚡ Kick Speed (Onay Bekliyor) • ' . $email;
+                            }
+                            return '⚡ Kick Speed • ' . $email;
+                        }
+                        return $email;
+                    })
+                    ->limit(35),
 
                 TextColumn::make('shipping_city')
                     ->label('ŞEHİR')
@@ -578,6 +593,9 @@ class OrdersTable
                         if (in_array($record->status, ['processing', 'shipped'])) {
                             return 'Kargo Kodu Bekleniyor...';
                         }
+                        if ($record->hasKickSpeedProducts()) {
+                            return 'Kick Speed: Onayla ve Porego\'ya Gönder';
+                        }
                         return 'Kargo Kodu Oluştur';
                     })
                     ->icon(function (Order $record): string {
@@ -633,9 +651,14 @@ class OrdersTable
                         // Kargo takip linki açılacaksa onay isteme
                         return !($hasReal && $record->status === 'shipped');
                     })
-                    ->modalHeading('Kargo Kodu Oluştur')
-                    ->modalDescription('Kargo barkodu oluşturulacak ve sipariş durumu "Hazırlanıyor" olarak güncellenecektir.')
-                    ->modalSubmitActionLabel('Oluştur')
+                    ->modalHeading(fn (Order $record): string => $record->hasKickSpeedProducts() ? 'Kick Speed Siparişini Onayla & Porego\'ya Gönder' : 'Kargo Kodu Oluştur')
+                    ->modalDescription(function (Order $record): string {
+                        if ($record->hasKickSpeedProducts()) {
+                            return 'Bu sipariş Kick Speed marka ürün içermektedir. Kapıda ödeme siparişlerinde olduğu gibi yönetici onayı gereklidir. Onayladığınızda sipariş Porego sistemine iletilecek ve kargo barkodu oluşturulacaktır.';
+                        }
+                        return 'Kargo barkodu oluşturulacak ve sipariş durumu "Hazırlanıyor" olarak güncellenecektir.';
+                    })
+                    ->modalSubmitActionLabel(fn (Order $record): string => $record->hasKickSpeedProducts() ? 'Onayla ve Gönder' : 'Oluştur')
                     ->action(function (Order $record): void {
                         // Eğer gerçek kargo kodu varsa action çalışmasın (link açılacak)
                         $code = trim((string)$record->cargo_tracking_code);
