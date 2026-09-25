@@ -25,7 +25,7 @@
 
     <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white rounded-t-2xl border-b border-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-14 sm:h-20 relative">
+            <div class="flex justify-between items-center h-16 sm:h-20 relative">
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
                 <div class="flex flex-1 items-center justify-start">
                     <!-- Mobile Hamburger -->
@@ -40,8 +40,8 @@
                 </div>
 
                 <!-- CENTER (Logo on Mobile, Menu on Desktop) -->
-                <div class="flex flex-shrink-0 items-center justify-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0">
-                    <a href="{{ route('home') }}" class="md:hidden text-[22px] sm:text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
+                <div class="flex flex-shrink-0 items-center justify-center md:static absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:translate-x-0 md:translate-y-0">
+                    <a href="{{ route('home') }}" class="md:hidden text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
                         PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                     <!-- Desktop Menu -->
