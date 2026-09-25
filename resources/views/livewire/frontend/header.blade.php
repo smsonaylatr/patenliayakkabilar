@@ -87,7 +87,7 @@
 
                 <!-- Actions (Right) -->
                 <div class="flex flex-1 items-center justify-end space-x-4 md:space-x-6">
-                    <button x-data @click="$dispatch('open-search')" aria-label="Arama Yap" class="hidden md:flex text-gray-900 hover:text-gray-500 transition-colors p-2 min-w-[44px] min-h-[44px] items-center justify-center">
+                    <button x-data @click="$dispatch('open-search')" aria-label="Arama Yap" class="hidden md:flex text-gray-900 hover:text-gray-500 hover:scale-105 active:scale-90 transition-all duration-150 p-2 min-w-[44px] min-h-[44px] items-center justify-center">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>

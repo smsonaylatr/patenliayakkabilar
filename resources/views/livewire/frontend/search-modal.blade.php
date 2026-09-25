@@ -1,7 +1,11 @@
 <div 
     x-data="{ open: false }" 
-    @open-search.window="open = true; setTimeout(() => $refs.searchInput.focus(), 100)"
+    @open-search.window="open = true; setTimeout(() => $refs.searchInput.focus(), 80)"
     @keydown.escape.window="open = false"
+    x-init="$watch('open', value => {
+        if (value) document.body.classList.add('overflow-hidden');
+        else document.body.classList.remove('overflow-hidden');
+    })"
     class="relative z-[10000]" 
     aria-labelledby="modal-title" 
     role="dialog" 
@@ -13,28 +17,29 @@
     <!-- Backdrop -->
     <div 
         x-show="open" 
-        x-transition:enter="ease-out duration-300" 
+        x-transition:enter="transition-opacity duration-300 ease-out" 
         x-transition:enter-start="opacity-0" 
         x-transition:enter-end="opacity-100" 
-        x-transition:leave="ease-in duration-200" 
+        x-transition:leave="transition-opacity duration-200 ease-in" 
         x-transition:leave-start="opacity-100" 
         x-transition:leave-end="opacity-0" 
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm"
         @click="open = false"
     ></div>
 
     <!-- Modal Panel -->
-    <div class="fixed inset-0 z-10 w-screen overflow-y-auto pt-16 sm:pt-24">
-        <div class="flex min-h-full items-start justify-center p-4 text-center sm:p-0">
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto pt-12 sm:pt-20">
+        <div class="flex min-h-full items-start justify-center p-3 text-center sm:p-4">
             <div 
                 x-show="open" 
-                x-transition:enter="ease-out duration-300" 
-                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
-                x-transition:leave="ease-in duration-200" 
-                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
-                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-2xl"
+                x-transition:enter="transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                x-transition:enter-start="opacity-0 -translate-y-5 scale-[0.96]" 
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                x-transition:leave="transition-[transform,opacity] duration-200 ease-in" 
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                x-transition:leave-end="opacity-0 -translate-y-3 scale-[0.98]" 
+                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-2xl"
+                style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden;"
                 @click.away="open = false"
             >
                 <div class="p-2 sm:p-4">
@@ -48,7 +53,7 @@
                             x-ref="searchInput"
                             type="text" 
                             aria-label="Arama Kutusu"
-                            class="h-14 w-full rounded-xl border-0 bg-gray-50 pl-12 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-black sm:text-lg" 
+                            class="h-14 w-full rounded-xl border border-gray-100 bg-gray-50 pl-12 pr-12 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all duration-200 sm:text-lg" 
                             placeholder="Ürün, kategori veya kelime arayın..."
                         >
                         
@@ -57,10 +62,13 @@
                             <div class="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-black"></div>
                         </div>
                         
-                        <!-- Close Button (Mobile) -->
-                        <button @click="open = false" aria-label="Aramayı Kapat" class="md:hidden absolute right-2 text-gray-400 hover:text-gray-900 min-w-[44px] min-h-[44px] flex items-center justify-center" wire:loading.remove wire:target="search">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+                        <!-- Close Button (Desktop & Mobile) -->
+                        <div class="absolute right-3 flex items-center gap-1.5" wire:loading.remove wire:target="search">
+                            <span class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-400 bg-gray-200/60 uppercase tracking-wider">ESC</span>
+                            <button @click="open = false" aria-label="Aramayı Kapat" class="text-gray-400 hover:text-gray-900 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Search Results -->
@@ -118,10 +126,10 @@
                         <div class="mt-6 px-2 text-left">
                             <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Popüler Aramalar</h3>
                             <div class="flex flex-wrap gap-2 mb-8">
-                                <button wire:click="$set('search', 'Işıklı')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm rounded-xl font-medium transition-colors border border-gray-100">Işıklı</button>
-                                <button wire:click="$set('search', 'Tekerlekli')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm rounded-xl font-medium transition-colors border border-gray-100">Tekerlekli</button>
-                                <button wire:click="$set('search', 'Kız Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm rounded-xl font-medium transition-colors border border-gray-100">Kız Çocuk</button>
-                                <button wire:click="$set('search', 'Erkek Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm rounded-xl font-medium transition-colors border border-gray-100">Erkek Çocuk</button>
+                                <button wire:click="$set('search', 'Işıklı')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Işıklı</button>
+                                <button wire:click="$set('search', 'Tekerlekli')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Tekerlekli</button>
+                                <button wire:click="$set('search', 'Kız Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Kız Çocuk</button>
+                                <button wire:click="$set('search', 'Erkek Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Erkek Çocuk</button>
                             </div>
                         </div>
                     @endif
