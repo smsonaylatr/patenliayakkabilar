@@ -583,6 +583,16 @@
 
         <!-- Google Customer Reviews -->
         <style>
+            #gcr-badge-container,
+            #gcr-badge-container iframe,
+            iframe[id*="gapi_ratingbadge"],
+            iframe[name*="gapi_ratingbadge"],
+            iframe[src*="ratingbadge"],
+            iframe[src*="customerreviews"],
+            gmp-ratingbadge {
+                transform: scale(1.1) !important;
+                transform-origin: bottom left !important;
+            }
             @media (max-width: 767px) {
                 #gcr-badge-container,
                 #gcr-badge-container iframe,
@@ -591,9 +601,8 @@
                 iframe[src*="ratingbadge"],
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
-                    bottom: calc(150px + env(safe-area-inset-bottom)) !important;
-                    right: 5px !important;
-                    left: auto !important;
+                    bottom: calc(65px + env(safe-area-inset-bottom)) !important;
+                    left: 5px !important;
                 }
             }
         </style>
@@ -604,20 +613,18 @@
             ratingBadgeContainer.id = "gcr-badge-container";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_RIGHT"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
               
               // Sadece mobilde alt menünün üstünde durması için
               if (window.innerWidth < 768) {
                 var applyStyles = function() {
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
-                    el.style.setProperty('bottom', 'calc(150px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('right', '5px', 'important');
-                    el.style.setProperty('left', 'auto', 'important');
+                    el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                    el.style.setProperty('left', '5px', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
-                      el.parentElement.style.setProperty('bottom', 'calc(150px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('right', '5px', 'important');
-                      el.parentElement.style.setProperty('left', 'auto', 'important');
+                      el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                      el.parentElement.style.setProperty('left', '5px', 'important');
                     }
                   });
                 };
