@@ -504,7 +504,7 @@
                                 $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories_v3', 3600, function () {
                                     return \App\Models\Category::where('status', true)->withCount(['products' => function($q) {
                                         $q->where('status', true);
-                                    }])->orderByRaw('products_count = 0 ASC')->orderBy('sort_order')->orderBy('name')->get();
+                                    }])->orderBy('sort_order')->get();
                                 });
                             @endphp
                             
