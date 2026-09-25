@@ -157,8 +157,8 @@
 
         
         <!-- Mobile curved bottom wrapper -->
-        <div class="md:bg-transparent bg-gray-100">
-            <main class="flex-grow page-transition-effect pb-20 md:pb-0 bg-white md:rounded-none rounded-b-[30px]">
+        <div class="md:bg-transparent bg-gray-200" style="background-color: #e5e7eb;">
+            <main class="flex-grow page-transition-effect pb-20 md:pb-0 bg-white" style="border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;">
                 {{ $slot }}
             </main>
         </div>
