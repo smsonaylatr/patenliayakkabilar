@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col gap-3 sm:gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
+<div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
     @php
         $isOutOfStock = !$product->inStock();
     @endphp
