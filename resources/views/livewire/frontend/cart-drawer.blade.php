@@ -17,6 +17,7 @@
         dragging: false,
         closing: false,
         touchStartY: 0,
+        _innerEl: null,
         startDrag(e) {
             if (window.innerWidth >= 768) return;
             this.touchStartY = e.touches[0].clientY;
@@ -33,30 +34,33 @@
             if (!this.dragging) return;
             this.dragging = false;
             if (this.dragY > 120) {
-                this.closing = true;
-                this.dragY = window.innerHeight;
-                setTimeout(() => {
-                    this.open = false;
-                    setTimeout(() => {
-                        this.dragY = 0;
-                        this.closing = false;
-                    }, 500);
-                }, 400);
+                this._dismissMobile();
             } else {
                 this.dragY = 0;
             }
         },
+        _dismissMobile() {
+            this.closing = true;
+            requestAnimationFrame(() => {
+                this.dragY = window.innerHeight;
+            });
+            const el = this._innerEl;
+            if (el) {
+                const onEnd = () => {
+                    el.removeEventListener('transitionend', onEnd);
+                    this.open = false;
+                    this.dragY = 0;
+                    this.closing = false;
+                };
+                el.addEventListener('transitionend', onEnd, { once: true });
+                setTimeout(() => { el.removeEventListener('transitionend', onEnd); this.open = false; this.dragY = 0; this.closing = false; }, 350);
+            } else {
+                setTimeout(() => { this.open = false; this.dragY = 0; this.closing = false; }, 300);
+            }
+        },
         closeDrawer() {
             if (window.innerWidth < 768) {
-                this.closing = true;
-                this.dragY = window.innerHeight;
-                setTimeout(() => {
-                    this.open = false;
-                    setTimeout(() => {
-                        this.dragY = 0;
-                        this.closing = false;
-                    }, 500);
-                }, 400);
+                this._dismissMobile();
             } else {
                 this.open = false;
             }
@@ -76,10 +80,10 @@
 >
     <!-- Backdrop -->
     <div x-show="open" 
-         x-transition:enter="transition-opacity duration-500 ease-out" 
+         x-transition:enter="transition-opacity duration-300 ease-out" 
          x-transition:enter-start="opacity-0" 
          x-transition:enter-end="opacity-100" 
-         x-transition:leave="transition-opacity duration-500 ease-in" 
+         x-transition:leave="transition-opacity duration-250 ease-in" 
          x-transition:leave-start="opacity-100" 
          x-transition:leave-end="opacity-0" 
          class="fixed inset-0 bg-black/60" 
@@ -92,15 +96,17 @@
              x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full opacity-95" 
              x-transition:enter-end="translate-y-0 md:translate-x-0 opacity-100" 
-             x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
+             x-transition:leave="transition-[transform,opacity] duration-250 ease-[cubic-bezier(.32,.72,0,1)]" 
              x-transition:leave-start="translate-y-0 md:translate-x-0 opacity-100" 
              x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full opacity-0" 
              class="pointer-events-auto w-full h-full md:max-h-full shadow-2xl rounded-t-3xl md:rounded-none overflow-hidden cart-drawer-panel"
-             style="will-change: transform; transform: translateZ(0); backface-visibility: hidden;">
+             style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; contain: layout style paint;">
              <style>@media(min-width:768px){.cart-drawer-panel{max-width:420px!important}}@media(min-width:1024px){.cart-drawer-panel{max-width:460px!important}}</style>
 
             <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]"
-                 :style="dragging ? 'transform: translateY(' + dragY + 'px); transition: none;' : (closing ? 'transform: translateY(' + dragY + 'px); transition: transform 0.4s ease-out;' : (dragY > 0 ? 'transform: translateY(' + dragY + 'px); transition: transform 0.3s ease;' : 'transition: transform 0.3s ease;'))"
+                 x-ref="innerPanel"
+                 x-init="_innerEl = $refs.innerPanel"
+                 :style="'will-change: transform; transform: translateY(' + dragY + 'px) translateZ(0);' + (dragging ? 'transition: none;' : (closing ? 'transition: transform 0.3s ease-out;' : (dragY > 0 ? 'transition: transform 0.25s ease;' : 'transition: transform 0.25s ease;')))"
                  @touchend="endDrag()" @touchcancel="endDrag()">
                 
                 <!-- Drag Pill (Mobile) -->
