@@ -29,8 +29,10 @@
                 this.dragY = window.innerHeight;
                 setTimeout(() => {
                     this.open = false;
-                    this.dragY = 0;
-                    this.closing = false;
+                    setTimeout(() => {
+                        this.dragY = 0;
+                        this.closing = false;
+                    }, 500);
                 }, 400);
             } else {
                 this.dragY = 0;

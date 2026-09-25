@@ -764,6 +764,39 @@ class Checkout extends Component
         $this->coupon_error = '';
     }
 
+    public function removeCartItem(int $cartItemId, CartService $cartService): void
+    {
+        // Ödeme başladıysa silmeye izin verme
+        if ($this->paytr_token) {
+            return;
+        }
+
+        $cartService->removeItem($cartItemId);
+
+        // Sepet boşaldıysa sepet sayfasına yönlendir
+        $cart = $cartService->getCart();
+        if ($cart->items->count() === 0) {
+            $this->dispatch('cart-updated');
+            $this->redirect(route('cart'));
+            return;
+        }
+
+        // Kapıda ödeme uygunluğunu yeniden kontrol et
+        $this->isCodAllowed = true;
+        foreach ($cart->items as $item) {
+            if ($item->product && !$item->product->is_cod_active) {
+                $this->isCodAllowed = false;
+                break;
+            }
+        }
+        if (!$this->isCodAllowed && $this->payment_method === 'cash_on_delivery') {
+            $this->payment_method = 'credit_card';
+        }
+
+        $this->dispatch('cart-updated');
+        $this->dispatch('notify', message: 'Ürün sepetten kaldırıldı.', type: 'success');
+    }
+
     public function editInformation()
     {
         $this->paytr_token = null;

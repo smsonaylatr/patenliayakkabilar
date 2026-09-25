@@ -369,7 +369,7 @@
                     <!-- Ürünler -->
                     <div class="space-y-4 max-h-[300px] overflow-y-auto pr-3 pt-2 custom-scrollbar">
                         @forelse($cartItems as $item)
-                            <div class="flex gap-4">
+                            <div class="flex gap-4 group" wire:key="checkout-item-{{ $item->id }}">
                                 <div class="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 border border-gray-200 relative">
                                     <span class="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full z-10 shadow-sm">{{ $item->quantity }}</span>
                                     @if($item->product && $item->product->images->first())
@@ -389,6 +389,21 @@
                                         {{ number_format($item->price, 2) }} ₺
                                     </div>
                                 </div>
+                                @if(!$paytr_token)
+                                    <button
+                                        type="button"
+                                        wire:click="removeCartItem({{ $item->id }})"
+                                        wire:confirm="Bu ürünü sepetten kaldırmak istediğinize emin misiniz?"
+                                        wire:loading.attr="disabled"
+                                        wire:target="removeCartItem({{ $item->id }})"
+                                        class="flex-shrink-0 self-center p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
+                                        title="Ürünü Kaldır"
+                                        aria-label="Ürünü sepetten kaldır"
+                                    >
+                                        <svg wire:loading.remove wire:target="removeCartItem({{ $item->id }})" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        <svg wire:loading wire:target="removeCartItem({{ $item->id }})" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    </button>
+                                @endif
                             </div>
                         @empty
                             <p class="text-sm text-gray-500 text-center py-4">Sepetiniz boş.</p>
