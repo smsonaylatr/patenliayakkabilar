@@ -156,12 +156,9 @@
 
 
         
-        <!-- Mobile curved bottom wrapper -->
-        <div class="md:bg-transparent bg-gray-200" style="background-color: #e5e7eb;">
-            <main class="flex-grow page-transition-effect pb-20 md:pb-0 bg-white" style="border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;">
-                {{ $slot }}
-            </main>
-        </div>
+        <main class="flex-grow page-transition-effect">
+            {{ $slot }}
+        </main>
 
         @persist('footer-wrapper')
             <!-- Bottom Marquee -->
@@ -315,7 +312,7 @@
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
-        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white border-t border-gray-100 z-[9999] rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
             <div>
                 <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
                     
@@ -552,15 +549,13 @@
                 justify-content: center;
                 background-color: #0B132B;
                 color: white;
-                width: 64px;
-                height: 64px;
+                width: 56px;
+                height: 56px;
                 border-radius: 50%;
                 right: 20px;
                 bottom: calc(85px + env(safe-area-inset-bottom)); /* iOS'ta alt bar kapanınca kaymayı önlemek için */
                 box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
                 transition: all 0.3s ease;
-                transform: scale(0.8);
-                transform-origin: bottom right;
             }
             @media (min-width: 768px) {
                 .call-widget {
@@ -569,12 +564,12 @@
                 }
             }
             .call-widget:hover {
-                transform: scale(0.88);
+                transform: scale(1.1);
                 filter: brightness(1.25);
             }
         </style>
         <a href="tel:08503073164" class="call-widget group" aria-label="Bizi Arayın">
-            <svg class="w-8 h-8 animate-[pulse_2s_ease-in-out_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            <svg class="w-6 h-6 animate-[pulse_2s_ease-in-out_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
             
             <!-- Tooltip -->
             <span class="absolute top-1/2 -translate-y-1/2 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-xl pointer-events-none tracking-wide hidden md:block" style="background-color: #0B132B; right: 70px;">
@@ -585,16 +580,6 @@
 
         <!-- Google Customer Reviews -->
         <style>
-            #gcr-badge-container,
-            #gcr-badge-container iframe,
-            iframe[id*="gapi_ratingbadge"],
-            iframe[name*="gapi_ratingbadge"],
-            iframe[src*="ratingbadge"],
-            iframe[src*="customerreviews"],
-            gmp-ratingbadge {
-                transform: scale(1.1) !important;
-                transform-origin: bottom left !important;
-            }
             @media (max-width: 767px) {
                 #gcr-badge-container,
                 #gcr-badge-container iframe,
@@ -604,7 +589,8 @@
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
                     bottom: calc(65px + env(safe-area-inset-bottom)) !important;
-                    left: -3px !important;
+                    right: 5px !important;
+                    left: auto !important;
                 }
             }
         </style>
@@ -615,7 +601,7 @@
             ratingBadgeContainer.id = "gcr-badge-container";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_RIGHT"});
               
               // Sadece mobilde alt menünün üstünde durması için
               if (window.innerWidth < 768) {
@@ -623,10 +609,12 @@
                   var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                   elements.forEach(function(el) {
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '-3px', 'important');
+                    el.style.setProperty('right', '5px', 'important');
+                    el.style.setProperty('left', 'auto', 'important');
                     if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '-3px', 'important');
+                      el.parentElement.style.setProperty('right', '5px', 'important');
+                      el.parentElement.style.setProperty('left', 'auto', 'important');
                     }
                   });
                 };
