@@ -501,10 +501,10 @@
                         <!-- Content -->
                         <div class="flex-1 overflow-y-auto px-5 py-2 pb-24">
                             @php
-                                $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories_v2', 3600, function () {
+                                $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories_v3', 3600, function () {
                                     return \App\Models\Category::where('status', true)->withCount(['products' => function($q) {
                                         $q->where('status', true);
-                                    }])->orderBy('sort_order')->get();
+                                    }])->orderByRaw('products_count = 0 ASC')->orderBy('sort_order')->orderBy('name')->get();
                                 });
                             @endphp
                             
