@@ -553,7 +553,7 @@
                 height: 44px;
                 border-radius: 50%;
                 right: 20px;
-                bottom: calc(75px + env(safe-area-inset-bottom));
+                bottom: calc(77px + env(safe-area-inset-bottom));
                 box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
                 transition: all 0.3s ease;
             }
