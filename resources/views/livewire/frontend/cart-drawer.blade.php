@@ -180,12 +180,12 @@
 
                                             <!-- Quantity & Remove -->
                                             <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
-                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:80px;height:36px;">
-                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors">
+                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:80px;height:36px;" wire:key="qty-{{ $item->id }}">
+                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20">
                                                         <svg class="w-3 h-3" viewBox="0 0 12 2" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M1 1h10"/></svg>
                                                     </button>
-                                                    <span class="text-sm text-center flex-1">{{ $item->quantity }}</span>
-                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors">
+                                                    <span class="text-sm text-center flex-1" wire:loading.class="opacity-30" wire:target="updateQuantity">{{ $item->quantity }}</span>
+                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20">
                                                         <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M6 1v10M1 6h10"/></svg>
                                                     </button>
                                                 </div>

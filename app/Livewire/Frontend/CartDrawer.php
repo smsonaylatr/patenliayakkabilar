@@ -77,15 +77,21 @@ class CartDrawer extends Component
 
         // Beğenebilirsiniz: Güvenlik ekipmanları kategorisinden öneriler
         $cartProductIds = $items->pluck('product_id')->toArray();
-        $recommendations = \App\Models\Product::whereHas('categories', function ($q) {
-            $q->where('categories.slug', 'guvenlik-ekipmanlari');
-        })
-            ->whereNotIn('id', $cartProductIds)
-            ->where('status', true)
-            ->with('images')
-            ->inRandomOrder(crc32(session()->getId()))
-            ->take(10)
-            ->get();
+        $recommendations = cache()->remember(
+            'cart_recs_' . implode('_', $cartProductIds ?: [0]),
+            300,
+            function () use ($cartProductIds) {
+                return \App\Models\Product::whereHas('categories', function ($q) {
+                    $q->where('categories.slug', 'guvenlik-ekipmanlari');
+                })
+                    ->whereNotIn('id', $cartProductIds)
+                    ->where('status', true)
+                    ->with('images')
+                    ->inRandomOrder(crc32(session()->getId()))
+                    ->take(10)
+                    ->get();
+            }
+        );
         // Kargo tahmini: sepetteki ürünlerin en uzun teslimat süresini bul
         $deliveryEstimate = '1-3 iş günü';
         if ($items->isNotEmpty()) {

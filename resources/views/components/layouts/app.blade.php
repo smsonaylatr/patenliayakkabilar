@@ -580,7 +580,13 @@
 
         <!-- Google Customer Reviews -->
         <style>
-            #gcr-badge-container,
+            #gcr-badge-container {
+                z-index: 9990 !important;
+                width: 56px !important;
+                height: 56px !important;
+                overflow: hidden !important;
+                border-radius: 50% !important;
+            }
             #gcr-badge-container iframe,
             iframe[id*="gapi_ratingbadge"],
             iframe[name*="gapi_ratingbadge"],
@@ -588,6 +594,10 @@
             iframe[src*="customerreviews"],
             gmp-ratingbadge {
                 z-index: 9990 !important;
+                width: 56px !important;
+                height: 56px !important;
+                transform: scale(0.75) !important;
+                transform-origin: bottom left !important;
             }
             @media (max-width: 767px) {
                 #gcr-badge-container,
