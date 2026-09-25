@@ -255,7 +255,8 @@
     </div>
 
     <template x-teleport="body">
-    <div x-show="notePanel" style="display: none; z-index: 10000;" class="fixed inset-0 md:left-auto md:w-[380px] lg:w-[420px]" @keydown.escape.window.stop="notePanel = false">
+    <div x-show="notePanel" style="display: none; z-index: 10000;" class="fixed inset-0 cart-bottom-sheet" @keydown.escape.window.stop="notePanel = false">
+        <style>@media(min-width:768px){.cart-bottom-sheet{left:auto!important;width:420px!important}}@media(min-width:1024px){.cart-bottom-sheet{width:460px!important}}</style>
         <div x-show="notePanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="notePanel = false" class="absolute inset-0 bg-black/40 md:bg-transparent"></div>
         <div x-show="notePanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl md:rounded-t-none px-6 pt-6 pb-[calc(1.5rem+15px+env(safe-area-inset-bottom,0px))] md:pb-8 md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
             <div class="flex items-center justify-between mb-5">
@@ -272,7 +273,7 @@
 
     <template x-teleport="body">
     <!-- Bottom Sheet: Kargo Tahmini -->
-    <div x-show="shippingPanel" style="display: none; z-index: 10000;" class="fixed inset-0 md:left-auto md:w-[380px] lg:w-[420px]" @keydown.escape.window.stop="shippingPanel = false"
+    <div x-show="shippingPanel" style="display: none; z-index: 10000;" class="fixed inset-0 cart-bottom-sheet" @keydown.escape.window.stop="shippingPanel = false"
          x-data="{ city: '', postalCode: '', calculated: false }">
         <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="shippingPanel = false" class="absolute inset-0 bg-black/40 md:bg-transparent"></div>
         <div x-show="shippingPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl md:rounded-t-none px-6 pt-6 pb-[calc(1.5rem+15px+env(safe-area-inset-bottom,0px))] md:pb-8 md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
@@ -386,7 +387,7 @@
 
     <template x-teleport="body">
     <!-- Bottom Sheet: İndirim Kodu -->
-    <div x-show="discountPanel" style="display: none; z-index: 10000;" class="fixed inset-0 md:left-auto md:w-[380px] lg:w-[420px]" x-data="{ code: '' }" @keydown.escape.window.stop="discountPanel = false">
+    <div x-show="discountPanel" style="display: none; z-index: 10000;" class="fixed inset-0 cart-bottom-sheet" x-data="{ code: '' }" @keydown.escape.window.stop="discountPanel = false">
         <div x-show="discountPanel" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="discountPanel = false" class="absolute inset-0 bg-black/40 md:bg-transparent"></div>
         <div x-show="discountPanel" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl md:rounded-t-none px-6 pt-6 pb-[calc(1.5rem+15px+env(safe-area-inset-bottom,0px))] md:pb-8 md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
             <div class="flex items-center justify-between mb-5">
