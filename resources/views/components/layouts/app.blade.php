@@ -419,7 +419,7 @@
                  x-transition:leave="transition ease-in duration-300"
                  x-transition:leave-start="translate-y-0"
                  x-transition:leave-end="translate-y-full"
-                 class="fixed inset-x-0 bottom-0 top-[20vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden" style="z-index: 9996;">
+                 class="fixed inset-x-0 bottom-0 top-[40vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden" style="z-index: 9996;">
                  
                  <div class="px-6 py-8 border-b border-gray-100 flex flex-col justify-between relative">
                     <button @click="open = false" aria-label="Kataloğu Kapat" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
