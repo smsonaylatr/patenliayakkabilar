@@ -797,6 +797,23 @@ class Checkout extends Component
 
     }
 
+    public function updateCartQuantity(int $cartItemId, int $quantity, CartService $cartService): void
+    {
+        // Ödeme başladıysa değiştirmeye izin verme
+        if ($this->paytr_token) {
+            return;
+        }
+
+        $quantity = max(1, $quantity);
+        $result = $cartService->updateQuantity($cartItemId, $quantity);
+
+        if (!empty($result['error'])) {
+            $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+        }
+
+        $this->dispatch('cart-updated');
+    }
+
     public function editInformation()
     {
         $this->paytr_token = null;
