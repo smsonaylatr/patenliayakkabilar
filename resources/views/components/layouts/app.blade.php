@@ -160,7 +160,6 @@
             {{ $slot }}
         </main>
 
-        @persist('footer-wrapper')
             <!-- Bottom Marquee -->
             <div class="bg-white border-y border-gray-200 py-2 sm:py-5 md:py-7 overflow-hidden w-full relative">
                 <div class="marquee-content flex whitespace-nowrap items-center">
@@ -312,7 +311,6 @@
                     </div>
                 </div>
             </footer>
-        @endpersist
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
