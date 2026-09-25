@@ -334,7 +334,7 @@
                                             <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
                                             <div class="text-sm mt-0.5" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
                                         </div>
-                                        <div class="shrink-0 flex flex-col items-center gap-2">
+                                        <div class="shrink-0">
                                             <button @click="addRecentToCart(rp.id)" 
                                                 :class="addedRecentId === rp.id ? 'bg-emerald-600 border-emerald-600' : 'bg-black border-black hover:bg-black/80'"
                                                 class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300"
@@ -351,9 +351,6 @@
                                                         Eklendi
                                                     </span>
                                                 </template>
-                                            </button>
-                                            <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="text-black/20 hover:text-red-400 transition-colors" title="Kaldır">
-                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </button>
                                         </div>
                                     </li>
