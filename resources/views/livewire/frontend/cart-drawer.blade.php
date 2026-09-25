@@ -322,7 +322,7 @@
                             <ul class="space-y-4">
                                 <template x-for="(rp, idx) in recentProducts" :key="rp.id">
                                     <li class="flex items-center gap-4 group">
-                                        <a :href="'/urun/' + rp.slug" class="shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-black/[0.04]">
+                                        <a :href="'/urun/' + rp.slug" class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-50 border border-black/[0.04]">
                                             <img :src="rp.image" :alt="rp.name" class="w-full h-full object-cover" loading="lazy">
                                         </a>
                                         <div class="flex-1 min-w-0">
