@@ -4,7 +4,29 @@
         activeTab: 'cart',
         notePanel: false,
         shippingPanel: false,
-        discountPanel: false
+        discountPanel: false,
+        dragY: 0,
+        dragging: false,
+        touchStartY: 0,
+        startDrag(e) {
+            if (window.innerWidth >= 768) return;
+            this.touchStartY = e.touches[0].clientY;
+            this.dragging = true;
+            this.dragY = 0;
+        },
+        onDrag(e) {
+            if (!this.dragging) return;
+            const diff = e.touches[0].clientY - this.touchStartY;
+            this.dragY = Math.max(0, diff);
+        },
+        endDrag() {
+            if (!this.dragging) return;
+            this.dragging = false;
+            if (this.dragY > 80) {
+                this.open = false;
+            }
+            this.dragY = 0;
+        }
     }" 
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
@@ -43,15 +65,20 @@
              style="will-change: transform; transform: translateZ(0); backface-visibility: hidden;">
              <style>@media(min-width:768px){.cart-drawer-panel{max-width:420px!important}}@media(min-width:1024px){.cart-drawer-panel{max-width:460px!important}}</style>
 
-            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]">
+            <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]"
+                 :style="dragY > 0 ? 'transform: translateY(' + dragY + 'px); transition: none;' : 'transition: transform 0.3s ease;'"
+                 @touchend="endDrag()" @touchcancel="endDrag()">
                 
                 <!-- Drag Pill (Mobile) -->
-                <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0">
+                <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
+                     @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
+                     style="touch-action: none;">
                     <div class="w-12 h-1 rounded-full bg-black/[0.06]"></div>
                 </div>
 
                 <!-- Header: Tabs -->
-                <div class="shrink-0 flex items-center justify-between px-5 lg:px-12 pt-6 md:pt-8 pb-5 md:pb-6 border-b border-black/[0.06]">
+                <div class="shrink-0 flex items-center justify-between px-5 lg:px-12 pt-6 md:pt-8 pb-5 md:pb-6 border-b border-black/[0.06]"
+                     @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)">
                     <div class="flex items-center gap-10">
                         <!-- Sepet Tab -->
                         <button @click="activeTab = 'cart'" 
