@@ -305,11 +305,38 @@
                     </div>
 
                     <!-- Recently Viewed Panel -->
-                    <div x-show="activeTab === 'recent'" class="flex-1 overflow-y-auto px-5 lg:px-12 py-8">
-                        <div class="flex flex-col items-center justify-center py-12 text-center">
-                            <svg class="w-12 h-12 text-black/10 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="text-black/40 text-sm">Henüz incelediğiniz ürün yok</p>
-                        </div>
+                    <div x-show="activeTab === 'recent'" class="flex-1 overflow-y-auto px-5 lg:px-12 py-6"
+                         x-data="{ recentProducts: [] }"
+                         x-init="$watch('activeTab', val => { if(val === 'recent') { try { recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) { recentProducts = []; } } })"
+                         x-effect="if(activeTab === 'recent' && recentProducts.length === 0) { try { recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) {} }">
+
+                        <!-- Boş Durum -->
+                        <template x-if="recentProducts.length === 0">
+                            <div class="flex flex-col items-center justify-center py-12 text-center">
+                                <svg class="w-12 h-12 text-black/10 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <p class="text-black/40 text-sm">Henüz incelediğiniz ürün yok</p>
+                            </div>
+                        </template>
+
+                        <!-- Ürün Listesi -->
+                        <template x-if="recentProducts.length > 0">
+                            <ul class="space-y-4">
+                                <template x-for="(rp, idx) in recentProducts" :key="rp.id">
+                                    <li class="flex items-center gap-4 group">
+                                        <a :href="'/urun/' + rp.slug" class="shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden bg-gray-50 border border-black/[0.04]">
+                                            <img :src="rp.image" :alt="rp.name" class="w-full h-full object-cover" loading="lazy">
+                                        </a>
+                                        <div class="flex-1 min-w-0">
+                                            <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
+                                            <div class="text-sm mt-1" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
+                                        </div>
+                                        <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="p-1.5 text-black/20 hover:text-red-400 transition-colors shrink-0" title="Kaldır">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </li>
+                                </template>
+                            </ul>
+                        </template>
                     </div>
 
                 </div>

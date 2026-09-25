@@ -452,4 +452,23 @@
 
     {{-- Stock Notification Modal --}}
     <livewire:product.stock-notification-modal />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const product = {
+                    id: {{ $product->id }},
+                    name: @json($product->name),
+                    slug: @json($product->slug),
+                    price: @json(number_format((float)($product->discount_price ?? $product->price), 2, '.', '')),
+                    image: @json($product->images->first()?->image_url ?? '')
+                };
+                let viewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
+                viewed = viewed.filter(p => p.id !== product.id);
+                viewed.unshift(product);
+                viewed = viewed.slice(0, 20);
+                localStorage.setItem('recently_viewed', JSON.stringify(viewed));
+            } catch(e) {}
+        });
+    </script>
+
 </x-layouts.app>
