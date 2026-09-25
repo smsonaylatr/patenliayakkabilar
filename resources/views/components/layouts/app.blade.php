@@ -312,7 +312,11 @@
 
         @persist('mobile-bottom-nav')
         <!-- Mobile Bottom Navigation Bar — Halikoy İkon Kütüphanesi -->
-        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white z-[9999] rounded-t-[30px] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+        <div class="md:hidden fixed inset-x-0 bottom-0 w-full bg-white z-[9999] shadow-[0_-8px_30px_rgba(0,0,0,0.12)]" style="padding-bottom: env(safe-area-inset-bottom); transform: translateZ(0);">
+            <!-- Inverted (concave) radius — sol üst köşe -->
+            <div class="absolute -top-[20px] left-0 w-[20px] h-[20px]" style="background: radial-gradient(circle at 0% 0%, transparent 20px, white 20px);"></div>
+            <!-- Inverted (concave) radius — sağ üst köşe -->
+            <div class="absolute -top-[20px] right-0 w-[20px] h-[20px]" style="background: radial-gradient(circle at 100% 0%, transparent 20px, white 20px);"></div>
             <div>
                 <div class="grid grid-cols-6 h-[76px] w-full px-2 py-2">
                     
