@@ -61,11 +61,6 @@
                 </div>
                 @if($review->comment)
                     <p class="text-sm text-gray-600 leading-relaxed">{{ $review->comment }}</p>
-                @else
-                    <p class="text-xs text-gray-400 italic flex items-center gap-1.5">
-                        <i class="fa-solid fa-star text-yellow-400 text-[10px]"></i>
-                        {{ $review->rating }}/5 puan verdi.
-                    </p>
                 @endif
                 
                 @if(!empty($review->images) && is_array($review->images))
