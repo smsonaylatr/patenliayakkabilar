@@ -349,7 +349,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.0837 6.04167L10.0003 10M10.0003 10L2.91699 6.04167M10.0003 10V17.9167M17.5003 13.4308V6.56917C17.5003 6.28 17.5003 6.13542 17.4587 6.00583C17.4174 5.87646 17.3478 5.76042 17.2545 5.66583C17.1707 5.58083 17.0587 5.51708 16.8337 5.38917L10.467 1.76917C10.2518 1.64698 10.1441 1.58587 10.0295 1.56212C9.92843 1.5412 9.82401 1.5412 9.72293 1.56212C9.60837 1.58587 9.50066 1.64698 9.28535 1.76917L2.91869 5.38917C2.69372 5.51708 2.58162 5.58083 2.49787 5.66583C2.40445 5.76042 2.3349 5.87646 2.29357 6.00583C2.25195 6.13542 2.25195 6.28 2.25195 6.56917V13.4308C2.25195 13.72 2.25195 13.8646 2.29357 13.9942C2.3349 14.1235 2.40445 14.2396 2.49787 14.3342C2.58162 14.4192 2.69372 14.4829 2.91869 14.6108L9.28535 18.2308C9.50066 18.353 9.60837 18.4141 9.72293 18.4379C9.82401 18.4588 9.92843 18.4588 10.0295 18.4379C10.1441 18.4141 10.2518 18.353 10.467 18.2308L16.8337 14.6108C17.0587 14.4829 17.1707 14.4192 17.2545 14.3342C17.3478 14.2396 17.4174 14.1235 17.4587 13.9942C17.5003 13.8646 17.5003 13.72 17.5003 13.4308Z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.75 8.02083L6.25 3.83333"/>
                         </svg>
-                        <span class="text-[10px] font-normal leading-none text-gray-800 whitespace-nowrap">Sipariş Takip</span>
+                        <span class="text-[10px] font-normal leading-none text-gray-800">Siparişim</span>
                     </a>
 
                     {{-- 5. Sepetim — Halikoy cart icon --}}
@@ -579,28 +579,8 @@
         @endif
 
         @if(request()->is('/'))
-        <!-- Google Customer Reviews — Sadece anasayfada, yazı 3sn sonra açılır -->
+        <!-- Google Customer Reviews — Sadece anasayfada -->
         <style>
-            #gcr-badge-container {
-                transform: scale(1.2) !important;
-                transform-origin: bottom left !important;
-                max-width: 55px !important;
-                overflow: hidden !important;
-                transition: max-width 0.6s ease !important;
-            }
-            #gcr-badge-container.gcr-expanded {
-                max-width: 300px !important;
-                overflow: visible !important;
-            }
-            #gcr-badge-container iframe,
-            iframe[id*="gapi_ratingbadge"],
-            iframe[name*="gapi_ratingbadge"],
-            iframe[src*="ratingbadge"],
-            iframe[src*="customerreviews"],
-            gmp-ratingbadge {
-                transform: scale(1.2) !important;
-                transform-origin: bottom left !important;
-            }
             @media (max-width: 767px) {
                 #gcr-badge-container,
                 #gcr-badge-container iframe,
@@ -617,38 +597,35 @@
         <script src="https://apis.google.com/js/platform.js?onload=renderGoogleGCR" async defer></script>
         <script>
           window.renderGoogleGCR = function() {
-            var ratingBadgeContainer = document.createElement("div");
-            ratingBadgeContainer.id = "gcr-badge-container";
-            document.body.appendChild(ratingBadgeContainer);
-            window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
-              
-              // 3 saniye sonra yazıyı (genişlemeyi) aç
-              setTimeout(function() {
-                ratingBadgeContainer.classList.add('gcr-expanded');
-              }, 3000);
+            setTimeout(function() {
+              var ratingBadgeContainer = document.createElement("div");
+              ratingBadgeContainer.id = "gcr-badge-container";
+              document.body.appendChild(ratingBadgeContainer);
+              window.gapi.load('ratingbadge', function() {
+                window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
 
-              if (window.innerWidth < 768) {
-                var applyStyles = function() {
-                  var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
-                  elements.forEach(function(el) {
-                    el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '-3px', 'important');
-                    if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
-                      el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '-3px', 'important');
-                    }
-                  });
-                };
+                if (window.innerWidth < 768) {
+                  var applyStyles = function() {
+                    var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
+                    elements.forEach(function(el) {
+                      el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                      el.style.setProperty('left', '-3px', 'important');
+                      if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
+                        el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
+                        el.parentElement.style.setProperty('left', '-3px', 'important');
+                      }
+                    });
+                  };
 
-                var checkInterval = setInterval(applyStyles, 100);
-                setTimeout(function() { clearInterval(checkInterval); }, 6000);
+                  var checkInterval = setInterval(applyStyles, 100);
+                  setTimeout(function() { clearInterval(checkInterval); }, 6000);
+                }
+              });
+
+              if (typeof window.triggerGoogleOptIn === 'function') {
+                  window.triggerGoogleOptIn();
               }
-            });
-
-            if (typeof window.triggerGoogleOptIn === 'function') {
-                window.triggerGoogleOptIn();
-            }
+            }, 3000);
           }
         </script>
         @endif

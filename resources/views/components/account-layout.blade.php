@@ -1,10 +1,10 @@
-<div class="min-h-[80vh] bg-gray-50/50 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-[80vh] bg-gray-50/50 py-6 sm:py-12">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         
-        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col md:flex-row">
+        <div class="bg-white rounded-2xl sm:rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col md:flex-row">
             
             <!-- Elegant Sidebar -->
-            <div class="w-full md:w-72 bg-gray-50/50 border-r border-gray-100 p-8 flex flex-col">
+            <div class="w-full md:w-72 bg-gray-50/50 border-r border-gray-100 p-4 sm:p-8 flex flex-col">
                 <div class="mb-12">
                     <h2 class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-1">Hesabım</h2>
                     <p class="text-xl font-black text-gray-900">{{ auth()->user()->name }}</p>
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Main Content Area -->
-            <div class="flex-1 p-8 md:p-12 lg:p-16">
+            <div class="flex-1 p-4 sm:p-8 md:p-12 lg:p-16">
                 {{ $slot }}
             </div>
             
