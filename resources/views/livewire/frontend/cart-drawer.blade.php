@@ -7,11 +7,13 @@
         discountPanel: false,
         dragY: 0,
         dragging: false,
+        closing: false,
         touchStartY: 0,
         startDrag(e) {
             if (window.innerWidth >= 768) return;
             this.touchStartY = e.touches[0].clientY;
             this.dragging = true;
+            this.closing = false;
             this.dragY = 0;
         },
         onDrag(e) {
@@ -22,10 +24,17 @@
         endDrag() {
             if (!this.dragging) return;
             this.dragging = false;
-            if (this.dragY > 80) {
-                this.open = false;
+            if (this.dragY > 120) {
+                this.closing = true;
+                this.dragY = window.innerHeight;
+                setTimeout(() => {
+                    this.open = false;
+                    this.dragY = 0;
+                    this.closing = false;
+                }, 400);
+            } else {
+                this.dragY = 0;
             }
-            this.dragY = 0;
         }
     }" 
     x-on:open-cart.window="open = true"
@@ -66,7 +75,7 @@
              <style>@media(min-width:768px){.cart-drawer-panel{max-width:420px!important}}@media(min-width:1024px){.cart-drawer-panel{max-width:460px!important}}</style>
 
             <div class="flex flex-col h-full bg-white rounded-t-[24px] md:rounded-none md:rounded-l-2xl overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)] md:shadow-[-8px_0_40px_rgba(0,0,0,0.08)]"
-                 :style="dragY > 0 ? 'transform: translateY(' + dragY + 'px); transition: none;' : 'transition: transform 0.3s ease;'"
+                 :style="dragging ? 'transform: translateY(' + dragY + 'px); transition: none;' : (closing ? 'transform: translateY(' + dragY + 'px); transition: transform 0.4s ease-out;' : (dragY > 0 ? 'transform: translateY(' + dragY + 'px); transition: transform 0.3s ease;' : 'transition: transform 0.3s ease;'))"
                  @touchend="endDrag()" @touchcancel="endDrag()">
                 
                 <!-- Drag Pill (Mobile) -->
