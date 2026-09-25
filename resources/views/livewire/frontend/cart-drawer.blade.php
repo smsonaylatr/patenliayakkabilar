@@ -200,6 +200,7 @@
                                 <!-- Beğenebilirsiniz (Horizontal Carousel) -->
                                 @if($recommendations->count() > 0)
                                     <div class="mt-4 pt-4 border-t border-black/[0.06]"
+                                         wire:ignore.self
                                          x-data="{
                                              scrollEl: null,
                                              init() { this.scrollEl = this.$refs.recScroll; }
