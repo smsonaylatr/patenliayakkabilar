@@ -441,8 +441,8 @@
                  if (value) document.body.classList.add('overflow-hidden');
                  else document.body.classList.remove('overflow-hidden');
              })"
-             @open-mobile-catalog.window="open = true"
-             @toggle-catalog.window="open = !open" 
+             @open-mobile-catalog.window="if(!open) open = true; else closeCatalog()"
+             @toggle-catalog.window="if(!open) open = true; else closeCatalog()" 
              @keydown.escape.window="closeCatalog()"
              x-cloak
              class="relative"
