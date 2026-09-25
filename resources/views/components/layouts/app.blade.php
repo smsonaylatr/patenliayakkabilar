@@ -582,7 +582,7 @@
         <!-- Google Customer Reviews — Sadece anasayfada -->
         <style>
             #gcr-badge-container {
-                transform: scale(1.2) !important;
+                transform: scale(1.3) !important;
                 transform-origin: bottom left !important;
             }
             @media (max-width: 767px) {
