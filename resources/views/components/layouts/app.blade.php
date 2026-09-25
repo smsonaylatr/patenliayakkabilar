@@ -605,6 +605,28 @@
         @if(request()->is('/'))
         <!-- Google Customer Reviews — Sadece anasayfada -->
         <style>
+            #gcr-badge-container,
+            #gcr-badge-container iframe,
+            iframe[id*="gapi_ratingbadge"],
+            iframe[name*="gapi_ratingbadge"],
+            iframe[src*="ratingbadge"],
+            iframe[src*="customerreviews"],
+            gmp-ratingbadge {
+                z-index: 40 !important;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+            }
+            body.overflow-hidden #gcr-badge-container,
+            body.overflow-hidden #gcr-badge-container iframe,
+            body.overflow-hidden iframe[id*="gapi_ratingbadge"],
+            body.overflow-hidden iframe[name*="gapi_ratingbadge"],
+            body.overflow-hidden iframe[src*="ratingbadge"],
+            body.overflow-hidden iframe[src*="customerreviews"],
+            body.overflow-hidden gmp-ratingbadge {
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+                z-index: -1 !important;
+            }
             @media (max-width: 767px) {
                 #gcr-badge-container,
                 #gcr-badge-container iframe,
@@ -615,6 +637,7 @@
                 gmp-ratingbadge {
                     bottom: calc(65px + env(safe-area-inset-bottom)) !important;
                     left: -3px !important;
+                    z-index: 40 !important;
                 }
             }
         </style>
@@ -627,22 +650,26 @@
             window.gapi.load('ratingbadge', function() {
               window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
 
-              if (window.innerWidth < 768) {
-                var applyStyles = function() {
-                  var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
-                  elements.forEach(function(el) {
+              var applyStyles = function() {
+                var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
+                elements.forEach(function(el) {
+                  el.style.setProperty('z-index', '40', 'important');
+                  if (window.innerWidth < 768) {
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
                     el.style.setProperty('left', '-3px', 'important');
-                    if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
+                  }
+                  if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
+                    el.parentElement.style.setProperty('z-index', '40', 'important');
+                    if (window.innerWidth < 768) {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
                       el.parentElement.style.setProperty('left', '-3px', 'important');
                     }
-                  });
-                };
+                  }
+                });
+              };
 
-                var checkInterval = setInterval(applyStyles, 100);
-                setTimeout(function() { clearInterval(checkInterval); }, 6000);
-              }
+              var checkInterval = setInterval(applyStyles, 100);
+              setTimeout(function() { clearInterval(checkInterval); }, 6000);
             });
 
             if (typeof window.triggerGoogleOptIn === 'function') {

@@ -68,6 +68,10 @@
     }" 
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
+    x-init="$watch('open', value => {
+        if (value) document.body.classList.add('overflow-hidden');
+        else document.body.classList.remove('overflow-hidden');
+    })"
     @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else closeDrawer()"
     x-cloak
     class="relative"
