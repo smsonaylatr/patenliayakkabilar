@@ -83,7 +83,7 @@ class CartDrawer extends Component
             ->whereNotIn('id', $cartProductIds)
             ->where('status', true)
             ->with('images')
-            ->inRandomOrder()
+            ->inRandomOrder(crc32(session()->getId()))
             ->take(10)
             ->get();
         // Kargo tahmini: sepetteki ürünlerin en uzun teslimat süresini bul
