@@ -30,8 +30,8 @@
                 <div class="flex flex-1 items-center justify-start">
                     <!-- Mobile Hamburger -->
                     <button @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Menü" class="md:hidden text-gray-900 focus:outline-none min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" d="M3 6H21M3 12H11M3 18H16"/>
                         </svg>
                     </button>
                     <a href="{{ route('home') }}" class="hidden md:block text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
