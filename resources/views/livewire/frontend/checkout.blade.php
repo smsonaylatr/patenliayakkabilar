@@ -371,7 +371,6 @@
                         @forelse($cartItems as $item)
                             <div class="flex gap-4 group" wire:key="checkout-item-{{ $item->id }}">
                                 <div class="w-16 h-16 rounded-xl bg-gray-100 flex-shrink-0 border border-gray-200 relative">
-                                    <span class="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full z-10 shadow-sm">{{ $item->quantity }}</span>
                                     @if($item->product && $item->product->images->first())
                                         <img src="{{ $item->product->images->first()->image_url }}" class="w-full h-full object-cover rounded-xl">
                                     @else
@@ -380,7 +379,7 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="flex-1 flex flex-col justify-center">
+                                <div class="flex-1 flex flex-col justify-center min-w-0">
                                     <h4 class="text-sm font-bold text-gray-900 line-clamp-1">{{ $item->product ? $item->product->name : 'Bilinmeyen Ürün' }}</h4>
                                     @if($item->variant)
                                         <span class="text-xs text-gray-500 mt-0.5">Beden/Seçenek: {{ $item->variant->size }}</span>
@@ -390,19 +389,32 @@
                                     </div>
                                 </div>
                                 @if(!$paytr_token)
-                                    <button
-                                        type="button"
-                                        wire:click="removeCartItem({{ $item->id }})"
-                                        wire:confirm="Bu ürünü sepetten kaldırmak istediğinize emin misiniz?"
-                                        wire:loading.attr="disabled"
-                                        wire:target="removeCartItem({{ $item->id }})"
-                                        class="flex-shrink-0 self-center p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
-                                        title="Ürünü Kaldır"
-                                        aria-label="Ürünü sepetten kaldır"
-                                    >
-                                        <svg wire:loading.remove wire:target="removeCartItem({{ $item->id }})" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                        <svg wire:loading wire:target="removeCartItem({{ $item->id }})" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                    </button>
+                                    <div class="flex-shrink-0 flex flex-col items-end justify-between gap-1">
+                                        {{-- Adet Kontrolleri --}}
+                                        <div class="flex items-center border border-gray-200 rounded-lg" style="height:32px;">
+                                            <button wire:click="updateCartQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" wire:loading.attr="disabled" class="flex items-center justify-center w-7 h-full text-gray-400 hover:text-black active:text-black transition-colors disabled:opacity-20">
+                                                <svg class="w-2.5 h-2.5" viewBox="0 0 12 2" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M1 1h10"/></svg>
+                                            </button>
+                                            <span class="text-xs font-medium text-center w-6" wire:loading.class="opacity-30" wire:target="updateCartQuantity">{{ $item->quantity }}</span>
+                                            <button wire:click="updateCartQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" wire:loading.attr="disabled" class="flex items-center justify-center w-7 h-full text-gray-400 hover:text-black active:text-black transition-colors disabled:opacity-20">
+                                                <svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M6 1v10M1 6h10"/></svg>
+                                            </button>
+                                        </div>
+                                        {{-- Kaldır --}}
+                                        <button
+                                            type="button"
+                                            wire:click="removeCartItem({{ $item->id }})"
+                                            wire:confirm="Bu ürünü sepetten kaldırmak istediğinize emin misiniz?"
+                                            wire:loading.attr="disabled"
+                                            wire:target="removeCartItem({{ $item->id }})"
+                                            class="p-1 rounded text-gray-400 hover:text-red-500 transition-colors"
+                                            title="Kaldır"
+                                            aria-label="Ürünü sepetten kaldır"
+                                        >
+                                            <svg wire:loading.remove wire:target="removeCartItem({{ $item->id }})" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            <svg wire:loading wire:target="removeCartItem({{ $item->id }})" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                        </button>
+                                    </div>
                                 @endif
                             </div>
                         @empty
