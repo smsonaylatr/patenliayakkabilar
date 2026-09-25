@@ -452,6 +452,10 @@
 
     {{-- Stock Notification Modal --}}
     <livewire:product.stock-notification-modal />
+    @php
+        $productImage = $product->images->first()?->image_url ?? '';
+        $productPrice = number_format((float)($product->discount_price ?? $product->price), 2, '.', '');
+    @endphp
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             try {
@@ -459,8 +463,8 @@
                     id: {{ $product->id }},
                     name: @json($product->name),
                     slug: @json($product->slug),
-                    price: @json(number_format((float)($product->discount_price ?? $product->price), 2, '.', '')),
-                    image: @json($product->images->first()?->image_url ?? '')
+                    price: @json($productPrice),
+                    image: @json($productImage)
                 };
                 let viewed = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
                 viewed = viewed.filter(p => p.id !== product.id);
