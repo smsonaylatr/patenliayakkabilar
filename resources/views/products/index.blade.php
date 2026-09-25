@@ -33,11 +33,11 @@
                 ])" />
             </div>
 
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+            <div class="text-center mb-8 sm:mb-12">
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
                     {{ isset($category) && $category ? ($category->seo_h1 ?? $category->name) : 'Tüm Modeller' }}
                 </h1>
-                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                <p class="mt-3 sm:mt-4 max-w-2xl text-base sm:text-xl text-gray-500 mx-auto px-2">
                     {{ isset($category) && $category ? $category->name . ' kategorisindeki en çok tercih edilen patenli ayakkabı modellerimiz.' : 'En çok tercih edilen patenli ayakkabı ve tekerlekli sneaker modellerimiz.' }}
                 </p>
             </div>

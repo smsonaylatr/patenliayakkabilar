@@ -71,7 +71,7 @@
                 </div>
 
                 <!-- 2. Product info (Right Column, spans both rows) -->
-                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
+                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-10 sm:mt-16 lg:mt-0">
                     <!-- Desktop Title -->
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
@@ -416,7 +416,7 @@
                 </div>
                 
                 <!-- 3. Product Reviews (Mobile Only) -->
-                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-8 px-4 sm:px-0 md:hidden relative z-20">
+                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-8 md:hidden relative z-20">
                     <div class="w-full pointer-events-auto">
                         @livewire('product.review-list', ['product' => $product], key('mobile-reviews-'.$product->id))
                     </div>

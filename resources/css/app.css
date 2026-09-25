@@ -19,9 +19,57 @@
 }
 
 /* Custom premium styles */
+html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* Mobile: tam ekrana sığma */
+@media (max-width: 767px) {
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100vw;
+    }
+
+    /* Main content area — bottom nav yüksekliğini hesapla */
+    main.flex-grow {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Tüm container'ları ekran genişliğine sığdır */
+    .max-w-7xl,
+    .max-w-6xl,
+    .max-w-5xl,
+    .max-w-4xl {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Herhangi bir child'ın yatay taşmasını önle */
+    * {
+        max-width: 100vw;
+    }
+
+    /* Marquee ve slider hariç — bunlar kasıtlı taşma kullanır */
+    .marquee-content,
+    .marquee-content *,
+    .animate-marquee-mobile,
+    .animate-marquee-mobile *,
+    .hide-scrollbar,
+    .hide-scrollbar *,
+    [class*="swiper"],
+    [class*="swiper"] * {
+        max-width: none;
+    }
 }
 
 .marquee-container {

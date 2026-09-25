@@ -555,6 +555,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       .hero-inner {
         padding: 0 16px;
         gap: 30px;
+        overflow: hidden;
       }
       .hero-pill {
         margin-bottom: 16px;
@@ -567,6 +568,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       .hero-desc {
         font-size: 1rem;
         margin-bottom: 24px;
+        max-width: 100%;
       }
       .hero-actions {
         flex-direction: column;
@@ -584,30 +586,38 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
         margin-top: 10px;
       }
       .hero-3d-stage {
-        height: 300px;
-        margin-top: 30px;
-        margin-bottom: 20px;
+        height: 280px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
       }
       .card-main {
-        width: 250px; height: 210px;
+        width: 220px; height: 190px;
+        left: 55%;
       }
       .card-float-1 {
         display: block;
-        width: 130px; height: 105px;
-        top: -15px; right: 5px;
+        width: 110px; height: 90px;
+        top: 0px; right: 5px;
       }
       .card-float-2 {
         display: block;
-        width: 140px; height: 115px;
-        bottom: -15px; left: 5px;
+        width: 120px; height: 100px;
+        bottom: 0px; left: 5px;
       }
       .badge-rating {
         top: 5%;
         left: 0%;
+        font-size: 0.7rem;
+        padding: 6px 12px;
       }
       .badge-new {
         bottom: 10%;
         right: 0%;
+        font-size: 0.7rem;
+        padding: 6px 12px;
       }
     }
   </style>

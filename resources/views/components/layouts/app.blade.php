@@ -156,7 +156,7 @@
 
 
         
-        <main class="flex-grow page-transition-effect">
+        <main class="flex-grow page-transition-effect pb-20 md:pb-0">
             {{ $slot }}
         </main>
 
