@@ -324,17 +324,17 @@
 
                         <!-- Ürün Listesi -->
                         <template x-if="recentProducts.length > 0">
-                            <ul class="space-y-4">
+                            <ul>
                                 <template x-for="(rp, idx) in recentProducts" :key="rp.id">
-                                    <li class="flex items-center gap-3 group">
-                                        <a :href="'/urun/' + rp.slug" class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-50 border border-black/[0.04]">
-                                            <img :src="rp.image" :alt="rp.name" class="w-full h-full object-cover" loading="lazy">
+                                    <li class="flex gap-4 md:gap-6 pb-4 md:pb-6" :class="idx > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : ''">
+                                        <a :href="'/urun/' + rp.slug" class="block shrink-0 grow-0 rounded-lg overflow-hidden" style="width:80px;height:80px;">
+                                            <img :src="rp.image" :alt="rp.name" width="80" height="80" class="w-full h-full object-cover" loading="lazy">
                                         </a>
-                                        <div class="flex-1 min-w-0">
-                                            <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
-                                            <div class="text-sm mt-0.5" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
+                                        <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                            <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2" x-text="rp.name"></a>
+                                            <span class="text-sm" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></span>
                                         </div>
-                                        <div class="shrink-0">
+                                        <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
                                             <button @click="addRecentToCart(rp.id)" 
                                                 :class="addedRecentId === rp.id ? 'bg-emerald-600 border-emerald-600' : 'bg-black border-black hover:bg-black/80'"
                                                 class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300"
