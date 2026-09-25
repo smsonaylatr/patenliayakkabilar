@@ -121,10 +121,6 @@ body {
         font-size: 0.875rem !important;
     }
 
-    /* Footer grid tek sütuna düş */
-    footer .grid-cols-2 {
-        grid-template-columns: 1fr;
-    }
 }
 
 .marquee-container {
