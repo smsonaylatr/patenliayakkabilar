@@ -337,8 +337,8 @@
                     </button>
 
                     {{-- 3. Arama — Halikoy search icon --}}
-                    <button x-data @click="$dispatch('open-search')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black active:scale-90 transition-all duration-150">
-                        <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
+                    <button x-data @click="$dispatch('open-search')" class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black active:scale-90 transition-all duration-150 group">
+                        <svg class="w-[22px] h-[22px] transition-transform duration-200 group-active:scale-110 group-active:rotate-12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18.4007 17.4998L15.3707 14.4698M15.3707 14.4698C16.7279 13.1126 17.5674 11.2376 17.5674 9.1665C17.5674 5.02437 14.2095 1.6665 10.0674 1.6665C5.92525 1.6665 2.56738 5.02437 2.56738 9.1665C2.56738 13.3086 5.92525 16.6665 10.0674 16.6665C12.1385 16.6665 14.0135 15.827 15.3707 14.4698Z"/>
                         </svg>
                         <span class="text-[10px] font-normal leading-none text-gray-800">Arama</span>

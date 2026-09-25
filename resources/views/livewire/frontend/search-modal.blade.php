@@ -1,7 +1,12 @@
 <div 
-    x-data="{ open: false }" 
-    @open-search.window="open = true; setTimeout(() => $refs.searchInput.focus(), 80)"
-    @keydown.escape.window="open = false"
+    x-data="{ 
+        open: false,
+        closeSearch() {
+            this.open = false;
+        }
+    }" 
+    @open-search.window="open = true; $nextTick(() => { setTimeout(() => $refs.searchInput && $refs.searchInput.focus(), 80); })"
+    @keydown.escape.window="closeSearch()"
     x-init="$watch('open', value => {
         if (value) document.body.classList.add('overflow-hidden');
         else document.body.classList.remove('overflow-hidden');
@@ -14,7 +19,7 @@
     x-show="open"
     x-cloak
 >
-    <!-- Backdrop -->
+    <!-- Backdrop (Hafif ve GPU dostu karartma) -->
     <div 
         x-show="open" 
         x-transition:enter="transition-opacity duration-300 ease-out" 
@@ -23,117 +28,136 @@
         x-transition:leave="transition-opacity duration-200 ease-in" 
         x-transition:leave-start="opacity-100" 
         x-transition:leave-end="opacity-0" 
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm"
-        @click="open = false"
+        class="fixed inset-0 bg-black/50"
+        @click="closeSearch()"
     ></div>
 
-    <!-- Modal Panel -->
-    <div class="fixed inset-0 z-10 w-screen overflow-y-auto pt-12 sm:pt-20">
-        <div class="flex min-h-full items-start justify-center p-3 text-center sm:p-4">
-            <div 
-                x-show="open" 
-                x-transition:enter="transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" 
-                x-transition:enter-start="opacity-0 -translate-y-5 scale-[0.96]" 
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
-                x-transition:leave="transition-[transform,opacity] duration-200 ease-in" 
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
-                x-transition:leave-end="opacity-0 -translate-y-3 scale-[0.98]" 
-                class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-2xl"
-                style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden;"
-                @click.away="open = false"
-            >
-                <div class="p-2 sm:p-4">
-                    <!-- Search Input -->
-                    <div class="relative flex items-center">
-                        <svg class="pointer-events-none absolute left-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+    <!-- Modal Container -->
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto pt-6 sm:pt-20 px-3 sm:px-4 flex items-start justify-center pointer-events-none">
+        
+        <!-- Spotlight / Modern Search Panel -->
+        <div 
+            x-show="open" 
+            x-transition:enter="transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+            x-transition:enter-start="opacity-0 -translate-y-4 scale-[0.96]" 
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+            x-transition:leave="transition-all duration-200 ease-in" 
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+            x-transition:leave-end="opacity-0 -translate-y-2 scale-[0.98]" 
+            class="pointer-events-auto relative w-full max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] border border-gray-100/80 overflow-hidden"
+            @click.away="closeSearch()"
+            style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden;"
+        >
+            <div class="p-3 sm:p-4">
+                <!-- Search Input Bar -->
+                <div class="relative flex items-center">
+                    <div class="pointer-events-none absolute left-4 flex items-center justify-center text-gray-400">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
-                        <input 
-                            wire:model.live.debounce.300ms="search" 
-                            x-ref="searchInput"
-                            type="text" 
-                            aria-label="Arama Kutusu"
-                            class="h-14 w-full rounded-xl border border-gray-100 bg-gray-50 pl-12 pr-12 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-black focus:ring-2 focus:ring-black/10 transition-all duration-200 sm:text-lg" 
-                            placeholder="Ürün, kategori veya kelime arayın..."
-                        >
-                        
-                        <!-- Loading Indicator -->
-                        <div wire:loading wire:target="search" class="absolute right-4">
-                            <div class="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-black"></div>
-                        </div>
-                        
-                        <!-- Close Button (Desktop & Mobile) -->
-                        <div class="absolute right-3 flex items-center gap-1.5" wire:loading.remove wire:target="search">
-                            <span class="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-400 bg-gray-200/60 uppercase tracking-wider">ESC</span>
-                            <button @click="open = false" aria-label="Aramayı Kapat" class="text-gray-400 hover:text-gray-900 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                        </div>
                     </div>
+                    
+                    <input 
+                        wire:model.live.debounce.300ms="search" 
+                        x-ref="searchInput"
+                        type="text" 
+                        aria-label="Arama Kutusu"
+                        class="h-13 sm:h-15 w-full rounded-xl sm:rounded-2xl border-0 bg-gray-50/90 pl-11 sm:pl-13 pr-12 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-black text-sm sm:text-base transition-all duration-200" 
+                        placeholder="Ürün, kategori veya özellik arayın..."
+                    >
+                    
+                    <!-- Loading Indicator -->
+                    <div wire:loading wire:target="search" class="absolute right-12 sm:right-13">
+                        <div class="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-gray-300 border-t-black"></div>
+                    </div>
+                    
+                    <!-- Close Button -->
+                    <button 
+                        @click="closeSearch()" 
+                        aria-label="Aramayı Kapat" 
+                        class="absolute right-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-200 active:scale-90"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
-                    <!-- Search Results -->
-                    @if(strlen($search) >= 2)
-                        <div class="mt-4 max-h-[60vh] overflow-y-auto">
-                            @if($results->count() > 0)
-                                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-2">Ürünler ({{ $results->count() }})</h3>
-                                <ul class="space-y-2">
-                                    @foreach($results as $product)
-                                        <li>
-                                            <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="flex items-center gap-4 rounded-xl p-2 hover:bg-gray-50 transition-colors group">
-                                                <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                <!-- Search Results -->
+                @if(strlen($search) >= 2)
+                    <div class="mt-4 max-h-[60vh] overflow-y-auto overscroll-contain px-1">
+                        @if($results->count() > 0)
+                            <div class="flex items-center justify-between mb-3 px-2">
+                                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ürünler ({{ $results->count() }})</h3>
+                                <span class="text-[10px] text-gray-400 font-medium">Sonuçlar anlık listeleniyor</span>
+                            </div>
+                            <ul class="space-y-1.5">
+                                @foreach($results as $product)
+                                    <li>
+                                        <a href="{{ route('products.show', $product->slug) }}" @click="closeSearch()" wire:navigate class="flex items-center gap-3.5 sm:gap-4 rounded-xl p-2 hover:bg-gray-50/90 active:bg-gray-100 transition-colors group">
+                                            <div class="h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 border border-gray-100">
+                                                <img src="{{ $product->images->first() ? $product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="text-sm font-medium text-gray-900 truncate group-hover:text-black">{{ $product->name }}</h4>
+                                                <div class="mt-1 flex items-center gap-2">
+                                                    @php
+                                                        $displayPrice = $product->price;
+                                                        $displayDiscount = $product->discount_price;
+                                                        if ($displayDiscount && $displayPrice && $displayDiscount > $displayPrice) {
+                                                            $displayPrice = $product->discount_price;
+                                                            $displayDiscount = $product->price;
+                                                        }
+                                                    @endphp
+                                                    @if($displayDiscount)
+                                                        <span class="text-sm font-bold text-brand-orange">{{ number_format($displayDiscount, 2) }} ₺</span>
+                                                        <span class="text-xs text-gray-400 line-through">{{ number_format($displayPrice, 2) }} ₺</span>
+                                                    @else
+                                                        <span class="text-sm font-bold text-gray-900">{{ number_format($displayPrice, 2) }} ₺</span>
+                                                    @endif
                                                 </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <h4 class="text-sm font-medium text-gray-900 truncate">{{ $product->name }}</h4>
-                                                    <div class="mt-1 flex items-center gap-2">
-                                                        @php
-                                                            $displayPrice = $product->price;
-                                                            $displayDiscount = $product->discount_price;
-                                                            if ($displayDiscount && $displayPrice && $displayDiscount > $displayPrice) {
-                                                                $displayPrice = $product->discount_price;
-                                                                $displayDiscount = $product->price;
-                                                            }
-                                                        @endphp
-                                                        @if($displayDiscount)
-                                                            <span class="text-sm font-bold text-brand-orange">{{ number_format($displayDiscount, 2) }} ₺</span>
-                                                            <span class="text-xs text-gray-400 line-through">{{ number_format($displayPrice, 2) }} ₺</span>
-                                                        @else
-                                                            <span class="text-sm font-bold text-gray-900">{{ number_format($displayPrice, 2) }} ₺</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="text-gray-400 group-hover:text-black transition-colors">
-                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
-                                                    </svg>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <div class="px-4 py-8 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            </div>
+                                            <div class="text-gray-300 group-hover:text-black group-hover:translate-x-0.5 transition-all duration-200 pr-1">
+                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <div class="px-4 py-10 text-center">
+                                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                                     </svg>
-                                    <p class="text-sm text-gray-500">"<strong>{{ $search }}</strong>" ile ilgili sonuç bulunamadı.</p>
-                                    <p class="text-xs text-gray-400 mt-1">Lütfen farklı kelimelerle tekrar deneyin.</p>
                                 </div>
-                            @endif
-                        </div>
-                    @else
-                        <!-- Suggestions Area (When Empty) -->
-                        <div class="mt-6 px-2 text-left">
-                            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Popüler Aramalar</h3>
-                            <div class="flex flex-wrap gap-2 mb-8">
-                                <button wire:click="$set('search', 'Işıklı')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Işıklı</button>
-                                <button wire:click="$set('search', 'Tekerlekli')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Tekerlekli</button>
-                                <button wire:click="$set('search', 'Kız Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Kız Çocuk</button>
-                                <button wire:click="$set('search', 'Erkek Çocuk')" class="px-4 py-2 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-700 text-sm rounded-xl font-medium transition-all border border-gray-100">Erkek Çocuk</button>
+                                <p class="text-sm text-gray-700 font-medium">"<strong>{{ $search }}</strong>" ile ilgili ürün bulunamadı</p>
+                                <p class="text-xs text-gray-400 mt-1">Farklı bir anahtar kelime veya model adı deneyebilirsiniz.</p>
                             </div>
+                        @endif
+                    </div>
+                @else
+                    <!-- Suggestions Area (Boş Arama Durumu) -->
+                    <div class="mt-5 px-2 pb-2 text-left">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Popüler Aramalar</h3>
                         </div>
-                    @endif
-                </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <button wire:click="$set('search', 'Işıklı')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Işıklı</button>
+                            <button wire:click="$set('search', 'Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Tekerlekli</button>
+                            <button wire:click="$set('search', 'Kız Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Kız Çocuk</button>
+                            <button wire:click="$set('search', 'Erkek Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Erkek Çocuk</button>
+                            <button wire:click="$set('search', '4 Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">4 Tekerlekli</button>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                            <span>Aramayı kapatmak için <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono text-gray-600">ESC</kbd></span>
+                            <span>Patenli Ayakkabılar&reg;</span>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
