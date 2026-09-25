@@ -252,61 +252,47 @@
                         </div>
                     </div>
 
-                    <!-- Trust & Payment Bar -->
-                    <div class="border-t border-gray-800/80 pt-6 sm:pt-8 mb-6 sm:mb-8 flex flex-col md:flex-row items-center {{ config('services.etbis.site_id') ? 'justify-between' : 'justify-center' }} gap-4 sm:gap-6">
+                    <!-- Payment & Trust Icons -->
+                    <div class="flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
+                        <!-- Amex -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] overflow-hidden">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/amex.svg" alt="Amex" class="w-full h-full object-cover">
+                        </div>
+                        <!-- PayTR -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="PayTR">
+                            <span class="font-black text-[10px] sm:text-[11px] leading-none tracking-tighter">
+                                <span style="color: #0b2545;">Pay</span><span style="color: #00a8e1;">TR</span>
+                            </span>
+                        </div>
+                        <!-- Troy -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100">
+                            <span class="font-black text-[#00a8e1] tracking-tighter text-[10px] sm:text-[11px] leading-none">TROY</span>
+                        </div>
+                        <!-- Visa -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/visa.svg" alt="Visa" class="w-full h-full object-contain">
+                        </div>
+                        <!-- Havale / EFT -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="Havale / EFT">
+                            <div class="flex items-center justify-center space-x-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0b2545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg>
+                                <span style="color: #0b2545;" class="font-black text-[8px] sm:text-[9px] leading-none tracking-tighter">Havale</span>
+                            </div>
+                        </div>
+                        <!-- Mastercard -->
+                        <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/mastercard.svg" alt="Mastercard" class="w-full h-full object-contain">
+                        </div>
                         <!-- ETBIS Seal -->
                         @if(config('services.etbis.site_id'))
-                        <div class="flex items-center justify-center order-2 md:order-1">
-                            <a href="https://etbis.ticaret.gov.tr/tr/SiteSorgulamaSonuc?siteId={{ config('services.etbis.site_id') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 group bg-white/5 hover:bg-white/10 border border-gray-800 hover:border-gray-700 rounded-xl py-2 px-3 sm:px-3.5 transition-all shadow-sm">
-                                <div class="bg-emerald-500/10 p-1.5 rounded-lg flex-shrink-0 group-hover:bg-emerald-500/20 transition-colors">
-                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                </div>
-                                <div class="flex flex-col text-left">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-xs font-black text-white tracking-wider leading-none">ETBİS</span>
-                                        <span class="text-[9px] font-semibold text-emerald-400 bg-emerald-500/10 px-1 py-0.5 rounded leading-none">Kayıtlı</span>
-                                    </div>
-                                    <span class="text-[10px] font-medium text-gray-400 leading-none mt-1">T.C. Ticaret Bakanlığı Güvenli E-Ticaret</span>
-                                </div>
-                            </a>
-                        </div>
+                        <a href="https://etbis.ticaret.gov.tr/tr/SiteSorgulamaSonuc?siteId={{ config('services.etbis.site_id') }}" target="_blank" rel="noopener noreferrer" class="bg-white rounded flex items-center justify-center gap-1 w-[52px] h-[28px] sm:w-[58px] sm:h-[32px] px-1 overflow-hidden border border-gray-100 hover:opacity-90 transition-opacity" title="ETBİS - T.C. Ticaret Bakanlığı Kayıtlı Güvenli E-Ticaret">
+                            <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            <span class="font-black text-[9px] sm:text-[10px] text-gray-900 tracking-tight leading-none">ETBİS</span>
+                        </a>
                         @endif
-
-                        <!-- Payment Icons -->
-                        <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 order-1 md:order-2">
-                            <!-- Amex -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] overflow-hidden">
-                                <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/amex.svg" alt="Amex" class="w-full h-full object-cover">
-                            </div>
-                            <!-- PayTR -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="PayTR">
-                                <span class="font-black text-[10px] sm:text-[11px] leading-none tracking-tighter">
-                                    <span style="color: #0b2545;">Pay</span><span style="color: #00a8e1;">TR</span>
-                                </span>
-                            </div>
-                            <!-- Troy -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100">
-                                <span class="font-black text-[#00a8e1] tracking-tighter text-[10px] sm:text-[11px] leading-none">TROY</span>
-                            </div>
-                            <!-- Visa -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
-                                <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/visa.svg" alt="Visa" class="w-full h-full object-contain">
-                            </div>
-                            <!-- Havale / EFT -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="Havale / EFT">
-                                <div class="flex items-center justify-center space-x-0.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0b2545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg>
-                                    <span style="color: #0b2545;" class="font-black text-[8px] sm:text-[9px] leading-none tracking-tighter">Havale</span>
-                                </div>
-                            </div>
-                            <!-- Mastercard -->
-                            <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
-                                <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/mastercard.svg" alt="Mastercard" class="w-full h-full object-contain">
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="border-t border-gray-800/60 pt-6 sm:pt-8 flex flex-col items-center justify-center text-xs sm:text-sm text-gray-500 text-center px-2">
+                    <div class="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col items-center justify-center text-xs sm:text-sm text-gray-500 text-center px-2">
                         <p>{{ $footerCopy }}</p>
                     </div>
                 </div>
