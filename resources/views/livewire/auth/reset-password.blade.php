@@ -2,48 +2,48 @@
     @media (max-width: 1023px) {
         .mobile-auth-spacing {
             min-height: unset !important;
-            padding-top: 50px !important;
-            padding-bottom: 50px !important;
+            padding-top: 24px !important;
+            padding-bottom: 90px !important;
             align-items: flex-start !important;
         }
     }
 </style>
-<div class="min-h-screen bg-brand-light pb-24 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
-    <div class="container mx-auto px-4 max-w-md">
+<div class="min-h-screen bg-brand-light pb-28 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
+    <div class="container mx-auto px-3 sm:px-4 max-w-md w-full">
         
-        <div class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
+        <div class="bg-white/90 backdrop-blur-2xl border border-white/60 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
             <!-- Decorative element -->
             <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
 
-            <div class="text-center mb-8 relative z-10">
-                <h1 class="text-3xl font-black text-brand-dark mb-2 tracking-tight">Yeni Şifre Belirle</h1>
-                <p class="text-gray-500 text-sm">Hesabınız için yeni ve güvenli bir şifre belirleyin.</p>
+            <div class="text-center mb-4 sm:mb-6 relative z-10">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark mb-1 sm:mb-2 tracking-tight">Yeni Şifre Belirle</h1>
+                <p class="text-gray-500 text-xs sm:text-sm">Hesabınız için yeni ve güvenli bir şifre belirleyin.</p>
             </div>
 
-            <form wire:submit="resetPassword" class="space-y-5 relative z-10">
+            <form wire:submit="resetPassword" class="space-y-3.5 sm:space-y-4 relative z-10">
                 <!-- Email (readonly or editable) -->
-                <div class="space-y-1.5">
+                <div class="space-y-1">
                     <label for="email" class="text-xs font-bold text-gray-700 ml-1">E-posta Adresiniz</label>
-                    <input wire:model="email" type="email" id="email" class="w-full text-sm bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed" readonly>
-                    @error('email') <span class="text-red-500 text-xs font-bold ml-1">{{ $message }}</span> @enderror
+                    <input wire:model="email" type="email" id="email" class="w-full text-base sm:text-sm bg-gray-100 border border-gray-200 rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 text-gray-500 cursor-not-allowed" readonly>
+                    @error('email') <span class="text-red-500 text-[11px] sm:text-xs font-bold ml-1">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Password -->
-                <div class="space-y-1.5">
+                <div class="space-y-1">
                     <label for="password" class="text-xs font-bold text-gray-700 ml-1">Yeni Şifre</label>
-                    <input wire:model="password" type="password" id="password" class="w-full text-sm bg-gray-50 border @error('password') border-red-300 ring-1 ring-red-300 @else border-gray-200 @enderror rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="••••••••">
-                    @error('password') <span class="text-red-500 text-xs font-bold ml-1">{{ $message }}</span> @enderror
+                    <input wire:model="password" type="password" id="password" class="w-full text-base sm:text-sm bg-gray-50 border @error('password') border-red-300 ring-1 ring-red-300 @else border-gray-200 @enderror rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="••••••••">
+                    @error('password') <span class="text-red-500 text-[11px] sm:text-xs font-bold ml-1">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Confirm Password -->
-                <div class="space-y-1.5">
+                <div class="space-y-1">
                     <label for="password_confirmation" class="text-xs font-bold text-gray-700 ml-1">Yeni Şifre (Tekrar)</label>
-                    <input wire:model="password_confirmation" type="password" id="password_confirmation" class="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="••••••••">
+                    <input wire:model="password_confirmation" type="password" id="password_confirmation" class="w-full text-base sm:text-sm bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="••••••••">
                 </div>
 
                 <!-- Submit Button -->
-                <div class="pt-2">
-                    <button type="submit" class="w-full bg-brand-dark text-white font-bold text-base rounded-xl py-3 shadow-[0_8px_25px_rgba(31,41,55,0.3)] hover:shadow-[0_12px_35px_rgba(31,41,55,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
+                <div class="pt-1.5">
+                    <button type="submit" class="w-full bg-brand-dark text-white font-bold text-sm sm:text-base rounded-xl py-2.5 sm:py-3 shadow-[0_8px_25px_rgba(31,41,55,0.3)] hover:shadow-[0_12px_35px_rgba(31,41,55,0.4)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
                         <span wire:loading.remove wire:target="resetPassword" class="relative z-10 flex items-center justify-center">
                             Şifremi Sıfırla
                         </span>

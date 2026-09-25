@@ -66,7 +66,7 @@
              class="fixed inset-0 bg-black/30"
              style="display: none; z-index: 9998; will-change: opacity;"></div>
 
-        <!-- Panel — navbarın üstünden yukarı doğru kayıyor (%70 açılış) -->
+        <!-- Panel — navbarın üstünden yukarı doğru kayıyor -->
         <div x-show="open"
              x-transition:enter="transition-[transform] ease-out duration-300"
              x-transition:enter-start="translate-y-full"
@@ -75,7 +75,7 @@
              x-transition:leave-start="translate-y-0"
              x-transition:leave-end="translate-y-full"
              class="fixed left-0 right-0 bottom-0 flex flex-col md:hidden rounded-t-2xl shadow-2xl"
-             style="display: none; z-index: 9998; top: 30%; background-color: #fff; will-change: transform; transform: translateZ(0); backface-visibility: hidden; contain: layout style paint;">
+             style="display: none; z-index: 9998; top: 50%; background-color: #fff; will-change: transform; transform: translateZ(0); backface-visibility: hidden; contain: layout style paint;">
 
             <!-- Inner panel with drag support -->
             <div class="flex flex-col h-full"
@@ -98,7 +98,7 @@
                         <p class="text-[10px] text-gray-400 uppercase tracking-[0.3em] mb-1">Patenli Ayakkabılar</p>
                         <h2 class="text-2xl text-gray-900 font-light tracking-wide" style="font-family: Georgia, 'Times New Roman', serif;">Kategoriler</h2>
                     </div>
-                    <a href="{{ route('products.index') }}" @click="open = false" wire:navigate class="text-[11px] text-gray-500 uppercase tracking-widest hover:text-black transition-colors">
+                    <a href="<?php echo e(route('products.index')); ?>" @click="open = false" wire:navigate class="text-[11px] text-gray-500 uppercase tracking-widest hover:text-black transition-colors">
                         Tüm Ürünler →
                     </a>
                 </div>
@@ -109,20 +109,20 @@
                 <!-- Categories List -->
                 <div class="flex-1 overflow-y-auto overscroll-contain min-h-0">
                     <div class="px-6">
-                        @foreach($categories as $category)
-                            <a href="{{ route('category.show', ['slug' => $category->slug]) }}"
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+                            <a href="<?php echo e(route('category.show', ['slug' => $category->slug])); ?>"
                                @click="open = false"
                                wire:navigate
                                class="flex items-center justify-between py-5 border-b border-gray-100 active:bg-gray-50 transition-colors group">
-                                <span class="text-lg text-gray-900 font-normal tracking-wide" style="font-family: Georgia, 'Times New Roman', serif;">{{ $category->name }}</span>
+                                <span class="text-lg text-gray-900 font-normal tracking-wide" style="font-family: Georgia, 'Times New Roman', serif;"><?php echo e($category->name); ?></span>
                                 <div class="flex items-center gap-3">
-                                    <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">{{ $category->products_count }} Ürün</span>
+                                    <span class="text-[10px] text-gray-400 uppercase tracking-widest font-medium"><?php echo e($category->products_count); ?> Ürün</span>
                                     <svg class="w-4 h-4 text-gray-300 group-active:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
                                     </svg>
                                 </div>
                             </a>
-                        @endforeach
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
                     </div>
                 </div>
 
@@ -139,3 +139,4 @@
         </div>
     </div>
 </div>
+<?php /**PATH C:\Users\Lenovo\Desktop\Projelerim\patenliayakkabilar.com\resources\views\livewire\frontend\mobile-catalog.blade.php ENDPATH**/ ?>

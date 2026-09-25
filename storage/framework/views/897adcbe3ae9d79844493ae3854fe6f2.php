@@ -1,0 +1,581 @@
+<?php
+    $order = $getRecord();
+?>
+
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order): ?>
+<style>
+/* Siparişler tablosunda akordiyon açılsa bile sağdaki ikonların en üstte sabit kalması */
+.fi-ta-record-actions,
+.fi-ta-actions,
+td.fi-ta-actions-cell {
+    align-self: flex-start !important;
+    vertical-align: top !important;
+    padding-top: 14px !important;
+}
+
+.order-detail-panel {
+    padding: 16px 20px;
+    background-color: rgba(248, 250, 252, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+    color: #0f172a;
+    font-family: inherit;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease;
+}
+
+.dark .order-detail-panel {
+    background-color: rgba(15, 23, 42, 0.75);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
+.detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.detail-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+}
+
+.dark .detail-title {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.detail-addr {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.84rem;
+}
+
+.detail-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .detail-meta {
+        flex-direction: row;
+        gap: 40px;
+    }
+}
+
+.table-responsive-container {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.inner-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 4px;
+    font-size: 0.84rem;
+}
+
+.inner-table th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .inner-table th {
+    color: rgba(255, 255, 255, 0.35);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.inner-table td {
+    padding: 10px 12px !important;
+    border-bottom: none !important;
+    vertical-align: middle;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.dark .inner-table td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.inner-table td:first-child {
+    border-radius: 8px 0 0 8px;
+    padding-right: 6px !important;
+    width: 145px;
+    vertical-align: middle;
+    position: relative;
+    overflow: visible;
+}
+
+.inner-table td:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.inner-thumb {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+    z-index: 10;
+    cursor: zoom-in;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+.dark .inner-thumb {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.inner-thumb:hover {
+    width: 250px;
+    height: 250px;
+    border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+    z-index: 9999 !important;
+    border-color: #38bdf8 !important;
+}
+
+.inner-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    transition: border-radius 0.25s ease;
+}
+
+.inner-thumb:hover img {
+    border-radius: 10px;
+}
+
+.td-bold {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.dark .td-bold {
+    color: #ffffff;
+}
+
+.td-muted {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.dark .td-muted {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* ======================================================== */
+/* MOBİL RESPONSİVE STİLLERİ (max-width: 640px)             */
+/* ======================================================== */
+@media (max-width: 640px) {
+    .order-detail-panel {
+        padding: 10px 8px !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-responsive-container {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .inner-table {
+        min-width: 620px !important;
+    }
+
+    .inner-thumb {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .inner-thumb:hover {
+        width: 140px !important;
+        height: 140px !important;
+    }
+
+    .inner-table td:first-child {
+        width: 95px !important;
+    }
+
+    .detail-meta {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+}
+
+/* Sipariş No Tıklanabilir Stil */
+.order-no-clickable {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    user-select: all !important;
+    transition: opacity 0.2s ease !important;
+    padding: 2px 5px !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.order-no-clickable:hover {
+    opacity: 0.85 !important;
+    background: rgba(59, 130, 246, 0.08) !important;
+}
+
+/* SKU Stilleri */
+.sku-copy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 3px;
+    font-size: 0.76rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #64748b;
+    transition: opacity 0.2s ease;
+}
+
+.sku-copy-badge:hover {
+    opacity: 0.85;
+}
+
+.sku-prefix {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.dark .sku-prefix {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.sku-code {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.dark .sku-code {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sku-icon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;
+    opacity: 0.6;
+}
+</style>
+
+<div 
+  x-data="{ copyToast: false, toastMsg: '' }"
+  @copy-toast.window="toastMsg = $event.detail; copyToast = true; setTimeout(() => copyToast = false, 2000)"
+  class="order-detail-panel"
+>
+  <!-- Floating Toast Notification -->
+  <div 
+    x-show="copyToast" 
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+    x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+    style="position: fixed; bottom: 24px; right: 24px; z-index: 999999; background: #10b981; color: #ffffff; padding: 10px 18px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: none;"
+    x-cloak
+  >
+    <svg style="width:16px; height:16px; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <span x-text="toastMsg"></span>
+  </div>
+  <!-- Products -->
+  <div class="detail-section">
+    <div class="detail-title">Sipariş Ürünleri</div>
+    <div class="table-responsive-container">
+      <table class="inner-table">
+        <thead>
+          <tr>
+            <th style="width:116px"></th>
+            <th>Ürün</th>
+            <th>Renk / Numara</th>
+            <th>Adet</th>
+            <th>Sipariş No</th>
+            <th>Birim Fiyat</th>
+            <th>Toplam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $order->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoopIteration(); ?><?php endif; ?>
+              <?php
+                  $product = $item->product;
+                  $variant = $item->variant;
+                  
+                  $imageUrl = null;
+                  if ($product) {
+                      $product->loadMissing('images');
+                      $imageUrl = $product->images->first()?->image_url;
+                  }
+                  if (!$imageUrl) {
+                      $imageUrl = asset('favicon.png');
+                  }
+
+                  // Renk ve Beden bilgilerini hem ilişkiden hem de ürün adından dinamik çözümleyelim
+                  $vColor = null;
+                  if ($variant && !empty($variant->color)) {
+                      $vColor = is_array($variant->color) ? implode(', ', $variant->color) : $variant->color;
+                  }
+
+                  if (!$vColor) {
+                      $colorsToMatch = ['Pudra', 'Pembe', 'Pink', 'Lila', 'Rainbow', 'Gökkuşağı', 'Blue', 'Mavi', 'Siyah', 'Black', 'Beyaz', 'White', 'Kırmızı', 'Red', 'Yeşil', 'Green', 'Mor', 'Purple', 'Turuncu', 'Orange', 'Sarı', 'Yellow', 'Fuşya', 'Gümüş', 'Altın'];
+                      $checkText = ($product ? $product->name : '') . ' ' . $item->product_name . ' ' . ($variant?->sku ?: '');
+                      foreach ($colorsToMatch as $c) {
+                          if (stripos($checkText, $c) !== false) {
+                              $vColor = $c;
+                              break;
+                          }
+                      }
+                  }
+
+                  $vSize = $variant?->size;
+                  if (!$vSize && !empty($item->variant_info) && preg_match('/(?:Beden:\s*|Numara:\s*)(\d+)/i', $item->variant_info, $m)) {
+                      $vSize = $m[1];
+                  }
+
+                  if ($vColor && $vSize) {
+                      $variantText = "{$vColor} / Beden: {$vSize}";
+                  } elseif ($vSize) {
+                      $variantText = "Beden: {$vSize}";
+                  } elseif ($vColor) {
+                      $variantText = $vColor;
+                  } else {
+                      $variantText = $item->variant_info ?: 'Standart';
+                  }
+
+                  $sku = $variant?->sku ?: ($product?->sku ?: '-');
+              ?>
+              <tr>
+                <td style="width:145px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
+                  <div class="inner-thumb">
+                    <img src="<?php echo e($imageUrl); ?>" alt="<?php echo e($item->product_name); ?>" />
+                  </div>
+                </td>
+                <td style="vertical-align:middle;">
+                  <div class="td-bold"><?php echo e($item->product_name); ?></div>
+                  <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($sku && $sku !== '-'): ?>
+                  <div 
+                    x-data="{ copied: false }" 
+                    @click.stop="navigator.clipboard.writeText('<?php echo e(e($sku)); ?>'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'SKU Kopyalandı!')"
+                    class="sku-copy-badge"
+                    title="Tıklayarak SKU'yu Kopyala"
+                  >
+                    <span class="sku-prefix">SKU:</span>
+                    <span class="sku-code"><?php echo e($sku); ?></span>
+                    <span class="sku-icon">
+                      <template x-if="!copied">
+                        <svg style="width:13px;height:13px;display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                      </template>
+                      <template x-if="copied">
+                        <svg style="width:13px;height:13px;display:inline-block;color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                      </template>
+                    </span>
+                  </div>
+                  <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </td>
+                <td style="vertical-align: middle;">
+                  <div style="display: flex; flex-direction: column; gap: 3px; line-height: 1.3;">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vColor): ?>
+                      <div style="font-size: 0.82rem; font-weight: 700;">
+                        <span style="color: #94a3b8; font-weight: 500;">Renk:</span>
+                        <span style="color: #38bdf8;"><?php echo e($vColor); ?></span>
+                      </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($vSize): ?>
+                      <div style="font-size: 0.82rem; font-weight: 700;">
+                        <span style="color: #94a3b8; font-weight: 500;">Numara:</span>
+                        <span class="td-bold"><?php echo e($vSize); ?></span>
+                      </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$vColor && !$vSize): ?>
+                      <span class="td-muted"><?php echo e($item->variant_info ?: 'Standart'); ?></span>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                  </div>
+                </td>
+                <td style="vertical-align: middle;">
+                  <span class="td-muted"><?php echo e($item->quantity); ?></span>
+                </td>
+                <td style="vertical-align: middle; white-space: nowrap;">
+                  <span 
+                    x-data="{ copied: false }" 
+                    @click.stop="navigator.clipboard.writeText('<?php echo e(e($order->order_number)); ?>'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'Sipariş No Kopyalandı!')"
+                    class="order-no-clickable"
+                    title="Tıklayarak Sipariş Numarasını Kopyala"
+                  >
+                    <span class="td-bold" style="color: #3b82f6;">#<?php echo e($order->order_number); ?></span>
+                    <span style="display: inline-flex; align-items: center; margin-left: 4px; vertical-align: middle;">
+                      <template x-if="!copied">
+                        <svg style="width:13px; height:13px; display:inline-block; opacity:0.75; color: #3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                      </template>
+                      <template x-if="copied">
+                        <svg style="width:13px; height:13px; display:inline-block; color:#34d399;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                      </template>
+                    </span>
+                  </span>
+                </td>
+                <td style="vertical-align: middle;">
+                  <span class="td-muted">₺<?php echo e(number_format($item->unit_price ?: 0, 0, ',', '.')); ?></span>
+                </td>
+                <td style="vertical-align: middle;">
+                  <span class="td-bold" style="color: #10b981;">₺<?php echo e(number_format($item->total_price ?: ($item->quantity * $item->unit_price), 0, ',', '.')); ?></span>
+                </td>
+              </tr>
+          <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+              <tr>
+                  <td colspan="7" class="td-muted" style="text-align:center; padding: 15px !important;">
+                      Sipariş ürünü bulunamadı.
+                  </td>
+              </tr>
+          <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail Meta (Kargo Adresi & Ödeme Bilgisi) -->
+  <div class="detail-meta">
+    <div class="detail-section" style="flex:1">
+      <div class="detail-title">Kargo Adresi</div>
+      <div class="detail-addr">
+        <div class="td-bold"><?php echo e($order->customer_name ?: 'Misafir Müşteri'); ?></div>
+        <div class="td-muted"><?php echo e($order->shipping_address ?: 'Adres girilmemiş'); ?></div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->shipping_district || $order->shipping_city): ?>
+            <div class="td-muted"><?php echo e(implode(', ', array_filter([$order->shipping_district, $order->shipping_city]))); ?></div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->customer_phone): ?>
+            <?php
+                $rawPhone = preg_replace('/[^0-9]/', '', $order->customer_phone);
+                if (str_starts_with($rawPhone, '0')) {
+                    $rawPhone = '90' . substr($rawPhone, 1);
+                } elseif (!str_starts_with($rawPhone, '90')) {
+                    $rawPhone = '90' . $rawPhone;
+                }
+                $waMessage = "Merhabalar, " . ($order->customer_name ?: 'Değerli Müşterimiz') . " patenliayakkabilar.com üzerinden oluşturduğunuz " . $order->order_number . " numaralı siparişiniz hakkında destek sağlamak için ulaşıyorum sizlere.";
+            ?>
+            <div class="td-muted" style="margin-top:2px; display: flex; align-items: center; gap: 6px;">
+              <?php echo e($order->customer_phone); ?>
+
+              <a 
+                href="whatsapp://send?phone=<?php echo e($rawPhone); ?>&text=<?php echo e(urlencode($waMessage)); ?>" 
+                target="_blank" 
+                title="WhatsApp Masaüstü ile mesaj at"
+                style="display: inline-flex; align-items: center; justify-content: center; color: #25D366; text-decoration: none; transition: all 0.15s ease; flex-shrink: 0;"
+                onmouseover="this.style.transform='scale(1.2)'; this.style.filter='brightness(1.15)';"
+                onmouseout="this.style.transform='scale(1)'; this.style.filter='none';"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </a>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->customer_note): ?>
+            <div class="td-muted" style="color: #f59e0b; margin-top:2px;">Not: <?php echo e($order->customer_note); ?></div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->invoice_type === 'corporate'): ?>
+            <div style="margin-top: 6px; padding: 6px 8px; background: #fef3c7; border-radius: 6px; border: 1px solid #fde68a;">
+              <div style="font-size: 0.65rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">🏢 Kurumsal Fatura</div>
+              <div class="td-bold" style="font-size: 0.8rem;"><?php echo e($order->company_name); ?></div>
+              <div class="td-muted" style="font-size: 0.75rem;">VD: <?php echo e($order->tax_office); ?> — VN: <?php echo e($order->tax_number); ?></div>
+            </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+      </div>
+    </div>
+
+    <div class="detail-section" style="flex:1" x-data="{ showPayment: false }">
+      <button 
+        type="button" 
+        @click="showPayment = !showPayment" 
+        class="detail-title flex items-center justify-between w-full cursor-pointer hover:opacity-80 transition-opacity select-none"
+        style="background: transparent; border: none; padding: 0; margin: 0; text-align: left; width: 100%;"
+      >
+        <span class="flex items-center gap-2">
+          <span>Ödeme Bilgisi</span>
+          <span style="font-size: 0.7rem; font-weight: normal; text-transform: none; opacity: 0.7;" x-text="showPayment ? '(Gizle)' : '(Göster)'"></span>
+        </span>
+        <svg 
+          class="w-4 h-4 transition-transform duration-200" 
+          :class="{ 'rotate-180': showPayment }" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+          style="width: 16px; height: 16px;"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div 
+        x-show="showPayment" 
+        x-collapse 
+        x-cloak 
+        class="detail-addr mt-2"
+        style="margin-top: 8px;"
+      >
+        <div class="td-bold">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php switch($order->payment_method):
+                case ('credit_card'): ?> <span style="color: #8b5cf6; font-weight: 600;">Kredi Kartı</span> <?php break; ?>
+                <?php case ('wire_transfer'): ?> <span style="color: #0d9488; font-weight: 600;">Havale / EFT</span> <?php break; ?>
+                <?php case ('cash_on_delivery'): ?> <span style="color: #ea580c; font-weight: 600;">Kapıda Ödeme</span> <?php break; ?>
+                <?php default: ?> <span style="color: #8b5cf6; font-weight: 600;"><?php echo e($order->payment_method ?: 'Kredi Kartı'); ?></span>
+            <?php endswitch; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->payment_method === 'credit_card' || !$order->payment_method): ?>
+            <div class="td-muted" style="font-family: monospace;">**** **** **** 4521</div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <div class="td-muted" style="margin-top:2px;">
+            <?php
+                $trMonths = [1=>'Oca', 2=>'Şub', 3=>'Mar', 4=>'Nis', 5=>'May', 6=>'Haz', 7=>'Tem', 8=>'Ağu', 9=>'Eyl', 10=>'Eki', 11=>'Kas', 12=>'Ara'];
+                $dtStr = '-';
+                if ($order->created_at) {
+                    $mName = $trMonths[(int)$order->created_at->format('n')] ?? '';
+                    $dtStr = $order->created_at->format('d ') . $mName . $order->created_at->format(' Y H:i:s');
+                }
+            ?>
+            Sipariş Tarihi: <?php echo e($dtStr); ?>
+
+        </div>
+        <div class="td-bold" style="margin-top:4px; font-size:0.9rem;">
+            Toplam Tutar: ₺<?php echo e(number_format($order->grand_total, 0, ',', '.')); ?>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php /**PATH C:\Users\Lenovo\Desktop\Projelerim\patenliayakkabilar.com\resources\views\filament\orders\order-details-accordion.blade.php ENDPATH**/ ?>
