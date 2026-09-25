@@ -1,12 +1,12 @@
-<div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
+<div class="w-full flex flex-col gap-3 sm:gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
     @php
         $isOutOfStock = !$product->inStock();
     @endphp
 
     @if(!$isOutOfStock)
     <!-- Adet Seçici Kutusu (Shopier Style) -->
-    <div class="flex items-center justify-between border border-gray-200 rounded-full h-14 px-5 bg-white">
-        <span class="text-base font-medium text-gray-900">Adet</span>
+    <div class="flex items-center justify-between border border-gray-200 rounded-full h-12 sm:h-14 px-4 sm:px-5 bg-white">
+        <span class="text-sm sm:text-base font-medium text-gray-900">Adet</span>
         <div class="flex items-center gap-1">
             <button type="button" @click="qty > 1 ? qty-- : null" aria-label="Adedi Azalt" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-minus text-[10px]"></i>
@@ -25,7 +25,7 @@
         wire:loading.attr="disabled" 
         type="button" 
         @if($isOutOfStock) disabled @endif
-        class="group relative flex w-full h-14 items-center justify-center gap-3 overflow-hidden rounded-full {{ $isOutOfStock ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' : 'bg-gray-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]' }} px-4 sm:px-8 text-base font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70">
+        class="group relative flex w-full h-12 sm:h-14 items-center justify-center gap-3 overflow-hidden rounded-full {{ $isOutOfStock ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' : 'bg-gray-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]' }} px-4 sm:px-8 text-sm sm:text-base font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70">
         
         @if(!$isOutOfStock)
         <!-- Shine effect on hover -->
@@ -56,7 +56,7 @@
     <button 
         @click="$dispatch('open-stock-modal', { productId: {{ $product->id }}, variantId: '{{ $variantId }}' })"
         type="button" 
-        class="w-full h-14 flex items-center justify-center gap-2.5 rounded-full bg-brand-orange hover:bg-[#e56a10] text-white font-bold text-base shadow-[0_8px_25px_rgba(255,122,26,0.3)] transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+        class="w-full h-12 sm:h-14 flex items-center justify-center gap-2.5 rounded-full bg-brand-orange hover:bg-[#e56a10] text-white font-bold text-sm sm:text-base shadow-[0_8px_25px_rgba(255,122,26,0.3)] transition-all duration-300 hover:scale-[1.02] cursor-pointer">
         <i class="fa-solid fa-bell"></i>
         <span>Gelince Haber Ver</span>
     </button>

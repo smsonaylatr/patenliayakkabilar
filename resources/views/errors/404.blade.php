@@ -6,7 +6,7 @@
     <section class="min-h-[70vh] flex items-center justify-center bg-gray-50 px-4 py-16 sm:py-24">
         <div class="max-w-2xl mx-auto text-center">
             {{-- 404 Gradient Başlık --}}
-            <h1 class="text-[10rem] sm:text-[12rem] font-black leading-none tracking-tight text-gray-500 select-none" style="color: #6b6b6b;">
+            <h1 class="text-[6rem] sm:text-[10rem] md:text-[12rem] font-black leading-none tracking-tight text-gray-500 select-none" style="color: #6b6b6b;">
                 404
             </h1>
 

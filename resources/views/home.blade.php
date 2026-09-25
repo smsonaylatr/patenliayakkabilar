@@ -60,13 +60,13 @@
     @endphp
 
     @if($featuredCategories->count() > 0)
-        <div class="bg-white pt-10 pb-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-y-12">
+        <div class="bg-white pt-6 sm:pt-10 pb-8 sm:pb-16">
+            <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col gap-y-6 sm:gap-y-12">
                 @foreach($featuredCategories as $category)
                     <div class="relative">
                         <div class="relative mb-5">
                             <div class="flex items-center justify-between gap-3">
-                                <h2 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
+                                <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-none">{{ $category->name }}</h2>
                                 <a href="{{ route('category.show', ['slug' => $category->slug]) }}" wire:navigate class="group inline-flex items-center gap-2 text-sm sm:text-[15px] font-medium text-gray-800 hover:text-black transition-colors shrink-0">
                                     Daha Fazla 
                                     <span class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gray-200 text-gray-600 group-hover:bg-gray-300 transition-colors">

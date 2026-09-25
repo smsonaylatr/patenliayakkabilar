@@ -1,4 +1,4 @@
-<div class="mt-0 bg-white rounded-[2rem] border border-gray-100 shadow-sm p-5 sm:p-6 lg:p-5 xl:p-6" x-data="{ showReviewModal: false }">
+<div class="mt-0 bg-white rounded-2xl sm:rounded-[2rem] border border-gray-100 shadow-sm p-3 sm:p-6 lg:p-5 xl:p-6" x-data="{ showReviewModal: false }">
     <div class="flex items-center justify-between gap-3 mb-5 sm:mb-6">
         <div class="flex-1 min-w-0 pr-2">
             <h2 class="text-lg sm:text-xl lg:text-lg xl:text-xl font-bold text-gray-900 leading-tight truncate">Müşteri Yorumları</h2>

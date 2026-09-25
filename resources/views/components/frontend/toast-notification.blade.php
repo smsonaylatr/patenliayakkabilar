@@ -17,7 +17,7 @@
         }
     }"
     @notify.window="add($event)"
-    class="fixed bottom-[280px] md:bottom-[220px] right-4 sm:right-8 z-[80] flex flex-col gap-3 pointer-events-none"
+    class="fixed bottom-[200px] md:bottom-[220px] left-3 right-3 sm:left-auto sm:right-8 z-[80] flex flex-col gap-3 pointer-events-none"
 >
     <template x-for="notification in notifications" :key="notification.id">
         <div 
@@ -27,7 +27,7 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="max-w-sm w-full bg-[#111] text-white shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-2xl pointer-events-auto border border-white/10 overflow-hidden flex items-center p-3.5 gap-3"
+            class="max-w-sm w-full ml-auto bg-[#111] text-white shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-2xl pointer-events-auto border border-white/10 overflow-hidden flex items-center p-3 sm:p-3.5 gap-2.5 sm:gap-3"
         >
             <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full"
                  :class="{

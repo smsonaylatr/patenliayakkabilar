@@ -11,12 +11,12 @@
 <div class="min-h-screen bg-brand-light pb-24 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
     <div class="container mx-auto px-4 max-w-md">
         
-        <div class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
+        <div class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
             <!-- Decorative element -->
             <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
 
-            <div class="text-center mb-8 relative z-10">
-                <h1 class="text-3xl font-black text-brand-dark mb-2 tracking-tight">Giriş Yap</h1>
+            <div class="text-center mb-5 sm:mb-8 relative z-10">
+                <h1 class="text-2xl sm:text-3xl font-black text-brand-dark mb-2 tracking-tight">Giriş Yap</h1>
                 <p class="text-gray-500 text-sm">Hesabınıza giriş yaparak alışverişe devam edin.</p>
             </div>
 

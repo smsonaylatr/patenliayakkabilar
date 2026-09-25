@@ -1,4 +1,4 @@
-<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-8 sm:gap-y-12" style="perspective: 1200px;">
+<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-2 gap-y-4 sm:gap-x-8 sm:gap-y-12" style="perspective: 1200px;">
     @forelse($products as $product)
         <div 
             x-data="{
@@ -36,7 +36,7 @@
             class="group relative flex flex-col transition-all duration-300 ease-out will-change-transform"
             :style="`transform: rotateX(${rotateX}deg) rotateY(${rotateY}deg);`"
         >
-            <div class="relative w-full aspect-square bg-transparent rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
+            <div class="relative w-full aspect-square bg-transparent rounded-xl sm:rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
                 
                 <!-- ================= CARD FACE ================= -->
                 
@@ -47,7 +47,7 @@
                     });
                     $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
                     ?>
-                    <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[75px] h-[75px] sm:w-[95px] sm:h-[95px] drop-shadow-lg transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
+                    <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[55px] h-[55px] sm:w-[75px] sm:h-[75px] lg:w-[95px] lg:h-[95px] drop-shadow-lg transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
                         <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
                     </div>
                 @endif
@@ -188,13 +188,13 @@
                 @endif
             </div>
             
-            <div class="mt-4 flex flex-col items-center justify-center text-center px-2 w-full overflow-hidden">
-                <h3 class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300 w-full truncate">
+            <div class="mt-2 sm:mt-4 flex flex-col items-center justify-center text-center px-2 w-full overflow-hidden">
+                <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300 w-full truncate">
                     <a href="{{ route('products.show', $product->slug) }}" wire:navigate title="{{ $product->name }}">
                         {{ $product->name }}
                     </a>
                 </h3>
-                <div class="mt-2 flex items-center justify-center gap-3">
+                <div class="mt-1 sm:mt-2 flex items-center justify-center gap-2 sm:gap-3">
                     @php
                         $displayPrice = $product->price;
                         $displayDiscount = $product->discount_price;

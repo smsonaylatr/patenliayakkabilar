@@ -1,8 +1,8 @@
-<div class="min-h-screen bg-white py-16 lg:py-24">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">İletişime Geçin</h1>
-            <p class="text-slate-500 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+<div class="min-h-screen bg-white py-8 sm:py-16 lg:py-24">
+    <div class="max-w-3xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="text-center mb-6 sm:mb-10">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-2 sm:mb-4 tracking-tight">İletişime Geçin</h1>
+            <p class="text-slate-500 text-sm sm:text-lg md:text-xl font-medium max-w-2xl mx-auto">
                 Size nasıl yardımcı olabiliriz? İhtiyaçlarınızı veya sorularınızı bizimle paylaşın.
             </p>
         </div>

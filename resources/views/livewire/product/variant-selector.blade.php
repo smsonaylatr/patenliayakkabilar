@@ -1,4 +1,4 @@
-<div class="mt-8" x-data="{ selectedId: @entangle('selectedVariantId').live }">
+<div class="mt-4 sm:mt-8" x-data="{ selectedId: @entangle('selectedVariantId').live }">
     @php
         $allOutOfStock = !$product->inStock() || $product->variants->every(fn($v) => !$product->status || $v->stock <= 0);
         $requiresSize = $product->requires_size !== false;
@@ -30,7 +30,7 @@
         <button 
             type="button"
             @click="open = !open"
-            class="flex items-center justify-between w-full h-14 rounded-full border border-gray-200 bg-white px-5 text-base font-medium focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:text-sm transition-colors cursor-pointer"
+            class="flex items-center justify-between w-full h-12 sm:h-14 rounded-full border border-gray-200 bg-white px-4 sm:px-5 text-sm sm:text-base font-medium focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors cursor-pointer"
             :class="open ? 'border-gray-900 ring-1 ring-gray-900' : ''"
         >
             <span x-text="selectedLabel" class="{{ $allOutOfStock ? 'text-gray-400 font-medium' : 'text-gray-900' }}"></span>
@@ -56,7 +56,7 @@
                     <button 
                         type="button"
                         @click="if(variant.stock > 0) { selectedId = variant.id; open = false; }"
-                        class="w-full flex items-center justify-between px-5 py-3 text-base font-medium transition-colors border-b border-gray-50 last:border-b-0"
+                        class="w-full flex items-center justify-between px-4 py-2.5 text-sm sm:px-5 sm:py-3 sm:text-base font-medium transition-colors border-b border-gray-50 last:border-b-0"
                         :class="{
                             'text-gray-900 hover:bg-gray-50 cursor-pointer': variant.stock > 0,
                             'text-gray-400 bg-gray-50/40 cursor-not-allowed': variant.stock <= 0,

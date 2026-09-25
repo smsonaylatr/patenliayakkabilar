@@ -53,10 +53,10 @@
         }
     </style>
 
-    <div class="pt-4 lg:pt-6 pb-10 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="pt-2 sm:pt-4 lg:pt-6 pb-6 sm:pb-10 bg-white">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             {{-- Breadcrumb --}}
-            <div class="mb-6">
+            <div class="mb-3 sm:mb-6">
                 <x-breadcrumb :items="[
                     ['name' => 'Ana Sayfa', 'url' => route('home')],
                     ['name' => 'Patenli Ayakkabılar', 'url' => route('products.index')],
@@ -71,7 +71,7 @@
                 </div>
 
                 <!-- 2. Product info (Right Column, spans both rows) -->
-                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-10 sm:mt-16 lg:mt-0">
+                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-6 sm:mt-10 lg:mt-0">
                     <!-- Desktop Title -->
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
@@ -93,7 +93,7 @@
                             <!-- Grup 1 -->
                             <div class="flex shrink-0">
                                 @for($i = 0; $i < 3; $i++)
-                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 40px; margin-right: 140px;">
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
                                         {{ $product->name }}
                                     </h1>
                                 @endfor
@@ -101,7 +101,7 @@
                             <!-- Grup 2 (Grup 1'in birebir kopyası) -->
                             <div class="flex shrink-0" aria-hidden="true">
                                 @for($i = 0; $i < 3; $i++)
-                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 40px; margin-right: 140px;">
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
                                         {{ $product->name }}
                                     </h1>
                                 @endfor
@@ -111,7 +111,7 @@
 
                     {{-- Fiyat --}}
                     <div class="w-full h-0 overflow-hidden opacity-0 select-none" aria-hidden="true"><br></div>
-                    <div class="mt-4">
+                    <div class="mt-3 sm:mt-4">
                         <div class="flex items-center gap-3">
                             @php
                                 $displayPrice = $product->price;
@@ -123,12 +123,12 @@
                             @endphp
 
                             @if($displayDiscount)
-                                <p class="text-3xl font-bold text-red-600">{{ number_format($displayDiscount, 2) }} ₺</p>
+                                <p class="text-2xl sm:text-3xl font-bold text-red-600">{{ number_format($displayDiscount, 2) }} ₺</p>
                                 <p class="text-lg text-gray-400 line-through">{{ number_format($displayPrice, 2) }} ₺</p>
                                 @php $percent = round(($displayPrice - $displayDiscount) / $displayPrice * 100); @endphp
                                 <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-red-500 text-white">%{{ $percent }}</span>
                             @else
-                                <p class="text-3xl font-bold text-red-600">{{ number_format($displayPrice, 2) }} ₺</p>
+                                <p class="text-2xl sm:text-3xl font-bold text-red-600">{{ number_format($displayPrice, 2) }} ₺</p>
                             @endif
                         </div>
                         @if(!$product->inStock())
@@ -141,7 +141,7 @@
 
                     {{-- Taksit Bilgisi --}}
                     @if($product->has_installments)
-                        <div class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
+                        <div class="mt-3 sm:mt-4 p-3 sm:p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
                             <div class="text-emerald-500 mt-0.5">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                             </div>
@@ -158,7 +158,7 @@
 
                     {{-- Kısa açıklama --}}
                     @if($product->short_description)
-                    <div class="mt-5">
+                    <div class="mt-3 sm:mt-5">
                         <p class="text-sm text-gray-500 leading-relaxed">{{ $product->short_description }}</p>
                     </div>
                     @endif
@@ -169,7 +169,7 @@
                             $showVariantSelector = $product->requires_size !== false || $product->variants->count() > 1;
                         @endphp
                         @if($showVariantSelector)
-                        <div class="mt-6">
+                        <div class="mt-4 sm:mt-6">
                             <livewire:product.variant-selector :product="$product" />
                         </div>
                         @endif
@@ -225,7 +225,7 @@
                         $startFormatted = $startDate->day . ' ' . ($turkishMonths[$startDate->month] ?? '');
                         $endFormatted = $endDate->day . ' ' . ($turkishMonths[$endDate->month] ?? '');
                     @endphp
-                    <div class="mt-4 p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border border-emerald-100 rounded-xl flex items-center gap-3 shadow-xs">
+                    <div class="mt-3 sm:mt-4 p-3 sm:p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white border border-emerald-100 rounded-xl flex items-center gap-3 shadow-xs">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-base shrink-0 shadow-xs">
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
@@ -245,7 +245,7 @@
                          GÜVEN SİNYALLERİ — Minimalist
                     ======================================== --}}
                     @php $signals = $product->getTrustSignals(); @endphp
-                    <div class="mt-8 grid grid-cols-2 gap-2">
+                    <div class="mt-4 sm:mt-8 grid grid-cols-2 gap-1.5 sm:gap-2">
                         @php
                             $iconMap = [
                                 '🚚' => 'fa-solid fa-truck-fast',
@@ -267,7 +267,7 @@
                             ];
                         @endphp
                         @foreach($signals as $signal)
-                            <div class="flex items-center gap-3.5 px-4 py-3 rounded-lg border border-gray-100 bg-gray-50/50">
+                            <div class="flex items-center gap-3.5 px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-100 bg-gray-50/50">
                                 <i class="{{ $iconMap[$signal['icon']] ?? 'fa-solid fa-check' }} {{ $colorMap[$signal['color']] ?? 'text-gray-500' }} text-sm w-5 flex-shrink-0 text-center"></i>
                                 <span class="text-xs font-medium text-gray-700">{{ $signal['text'] }}</span>
                             </div>
@@ -277,7 +277,7 @@
                     {{-- ========================================
                          AKORDİYON — Minimalist
                     ======================================== --}}
-                    <div class="mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
+                    <div class="mt-4 sm:mt-8 divide-y divide-gray-100" x-data="{ openPanel: window.innerWidth < 1024 ? 'description' : '' }">
 
                         {{-- 1. ÖNE ÇIKAN ÖZELLİKLER --}}
                         @php $featureLabels = $product->getFeatureLabels(); @endphp

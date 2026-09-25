@@ -42,10 +42,10 @@
             this.zoomY = Math.max(0, Math.min(100, y));
         }
     }" 
-    class="flex flex-col md:flex-row gap-4 lg:gap-6 items-start relative z-10">
+    class="flex flex-col md:flex-row gap-2 sm:gap-4 lg:gap-6 items-start relative z-10">
     
     <!-- Thumbnails (Bottom on Mobile, Left on Desktop) -->
-    <div class="order-2 md:order-1 grid grid-cols-5 md:flex md:flex-col gap-2 md:gap-3 w-full md:w-24 lg:w-28 flex-shrink-0">
+    <div class="order-2 md:order-1 grid grid-cols-4 sm:grid-cols-5 md:flex md:flex-col gap-1.5 sm:gap-2 md:gap-3 w-full md:w-24 lg:w-28 flex-shrink-0">
         @forelse($product->images as $index => $image)
             <button @click="currentIndex = {{ $index }}; isZoomed = false;" 
                     type="button" 

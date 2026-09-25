@@ -32,7 +32,9 @@ body {
     max-width: 100vw;
 }
 
-/* Mobile: tam ekrana sığma */
+/* ============================================
+   MOBILE: Tam ekran sığdırma + kompakt boyutlar
+   ============================================ */
 @media (max-width: 767px) {
     html, body {
         overflow-x: hidden;
@@ -59,7 +61,7 @@ body {
         max-width: 100vw;
     }
 
-    /* Marquee ve slider hariç — bunlar kasıtlı taşma kullanır */
+    /* Marquee, slider, flex-row scroll hariç — kasıtlı taşma */
     .marquee-content,
     .marquee-content *,
     .animate-marquee-mobile,
@@ -67,8 +69,65 @@ body {
     .hide-scrollbar,
     .hide-scrollbar *,
     [class*="swiper"],
-    [class*="swiper"] * {
+    [class*="swiper"] *,
+    .overflow-x-auto,
+    .overflow-x-auto *,
+    .snap-x,
+    .snap-x * {
         max-width: none;
+    }
+
+    /* Prose img'ler mobilde tam genişlik */
+    .prose img {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0.75rem;
+    }
+
+    /* Grid layout'lar mobilde daha kompakt */
+    .grid {
+        gap: inherit;
+    }
+
+    /* Buton tap alanları minimum 44px */
+    button, a, [role="button"] {
+        min-height: 44px;
+    }
+
+    /* Küçük butonlar hariç (ikonlar, badge'ler) */
+    .text-\[10px\],
+    .text-\[11px\],
+    .text-\[9px\],
+    .pill-dot,
+    .badge-float,
+    span[class*="absolute"][class*="rounded-full"] {
+        min-height: auto;
+    }
+}
+
+/* ============================================
+   EXTRA SMALL PHONES (≤360px) — iPhone SE gibi
+   ============================================ */
+@media (max-width: 360px) {
+    /* Daha küçük padding'ler */
+    .px-4 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    /* Hero bölümü ekstra küçült */
+    .hero-title {
+        font-size: 2.2rem !important;
+    }
+
+    .hero-desc {
+        font-size: 0.875rem !important;
+    }
+
+    /* Footer grid tek sütuna düş */
+    footer .grid-cols-2 {
+        grid-template-columns: 1fr;
     }
 }
 
