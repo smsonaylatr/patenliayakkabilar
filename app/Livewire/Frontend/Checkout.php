@@ -777,7 +777,7 @@ class Checkout extends Component
         $cart = $cartService->getCart();
         if ($cart->items->count() === 0) {
             $this->dispatch('cart-updated');
-            $this->redirect(route('cart'));
+            $this->redirect('/');
             return;
         }
 
