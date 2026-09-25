@@ -321,15 +321,19 @@
                         <template x-if="recentProducts.length > 0">
                             <ul class="space-y-4">
                                 <template x-for="(rp, idx) in recentProducts" :key="rp.id">
-                                    <li class="flex items-center gap-4 group">
+                                    <li class="flex items-center gap-3 group">
                                         <a :href="'/urun/' + rp.slug" class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-50 border border-black/[0.04]">
                                             <img :src="rp.image" :alt="rp.name" class="w-full h-full object-cover" loading="lazy">
                                         </a>
                                         <div class="flex-1 min-w-0">
                                             <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
-                                            <div class="text-sm mt-1" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
+                                            <div class="text-sm mt-0.5" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
+                                            <button @click="$wire.quickAddToCart(rp.id)" class="inline-flex items-center gap-1 mt-1.5 px-3 py-1 bg-black text-white text-[11px] font-medium rounded-full hover:bg-black/80 transition-colors">
+                                                <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
+                                                Sepete Ekle
+                                            </button>
                                         </div>
-                                        <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="p-1.5 text-black/20 hover:text-red-400 transition-colors shrink-0" title="Kaldır">
+                                        <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="p-1.5 text-black/20 hover:text-red-400 transition-colors shrink-0 self-start" title="Kaldır">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </li>
