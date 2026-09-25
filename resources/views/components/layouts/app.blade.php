@@ -154,9 +154,7 @@
             <livewire:frontend.search-modal />
         @endpersist
 
-        @persist('mobile-catalog-wrapper')
-            <livewire:frontend.mobile-catalog />
-        @endpersist
+
         
         <main class="flex-grow page-transition-effect">
             {{ $slot }}

@@ -457,7 +457,7 @@
         $productPrice = number_format((float)($product->discount_price ?? $product->price), 2, '.', '');
     @endphp
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        (function() {
             try {
                 const product = {
                     id: {{ $product->id }},
@@ -471,8 +471,8 @@
                 viewed.unshift(product);
                 viewed = viewed.slice(0, 20);
                 localStorage.setItem('recently_viewed', JSON.stringify(viewed));
-            } catch(e) {}
-        });
+            } catch(e) { console.error('Recently viewed error:', e); }
+        })();
     </script>
 
 </x-layouts.app>
