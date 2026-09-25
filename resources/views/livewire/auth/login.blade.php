@@ -3,12 +3,12 @@
         .mobile-auth-spacing {
             min-height: unset !important;
             padding-top: 24px !important;
-            padding-bottom: 90px !important;
+            padding-bottom: 24px !important;
             align-items: flex-start !important;
         }
     }
 </style>
-<div class="min-h-screen bg-brand-light pb-28 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
+<div class="min-h-0 lg:min-h-screen bg-brand-light py-6 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
     <div class="container mx-auto px-3 sm:px-4 max-w-md w-full">
         
         <div class="bg-white/90 backdrop-blur-2xl border border-white/60 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
