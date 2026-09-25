@@ -581,6 +581,10 @@
         @if(request()->is('/'))
         <!-- Google Customer Reviews — Sadece anasayfada -->
         <style>
+            #gcr-badge-container {
+                transform: scale(1.2) !important;
+                transform-origin: bottom left !important;
+            }
             @media (max-width: 767px) {
                 #gcr-badge-container,
                 #gcr-badge-container iframe,
