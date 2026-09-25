@@ -41,7 +41,7 @@
 
                 <!-- CENTER (Logo on Mobile, Menu on Desktop) -->
                 <div class="flex flex-shrink-0 items-center justify-center md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0">
-                    <a href="{{ route('home') }}" class="md:hidden text-xl sm:text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
+                    <a href="{{ route('home') }}" class="md:hidden text-[22px] sm:text-2xl font-black text-gray-900 tracking-tighter uppercase" wire:navigate>
                         PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                     <!-- Desktop Menu -->
