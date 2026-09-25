@@ -396,73 +396,139 @@
         <livewire:frontend.site-popup />
 
         <!-- Mobile Catalog Modal -->
-        <div x-data="{ open: false }" 
+        <div x-data="{ 
+                open: false,
+                dragY: 0,
+                dragging: false,
+                closing: false,
+                touchStartY: 0,
+                startDrag(e) {
+                    if (window.innerWidth >= 768) return;
+                    this.touchStartY = e.touches[0].clientY;
+                    this.dragging = true;
+                    this.closing = false;
+                    this.dragY = 0;
+                },
+                onDrag(e) {
+                    if (!this.dragging) return;
+                    const diff = e.touches[0].clientY - this.touchStartY;
+                    this.dragY = Math.max(0, diff);
+                },
+                endDrag() {
+                    if (!this.dragging) return;
+                    this.dragging = false;
+                    if (this.dragY > 120) {
+                        this.closeCatalog();
+                    } else {
+                        this.dragY = 0;
+                    }
+                },
+                closeCatalog() {
+                    if (window.innerWidth < 768) {
+                        this.closing = true;
+                        this.dragY = window.innerHeight;
+                        setTimeout(() => {
+                            this.open = false;
+                            setTimeout(() => {
+                                this.dragY = 0;
+                                this.closing = false;
+                            }, 500);
+                        }, 400);
+                    } else {
+                        this.open = false;
+                    }
+                }
+            }" 
              x-init="$watch('open', value => {
                  if (value) document.body.classList.add('overflow-hidden');
                  else document.body.classList.remove('overflow-hidden');
              })"
+             @open-mobile-catalog.window="open = true"
              @toggle-catalog.window="open = !open" 
-             @keydown.escape.window="open = false"
-             class="relative z-40" 
+             @keydown.escape.window="closeCatalog()"
              x-cloak
-             x-show="open">
+             class="relative"
+             style="z-index: 9995;"
+             x-show="open"
+             style="display: none;">
             
+            <!-- Backdrop -->
             <div x-show="open" 
-                 x-transition.opacity 
-                 class="fixed inset-0 bg-black/60 backdrop-blur-sm" style="z-index: 9995;" 
-                 @click="open = false"></div>
+                 x-transition:enter="transition-opacity duration-500 ease-out" 
+                 x-transition:enter-start="opacity-0" 
+                 x-transition:enter-end="opacity-100" 
+                 x-transition:leave="transition-opacity duration-500 ease-in" 
+                 x-transition:leave-start="opacity-100" 
+                 x-transition:leave-end="opacity-0" 
+                 class="fixed inset-0 bg-black/60" 
+                 style="z-index: 9995;"
+                 @click="closeCatalog()"></div>
                  
-            <div x-show="open" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="translate-y-full"
-                 x-transition:enter-end="translate-y-0"
-                 x-transition:leave="transition ease-in duration-300"
-                 x-transition:leave-start="translate-y-0"
-                 x-transition:leave-end="translate-y-full"
-                 class="fixed inset-x-0 bottom-0 top-[20vh] md:top-[15vh] bg-white rounded-t-[2rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden" style="z-index: 9996;">
-                 
-                 <div class="px-6 py-8 border-b border-gray-100 flex flex-col justify-between relative">
-                    <button @click="open = false" aria-label="Kataloğu Kapat" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-black transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                    <div>
-                        <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">KOLEKSİYON / {{ date('Y') }}</p>
-                        <h2 class="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter">Katalog</h2>
-                    </div>
-                    <div class="mt-4">
-                        <a href="{{ route('products.index') }}" @click="open = false" wire:navigate class="inline-flex text-[11px] font-black text-gray-900 uppercase tracking-[0.2em] items-center gap-1.5 border-b-2 border-gray-900 pb-0.5 hover:text-brand-orange hover:border-brand-orange transition-colors">
-                            TÜM ÜRÜNLER
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                    </div>
-                 </div>
-                 
-                 <div class="flex-1 overflow-y-auto px-6 py-2 pb-24">
-                    @php
-                        $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories_v2', 3600, function () {
-                            return \App\Models\Category::where('status', true)->withCount(['products' => function($q) {
-                                $q->where('status', true);
-                            }])->orderBy('sort_order')->get();
-                        });
-                    @endphp
-                    
-                    <ul class="flex flex-col">
-                        @foreach($categories as $index => $category)
-                        <li class="border-b border-gray-100 last:border-0">
-                            <a href="{{ route('category.show', ['slug' => $category->slug]) }}" @click="open = false" wire:navigate class="flex items-center justify-between py-6 group">
-                                <div class="flex items-center gap-5 sm:gap-8">
-                                    <span class="text-sm font-bold text-gray-300 w-6">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                                    <span class="text-3xl sm:text-4xl font-black text-gray-900 group-hover:text-brand-orange transition-colors tracking-tight">{{ $category->name }}</span>
-                                </div>
-                                <div class="flex items-center gap-3 sm:gap-4">
-                                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap">{{ $category->products_count }} ÜRÜN</span>
-                                    <svg class="w-5 h-5 text-gray-300 group-hover:text-brand-orange transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                </div>
+            <!-- Drawer Container -->
+            <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-[15vh] pointer-events-none flex items-end" style="z-index: 9996;">
+                <div x-show="open" 
+                     x-transition:enter="transition-all duration-500 ease-[cubic-bezier(.32,.72,0,1)]" 
+                     x-transition:enter-start="translate-y-full opacity-95" 
+                     x-transition:enter-end="translate-y-0 opacity-100" 
+                     x-transition:leave="transition-all duration-300 ease-[cubic-bezier(.32,.72,0,1)]" 
+                     x-transition:leave-start="translate-y-0 opacity-100" 
+                     x-transition:leave-end="translate-y-full opacity-0" 
+                     class="pointer-events-auto w-full h-full shadow-2xl rounded-t-3xl overflow-hidden"
+                     style="will-change: transform; transform: translateZ(0); backface-visibility: hidden;">
+
+                    <div class="flex flex-col h-full bg-white rounded-t-[24px] overflow-hidden shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
+                         :style="dragging ? 'transform: translateY(' + dragY + 'px); transition: none;' : (closing ? 'transform: translateY(' + dragY + 'px); transition: transform 0.4s ease-out;' : (dragY > 0 ? 'transform: translateY(' + dragY + 'px); transition: transform 0.3s ease;' : 'transition: transform 0.3s ease;'))"
+                         @touchend="endDrag()" @touchcancel="endDrag()">
+                        
+                        <!-- Drag Pill (Mobile) -->
+                        <div class="flex justify-center pt-[10px] pb-1 md:hidden shrink-0 cursor-grab active:cursor-grabbing"
+                             @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)"
+                             style="touch-action: none;">
+                            <div class="w-12 h-1 rounded-full bg-black/[0.06]"></div>
+                        </div>
+
+                        <!-- Header -->
+                        <div class="shrink-0 px-5 pt-4 pb-5 border-b border-black/[0.06] flex items-start justify-between"
+                             @touchstart="startDrag($event)" @touchmove.prevent="onDrag($event)">
+                            <div>
+                                <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-1">KOLEKSİYON / {{ date('Y') }}</p>
+                                <h2 class="text-2xl font-black text-gray-900 tracking-tighter">Katalog</h2>
+                            </div>
+                            <a href="{{ route('products.index') }}" @click="open = false" wire:navigate class="inline-flex text-[11px] font-black text-gray-900 uppercase tracking-[0.15em] items-center gap-1.5 border-b-2 border-gray-900 pb-0.5 hover:text-brand-orange hover:border-brand-orange transition-colors mt-3">
+                                TÜM ÜRÜNLER
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </a>
-                        </li>
-                        @endforeach
-                    </ul>
-                 </div>
+                        </div>
+                     
+                        <!-- Content -->
+                        <div class="flex-1 overflow-y-auto px-5 py-2 pb-24">
+                            @php
+                                $categories = \Illuminate\Support\Facades\Cache::remember('mobile_catalog_categories_v2', 3600, function () {
+                                    return \App\Models\Category::where('status', true)->withCount(['products' => function($q) {
+                                        $q->where('status', true);
+                                    }])->orderBy('sort_order')->get();
+                                });
+                            @endphp
+                            
+                            <ul class="flex flex-col">
+                                @foreach($categories as $index => $category)
+                                <li class="border-b border-gray-100 last:border-0">
+                                    <a href="{{ route('category.show', ['slug' => $category->slug]) }}" @click="open = false" wire:navigate class="flex items-center justify-between py-5 group">
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-sm font-bold text-gray-300 w-6">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                                            <span class="text-2xl font-black text-gray-900 group-hover:text-brand-orange transition-colors tracking-tight">{{ $category->name }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap">{{ $category->products_count }} ÜRÜN</span>
+                                            <svg class="w-5 h-5 text-gray-300 group-hover:text-brand-orange transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                        </div>
+                                    </a>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Telefonla Arama Widget'ı -->
