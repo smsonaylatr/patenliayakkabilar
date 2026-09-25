@@ -334,27 +334,29 @@
                                         <div class="flex-1 min-w-0">
                                             <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2 hover:underline" x-text="rp.name"></a>
                                             <div class="text-sm mt-0.5" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></div>
+                                        </div>
+                                        <div class="shrink-0 flex flex-col items-center gap-2">
                                             <button @click="addRecentToCart(rp.id)" 
-                                                :class="addedRecentId === rp.id ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-black hover:bg-black/80'"
-                                                class="inline-flex items-center gap-0.5 mt-1 px-2.5 py-0.5 text-white text-[10px] font-medium rounded-full transition-all duration-300"
+                                                :class="addedRecentId === rp.id ? 'bg-emerald-600 border-emerald-600' : 'bg-black border-black hover:bg-black/80'"
+                                                class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300"
                                                 :disabled="addedRecentId === rp.id">
                                                 <template x-if="addedRecentId !== rp.id">
-                                                    <span class="inline-flex items-center gap-0.5">
+                                                    <span class="inline-flex items-center gap-1">
                                                         <svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
-                                                        Sepete Ekle
+                                                        Ekle
                                                     </span>
                                                 </template>
                                                 <template x-if="addedRecentId === rp.id">
-                                                    <span class="inline-flex items-center gap-0.5">
+                                                    <span class="inline-flex items-center gap-1">
                                                         <svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6L5 8.5L9.5 3.5"/></svg>
                                                         Eklendi
                                                     </span>
                                                 </template>
                                             </button>
+                                            <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="text-black/20 hover:text-red-400 transition-colors" title="Kaldır">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
                                         </div>
-                                        <button @click="recentProducts.splice(idx, 1); localStorage.setItem('recently_viewed', JSON.stringify(recentProducts))" class="p-1.5 text-black/20 hover:text-red-400 transition-colors shrink-0 self-start" title="Kaldır">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
                                     </li>
                                 </template>
                             </ul>
