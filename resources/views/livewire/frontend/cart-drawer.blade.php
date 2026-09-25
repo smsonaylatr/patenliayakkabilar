@@ -5,6 +5,8 @@
         notePanel: false,
         shippingPanel: false,
         discountPanel: false,
+        recentProducts: [],
+        loadRecent() { try { this.recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) { this.recentProducts = []; } },
         dragY: 0,
         dragging: false,
         closing: false,
@@ -117,7 +119,7 @@
                             @endif
                         </button>
                         <!-- İnceledikleriniz Tab -->
-                        <button @click="activeTab = 'recent'" 
+                        <button @click="activeTab = 'recent'; loadRecent()" 
                                 :class="activeTab === 'recent' ? 'opacity-100' : 'opacity-[0.2] hover:opacity-100'"
                                 class="transition-opacity duration-300">
                             <span class="text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">İnceledikleriniz</span>
@@ -305,10 +307,7 @@
                     </div>
 
                     <!-- Recently Viewed Panel -->
-                    <div x-show="activeTab === 'recent'" class="flex-1 overflow-y-auto px-5 lg:px-12 py-6"
-                         x-data="{ recentProducts: [] }"
-                         x-init="$watch('activeTab', val => { if(val === 'recent') { try { recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) { recentProducts = []; } } })"
-                         x-effect="if(activeTab === 'recent' && recentProducts.length === 0) { try { recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) {} }">
+                    <div x-show="activeTab === 'recent'" class="flex-1 overflow-y-auto px-5 lg:px-12 py-6">
 
                         <!-- Boş Durum -->
                         <template x-if="recentProducts.length === 0">
