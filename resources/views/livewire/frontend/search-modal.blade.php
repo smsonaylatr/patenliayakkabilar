@@ -35,6 +35,7 @@
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" 
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-2xl"
+                style="transform: scale(0.8); transform-origin: top center;"
                 @click.away="open = false"
             >
                 <div class="p-2 sm:p-4">
