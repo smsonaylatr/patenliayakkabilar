@@ -298,6 +298,14 @@ html, body {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
+
+    /* Tablet Sidebar Çekmecesi */
+    aside.fi-sidebar,
+    .fi-sidebar {
+        width: min(88vw, 480px) !important;
+        max-width: 480px !important;
+        height: 100dvh !important;
+    }
 }
 
 /* ==========================================================================
