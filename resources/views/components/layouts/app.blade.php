@@ -681,6 +681,71 @@
             </div>
         </div>
 
+        <!-- Global Share Product Helper -->
+        <script>
+            window.shareProduct = function(title, url, text) {
+                url = url || window.location.href;
+                title = title || document.title;
+                text = text || (title ? (title + ' - Patenli Ayakkabılar') : 'Patenli Ayakkabılar');
+
+                var triggerNotification = function(msg, type) {
+                    window.dispatchEvent(new CustomEvent('show-notification', {
+                        detail: { message: msg || 'Ürün bağlantısı panoya kopyalandı!', type: type || 'success' }
+                    }));
+                };
+
+                var copyFallback = function() {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(url).then(function() {
+                            triggerNotification('Ürün bağlantısı panoya kopyalandı! İstediğiniz yerde paylaşabilirsiniz.', 'success');
+                        }).catch(function() {
+                            legacyExecCopy();
+                        });
+                    } else {
+                        legacyExecCopy();
+                    }
+                };
+
+                var legacyExecCopy = function() {
+                    var textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
+                    textArea.style.left = "-9999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        var successful = document.execCommand('copy');
+                        if (successful) {
+                            triggerNotification('Ürün bağlantısı kopyalandı!', 'success');
+                        } else {
+                            prompt('Ürün bağlantısını kopyalayın:', url);
+                        }
+                    } catch (err) {
+                        prompt('Ürün bağlantısını kopyalayın:', url);
+                    }
+                    document.body.removeChild(textArea);
+                };
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: title,
+                        text: text,
+                        url: url
+                    }).then(function() {
+                        // Paylaşıldı
+                    }).catch(function(err) {
+                        if (err && err.name !== 'AbortError') {
+                            copyFallback();
+                        }
+                    });
+                } else {
+                    copyFallback();
+                }
+            };
+        </script>
+
         {{-- Floating Social Sidebar + İndirim Kuponu --}}
         @include('components.frontend.floating-sidebar')
     </body>
