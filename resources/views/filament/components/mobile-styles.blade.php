@@ -15,6 +15,76 @@ html, body {
    2. MASAÜSTÜ & BÜYÜK EKRANLAR (min-width: 1024px)
    ========================================================================== */
 @media (min-width: 1024px) {
+    /* Masaüstü Ana Gövde (Body / Main) İdeal Ölçüleri: 15rem Sidebar ile Kusursuz Uyum */
+    .fi-main {
+        padding-top: 14px !important;
+        padding-bottom: 24px !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        max-width: 100% !important;
+    }
+
+    .fi-page-header-main-ctn {
+        padding-top: 2px !important;
+        padding-bottom: 8px !important;
+        gap: 10px !important;
+    }
+
+    .fi-page-content {
+        gap: 12px !important;
+    }
+
+    /* Sayfa Başlığı ve Breadcrumbs */
+    .fi-header {
+        gap: 8px !important;
+    }
+
+    .fi-header-heading {
+        font-size: 1.35rem !important;
+        line-height: 1.25 !important;
+        font-weight: 700 !important;
+    }
+
+    .fi-breadcrumbs {
+        margin-bottom: 2px !important;
+    }
+
+    .fi-breadcrumbs-item-label {
+        font-size: 0.75rem !important;
+    }
+
+    /* Üst Aksiyon Butonları */
+    .fi-header-actions-ctn {
+        gap: 8px !important;
+    }
+
+    .fi-header-actions-ctn .fi-btn {
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 4px 12px !important;
+        font-size: 0.78rem !important;
+        border-radius: 8px !important;
+    }
+
+    /* Filtre Sekmeleri (Tabs / Pills) */
+    .fi-tabs {
+        padding: 3px !important;
+        gap: 4px !important;
+    }
+
+    .fi-tabs-item-btn {
+        height: 30px !important;
+        padding: 3px 10px !important;
+        font-size: 0.78rem !important;
+        border-radius: 7px !important;
+    }
+
+    .fi-tabs-item-badge {
+        font-size: 0.68rem !important;
+        padding: 1px 6px !important;
+        border-radius: 9999px !important;
+    }
+
     /* Masaüstü Tablo Konteyneri */
     .fi-ta-ctn,
     .fi-ta-content,
@@ -33,27 +103,33 @@ html, body {
         table-layout: auto !important;
     }
 
-    /* Masaüstü Başlıklar & Hücreler */
+    /* Masaüstü Başlıklar & Hücreler (Sidebar ile Dengeli Kompakt Yoğunluk) */
     .fi-ta-header-cell {
-        font-size: 0.78rem !important;
+        font-size: 0.72rem !important;
         font-weight: 700 !important;
         letter-spacing: 0.04em !important;
         text-transform: uppercase !important;
-        padding: 12px 10px !important;
+        padding: 8px 10px !important;
         white-space: nowrap !important;
     }
 
     .fi-ta-cell {
-        font-size: 0.85rem !important;
-        padding: 10px 10px !important;
+        font-size: 0.8rem !important;
+        padding: 6px 10px !important;
         white-space: nowrap !important;
         vertical-align: middle !important;
     }
 
+    .fi-ta-text-item-description {
+        font-size: 0.72rem !important;
+        line-height: 1.15 !important;
+    }
+
     .fi-ta-cell .fi-badge {
-        font-size: 0.75rem !important;
-        padding: 3px 8px !important;
-        border-radius: 6px !important;
+        font-size: 0.7rem !important;
+        padding: 2px 7px !important;
+        border-radius: 5px !important;
+        line-height: 1.25 !important;
     }
 
     .fi-ta-row {
@@ -73,13 +149,13 @@ html, body {
     .fi-ta-actions-cell {
         width: auto !important;
         white-space: nowrap !important;
-        padding: 8px 12px !important;
+        padding: 4px 8px !important;
     }
 
     .fi-ta-actions {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 6px !important;
+        gap: 4px !important;
         justify-content: flex-end !important;
         width: auto !important;
     }
@@ -87,8 +163,8 @@ html, body {
     .fi-ta-actions button,
     .fi-ta-actions a,
     .fi-ta-actions .fi-icon-btn {
-        padding: 5px !important;
-        border-radius: 8px !important;
+        padding: 4px !important;
+        border-radius: 6px !important;
         transition: transform 0.15s ease, background-color 0.15s ease !important;
     }
 
@@ -97,29 +173,29 @@ html, body {
     }
 
     .fi-ta-actions svg {
-        width: 18px !important;
-        height: 18px !important;
+        width: 16px !important;
+        height: 16px !important;
     }
 
-    /* Masaüstü Üst Araç Çubuğu */
+    /* Masaüstü Üst Araç Çubuğu (Search & Filters) */
     .fi-ta-header-toolbar {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: 12px !important;
-        padding: 12px 16px !important;
+        gap: 8px !important;
+        padding: 8px 12px !important;
     }
 
     .fi-ta-search-field {
-        min-width: 280px !important;
-        max-width: 420px !important;
+        min-width: 220px !important;
+        max-width: 320px !important;
     }
 
     .fi-ta-search-field input {
-        font-size: 14px !important;
-        height: 38px !important;
-        border-radius: 8px !important;
+        font-size: 0.8rem !important;
+        height: 32px !important;
+        border-radius: 7px !important;
     }
 
     /* Masaüstü Dashboard & Stats Overview Grid */
