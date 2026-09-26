@@ -243,24 +243,6 @@
                     </div>
 
                     {{-- ========================================
-                         AEO: HIZLI BİLGİLER / AI ÖZETİ (TL;DR)
-                    ======================================== --}}
-                    @php
-                        $aeoSummary = app(\App\Services\AiShoppingService::class)->getAeoSummaryText($product);
-                    @endphp
-                    <div class="mt-4 p-3.5 sm:p-4 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white border border-blue-100 rounded-xl shadow-2xs" data-aeo="summary" data-ai-context="quick_facts">
-                        <div class="flex items-center gap-2 mb-1.5">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-blue-700 bg-blue-100/90 px-2 py-0.5 rounded">
-                                ✨ AI Hızlı Ürün Özeti
-                            </span>
-                            <span class="text-[10px] text-gray-500 font-medium">Satın alma öncesi 30 saniyelik özet</span>
-                        </div>
-                        <p class="text-xs text-gray-700 leading-relaxed font-normal">
-                            {{ $aeoSummary }}
-                        </p>
-                    </div>
-
-                    {{-- ========================================
                          GÜVEN SİNYALLERİ — Minimalist
                     ======================================== --}}
                     @php $signals = $product->getTrustSignals(); @endphp
@@ -523,6 +505,9 @@
             } catch(e) { console.error('Recently viewed error:', e); }
         })();
     </script>
+    @php
+        $aeoSummary = app(\App\Services\AiShoppingService::class)->getAeoSummaryText($product);
+    @endphp
     <!-- Embedded Machine-Readable Context for LLMs (OpenAI, Anthropic, Perplexity, Gemini) -->
     <script type="text/markdown" id="ai-product-context">
     # {{ $product->name }}
