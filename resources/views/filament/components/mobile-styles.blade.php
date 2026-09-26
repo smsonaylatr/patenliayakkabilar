@@ -37,69 +37,205 @@ html, body {
     }
 }
 
-/* 2. MASAÜSTÜ TABLO DÜZENİ (Mevcut kararlılığı koruma) */
+/* 2. MASAÜSTÜ RESPONSIVE MOTORU (Laptop, Desktop & Geniş Ekranlar) */
 @media (min-width: 769px) {
+    /* Masaüstü Tablo Konteyneri: Taşmaları kesmez, akıcı yatay kaydırma sağlar */
     .fi-ta-ctn,
     .fi-ta-content,
     .fi-ta-content-ctn,
-    .fi-ta-table-container {
-        overflow-x: hidden !important;
+    .fi-ta-table-container,
+    .fi-ta-table-ctn {
+        overflow-x: auto !important;
         width: 100% !important;
         max-width: 100% !important;
+        scrollbar-width: thin !important;
     }
 
     .fi-ta-table {
         width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
+        min-width: 100% !important;
         table-layout: auto !important;
+    }
+
+    /* Masaüstü Tablo Başlıkları: Okunaklı, şık ve ferah */
+    .fi-ta-header-cell {
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.04em !important;
+        text-transform: uppercase !important;
+        padding: 12px 10px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Masaüstü Tablo Hücreleri */
+    .fi-ta-cell {
+        font-size: 0.85rem !important;
+        padding: 10px 10px !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+    }
+
+    .fi-ta-cell .fi-badge {
+        font-size: 0.75rem !important;
+        padding: 3px 8px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Satır Hover Efekti */
+    .fi-ta-row {
+        transition: background-color 0.15s ease !important;
+    }
+
+    .fi-ta-row:hover {
+        background-color: rgba(241, 245, 249, 0.7) !important;
+    }
+
+    .dark .fi-ta-row:hover {
+        background-color: rgba(30, 41, 59, 0.5) !important;
+    }
+
+    /* Masaüstü Aksiyon Butonları */
+    td.fi-ta-actions-cell,
+    .fi-ta-actions-cell {
+        width: auto !important;
+        white-space: nowrap !important;
+        padding: 8px 12px !important;
+    }
+
+    .fi-ta-actions {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        justify-content: flex-end !important;
+        width: auto !important;
+    }
+
+    .fi-ta-actions button,
+    .fi-ta-actions a,
+    .fi-ta-actions .fi-icon-btn {
+        padding: 5px !important;
+        border-radius: 8px !important;
+        transition: transform 0.15s ease, background-color 0.15s ease !important;
+    }
+
+    .fi-ta-actions .fi-icon-btn:hover {
+        transform: scale(1.1) !important;
+    }
+
+    .fi-ta-actions svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    /* Masaüstü Üst Araç Çubuğu (Arama ve Filtreler) */
+    .fi-ta-header-toolbar {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        padding: 12px 16px !important;
+    }
+
+    .fi-ta-search-field {
+        min-width: 280px !important;
+        max-width: 420px !important;
+    }
+
+    .fi-ta-search-field input {
+        font-size: 14px !important;
+        height: 38px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Masaüstü Kartlar & Form Bölümleri */
+    .fi-section {
+        border-radius: 14px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Masaüstü Modallar */
+    .fi-modal-window {
+        border-radius: 16px !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        max-height: 90vh !important;
+    }
+
+    .fi-modal-content,
+    .fi-modal-body {
+        max-height: calc(85vh - 130px) !important;
+        scrollbar-width: thin !important;
+    }
+
+    /* Masaüstü Şık Kaydırma Çubuğu */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.35);
+        border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(100, 116, 139, 0.6);
+    }
+    .dark ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.22);
+    }
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.45);
     }
 }
 
-/* 3. TABLO GENEL HÜCRE & AKSİYON DÜZENİ */
-.fi-ta-header-cell {
-    font-size: 0.72rem !important;
-    padding: 8px 6px !important;
-    white-space: nowrap !important;
-}
+/* 3. MOBİL TABLO HÜCRE & AKSİYON DÜZENİ (Sadece 768px ve altı) */
+@media (max-width: 768px) {
+    .fi-ta-header-cell {
+        font-size: 0.72rem !important;
+        padding: 8px 6px !important;
+        white-space: nowrap !important;
+    }
 
-.fi-ta-cell {
-    font-size: 0.8rem !important;
-    padding: 8px 6px !important;
-    white-space: nowrap !important;
-}
+    .fi-ta-cell {
+        font-size: 0.8rem !important;
+        padding: 8px 6px !important;
+        white-space: nowrap !important;
+    }
 
-.fi-ta-cell .fi-badge {
-    font-size: 0.7rem !important;
-    padding: 2px 6px !important;
-}
+    .fi-ta-cell .fi-badge {
+        font-size: 0.7rem !important;
+        padding: 2px 6px !important;
+    }
 
-.fi-ta-actions button,
-.fi-ta-actions a,
-.fi-ta-actions .fi-icon-btn {
-    padding: 3px !important;
-}
+    .fi-ta-actions button,
+    .fi-ta-actions a,
+    .fi-ta-actions .fi-icon-btn {
+        padding: 3px !important;
+    }
 
-.fi-ta-actions svg {
-    width: 16px !important;
-    height: 16px !important;
-}
+    .fi-ta-actions svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
 
-/* Aksiyon Butonlarını Sola Yanaştırma */
-td.fi-ta-actions-cell,
-.fi-ta-actions-cell {
-    width: 1px !important;
-    white-space: nowrap !important;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-}
+    td.fi-ta-actions-cell,
+    .fi-ta-actions-cell {
+        width: 1px !important;
+        white-space: nowrap !important;
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
 
-.fi-ta-actions {
-    display: flex !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    gap: 4px !important;
-    width: auto !important;
+    .fi-ta-actions {
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: 4px !important;
+        width: auto !important;
+    }
 }
 
 /* 4. MOBİL TABLOLAR (Siparişler, Ürünler, vb.) */
@@ -338,6 +474,35 @@ td.fi-ta-actions-cell,
 }
 
 /* 9. STATS OVERVIEW & DASHBOARD WIDGETLARI */
+@media (min-width: 1280px) {
+    .fi-wi-stats-overview {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1279px) {
+    .fi-wi-stats-overview {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .fi-wi-stats-overview-stat {
+        padding: 18px 20px !important;
+        border-radius: 14px !important;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .fi-wi-stats-overview-stat:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+    }
+    .dark .fi-wi-stats-overview-stat:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35) !important;
+    }
+}
+
 @media (max-width: 640px) {
     .fi-wi-stats-overview {
         grid-template-columns: repeat(2, 1fr) !important;

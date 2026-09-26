@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white rounded-t-2xl border-b border-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+    <header x-data="{ mobileMenuOpen: false }" @open-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" class="sticky top-0 z-40 bg-white rounded-t-2xl md:rounded-t-none border-b border-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 sm:h-20 relative">
                 <!-- LEFT SIDE (Hamburger on Mobile, Logo on Desktop) -->
@@ -45,7 +45,7 @@
                         PATENLİ<span class="font-light">AYAKKABILAR&reg;</span>
                     </a>
                     <!-- Desktop Menu -->
-                    <nav class="hidden md:flex space-x-6 lg:space-x-10 items-center">
+                    <nav class="hidden md:flex space-x-5 lg:space-x-8 xl:space-x-10 items-center">
                         <a href="{{ route('home') }}" class="text-[13px] font-medium text-gray-900 hover:text-gray-500 uppercase tracking-widest transition-colors" wire:navigate>Ana Sayfa</a>
                         
                         <!-- Premium Catalog Dropdown -->
