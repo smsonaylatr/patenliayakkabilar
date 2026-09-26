@@ -103,12 +103,16 @@ class ActiveVisitor extends Model
 
     public function getCurrentProductAttribute(): ?\App\Models\Product
     {
-        if (preg_match('#/urun/([^/?#]+)#', $this->current_path, $matches)) {
-            $slug = $matches[1];
-            if (!array_key_exists($slug, static::$productCache)) {
-                static::$productCache[$slug] = \App\Models\Product::where('slug', $slug)->with('images')->first();
+        if (!empty($this->current_path) && str_starts_with($this->current_path, '/urun/')) {
+            $parts = explode('/', trim($this->current_path, '/'));
+            $slug = $parts[1] ?? null;
+            if ($slug) {
+                $slug = explode('?', $slug)[0];
+                if (!array_key_exists($slug, static::$productCache)) {
+                    static::$productCache[$slug] = \App\Models\Product::where('slug', $slug)->with('images')->first();
+                }
+                return static::$productCache[$slug];
             }
-            return static::$productCache[$slug];
         }
         return null;
     }
