@@ -138,155 +138,198 @@ class ActiveVisitors extends Page implements HasTable
                     ->latest('last_heartbeat_at')
             )
             ->columns([
-                // 1. Durum / Sinyal
-                TextColumn::make('status')
-                    ->label('Durum')
-                    ->getStateUsing(function (ActiveVisitor $record) {
-                        $isOnline = $record->is_currently_online;
-                        $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'bilinmiyor';
-
-                        if ($isOnline) {
-                            return new HtmlString('
-                                <div class="flex items-center gap-1.5">
-                                    <span class="relative flex h-3 w-3">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                                    </span>
-                                    <span class="font-semibold text-emerald-600 dark:text-emerald-400 text-xs">Canlı</span>
-                                    <span class="text-gray-400 text-xs">(' . $diff . ')</span>
-                                </div>
-                            ');
-                        }
-
-                        return new HtmlString('
-                            <div class="flex items-center gap-1.5">
-                                <span class="inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
-                                <span class="text-amber-600 dark:text-amber-400 text-xs">Ayrıldı</span>
-                                <span class="text-gray-400 text-xs">(' . $diff . ')</span>
-                            </div>
-                        ');
-                    }),
-
-                // 2. Müşteri / Ziyaretçi Kimliği
-                TextColumn::make('display_name')
-                    ->label('Ziyaretçi')
+                // 1. Ziyaretçi Kimliği & Canlı Sinyal
+                TextColumn::make('visitor_identity')
+                    ->label('Ziyaretçi & Sinyal')
                     ->searchable(['ip_address', 'user.name', 'user.email'])
                     ->getStateUsing(function (ActiveVisitor $record) {
-                        if ($record->user_id && $record->user) {
-                            return new HtmlString('
-                                <div>
-                                    <div class="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                                        <span>' . e($record->user->name) . '</span>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">Üye</span>
+                        $isOnline = $record->is_currently_online;
+                        $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
+                        $deviceIcon = match ($record->device_type) {
+                            'mobile' => '📱',
+                            'tablet' => '📟',
+                            default => '💻',
+                        };
+
+                        $name = $record->user_id && $record->user ? e($record->user->name) : $record->display_name;
+                        $isMember = $record->user_id && $record->user;
+                        $initial = mb_substr($name, 0, 1);
+                        $duration = $record->duration_formatted;
+                        $pageCount = $record->page_views_count ?: 1;
+
+                        $onlineBadge = $isOnline
+                            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);"><span class="live-radar-dot" style="width:7px;height:7px;"></span> CANLI</span>'
+                            : '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">AYRILDI (' . $diff . ')</span>';
+
+                        return new HtmlString('
+                            <div style="display:flex;align-items:flex-start;gap:12px;min-width:210px;">
+                                <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff4e00,#b45309);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(255,78,0,0.35);">
+                                    ' . $initial . '
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                        <span style="font-weight:800;color:#f8fafc;font-size:13px;">' . $name . '</span>
+                                        ' . ($isMember ? '<span style="background:rgba(255,78,0,0.25);color:#ff7849;border:1px solid rgba(255,78,0,0.4);padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;">ÜYE</span>' : '') . '
                                     </div>
-                                    <div class="text-xs text-gray-500">' . e($record->user->email) . '</div>
+                                    <div style="margin-bottom:4px;">
+                                        ' . $onlineBadge . '
+                                    </div>
+                                    <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;">
+                                        <span>' . $deviceIcon . ' ' . e($record->browser ?? 'Tarayıcı') . '</span>
+                                        <span>•</span>
+                                        <span style="font-family:monospace;color:#64748b;">' . e($record->ip_address) . '</span>
+                                    </div>
+                                    <div style="font-size:10px;color:#64748b;margin-top:2px;">
+                                        ⏱️ ' . $duration . ' (' . $pageCount . '. sayfa)
+                                    </div>
+                                </div>
+                            </div>
+                        ');
+                    }),
+
+                // 2. Bulunduğu Sayfa & İncelenen Ürün
+                TextColumn::make('current_path')
+                    ->label('Bulunduğu Sayfa & Model')
+                    ->searchable(['current_title', 'current_path'])
+                    ->getStateUsing(function (ActiveVisitor $record) {
+                        $product = $record->current_product;
+                        $productImage = $record->current_product_image;
+                        $title = $product ? $product->name : ($record->current_title ?: $record->current_path);
+                        $url = $record->current_url ?: $record->current_path;
+
+                        // Beden seçimi veya son hareket
+                        $recentDetail = null;
+                        if (!empty($record->journey_trail)) {
+                            foreach (array_reverse($record->journey_trail) as $step) {
+                                if (!empty($step['detail'])) {
+                                    $recentDetail = $step['detail'];
+                                    break;
+                                }
+                            }
+                        }
+
+                        $isCheckout = str_contains($record->current_path, 'checkout');
+
+                        if ($product) {
+                            $price = $product->discount_price ?: $product->price;
+                            $imgHtml = $productImage
+                                ? '<img src="' . e($productImage) . '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" />'
+                                : '<div style="width:48px;height:48px;border-radius:10px;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👟</div>';
+
+                            return new HtmlString('
+                                <div style="display:flex;align-items:center;gap:12px;max-width:280px;">
+                                    ' . $imgHtml . '
+                                    <div style="overflow:hidden;">
+                                        <a href="' . e($url) . '" target="_blank" style="font-weight:700;color:#ff7849;font-size:12px;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            ' . e($title) . ' ↗
+                                        </a>
+                                        <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
+                                            <span style="font-weight:800;color:#22c55e;font-size:12px;">' . number_format($price, 2) . ' ₺</span>
+                                            <span style="font-size:10px;color:#94a3b8;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;">İnceliyor</span>
+                                        </div>
+                                        ' . ($recentDetail ? '<div style="font-size:11px;color:#fbbf24;font-weight:700;margin-top:2px;">🎯 ' . e($recentDetail) . '</div>' : '') . '
+                                    </div>
                                 </div>
                             ');
                         }
 
-                        $shortToken = strtoupper(substr(str_replace(['pa_vt_', '-'], '', $record->visitor_token), 0, 6));
-                        return new HtmlString('
-                            <div>
-                                <div class="font-bold text-gray-700 dark:text-gray-300">Misafir #' . $shortToken . '</div>
-                                <div class="text-xs text-gray-400 font-mono">' . e($record->ip_address) . '</div>
-                            </div>
-                        ');
-                    }),
-
-                // 3. Cihaz & Tarayıcı
-                TextColumn::make('device_type')
-                    ->label('Cihaz')
-                    ->getStateUsing(function (ActiveVisitor $record) {
-                        $deviceIcon = match ($record->device_type) {
-                            'mobile' => '📱 Mobil',
-                            'tablet' => '📟 Tablet',
-                            default => '💻 Masaüstü',
-                        };
+                        if ($isCheckout) {
+                            return new HtmlString('
+                                <div style="display:flex;align-items:center;gap:10px;max-width:260px;">
+                                    <div style="width:44px;height:44px;border-radius:10px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
+                                        🛒
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:800;color:#38bdf8;font-size:12px;">Ödeme Sayfası (Checkout)</div>
+                                        <div style="font-size:11px;color:#10b981;font-weight:700;margin-top:2px;">
+                                            Sepet Tutarını Tamamlıyor: ' . number_format($record->cart_total, 2) . ' ₺
+                                        </div>
+                                    </div>
+                                </div>
+                            ');
+                        }
 
                         return new HtmlString('
-                            <div class="text-xs">
-                                <div class="font-medium text-gray-800 dark:text-gray-200">' . $deviceIcon . '</div>
-                                <div class="text-gray-400">' . e($record->browser ?? 'Tarayıcı') . ' (' . e($record->operating_system ?? 'OS') . ')</div>
-                            </div>
-                        ');
-                    }),
-
-                // 4. Bulunduğu Sayfa
-                TextColumn::make('current_path')
-                    ->label('Bulunduğu Sayfa')
-                    ->searchable(['current_title', 'current_path'])
-                    ->getStateUsing(function (ActiveVisitor $record) {
-                        $title = $record->current_title ?: $record->current_path;
-                        $url = $record->current_url ?: $record->current_path;
-                        $pageViews = $record->page_views_count ?: 1;
-                        $duration = $record->duration_formatted;
-
-                        return new HtmlString('
-                            <div class="max-w-xs">
-                                <a href="' . e($url) . '" target="_blank" class="font-semibold text-xs text-orange-600 dark:text-orange-400 hover:underline line-clamp-1 flex items-center gap-1">
-                                    ' . e($title) . '
-                                    <span class="text-[10px] text-gray-400">↗</span>
-                                </a>
-                                <div class="text-[11px] text-gray-400 mt-0.5">
-                                    ' . $pageViews . '. sayfa • ' . $duration . ' süredir sitede
+                            <div style="display:flex;align-items:center;gap:10px;max-width:260px;">
+                                <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                                    📄
+                                </div>
+                                <div style="overflow:hidden;">
+                                    <a href="' . e($url) . '" target="_blank" style="font-weight:700;color:#cbd5e1;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        ' . e($title) . ' ↗
+                                    </a>
+                                    <div style="font-size:10px;color:#64748b;margin-top:2px;font-family:monospace;">' . e($record->current_path) . '</div>
                                 </div>
                             </div>
                         ');
                     }),
 
-                // 5. Davranış Teşhisi & Niyet Skoru
+                // 3. Davranış Teşhisi & Satın Alma Niyeti
                 TextColumn::make('behavior_insight')
-                    ->label('Davranış Yorumu & Niyet')
+                    ->label('Davranış Teşhisi & Niyet')
                     ->getStateUsing(function (ActiveVisitor $record) {
                         $score = $record->intent_score ?? 15;
-                        $insight = $record->behavior_insight ?? 'Keşif aşamasında.';
+                        $insight = $record->behavior_insight ?? 'Sitede genel keşif yapıyor.';
 
-                        $badgeColor = match (true) {
-                            $score >= 80 => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-                            $score >= 60 => 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-                            $score >= 40 => 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
-                            default => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+                        $color = match (true) {
+                            $score >= 80 => '#10b981',
+                            $score >= 60 => '#f59e0b',
+                            $score >= 40 => '#38bdf8',
+                            default => '#94a3b8',
                         };
 
-                        $scoreLabel = match (true) {
-                            $score >= 80 => '🔥 Çok Sıcak (%' . $score . ')',
-                            $score >= 60 => '⚡ Tereddütte (%' . $score . ')',
-                            $score >= 40 => '👀 İlgili (%' . $score . ')',
-                            default => '🔍 Keşif (%' . $score . ')',
+                        $gradient = match (true) {
+                            $score >= 80 => 'linear-gradient(90deg, #10b981, #059669)',
+                            $score >= 60 => 'linear-gradient(90deg, #f59e0b, #d97706)',
+                            $score >= 40 => 'linear-gradient(90deg, #38bdf8, #0284c7)',
+                            default => 'linear-gradient(90deg, #64748b, #475569)',
+                        };
+
+                        $label = match (true) {
+                            $score >= 80 => '🔥 ÇOK SICAK (%' . $score . ')',
+                            $score >= 60 => '⚡ TEREDDÜTTE (%' . $score . ')',
+                            $score >= 40 => '👀 İLGİLİ (%' . $score . ')',
+                            default => '🔍 KEŞİF (%' . $score . ')',
                         };
 
                         return new HtmlString('
-                            <div class="max-w-xs">
-                                <div class="mb-1">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ' . $badgeColor . '">
-                                        ' . $scoreLabel . '
+                            <div style="min-width:210px;max-width:260px;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+                                    <span style="font-size:10px;font-weight:900;color:' . $color . ';letter-spacing:0.04em;">
+                                        ' . $label . '
                                     </span>
                                 </div>
-                                <div class="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                                <div style="background:rgba(255,255,255,0.08);border-radius:999px;height:5px;width:100%;overflow:hidden;margin-bottom:6px;">
+                                    <div style="background:' . $gradient . ';width:' . $score . '%;height:100%;border-radius:999px;"></div>
+                                </div>
+                                <div style="font-size:11px;color:#cbd5e1;background:#182234;border-left:3px solid ' . $color . ';padding:5px 8px;border-radius:4px;line-height:1.35;">
                                     ' . e($insight) . '
                                 </div>
                             </div>
                         ');
                     }),
 
-                // 6. Sepet Durumu
+                // 4. Sepet Durumu
                 TextColumn::make('cart_total')
                     ->label('Sepet')
                     ->getStateUsing(function (ActiveVisitor $record) {
                         if ($record->cart_items_count > 0) {
                             return new HtmlString('
-                                <div class="text-xs">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800">
-                                        🛒 ' . $record->cart_items_count . ' Ürün (' . number_format($record->cart_total, 2) . ' ₺)
-                                    </span>
+                                <div>
+                                    <div style="font-weight:800;color:#10b981;font-size:13px;display:flex;align-items:center;gap:4px;">
+                                        🛒 ' . number_format($record->cart_total, 2) . ' ₺
+                                    </div>
+                                    <div style="font-size:10px;color:#94a3b8;margin-top:2px;">
+                                        ' . $record->cart_items_count . ' ürün sepette
+                                    </div>
                                 </div>
                             ');
                         }
 
-                        return new HtmlString('<span class="text-xs text-gray-400">Boş</span>');
+                        return new HtmlString('<span style="color:#64748b;font-size:11px;">Sepet Boş</span>');
                     }),
 
-                // 7. Önerilen Strateji
+                // 5. Önerilen Strateji
                 TextColumn::make('recommended_strategy')
                     ->label('Önerilen Strateji')
                     ->getStateUsing(function (ActiveVisitor $record) {
@@ -295,7 +338,7 @@ class ActiveVisitors extends Page implements HasTable
 
                         $title = $strategy['title'] ?? 'Strateji';
                         return new HtmlString('
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800">
+                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:700;background:rgba(255,78,0,0.15);color:#ff7849;border:1px solid rgba(255,78,0,0.35);">
                                 ⚡ ' . e($title) . '
                             </span>
                         ');

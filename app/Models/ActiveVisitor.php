@@ -84,15 +84,40 @@ class ActiveVisitor extends Model
 
     public function getDurationFormattedAttribute(): string
     {
-        $seconds = $this->time_spent_seconds ?: ($this->first_seen_at ? now()->diffInSeconds($this->first_seen_at) : 0);
+        $seconds = abs((int) ($this->time_spent_seconds ?: 0));
+        if ($seconds === 0 && $this->first_seen_at) {
+            $seconds = abs((int) $this->first_seen_at->diffInSeconds(now()));
+        }
+
         $minutes = floor($seconds / 60);
         $remainingSeconds = $seconds % 60;
 
-        if ($minutes == 0) {
+        if ($minutes < 1) {
             return "{$remainingSeconds} sn";
         }
 
         return "{$minutes} dk {$remainingSeconds} sn";
+    }
+
+    protected static array $productCache = [];
+
+    public function getCurrentProductAttribute(): ?\App\Models\Product
+    {
+        if (preg_match('#/urun/([^/?#]+)#', $this->current_path, $matches)) {
+            $slug = $matches[1];
+            if (!array_key_exists($slug, static::$productCache)) {
+                static::$productCache[$slug] = \App\Models\Product::where('slug', $slug)->with('images')->first();
+            }
+            return static::$productCache[$slug];
+        }
+        return null;
+    }
+
+    public function getCurrentProductImageAttribute(): ?string
+    {
+        $product = $this->current_product;
+        if (!$product) return null;
+        return $product->images->first()?->image_url ?? $product->images->first()?->raw_image_url;
     }
 
     /**

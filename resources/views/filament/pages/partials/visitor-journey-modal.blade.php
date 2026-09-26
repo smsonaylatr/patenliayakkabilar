@@ -1,64 +1,72 @@
-<div class="space-y-6 text-sm">
+<div style="font-family: inherit; color: #f8fafc; display: flex; flex-direction: column; gap: 20px;">
     {{-- Müşteri Özet Kartı --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 16px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
         <div>
-            <div class="text-xs text-gray-500 font-medium">Müşteri</div>
-            <div class="font-bold text-gray-900 dark:text-white mt-0.5">{{ $record->display_name }}</div>
-            <div class="text-xs text-gray-400 font-mono">{{ $record->ip_address }}</div>
+            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Ziyaretçi Kimliği</div>
+            <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-top: 2px;">{{ $record->display_name }}</div>
+            <div style="font-size: 11px; color: #64748b; font-family: monospace;">{{ $record->ip_address }}</div>
         </div>
         <div>
-            <div class="text-xs text-gray-500 font-medium">Satın Alma Niyeti</div>
-            <div class="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Satın Alma Niyeti</div>
+            <div style="font-size: 15px; font-weight: 800; color: #10b981; margin-top: 2px;">
                 %{{ $record->intent_score }} - {{ strtoupper($record->intent_level) }}
             </div>
-            <div class="text-xs text-gray-400">{{ $record->page_views_count }} sayfa • {{ $record->duration_formatted }}</div>
+            <div style="font-size: 11px; color: #94a3b8;">{{ $record->page_views_count }} sayfa • {{ $record->duration_formatted }}</div>
         </div>
         <div>
-            <div class="text-xs text-gray-500 font-medium">Cihaz / Tarayıcı</div>
-            <div class="font-medium text-gray-800 dark:text-gray-200 mt-0.5">
+            <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Cihaz / Tarayıcı</div>
+            <div style="font-size: 13px; font-weight: 700; color: #e2e8f0; margin-top: 2px;">
                 {{ ucfirst($record->device_type) }} • {{ $record->browser }}
             </div>
-            <div class="text-xs text-gray-400">{{ $record->screen_resolution ?? 'Bilinmiyor' }}</div>
+            <div style="font-size: 11px; color: #64748b;">{{ $record->screen_resolution ?? 'Bilinmiyor' }}</div>
         </div>
     </div>
 
-    {{-- Davranış Teşhisi --}}
-    <div class="p-4 bg-orange-50/70 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-xl flex items-start gap-3">
-        <span class="text-2xl shrink-0">💡</span>
+    {{-- Otomatik Davranış Teşhisi --}}
+    <div style="padding: 16px; background: rgba(255, 78, 0, 0.1); border: 1px solid rgba(255, 78, 0, 0.3); border-radius: 14px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="font-size: 24px; line-height: 1;">💡</span>
         <div>
-            <h4 class="font-bold text-orange-900 dark:text-orange-200 text-xs uppercase tracking-wider">Otomatik Davranış Teşhisi & Yorumu</h4>
-            <p class="text-xs sm:text-sm text-orange-800 dark:text-orange-300 mt-1">
+            <div style="font-size: 11px; font-weight: 800; color: #ff7849; text-transform: uppercase; letter-spacing: 0.05em;">
+                Yapay Zeka & Kural Motoru Teşhisi
+            </div>
+            <div style="font-size: 13px; color: #ffedd5; margin-top: 4px; line-height: 1.45; font-weight: 500;">
                 {{ $record->behavior_insight ?? 'Ziyaretçi genel keşif aşamasında.' }}
-            </p>
+            </div>
         </div>
     </div>
 
-    {{-- Sepet Özeti (Eğer sepette ürün varsa) --}}
+    {{-- Sepet İçeriği --}}
     @if(!empty($record->cart_summary))
         <div>
-            <div class="flex items-center justify-between mb-2">
-                <h4 class="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #e2e8f0; display: flex; align-items: center; gap: 6px;">
                     <span>🛒 Sepet İçeriği</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800;">
                         {{ $record->cart_items_count }} Ürün
                     </span>
-                </h4>
-                <div class="font-bold text-emerald-600 text-sm">
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981;">
                     Toplam: {{ number_format($record->cart_total, 2) }} ₺
                 </div>
             </div>
-            <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y divide-gray-200 dark:divide-gray-700">
+            <div style="background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden;">
                 @foreach($record->cart_summary as $item)
-                    <div class="p-3 flex items-center justify-between bg-white dark:bg-gray-800/40">
+                    <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">{{ $item['product_name'] ?? 'Ürün' }}</div>
-                            <div class="text-xs text-gray-500">
-                                @if(!empty($item['size'])) <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono mr-1">Beden: {{ $item['size'] }}</span> @endif
-                                @if(!empty($item['color'])) <span>Renk: {{ $item['color'] }}</span> @endif
-                                <span>• {{ $item['quantity'] ?? 1 }} adet</span>
+                            <div style="font-weight: 700; color: #ffffff; font-size: 13px;">{{ $item['product_name'] ?? 'Patenli Ayakkabı' }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                @if(!empty($item['size']))
+                                    <span style="background: rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; color: #f8fafc; margin-right: 4px;">
+                                        Beden: {{ $item['size'] }}
+                                    </span>
+                                @endif
+                                @if(!empty($item['color']))
+                                    <span>Renk: {{ $item['color'] }} • </span>
+                                @endif
+                                <span>{{ $item['quantity'] ?? 1 }} Adet</span>
                             </div>
                         </div>
-                        <div class="font-bold text-gray-900 dark:text-white">
+                        <div style="font-size: 13px; font-weight: 800; color: #38bdf8;">
                             {{ number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 2) }} ₺
                         </div>
                     </div>
@@ -67,35 +75,31 @@
         </div>
     @endif
 
-    {{-- Kronolojik Gezinme İzi (Journey Trail) --}}
+    {{-- Kronolojik Gezinme İzi (Customer Journey Trail) --}}
     <div>
-        <h4 class="font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <span>🐾 Adım Adım Gezinme İzi (Customer Journey Trail)</span>
-        </h4>
+        <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #e2e8f0; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span>🐾 Adım Adım Gezinme İzi (Timeline)</span>
+        </div>
 
         @if(!empty($record->journey_trail) && is_array($record->journey_trail))
-            <div class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 dark:before:bg-gray-700">
+            <div style="position: relative; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; border-left: 2px solid rgba(255, 255, 255, 0.1); margin-left: 8px;">
                 @foreach(array_reverse($record->journey_trail) as $index => $step)
-                    <div class="relative">
-                        <span class="absolute -left-6 top-1 flex h-4 w-4 items-center justify-center rounded-full {{ $index === 0 ? 'bg-orange-500 ring-4 ring-orange-100 dark:ring-orange-950' : 'bg-gray-300 dark:bg-gray-600' }}">
-                            @if($index === 0)
-                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
-                            @endif
-                        </span>
-                        <div class="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-semibold text-xs text-gray-900 dark:text-white">
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: {{ $index === 0 ? '#ff4e00' : '#475569' }}; box-shadow: 0 0 8px {{ $index === 0 ? '#ff4e00' : 'transparent' }};"></span>
+                        <div style="background: #1e293b; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.07);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <span style="font-weight: 700; font-size: 13px; color: #ffffff;">
                                     {{ $step['title'] ?? $step['path'] ?? 'Sayfa' }}
                                 </span>
-                                <span class="text-[11px] font-mono text-gray-400">
+                                <span style="font-size: 11px; font-family: monospace; color: #64748b;">
                                     {{ $step['time'] ?? '' }}
                                 </span>
                             </div>
-                            <div class="text-[11px] text-gray-500 font-mono mt-0.5 truncate">
+                            <div style="font-size: 11px; color: #94a3b8; font-family: monospace; margin-top: 2px; word-break: break-all;">
                                 {{ $step['path'] ?? '' }}
                             </div>
                             @if(!empty($step['detail']))
-                                <div class="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800">
+                                <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
                                     🎯 {{ $step['detail'] }}
                                 </div>
                             @endif
@@ -104,20 +108,20 @@
                 @endforeach
             </div>
         @else
-            <div class="p-4 text-center text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                Henüz detaylı hareket izi kaydedilmedi.
+            <div style="padding: 16px; text-align: center; font-size: 12px; color: #64748b; background: #1e293b; border-radius: 12px;">
+                Henüz hareket izi kaydedilmedi.
             </div>
         @endif
     </div>
 
-    {{-- Trafik ve Referrer --}}
+    {{-- Kaynak ve UTM Bilgileri --}}
     @if($record->referrer || $record->utm_source)
-        <div class="p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl text-xs text-gray-500 space-y-1">
+        <div style="padding: 12px 16px; background: #1e293b; border-radius: 12px; font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px;">
             @if($record->referrer)
-                <div><span class="font-semibold">Geldiği Kaynak:</span> {{ $record->referrer }}</div>
+                <div><strong style="color: #cbd5e1;">Geldiği Kaynak:</strong> {{ $record->referrer }}</div>
             @endif
             @if($record->utm_source)
-                <div><span class="font-semibold">Kampanya Kaynağı:</span> {{ $record->utm_source }} ({{ $record->utm_campaign ?? '-' }})</div>
+                <div><strong style="color: #cbd5e1;">Kampanya Kaynağı:</strong> {{ $record->utm_source }} ({{ $record->utm_campaign ?? '-' }})</div>
             @endif
         </div>
     @endif
