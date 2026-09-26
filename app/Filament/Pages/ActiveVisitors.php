@@ -375,7 +375,7 @@ class ActiveVisitors extends Page implements HasTable
                     ->icon('heroicon-o-bolt')
                     ->modalHeading(fn (ActiveVisitor $record) => '⚡ Satış Stratejisini Uygula: ' . ($record->recommended_strategy['title'] ?? 'Özel Teklif'))
                     ->modalDescription(fn (ActiveVisitor $record) => 'Davranış Teşhisi: ' . ($record->behavior_insight ?? ''))
-                    ->modalSubmitActionLabel('🚀 Ziyaretçinin Ekranına Fırlat')
+                    ->modalSubmitActionLabel('🚀 Ziyaretçiye Hemen Gönder')
                     ->form(function (ActiveVisitor $record) {
                         $strategy = $record->recommended_strategy ?? [];
                         $isRedirect = ($strategy['action_type'] ?? '') === 'redirect';
@@ -393,7 +393,7 @@ class ActiveVisitors extends Page implements HasTable
 
                             TextInput::make('offer_title')
                                 ->label('Bildirim Başlığı')
-                                ->default($strategy['title'] ?? 'Size Özel Fırsat!')
+                                ->default($strategy['popup_title'] ?? $strategy['title'] ?? 'Size Özel Fırsat!')
                                 ->visible(fn ($get) => $get('strategy_type') === 'offer')
                                 ->required(),
 
@@ -455,7 +455,7 @@ class ActiveVisitors extends Page implements HasTable
 
                         Notification::make()
                             ->title('Satış Stratejisi İletildi!')
-                            ->body('Komut ziyaretçinin ekranına fırlatıldı, birkaç saniye içinde icra edilecek.')
+                            ->body('Komut ziyaretçinin ekranına iletildi, birkaç saniye içinde açılacak.')
                             ->success()
                             ->send();
                     }),
@@ -613,14 +613,14 @@ class ActiveVisitors extends Page implements HasTable
 
             // Toplu Duyuru / Kupon
             Action::make('broadcast_offer')
-                ->label('💬 Herkese Canlı Kupon / Fırsat Fırlat')
+                ->label('💬 Herkese Canlı Fırsat / Kupon Gönder')
                 ->color('success')
                 ->icon('heroicon-o-gift')
-                ->modalHeading('💬 Herkese Canlı Fırsat / Kupon Fırlat')
+                ->modalHeading('💬 Herkese Canlı Fırsat / Kupon Gönder')
                 ->form([
                     TextInput::make('title')
                         ->label('Başlık')
-                        ->default('Günün Sürpriz Fırsatı!')
+                        ->default('🎉 Size Özel Günün Sürpriz Fırsatı!')
                         ->required(),
 
                     Textarea::make('message')

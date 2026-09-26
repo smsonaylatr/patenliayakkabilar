@@ -70,6 +70,7 @@ class VisitorBehaviorAnalyzer
         $strategy = [
             'key' => 'best_sellers',
             'title' => 'En Çok Satanlara Yönlendir',
+            'popup_title' => '🔥 Sezonun En Popüler Modelleri',
             'description' => 'Ziyaretçiyi en popüler ve yüksek dönüşümlü modellerimize aktarın.',
             'action_type' => 'redirect',
             'target_url' => '/patenli-ayakkabilar',
@@ -84,8 +85,9 @@ class VisitorBehaviorAnalyzer
             $insight = "Ödeme adımında bekliyor! Sepetinde {$cartItemsCount} ürün (" . number_format($cartTotal, 2) . " ₺) var. Kargo ücreti veya ödeme bariyeri olabilir.";
             $strategy = [
                 'key' => 'checkout_coupon',
-                'title' => '%10 İndirim Kuponu Fırlat',
-                'description' => 'Ödeme bariyerini aşması için ekranda hemen geçerli %10 kupon bannerı fırlatın.',
+                'title' => '%10 Sepet İndirim Kuponu',
+                'popup_title' => '🎉 Size Özel Sepette %10 İndirim Fırsatı!',
+                'description' => 'Ödeme bariyerini aşması için ekranda hemen geçerli %10 kupon bannerı sunun.',
                 'action_type' => 'offer',
                 'suggested_coupon' => 'PATEN10',
                 'suggested_message' => 'Alışverişinizi hemen tamamlamanız için size özel %10 indirim kuponu: PATEN10!',
@@ -102,6 +104,7 @@ class VisitorBehaviorAnalyzer
             $strategy = [
                 'key' => 'direct_checkout',
                 'title' => 'Ödeme Sayfasına Yönlendir',
+                'popup_title' => '🛒 Sepetiniz Sizi Bekliyor!',
                 'description' => 'Sepetindeki ürünleri hatırlatıp doğrudan güvenli ödeme ekranına yönlendirin.',
                 'action_type' => 'redirect',
                 'target_url' => '/checkout',
@@ -118,11 +121,12 @@ class VisitorBehaviorAnalyzer
                 $strategy = [
                     'key' => 'size_help',
                     'title' => 'Canlı Beden & WhatsApp Desteği',
+                    'popup_title' => '👟 Numara Konusunda Kararsız mısınız?',
                     'description' => 'Çocuğunuzun ayak ölçüsüne göre doğru numarayı seçmesi için WhatsApp destek teklifi gönderin.',
                     'action_type' => 'offer',
                     'suggested_message' => 'Çocuğunuzun ayak numarasından emin değil misiniz? Uzman ekibimize WhatsApp üzerinden anında danışabilirsiniz!',
                     'action_button' => 'WhatsApp Destek Hattı',
-                    'action_url' => 'https://wa.me/905000000000?text=Merhaba,%20patenli%20ayakkabi%20bedeni%20hakkinda%20danismak%20istiyorum',
+                    'action_url' => 'https://wa.me/908503073164?text=' . urlencode('Merhaba, patenli ayakkabı bedeni hakkında danışmak istiyorum.'),
                     'badge_color' => 'warning',
                 ];
             } else {
@@ -132,6 +136,7 @@ class VisitorBehaviorAnalyzer
                 $strategy = [
                     'key' => 'product_urgency',
                     'title' => 'Hızlı Kargo & Güven Bildirimi',
+                    'popup_title' => '⚡ Hızlı Kargo & Kolay Numara Değişimi',
                     'description' => 'Aynı gün kargo ve 14 gün ücretsiz değişim güvencesini hatırlatın.',
                     'action_type' => 'offer',
                     'suggested_message' => 'Bugün saat 14:00\'e kadar verilen tüm siparişler aynı gün kargoda! 14 gün kolay numara değişimi garantisi.',
@@ -146,7 +151,8 @@ class VisitorBehaviorAnalyzer
             $insight = "Siteyi detaylı inceledi ({$pageViews} sayfa, " . floor($totalSeconds / 60) . " dakika). Ciddi alışveriş niyetinde sıcak aday.";
             $strategy = [
                 'key' => 'special_welcome',
-                'title' => 'Özel İndirim Bildirimi Fırlat',
+                'title' => 'İlk Alışverişe Özel İndirim',
+                'popup_title' => '🎁 Hoş Geldiniz! Size Özel %10 İndirim',
                 'description' => 'Satın almayı tetiklemek için ilk alışverişe özel indirim teklif edin.',
                 'action_type' => 'offer',
                 'suggested_coupon' => 'HOSGELDIN',
