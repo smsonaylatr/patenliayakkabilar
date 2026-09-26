@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->boolean('porego_sync_locked')->default(false)->after('status')
-                ->comment('Admin panelden statü değiştirildiğinde true yapılır, Porego senkronizasyonu bu siparişi atlar');
+            if (!Schema::hasColumn('orders', 'porego_sync_locked')) {
+                $table->boolean('porego_sync_locked')->default(false)->after('status')
+                    ->comment('Admin panelden statü değiştirildiğinde true yapılır, Porego senkronizasyonu bu siparişi atlar');
+            }
         });
     }
 

@@ -29,42 +29,46 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            // Tek kolon indexleri - filtre ve sıralama
-            $table->index('status', 'idx_orders_status');
-            $table->index('payment_status', 'idx_orders_payment_status');
-            $table->index('payment_method', 'idx_orders_payment_method');
-            $table->index('created_at', 'idx_orders_created_at');
+        try {
+            Schema::table('orders', function (Blueprint $table) {
+                // Tek kolon indexleri - filtre ve sıralama
+                try { $table->index('status', 'idx_orders_status'); } catch (\Throwable $e) {}
+                try { $table->index('payment_status', 'idx_orders_payment_status'); } catch (\Throwable $e) {}
+                try { $table->index('payment_method', 'idx_orders_payment_method'); } catch (\Throwable $e) {}
+                try { $table->index('created_at', 'idx_orders_created_at'); } catch (\Throwable $e) {}
 
-            // Composite indexler - tab filtreleri ve birleşik sorgular
-            $table->index(['payment_status', 'payment_method'], 'idx_orders_payment_composite');
-            $table->index(['status', 'created_at'], 'idx_orders_status_created');
+                // Composite indexler - tab filtreleri ve birleşik sorgular
+                try { $table->index(['payment_status', 'payment_method'], 'idx_orders_payment_composite'); } catch (\Throwable $e) {}
+                try { $table->index(['status', 'created_at'], 'idx_orders_status_created'); } catch (\Throwable $e) {}
 
-            // Global arama indexleri
-            $table->index('customer_name', 'idx_orders_customer_name');
-            $table->index('customer_phone', 'idx_orders_customer_phone');
-            $table->index('customer_email', 'idx_orders_customer_email');
+                // Global arama indexleri
+                try { $table->index('customer_name', 'idx_orders_customer_name'); } catch (\Throwable $e) {}
+                try { $table->index('customer_phone', 'idx_orders_customer_phone'); } catch (\Throwable $e) {}
+                try { $table->index('customer_email', 'idx_orders_customer_email'); } catch (\Throwable $e) {}
 
-            // Fatura tipi filtresi
-            if (Schema::hasColumn('orders', 'invoice_type')) {
-                $table->index('invoice_type', 'idx_orders_invoice_type');
-            }
+                // Fatura tipi filtresi
+                if (Schema::hasColumn('orders', 'invoice_type')) {
+                    try { $table->index('invoice_type', 'idx_orders_invoice_type'); } catch (\Throwable $e) {}
+                }
 
-            // GİB fatura durumu (bulk action'larda sık sorgulanıyor)
-            if (Schema::hasColumn('orders', 'gib_invoice_status')) {
-                $table->index('gib_invoice_status', 'idx_orders_gib_invoice_status');
-            }
+                // GİB fatura durumu (bulk action'larda sık sorgulanıyor)
+                if (Schema::hasColumn('orders', 'gib_invoice_status')) {
+                    try { $table->index('gib_invoice_status', 'idx_orders_gib_invoice_status'); } catch (\Throwable $e) {}
+                }
 
-            // is_invoiced + status composite (fatura kesme bulk action)
-            if (Schema::hasColumn('orders', 'is_invoiced')) {
-                $table->index(['is_invoiced', 'status'], 'idx_orders_invoiced_status');
-            }
-        });
+                // is_invoiced + status composite (fatura kesme bulk action)
+                if (Schema::hasColumn('orders', 'is_invoiced')) {
+                    try { $table->index(['is_invoiced', 'status'], 'idx_orders_invoiced_status'); } catch (\Throwable $e) {}
+                }
+            });
+        } catch (\Throwable $e) {}
 
         // order_items tablosu - eager loading optimizasyonu
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->index(['order_id', 'product_id'], 'idx_order_items_order_product');
-        });
+        try {
+            Schema::table('order_items', function (Blueprint $table) {
+                try { $table->index(['order_id', 'product_id'], 'idx_order_items_order_product'); } catch (\Throwable $e) {}
+            });
+        } catch (\Throwable $e) {}
     }
 
     public function down(): void

@@ -30,6 +30,24 @@ class StockNotificationResource extends Resource
         return 'Gelince Haber Ver';
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('stock_notifications')) {
+                return null;
+            }
+            $count = static::getModel()::where('is_notified', false)->count();
+            return $count > 0 ? (string) $count : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return StockNotificationForm::configure($schema);

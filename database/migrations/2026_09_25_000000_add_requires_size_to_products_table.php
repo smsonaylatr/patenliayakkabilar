@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->boolean('requires_size')->default(true)->after('has_installments');
+            if (!Schema::hasColumn('products', 'requires_size')) {
+                $table->boolean('requires_size')->default(true)->after('has_installments');
+            }
         });
     }
 

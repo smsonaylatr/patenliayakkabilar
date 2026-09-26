@@ -8,16 +8,56 @@ use App\Models\StockNotification;
 use App\Mail\StockBackMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class StockNotificationService
 {
+    /**
+     * Tek bir stok bildirim talebini işler ve müşteriye e-posta/SMS gönderir.
+     */
+    public static function notifySingle(StockNotification $notification): bool
+    {
+        try {
+            $product = $notification->product;
+            if (!$product) {
+                return false;
+            }
+
+            $variant = $notification->variant;
+
+            // 1. E-Posta Bildirimi
+            if (!empty($notification->email)) {
+                Mail::to($notification->email)->queue(new StockBackMail($product, $variant));
+            }
+
+            // 2. SMS Bildirimi (Telefon girilmişse)
+            if (!empty($notification->phone)) {
+                $vatanSms = app(VatanSmsService::class);
+                $sizeText = $variant ? " ({$variant->size} Beden)" : '';
+                $message = "Müjde! Patenli Ayakkabilar'da beklediğiniz {$product->name}{$sizeText} ürünü stoklarımıza girmiştir. İncelemek için: " . url('/urun/' . $product->slug);
+                $vatanSms->send($notification->phone, $message);
+            }
+
+            // Kaydı bildirildi olarak güncelle
+            $notification->update([
+                'is_notified' => true,
+                'notified_at' => now(),
+            ]);
+
+            return true;
+        } catch (\Throwable $th) {
+            Log::error("Stok Bildirim Hatası [ID: {$notification->id}]: " . $th->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Stok yenilendiğinde bekleyen bildirim taleplerini işler.
      */
     public static function processNotifications(Product $product, ?ProductVariant $variant = null): int
     {
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('stock_notifications')) {
+            if (!Schema::hasTable('stock_notifications')) {
                 return 0;
             }
 
@@ -29,7 +69,10 @@ class StockNotificationService
                 ->where('is_notified', false);
 
             if ($variant) {
-                $query->where('product_variant_id', $variant->id);
+                $query->where(function ($q) use ($variant) {
+                    $q->where('product_variant_id', $variant->id)
+                      ->orWhereNull('product_variant_id');
+                });
             }
 
             $pendingNotifications = $query->get();
@@ -38,38 +81,17 @@ class StockNotificationService
                 return 0;
             }
 
-        $notifiedCount = 0;
-        $vatanSms = app(VatanSmsService::class);
+            $notifiedCount = 0;
 
-        foreach ($pendingNotifications as $notification) {
-            try {
-                // 1. E-Posta Bildirimi
-                if (!empty($notification->email)) {
-                    Mail::to($notification->email)->queue(new StockBackMail($product, $variant));
+            foreach ($pendingNotifications as $notification) {
+                if (static::notifySingle($notification)) {
+                    $notifiedCount++;
                 }
-
-                // 2. SMS Bildirimi (Telefon girilmişse)
-                if (!empty($notification->phone)) {
-                    $sizeText = $variant ? " ({$variant->size} Beden)" : '';
-                    $message = "Müjde! Patenli Ayakkabilar'da beklediğiniz {$product->name}{$sizeText} ürünü stoklarımıza girmiştir. İncelemek için: " . url('/urun/' . $product->slug);
-                    $vatanSms->send($notification->phone, $message);
-                }
-
-                // Kaydı bildirildi olarak güncelle
-                $notification->update([
-                    'is_notified' => true,
-                    'notified_at' => now(),
-                ]);
-
-                $notifiedCount++;
-            } catch (\Throwable $th) {
-                Log::error("Stok Bildirim Hatası [ID: {$notification->id}]: " . $th->getMessage());
             }
-        }
 
-        return $notifiedCount;
+            return $notifiedCount;
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('StockNotificationService error: ' . $e->getMessage());
+            Log::error('StockNotificationService error: ' . $e->getMessage());
             return 0;
         }
     }

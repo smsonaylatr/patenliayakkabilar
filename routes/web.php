@@ -86,6 +86,24 @@ Route::get('/run-migrations', function () {
             });
         }
 
+        if (!\Illuminate\Support\Facades\Schema::hasTable('stock_notifications')) {
+            \Illuminate\Support\Facades\Schema::create('stock_notifications', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+                $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->nullOnDelete();
+                $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+                $table->string('email');
+                $table->string('phone')->nullable();
+                $table->boolean('is_notified')->default(false);
+                $table->timestamp('notified_at')->nullable();
+                $table->string('ip_address')->nullable();
+                $table->timestamps();
+
+                $table->index(['product_id', 'is_notified']);
+                $table->index(['product_variant_id', 'is_notified']);
+            });
+        }
+
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         \Illuminate\Support\Facades\Artisan::call('db:seed', [
             '--class' => 'Database\\Seeders\\BacklinkSeeder',
@@ -345,6 +363,26 @@ Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
                 $table->timestamps();
             });
             $output .= "\n✅ 'backlinks' tablosu doğrudan oluşturuldu.";
+        }
+
+        // Eğer stock_notifications tablosu henüz yoksa doğrudan oluşturalım
+        if (!\Illuminate\Support\Facades\Schema::hasTable('stock_notifications')) {
+            \Illuminate\Support\Facades\Schema::create('stock_notifications', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->id();
+                $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+                $table->foreignId('product_variant_id')->nullable()->constrained('product_variants')->nullOnDelete();
+                $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+                $table->string('email');
+                $table->string('phone')->nullable();
+                $table->boolean('is_notified')->default(false);
+                $table->timestamp('notified_at')->nullable();
+                $table->string('ip_address')->nullable();
+                $table->timestamps();
+
+                $table->index(['product_id', 'is_notified']);
+                $table->index(['product_variant_id', 'is_notified']);
+            });
+            $output .= "\n✅ 'stock_notifications' tablosu doğrudan oluşturuldu.";
         }
 
         return response()->json([
