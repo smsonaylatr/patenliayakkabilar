@@ -30,6 +30,54 @@ class TelegramWebhookController extends Controller
         $chatId = $callbackQuery['message']['chat']['id'] ?? null;
         $messageId = $callbackQuery['message']['message_id'] ?? null;
 
+        // İletişim mesajı "Okundu Olarak İşaretle" işlemi
+        if (str_starts_with($callbackData, 'contact_read_')) {
+            $contactId = (int) str_replace('contact_read_', '', $callbackData);
+            $contact = \App\Models\ContactMessage::find($contactId);
+
+            if (!$contact) {
+                $this->answerCallbackQuery($callbackQueryId, '❌ İletişim mesajı bulunamadı.');
+                return response()->json(['ok' => true]);
+            }
+
+            if ($contact->is_read) {
+                $this->answerCallbackQuery($callbackQueryId, 'ℹ️ Bu mesaj zaten okundu olarak işaretlenmiş.');
+                return response()->json(['ok' => true]);
+            }
+
+            $contact->update(['is_read' => true]);
+            $this->answerCallbackQuery($callbackQueryId, '✅ Mesaj okundu olarak işaretlendi!');
+
+            if ($chatId && $messageId) {
+                $originalText = $callbackQuery['message']['text'] ?? '';
+                $updatedText = $originalText . "\n\n✅ <b>OKUNDU OLARAK İŞARETLENDİ</b> (" . now()->format('d.m.Y H:i') . ')';
+
+                // URL butonlarını koru, sadece callback butonunu kaldır
+                $replyMarkup = null;
+                if (!empty($callbackQuery['message']['reply_markup']['inline_keyboard'])) {
+                    $newKeyboard = [];
+                    foreach ($callbackQuery['message']['reply_markup']['inline_keyboard'] as $row) {
+                        $newRow = [];
+                        foreach ($row as $btn) {
+                            if (!isset($btn['callback_data']) || !str_starts_with($btn['callback_data'], 'contact_read_')) {
+                                $newRow[] = $btn;
+                            }
+                        }
+                        if (!empty($newRow)) {
+                            $newKeyboard[] = $newRow;
+                        }
+                    }
+                    if (!empty($newKeyboard)) {
+                        $replyMarkup = ['inline_keyboard' => $newKeyboard];
+                    }
+                }
+
+                $this->editMessageTextAndMarkup($chatId, $messageId, $updatedText, $replyMarkup);
+            }
+
+            return response()->json(['ok' => true]);
+        }
+
         // Sadece "sms_send_" ile başlayan callback'leri işle
         if (!str_starts_with($callbackData, 'sms_send_')) {
             $this->answerCallbackQuery($callbackQueryId, '❌ Bilinmeyen işlem.');
@@ -121,5 +169,27 @@ class TelegramWebhookController extends Controller
             'text' => $text,
             'parse_mode' => 'HTML',
         ]);
+    }
+
+    /**
+     * Telegram editMessageTextAndMarkup — mesajı günceller ve belirtilen reply_markup'ı ayarlar.
+     */
+    private function editMessageTextAndMarkup(int|string $chatId, int $messageId, string $text, ?array $replyMarkup = null): void
+    {
+        $token = Setting::where('key', 'telegram_bot_token')->value('value');
+        if (!$token) return;
+
+        $payload = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'text' => $text,
+            'parse_mode' => 'HTML',
+        ];
+
+        if ($replyMarkup !== null) {
+            $payload['reply_markup'] = $replyMarkup;
+        }
+
+        Http::timeout(5)->asJson()->post("https://api.telegram.org/bot{$token}/editMessageText", $payload);
     }
 }

@@ -162,9 +162,11 @@ html, body {
         scrollbar-width: thin !important;
     }
 
-    /* Masaüstü Sol Navbar: Scrollbar Yok & Tüm İçerikleri Ekrana Sığdır */
+    /* Masaüstü Sol Navbar: İdeal 15rem (240px) Genişlik & Scrollbar Yok */
     aside.fi-sidebar,
     .fi-sidebar {
+        width: 15rem !important;
+        max-width: 15rem !important;
         height: 100vh !important;
         max-height: 100vh !important;
         overflow: hidden !important;

@@ -37,6 +37,8 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => \Filament\Support\Colors\Color::Slate,
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('15rem')
+            ->collapsedSidebarWidth('4.5rem')
             ->maxContentWidth(Width::Full)
             ->spa()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])

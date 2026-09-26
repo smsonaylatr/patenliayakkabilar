@@ -48,12 +48,16 @@ class TelegramSettings extends Page implements HasForms
             'telegram_bot_token',
             'telegram_chat_id',
             'telegram_active',
+            'telegram_contact_active',
+            'telegram_contact_chat_id',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
             'telegram_bot_token' => $settings['telegram_bot_token'] ?? '',
             'telegram_chat_id' => $settings['telegram_chat_id'] ?? '',
             'telegram_active' => filter_var($settings['telegram_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            'telegram_contact_active' => filter_var($settings['telegram_contact_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'telegram_contact_chat_id' => $settings['telegram_contact_chat_id'] ?? '',
         ]);
     }
 
@@ -62,11 +66,11 @@ class TelegramSettings extends Page implements HasForms
         return $schema
             ->schema([
                 Section::make('Telegram Bot Ayarları')
-                    ->description('Yeni sipariş geldiğinde anında Telegram üzerinden bildirim almak için gerekli bilgileri doldurun.')
+                    ->description('Yeni sipariş ve form bildirimlerini anında Telegram üzerinden almak için gerekli bilgileri doldurun.')
                     ->schema([
                         Toggle::make('telegram_active')
-                            ->label('Bildirimleri Aktifleştir')
-                            ->helperText('Telegram sipariş bildirimlerini açıp kapatmanızı sağlar.'),
+                            ->label('Genel Bildirimleri Aktifleştir')
+                            ->helperText('Tüm Telegram bildirim sistemini ana anahtar olarak açıp kapatmanızı sağlar.'),
                         
                         TextInput::make('telegram_bot_token')
                             ->label('Bot Token (API Token)')
@@ -77,7 +81,20 @@ class TelegramSettings extends Page implements HasForms
                         TextInput::make('telegram_chat_id')
                             ->label('Chat ID (Kullanıcı veya Grup ID)')
                             ->helperText('Bildirimlerin gideceği ID. (Örn: -100123456789 veya 12345678)'),
-                    ])
+                    ]),
+
+                Section::make('İletişim Formu Bildirimleri')
+                    ->description('İletişim sayfasından gelen mesajlar için bildirim ayarları.')
+                    ->schema([
+                        Toggle::make('telegram_contact_active')
+                            ->label('İletişim Bildirimlerini Aktifleştir')
+                            ->helperText('İletişim formundan yeni mesaj gönderildiğinde Telegram üzerinden bildirim iletir.')
+                            ->default(true),
+
+                        TextInput::make('telegram_contact_chat_id')
+                            ->label('İletişim Chat ID (Opsiyonel)')
+                            ->helperText('İletişim bildirimlerinin farklı bir gruba veya kişiye gitmesini istiyorsanız girin. Boş bırakılırsa yukarıdaki ana Chat ID kullanılır.'),
+                    ]),
             ])
             ->statePath('data');
     }
