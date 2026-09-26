@@ -26,7 +26,7 @@ class OrdersTable
             ->columns([
                 ViewColumn::make('product_image')
                     ->label('')
-                    ->width('160px')
+                    ->width('142px')
                     ->view('filament.columns.order-product-images')
                     ->getStateUsing(function (Order $record) {
                         $items = [];

@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => \Filament\Support\Colors\Color::Slate,
             ])
             ->sidebarCollapsibleOnDesktop()
-            ->sidebarWidth('15rem')
+            ->sidebarWidth('13.5rem')
             ->collapsedSidebarWidth('4.5rem')
             ->maxContentWidth(Width::Full)
             ->spa()

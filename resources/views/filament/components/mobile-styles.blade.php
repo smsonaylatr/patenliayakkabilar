@@ -15,78 +15,78 @@ html, body {
    2. MASAÜSTÜ & BÜYÜK EKRANLAR (min-width: 1024px)
    ========================================================================== */
 @media (min-width: 1024px) {
-    /* Masaüstü %90 Kusursuz Zoom Ölçeği (-%10 Zoom Out Standartlaştırması) */
-    html {
-        zoom: 0.9;
+    /* Masaüstü Varsayılan %100 Doğal Ölçek */
+    html, body {
+        zoom: 1 !important;
     }
 
-    /* Masaüstü Ana Gövde (Body / Main) İdeal Ölçüleri: 15rem Sidebar ile Kusursuz Uyum */
+    /* Masaüstü Ana Gövde (Body / Main) İdeal Ölçüleri: 13.5rem Sidebar ile Kusursuz Uyum */
     .fi-main {
-        padding-top: 14px !important;
-        padding-bottom: 24px !important;
-        padding-left: 18px !important;
-        padding-right: 18px !important;
+        padding-top: 10px !important;
+        padding-bottom: 20px !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
         max-width: 100% !important;
     }
 
     .fi-page-header-main-ctn {
-        padding-top: 2px !important;
-        padding-bottom: 8px !important;
-        gap: 10px !important;
+        padding-top: 0px !important;
+        padding-bottom: 6px !important;
+        gap: 8px !important;
     }
 
     .fi-page-content {
-        gap: 12px !important;
+        gap: 10px !important;
     }
 
     /* Sayfa Başlığı ve Breadcrumbs */
     .fi-header {
-        gap: 8px !important;
+        gap: 6px !important;
     }
 
     .fi-header-heading {
-        font-size: 1.35rem !important;
-        line-height: 1.25 !important;
+        font-size: 1.25rem !important;
+        line-height: 1.2 !important;
         font-weight: 700 !important;
     }
 
     .fi-breadcrumbs {
-        margin-bottom: 2px !important;
+        margin-bottom: 1px !important;
     }
 
     .fi-breadcrumbs-item-label {
-        font-size: 0.75rem !important;
+        font-size: 0.72rem !important;
     }
 
     /* Üst Aksiyon Butonları */
     .fi-header-actions-ctn {
-        gap: 8px !important;
+        gap: 6px !important;
     }
 
     .fi-header-actions-ctn .fi-btn {
-        height: 32px !important;
-        min-height: 32px !important;
-        padding: 4px 12px !important;
-        font-size: 0.78rem !important;
-        border-radius: 8px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 3px 10px !important;
+        font-size: 0.75rem !important;
+        border-radius: 7px !important;
     }
 
     /* Filtre Sekmeleri (Tabs / Pills) */
     .fi-tabs {
-        padding: 3px !important;
-        gap: 4px !important;
+        padding: 2px !important;
+        gap: 3px !important;
     }
 
     .fi-tabs-item-btn {
-        height: 30px !important;
-        padding: 3px 10px !important;
-        font-size: 0.78rem !important;
-        border-radius: 7px !important;
+        height: 28px !important;
+        padding: 2px 9px !important;
+        font-size: 0.74rem !important;
+        border-radius: 6px !important;
     }
 
     .fi-tabs-item-badge {
-        font-size: 0.68rem !important;
-        padding: 1px 6px !important;
+        font-size: 0.65rem !important;
+        padding: 1px 5px !important;
         border-radius: 9999px !important;
     }
 
@@ -110,30 +110,30 @@ html, body {
 
     /* Masaüstü Başlıklar & Hücreler (Sidebar ile Dengeli Kompakt Yoğunluk) */
     .fi-ta-header-cell {
-        font-size: 0.72rem !important;
+        font-size: 0.68rem !important;
         font-weight: 700 !important;
-        letter-spacing: 0.04em !important;
+        letter-spacing: 0.03em !important;
         text-transform: uppercase !important;
-        padding: 8px 10px !important;
+        padding: 6px 8px !important;
         white-space: nowrap !important;
     }
 
     .fi-ta-cell {
-        font-size: 0.8rem !important;
-        padding: 6px 10px !important;
+        font-size: 0.76rem !important;
+        padding: 5px 8px !important;
         white-space: nowrap !important;
         vertical-align: middle !important;
     }
 
     .fi-ta-text-item-description {
-        font-size: 0.72rem !important;
+        font-size: 0.68rem !important;
         line-height: 1.15 !important;
     }
 
     .fi-ta-cell .fi-badge {
-        font-size: 0.7rem !important;
-        padding: 2px 7px !important;
-        border-radius: 5px !important;
+        font-size: 0.68rem !important;
+        padding: 1.5px 6px !important;
+        border-radius: 4px !important;
         line-height: 1.25 !important;
     }
 
@@ -154,13 +154,13 @@ html, body {
     .fi-ta-actions-cell {
         width: auto !important;
         white-space: nowrap !important;
-        padding: 4px 8px !important;
+        padding: 4px 6px !important;
     }
 
     .fi-ta-actions {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 3px !important;
         justify-content: flex-end !important;
         width: auto !important;
     }
@@ -168,7 +168,7 @@ html, body {
     .fi-ta-actions button,
     .fi-ta-actions a,
     .fi-ta-actions .fi-icon-btn {
-        padding: 4px !important;
+        padding: 3px !important;
         border-radius: 6px !important;
         transition: transform 0.15s ease, background-color 0.15s ease !important;
     }
@@ -178,8 +178,8 @@ html, body {
     }
 
     .fi-ta-actions svg {
-        width: 16px !important;
-        height: 16px !important;
+        width: 15px !important;
+        height: 15px !important;
     }
 
     /* Masaüstü Üst Araç Çubuğu (Search & Filters) */
@@ -188,19 +188,19 @@ html, body {
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: 8px !important;
-        padding: 8px 12px !important;
+        gap: 6px !important;
+        padding: 6px 10px !important;
     }
 
     .fi-ta-search-field {
-        min-width: 220px !important;
-        max-width: 320px !important;
+        min-width: 200px !important;
+        max-width: 300px !important;
     }
 
     .fi-ta-search-field input {
-        font-size: 0.8rem !important;
-        height: 32px !important;
-        border-radius: 7px !important;
+        font-size: 0.76rem !important;
+        height: 30px !important;
+        border-radius: 6px !important;
     }
 
     /* Masaüstü Dashboard & Stats Overview Grid */
@@ -243,11 +243,11 @@ html, body {
         scrollbar-width: thin !important;
     }
 
-    /* Masaüstü Sol Navbar: İdeal 15rem (240px) Genişlik & Scrollbar Yok */
+    /* Masaüstü Sol Navbar: İdeal 13.5rem (216px) Genişlik & Scrollbar Yok */
     aside.fi-sidebar,
     .fi-sidebar {
-        width: 15rem !important;
-        max-width: 15rem !important;
+        width: 13.5rem !important;
+        max-width: 13.5rem !important;
         height: 100vh !important;
         max-height: 100vh !important;
         overflow: hidden !important;
