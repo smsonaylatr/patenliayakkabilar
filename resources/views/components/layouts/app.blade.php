@@ -773,5 +773,8 @@
 
         {{-- Floating Social Sidebar + İndirim Kuponu --}}
         @include('components.frontend.floating-sidebar')
+
+        {{-- Canlı Ziyaretçi İstihbaratı ve Dönüşüm Motoru --}}
+        @include('components.frontend.live-tracker')
     </body>
 </html>

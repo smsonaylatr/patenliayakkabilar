@@ -25,6 +25,12 @@ Route::get('/api/cart-count', function () {
 })->name('api.cart-count');
 
 // ========================
+// LIVE VISITOR PRESENCE & HEARTBEAT API
+// ========================
+Route::post('/api/presence/heartbeat', [\App\Http\Controllers\Api\PresenceController::class, 'heartbeat'])
+    ->name('api.presence.heartbeat');
+
+// ========================
 // STORAGE FILE SERVE (RoadRunner symlink desteği olmadığı için)
 // ========================
 Route::get('/storage/{path}', function (string $path) {

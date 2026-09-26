@@ -26,9 +26,4 @@ class Review extends Model
     {
         return $this->belongsTo(Order::class);
     }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 1);
-    }
 }

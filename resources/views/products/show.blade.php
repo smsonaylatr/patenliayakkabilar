@@ -65,31 +65,16 @@
                     ['name' => $product->name],
                 ]" />
             </div>
-            <div class="flex flex-col lg:grid lg:grid-cols-12 lg:gap-x-10 xl:gap-x-12 lg:items-start">
-                <!-- 1. Image gallery (Left Column) -->
-                <div class="order-1 lg:col-span-7">
+            <div class="flex flex-col lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start" style="grid-template-rows: max-content 1fr;">
+                <!-- 1. Image gallery (Left Column, Top) -->
+                <div class="order-1 lg:col-span-1 lg:row-span-1">
                     <livewire:product.product-gallery :product="$product" />
                 </div>
 
-                <!-- 2. Product info (Right Column, Sticky on Desktop) -->
-                <div class="order-2 lg:col-span-5 mt-6 sm:mt-10 lg:mt-0 lg:sticky lg:top-24">
+                <!-- 2. Product info (Right Column, spans both rows) -->
+                <div class="order-2 lg:col-span-1 lg:row-span-2 mt-6 sm:mt-10 lg:mt-0">
                     <!-- Desktop Title -->
-                    <h1 class="hidden md:block text-2xl lg:text-3xl font-black tracking-tight text-gray-900 leading-snug">{{ $product->name }}</h1>
-                    
-                    @php
-                        $totalApprovedReviews = $product->reviews()->where('status', 1)->count();
-                        $avgApprovedRating = (float)($product->reviews()->where('status', 1)->avg('rating') ?: 5.0);
-                    @endphp
-                    <div class="hidden md:flex items-center gap-2 mt-2.5">
-                        <div class="flex text-amber-400 text-xs">
-                            @for($i = 1; $i <= 5; $i++)
-                                <i class="fa-solid fa-star{{ $i <= round($avgApprovedRating) ? '' : ' text-gray-200' }}"></i>
-                            @endfor
-                        </div>
-                        <a href="#reviews-section" class="text-xs font-semibold text-gray-500 hover:text-black transition-colors underline decoration-gray-300">
-                            {{ number_format($avgApprovedRating, 1) }} ({{ $totalApprovedReviews }} Değerlendirme)
-                        </a>
-                    </div>
+                    <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
                     <!-- Mobile Marquee Title -->
                     <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative">
@@ -407,7 +392,7 @@
                         @if($product->description)
                         <div>
                             <button
-                                @click="if(window.innerWidth >= 1024) { document.getElementById('tanitim-bolumu')?.scrollIntoView({behavior: 'smooth'}); } else { openPanel = openPanel === 'description' ? '' : 'description'; }"
+                                @click="window.innerWidth >= 1024 ? $dispatch('toggle-tanitim') : (openPanel = openPanel === 'description' ? '' : 'description')"
                                 class="w-full flex items-center justify-between py-4 text-left group"
                             >
                                 <div class="flex items-center gap-4">
@@ -415,7 +400,8 @@
                                     <span class="text-sm font-semibold text-gray-900">Ürün Tanıtımı</span>
                                 </div>
                                 <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"></i>
+                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"
+                                   @toggle-tanitim.window="$el.classList.toggle('rotate-180')"></i>
                             </button>
                             <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
                                 <div class="pb-4">
@@ -460,38 +446,38 @@
                 </div>
                 </div>
                 
-                <!-- 3. Product Reviews (Mobile & Tablet) -->
-                <div class="order-3 mt-8 lg:hidden relative z-20">
+                <!-- 3. Product Reviews (Mobile Only) -->
+                <div class="order-3 lg:col-span-1 lg:row-span-1 mt-8 md:hidden relative z-20">
                     <div class="w-full pointer-events-auto">
                         @livewire('product.review-list', ['product' => $product], key('mobile-reviews-'.$product->id))
                     </div>
                 </div>
             </div>
 
-            <!-- 4. Masaüstü Tam Genişlik Bölümler -->
-            <div class="hidden lg:block mt-16 pt-12 border-t border-gray-100">
-                <!-- Ürün Tanıtımı -->
-                @if($product->description)
-                <div id="tanitim-bolumu" class="mb-16 scroll-mt-28">
-                    <div class="max-w-4xl mx-auto">
-                        <div class="text-center mb-8">
-                            <h2 class="text-2xl font-black text-gray-900 tracking-tight">Ürün Tanıtımı & Detaylar</h2>
-                            <p class="text-sm text-gray-500 mt-1">Modelin öne çıkan tasarım ve kullanım özellikleri</p>
-                        </div>
-                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-headings:font-bold prose-img:rounded-2xl prose-img:mx-auto prose-img:shadow-sm prose-video:rounded-2xl prose-video:mx-auto prose-a:text-emerald-600">
+            <!-- 4. TANITIM (Masaüstü Tam Genişlik) -->
+            @if($product->description)
+            <style>
+                @media (min-width: 1024px) {
+                    #tanitim-bolumu .prose img,
+                    #tanitim-bolumu .prose video {
+                        margin-left: 6rem !important;
+                        border-radius: 1rem;
+                        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                        width: calc(100% - 6rem);
+                        max-width: 100%;
+                    }
+                }
+            </style>
+            <div x-data="{ showTanitim: false }" @toggle-tanitim.window="showTanitim = !showTanitim; if(showTanitim) { setTimeout(() => { $el.scrollIntoView({behavior: 'smooth'}) }, 250) }">
+                <div id="tanitim-bolumu" class="hidden lg:block mt-0 pt-10 border-t border-gray-100 px-4 sm:px-0 relative z-10 accordion-content" :class="showTanitim ? 'open' : ''">
+                    <div>
+                        <div class="prose prose-lg prose-gray max-w-none text-gray-700 leading-relaxed prose-headings:font-bold prose-a:text-emerald-600 pb-10">
                             {!! $product->description !!}
                         </div>
                     </div>
                 </div>
-                @endif
-
-                <!-- Müşteri Değerlendirmeleri (Masaüstü) -->
-                <div id="reviews-section" class="mb-16 scroll-mt-28">
-                    <div class="max-w-4xl mx-auto">
-                        @livewire('product.review-list', ['product' => $product], key('desktop-reviews-'.$product->id))
-                    </div>
-                </div>
             </div>
+            @endif
         </div>
     </div>
 
