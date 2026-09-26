@@ -193,16 +193,22 @@ class StockManagement extends Page implements HasTable
                     ->size(80)
                     ->defaultImageUrl(url('/favicon.png'))
                     ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
+                Tables\Columns\TextColumn::make('sku')
+                    ->label('SKU')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('sku', 'like', "%{$search}%")
+                            ->orWhereHas('product', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                    })
+                    ->sortable()
+                    ->size('sm')
+                    ->color('gray')
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('size')
                     ->label('Beden')
                     ->badge()
                     ->color('primary')
                     ->sortable()
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        return $query->where('size', 'like', "%{$search}%")
-                            ->orWhere('sku', 'like', "%{$search}%")
-                            ->orWhereHas('product', fn ($q) => $q->where('name', 'like', "%{$search}%"));
-                    }),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('color')
                     ->label('Renk')
                     ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : $state)
