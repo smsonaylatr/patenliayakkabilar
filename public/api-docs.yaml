@@ -1,14 +1,15 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Patenli Ayakkabılar API
   version: 1.0.0
-  description: Patenli Ayakkabılar ürün kataloğuna erişim sağlayan genel API servisidir.
+  description: Patenli Ayakkabılar® resmi e-ticaret ve AI shopping API servisi.
 servers:
-  - url: /api
-    description: Ana Sunucu
+  - url: https://patenliayakkabilar.com/api
+    description: Production API Server
 paths:
   /products:
     get:
+      operationId: listProducts
       summary: Ürünleri Listele
       description: Sistemdeki tüm aktif ürünleri ilişkili kategori, varyant ve resim bilgileriyle birlikte sayfalanmış olarak getirir.
       parameters:
@@ -47,23 +48,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
-                  meta:
-                    type: object
-                    properties:
-                      current_page:
-                        type: integer
-                        example: 1
-                      last_page:
-                        type: integer
-                        example: 5
-                      per_page:
-                        type: integer
-                        example: 20
-                      total:
-                        type: integer
-                        example: 100
+
   /products/{identifier}:
     get:
+      operationId: getProduct
       summary: Ürün Detayı Getir
       description: ID veya URL Slug değerine göre tek bir ürünün tüm detaylarını getirir.
       parameters:
@@ -88,20 +76,10 @@ paths:
                     $ref: '#/components/schemas/Product'
         '404':
           description: Ürün Bulunamadı
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  message:
-                    type: string
-                    example: Ürün bulunamadı.
 
   /v1/ai/shopping/products:
     get:
+      operationId: searchAiProducts
       summary: AI Alışveriş Ürün Kataloğu
       description: ChatGPT, Perplexity ve Gemini shopping botları için optimize edilmiş ürün listesini döndürür.
       parameters:
@@ -109,16 +87,18 @@ paths:
           name: q
           schema:
             type: string
-          description: Arama kelimesi
+          description: Arama kelimesi veya modeli (ör. ışıklı, 4 tekerlekli, pembe)
         - in: query
           name: gender
           schema:
             type: string
             enum: [erkek_cocuk, kiz_cocuk, unisex]
+          description: Cinsiyet veya hedef kitle
         - in: query
           name: in_stock_only
           schema:
             type: boolean
+          description: Sadece stokta olanları getir
         - in: query
           name: limit
           schema:
@@ -130,20 +110,23 @@ paths:
 
   /v1/ai/shopping/product/{slug}:
     get:
+      operationId: getAiProductDetails
       summary: AI Ürün Detayı ve SSS
-      description: Belirli bir ürünün teknik özellikleri, kargo, SSS ve AI özetini getirir.
+      description: Belirli bir ürünün teknik özellikleri, fiyatı, kargo, SSS ve AI özetini getirir.
       parameters:
         - in: path
           name: slug
           required: true
           schema:
             type: string
+          description: Ürünün benzersiz slug değeri
       responses:
         '200':
           description: Başarılı ürün detayı
 
   /v1/ai/embeddings:
     get:
+      operationId: getVectorEmbeddings
       summary: Vektör Gömme Veri Seti
       description: LLM ve vektör arama motorları için hazırlanmış metin parçaları ve metadata veri seti.
       responses:
@@ -152,6 +135,7 @@ paths:
 
   /search/suggest:
     get:
+      operationId: searchSuggestions
       summary: Anlık Arama ve Öneri Motoru
       description: Kullanıcı yazarken anlık popüler tamamlama, kategori ve ürün eşleşmelerini getirir.
       parameters:
@@ -160,6 +144,7 @@ paths:
           required: false
           schema:
             type: string
+          description: Arama terimi
       responses:
         '200':
           description: Başarılı öneri listesi
