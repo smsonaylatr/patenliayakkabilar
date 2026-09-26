@@ -567,7 +567,19 @@
         </a>
         @endif
 
-        @if(request()->is('/'))
+        @php
+            $gcrWidgetActive = \Illuminate\Support\Facades\Cache::remember('setting_gcr_widget_active', 3600, function() {
+                return \App\Models\Setting::where('key', 'gcr_widget_active')->value('value') ?? '1';
+            });
+            $gcrMerchantId = \Illuminate\Support\Facades\Cache::remember('setting_gcr_merchant_id', 3600, function() {
+                return \App\Models\Setting::where('key', 'gcr_merchant_id')->value('value') ?: '5828544730';
+            });
+            $gcrPosition = \Illuminate\Support\Facades\Cache::remember('setting_gcr_badge_position', 3600, function() {
+                return \App\Models\Setting::where('key', 'gcr_badge_position')->value('value') ?: 'BOTTOM_LEFT';
+            });
+        @endphp
+
+        @if(($gcrWidgetActive === '1' || $gcrWidgetActive === 1 || $gcrWidgetActive === true || $gcrWidgetActive === 'true') && request()->is('/'))
         <!-- Google Customer Reviews — Sadece anasayfada -->
         <style>
             #gcr-badge-container,
@@ -601,7 +613,7 @@
                 iframe[src*="customerreviews"],
                 gmp-ratingbadge {
                     bottom: calc(65px + env(safe-area-inset-bottom)) !important;
-                    left: -3px !important;
+                    {{ $gcrPosition === 'BOTTOM_RIGHT' ? 'right: -3px !important; left: auto !important;' : 'left: -3px !important;' }}
                     z-index: 40 !important;
                 }
             }
@@ -613,21 +625,34 @@
             ratingBadgeContainer.id = "gcr-badge-container";
             document.body.appendChild(ratingBadgeContainer);
             window.gapi.load('ratingbadge', function() {
-              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": 5828544730, "position": "BOTTOM_LEFT"});
+              window.gapi.ratingbadge.render(ratingBadgeContainer, {"merchant_id": {{ (int) $gcrMerchantId }}, "position": "{{ $gcrPosition }}"});
 
+              var isRight = '{{ $gcrPosition }}' === 'BOTTOM_RIGHT';
               var applyStyles = function() {
                 var elements = document.querySelectorAll('#gcr-badge-container, #gcr-badge-container iframe, iframe[src*="customerreviews"], iframe[src*="ratingbadge"], iframe[name*="gapi_ratingbadge"], gmp-ratingbadge');
                 elements.forEach(function(el) {
                   el.style.setProperty('z-index', '40', 'important');
                   if (window.innerWidth < 768) {
                     el.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                    el.style.setProperty('left', '-3px', 'important');
+                    if (isRight) {
+                      el.style.setProperty('right', '-3px', 'important');
+                      el.style.removeProperty('left');
+                    } else {
+                      el.style.setProperty('left', '-3px', 'important');
+                      el.style.removeProperty('right');
+                    }
                   }
                   if (el.parentElement && el.parentElement !== document.body && el.parentElement.id !== 'gcr-badge-container' && el.parentElement.style.position === 'fixed') {
                     el.parentElement.style.setProperty('z-index', '40', 'important');
                     if (window.innerWidth < 768) {
                       el.parentElement.style.setProperty('bottom', 'calc(65px + env(safe-area-inset-bottom))', 'important');
-                      el.parentElement.style.setProperty('left', '-3px', 'important');
+                      if (isRight) {
+                        el.parentElement.style.setProperty('right', '-3px', 'important');
+                        el.parentElement.removeProperty('left');
+                      } else {
+                        el.parentElement.style.setProperty('left', '-3px', 'important');
+                        el.parentElement.removeProperty('right');
+                      }
                     }
                   }
                 });

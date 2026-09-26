@@ -13,6 +13,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -76,6 +77,7 @@ class SeoSettings extends FilamentPage implements HasForms
             'seo_google_verification', 'seo_yandex_verification',
             'seo_bing_verification',
             'google_analytics_id', 'gtm_container_id',
+            'gcr_widget_active', 'gcr_merchant_id', 'gcr_badge_position',
             'shipping_info_text', 'return_policy_text',
             'return_policy_days',
             'gemini_api_key', 'openai_api_key', 'groq_api_key',
@@ -104,6 +106,9 @@ class SeoSettings extends FilamentPage implements HasForms
             'seo_bing_verification' => $settings['seo_bing_verification'] ?? '',
             'google_analytics_id' => $settings['google_analytics_id'] ?? '',
             'gtm_container_id' => $settings['gtm_container_id'] ?? '',
+            'gcr_widget_active' => filter_var($settings['gcr_widget_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'gcr_merchant_id' => $settings['gcr_merchant_id'] ?? '5828544730',
+            'gcr_badge_position' => $settings['gcr_badge_position'] ?? 'BOTTOM_LEFT',
             'shipping_info_text' => $settings['shipping_info_text'] ?? 'Türkiye genelinde 1-3 iş günü içinde kargo ile teslim.',
             'return_policy_text' => $settings['return_policy_text'] ?? '14 gün içinde koşulsuz iade hakkı.',
             'return_policy_days' => $settings['return_policy_days'] ?? '14',
@@ -307,6 +312,32 @@ class SeoSettings extends FilamentPage implements HasForms
                                             ->placeholder('GTM-XXXXXXX')
                                             ->helperText('Tag Manager → Çalışma Alanı → Konteyner kimliği'),
                                     ]),
+
+                                Section::make('Google Müşteri Yorumları (GCR)')
+                                    ->description('Google Merchant Center Müşteri Yorumları (Customer Reviews) rozetini ana sayfada yönetin.')
+                                    ->schema([
+                                        Toggle::make('gcr_widget_active')
+                                            ->label('GCR Rozet Widget\'ı Aktif Mi?')
+                                            ->helperText('Açık olduğunda ana sayfanın belirlenen köşesinde Google Müşteri Yorumları rozeti görünür.')
+                                            ->default(true),
+
+                                        Grid::make(2)->schema([
+                                            TextInput::make('gcr_merchant_id')
+                                                ->label('Merchant Center ID')
+                                                ->placeholder('5828544730')
+                                                ->helperText('Google Merchant Center hesap numaranız.')
+                                                ->numeric(),
+
+                                            Select::make('gcr_badge_position')
+                                                ->label('Rozet Konumu')
+                                                ->options([
+                                                    'BOTTOM_LEFT' => 'Sol Alt (Önerilen)',
+                                                    'BOTTOM_RIGHT' => 'Sağ Alt',
+                                                ])
+                                                ->default('BOTTOM_LEFT')
+                                                ->native(false),
+                                        ]),
+                                    ]),
                             ]),
 
                         // ==========================================
@@ -478,11 +509,17 @@ class SeoSettings extends FilamentPage implements HasForms
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? '1' : '0';
+            }
             Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
         }
 
         // Cache'leri temizle
         \Illuminate\Support\Facades\Cache::forget('hero_settings');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_widget_active');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_merchant_id');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_badge_position');
 
         Notification::make()
             ->title('Başarılı')

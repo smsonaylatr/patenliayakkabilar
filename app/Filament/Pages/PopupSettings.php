@@ -9,7 +9,9 @@ use Filament\Schemas\Schema;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use App\Models\Setting;
@@ -25,7 +27,7 @@ class PopupSettings extends Page implements HasForms
 
     public static function getNavigationLabel(): string
     {
-        return 'Pop-up Ayarları';
+        return 'Pop-up & Widget Ayarları';
     }
 
     public static function getNavigationGroup(): ?string
@@ -35,7 +37,7 @@ class PopupSettings extends Page implements HasForms
 
     public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
-        return 'Giriş Pop-up Ayarları';
+        return 'Pop-up & Widget Ayarları';
     }
 
     protected string $view = 'filament.pages.popup-settings';
@@ -49,6 +51,9 @@ class PopupSettings extends Page implements HasForms
             'popup_image',
             'popup_link',
             'call_widget_active',
+            'gcr_widget_active',
+            'gcr_merchant_id',
+            'gcr_badge_position',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -56,6 +61,9 @@ class PopupSettings extends Page implements HasForms
             'popup_image' => $settings['popup_image'] ?? null,
             'popup_link' => $settings['popup_link'] ?? '',
             'call_widget_active' => (bool) ($settings['call_widget_active'] ?? true),
+            'gcr_widget_active' => filter_var($settings['gcr_widget_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'gcr_merchant_id' => $settings['gcr_merchant_id'] ?? '5828544730',
+            'gcr_badge_position' => $settings['gcr_badge_position'] ?? 'BOTTOM_LEFT',
         ]);
     }
 
@@ -63,6 +71,32 @@ class PopupSettings extends Page implements HasForms
     {
         return $schema
             ->schema([
+                Section::make('Google Müşteri Yorumları (GCR) Widget\'ı')
+                    ->description('Google Merchant Center Müşteri Yorumları (Customer Reviews) rozetini ana sayfada yönetin.')
+                    ->schema([
+                        Toggle::make('gcr_widget_active')
+                            ->label('GCR Rozet Widget\'ı Aktif Mi?')
+                            ->helperText('Açık olduğunda ana sayfanın belirlenen köşesinde Google Müşteri Yorumları rozeti görünür.')
+                            ->default(true),
+
+                        Grid::make(2)->schema([
+                            TextInput::make('gcr_merchant_id')
+                                ->label('Merchant Center ID')
+                                ->placeholder('5828544730')
+                                ->helperText('Google Merchant Center hesap numaranız.')
+                                ->numeric(),
+
+                            Select::make('gcr_badge_position')
+                                ->label('Rozet Konumu')
+                                ->options([
+                                    'BOTTOM_LEFT' => 'Sol Alt (Önerilen)',
+                                    'BOTTOM_RIGHT' => 'Sağ Alt',
+                                ])
+                                ->default('BOTTOM_LEFT')
+                                ->native(false),
+                        ]),
+                    ]),
+
                 Section::make('Telefonla Arama Widget')
                     ->description('Sayfanın sağ alt köşesinde bulunan telefonla arama butonunu yönetin.')
                     ->schema([
@@ -110,6 +144,9 @@ class PopupSettings extends Page implements HasForms
         }
 
         \Illuminate\Support\Facades\Cache::forget('setting_call_widget_active');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_widget_active');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_merchant_id');
+        \Illuminate\Support\Facades\Cache::forget('setting_gcr_badge_position');
 
         Notification::make()
             ->title('Başarılı')
