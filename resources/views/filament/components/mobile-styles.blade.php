@@ -397,8 +397,8 @@ html, body {
     /* Tablet Sidebar Çekmecesi */
     aside.fi-sidebar,
     .fi-sidebar {
-        width: min(88vw, 480px) !important;
-        max-width: 480px !important;
+        width: 300px !important;
+        max-width: 300px !important;
         height: 100dvh !important;
     }
 }
@@ -535,19 +535,22 @@ html, body {
         -webkit-backdrop-filter: blur(6px) !important;
     }
 
+    /* Mobil Sidebar Çekmecesi: İdeal Genişlik (min(84vw, 300px)) & Scrollbar Yok */
     aside.fi-sidebar,
     .fi-sidebar {
-        width: 100vw !important;
-        max-width: 100vw !important;
+        width: min(84vw, 300px) !important;
+        max-width: 300px !important;
         height: 100dvh !important;
         max-height: 100dvh !important;
         inset-inline-start: 0 !important;
-        inset-inline-end: 0 !important;
-        box-shadow: none !important;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.25) !important;
         background: #ffffff !important;
         display: flex !important;
         flex-direction: column !important;
         z-index: 9998 !important;
+        overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
     }
 
     .dark aside.fi-sidebar,
@@ -559,8 +562,8 @@ html, body {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 14px 20px !important;
-        height: 64px !important;
+        padding: 12px 16px !important;
+        height: 58px !important;
         border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
         flex-shrink: 0 !important;
         width: 100% !important;
@@ -578,12 +581,12 @@ html, body {
 
     .fi-sidebar-nav {
         flex-grow: 1 !important;
-        height: calc(100dvh - 64px) !important;
+        height: calc(100dvh - 58px) !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
-        padding: 10px 12px 90px 12px !important;
+        padding: 8px 10px 90px 10px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
@@ -595,11 +598,10 @@ html, body {
     }
 
     .fi-sidebar-nav-groups {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
         width: 100% !important;
-        max-width: 100% !important;
         margin: 0 !important;
         scrollbar-width: none !important;
     }
