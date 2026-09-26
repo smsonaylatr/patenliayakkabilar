@@ -77,8 +77,8 @@
                     <h1 class="hidden md:block text-2xl lg:text-3xl font-black tracking-tight text-gray-900 leading-snug">{{ $product->name }}</h1>
                     
                     @php
-                        $totalApprovedReviews = $product->reviews()->where('is_approved', true)->count();
-                        $avgApprovedRating = (float)($product->reviews()->where('is_approved', true)->avg('rating') ?: 5.0);
+                        $totalApprovedReviews = $product->reviews()->where('status', 1)->count();
+                        $avgApprovedRating = (float)($product->reviews()->where('status', 1)->avg('rating') ?: 5.0);
                     @endphp
                     <div class="hidden md:flex items-center gap-2 mt-2.5">
                         <div class="flex text-amber-400 text-xs">
