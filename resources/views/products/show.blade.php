@@ -73,65 +73,41 @@
 
                 <!-- 2. Product info (Right Column, spans both rows) -->
                 <div class="order-2 lg:col-span-1 lg:row-span-2 mt-6 sm:mt-10 lg:mt-0">
-                    <!-- Desktop Title & Share -->
-                    <div class="hidden md:flex items-start justify-between gap-4">
-                        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 flex-1">{{ $product->name }}</h1>
-                        <button 
-                            type="button" 
-                            onclick="window.shareProduct('{{ addslashes($product->name) }}', '{{ route('products.show', $product->slug) }}')" 
-                            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 hover:text-black font-semibold text-sm transition-all duration-200 active:scale-95 shadow-2xs shrink-0 cursor-pointer"
-                            title="Ürünü Paylaş">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                            <span>Paylaş</span>
-                        </button>
-                    </div>
+                    <!-- Desktop Title -->
+                    <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
-                    <!-- Mobile Marquee Title & Share -->
-                    <div class="md:hidden flex items-center justify-between gap-2 pb-2">
-                        <div class="flex-1 overflow-hidden bg-white relative">
-                            <style>
-                                @keyframes marquee-mobile {
-                                    0% { transform: translate3d(0, 0, 0); }
-                                    100% { transform: translate3d(-50%, 0, 0); }
-                                }
-                                .animate-marquee-mobile {
-                                    animation: marquee-mobile 25s linear infinite;
-                                    will-change: transform;
-                                    backface-visibility: hidden;
-                                    -webkit-backface-visibility: hidden;
-                                }
-                            </style>
-                            <div class="flex w-max animate-marquee-mobile">
-                                <!-- Grup 1 -->
-                                <div class="flex shrink-0">
-                                    @for($i = 0; $i < 3; $i++)
-                                        <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
-                                            {{ $product->name }}
-                                        </h1>
-                                    @endfor
-                                </div>
-                                <!-- Grup 2 (Grup 1'in birebir kopyası) -->
-                                <div class="flex shrink-0" aria-hidden="true">
-                                    @for($i = 0; $i < 3; $i++)
-                                        <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
-                                            {{ $product->name }}
-                                        </h1>
-                                    @endfor
-                                </div>
+                    <!-- Mobile Marquee Title -->
+                    <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative">
+                        <style>
+                            @keyframes marquee-mobile {
+                                0% { transform: translate3d(0, 0, 0); }
+                                100% { transform: translate3d(-50%, 0, 0); }
+                            }
+                            .animate-marquee-mobile {
+                                animation: marquee-mobile 25s linear infinite;
+                                will-change: transform;
+                                backface-visibility: hidden;
+                                -webkit-backface-visibility: hidden;
+                            }
+                        </style>
+                        <div class="flex w-max animate-marquee-mobile">
+                            <!-- Grup 1 -->
+                            <div class="flex shrink-0">
+                                @for($i = 0; $i < 3; $i++)
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
+                                        {{ $product->name }}
+                                    </h1>
+                                @endfor
+                            </div>
+                            <!-- Grup 2 (Grup 1'in birebir kopyası) -->
+                            <div class="flex shrink-0" aria-hidden="true">
+                                @for($i = 0; $i < 3; $i++)
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
+                                        {{ $product->name }}
+                                    </h1>
+                                @endfor
                             </div>
                         </div>
-                        <button 
-                            type="button" 
-                            onclick="window.shareProduct('{{ addslashes($product->name) }}', '{{ route('products.show', $product->slug) }}')" 
-                            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 active:scale-90 transition-all shrink-0 shadow-2xs border border-gray-200 cursor-pointer"
-                            aria-label="Ürünü Paylaş"
-                            title="Ürünü Paylaş">
-                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                        </button>
                     </div>
 
                     {{-- Fiyat --}}
@@ -203,29 +179,6 @@
                     {{-- Sepete Ekle --}}
                     <div class="mt-3">
                         <livewire:product.add-to-cart-button :product="$product" />
-                    </div>
-
-                    {{-- Hızlı Paylaşım & Arkadaşına Gönder --}}
-                    <div class="mt-3 flex items-center gap-2">
-                        <button 
-                            type="button"
-                            onclick="window.shareProduct('{{ addslashes($product->name) }}', '{{ route('products.show', $product->slug) }}')" 
-                            class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-gray-200 hover:border-gray-400 bg-white hover:bg-gray-50 text-gray-700 text-xs sm:text-sm font-semibold transition-all shadow-2xs cursor-pointer active:scale-[0.99]"
-                            title="Ürünü Paylaş">
-                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                            <span>Ürünü Paylaş</span>
-                        </button>
-                        <a 
-                            href="https://api.whatsapp.com/send?text={{ rawurlencode($product->name . ' - ' . route('products.show', $product->slug)) }}" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            class="flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs sm:text-sm font-semibold transition-all shadow-2xs active:scale-[0.99]"
-                            title="WhatsApp ile Paylaş">
-                            <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
-                            <span>WhatsApp</span>
-                        </a>
                     </div>
 
                     {{-- Ortalama Teslimat Süresi Rozeti --}}
