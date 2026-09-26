@@ -55,6 +55,8 @@ class PresenceController extends Controller
         $visitor->operating_system = $deviceInfo['os'];
         $visitor->screen_resolution = $screen;
 
+        $previousPath = $visitor->current_path;
+
         $visitor->current_url = $url;
         $visitor->current_path = $path;
         $visitor->current_title = $title;
@@ -77,30 +79,33 @@ class PresenceController extends Controller
             $cart = Cart::where('session_id', $request->session()->getId())->with(['items.product', 'items.variant'])->first();
         }
 
-        if ($cart && $cart->items->isNotEmpty()) {
-            $visitor->cart_id = $cart->id;
-            $visitor->cart_items_count = $cart->items->sum('quantity');
-            $visitor->cart_total = $cart->items->sum(fn ($i) => ($i->price ?? 0) * ($i->quantity ?? 1));
+        if ($cart) {
+            if ($cart->items->isNotEmpty()) {
+                $visitor->cart_id = $cart->id;
+                $visitor->cart_items_count = $cart->items->sum('quantity');
+                $visitor->cart_total = $cart->items->sum(fn ($i) => ($i->price ?? 0) * ($i->quantity ?? 1));
 
-            $summary = [];
-            foreach ($cart->items as $item) {
-                $summary[] = [
-                    'product_name' => $item->product?->name ?? 'Patenli Ayakkabı',
-                    'size' => $item->variant?->size ?? null,
-                    'color' => $item->variant?->color ?? null,
-                    'quantity' => $item->quantity,
-                    'price' => (float) $item->price,
-                ];
+                $summary = [];
+                foreach ($cart->items as $item) {
+                    $summary[] = [
+                        'product_name' => $item->product?->name ?? 'Patenli Ayakkabı',
+                        'size' => $item->variant?->size ?? null,
+                        'color' => $item->variant?->color ?? null,
+                        'quantity' => $item->quantity,
+                        'price' => (float) $item->price,
+                    ];
+                }
+                $visitor->cart_summary = $summary;
+            } else {
+                $visitor->cart_items_count = 0;
+                $visitor->cart_total = 0.00;
+                $visitor->cart_summary = [];
             }
-            $visitor->cart_summary = $summary;
-        } else {
-            $visitor->cart_items_count = 0;
-            $visitor->cart_total = 0.00;
-            $visitor->cart_summary = [];
         }
 
         // 4. Davranış Analizi ve Strateji Üretimi
         $this->behaviorAnalyzer->analyze($visitor, [
+            'previous_path' => $previousPath,
             'path' => $path,
             'title' => $title,
             'action' => $action,

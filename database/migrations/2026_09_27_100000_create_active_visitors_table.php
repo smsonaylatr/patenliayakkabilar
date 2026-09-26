@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('session_id', 191)->nullable()->index();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('ip_address', 45)->nullable()->index();
+            $table->text('user_agent')->nullable();
             $table->string('device_type', 20)->default('desktop'); // desktop, mobile, tablet
             $table->string('browser', 50)->nullable();
             $table->string('operating_system', 50)->nullable();

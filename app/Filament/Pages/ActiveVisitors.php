@@ -24,6 +24,8 @@ class ActiveVisitors extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    protected static ?string $slug = 'canli-ziyaretciler';
+
     protected static ?int $navigationSort = 1;
 
     public function getView(): string
@@ -46,6 +48,15 @@ class ActiveVisitors extends Page implements HasTable
         return 'Canlı Ziyaretçi & Satış Dönüşüm Merkezi';
     }
 
+    public static function canAccess(): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasTable('active_visitors');
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     public static function getNavigationGroup(): ?string
     {
         return 'Müşteriler';
@@ -53,8 +64,15 @@ class ActiveVisitors extends Page implements HasTable
 
     public static function getNavigationBadge(): ?string
     {
-        $count = ActiveVisitor::online()->count();
-        return $count > 0 ? (string) $count : null;
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
+                return null;
+            }
+            $count = ActiveVisitor::online()->count();
+            return $count > 0 ? (string) $count : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public static function getNavigationBadgeColor(): ?string
@@ -64,25 +82,49 @@ class ActiveVisitors extends Page implements HasTable
 
     public function getViewData(): array
     {
-        $onlineQuery = ActiveVisitor::online();
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
+                return [
+                    'onlineCount' => 0,
+                    'highIntentCount' => 0,
+                    'cartCount' => 0,
+                    'cartTotal' => 0,
+                    'hesitatingCount' => 0,
+                    'membersCount' => 0,
+                    'guestsCount' => 0,
+                ];
+            }
 
-        $onlineCount = (clone $onlineQuery)->count();
-        $highIntentCount = (clone $onlineQuery)->where('intent_score', '>=', 60)->count();
-        $cartCount = (clone $onlineQuery)->where('cart_items_count', '>', 0)->count();
-        $cartTotal = (clone $onlineQuery)->sum('cart_total');
-        $hesitatingCount = (clone $onlineQuery)->where('intent_level', 'hesitating')->count();
-        $membersCount = (clone $onlineQuery)->whereNotNull('user_id')->count();
-        $guestsCount = $onlineCount - $membersCount;
+            $onlineQuery = ActiveVisitor::online();
 
-        return [
-            'onlineCount' => $onlineCount,
-            'highIntentCount' => $highIntentCount,
-            'cartCount' => $cartCount,
-            'cartTotal' => $cartTotal,
-            'hesitatingCount' => $hesitatingCount,
-            'membersCount' => $membersCount,
-            'guestsCount' => $guestsCount,
-        ];
+            $onlineCount = (clone $onlineQuery)->count();
+            $highIntentCount = (clone $onlineQuery)->where('intent_score', '>=', 60)->count();
+            $cartCount = (clone $onlineQuery)->where('cart_items_count', '>', 0)->count();
+            $cartTotal = (clone $onlineQuery)->sum('cart_total');
+            $hesitatingCount = (clone $onlineQuery)->where('intent_level', 'hesitating')->count();
+            $membersCount = (clone $onlineQuery)->whereNotNull('user_id')->count();
+            $guestsCount = $onlineCount - $membersCount;
+
+            return [
+                'onlineCount' => $onlineCount,
+                'highIntentCount' => $highIntentCount,
+                'cartCount' => $cartCount,
+                'cartTotal' => $cartTotal,
+                'hesitatingCount' => $hesitatingCount,
+                'membersCount' => $membersCount,
+                'guestsCount' => $guestsCount,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'onlineCount' => 0,
+                'highIntentCount' => 0,
+                'cartCount' => 0,
+                'cartTotal' => 0,
+                'hesitatingCount' => 0,
+                'membersCount' => 0,
+                'guestsCount' => 0,
+            ];
+        }
     }
 
     public function table(Table $table): Table

@@ -19,12 +19,13 @@ class VisitorBehaviorAnalyzer
 
         // 1. Gezinme İzini (Journey Trail) Güncelle
         $trail = $visitor->journey_trail ?? [];
-        $currentPath = $visitor->current_path;
+        $previousPath = $clientData['previous_path'] ?? null;
         $nowFormatted = now()->format('H:i:s');
 
-        $isPathChanged = ($currentPath !== $newPath);
+        $isFirstStep = empty($trail);
+        $isPathChanged = ($previousPath !== null && $previousPath !== $newPath);
 
-        if ($isPathChanged || !empty($actionDetail)) {
+        if ($isFirstStep || $isPathChanged || !empty($actionDetail)) {
             // Önceki adım varsa süresini güncelle
             if (!empty($trail)) {
                 $lastIndex = count($trail) - 1;
@@ -54,7 +55,7 @@ class VisitorBehaviorAnalyzer
         }
 
         // Toplam geçirilen süreyi güncelle
-        $totalSeconds = $visitor->first_seen_at ? now()->diffInSeconds($visitor->first_seen_at) : 0;
+        $totalSeconds = (int) max(0, $visitor->first_seen_at ? now()->diffInSeconds($visitor->first_seen_at) : 0);
         $visitor->time_spent_seconds = $totalSeconds;
 
         // 2. Davranış Heuristiği ve Satın Alma Niyet Skoru
