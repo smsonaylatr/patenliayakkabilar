@@ -31,11 +31,7 @@ class OrdersTable
                     ->getStateUsing(function (Order $record) {
                         $items = [];
                         foreach ($record->items as $item) {
-                            $img = null;
-                            if ($item->product) {
-                                $item->product->loadMissing('images');
-                                $img = $item->product->images->first()?->image_url;
-                            }
+                            $img = $item->product?->images->first()?->image_url;
                             $items[] = [
                                 'image' => $img ?: asset('favicon.png'),
                                 'quantity' => $item->quantity ?? 1,

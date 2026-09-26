@@ -17,24 +17,30 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('syncPorego')
+                ->label('Porego Senkronize Et')
+                ->icon('heroicon-m-arrow-path')
+                ->color('gray')
+                ->action(function () {
+                    $result = app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+                    \Filament\Notifications\Notification::make()
+                        ->title('Porego Senkronizasyonu')
+                        ->body($result['message'] ?? 'Senkronizasyon tamamlandı.')
+                        ->success()
+                        ->send();
+                }),
             CreateAction::make()->label('Yeni Sipariş'),
         ];
-    }
-
-    public function mount(): void
-    {
-        parent::mount();
-
-        // Porego senkronizasyonu: 120 saniye cache ile harici API yükünü azalt
-        Cache::remember('porego_auto_order_sync', 120, function () {
-            return app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
-        });
     }
 
     protected function getTableQuery(): Builder
     {
         return parent::getTableQuery()
-            ->with(['items.product.images']);
+            ->with([
+                'user:id,email',
+                'items.variant',
+                'items.product.images',
+            ]);
     }
 
     public function getDefaultActiveTab(): string | int | null
