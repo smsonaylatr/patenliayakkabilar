@@ -508,4 +508,146 @@ td.fi-ta-actions-cell,
         grid-column: span 12 / span 12 !important;
     }
 }
+
+/* 11. MOBİL ALT NAVİGASYON BARI (BOTTOM BAR) */
+.fi-mobile-bottom-bar {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .fi-mobile-bottom-bar {
+        display: block !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 9995 !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+        padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px) !important;
+        pointer-events: auto !important;
+    }
+
+    .dark .fi-mobile-bottom-bar {
+        background: rgba(17, 24, 39, 0.95) !important;
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .fi-mobile-nav-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        height: 56px !important;
+        max-width: 480px !important;
+        margin: 0 auto !important;
+        padding: 0 4px !important;
+        box-sizing: border-box !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+    }
+
+    .fi-mobile-nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex: 1 1 0 !important;
+        height: 100% !important;
+        padding: 4px 0 !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        color: #64748b !important;
+        background: transparent !important;
+        border: none !important;
+        position: relative !important;
+        transition: transform 0.15s ease, color 0.15s ease !important;
+        outline: none !important;
+    }
+
+    .dark .fi-mobile-nav-item {
+        color: #94a3b8 !important;
+    }
+
+    .fi-mobile-nav-item:active {
+        transform: scale(0.9) !important;
+    }
+
+    .fi-mobile-nav-item.is-active {
+        color: #ff4e00 !important;
+    }
+
+    .dark .fi-mobile-nav-item.is-active {
+        color: #ff4e00 !important;
+    }
+
+    .fi-mobile-nav-icon-wrapper {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .fi-mobile-nav-icon {
+        width: 22px !important;
+        height: 22px !important;
+        transition: transform 0.15s ease !important;
+    }
+
+    .fi-mobile-nav-item.is-active .fi-mobile-nav-icon {
+        transform: scale(1.08) !important;
+    }
+
+    .fi-mobile-nav-label {
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1.1 !important;
+        margin-top: 3px !important;
+        white-space: nowrap !important;
+    }
+
+    .fi-mobile-nav-item.is-active .fi-mobile-nav-label {
+        font-weight: 800 !important;
+    }
+
+    .fi-mobile-nav-badge {
+        position: absolute !important;
+        top: -6px !important;
+        right: -10px !important;
+        min-width: 17px !important;
+        height: 17px !important;
+        padding: 0 4px !important;
+        background: #ff4e00 !important;
+        color: #ffffff !important;
+        font-size: 9px !important;
+        font-weight: 900 !important;
+        border-radius: 9999px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 5px rgba(255, 78, 0, 0.4) !important;
+        animation: fi-pulse 2s infinite ease-in-out !important;
+    }
+
+    .fi-mobile-nav-indicator {
+        position: absolute !important;
+        bottom: 2px !important;
+        width: 16px !important;
+        height: 2.5px !important;
+        background: #ff4e00 !important;
+        border-radius: 9999px !important;
+    }
+}
+
+@keyframes fi-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
 </style>

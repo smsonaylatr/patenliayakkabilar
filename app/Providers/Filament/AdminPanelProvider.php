@@ -95,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 \Filament\View\PanelsRenderHook::BODY_END,
-                fn () => filament()->auth()->check() ? view('filament.components.mobile-bottom-nav') : ''
+                fn () => view('filament.components.mobile-bottom-nav')
             );
     }
 
