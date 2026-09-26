@@ -464,7 +464,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     .hero-scroll {
       position: absolute;
       bottom: 32px;
-      left: 62px;
+      left: 63px;
       display: flex;
       flex-direction: column;
       align-items: center;

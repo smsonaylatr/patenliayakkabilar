@@ -425,24 +425,128 @@ html, body {
         justify-content: space-between !important;
     }
 
-    /* Mobil Sidebar Çekmecesi */
+    /* Mobil Sidebar Çekmecesi: Tam Ekrana Sığdırma Motoru */
     .fi-sidebar-close-overlay {
-        background: rgba(0, 0, 0, 0.6) !important;
-        backdrop-filter: blur(4px) !important;
-        -webkit-backdrop-filter: blur(4px) !important;
+        background: rgba(0, 0, 0, 0.65) !important;
+        backdrop-filter: blur(6px) !important;
+        -webkit-backdrop-filter: blur(6px) !important;
     }
 
-    aside.fi-sidebar {
-        width: min(84vw, 320px) !important;
-        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25) !important;
+    aside.fi-sidebar,
+    .fi-sidebar {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        inset-inline-start: 0 !important;
+        inset-inline-end: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        display: flex !important;
+        flex-direction: column !important;
+        z-index: 9998 !important;
+    }
+
+    .dark aside.fi-sidebar,
+    .dark .fi-sidebar {
+        background: #0f172a !important;
+    }
+
+    .fi-sidebar-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 14px 20px !important;
+        height: 64px !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+        flex-shrink: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .dark .fi-sidebar-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .fi-sidebar-header-logo-ctn {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .fi-sidebar-nav {
+        flex-grow: 1 !important;
+        height: calc(100dvh - 64px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 16px 18px 110px 18px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .fi-sidebar-nav-groups {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 600px !important;
+        margin: 0 auto !important;
+    }
+
+    .fi-sidebar-group {
+        width: 100% !important;
+    }
+
+    .fi-sidebar-group-label {
+        font-size: 0.78rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase !important;
+        color: #94a3b8 !important;
+        padding: 6px 12px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .fi-sidebar-group-items {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        width: 100% !important;
+    }
+
+    .fi-sidebar-item {
+        width: 100% !important;
     }
 
     .fi-sidebar-item-btn {
-        min-height: 44px !important;
-        font-size: 0.88rem !important;
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        border-radius: 10px !important;
+        width: 100% !important;
+        min-height: 48px !important;
+        padding: 10px 14px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        transition: background-color 0.15s ease, transform 0.1s ease !important;
+    }
+
+    .fi-sidebar-item-btn:active {
+        transform: scale(0.98) !important;
+    }
+
+    .fi-sidebar-item-label {
+        font-size: 0.95rem !important;
+        flex-grow: 1 !important;
+        white-space: normal !important;
+        line-height: 1.3 !important;
+    }
+
+    .fi-sidebar-item-badge {
+        margin-left: auto !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        padding: 2px 8px !important;
+        border-radius: 9999px !important;
     }
 
     /* Mobil Formlar */
@@ -664,11 +768,36 @@ html, body {
 /* ==========================================================================
    7. DOKUNMATİK & ORTAK MOBİL-TABLET KURALLARI (max-width: 1023px)
    ========================================================================== */
-.fi-mobile-bottom-bar {
+.fi-mobile-bottom-bar,
+.fi-sidebar-mobile-close-btn {
     display: none !important;
 }
 
 @media (max-width: 1023px) {
+    .fi-sidebar-mobile-close-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        background: rgba(0, 0, 0, 0.05) !important;
+        color: #475569 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        margin-left: auto !important;
+    }
+
+    .dark .fi-sidebar-mobile-close-btn {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #cbd5e1 !important;
+    }
+
+    .fi-sidebar-mobile-close-btn:active {
+        transform: scale(0.92) !important;
+    }
     /* Alt navigasyon barı için içerik alt boşluğu */
     body,
     .fi-main,

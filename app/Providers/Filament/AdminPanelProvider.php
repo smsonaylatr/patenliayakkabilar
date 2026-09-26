@@ -97,6 +97,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::BODY_END,
                 fn () => view('filament.components.mobile-bottom-nav')
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::SIDEBAR_LOGO_AFTER,
+                fn () => view('filament.components.sidebar-close-btn')
             );
     }
 
