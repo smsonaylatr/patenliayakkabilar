@@ -1,45 +1,21 @@
 <style>
 /* ==========================================================================
-   PATENLİ AYAKKABILAR — FILAMENT V5 ADMIN FULL MOBİL RESPONSIVE ENGINE
+   PATENLİ AYAKKABILAR — FILAMENT V5 COMPREHENSIVE RESPONSIVE ENGINE
+   (Masaüstü, Tablet & Mobil Telefon Tam Uyumluluk)
    ========================================================================== */
 
-/* 1. GENEL MOBİL & TOUCH ENTEGRASYONU */
+/* 1. GENEL RESET & DOKUNMATİK ENTEGRASYONU */
 html, body {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    max-width: 100vw;
 }
 
-@media (max-width: 768px) {
-    /* Alt navigasyon barı için içerik alt boşluğu */
-    body,
-    .fi-main,
-    .fi-main-ctn,
-    main.fi-main {
-        padding-bottom: 84px !important;
-    }
-
-    /* Bildirim balonlarının alt navigasyon barı üstünde durması */
-    .fi-no.fi-vertical-align-bottom {
-        bottom: 84px !important;
-    }
-
-    /* Kopyalama ve özel toast'lar için alt boşluk */
-    div[x-show="copyToast"] {
-        bottom: 84px !important;
-        right: 16px !important;
-    }
-
-    /* Mobilde takılı kalan tippy tooltip balonlarını gizleme */
-    .tippy-box,
-    [data-tippy-root],
-    .fi-tooltip {
-        display: none !important;
-    }
-}
-
-/* 2. MASAÜSTÜ RESPONSIVE MOTORU (Laptop, Desktop & Geniş Ekranlar) */
-@media (min-width: 769px) {
-    /* Masaüstü Tablo Konteyneri: Taşmaları kesmez, akıcı yatay kaydırma sağlar */
+/* ==========================================================================
+   2. MASAÜSTÜ & BÜYÜK EKRANLAR (min-width: 1024px)
+   ========================================================================== */
+@media (min-width: 1024px) {
+    /* Masaüstü Tablo Konteyneri */
     .fi-ta-ctn,
     .fi-ta-content,
     .fi-ta-content-ctn,
@@ -57,7 +33,7 @@ html, body {
         table-layout: auto !important;
     }
 
-    /* Masaüstü Tablo Başlıkları: Okunaklı, şık ve ferah */
+    /* Masaüstü Başlıklar & Hücreler */
     .fi-ta-header-cell {
         font-size: 0.78rem !important;
         font-weight: 700 !important;
@@ -67,7 +43,6 @@ html, body {
         white-space: nowrap !important;
     }
 
-    /* Masaüstü Tablo Hücreleri */
     .fi-ta-cell {
         font-size: 0.85rem !important;
         padding: 10px 10px !important;
@@ -81,7 +56,6 @@ html, body {
         border-radius: 6px !important;
     }
 
-    /* Satır Hover Efekti */
     .fi-ta-row {
         transition: background-color 0.15s ease !important;
     }
@@ -127,7 +101,7 @@ html, body {
         height: 18px !important;
     }
 
-    /* Masaüstü Üst Araç Çubuğu (Arama ve Filtreler) */
+    /* Masaüstü Üst Araç Çubuğu */
     .fi-ta-header-toolbar {
         display: flex !important;
         flex-direction: row !important;
@@ -148,14 +122,34 @@ html, body {
         border-radius: 8px !important;
     }
 
-    /* Masaüstü Kartlar & Form Bölümleri */
+    /* Masaüstü Dashboard & Stats Overview Grid */
+    .fi-wi-stats-overview {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .fi-wi-stats-overview-stat {
+        padding: 18px 20px !important;
+        border-radius: 14px !important;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .fi-wi-stats-overview-stat:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .dark .fi-wi-stats-overview-stat:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    /* Masaüstü Modallar & Kartlar */
     .fi-section {
         border-radius: 14px !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
         margin-bottom: 20px !important;
     }
 
-    /* Masaüstü Modallar */
     .fi-modal-window {
         border-radius: 16px !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
@@ -168,7 +162,7 @@ html, body {
         scrollbar-width: thin !important;
     }
 
-    /* Masaüstü Şık Kaydırma Çubuğu */
+    /* Masaüstü Kaydırma Çubuğu */
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -191,8 +185,161 @@ html, body {
     }
 }
 
-/* 3. MOBİL TABLO HÜCRE & AKSİYON DÜZENİ (Sadece 768px ve altı) */
+/* ==========================================================================
+   3. TABLET MODU (min-width: 769px and max-width: 1023px)
+   (iPad, iPad Air, Galaxy Tab vb.)
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1023px) {
+    /* Tablet Tablo Düzeni: Akıcı dokunmatik yatay kaydırma */
+    .fi-ta-ctn,
+    .fi-ta-content,
+    .fi-ta-content-ctn,
+    .fi-ta-table-container,
+    .fi-ta-table-ctn {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 12px !important;
+        scrollbar-width: thin !important;
+    }
+
+    .fi-ta-table {
+        min-width: 680px !important;
+        width: 100% !important;
+        table-layout: auto !important;
+    }
+
+    /* Tablet Tablo Hücreleri: Dengeli ve ferah */
+    .fi-ta-header-cell {
+        font-size: 0.74rem !important;
+        font-weight: 700 !important;
+        padding: 10px 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .fi-ta-cell {
+        font-size: 0.82rem !important;
+        padding: 9px 8px !important;
+        white-space: nowrap !important;
+        vertical-align: middle !important;
+    }
+
+    .fi-ta-cell .fi-badge {
+        font-size: 0.72rem !important;
+        padding: 2px 7px !important;
+    }
+
+    /* Tablet Aksiyon Butonları */
+    td.fi-ta-actions-cell,
+    .fi-ta-actions-cell {
+        width: auto !important;
+        white-space: nowrap !important;
+        padding: 8px 10px !important;
+    }
+
+    .fi-ta-actions {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        justify-content: flex-end !important;
+    }
+
+    .fi-ta-actions button,
+    .fi-ta-actions a,
+    .fi-ta-actions .fi-icon-btn {
+        padding: 5px !important;
+        border-radius: 8px !important;
+    }
+
+    .fi-ta-actions svg {
+        width: 17px !important;
+        height: 17px !important;
+    }
+
+    /* Tablet Üst Araç Çubuğu */
+    .fi-ta-header-toolbar {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        padding: 10px 14px !important;
+    }
+
+    .fi-ta-search-field {
+        min-width: 240px !important;
+        max-width: 340px !important;
+    }
+
+    /* Tablet Dashboard Grid (2 Kolon) */
+    .fi-wi-stats-overview {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    .fi-wi-stats-overview-stat {
+        padding: 16px 18px !important;
+        border-radius: 12px !important;
+    }
+
+    /* Tablet Modalları */
+    .fi-modal-window {
+        width: min(92vw, 760px) !important;
+        max-width: min(92vw, 760px) !important;
+        border-radius: 16px !important;
+        max-height: 90vh !important;
+    }
+
+    .fi-modal-content,
+    .fi-modal-body {
+        max-height: calc(88vh - 130px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* ==========================================================================
+   4. MOBİL TELEFON MODU (max-width: 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
+    /* Mobilde takılı kalan tippy tooltip balonlarını gizleme */
+    .tippy-box,
+    [data-tippy-root],
+    .fi-tooltip {
+        display: none !important;
+    }
+
+    /* Kopyalama ve özel toast'lar için alt boşluk */
+    div[x-show="copyToast"] {
+        bottom: 84px !important;
+        right: 16px !important;
+    }
+
+    /* Mobil Tablolar: Dokunmatik yatay kaydırma */
+    .fi-ta-ctn,
+    .fi-ta-content,
+    .fi-ta-content-ctn,
+    .fi-ta-table-container,
+    .fi-ta-table-ctn {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 12px !important;
+        position: relative;
+        scrollbar-width: thin !important;
+    }
+
+    /* Tablo içeriğinin ezilmesini önleyen minimum genişlik */
+    .fi-ta-table {
+        min-width: 580px !important;
+        width: 100% !important;
+        zoom: 1 !important;
+    }
+
     .fi-ta-header-cell {
         font-size: 0.72rem !important;
         padding: 8px 6px !important;
@@ -213,7 +360,7 @@ html, body {
     .fi-ta-actions button,
     .fi-ta-actions a,
     .fi-ta-actions .fi-icon-btn {
-        padding: 3px !important;
+        padding: 4px !important;
     }
 
     .fi-ta-actions svg {
@@ -236,32 +383,6 @@ html, body {
         gap: 4px !important;
         width: auto !important;
     }
-}
-
-/* 4. MOBİL TABLOLAR (Siparişler, Ürünler, vb.) */
-@media (max-width: 768px) {
-    /* Dokunmatik yatay kaydırma konteyneri */
-    .fi-ta-ctn,
-    .fi-ta-content,
-    .fi-ta-content-ctn,
-    .fi-ta-table-container,
-    .fi-ta-table-ctn {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-x pan-y !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 12px !important;
-        position: relative;
-        scrollbar-width: thin !important;
-    }
-
-    /* Tablo genişliği: squish olmasını önler, akıcı dokunmatik kaydırma sağlar */
-    .fi-ta-table {
-        min-width: 580px !important;
-        width: 100% !important;
-        zoom: 1 !important; /* iOS koordinat kaymalarını önleme */
-    }
 
     /* Tablo Üst Araç Çubuğu (Arama & Filtreler) */
     .fi-ta-header-toolbar {
@@ -283,7 +404,6 @@ html, body {
         border-radius: 10px !important;
     }
 
-    .fi-ta-actions-ctn,
     .fi-ta-header-toolbar .fi-ta-actions {
         display: flex !important;
         flex-direction: row !important;
@@ -293,7 +413,7 @@ html, body {
         width: 100% !important;
     }
 
-    /* Mobilde sayfalama butonu optimizasyonu */
+    /* Mobil Sayfalama */
     .fi-ta-pagination {
         padding: 10px 12px !important;
         flex-direction: column !important;
@@ -304,10 +424,8 @@ html, body {
         width: 100% !important;
         justify-content: space-between !important;
     }
-}
 
-/* 5. SIDEBAR (MOBİL ÇEKMECE MENÜSÜ) */
-@media (max-width: 768px) {
+    /* Mobil Sidebar Çekmecesi */
     .fi-sidebar-close-overlay {
         background: rgba(0, 0, 0, 0.6) !important;
         backdrop-filter: blur(4px) !important;
@@ -319,7 +437,6 @@ html, body {
         box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25) !important;
     }
 
-    /* Menü linkleri dokunma alanı */
     .fi-sidebar-item-btn {
         min-height: 44px !important;
         font-size: 0.88rem !important;
@@ -327,32 +444,13 @@ html, body {
         padding-bottom: 8px !important;
         border-radius: 10px !important;
     }
-}
 
-/* 7. MOBİL FORMLAR & GİRİŞ ALANLARI */
-@media (max-width: 768px) {
-    /* iOS Safari otomatik zoom'u engelleme: yazı tipi en az 16px */
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="password"],
-    input[type="search"],
-    input[type="url"],
-    select,
-    textarea,
-    .fi-input,
-    .fi-select-input {
-        font-size: 16px !important;
-    }
-
-    /* Form grid kolonlarını tek kolona sığdırma */
+    /* Mobil Formlar */
     .fi-fo-field-wrp {
         grid-column: span 12 / span 12 !important;
         width: 100% !important;
     }
 
-    /* Form bölümlerinde mobil iç dolgu */
     .fi-section {
         padding: 14px 14px !important;
         border-radius: 14px !important;
@@ -363,7 +461,7 @@ html, body {
         padding-bottom: 8px !important;
     }
 
-    /* Form Tab'ları: Mobilde satır kırmaz, parmakla yatay kaydırılır */
+    /* Form & Tab Bar: Mobilde parmakla yatay kaydırma */
     .fi-tabs {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -391,18 +489,16 @@ html, body {
         border-radius: 8px !important;
     }
 
-    /* RichEditor toolbar yatay taşmasını önleme */
+    /* RichEditor toolbar */
     .fi-fo-rich-editor-toolbar {
         flex-wrap: wrap !important;
         gap: 4px !important;
     }
 
-    /* FileUpload mobil düzeni */
     .fi-fo-file-upload {
         width: 100% !important;
     }
 
-    /* Form aksiyon butonları */
     .fi-form-actions {
         display: flex !important;
         flex-direction: column !important;
@@ -416,10 +512,8 @@ html, body {
         justify-content: center !important;
         min-height: 44px !important;
     }
-}
 
-/* 8. MODALLAR (DETAY & POPUP PENCERELERİ) */
-@media (max-width: 768px) {
+    /* Mobil Modallar (Tam Ekran Kart) */
     .fi-modal,
     [role="dialog"],
     .fi-modal-window-container,
@@ -471,39 +565,58 @@ html, body {
     .dark .fi-modal-footer {
         border-top-color: rgba(255, 255, 255, 0.08) !important;
     }
-}
 
-/* 9. STATS OVERVIEW & DASHBOARD WIDGETLARI */
-@media (min-width: 1280px) {
-    .fi-wi-stats-overview {
-        grid-template-columns: repeat(4, 1fr) !important;
-        gap: 16px !important;
+    .fi-in-entry-wrp {
+        grid-column: span 12 / span 12 !important;
     }
 }
 
-@media (min-width: 769px) and (max-width: 1279px) {
-    .fi-wi-stats-overview {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 14px !important;
-    }
-}
-
-@media (min-width: 769px) {
-    .fi-wi-stats-overview-stat {
-        padding: 18px 20px !important;
-        border-radius: 14px !important;
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    .fi-wi-stats-overview-stat:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
-    }
-    .dark .fi-wi-stats-overview-stat:hover {
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35) !important;
-    }
-}
-
+/* ==========================================================================
+   5. MOBİL BAŞLIK & TOOLBAR TEMİZLİĞİ (max-width: 640px)
+   ========================================================================== */
 @media (max-width: 640px) {
+    /* Mobilde ekrandan çok yer çalan gereksiz breadcrumbs'ı gizle */
+    .fi-breadcrumbs {
+        display: none !important;
+    }
+
+    /* Sayfa Başlığı ve Butonları */
+    .fi-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .fi-header-heading {
+        font-size: 1.25rem !important;
+        line-height: 1.25 !important;
+        font-weight: 800 !important;
+    }
+
+    .fi-header-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .fi-header-actions button,
+    .fi-header-actions a {
+        flex: 1 1 auto !important;
+        min-height: 40px !important;
+        justify-content: center !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Topbar yüksekliği */
+    .fi-topbar {
+        height: 52px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* Dashboard Stats Kartları: 2 kolonlu */
     .fi-wi-stats-overview {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
@@ -524,25 +637,67 @@ html, body {
     }
 }
 
+/* ==========================================================================
+   6. KÜÇÜK TELEFON MODU (max-width: 420px)
+   (iPhone SE, Küçük Android Cihazlar)
+   ========================================================================== */
 @media (max-width: 420px) {
     .fi-wi-stats-overview {
         grid-template-columns: 1fr !important;
     }
-}
 
-/* 10. INFOLIST MOBİL UYUMLULUĞU */
-@media (max-width: 768px) {
-    .fi-in-entry-wrp {
-        grid-column: span 12 / span 12 !important;
+    .fi-mobile-nav-container {
+        height: 52px !important;
+        padding: 0 2px !important;
+    }
+
+    .fi-mobile-nav-label {
+        font-size: 9px !important;
+    }
+
+    .fi-mobile-nav-icon {
+        width: 20px !important;
+        height: 20px !important;
     }
 }
 
-/* 11. MOBİL ALT NAVİGASYON BARI (BOTTOM BAR) */
+/* ==========================================================================
+   7. DOKUNMATİK & ORTAK MOBİL-TABLET KURALLARI (max-width: 1023px)
+   ========================================================================== */
 .fi-mobile-bottom-bar {
     display: none !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
+    /* Alt navigasyon barı için içerik alt boşluğu */
+    body,
+    .fi-main,
+    .fi-main-ctn,
+    main.fi-main {
+        padding-bottom: 84px !important;
+    }
+
+    /* Bildirim balonlarının alt bar üstünde durması */
+    .fi-no.fi-vertical-align-bottom {
+        bottom: 84px !important;
+    }
+
+    /* iOS Safari otomatik zoom'u engelleme: yazı tipi en az 16px */
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="password"],
+    input[type="search"],
+    input[type="url"],
+    select,
+    textarea,
+    .fi-input,
+    .fi-select-input {
+        font-size: 16px !important;
+    }
+
+    /* Alt Navigasyon Barı (Bottom Bar) */
     .fi-mobile-bottom-bar {
         display: block !important;
         position: fixed !important;
@@ -551,7 +706,7 @@ html, body {
         right: 0 !important;
         width: 100% !important;
         z-index: 9995 !important;
-        background: rgba(255, 255, 255, 0.95) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
         border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -561,7 +716,7 @@ html, body {
     }
 
     .dark .fi-mobile-bottom-bar {
-        background: rgba(17, 24, 39, 0.95) !important;
+        background: rgba(17, 24, 39, 0.96) !important;
         border-top-color: rgba(255, 255, 255, 0.08) !important;
         box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.4) !important;
     }
@@ -571,7 +726,7 @@ html, body {
         align-items: center !important;
         justify-content: space-around !important;
         height: 56px !important;
-        max-width: 480px !important;
+        max-width: 520px !important;
         margin: 0 auto !important;
         padding: 0 4px !important;
         box-sizing: border-box !important;
