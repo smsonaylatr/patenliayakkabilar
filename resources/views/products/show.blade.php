@@ -76,6 +76,23 @@
                     <!-- Desktop Title -->
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
+                    @php
+                        $totalApprovedReviews = $product->reviews()->where('status', 1)->count();
+                        $avgApprovedRating = (float)($product->reviews()->where('status', 1)->avg('rating') ?: 5.0);
+                    @endphp
+                    @if($totalApprovedReviews > 0)
+                    <div class="hidden md:flex items-center gap-2 mt-2.5">
+                        <div class="flex text-amber-400 text-xs">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fa-solid fa-star{{ $i <= round($avgApprovedRating) ? '' : ' text-gray-200' }}"></i>
+                            @endfor
+                        </div>
+                        <a href="#reviews-section" class="text-xs font-semibold text-gray-500 hover:text-black transition-colors underline decoration-gray-300">
+                            {{ number_format($avgApprovedRating, 1) }} ({{ $totalApprovedReviews }} Değerlendirme)
+                        </a>
+                    </div>
+                    @endif
+                    
                     <!-- Mobile Marquee Title -->
                     <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative">
                         <style>

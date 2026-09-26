@@ -132,5 +132,11 @@
                 </template>
             </div>
         </div>
+        
+        <!-- Desktop/Tablet Reviews -->
+        <div id="reviews-section" class="hidden md:block w-full pointer-events-auto">
+            @livewire('product.review-list', ['product' => $product], key('desktop-reviews-'.$product->id))
+        </div>
+
     </div>
 </div>

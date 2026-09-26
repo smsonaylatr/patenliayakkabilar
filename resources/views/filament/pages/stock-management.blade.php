@@ -183,7 +183,7 @@
         <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
                 <colgroup>
-                    <col style="width:380px;">
+                    <col style="width:320px;">
                     @foreach($sizes as $size)
                         <col style="width:44px;">
                     @endforeach
@@ -202,14 +202,14 @@
                     @foreach($matrix as $rowIndex => $row)
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                             {{-- Ürün --}}
-                            <td style="padding:8px 10px;vertical-align:middle;font-size:12px;font-weight:600;" title="{{ $row['name'] }}">
+                            <td style="padding:6px 8px;vertical-align:middle;font-size:12px;font-weight:600;" title="{{ $row['name'] }}">
                                 <div style="display:flex;align-items:center;gap:12px;">
                                     @if($row['image'])
                                         <a href="{{ asset('storage/' . $row['image']) }}" target="_blank" title="Görseli büyüt">
-                                            <img src="{{ asset('storage/' . $row['image']) }}" style="width:120px;height:120px;border-radius:8px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.25);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
+                                            <img src="{{ asset('storage/' . $row['image']) }}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
                                         </a>
                                     @else
-                                        <span style="width:120px;height:120px;border-radius:8px;background:#374151;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:36px;">👟</span>
+                                        <span style="width:80px;height:80px;border-radius:8px;background:#374151;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:26px;">👟</span>
                                     @endif
                                     <span class="text-gray-900 dark:text-white" style="line-height:1.4;word-break:break-word;">{{ $row['name'] }}</span>
                                 </div>
