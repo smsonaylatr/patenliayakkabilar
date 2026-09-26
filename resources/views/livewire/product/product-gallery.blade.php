@@ -108,8 +108,19 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
 
+            <!-- Share Button (Görselin Sağ Alt Köşesi) -->
+            <button type="button" 
+                    @click.stop="window.shareProduct('{{ addslashes($product->name) }}', '{{ route('products.show', $product->slug) }}')" 
+                    class="absolute bottom-4 right-4 z-30 w-10 h-10 rounded-full bg-white/95 hover:bg-white text-gray-800 hover:text-black shadow-lg border border-gray-100 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer pointer-events-auto"
+                    title="Ürünü Paylaş"
+                    aria-label="Ürünü Paylaş">
+                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+            </button>
+
             <!-- Instruction Overlay (Appears briefly or on hover before click) -->
-            <div x-show="!isZoomed" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
+            <div x-show="!isZoomed" class="absolute bottom-4 left-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none hidden lg:block opacity-70 transition-opacity">
                 Büyütmek için tıklayın
             </div>
 
