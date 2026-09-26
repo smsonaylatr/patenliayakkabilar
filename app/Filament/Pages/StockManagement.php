@@ -190,7 +190,7 @@ class StockManagement extends Page implements HasTable
                     ->label('Görsel')
                     ->disk('public')
                     ->square()
-                    ->size(120)
+                    ->size(80)
                     ->defaultImageUrl(url('/favicon.png'))
                     ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
                 Tables\Columns\TextColumn::make('product.name')
