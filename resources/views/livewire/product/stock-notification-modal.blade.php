@@ -7,7 +7,7 @@
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
                 <!-- Close Button -->
-                <button type="button" wire:click="closeModal" aria-label="Kapat" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center transition-colors">
+                <button type="button" wire:click="closeModal" aria-label="Kapat" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
 
@@ -19,7 +19,7 @@
                             </div>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Talebiniz Alındı!</h3>
                             <p class="text-sm text-gray-600 leading-relaxed mb-6">{{ $message }}</p>
-                            <button type="button" wire:click="closeModal" class="w-full h-12 bg-gray-900 text-white font-bold rounded-full hover:bg-black transition-colors shadow-md">
+                            <button type="button" wire:click="closeModal" class="w-full h-12 bg-gray-900 text-white font-bold rounded-full hover:bg-black transition-colors shadow-md cursor-pointer">
                                 Tamam
                             </button>
                         </div>
@@ -35,7 +35,7 @@
                         </div>
 
                         @if($product)
-                        <div class="mb-6 p-3.5 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-3">
+                        <div class="mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-3">
                             @if($product->images->first())
                                 <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shrink-0">
                             @endif
@@ -45,12 +45,30 @@
                                     <span class="inline-block mt-0.5 px-2 py-0.5 text-[11px] font-semibold bg-orange-100 text-orange-800 rounded">
                                         {{ $selectedVariant->size }} Beden
                                     </span>
+                                @else
+                                    <span class="inline-block mt-0.5 px-2 py-0.5 text-[11px] font-semibold bg-gray-200 text-gray-700 rounded">
+                                        Tüm Bedenler
+                                    </span>
                                 @endif
                             </div>
                         </div>
                         @endif
 
                         <form wire:submit.prevent="submit" class="space-y-4">
+                            @if($product && $product->variants->count() > 0)
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Beden Tercihi</label>
+                                <select wire:model.live="variantId" class="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange bg-white">
+                                    <option value="">Tüm Bedenler (Fark Etmez)</option>
+                                    @foreach($product->variants as $v)
+                                        <option value="{{ $v->id }}">
+                                            {{ $v->size }} Beden {{ $v->stock <= 0 ? '(Tükendi)' : '(Stokta: '.$v->stock.')' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
+
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-1">E-Posta Adresi <span class="text-red-500">*</span></label>
                                 <input type="email" wire:model="email" placeholder="ornek@email.com" class="w-full h-12 rounded-xl border border-gray-200 px-4 text-sm focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange">
@@ -71,7 +89,7 @@
                             </div>
                             @error('kvkkConsent') <span class="text-xs text-red-500 block font-medium">{{ $message }}</span> @enderror
 
-                            <button type="submit" wire:loading.attr="disabled" class="w-full h-13 mt-2 bg-brand-orange text-white font-bold rounded-full hover:bg-[#e56a10] transition-colors shadow-lg flex items-center justify-center gap-2">
+                            <button type="submit" wire:loading.attr="disabled" class="w-full h-13 mt-2 bg-brand-orange text-white font-bold rounded-full hover:bg-[#e56a10] transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer">
                                 <span wire:loading.remove wire:target="submit"><i class="fa-solid fa-paper-plane text-xs"></i> Haber Ver</span>
                                 <span wire:loading wire:target="submit" class="flex items-center gap-2">
                                     <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

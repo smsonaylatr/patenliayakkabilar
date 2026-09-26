@@ -17,12 +17,16 @@
                 @if($allOutOfStock)
                     return this.requiresSize ? 'Beden (Tüm Stoklar Tükenmiştir)' : 'Seçenek (Tüm Stoklar Tükenmiştir)';
                 @else
-                    return this.requiresSize ? 'Beden' : 'Seçenek';
+                    return this.requiresSize ? 'Beden Seçiniz' : 'Seçenek Seçiniz';
                 @endif
             }
             let v = this.variants.find(v => v.id == this.selectedId);
-            if (!v) return this.requiresSize ? 'Beden' : 'Seçenek';
-            return this.requiresSize ? v.size : v.color;
+            if (!v) return this.requiresSize ? 'Beden Seçiniz' : 'Seçenek Seçiniz';
+            let label = this.requiresSize ? (v.size + ' Beden') : v.color;
+            if (v.stock <= 0) {
+                label += ' (Tükendi)';
+            }
+            return label;
         }
     }" @click.away="open = false" @open-variant-selector.window="open = true; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'center'}), 100)">
         
@@ -52,25 +56,38 @@
             style="display: none;"
         >
             <template x-for="variant in variants" :key="variant.id">
-                <li>
-                    <button 
-                        type="button"
-                        @click="if(variant.stock > 0) { selectedId = variant.id; open = false; }"
-                        class="w-full flex items-center justify-between px-4 py-2.5 text-sm sm:px-5 sm:py-3 sm:text-base font-medium transition-colors border-b border-gray-50 last:border-b-0"
+                <li class="border-b border-gray-50 last:border-b-0">
+                    <div 
+                        class="w-full flex items-center justify-between px-4 py-2.5 text-sm sm:px-5 sm:py-3 sm:text-base font-medium transition-colors"
                         :class="{
-                            'text-gray-900 hover:bg-gray-50 cursor-pointer': variant.stock > 0,
-                            'text-gray-400 bg-gray-50/40 cursor-not-allowed': variant.stock <= 0,
-                            'bg-gray-100 font-bold': selectedId == variant.id
+                            'text-gray-900 hover:bg-gray-50': variant.stock > 0,
+                            'text-gray-500 bg-gray-50/50': variant.stock <= 0,
+                            'bg-orange-50 font-bold': selectedId == variant.id
                         }"
-                        :disabled="variant.stock <= 0"
                     >
-                        <span x-text="requiresSize ? variant.size : variant.color" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>
-                        
+                        <button 
+                            type="button"
+                            @click="selectedId = variant.id; open = false;"
+                            class="flex-1 text-left flex items-center gap-2 cursor-pointer py-1"
+                        >
+                            <span x-text="requiresSize ? variant.size + ' Beden' : variant.color" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>
+                            <template x-if="variant.stock <= 0">
+                                <span class="text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-200/60">Tükendi</span>
+                            </template>
+                        </button>
                         
                         <template x-if="variant.stock <= 0">
-                            <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md border border-gray-200/80">Tükendi</span>
+                            <button 
+                                type="button"
+                                @click.stop="$dispatch('open-stock-modal', { productId: {{ $product->id }}, variantId: variant.id }); open = false;"
+                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-brand-orange bg-white hover:bg-orange-50 border border-brand-orange/30 transition-colors shrink-0 cursor-pointer shadow-2xs"
+                                title="Gelince Haber Ver"
+                            >
+                                <i class="fa-solid fa-bell text-[10px]"></i>
+                                <span>Haber Ver</span>
+                            </button>
                         </template>
-                    </button>
+                    </div>
                 </li>
             </template>
         </ul>

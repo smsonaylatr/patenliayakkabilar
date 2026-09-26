@@ -15,6 +15,11 @@ html, body {
    2. MASAÜSTÜ & BÜYÜK EKRANLAR (min-width: 1024px)
    ========================================================================== */
 @media (min-width: 1024px) {
+    /* Masaüstü %90 Kusursuz Zoom Ölçeği (-%10 Zoom Out Standartlaştırması) */
+    html {
+        zoom: 0.9;
+    }
+
     /* Masaüstü Ana Gövde (Body / Main) İdeal Ölçüleri: 15rem Sidebar ile Kusursuz Uyum */
     .fi-main {
         padding-top: 14px !important;

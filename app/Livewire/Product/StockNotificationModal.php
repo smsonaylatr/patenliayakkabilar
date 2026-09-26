@@ -20,8 +20,7 @@ class StockNotificationModal extends Component
     #[Locked]
     public ?int $productId = null;
 
-    #[Locked]
-    public ?int $variantId = null;
+    public mixed $variantId = null;
     
     public string $email = '';
     public string $phone = '';
@@ -34,18 +33,15 @@ class StockNotificationModal extends Component
     public string $message = '';
 
     #[On('open-stock-modal')]
-    public function openModal(?int $productId = null, ?int $variantId = null)
+    public function openModal($productId = null, $variantId = null)
     {
-        if ($productId) {
-            $this->productId = $productId;
-            $this->product = Product::find($productId);
-        }
-
-        $this->variantId = $variantId ?: null;
+        $this->productId = (int) $productId;
+        $this->product = Product::with(['images', 'variants'])->find($this->productId);
+        $this->variantId = (!empty($variantId) && (int) $variantId > 0) ? (int) $variantId : null;
 
         if (Auth::check()) {
-            $this->email = Auth::user()->email ?? '';
-            $this->phone = Auth::user()->phone ?? '';
+            $this->email = Auth::user()->email ?? $this->email;
+            $this->phone = Auth::user()->phone ?? $this->phone;
         }
 
         $this->isSuccess = false;
@@ -67,16 +63,18 @@ class StockNotificationModal extends Component
         ], [
             'email.required' => 'Lütfen geçerli bir e-posta adresi giriniz.',
             'email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
-            'kvkkConsent.accepted' => 'Devam etmek için aydınlatma metnini onaylamalısınız.',
+            'kvkkConsent.accepted' => 'Devam etmek için bilgilendirme onayını işaretlemelisiniz.',
         ]);
 
         if (!$this->productId) {
             return;
         }
 
+        $vId = (!empty($this->variantId) && (int) $this->variantId > 0) ? (int) $this->variantId : null;
+
         // Çift kayıt kontrolü
         $existing = StockNotification::where('product_id', $this->productId)
-            ->where('product_variant_id', $this->variantId)
+            ->where('product_variant_id', $vId)
             ->where('email', $this->email)
             ->where('is_notified', false)
             ->first();
@@ -89,7 +87,7 @@ class StockNotificationModal extends Component
 
         StockNotification::create([
             'product_id' => $this->productId,
-            'product_variant_id' => $this->variantId,
+            'product_variant_id' => $vId,
             'user_id' => Auth::id(),
             'email' => $this->email,
             'phone' => $this->phone,
@@ -102,7 +100,9 @@ class StockNotificationModal extends Component
 
     public function render()
     {
-        $selectedVariant = $this->variantId ? ProductVariant::find($this->variantId) : null;
+        $selectedVariant = (!empty($this->variantId) && (int) $this->variantId > 0)
+            ? ProductVariant::find((int) $this->variantId)
+            : null;
 
         return view('livewire.product.stock-notification-modal', [
             'selectedVariant' => $selectedVariant,

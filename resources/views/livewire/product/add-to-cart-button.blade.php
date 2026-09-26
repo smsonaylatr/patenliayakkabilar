@@ -1,6 +1,6 @@
 <div class="w-full flex flex-col gap-6" x-data="{ qty: @entangle('quantity'), maxStock: @entangle('maxStock') }">
     @php
-        $isOutOfStock = !$product->inStock();
+        $isOutOfStock = !$product->inStock() || ($variantId && $maxStock <= 0);
     @endphp
 
     @if(!$isOutOfStock)
@@ -8,11 +8,11 @@
     <div class="flex items-center justify-between border border-gray-200 rounded-full h-12 sm:h-14 px-4 sm:px-5 bg-white">
         <span class="text-sm sm:text-base font-medium text-gray-900">Adet</span>
         <div class="flex items-center gap-1">
-            <button type="button" @click="qty > 1 ? qty-- : null" aria-label="Adedi Azalt" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
+            <button type="button" @click="qty > 1 ? qty-- : null" aria-label="Adedi Azalt" class="text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors cursor-pointer">
                 <i class="fa-solid fa-minus text-[10px]"></i>
             </button>
             <span class="text-base font-medium text-gray-900 w-10 text-center" x-text="qty"></span>
-            <button type="button" @click="qty < maxStock ? qty++ : null" :disabled="qty >= maxStock" aria-label="Adedi Artır" :class="qty >= maxStock ? 'text-gray-300 bg-gray-50 cursor-not-allowed' : 'text-gray-500 bg-gray-50 hover:bg-gray-100'" class="rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
+            <button type="button" @click="qty < maxStock ? qty++ : null" :disabled="qty >= maxStock" aria-label="Adedi Artır" :class="qty >= maxStock ? 'text-gray-300 bg-gray-50 cursor-not-allowed' : 'text-gray-500 bg-gray-50 hover:bg-gray-100 cursor-pointer'" class="rounded-full focus:outline-none w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-plus text-[10px]"></i>
             </button>
         </div>
@@ -25,7 +25,7 @@
         wire:loading.attr="disabled" 
         type="button" 
         @if($isOutOfStock) disabled @endif
-        class="group relative flex w-full h-12 sm:h-14 items-center justify-center gap-3 overflow-hidden rounded-full {{ $isOutOfStock ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' : 'bg-gray-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]' }} px-4 sm:px-8 text-sm sm:text-base font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70">
+        class="group relative flex w-full h-12 sm:h-14 items-center justify-center gap-3 overflow-hidden rounded-full {{ $isOutOfStock ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none' : 'bg-gray-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-[1.02] hover:bg-black hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] cursor-pointer' }} px-4 sm:px-8 text-sm sm:text-base font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70">
         
         @if(!$isOutOfStock)
         <!-- Shine effect on hover -->
@@ -37,7 +37,7 @@
         <span class="flex items-center gap-2">
             @if($isOutOfStock)
                 <i class="fa-solid fa-ban text-sm"></i>
-                Tükendi
+                {{ ($variantId && $maxStock <= 0) ? 'Bu Beden Tükendi' : 'Tükendi' }}
             @else
                 <svg wire:loading.remove wire:target="addToCart" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                 
@@ -58,7 +58,7 @@
         type="button" 
         class="w-full h-12 sm:h-14 flex items-center justify-center gap-2.5 rounded-full bg-brand-orange hover:bg-[#e56a10] text-white font-bold text-sm sm:text-base shadow-[0_8px_25px_rgba(255,122,26,0.3)] transition-all duration-300 hover:scale-[1.02] cursor-pointer">
         <i class="fa-solid fa-bell"></i>
-        <span>Gelince Haber Ver</span>
+        <span>{{ ($variantId && $maxStock <= 0) ? 'Bu Beden İçin Gelince Haber Ver' : 'Gelince Haber Ver' }}</span>
     </button>
     @endif
 </div>

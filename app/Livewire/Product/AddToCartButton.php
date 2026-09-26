@@ -58,7 +58,8 @@ class AddToCartButton extends Component
 
     public function addToCart(CartService $cartService)
     {
-        if (!$this->product->inStock()) {
+        if (!$this->product->inStock() || ($this->variantId && $this->maxStock <= 0)) {
+            $this->dispatch('show-notification', type: 'warning', message: 'Seçili ürün/beden stokta bulunmamaktadır.');
             return;
         }
 
