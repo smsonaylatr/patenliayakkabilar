@@ -1,11 +1,23 @@
 # =====================================================
 # Patenli Ayakkabılar - robots.txt
-# Google Merchant Center uyumlu yapılandırma
+# Google Merchant Center & AI Crawlers (AEO / GEO) Uyumlu Yapılandırma
 # =====================================================
 
-# Genel kurallar
+# Genel Arama Motorları
 User-agent: *
 Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /storage/
+Allow: /img/
+Allow: /css/
+Allow: /js/
+Allow: /build/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /opensearch.xml
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /checkout
@@ -16,9 +28,119 @@ Disallow: /register
 Disallow: /auth/*
 Disallow: /livewire/*
 Disallow: /run-migrate
+Disallow: /run-migrations
 Disallow: /order/success/*
+Disallow: /order/fail/*
+Disallow: /deploy-*
 
-# Google Web Search Bot — Tam erişim (admin hariç)
+# =====================================================
+# YAPAY ZEKA VE ALIŞVERİŞ TARAYICILARI (AI & SHOPPING BOTS)
+# =====================================================
+
+# OpenAI — ChatGPT, SearchGPT ve Web Ajanları
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /api/v1/ai/
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+Disallow: /livewire/*
+
+# Google Gemini & GenAI Eğitim / Tarama Botu
+User-agent: Google-Extended
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# Anthropic — Claude AI Tarayıcısı
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# Perplexity AI — Arama ve Alışveriş Botu
+User-agent: PerplexityBot
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# Common Crawl — Açık Kaynak LLM Veri Seti
+User-agent: CCBot
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# Apple Intelligence & Applebot
+User-agent: Applebot
+User-agent: Applebot-Extended
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# Meta AI & Diğer AI Temsilcileri
+User-agent: Meta-ExternalAgent
+User-agent: FacebookBot
+User-agent: cohere-ai
+User-agent: Amazonbot
+User-agent: Bytespider
+Allow: /
+Allow: /urun/
+Allow: /patenli-ayakkabilar
+Allow: /kategori/
+Allow: /blog/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /checkout
+Disallow: /hesabim
+
+# =====================================================
+# GOOGLE SERVİSLERİ VE MERCHANT CENTER
+# =====================================================
+
+# Google Web Search Bot
 User-agent: Googlebot
 Allow: /
 Allow: /urun/
@@ -41,7 +163,7 @@ Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /order/success/*
 
-# Google Görsel Tarayıcısı — Tüm görsellere tam erişim
+# Google Görsel Tarayıcısı
 User-agent: Googlebot-Image
 Allow: /
 Disallow:
@@ -53,15 +175,6 @@ Disallow:
 
 # Google Ads Açılış Sayfası Kalite Kontrol Botu
 User-agent: AdsBot-Google
-Allow: /
-Allow: /urun/
-Allow: /patenli-ayakkabilar
-Allow: /kategori/
-Allow: /storage/
-Allow: /img/
-Disallow:
-
-# Google Ads Mobil Bot
 User-agent: AdsBot-Google-Mobile
 Allow: /
 Allow: /urun/
@@ -71,14 +184,14 @@ Allow: /storage/
 Allow: /img/
 Disallow:
 
-# Google Denetleme Aracı
+# Google Denetleme Aracı & Ortaklar
 User-agent: Google-InspectionTool
-Allow: /
-Disallow:
-
-# Google Reklam Ortakları
 User-agent: Mediapartners-Google
 Allow: /
 Disallow:
 
+# =====================================================
+# SİTE HARİTALARI VE LLM BAĞLANTILARI
+# =====================================================
 Sitemap: https://patenliayakkabilar.com/sitemap.xml
+LLMs-Txt: https://patenliayakkabilar.com/llms.txt

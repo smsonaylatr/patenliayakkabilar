@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "patenli_ayakkabilar_shopping",
+  "name_for_human": "Patenli Ayakkabılar Alışveriş Asistanı",
+  "description_for_model": "Patenli Ayakkabılar mağazasındaki tekerlekli ve ışıklı ayakkabıları aramak, ürün detaylarını incelemek, stok ve fiyat sorgulamak, numara ve beden önerileri almak için kullanılan alışveriş aracı.",
+  "description_for_human": "Türkiye'nin en popüler ışıklı ve tekerlekli ayakkabı modellerini arayın, filtreleyin ve satın alma bilgisi alın.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://patenliayakkabilar.com/api-docs.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://patenliayakkabilar.com/favicon.png",
+  "contact_email": "patenliayakkabilar@gmail.com",
+  "legal_info_url": "https://patenliayakkabilar.com/mesafeli-satis-sozlesmesi"
+}

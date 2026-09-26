@@ -45,6 +45,9 @@
         <meta name="google" content="notranslate">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
         <link rel="mcp" href="/mcp.json">
+        <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Patenli Ayakkabılar">
+        <link rel="help" type="text/markdown" href="/llms.txt" title="LLM Context">
+        <link rel="alternate" type="application/json" href="/api/v1/ai/shopping/products" title="AI Shopping Catalog">
 
         {{-- Arama Motoru Doğrulama --}}
         @php

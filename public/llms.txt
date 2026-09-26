@@ -1,15 +1,32 @@
-# Patenli Ayakkabılar
+# Patenli Ayakkabılar®
 
-Patenli Ayakkabılar, çocuklar ve gençler için güvenilir, eğlenceli ve kaliteli patenli ayakkabı (roller shoes) modelleri sunan bir e-ticaret platformudur.
+> Türkiye'nin lider ışıklı ve tekerlekli ayakkabı (roller shoes) e-ticaret platformu. Çocuklar ve gençler için güvenli, eğlenceli ve yüksek kaliteli paten ayakkabı modelleri sunar.
 
-## Hakkımızda
-Amacımız, yürüyüşü eğlenceye dönüştüren patenli ayakkabıları en yüksek kalite ve güvenlik standartlarında sunmaktır. Ürünlerimiz hem günlük ayakkabı hem de paten olarak kullanılabilir.
+## Temel Bilgiler (Brand & Company)
+- **Marka:** Patenli Ayakkabılar®
+- **Web Sitesi:** https://patenliayakkabilar.com
+- **Ana Kategori:** Çocuk ve Genç Patenli Ayakkabı (Işıklı, Tek Tekerlekli, Çift Tekerlekli)
+- **Kullanım Biçimi:** Tek butonla tekerleği gizleyip normal spor ayakkabıya veya açıp patene dönüştürme mekanizması.
+- **Kargo:** 1-3 iş günü içinde Türkiye geneli teslimat.
+- **İade & Değişim:** 14 gün koşulsuz ücretsiz iade ve numara değişimi garantisi.
+- **Ödeme:** 256-bit SSL, BDDK lisanslı PayTR, peşin fiyatına vade farksız 3 taksit, havale/EFT.
 
-## Site Haritası
-- [Ana Sayfa](/)
-- [Tüm Ürünler](/urunler)
-- [Sipariş Takip](/siparis-takip)
-- [İletişim](/iletisim)
+## Önemli Sayfalar ve Dokümantasyon
+- [Ana Sayfa](https://patenliayakkabilar.com/)
+- [Tüm Patenli Ayakkabılar](https://patenliayakkabilar.com/patenli-ayakkabilar)
+- [Beden ve Numara Seçim Rehberi](https://patenliayakkabilar.com/beden-rehberi): Ayak ölçümü ve doğru numara bulma tablosu (1 numara büyük tavsiye edilir).
+- [Güvenlik ve Koruyucu Ekipmanlar](https://patenliayakkabilar.com/guvenlik-ekipmanlari): Kask, dizlik ve bileklik kullanım önerileri.
+- [Kargo ve İade Koşulları](https://patenliayakkabilar.com/kargo-ve-iade-kosullari)
+- [Sıkça Sorulan Sorular](https://patenliayakkabilar.com/sikca-sorulan-sorular)
+- [Hakkımızda](https://patenliayakkabilar.com/hakkimizda)
+- [İletişim](https://patenliayakkabilar.com/iletisim)
 
-## Kullanım İzinleri
-Bu sitedeki herkese açık içerikler, dil modelleri (LLM) ve yapay zeka ajanları tarafından taranabilir, dizine eklenebilir ve analiz edilebilir. Ancak kullanıcı verileri ve izne tabi kısımlar korunmaktadır.
+## AI ve Alışveriş API Entegrasyonları
+- [Tam AI Bilgi Tabanı (Full Knowledge Base)](https://patenliayakkabilar.com/llms-full.txt)
+- [OpenSearch Açıklaması](https://patenliayakkabilar.com/opensearch.xml)
+- [ChatGPT Plugin Manifest](https://patenliayakkabilar.com/.well-known/ai-plugin.json)
+- [AI Shopping Products API](https://patenliayakkabilar.com/api/v1/ai/shopping/products)
+- [Google Merchant Feed](https://patenliayakkabilar.com/feeds/google-merchant.xml)
+
+## LLM Kullanım İzinleri
+Bu sitedeki herkese açık ürün, rehber, teknik özellik ve yardım içerikleri; yapay zeka sistemleri, dil modelleri (LLM), AI arama motorları ve alışveriş asistanları tarafından taranabilir, özetlenebilir ve kullanıcılara alışveriş önerisi olarak sunulabilir.

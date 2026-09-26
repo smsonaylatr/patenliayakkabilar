@@ -48,7 +48,7 @@
             @click.away="closeSearch()"
             style="will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden;"
         >
-            <div class="p-3 sm:p-4">
+            <div class="p-3 sm:p-4" data-ai-search="true" data-search-suggest="ai" data-ai-module="semantic-search" role="search">
                 <!-- Search Input Bar -->
                 <div class="relative flex items-center">
                     <div class="pointer-events-none absolute left-4 flex items-center justify-center text-gray-400">
@@ -61,9 +61,13 @@
                         wire:model.live.debounce.300ms="search" 
                         x-ref="searchInput"
                         type="text" 
-                        aria-label="Arama Kutusu"
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-expanded="{{ strlen($search) >= 2 ? 'true' : 'false' }}"
+                        data-ai-input="true"
+                        aria-label="Akıllı Arama Kutusu"
                         class="h-13 sm:h-15 w-full rounded-xl sm:rounded-2xl border-0 bg-gray-50/90 pl-11 sm:pl-13 pr-12 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-black text-sm sm:text-base transition-all duration-200" 
-                        placeholder="Ürün, kategori veya özellik arayın..."
+                        placeholder="Ürün, model, numara veya özellik arayın..."
                     >
                     
                     <!-- Loading Indicator -->
@@ -85,11 +89,44 @@
 
                 <!-- Search Results -->
                 @if(strlen($search) >= 2)
-                    <div class="mt-4 max-h-[60vh] overflow-y-auto overscroll-contain px-1">
+                    <div class="mt-4 max-h-[60vh] overflow-y-auto overscroll-contain px-1" data-ai-results="true">
+                        {{-- AI Akıllı Tamamlama / Öneriler --}}
+                        @if(!empty($suggestions))
+                            <div class="mb-3 px-1">
+                                <div class="flex items-center gap-1.5 mb-2">
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-purple-100 text-purple-700">AI ÖNERİLER</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($suggestions as $sug)
+                                        <button 
+                                            wire:click="selectSuggestion('{{ $sug }}')" 
+                                            class="text-xs px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium text-left"
+                                        >
+                                            🔍 {{ $sug }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Eşleşen Kategoriler --}}
+                        @if($matchedCategories->isNotEmpty())
+                            <div class="mb-3 px-1">
+                                <h4 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Kategoriler</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($matchedCategories as $cat)
+                                        <a href="{{ route('category.show', $cat->slug) }}" @click="closeSearch()" wire:navigate class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition-colors">
+                                            <span>📁 {{ $cat->name }}</span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         @if($results->count() > 0)
-                            <div class="flex items-center justify-between mb-3 px-2">
+                            <div class="flex items-center justify-between mb-3 px-2 pt-1 border-t border-gray-100">
                                 <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ürünler ({{ $results->count() }})</h3>
-                                <span class="text-[10px] text-gray-400 font-medium">Sonuçlar anlık listeleniyor</span>
+                                <span class="text-[10px] text-gray-400 font-medium">Anlık Eşleşme</span>
                             </div>
                             <ul class="space-y-1.5">
                                 @foreach($results as $product)
@@ -127,14 +164,14 @@
                                 @endforeach
                             </ul>
                         @else
-                            <div class="px-4 py-10 text-center">
+                            <div class="px-4 py-8 text-center">
                                 <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                                     </svg>
                                 </div>
-                                <p class="text-sm text-gray-700 font-medium">"<strong>{{ $search }}</strong>" ile ilgili ürün bulunamadı</p>
-                                <p class="text-xs text-gray-400 mt-1">Farklı bir anahtar kelime veya model adı deneyebilirsiniz.</p>
+                                <p class="text-sm text-gray-700 font-medium">"<strong>{{ $search }}</strong>" ile ilgili sonuç bulunamadı</p>
+                                <p class="text-xs text-gray-400 mt-1">Popüler arama önerilerinden birini seçebilir veya tüm modelleri gezebilirsiniz.</p>
                             </div>
                         @endif
                     </div>
@@ -146,11 +183,11 @@
                             <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Popüler Aramalar</h3>
                         </div>
                         <div class="flex flex-wrap gap-2 mb-4">
-                            <button wire:click="$set('search', 'Işıklı')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Işıklı</button>
-                            <button wire:click="$set('search', 'Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Tekerlekli</button>
-                            <button wire:click="$set('search', 'Kız Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Kız Çocuk</button>
-                            <button wire:click="$set('search', 'Erkek Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Erkek Çocuk</button>
-                            <button wire:click="$set('search', '4 Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">4 Tekerlekli</button>
+                            <button wire:click="selectSuggestion('Işıklı')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Işıklı</button>
+                            <button wire:click="selectSuggestion('Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Tekerlekli</button>
+                            <button wire:click="selectSuggestion('Kız Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Kız Çocuk</button>
+                            <button wire:click="selectSuggestion('Erkek Çocuk')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">Erkek Çocuk</button>
+                            <button wire:click="selectSuggestion('4 Tekerlekli')" class="px-3.5 py-1.5 bg-gray-50 hover:bg-black hover:text-white text-gray-700 text-xs sm:text-sm rounded-full font-medium transition-all duration-200 border border-gray-100 active:scale-95">4 Tekerlekli</button>
                         </div>
                         <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
                             <span>Aramayı kapatmak için <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-[10px] font-mono text-gray-600">ESC</kbd></span>

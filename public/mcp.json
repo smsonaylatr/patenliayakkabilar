@@ -1,6 +1,59 @@
 {
   "mcp": "1.0",
   "name": "Patenli Ayakkabilar",
-  "description": "E-commerce store for roller shoes. Browse products, categories and track orders.",
-  "tools": []
+  "description": "E-commerce platform for roller shoes (tekerlekli ve ışıklı ayakkabı). Search products, inspect specifications, check stock and view sizing guides.",
+  "tools": [
+    {
+      "name": "search_products",
+      "description": "Search active roller shoes and wheeled sneakers by keyword, category, gender or price.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search term (e.g. 'ışıklı', 'pembe', 'çift teker', 'erkek çocuk')"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["erkek_cocuk", "kiz_cocuk", "unisex"]
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          }
+        }
+      }
+    },
+    {
+      "name": "get_product_details",
+      "description": "Get complete product details including price, sizes, colors, LED charging, wheels, and stock status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "slug_or_id": {
+            "type": "string",
+            "description": "The product slug or ID"
+          }
+        },
+        "required": ["slug_or_id"]
+      }
+    },
+    {
+      "name": "get_sizing_guide",
+      "description": "Get sizing recommendation for roller shoes based on foot length in cm.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "foot_length_cm": {
+            "type": "number",
+            "description": "Child foot length in centimeters"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_shipping_and_returns",
+      "description": "Get shipping duration, shipping cost and 14-day free return policy details."
+    }
+  ]
 }

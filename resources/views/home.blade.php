@@ -19,6 +19,13 @@
             ]
         ]);
         
+        $featuredProducts = \App\Models\Product::where('status', true)
+            ->where('stock', '>', 0)
+            ->with(['images', 'categories'])
+            ->take(8)
+            ->get();
+        $itemListSchema = $schemaService->homePageItemList($featuredProducts);
+
         $articleSchema = json_encode([
             '@context'      => 'https://schema.org',
             '@type'         => 'Article',
@@ -46,6 +53,7 @@
     <x-slot:schema>
         {!! $breadcrumbs !!}
         {!! $faqs !!}
+        {!! $itemListSchema !!}
         <script type="application/ld+json">{!! $articleSchema !!}</script>
     </x-slot:schema>
 

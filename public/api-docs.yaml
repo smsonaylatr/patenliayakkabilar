@@ -100,6 +100,70 @@ paths:
                     type: string
                     example: Ürün bulunamadı.
 
+  /v1/ai/shopping/products:
+    get:
+      summary: AI Alışveriş Ürün Kataloğu
+      description: ChatGPT, Perplexity ve Gemini shopping botları için optimize edilmiş ürün listesini döndürür.
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Arama kelimesi
+        - in: query
+          name: gender
+          schema:
+            type: string
+            enum: [erkek_cocuk, kiz_cocuk, unisex]
+        - in: query
+          name: in_stock_only
+          schema:
+            type: boolean
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Başarılı AI ürün listesi
+
+  /v1/ai/shopping/product/{slug}:
+    get:
+      summary: AI Ürün Detayı ve SSS
+      description: Belirli bir ürünün teknik özellikleri, kargo, SSS ve AI özetini getirir.
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Başarılı ürün detayı
+
+  /v1/ai/embeddings:
+    get:
+      summary: Vektör Gömme Veri Seti
+      description: LLM ve vektör arama motorları için hazırlanmış metin parçaları ve metadata veri seti.
+      responses:
+        '200':
+          description: Başarılı vektör veri seti
+
+  /search/suggest:
+    get:
+      summary: Anlık Arama ve Öneri Motoru
+      description: Kullanıcı yazarken anlık popüler tamamlama, kategori ve ürün eşleşmelerini getirir.
+      parameters:
+        - in: query
+          name: q
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Başarılı öneri listesi
+
 components:
   schemas:
     Product:

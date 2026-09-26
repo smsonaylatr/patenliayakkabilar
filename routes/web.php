@@ -879,6 +879,19 @@ Route::get('api/docs', function () {
 HTML;
 });
 
+// ==========================================
+// AI & GEO / AEO SHOPPING ROTALARI
+// ==========================================
+Route::get('/llms-full.txt', [\App\Http\Controllers\AiShoppingApiController::class, 'llmsFull'])->name('llms.full');
+Route::get('/urun/{slug}/context', [\App\Http\Controllers\AiShoppingApiController::class, 'productContext'])->name('product.context');
+Route::get('/api/search/suggest', [\App\Http\Controllers\SearchSuggestController::class, 'index'])->name('api.search.suggest');
+
+Route::prefix('api/v1/ai')->group(function () {
+    Route::get('/shopping/products', [\App\Http\Controllers\AiShoppingApiController::class, 'products'])->name('api.ai.shopping.products');
+    Route::get('/shopping/product/{slug}', [\App\Http\Controllers\AiShoppingApiController::class, 'product'])->name('api.ai.shopping.product');
+    Route::get('/embeddings', [\App\Http\Controllers\AiShoppingApiController::class, 'embeddings'])->name('api.ai.embeddings');
+});
+
 // ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================

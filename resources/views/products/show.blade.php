@@ -12,9 +12,10 @@
     <x-slot:schema>
         @if(app()->bound(\App\Services\SchemaService::class))
             {!! app(\App\Services\SchemaService::class)->product($product) !!}
-            @if(!empty($product->faq_schema))
-                {!! app(\App\Services\SchemaService::class)->faqPage($product->faq_schema) !!}
-            @endif
+            @php
+                $productFaqs = app(\App\Services\AiShoppingService::class)->getDefaultProductFaq($product);
+            @endphp
+            {!! app(\App\Services\SchemaService::class)->faqPage($productFaqs) !!}
         @else
             <script type="application/ld+json">
             {!! json_encode([
@@ -242,6 +243,24 @@
                     </div>
 
                     {{-- ========================================
+                         AEO: HIZLI BİLGİLER / AI ÖZETİ (TL;DR)
+                    ======================================== --}}
+                    @php
+                        $aeoSummary = app(\App\Services\AiShoppingService::class)->getAeoSummaryText($product);
+                    @endphp
+                    <div class="mt-4 p-3.5 sm:p-4 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white border border-blue-100 rounded-xl shadow-2xs" data-aeo="summary" data-ai-context="quick_facts">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-blue-700 bg-blue-100/90 px-2 py-0.5 rounded">
+                                ✨ AI Hızlı Ürün Özeti
+                            </span>
+                            <span class="text-[10px] text-gray-500 font-medium">Satın alma öncesi 30 saniyelik özet</span>
+                        </div>
+                        <p class="text-xs text-gray-700 leading-relaxed font-normal">
+                            {{ $aeoSummary }}
+                        </p>
+                    </div>
+
+                    {{-- ========================================
                          GÜVEN SİNYALLERİ — Minimalist
                     ======================================== --}}
                     @php $signals = $product->getTrustSignals(); @endphp
@@ -412,6 +431,36 @@
                         </div>
                         @endif
 
+                        {{-- 5. SIKÇA SORULAN SORULAR (SSS) --}}
+                        <div>
+                            <button
+                                @click="openPanel = openPanel === 'faq' ? '' : 'faq'"
+                                class="w-full flex items-center justify-between py-4 text-left group"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <i class="fa-solid fa-circle-question text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
+                                    <span class="text-sm font-semibold text-gray-900">Sıkça Sorulan Sorular (SSS)</span>
+                                    <span class="text-[11px] font-medium text-gray-400">{{ count($productFaqs) }}</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
+                                   :class="openPanel === 'faq' ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div class="accordion-content" :class="openPanel === 'faq' ? 'open' : ''">
+                                <div class="pb-4 space-y-2.5">
+                                    @foreach($productFaqs as $faq)
+                                        <div class="p-3 bg-gray-50/80 rounded-xl border border-gray-100 text-xs">
+                                            <h4 class="font-bold text-gray-900 mb-1 flex items-start gap-1.5">
+                                                <span class="text-brand-orange font-black">S:</span> {{ $faq['question'] }}
+                                            </h4>
+                                            <p class="text-gray-600 leading-relaxed pl-3.5">
+                                                {{ $faq['answer'] }}
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
                 </div>
                 </div>
                 
@@ -474,5 +523,18 @@
             } catch(e) { console.error('Recently viewed error:', e); }
         })();
     </script>
+    <!-- Embedded Machine-Readable Context for LLMs (OpenAI, Anthropic, Perplexity, Gemini) -->
+    <script type="text/markdown" id="ai-product-context">
+    # {{ $product->name }}
+    - Fiyat: {{ number_format((float)($product->discount_price ?? $product->price), 2) }} ₺
+    - Kategori: {{ $product->categories->first()?->name ?? 'Patenli Ayakkabı' }}
+    - Marka: {{ $product->brand ?: 'Patenli Ayakkabılar®' }}
+    - Kargo: {{ $product->delivery_time ?: '1-3 iş günü' }}
+    - İade: 14 gün ücretsiz değişim ve iade garantisi
+    ## AI Hızlı Özeti (TL;DR)
+    {{ $aeoSummary }}
+    </script>
+    <meta name="ai:embedding:content" content="{{ Str::limit($aeoSummary, 300) }}">
+    <meta name="ai:semantic:tags" content="patenli ayakkabı, tekerlekli spor ayakkabı, ışıklı çocuk ayakkabısı">
 
 </x-layouts.app>
