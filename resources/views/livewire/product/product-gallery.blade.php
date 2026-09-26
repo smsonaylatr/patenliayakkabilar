@@ -132,11 +132,5 @@
                 </template>
             </div>
         </div>
-        
-        <!-- Desktop/Tablet Reviews -->
-        <div class="hidden md:block w-full pointer-events-auto mt-6 relative z-20">
-            @livewire('product.review-list', ['product' => $product], key('desktop-reviews-'.$product->id))
-        </div>
-
     </div>
 </div>

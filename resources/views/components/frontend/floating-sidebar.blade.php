@@ -14,28 +14,43 @@
         top: 50svh;
         transform: translateY(-50%);
         width: 3.25rem;
-        margin-left: 0.5rem;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
         backdrop-filter: saturate(180%) blur(20px);
         -webkit-backdrop-filter: saturate(180%) blur(20px);
-        background-color: rgba(255, 255, 255, 0.82);
-        box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+        background-color: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
         border-radius: 9999px;
         z-index: 30;
         display: none;
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), margin 0.3s ease, box-shadow 0.3s ease;
     }
 
-    @media screen and (min-width: 768px) {
+    /* Tablet ve orta genişlikli laptoplar (768px - 1439px): İçeriği kapatmaması için kenara yaslanıp hover ile açılır */
+    @media screen and (min-width: 768px) and (max-width: 1439px) {
         .newsletter-bar {
             display: grid;
             gap: 0.2rem;
+            margin-left: 0;
+            transform: translateY(-50%) translateX(-65%);
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        .newsletter-bar:hover {
+            transform: translateY(-50%) translateX(0);
+            margin-left: 0.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
         }
     }
 
-    @media screen and (min-width: 1024px) {
+    /* Geniş masaüstü ekranlar (>= 1440px): Konteyner dışında rahatça sabit durur */
+    @media screen and (min-width: 1440px) {
         .newsletter-bar {
+            display: grid;
+            gap: 0.2rem;
             margin-left: 0.875rem;
+            transform: translateY(-50%) translateX(0);
         }
     }
 

@@ -373,11 +373,11 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     }
 
     .card-main {
-      width: 380px;
-      max-width: 380px;
-      height: 300px;
-      top: 65%;
-      left: 70%;
+      width: 370px;
+      max-width: 90%;
+      height: 290px;
+      top: 52%;
+      left: 54%;
       transform: perspective(1000px) translateX(-50%) translateY(-50%);
       animation: float-main 7s ease-in-out infinite;
       transition: transform 0.1s ease;
@@ -390,20 +390,20 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     }
 
     .card-sm {
-      width: 200px;
-      height: 150px;
+      width: 190px;
+      height: 140px;
       background: #ffffff;
     }
 
     .card-float-1 {
-      top: 3%;
-      right: 5%;
+      top: 4%;
+      right: 4%;
       animation: float 9s ease-in-out infinite reverse;
     }
 
     .card-float-2 {
-      bottom: 15%;
-      left: 5%;
+      bottom: 8%;
+      left: 3%;
       animation: float 11s ease-in-out infinite 1s;
     }
 
@@ -486,6 +486,34 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       text-transform: uppercase;
       color: #64748b;
       writing-mode: vertical-rl;
+    }
+
+    @media (min-width: 1025px) and (max-width: 1280px) {
+      .hero-inner {
+        padding: 0 36px;
+        gap: 28px;
+      }
+      .hero-title {
+        font-size: clamp(2.6rem, 4vw, 3.8rem);
+      }
+      .card-main {
+        width: 310px;
+        height: 250px;
+        left: 52%;
+        top: 52%;
+      }
+      .card-sm {
+        width: 160px;
+        height: 120px;
+      }
+      .card-float-1 {
+        top: 2%;
+        right: 0%;
+      }
+      .card-float-2 {
+        bottom: 5%;
+        left: 0%;
+      }
     }
 
     @media (max-width: 1024px) {
