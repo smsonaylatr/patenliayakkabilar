@@ -162,25 +162,118 @@ html, body {
         scrollbar-width: thin !important;
     }
 
-    /* Masaüstü Kaydırma Çubuğu */
-    ::-webkit-scrollbar {
+    /* Masaüstü Sol Navbar: Scrollbar Yok & Tüm İçerikleri Ekrana Sığdır */
+    aside.fi-sidebar,
+    .fi-sidebar {
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .fi-sidebar-nav {
+        height: calc(100vh - 65px) !important;
+        max-height: calc(100vh - 65px) !important;
+        overflow-y: auto !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        padding: 4px 6px !important;
+    }
+
+    aside.fi-sidebar::-webkit-scrollbar,
+    .fi-sidebar::-webkit-scrollbar,
+    .fi-sidebar-nav::-webkit-scrollbar,
+    .fi-sidebar-nav-groups::-webkit-scrollbar,
+    .fi-sidebar-group::-webkit-scrollbar,
+    .fi-sidebar-group-items::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .fi-sidebar-nav-groups {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2px !important;
+    }
+
+    .fi-sidebar-group {
+        margin-bottom: 2px !important;
+    }
+
+    .fi-sidebar-group-label {
+        font-size: 0.65rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase !important;
+        padding: 2px 6px !important;
+        margin-bottom: 1px !important;
+        color: #94a3b8 !important;
+    }
+
+    .fi-sidebar-group-items {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1px !important;
+    }
+
+    .fi-sidebar-item-btn {
+        min-height: 28px !important;
+        height: 28px !important;
+        padding: 2px 8px !important;
+        border-radius: 6px !important;
+        gap: 6px !important;
+    }
+
+    .fi-sidebar-item-icon {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
+    .fi-sidebar-item-label {
+        font-size: 0.78rem !important;
+        line-height: 1.15 !important;
+        font-weight: 500 !important;
+    }
+
+    .fi-sidebar-item-badge {
+        font-size: 0.65rem !important;
+        padding: 0px 5px !important;
+        border-radius: 9999px !important;
+    }
+
+    /* Masaüstü Genel Sayfa Kaydırma Çubuğu (Sidebar Dışı) */
+    body::-webkit-scrollbar,
+    .fi-ta-ctn::-webkit-scrollbar,
+    .fi-modal-content::-webkit-scrollbar {
         width: 8px;
         height: 8px;
     }
-    ::-webkit-scrollbar-track {
+    body::-webkit-scrollbar-track,
+    .fi-ta-ctn::-webkit-scrollbar-track,
+    .fi-modal-content::-webkit-scrollbar-track {
         background: transparent;
     }
-    ::-webkit-scrollbar-thumb {
+    body::-webkit-scrollbar-thumb,
+    .fi-ta-ctn::-webkit-scrollbar-thumb,
+    .fi-modal-content::-webkit-scrollbar-thumb {
         background: rgba(148, 163, 184, 0.35);
         border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
+    body::-webkit-scrollbar-thumb:hover,
+    .fi-ta-ctn::-webkit-scrollbar-thumb:hover,
+    .fi-modal-content::-webkit-scrollbar-thumb:hover {
         background: rgba(100, 116, 139, 0.6);
     }
-    .dark ::-webkit-scrollbar-thumb {
+    .dark body::-webkit-scrollbar-thumb,
+    .dark .fi-ta-ctn::-webkit-scrollbar-thumb,
+    .dark .fi-modal-content::-webkit-scrollbar-thumb {
         background: rgba(148, 163, 184, 0.22);
     }
-    .dark ::-webkit-scrollbar-thumb:hover {
+    .dark body::-webkit-scrollbar-thumb:hover,
+    .dark .fi-ta-ctn::-webkit-scrollbar-thumb:hover,
+    .dark .fi-modal-content::-webkit-scrollbar-thumb:hover {
         background: rgba(148, 163, 184, 0.45);
     }
 }
@@ -486,39 +579,63 @@ html, body {
         height: calc(100dvh - 64px) !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        padding: 16px 18px 110px 18px !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        padding: 10px 12px 90px 12px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
+    .fi-sidebar-nav::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
     .fi-sidebar-nav-groups {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 14px !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px 10px !important;
         width: 100% !important;
-        max-width: 600px !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        scrollbar-width: none !important;
+    }
+
+    .fi-sidebar-nav-groups::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
     .fi-sidebar-group {
-        width: 100% !important;
+        background: rgba(0, 0, 0, 0.02) !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: 12px !important;
+        padding: 6px 8px !important;
+        break-inside: avoid !important;
+        margin-bottom: 0 !important;
+    }
+
+    .dark .fi-sidebar-group {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-color: rgba(255, 255, 255, 0.07) !important;
     }
 
     .fi-sidebar-group-label {
-        font-size: 0.78rem !important;
+        font-size: 0.68rem !important;
         font-weight: 800 !important;
         letter-spacing: 0.05em !important;
         text-transform: uppercase !important;
-        color: #94a3b8 !important;
-        padding: 6px 12px !important;
-        margin-bottom: 4px !important;
+        color: #ff4e00 !important;
+        padding: 2px 4px 3px 4px !important;
+        margin-bottom: 2px !important;
     }
 
     .fi-sidebar-group-items {
         display: flex !important;
         flex-direction: column !important;
-        gap: 4px !important;
-        width: 100% !important;
+        gap: 2px !important;
     }
 
     .fi-sidebar-item {
@@ -527,13 +644,14 @@ html, body {
 
     .fi-sidebar-item-btn {
         width: 100% !important;
-        min-height: 48px !important;
-        padding: 10px 14px !important;
-        border-radius: 12px !important;
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 3px 8px !important;
+        border-radius: 8px !important;
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
-        font-size: 0.95rem !important;
+        gap: 6px !important;
+        font-size: 0.8rem !important;
         font-weight: 600 !important;
         transition: background-color 0.15s ease, transform 0.1s ease !important;
     }
@@ -542,18 +660,26 @@ html, body {
         transform: scale(0.98) !important;
     }
 
+    .fi-sidebar-item-icon {
+        width: 16px !important;
+        height: 16px !important;
+        flex-shrink: 0 !important;
+    }
+
     .fi-sidebar-item-label {
-        font-size: 0.95rem !important;
+        font-size: 0.8rem !important;
+        line-height: 1.15 !important;
         flex-grow: 1 !important;
-        white-space: normal !important;
-        line-height: 1.3 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .fi-sidebar-item-badge {
         margin-left: auto !important;
-        font-size: 0.75rem !important;
+        font-size: 0.65rem !important;
         font-weight: 700 !important;
-        padding: 2px 8px !important;
+        padding: 1px 5px !important;
         border-radius: 9999px !important;
     }
 
