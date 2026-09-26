@@ -172,13 +172,97 @@ td.fi-ta-actions-cell,
 
 /* 5. TOPBAR (ÜST BAR) MOBİL DÜZENİ */
 @media (max-width: 768px) {
+    /* Üst bar konteyneri: çentik/durum çubuğu altına ferahça indirilir */
+    .fi-topbar-ctn {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 35 !important;
+        padding-top: max(env(safe-area-inset-top, 0px), 12px) !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .dark .fi-topbar-ctn {
+        background: #111827 !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
     .fi-topbar {
-        height: 58px !important;
-        padding-left: 10px !important;
-        padding-right: 10px !important;
+        min-height: 54px !important;
+        height: auto !important;
+        padding: 4px 12px 8px 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        ring-width: 0 !important;
+    }
+
+    /* Hamburger Menü İkonu — Kesinlikle En Üst Katmanda & Geniş Dokunma Alanlı */
+    .fi-topbar-open-sidebar-btn,
+    .fi-topbar-close-sidebar-btn,
+    button[aria-label*="sidebar" i],
+    button[aria-label*="menü" i] {
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 9999 !important;
+        min-width: 46px !important;
+        min-height: 46px !important;
+        width: 46px !important;
+        height: 46px !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        margin-right: 8px !important;
+        border-radius: 12px !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(255, 78, 0, 0.2) !important;
+        flex-shrink: 0 !important;
+        background: rgba(0, 0, 0, 0.05) !important;
+        color: #111827 !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .dark .fi-topbar-open-sidebar-btn,
+    .dark .fi-topbar-close-sidebar-btn,
+    .dark button[aria-label*="sidebar" i],
+    .dark button[aria-label*="menü" i] {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #f3f4f6 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .fi-topbar-open-sidebar-btn svg,
+    .fi-topbar-close-sidebar-btn svg,
+    button[aria-label*="sidebar" i] svg,
+    button[aria-label*="menü" i] svg {
+        width: 24px !important;
+        height: 24px !important;
+        pointer-events: none !important;
+    }
+
+    .fi-topbar-open-sidebar-btn:active,
+    .fi-topbar-close-sidebar-btn:active,
+    button[aria-label*="sidebar" i]:active,
+    button[aria-label*="menü" i]:active {
+        background: rgba(255, 78, 0, 0.15) !important;
+        transform: scale(0.92) !important;
+    }
+
+    /* Masaüstü daraltma butonu mobilde gizlenir */
+    .fi-topbar-collapse-sidebar-btn-ctn {
+        display: none !important;
     }
 
     .fi-topbar-start {
+        display: flex !important;
+        align-items: center !important;
         flex: 1 1 auto !important;
         min-width: 0 !important;
         overflow: hidden !important;
@@ -186,7 +270,7 @@ td.fi-ta-actions-cell,
 
     .fi-topbar-start a,
     .fi-logo {
-        max-width: 180px !important;
+        max-width: 170px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -199,23 +283,27 @@ td.fi-ta-actions-cell,
         align-items: center !important;
         gap: 6px !important;
         flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 100 !important;
     }
 
-    /* Mobilde buton dokunma alanı (minimum 38x38px) */
+    /* Mobilde diğer butonların dokunma alanı (minimum 40x40px) */
     .fi-topbar-end button,
     .fi-topbar-end a,
-    .fi-topbar-start button,
     .fi-topbar-reload-btn button {
-        min-width: 38px !important;
-        min-height: 38px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        touch-action: manipulation !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
     }
 
     /* Global arama mobilde taşma yapmaz */
     .fi-global-search-ctn {
-        max-width: 130px !important;
+        max-width: 120px !important;
     }
 }
 
