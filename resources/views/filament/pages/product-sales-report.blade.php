@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     {{-- Dashboard Üst Bölüm: İstatistik Kartları --}}
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {{-- Toplam Satılan Adet --}}
         <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -43,7 +43,7 @@
     </div>
 
     {{-- Orta Bölüm: Ürün Özeti, İade Özeti ve Beden Dağılımı --}}
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
         {{-- SOL: Ürün Bazlı Satış Özeti --}}
         <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">

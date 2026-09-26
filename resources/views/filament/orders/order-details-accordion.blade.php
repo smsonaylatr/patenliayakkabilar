@@ -202,6 +202,8 @@ td.fi-ta-actions-cell {
         width: 100% !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        border-radius: 8px !important;
     }
 
     .inner-table {

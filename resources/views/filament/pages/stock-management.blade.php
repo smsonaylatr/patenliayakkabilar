@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     {{-- Dashboard Üst Bölüm: İstatistik + Grafikler --}}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
         {{-- SOL: Stok Durumu Özet + Donut --}}
         <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
@@ -50,7 +50,7 @@
     </div>
 
     {{-- Beden Grafikleri: Stok Dağılımı + Sipariş Dağılımı --}}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         
         {{-- SOL: Beden Bazlı Stok Dağılımı --}}
         <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);">

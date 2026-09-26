@@ -82,6 +82,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => new \Illuminate\Support\HtmlString('
                     <link rel="apple-touch-icon" sizes="180x180" href="' . asset('admin-favicon.png') . '">
                     <link rel="manifest" href="/admin-manifest.json">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
                     <meta name="theme-color" content="#ff4e00">
                     <meta name="apple-mobile-web-app-capable" content="yes">
                     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -90,151 +91,11 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
-                fn () => new \Illuminate\Support\HtmlString('
-                    <style>
-                        /* Masaüstünde Yana Kaydırma İptal & Ekrana %100 Tam Sığdırma */
-                        @media (min-width: 769px) {
-                            .fi-ta-ctn,
-                            .fi-ta-content,
-                            .fi-ta-content-ctn,
-                            .fi-ta-table-container {
-                                overflow-x: hidden !important;
-                                width: 100% !important;
-                                max-width: 100% !important;
-                            }
-
-                            .fi-ta-table {
-                                width: 100% !important;
-                                max-width: 100% !important;
-                                min-width: 0 !important;
-                                table-layout: auto !important;
-                            }
-                        }
-
-                        /* Tablo Genel Yazı ve İkon Boyutlarını Küçültme */
-                        .fi-ta-header-cell {
-                            font-size: 0.7rem !important;
-                            padding: 6px 3px !important;
-                            white-space: nowrap !important;
-                        }
-
-                        .fi-ta-cell {
-                            font-size: 0.78rem !important;
-                            padding: 6px 3px !important;
-                            white-space: nowrap !important;
-                        }
-
-                        .fi-ta-cell .fi-badge {
-                            font-size: 0.68rem !important;
-                            padding: 1px 5px !important;
-                        }
-
-                        .fi-ta-actions button,
-                        .fi-ta-actions a,
-                        .fi-ta-actions .fi-icon-btn {
-                            padding: 2px !important;
-                        }
-
-                        .fi-ta-actions svg {
-                            width: 16px !important;
-                            height: 16px !important;
-                        }
-
-                        /* Aksiyon Butonlarını Ödeme Durumu Sütununa Bitişik Sola Yanaştırma */
-                        td.fi-ta-actions-cell,
-                        .fi-ta-actions-cell {
-                            width: 1px !important;
-                            white-space: nowrap !important;
-                            padding-left: 6px !important;
-                            padding-right: 6px !important;
-                        }
-
-                        .fi-ta-actions {
-                            display: flex !important;
-                            justify-content: flex-start !important;
-                            align-items: center !important;
-                            gap: 3px !important;
-                            width: auto !important;
-                        }
-
-                        /* Siparişler Sayfası Mobil Responsiveness & Dokunmatik Yatay Kaydırma */
-                        @media (max-width: 768px) {
-                            /* Tablo Alanı Dokunmatik Yatay Kaydırma */
-                            .fi-ta-ctn,
-                            .fi-ta-content,
-                            .fi-ta-content-ctn,
-                            .fi-ta-table-container,
-                            .fi-ta-table-ctn {
-                                overflow-x: auto !important;
-                                -webkit-overflow-scrolling: touch !important;
-                                touch-action: pan-x pan-y !important;
-                                width: 100% !important;
-                            }
-
-                            /* Tablonun Kendisini Mobil Ekranda Kompakt Yapma */
-                            .fi-ta-table {
-                                zoom: 0.85 !important;
-                                min-width: 640px !important;
-                            }
-
-                            /* Hücre Dolgularını & Fontları Mobil İçin Optimize Etme */
-                            .fi-ta-cell {
-                                padding-top: 6px !important;
-                                padding-bottom: 6px !important;
-                                padding-left: 6px !important;
-                                padding-right: 6px !important;
-                                font-size: 0.78rem !important;
-                            }
-
-                            /* Aksiyon Butonları Hizalama */
-                            .fi-ta-actions-cell,
-                            .fi-ta-actions {
-                                display: flex !important;
-                                flex-direction: row !important;
-                                align-items: center !important;
-                                justify-content: flex-end !important;
-                                gap: 4px !important;
-                                white-space: nowrap !important;
-                            }
-
-                            /* Sipariş Detay Modalı Mobilde %95 Genişlik (Centered 95%) */
-                            .fi-modal,
-                            [role="dialog"],
-                            .fi-modal-window-container,
-                            .fi-modal-window-ctn {
-                                padding-left: 0 !important;
-                                padding-right: 0 !important;
-                            }
-
-                            .fi-modal-window {
-                                width: 95vw !important;
-                                max-width: 95vw !important;
-                                min-width: 95vw !important;
-                                margin: 8px auto !important;
-                                border-radius: 12px !important;
-                                zoom: 1 !important;
-                                box-sizing: border-box !important;
-                            }
-
-                            /* Mobilde Takılı Kalan Tooltip Balonlarını Gizleme */
-                            .tippy-box,
-                            [data-tippy-root],
-                            .fi-tooltip {
-                                display: none !important;
-                            }
-
-                            .fi-modal-window > div,
-                            .fi-modal-content,
-                            .fi-modal-body,
-                            .fi-modal-header {
-                                padding: 8px 10px !important;
-                                width: 100% !important;
-                                max-width: 100% !important;
-                                box-sizing: border-box !important;
-                            }
-                        }
-                    </style>
-                ')
+                fn () => view('filament.components.mobile-styles')
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::BODY_END,
+                fn () => filament()->auth()->check() ? view('filament.components.mobile-bottom-nav') : ''
             );
     }
 
