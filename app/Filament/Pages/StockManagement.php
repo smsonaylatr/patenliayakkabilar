@@ -193,21 +193,16 @@ class StockManagement extends Page implements HasTable
                     ->size(80)
                     ->defaultImageUrl(url('/favicon.png'))
                     ->getStateUsing(fn ($record) => $record->product?->images?->first()?->image_path),
-                Tables\Columns\TextColumn::make('product.name')
-                    ->label('Ürün Adı')
-                    ->searchable()
-                    ->sortable()
-                    ->limit(40)
-                    ->tooltip(fn ($record) => $record->product?->name),
-                Tables\Columns\TextColumn::make('sku')
-                    ->label('SKU')
-                    ->searchable()
-                    ->size('sm')
-                    ->color('gray'),
                 Tables\Columns\TextColumn::make('size')
                     ->label('Beden')
                     ->badge()
-                    ->color('primary'),
+                    ->color('primary')
+                    ->sortable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where('size', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%")
+                            ->orWhereHas('product', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                    }),
                 Tables\Columns\TextColumn::make('color')
                     ->label('Renk')
                     ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : $state)
@@ -233,7 +228,7 @@ class StockManagement extends Page implements HasTable
                     ->formatStateUsing(fn ($state) => number_format((float) $state, 2) . ' ₺')
                     ->sortable(),
             ])
-            ->defaultSort('product.name', 'asc')
+            ->defaultSort('size', 'asc')
             ->filters([
                 Tables\Filters\SelectFilter::make('stock_status')
                     ->label('Stok Durumu')
