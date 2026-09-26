@@ -405,32 +405,7 @@
                             </div>
                         </div>
 
-                        {{-- 4. TANITIM (ÜRÜN AÇIKLAMASI) --}}
-                        @if($product->description)
-                        <div>
-                            <button
-                                @click="window.innerWidth >= 1024 ? $dispatch('toggle-tanitim') : (openPanel = openPanel === 'description' ? '' : 'description')"
-                                class="w-full flex items-center justify-between py-4 text-left group"
-                            >
-                                <div class="flex items-center gap-4">
-                                    <i class="fa-solid fa-file-lines text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
-                                    <span class="text-sm font-semibold text-gray-900">Ürün Tanıtımı</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"
-                                   @toggle-tanitim.window="$el.classList.toggle('rotate-180')"></i>
-                            </button>
-                            <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
-                                <div class="pb-4">
-                                    <div class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
-                                        {!! $product->description !!}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
-
-                        {{-- 5. SIKÇA SORULAN SORULAR (SSS) --}}
+                        {{-- 4. SIKÇA SORULAN SORULAR (SSS) --}}
                         <div>
                             <button
                                 @click="openPanel = openPanel === 'faq' ? '' : 'faq'"
@@ -459,6 +434,31 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- 5. TANITIM (ÜRÜN AÇIKLAMASI) --}}
+                        @if($product->description)
+                        <div>
+                            <button
+                                @click="window.innerWidth >= 1024 ? $dispatch('toggle-tanitim') : (openPanel = openPanel === 'description' ? '' : 'description')"
+                                class="w-full flex items-center justify-between py-4 text-left group"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <i class="fa-solid fa-file-lines text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
+                                    <span class="text-sm font-semibold text-gray-900">Ürün Tanıtımı</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
+                                   :class="openPanel === 'description' && window.innerWidth < 1024 ? 'rotate-180' : ''"
+                                   @toggle-tanitim.window="$el.classList.toggle('rotate-180')"></i>
+                            </button>
+                            <div class="accordion-content lg:hidden" :class="openPanel === 'description' ? 'open' : ''">
+                                <div class="pb-4">
+                                    <div class="prose prose-sm prose-gray max-w-none text-gray-700 leading-relaxed prose-img:rounded-2xl prose-img:w-full prose-img:shadow-sm prose-headings:font-bold prose-a:text-emerald-600">
+                                        {!! $product->description !!}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
 
                 </div>
                 </div>

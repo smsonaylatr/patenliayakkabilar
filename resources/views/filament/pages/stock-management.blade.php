@@ -1,9 +1,24 @@
 <x-filament-panels::page>
     {{-- Dashboard Üst Bölüm: İstatistik + Grafikler --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <style>
+        .stock-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            .stock-grid-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+
+    {{-- Dashboard Üst Bölüm: İstatistik + Grafikler (2'li Grid) --}}
+    <div class="stock-grid-2" style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px;margin-bottom:20px;">
 
         {{-- SOL: Stok Durumu Özet + Donut --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <h3 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;">📊 Stok Durumu</h3>
             <div style="display:flex;align-items:center;gap:20px;">
                 {{-- Donut Chart --}}
@@ -41,7 +56,7 @@
         </div>
 
         {{-- SAĞ: Son 14 Gün Hareketleri --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <h3 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;">📈 Son 14 Gün Stok Hareketleri</h3>
             <div style="position:relative;width:100%;height:140px;" wire:ignore>
                 <canvas id="movementChart" style="width:100%;height:140px;"></canvas>
@@ -49,11 +64,11 @@
         </div>
     </div>
 
-    {{-- Beden Grafikleri: Stok Dağılımı + Sipariş Dağılımı --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    {{-- Beden Grafikleri: Stok Dağılımı + Sipariş Dağılımı (2'li Grid) --}}
+    <div class="stock-grid-2" style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px;margin-bottom:20px;">
         
         {{-- SOL: Beden Bazlı Stok Dağılımı --}}
-        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">📦 Beden Bazlı Stok Dağılımı</h3>
             <div style="display:flex;align-items:flex-end;gap:4px;height:60px;">
                 @php $maxSize = max(array_values($sizeDistribution) ?: [1]); @endphp
@@ -75,7 +90,7 @@
         </div>
 
         {{-- SAĞ: En Çok Sipariş Edilen Bedenler --}}
-        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <h3 style="font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:10px;">🏆 En Çok Sipariş Edilen Bedenler</h3>
             @if(empty($orderedSizes))
                 <div style="display:flex;align-items:center;justify-content:center;height:60px;color:#6b7280;font-size:12px;">Henüz sipariş verisi yok.</div>
@@ -117,19 +132,27 @@
     </div>
 
     {{-- Chart.js Script --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" onload="window.initStockCharts && window.initStockCharts()"></script>
     <script>
     (function() {
-        function init() {
+        let donutInstance = null;
+        let movementInstance = null;
+
+        window.initStockCharts = function() {
+            if (typeof Chart === 'undefined') return;
+
             // Donut
             var dc = document.getElementById('donutChart');
             if (dc) {
-                new Chart(dc.getContext('2d'), {
+                if (donutInstance) {
+                    donutInstance.destroy();
+                }
+                donutInstance = new Chart(dc.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: ['Stokta', 'Düşük', 'Tükenen'],
                         datasets: [{
-                            data: [{{ $inStock - $lowStock }}, {{ $lowStock }}, {{ $outOfStock }}],
+                            data: [{{ max(0, $inStock - $lowStock) }}, {{ $lowStock }}, {{ $outOfStock }}],
                             backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
                             borderWidth: 0,
                             borderRadius: 3,
@@ -146,7 +169,10 @@
             // Bar
             var mc = document.getElementById('movementChart');
             if (mc) {
-                new Chart(mc.getContext('2d'), {
+                if (movementInstance) {
+                    movementInstance.destroy();
+                }
+                movementInstance = new Chart(mc.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: @json($chartLabels),
@@ -168,9 +194,24 @@
                     }
                 });
             }
+        };
+
+        if (typeof Chart !== 'undefined') {
+            window.initStockCharts();
+        } else {
+            document.addEventListener('DOMContentLoaded', function(){ setTimeout(window.initStockCharts, 200); });
+            var pollTimer = setInterval(function() {
+                if (typeof Chart !== 'undefined') {
+                    clearInterval(pollTimer);
+                    window.initStockCharts();
+                }
+            }, 100);
+            setTimeout(function() { clearInterval(pollTimer); }, 5000);
         }
-        if (typeof Chart !== 'undefined') init();
-        else document.addEventListener('DOMContentLoaded', function(){ setTimeout(init, 300); });
+
+        document.addEventListener('livewire:navigated', function() {
+            setTimeout(window.initStockCharts, 100);
+        });
     })();
     </script>
 
