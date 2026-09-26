@@ -326,7 +326,38 @@
                         </div>
                         @endif
 
-                        {{-- 2. TEKNİK BİLGİLER --}}
+                        {{-- 2. SIKÇA SORULAN SORULAR (SSS) --}}
+                        @php $productFaqs = $productFaqs ?? app(\App\Services\AiShoppingService::class)->getDefaultProductFaq($product); @endphp
+                        <div>
+                            <button
+                                @click="openPanel = openPanel === 'faq' ? '' : 'faq'"
+                                class="w-full flex items-center justify-between py-4 text-left group"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <i class="fa-solid fa-circle-question text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
+                                    <span class="text-sm font-semibold text-gray-900">Sıkça Sorulan Sorular (SSS)</span>
+                                    <span class="text-[11px] font-medium text-gray-400">{{ count($productFaqs) }}</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
+                                   :class="openPanel === 'faq' ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div class="accordion-content" :class="openPanel === 'faq' ? 'open' : ''">
+                                <div class="pb-4 space-y-2.5">
+                                    @foreach($productFaqs as $faq)
+                                        <div class="p-3 bg-gray-50/80 rounded-xl border border-gray-100 text-xs">
+                                            <h4 class="font-bold text-gray-900 mb-1 flex items-start gap-1.5">
+                                                <span class="text-brand-orange font-black">S:</span> {{ $faq['question'] }}
+                                            </h4>
+                                            <p class="text-gray-600 leading-relaxed pl-3.5">
+                                                {{ $faq['answer'] }}
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 3. TEKNİK BİLGİLER --}}
                         @php $specs = $product->getSpecifications(); @endphp
                         @if(count($specs) > 0)
                         <div>
@@ -358,7 +389,7 @@
                         </div>
                         @endif
 
-                        {{-- 3. KARGO & İADE --}}
+                        {{-- 4. KARGO & İADE --}}
                         <div>
                             <button
                                 @click="openPanel = openPanel === 'shipping' ? '' : 'shipping'"
@@ -401,36 +432,6 @@
                                             <p class="text-[11px] text-gray-500 mt-0.5">256-bit SSL şifreleme. Kapıda ödeme seçeneği mevcuttur.</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- 4. SIKÇA SORULAN SORULAR (SSS) --}}
-                        <div>
-                            <button
-                                @click="openPanel = openPanel === 'faq' ? '' : 'faq'"
-                                class="w-full flex items-center justify-between py-4 text-left group"
-                            >
-                                <div class="flex items-center gap-4">
-                                    <i class="fa-solid fa-circle-question text-gray-400 text-sm w-6 flex-shrink-0 text-center"></i>
-                                    <span class="text-sm font-semibold text-gray-900">Sıkça Sorulan Sorular (SSS)</span>
-                                    <span class="text-[11px] font-medium text-gray-400">{{ count($productFaqs) }}</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300"
-                                   :class="openPanel === 'faq' ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div class="accordion-content" :class="openPanel === 'faq' ? 'open' : ''">
-                                <div class="pb-4 space-y-2.5">
-                                    @foreach($productFaqs as $faq)
-                                        <div class="p-3 bg-gray-50/80 rounded-xl border border-gray-100 text-xs">
-                                            <h4 class="font-bold text-gray-900 mb-1 flex items-start gap-1.5">
-                                                <span class="text-brand-orange font-black">S:</span> {{ $faq['question'] }}
-                                            </h4>
-                                            <p class="text-gray-600 leading-relaxed pl-3.5">
-                                                {{ $faq['answer'] }}
-                                            </p>
-                                        </div>
-                                    @endforeach
                                 </div>
                             </div>
                         </div>
