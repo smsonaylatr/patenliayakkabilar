@@ -34,6 +34,74 @@
     var isSending = false;
     var activeRedirectTimer = null;
 
+    // Ziyaretçi Kimlik Durumu (Live Identity Tracking)
+    var lastKnownIdentity = {
+        guest_name: null,
+        guest_email: null,
+        guest_phone: null
+    };
+    var identityTimer = null;
+
+    function sendIdentityNow() {
+        if (!lastKnownIdentity.guest_name && !lastKnownIdentity.guest_email && !lastKnownIdentity.guest_phone) {
+            return;
+        }
+
+        var payload = {
+            visitor_token: visitorToken,
+            guest_name: lastKnownIdentity.guest_name,
+            guest_email: lastKnownIdentity.guest_email,
+            guest_phone: lastKnownIdentity.guest_phone,
+            url: window.location.href,
+            path: window.location.pathname
+        };
+
+        fetch('/api/presence/identify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .catch(function() {});
+    }
+
+    function triggerIdentityUpdate(delayMs) {
+        if (identityTimer) clearTimeout(identityTimer);
+        identityTimer = setTimeout(sendIdentityNow, delayMs || 250);
+    }
+
+    window.paIdentifyVisitor = function(name, email, phone) {
+        var changed = false;
+        if (typeof name !== 'undefined' && name !== null) {
+            var trimmedName = name.trim();
+            if (trimmedName !== lastKnownIdentity.guest_name) {
+                lastKnownIdentity.guest_name = trimmedName;
+                changed = true;
+            }
+        }
+        if (typeof email !== 'undefined' && email !== null) {
+            var trimmedEmail = email.trim();
+            if (trimmedEmail !== lastKnownIdentity.guest_email) {
+                lastKnownIdentity.guest_email = trimmedEmail;
+                changed = true;
+            }
+        }
+        if (typeof phone !== 'undefined' && phone !== null) {
+            var trimmedPhone = phone.trim();
+            if (trimmedPhone !== lastKnownIdentity.guest_phone) {
+                lastKnownIdentity.guest_phone = trimmedPhone;
+                changed = true;
+            }
+        }
+        if (changed) {
+            triggerIdentityUpdate(250);
+        }
+    };
+
     // Güvenli HTML escape
     function escapeHtml(str) {
         if (!str) return '';
@@ -120,6 +188,10 @@
             action: actionType || 'heartbeat',
             action_detail: actionDetail || null
         };
+
+        if (lastKnownIdentity.guest_name) payload.guest_name = lastKnownIdentity.guest_name;
+        if (lastKnownIdentity.guest_email) payload.guest_email = lastKnownIdentity.guest_email;
+        if (lastKnownIdentity.guest_phone) payload.guest_phone = lastKnownIdentity.guest_phone;
 
         try {
             var urlParams = new URLSearchParams(window.location.search);
@@ -429,7 +501,58 @@
         });
     }
 
-    // 8. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
+    // 8. Canlı Form Dinleyicisi (Checkout İsim, E-posta, Telefon Canlı Takip)
+    function setupCheckoutListeners() {
+        document.addEventListener('input', function(e) {
+            var target = e.target;
+            if (!target || !target.tagName || target.tagName.toLowerCase() !== 'input') return;
+
+            var val = target.value;
+            var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+            var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
+            var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+            var placeholder = (target.getAttribute('placeholder') || '').toLowerCase();
+
+            // Ad Soyad alanı (canlı isim yazarken anında güncelle)
+            if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1 || placeholder.indexOf('adınız') !== -1) {
+                if (val && val.length >= 2) {
+                    window.paIdentifyVisitor(val, null, null);
+                }
+            }
+            // E-posta alanı
+            else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1 || nameAttr.indexOf('email') !== -1 || placeholder.indexOf('@') !== -1) {
+                if (val && val.length >= 4) {
+                    window.paIdentifyVisitor(null, val, null);
+                }
+            }
+            // Telefon alanı
+            else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1 || nameAttr.indexOf('phone') !== -1 || placeholder.indexOf('5xx') !== -1 || placeholder.indexOf('telefon') !== -1) {
+                if (val && val.length >= 6) {
+                    window.paIdentifyVisitor(null, null, val);
+                }
+            }
+        }, { passive: true });
+
+        // Input dışına çıkıldığında (blur)
+        document.addEventListener('focusout', function(e) {
+            var target = e.target;
+            if (!target || !target.tagName || target.tagName.toLowerCase() !== 'input') return;
+            var val = target.value;
+            var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+            var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
+            var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+
+            if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1) {
+                if (val) window.paIdentifyVisitor(val, null, null);
+            } else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1) {
+                if (val) window.paIdentifyVisitor(null, val, null);
+            } else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1) {
+                if (val) window.paIdentifyVisitor(null, null, val);
+            }
+        }, { passive: true });
+    }
+
+    // 9. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
     function handleVisibility() {
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
@@ -454,12 +577,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             sendHeartbeat('view');
             setupInteractions();
+            setupCheckoutListeners();
             handleVisibility();
             restartLoop();
         });
     } else {
         sendHeartbeat('view');
         setupInteractions();
+        setupCheckoutListeners();
         handleVisibility();
         restartLoop();
     }

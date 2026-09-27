@@ -56,12 +56,18 @@
                             <div style="font-weight: 700; color: #ffffff; font-size: 13px;">{{ $item['product_name'] ?? 'Patenli Ayakkabı' }}</div>
                             <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
                                 @if(!empty($item['size']))
+                                    @php
+                                        $sizeVal = is_array($item['size']) ? implode(', ', $item['size']) : $item['size'];
+                                    @endphp
                                     <span style="background: rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; color: #f8fafc; margin-right: 4px;">
-                                        Beden: {{ $item['size'] }}
+                                        Beden: {{ $sizeVal }}
                                     </span>
                                 @endif
                                 @if(!empty($item['color']))
-                                    <span>Renk: {{ $item['color'] }} • </span>
+                                    @php
+                                        $colorVal = is_array($item['color']) ? implode(', ', $item['color']) : $item['color'];
+                                    @endphp
+                                    <span>Renk: {{ $colorVal }} • </span>
                                 @endif
                                 <span>{{ $item['quantity'] ?? 1 }} Adet</span>
                             </div>

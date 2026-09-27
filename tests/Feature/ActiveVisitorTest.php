@@ -218,5 +218,41 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals('Sipariş & Kargo Takibi', $trackingInfo['title']);
         $this->assertEquals('📦', $trackingInfo['icon']);
     }
+
+    public function test_journey_modal_renders_safely_with_array_variant_colors_and_sizes(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_modal_render_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+            'cart_items_count' => 1,
+            'cart_total' => 1499.00,
+            'cart_summary' => [
+                [
+                    'product_name' => 'Kick Speed Pro',
+                    'size' => ['34', '35'], // array variant size
+                    'color' => ['Beyaz', 'Mavi'], // array variant color
+                    'quantity' => 1,
+                    'price' => 1499.00,
+                ],
+            ],
+            'journey_trail' => [
+                [
+                    'path' => '/',
+                    'title' => 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri',
+                    'time' => '03:00:00',
+                ],
+            ],
+        ]);
+
+        $view = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
+        $this->assertStringContainsString('Beden: 34, 35', $view);
+        $this->assertStringContainsString('Renk: Beyaz, Mavi', $view);
+        $this->assertStringContainsString('Ana Sayfa', $view);
+    }
 }
+
 

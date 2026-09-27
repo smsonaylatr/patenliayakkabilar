@@ -398,6 +398,7 @@ class ActiveVisitors extends Page implements HasTable
                 Action::make('apply_strategy')
                     ->label('⚡ Strateji Uygula')
                     ->button()
+                    ->size('sm')
                     ->color('success')
                     ->icon('heroicon-o-bolt')
                     ->modalHeading(fn (ActiveVisitor $record) => '⚡ Satış Stratejisini Uygula: ' . ($record->recommended_strategy['title'] ?? 'Özel Teklif'))
@@ -490,6 +491,8 @@ class ActiveVisitors extends Page implements HasTable
                 // ─── 2. Hızlı Yönlendir ───
                 Action::make('force_redirect')
                     ->label('🚀 Yönlendir')
+                    ->button()
+                    ->size('sm')
                     ->color('primary')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->modalHeading('🚀 Ziyaretçiyi Sayfaya Yönlendir')
@@ -549,6 +552,8 @@ class ActiveVisitors extends Page implements HasTable
                 // ─── 3. Gezinme Yolculuğunu İncele ───
                 Action::make('inspect_journey')
                     ->label('🔍 İncele')
+                    ->button()
+                    ->size('sm')
                     ->color('gray')
                     ->icon('heroicon-o-eye')
                     ->modalHeading(fn (ActiveVisitor $record) => 'Müşteri Yolculuğu & Sepet Özeti - ' . $record->display_name)
@@ -587,7 +592,11 @@ class ActiveVisitors extends Page implements HasTable
                             $record->blockVisitor();
                             Notification::make()->title('Ziyaretçi engellendi.')->danger()->send();
                         }),
-                ]),
+                ])
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size('sm')
+                ->color('gray')
+                ->tooltip('Diğer İşlemler'),
             ]);
     }
 

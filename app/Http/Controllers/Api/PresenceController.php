@@ -93,10 +93,12 @@ class PresenceController extends Controller
 
                 $summary = [];
                 foreach ($cart->items as $item) {
+                    $color = $item->variant?->color;
+                    $size = $item->variant?->size;
                     $summary[] = [
                         'product_name' => $item->product?->name ?? 'Patenli Ayakkabı',
-                        'size' => $item->variant?->size ?? null,
-                        'color' => $item->variant?->color ?? null,
+                        'size' => is_array($size) ? implode(', ', $size) : ($size ?? null),
+                        'color' => is_array($color) ? implode(', ', $color) : ($color ?? null),
                         'quantity' => $item->quantity,
                         'price' => (float) $item->price,
                     ];
@@ -109,7 +111,15 @@ class PresenceController extends Controller
             }
         }
 
-        // 4. Davranış Analizi ve Strateji Üretimi
+        // 4. Kimlik (Ad, E-posta, Telefon) Güncelleme ve Müşteri Eşleştirme
+        $this->processIdentity(
+            $visitor,
+            $request->input('guest_name'),
+            $request->input('guest_email'),
+            $request->input('guest_phone')
+        );
+
+        // 5. Davranış Analizi ve Strateji Üretimi
         $this->behaviorAnalyzer->analyze($visitor, [
             'previous_path' => $previousPath,
             'path' => $path,
@@ -122,7 +132,7 @@ class PresenceController extends Controller
         $visitor->last_heartbeat_at = now();
         $visitor->save();
 
-        // 5. Engelleme Kontrolü
+        // 6. Engelleme Kontrolü
         if ($visitor->is_blocked) {
             return response()->json([
                 'status' => 'blocked',
@@ -195,6 +205,172 @@ class PresenceController extends Controller
         ];
     }
 
+    /**
+     * Ziyaretçinin ad, soyad, telefon ve e-posta bilgilerini anlık (live typing) kaydeder
+     * ve gerekirse kayıtlı müşteriyle eşleştirir veya yeni müşteri tanımlar.
+     */
+    public function identify(Request $request): JsonResponse
+    {
+        $token = $request->input('visitor_token');
+        if (empty($token)) {
+            return response()->json(['status' => 'ignored', 'message' => 'Token missing'], 400);
+        }
+
+        $this->ensureTableExists();
+
+        $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
+        if (!$visitor->exists) {
+            $visitor->first_seen_at = now();
+            $visitor->current_url = $request->input('url', url('/checkout'));
+            $visitor->current_path = $request->input('path', '/checkout');
+            $visitor->current_title = 'Ödeme Sayfası (Checkout)';
+            $visitor->ip_address = $request->ip();
+        }
+
+        if ($request->hasSession()) {
+            $visitor->session_id = $request->session()->getId();
+        }
+
+        $visitor->is_online = true;
+        $visitor->last_heartbeat_at = now();
+
+        $this->processIdentity(
+            $visitor,
+            $request->input('guest_name'),
+            $request->input('guest_email'),
+            $request->input('guest_phone')
+        );
+
+        $visitor->save();
+
+        return response()->json([
+            'status' => 'ok',
+            'display_name' => $visitor->display_name,
+            'is_identified' => (bool) $visitor->is_identified,
+            'user_id' => $visitor->user_id,
+        ]);
+    }
+
+    /**
+     * Kimlik işleme, müşteri eşleştirme ve müşteri tanımlama motoru
+     */
+    public function processIdentity(ActiveVisitor $visitor, ?string $guestName, ?string $guestEmail, ?string $guestPhone): void
+    {
+        $hasChanges = false;
+
+        $guestName = $guestName !== null ? trim($guestName) : null;
+        $guestEmail = $guestEmail !== null ? strtolower(trim($guestEmail)) : null;
+        $guestPhone = $guestPhone !== null ? trim($guestPhone) : null;
+
+        // 1. Canlı İsim Güncellemesi (Ad Soyad yazılırken)
+        if ($guestName !== null && $guestName !== '' && $visitor->guest_name !== $guestName) {
+            $visitor->guest_name = $guestName;
+            $hasChanges = true;
+        }
+
+        // 2. Canlı E-posta Güncellemesi
+        if ($guestEmail !== null && $guestEmail !== '' && $visitor->guest_email !== $guestEmail) {
+            $visitor->guest_email = $guestEmail;
+            $hasChanges = true;
+        }
+
+        // 3. Canlı Telefon Güncellemesi
+        if ($guestPhone !== null && $guestPhone !== '' && $visitor->guest_phone !== $guestPhone) {
+            $visitor->guest_phone = $guestPhone;
+            $hasChanges = true;
+        }
+
+        // 4. Müşteri Tanımlama / Eşleştirme (Numara ve Mail girilince)
+        $effectivePhone = $guestPhone ?: $visitor->guest_phone;
+        $effectiveEmail = $guestEmail ?: $visitor->guest_email;
+        $effectiveName = $guestName ?: $visitor->guest_name;
+
+        $cleanedPhone = $effectivePhone ? preg_replace('/[^0-9]/', '', $effectivePhone) : null;
+        $last10Phone = ($cleanedPhone && strlen($cleanedPhone) >= 10) ? substr($cleanedPhone, -10) : null;
+        $validEmail = ($effectiveEmail && filter_var($effectiveEmail, FILTER_VALIDATE_EMAIL)) ? $effectiveEmail : null;
+
+        if (!$visitor->user_id) {
+            // A) Mevcut kayıtlı müşteriler arasında eşleşme ara
+            $matchedUser = null;
+            if ($validEmail || $last10Phone) {
+                $userQuery = \App\Models\User::query();
+                if ($validEmail && $last10Phone) {
+                    $userQuery->where(function ($q) use ($validEmail, $last10Phone) {
+                        $q->where('email', $validEmail)
+                          ->orWhere('phone', 'like', "%{$last10Phone}%");
+                    });
+                } elseif ($validEmail) {
+                    $userQuery->where('email', $validEmail);
+                } elseif ($last10Phone) {
+                    $userQuery->where('phone', 'like', "%{$last10Phone}%");
+                }
+                $matchedUser = $userQuery->first();
+            }
+
+            if ($matchedUser) {
+                $visitor->user_id = $matchedUser->id;
+                $visitor->is_identified = true;
+                if (empty($visitor->guest_name)) {
+                    $visitor->guest_name = $matchedUser->name;
+                }
+                $hasChanges = true;
+            } elseif ($validEmail && $last10Phone) {
+                // B) Sistemde kayıtlı değilse numara ve mail bilgileri girilince müşteri tanımla
+                try {
+                    $customerName = !empty($effectiveName) ? $effectiveName : 'Müşteri';
+                    $newUser = \App\Models\User::withoutEvents(function () use ($customerName, $validEmail, $effectivePhone) {
+                        return \App\Models\User::create([
+                            'name' => $customerName,
+                            'email' => $validEmail,
+                            'phone' => $effectivePhone,
+                            'role' => 'customer',
+                            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+                        ]);
+                    });
+
+                    if ($newUser) {
+                        $visitor->user_id = $newUser->id;
+                        $visitor->is_identified = true;
+                        $hasChanges = true;
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Canlı ziyaretçi müşteri oluşturma uyarısı: ' . $e->getMessage());
+                }
+            }
+        }
+
+        // 5. Ziyaretçinin Sepetini (Cart) Güncelle ve Senkronize Et
+        $cart = null;
+        if ($visitor->cart_id) {
+            $cart = \App\Models\Cart::find($visitor->cart_id);
+        } elseif ($visitor->session_id) {
+            $cart = \App\Models\Cart::where('session_id', $visitor->session_id)->latest()->first();
+        }
+
+        if ($cart) {
+            $cartUpdates = [];
+            if (!empty($visitor->guest_name) && $cart->guest_name !== $visitor->guest_name) {
+                $cartUpdates['guest_name'] = $visitor->guest_name;
+            }
+            if (!empty($visitor->guest_email) && $cart->guest_email !== $visitor->guest_email) {
+                $cartUpdates['guest_email'] = $visitor->guest_email;
+            }
+            if (!empty($visitor->guest_phone) && $cart->guest_phone !== $visitor->guest_phone) {
+                $cartUpdates['guest_phone'] = $visitor->guest_phone;
+            }
+            if ($visitor->user_id && !$cart->user_id) {
+                $cartUpdates['user_id'] = $visitor->user_id;
+            }
+            if (!empty($cartUpdates)) {
+                $cart->update($cartUpdates);
+            }
+        }
+
+        if ($hasChanges) {
+            $visitor->save();
+        }
+    }
+
     protected function ensureTableExists(): void
     {
         if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
@@ -204,6 +380,10 @@ class PresenceController extends Controller
                     $table->string('visitor_token', 64)->index();
                     $table->string('session_id', 191)->nullable()->index();
                     $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                    $table->string('guest_name', 191)->nullable()->index();
+                    $table->string('guest_email', 191)->nullable()->index();
+                    $table->string('guest_phone', 50)->nullable()->index();
+                    $table->boolean('is_identified')->default(false)->index();
                     $table->string('ip_address', 45)->nullable()->index();
                     $table->text('user_agent')->nullable();
                     $table->string('device_type', 20)->default('desktop');

@@ -17,6 +17,7 @@ class ActiveVisitor extends Model
         'last_command_executed' => 'array',
         'is_online' => 'boolean',
         'is_blocked' => 'boolean',
+        'is_identified' => 'boolean',
         'first_seen_at' => 'datetime',
         'last_heartbeat_at' => 'datetime',
         'cart_total' => 'decimal:2',
@@ -76,6 +77,10 @@ class ActiveVisitor extends Model
     {
         if ($this->user_id && $this->user) {
             return $this->user->name;
+        }
+
+        if (!empty($this->guest_name)) {
+            return trim($this->guest_name);
         }
 
         $shortId = strtoupper(substr(str_replace(['pa_vt_', '-'], '', $this->visitor_token), 0, 6));

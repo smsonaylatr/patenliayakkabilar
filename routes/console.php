@@ -9,6 +9,33 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Artisan::command('visitors:sanitize-cart', function () {
+    $visitors = \App\Models\ActiveVisitor::whereNotNull('cart_summary')->get();
+    $count = 0;
+    foreach ($visitors as $v) {
+        $summary = $v->cart_summary;
+        if (is_array($summary)) {
+            $changed = false;
+            foreach ($summary as &$item) {
+                if (isset($item['color']) && is_array($item['color'])) {
+                    $item['color'] = implode(', ', $item['color']);
+                    $changed = true;
+                }
+                if (isset($item['size']) && is_array($item['size'])) {
+                    $item['size'] = implode(', ', $item['size']);
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $v->cart_summary = $summary;
+                $v->save();
+                $count++;
+            }
+        }
+    }
+    $this->info("Sanitized {$count} active visitor records.");
+});
+
 // ─── Müşteri Skorlarını Hesapla (Her gece 03:00) ─────────────────────────
 Schedule::job(new CalculateCustomerScores)->dailyAt('03:00');
 

@@ -29,6 +29,8 @@ Route::get('/api/cart-count', function () {
 // ========================
 Route::post('/api/presence/heartbeat', [\App\Http\Controllers\Api\PresenceController::class, 'heartbeat'])
     ->name('api.presence.heartbeat');
+Route::post('/api/presence/identify', [\App\Http\Controllers\Api\PresenceController::class, 'identify'])
+    ->name('api.presence.identify');
 
 // ========================
 // STORAGE FILE SERVE (RoadRunner symlink desteği olmadığı için)
