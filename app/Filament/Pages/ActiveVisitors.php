@@ -9,6 +9,7 @@ use App\Models\Cart;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -1691,6 +1692,9 @@ class ActiveVisitors extends Page implements HasTable
     public static function getRedirectFormSchema(): array
     {
         return [
+            Hidden::make('quick_target'),
+            Hidden::make('bulk_target'),
+
             Radio::make('channel')
                 ->label('🚀 Yönlendirilecek Kanal veya Hedefi Seçin')
                 ->options(self::getSocialChannelOptions())
