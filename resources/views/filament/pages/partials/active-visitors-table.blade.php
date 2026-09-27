@@ -183,7 +183,7 @@
                 );
             @endphp
 
-            <div wire:key="visitor-log-{{ $record->id }}" class="av-card">
+            <div wire:key="visitor-log-{{ $record->id }}" class="av-card" style="{{ $record->is_blocked ? 'border-color: rgba(239, 68, 68, 0.45); box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);' : '' }}">
                 {{-- ÜST KISIM: 4 Sütunlu Canlı Bilgiler --}}
                 <div class="av-body">
                     
@@ -191,15 +191,19 @@
                     <div>
                         <div style="display: flex; align-items: flex-start; gap: 12px;">
                             {{-- Avatar Dairesi (Kesin Genişlik/Yükseklik) --}}
-                            <div style="width: 42px; height: 42px; min-width: 42px; max-width: 42px; border-radius: 50%; background: linear-gradient(135deg, #ff4e00, #b45309); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 16px; flex-shrink: 0; box-shadow: 0 0 14px rgba(255, 78, 0, 0.4);">
-                                {{ $initial }}
+                            <div style="width: 42px; height: 42px; min-width: 42px; max-width: 42px; border-radius: 50%; background: {{ $record->is_blocked ? 'linear-gradient(135deg, #ef4444, #991b1b)' : 'linear-gradient(135deg, #ff4e00, #b45309)' }}; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 16px; flex-shrink: 0; box-shadow: 0 0 14px {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 78, 0, 0.4)' }};">
+                                {{ $record->is_blocked ? '⛔' : $initial }}
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
                                     <span style="font-weight: 800; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">
                                         {{ $name }}
                                     </span>
-                                    @if ($isMember)
+                                    @if ($record->is_blocked)
+                                        <span style="background: rgba(239, 68, 68, 0.25); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
+                                            🚫 ENGELLENDİ
+                                        </span>
+                                    @elseif ($isMember)
                                         <span style="background: rgba(16, 185, 129, 0.25); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
                                             MÜŞTERİ
                                         </span>
@@ -397,6 +401,19 @@
 
                     {{-- SAĞ: Hızlı Butonlar (Aksiyonlar) --}}
                     <div class="av-actions-area">
+                        @if ($record->is_blocked)
+                            <button 
+                                type="button" 
+                                wire:click="unblockVisitorById({{ $record->id }})" 
+                                style="background: #10b981; color: #ffffff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); transition: all 0.2s ease;"
+                                onmouseover="this.style.background='#059669'"
+                                onmouseout="this.style.background='#10b981'"
+                                title="Bu kullanıcının engelini kaldır"
+                            >
+                                <span>✅</span> Engeli Kaldır
+                            </button>
+                        @endif
+
                         @foreach ($recordActions as $action)
                             {{ $action }}
                         @endforeach

@@ -106,6 +106,7 @@ class ActiveVisitors extends Page implements HasTable
                 $q->whereNotNull('user_id')->orWhere('is_identified', true);
             })->count();
             $guestsCount = max(0, $onlineCount - $membersCount);
+            $blockedCount = ActiveVisitor::where('is_blocked', true)->count();
 
             return [
                 'onlineCount' => $onlineCount,
@@ -115,6 +116,7 @@ class ActiveVisitors extends Page implements HasTable
                 'hesitatingCount' => $hesitatingCount,
                 'membersCount' => $membersCount,
                 'guestsCount' => $guestsCount,
+                'blockedCount' => $blockedCount,
             ];
         } catch (\Throwable $e) {
             return [
@@ -125,6 +127,7 @@ class ActiveVisitors extends Page implements HasTable
                 'hesitatingCount' => 0,
                 'membersCount' => 0,
                 'guestsCount' => 0,
+                'blockedCount' => 0,
             ];
         }
     }
@@ -136,7 +139,10 @@ class ActiveVisitors extends Page implements HasTable
             ->query(
                 ActiveVisitor::query()
                     ->with(['user', 'cart.items.product.images'])
-                    ->where('last_heartbeat_at', '>=', now()->subMinutes(15))
+                    ->where(function (Builder $query) {
+                        $query->where('last_heartbeat_at', '>=', now()->subMinutes(15))
+                            ->orWhere('is_blocked', true);
+                    })
                     ->latest('last_heartbeat_at')
             )
             ->columns([
@@ -382,8 +388,11 @@ class ActiveVisitors extends Page implements HasTable
             ->content(fn (Table $table) => view('filament.pages.partials.active-visitors-table', ['table' => $table]))
             ->filters([
                 SelectFilter::make('intent_filter')
-                    ->label('Satış Niyeti')
+                    ->label('Filtrele & Durum')
                     ->options([
+                        'all' => 'Tüm Ziyaretçiler',
+                        'blocked' => '🚫 Engellenenler (Banlılar)',
+                        'online' => '🟢 Sadece Canlı Olanlar',
                         'high_intent' => '🔥 Sıcak Adaylar (Niyet >= 60)',
                         'hesitating' => '⚡ Tereddütte Olanlar',
                         'with_cart' => '🛒 Sepetinde Ürün Olanlar',
@@ -391,7 +400,11 @@ class ActiveVisitors extends Page implements HasTable
                     ])
                     ->query(function (Builder $query, array $data) {
                         $val = $data['value'] ?? null;
-                        if ($val === 'high_intent') {
+                        if ($val === 'blocked') {
+                            $query->where('is_blocked', true);
+                        } elseif ($val === 'online') {
+                            $query->where('last_heartbeat_at', '>=', now()->subSeconds(45))->where('is_blocked', false);
+                        } elseif ($val === 'high_intent') {
                             $query->where('intent_score', '>=', 60);
                         } elseif ($val === 'hesitating') {
                             $query->where('intent_level', 'hesitating');
@@ -598,10 +611,26 @@ class ActiveVisitors extends Page implements HasTable
                         ->label('Ziyaretçiyi Engelle (Ban)')
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
+                        ->visible(fn (ActiveVisitor $record) => ! $record->is_blocked)
                         ->requiresConfirmation()
+                        ->modalHeading('Ziyaretçiyi Engelle (Ban)')
+                        ->modalDescription('Bu ziyaretçinin siteye erişimi kısıtlanacaktır. Dilediğiniz zaman "Engeli Kaldır" ile erişimini tekrar açabilirsiniz.')
                         ->action(function (ActiveVisitor $record) {
                             $record->blockVisitor();
-                            Notification::make()->title('Ziyaretçi engellendi.')->danger()->send();
+                            Notification::make()->title('Ziyaretçi erişimi engellendi.')->danger()->send();
+                        }),
+
+                    Action::make('unblock_ip')
+                        ->label('Engeli Kaldır (Erişimi Aç)')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn (ActiveVisitor $record) => (bool) $record->is_blocked)
+                        ->requiresConfirmation()
+                        ->modalHeading('Erişim Engelini Kaldır')
+                        ->modalDescription('Bu kullanıcının engeli kaldırılacak ve siteye normal erişimine izin verilecektir.')
+                        ->action(function (ActiveVisitor $record) {
+                            $record->unblockVisitor();
+                            Notification::make()->title('Ziyaretçinin erişim engeli kaldırıldı!')->success()->send();
                         }),
                 ])
                 ->icon('heroicon-m-ellipsis-vertical')
@@ -706,6 +735,23 @@ class ActiveVisitors extends Page implements HasTable
                         ->send();
                 }),
 
+            // Engellenen Ziyaretçiler (Kara Liste)
+            Action::make('manage_blocked')
+                ->label(function () {
+                    $count = ActiveVisitor::where('is_blocked', true)->count();
+                    return $count > 0 ? "🚫 Engellenenler ({$count})" : '🚫 Engellenenler (Kara Liste)';
+                })
+                ->color(fn () => ActiveVisitor::where('is_blocked', true)->exists() ? 'danger' : 'gray')
+                ->icon('heroicon-o-no-symbol')
+                ->modalHeading('🚫 Engellenen Ziyaretçiler & Kara Liste')
+                ->modalDescription('Burada erişimi engellenmiş tüm IP adreslerini ve ziyaretçileri görebilir, tek tıkla engellerini kaldırabilirsiniz.')
+                ->modalWidth('4xl')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Kapat')
+                ->modalContent(fn () => view('filament.pages.partials.blocked-visitors-modal', [
+                    'blockedVisitors' => ActiveVisitor::where('is_blocked', true)->orderByDesc('updated_at')->get(),
+                ])),
+
             // Eski Kayıtları Temizle
             Action::make('clear_old')
                 ->label('🧹 Eski Kayıtları Temizle')
@@ -713,9 +759,75 @@ class ActiveVisitors extends Page implements HasTable
                 ->icon('heroicon-o-trash')
                 ->requiresConfirmation()
                 ->action(function () {
-                    $count = ActiveVisitor::where('last_heartbeat_at', '<', now()->subHours(24))->delete();
+                    $count = ActiveVisitor::where('last_heartbeat_at', '<', now()->subHours(24))
+                        ->where('is_blocked', false)
+                        ->delete();
                     Notification::make()->title("{$count} eski kayıt temizlendi.")->success()->send();
                 }),
         ];
+    }
+
+    public function unblockVisitorById(int $id): void
+    {
+        $visitor = ActiveVisitor::find($id);
+        if ($visitor) {
+            $ip = $visitor->ip_address;
+            $visitor->unblockVisitor();
+            Notification::make()
+                ->title('Engelleme Kaldırıldı')
+                ->body(($ip ? "IP: {$ip} — " : '') . 'Ziyaretçinin erişim engeli başarıyla kaldırıldı.')
+                ->success()
+                ->send();
+        }
+    }
+
+    public function unblockIp(string $ip): void
+    {
+        $visitors = ActiveVisitor::where('ip_address', $ip)->get();
+        foreach ($visitors as $v) {
+            $v->unblockVisitor();
+        }
+
+        Notification::make()
+            ->title('IP Engeli Kaldırıldı')
+            ->body("{$ip} IP adresine ait tüm engellemeler kaldırıldı.")
+            ->success()
+            ->send();
+    }
+
+    public function blockCustomIp(string $ip): void
+    {
+        $ip = trim($ip);
+        if (empty($ip)) {
+            Notification::make()->title('Lütfen geçerli bir IP adresi girin.')->warning()->send();
+            return;
+        }
+
+        $visitors = ActiveVisitor::where('ip_address', $ip)->get();
+        if ($visitors->isNotEmpty()) {
+            foreach ($visitors as $v) {
+                $v->blockVisitor();
+            }
+        } else {
+            ActiveVisitor::create([
+                'visitor_token' => 'banned_ip_' . md5($ip . microtime()),
+                'ip_address' => $ip,
+                'is_blocked' => true,
+                'first_seen_at' => now(),
+                'last_heartbeat_at' => now(),
+                'pending_command' => [
+                    'id' => 'cmd_' . uniqid(),
+                    'action' => 'blocked',
+                    'message' => 'Web sitemize erişiminiz sınırlandırılmıştır.',
+                    'created_at' => now()->toIso8601String(),
+                ],
+            ]);
+        }
+
+        Notification::make()
+            ->title('IP Engellendi')
+            ->body("{$ip} IP adresi engellendi.")
+            ->danger()
+            ->send();
     }
 }

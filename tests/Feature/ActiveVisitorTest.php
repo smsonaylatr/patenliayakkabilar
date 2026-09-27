@@ -195,6 +195,42 @@ class ActiveVisitorTest extends TestCase
             ]);
     }
 
+    public function test_unblock_visitor_restores_access_and_queues_reload(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_unblock_test',
+            'ip_address' => '192.168.1.100',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'is_blocked' => true,
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // Unblock
+        $visitor->unblockVisitor();
+        $visitor->refresh();
+
+        $this->assertFalse($visitor->is_blocked);
+        $this->assertNotNull($visitor->pending_command);
+        $this->assertEquals('reload', $visitor->pending_command['action']);
+
+        // Heartbeat should now succeed and return status ok with reload command
+        $response = $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => 'pa_vt_unblock_test',
+            'url' => 'https://patenliayakkabilar.com/',
+            'path' => '/',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'command' => [
+                    'action' => 'reload',
+                ],
+            ]);
+    }
+
     public function test_page_info_resolution_and_clean_titles(): void
     {
         // 1. Ana Sayfa (Site başlığı ile gelse bile Ana Sayfa olarak çözümlenmeli)
@@ -394,6 +430,34 @@ class ActiveVisitorTest extends TestCase
             ->assertSee('85.105.12.34')
             ->assertSee('Sepet İndirimi')
             ->assertSee('SEPET10');
+    }
+
+    public function test_active_visitors_admin_page_unblocks_visitor_via_livewire(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin_' . uniqid() . '@patenli.com',
+            'role' => 'admin',
+        ]);
+
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_livewire_unblock_' . uniqid(),
+            'ip_address' => '178.240.10.20',
+            'is_blocked' => true,
+            'first_seen_at' => now()->subMinutes(10),
+            'last_heartbeat_at' => now(),
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSee('ENGELLENDİ')
+            ->call('unblockVisitorById', $visitor->id)
+            ->assertNotified();
+
+        $visitor->refresh();
+        $this->assertFalse($visitor->is_blocked);
     }
 
     public function test_journey_modal_renders_product_image_in_timeline_and_cart(): void

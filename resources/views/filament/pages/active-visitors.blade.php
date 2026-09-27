@@ -208,6 +208,23 @@
             </div>
         </div>
 
+        {{-- Engelli Kullanıcılar Bilgi Çubuğu (Varsa) --}}
+        @if (($blockedCount ?? 0) > 0)
+            <div style="background: linear-gradient(90deg, rgba(239, 68, 68, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">⛔</span>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: #fca5a5;">
+                            {{ $blockedCount }} Ziyaretçinin Erişimi Engellenmiş Durumda
+                        </div>
+                        <div style="font-size: 11px; color: #cbd5e1;">
+                            Bu kullanıcılar siteye erişememektedir. Üstteki <strong>"🚫 Engellenenler (Kara Liste)"</strong> butonundan veya aşağıdaki listeden yeşil <strong>"Engeli Kaldır"</strong> butonuyla erişimlerini anında açabilirsiniz.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- 2. CANLI İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
         <div class="command-bar">
             <div style="display: flex; align-items: center; gap: 10px;">

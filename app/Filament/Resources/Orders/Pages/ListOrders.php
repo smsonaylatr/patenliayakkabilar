@@ -29,6 +29,11 @@ class ListOrders extends ListRecords
                         ->success()
                         ->send();
                 }),
+            \Filament\Actions\Action::make('marketingLinks')
+                ->label('Instagram / Takip Linkleri')
+                ->icon('heroicon-m-link')
+                ->color('info')
+                ->url(fn () => \App\Filament\Pages\MarketingLinks::getUrl()),
             CreateAction::make()->label('Yeni Sipariş'),
         ];
     }

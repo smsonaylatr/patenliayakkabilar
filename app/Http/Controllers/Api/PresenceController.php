@@ -43,6 +43,10 @@ class PresenceController extends Controller
         if (!$visitor->exists) {
             $visitor->first_seen_at = now();
             $visitor->page_views_count = 1;
+
+            if (!empty($ip) && ActiveVisitor::where('ip_address', $ip)->where('is_blocked', true)->exists()) {
+                $visitor->is_blocked = true;
+            }
         }
 
         $visitor->session_id = $request->hasSession() ? $request->session()->getId() : null;

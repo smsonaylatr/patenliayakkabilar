@@ -48,6 +48,11 @@ class ActiveVisitor extends Model
         return $query->where('intent_score', '>=', 60);
     }
 
+    public function scopeBlocked($query)
+    {
+        return $query->where('is_blocked', true);
+    }
+
     public function scopeHesitating($query)
     {
         return $query->where('intent_level', 'hesitating');
@@ -675,5 +680,33 @@ class ActiveVisitor extends Model
                 'created_at' => now()->toIso8601String(),
             ],
         ]);
+
+        if (!empty($this->ip_address)) {
+            static::where('ip_address', $this->ip_address)
+                ->where('id', '!=', $this->id)
+                ->update(['is_blocked' => true]);
+        }
+    }
+
+    /**
+     * Ziyaretçinin engelini kaldır (Unban)
+     */
+    public function unblockVisitor(): void
+    {
+        $this->update([
+            'is_blocked' => false,
+            'pending_command' => [
+                'id' => 'cmd_' . uniqid(),
+                'action' => 'reload',
+                'message' => 'Erişim engeliniz kaldırılmıştır.',
+                'created_at' => now()->toIso8601String(),
+            ],
+        ]);
+
+        if (!empty($this->ip_address)) {
+            static::where('ip_address', $this->ip_address)
+                ->where('id', '!=', $this->id)
+                ->update(['is_blocked' => false]);
+        }
     }
 }
