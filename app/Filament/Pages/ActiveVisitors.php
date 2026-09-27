@@ -9,6 +9,7 @@ use App\Models\Cart;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -1019,6 +1020,11 @@ class ActiveVisitors extends Page implements HasTable
                 ->color('gray')
                 ->tooltip('Diğer İşlemler'),
             ]);
+    }
+
+    public function getHeader(): ?\Illuminate\Contracts\View\View
+    {
+        return view('filament.pages.partials.active-visitors-header');
     }
 
     protected function getHeaderActions(): array
