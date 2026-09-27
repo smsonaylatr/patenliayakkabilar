@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -26,7 +27,29 @@ class LatestOrders extends BaseWidget
                     ->weight('bold')
                     ->color('primary'),
                 Tables\Columns\TextColumn::make('customer_name')
-                    ->label('Müşteri'),
+                    ->label('Müşteri')
+                    ->icon(fn (Order $record) => match (true) {
+                        str_contains(strtolower($record->traffic_source ?? ''), 'instagram') => 'heroicon-m-camera',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google ads') => 'heroicon-m-arrow-trending-up',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google') => 'heroicon-m-magnifying-glass',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'facebook') || str_contains(strtolower($record->traffic_source ?? ''), 'meta') => 'heroicon-m-globe-alt',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'tiktok') => 'heroicon-m-video-camera',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'whatsapp') => 'heroicon-m-chat-bubble-oval-left',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'admin') => 'heroicon-m-cog-6-tooth',
+                        default => 'heroicon-m-cursor-arrow-rays',
+                    })
+                    ->iconPosition(IconPosition::After)
+                    ->iconColor(fn (Order $record) => match (true) {
+                        str_contains(strtolower($record->traffic_source ?? ''), 'instagram') => 'pink',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google ads') => 'info',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google') => 'primary',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'facebook') || str_contains(strtolower($record->traffic_source ?? ''), 'meta') => 'indigo',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'tiktok') => 'gray',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'whatsapp') => 'success',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'admin') => 'purple',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (Order $record) => 'Kaynak: ' . ($record->traffic_source ?: 'Doğrudan')),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Durum')
                     ->badge()
@@ -46,11 +69,6 @@ class LatestOrders extends BaseWidget
                         'cancelled' => 'İptal',
                         default => $state,
                     }),
-                Tables\Columns\TextColumn::make('traffic_source')
-                    ->label('Kaynak')
-                    ->badge()
-                    ->color(fn (?string $state) => \App\Services\TrafficSourceDetector::getBadgeColor($state))
-                    ->placeholder('Doğrudan'),
                 Tables\Columns\TextColumn::make('grand_total')
                     ->label('Tutar')
                     ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')

@@ -10,6 +10,7 @@ use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -46,6 +47,28 @@ class OrdersTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
+                    ->icon(fn (Order $record) => match (true) {
+                        str_contains(strtolower($record->traffic_source ?? ''), 'instagram') => 'heroicon-m-camera',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google ads') => 'heroicon-m-arrow-trending-up',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google') => 'heroicon-m-magnifying-glass',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'facebook') || str_contains(strtolower($record->traffic_source ?? ''), 'meta') => 'heroicon-m-globe-alt',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'tiktok') => 'heroicon-m-video-camera',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'whatsapp') => 'heroicon-m-chat-bubble-oval-left',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'admin') => 'heroicon-m-cog-6-tooth',
+                        default => 'heroicon-m-cursor-arrow-rays',
+                    })
+                    ->iconPosition(IconPosition::After)
+                    ->iconColor(fn (Order $record) => match (true) {
+                        str_contains(strtolower($record->traffic_source ?? ''), 'instagram') => 'pink',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google ads') => 'info',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google') => 'primary',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'facebook') || str_contains(strtolower($record->traffic_source ?? ''), 'meta') => 'indigo',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'tiktok') => 'gray',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'whatsapp') => 'success',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'admin') => 'purple',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (Order $record) => 'Kaynak: ' . ($record->traffic_source ?: 'Doğrudan') . ($record->device_type ? ' (' . $record->device_type . ')' : '') . ($record->utm_campaign ? ' — Kampanya: ' . $record->utm_campaign : ''))
                     ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
                     ->limit(30),
 
@@ -75,25 +98,6 @@ class OrdersTable
                         'cash_on_delivery' => 'Kapıda Ödeme',
                         default => $state ?: '-',
                     }),
-
-                TextColumn::make('traffic_source')
-                    ->label('KAYNAK')
-                    ->badge()
-                    ->color(fn (?string $state) => TrafficSourceDetector::getBadgeColor($state))
-                    ->icon(fn (?string $state) => match (true) {
-                        str_contains(strtolower($state ?? ''), 'google ads') => 'heroicon-m-arrow-trending-up',
-                        str_contains(strtolower($state ?? ''), 'google') => 'heroicon-m-magnifying-glass',
-                        str_contains(strtolower($state ?? ''), 'instagram') => 'heroicon-m-camera',
-                        str_contains(strtolower($state ?? ''), 'facebook') || str_contains(strtolower($state ?? ''), 'meta') => 'heroicon-m-globe-alt',
-                        str_contains(strtolower($state ?? ''), 'tiktok') => 'heroicon-m-video-camera',
-                        str_contains(strtolower($state ?? ''), 'whatsapp') => 'heroicon-m-chat-bubble-oval-left',
-                        str_contains(strtolower($state ?? ''), 'admin') => 'heroicon-m-cog-6-tooth',
-                        str_contains(strtolower($state ?? ''), 'doğrudan') => 'heroicon-m-cursor-arrow-rays',
-                        default => 'heroicon-m-link',
-                    })
-                    ->description(fn (Order $record) => $record->utm_campaign ? ('Kampanya: ' . $record->utm_campaign) : ($record->device_type ? ($record->device_type === 'Mobil' ? '📱 Mobil' : ($record->device_type === 'Tablet' ? '📟 Tablet' : '💻 Masaüstü')) : null))
-                    ->sortable()
-                    ->searchable(),
 
                 TextColumn::make('created_at')
                     ->label('TARİH')
