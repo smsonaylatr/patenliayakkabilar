@@ -139,7 +139,7 @@
                     <span style="font-size: 13px; color: #10b981; font-weight: 700;">Canlı Yayında</span>
                 </div>
                 <div class="war-subtext">
-                    <span style="color: #10b981;">●</span> Son 45 saniyede sinyal verenler
+                    <span style="color: #10b981;">●</span> Canlı sinyal verenler
                 </div>
             </div>
 
@@ -203,7 +203,7 @@
                     <span style="color: #94a3b8; font-size: 18px;">{{ $guestsCount }} Misafir</span>
                 </div>
                 <div class="war-subtext">
-                    Giriş oranı: <strong style="color: #a78bfa;">%{{ $onlineCount > 0 ? round(($membersCount / $onlineCount) * 100) : 0 }}</strong>
+                    Giriş oranı: <strong style="color: #a78bfa;">%{{ ($totalActive ?? $onlineCount) > 0 ? round(($membersCount / ($totalActive ?? $onlineCount)) * 100) : 0 }}</strong>
                 </div>
             </div>
         </div>

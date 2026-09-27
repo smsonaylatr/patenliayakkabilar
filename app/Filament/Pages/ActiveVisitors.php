@@ -95,17 +95,22 @@ class ActiveVisitors extends Page implements HasTable
                 ];
             }
 
-            $onlineQuery = ActiveVisitor::online();
+            $activeRadarQuery = ActiveVisitor::query()
+                ->where('last_heartbeat_at', '>=', now()->subMinutes(15))
+                ->where('is_blocked', false);
+
+            $onlineQuery = ActiveVisitor::online()->where('is_blocked', false);
 
             $onlineCount = (clone $onlineQuery)->count();
-            $highIntentCount = (clone $onlineQuery)->where('intent_score', '>=', 60)->count();
-            $cartCount = (clone $onlineQuery)->where('cart_items_count', '>', 0)->count();
-            $cartTotal = (clone $onlineQuery)->sum('cart_total');
-            $hesitatingCount = (clone $onlineQuery)->where('intent_level', 'hesitating')->count();
-            $membersCount = (clone $onlineQuery)->where(function ($q) {
+            $highIntentCount = (clone $activeRadarQuery)->where('intent_score', '>=', 60)->count();
+            $cartCount = (clone $activeRadarQuery)->where('cart_items_count', '>', 0)->count();
+            $cartTotal = (clone $activeRadarQuery)->sum('cart_total');
+            $hesitatingCount = (clone $activeRadarQuery)->where('intent_level', 'hesitating')->count();
+            $membersCount = (clone $activeRadarQuery)->where(function ($q) {
                 $q->whereNotNull('user_id')->orWhere('is_identified', true);
             })->count();
-            $guestsCount = max(0, $onlineCount - $membersCount);
+            $totalActive = (clone $activeRadarQuery)->count();
+            $guestsCount = max(0, $totalActive - $membersCount);
             $blockedCount = ActiveVisitor::where('is_blocked', true)->count();
 
             return [
@@ -116,6 +121,7 @@ class ActiveVisitors extends Page implements HasTable
                 'hesitatingCount' => $hesitatingCount,
                 'membersCount' => $membersCount,
                 'guestsCount' => $guestsCount,
+                'totalActive' => $totalActive,
                 'blockedCount' => $blockedCount,
             ];
         } catch (\Throwable $e) {
@@ -127,6 +133,7 @@ class ActiveVisitors extends Page implements HasTable
                 'hesitatingCount' => 0,
                 'membersCount' => 0,
                 'guestsCount' => 0,
+                'totalActive' => 0,
                 'blockedCount' => 0,
             ];
         }

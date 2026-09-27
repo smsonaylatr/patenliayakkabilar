@@ -35,12 +35,12 @@ class ActiveVisitor extends Model
 
     public function scopeOnline($query)
     {
-        return $query->where('last_heartbeat_at', '>=', now()->subSeconds(45));
+        return $query->where('last_heartbeat_at', '>=', now()->subSeconds(75));
     }
 
     public function scopeIdle($query)
     {
-        return $query->whereBetween('last_heartbeat_at', [now()->subMinutes(5), now()->subSeconds(45)]);
+        return $query->whereBetween('last_heartbeat_at', [now()->subMinutes(5), now()->subSeconds(75)]);
     }
 
     public function scopeHighIntent($query)
@@ -75,7 +75,7 @@ class ActiveVisitor extends Model
 
     public function getIsCurrentlyOnlineAttribute(): bool
     {
-        return $this->last_heartbeat_at && $this->last_heartbeat_at->gte(now()->subSeconds(45));
+        return $this->last_heartbeat_at && $this->last_heartbeat_at->gte(now()->subSeconds(75));
     }
 
     public function getDisplayNameAttribute(): string

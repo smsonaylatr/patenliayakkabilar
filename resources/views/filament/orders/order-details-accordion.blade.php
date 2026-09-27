@@ -296,6 +296,224 @@ td.fi-ta-actions-cell {
     margin-left: 2px;
     opacity: 0.6;
 }
+
+/* Trafik Kaynağı & Pazarlama Kartı */
+.traffic-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dark .traffic-card {
+    background: rgba(30, 41, 59, 0.55);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+.traffic-badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+}
+
+.traffic-source-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.traffic-device-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 7px;
+    font-size: 0.77rem;
+    font-weight: 600;
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.dark .traffic-device-pill {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.traffic-explanation {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: #475569;
+}
+
+.dark .traffic-explanation {
+    color: #cbd5e1;
+}
+
+.traffic-campaign-box {
+    padding: 7px 10px;
+    background: rgba(241, 245, 249, 0.6);
+    border-radius: 7px;
+    border: 1px dashed #cbd5e1;
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.dark .traffic-campaign-box {
+    background: rgba(15, 23, 42, 0.55);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.traffic-network-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.73rem;
+    color: #64748b;
+    border-top: 1px solid rgba(226, 232, 240, 0.7);
+    padding-top: 6px;
+    margin-top: 2px;
+}
+
+.dark .traffic-network-row {
+    color: #94a3b8;
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Platform Bazlı Rozet Renkleri (Açık ve Koyu Mod Tam Uyumlu) */
+.traffic-pill-direct {
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+.dark .traffic-pill-direct {
+    background: rgba(148, 163, 184, 0.18);
+    color: #f1f5f9;
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.traffic-pill-instagram {
+    background: #fdf2f8;
+    color: #be185d;
+    border: 1px solid #fbcfe8;
+}
+.dark .traffic-pill-instagram {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+    border-color: rgba(244, 114, 182, 0.4);
+}
+
+.traffic-pill-google-ads {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+.dark .traffic-pill-google-ads {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border-color: rgba(147, 197, 253, 0.4);
+}
+
+.traffic-pill-google-organic {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+.dark .traffic-pill-google-organic {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+    border-color: rgba(134, 239, 172, 0.4);
+}
+
+.traffic-pill-whatsapp {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+.dark .traffic-pill-whatsapp {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    border-color: rgba(110, 231, 183, 0.4);
+}
+
+.traffic-pill-meta {
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
+}
+.dark .traffic-pill-meta {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border-color: rgba(165, 180, 252, 0.4);
+}
+
+.traffic-pill-tiktok {
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+.dark .traffic-pill-tiktok {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.traffic-pill-admin {
+    background: #faf5ff;
+    color: #7e22ce;
+    border: 1px solid #e9d5ff;
+}
+.dark .traffic-pill-admin {
+    background: rgba(168, 85, 247, 0.2);
+    color: #d8b4fe;
+    border-color: rgba(216, 180, 254, 0.4);
+}
+
+.traffic-pill-sms {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+.dark .traffic-pill-sms {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+    border-color: rgba(252, 211, 77, 0.4);
+}
+
+.traffic-pill-email {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+}
+.dark .traffic-pill-email {
+    background: rgba(234, 88, 12, 0.2);
+    color: #fdba74;
+    border-color: rgba(253, 186, 116, 0.4);
+}
+
+.traffic-pill-referral {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+.dark .traffic-pill-referral {
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.25);
+}
 </style>
 
 <div 
@@ -579,131 +797,169 @@ td.fi-ta-actions-cell {
     <!-- Sipariş Kaynağı & Pazarlama -->
     <div class="detail-section" style="flex:1">
       <div class="detail-title">Sipariş Kaynağı & Cihaz</div>
-      <div class="detail-addr">
-        @php
-            $src = $order->traffic_source ?: 'Doğrudan';
-            $srcLower = strtolower($src);
-            $badgeBg = '#f1f5f9';
-            $badgeColor = '#334155';
-            $badgeBorder = '#cbd5e1';
+      @php
+          $src = $order->traffic_source ?: 'Doğrudan';
+          $srcLower = strtolower($src);
+          $device = $order->device_type ?: 'Bilinmiyor';
 
-            if (str_contains($srcLower, 'google ads')) {
-                $badgeBg = '#eff6ff';
-                $badgeColor = '#1d4ed8';
-                $badgeBorder = '#bfdbfe';
-            } elseif (str_contains($srcLower, 'google')) {
-                $badgeBg = '#f0fdf4';
-                $badgeColor = '#15803d';
-                $badgeBorder = '#bbf7d0';
-            } elseif (str_contains($srcLower, 'instagram')) {
-                $badgeBg = '#fdf2f8';
-                $badgeColor = '#be185d';
-                $badgeBorder = '#fbcfe8';
-            } elseif (str_contains($srcLower, 'facebook') || str_contains($srcLower, 'meta')) {
-                $badgeBg = '#eef2ff';
-                $badgeColor = '#4338ca';
-                $badgeBorder = '#c7d2fe';
-            } elseif (str_contains($srcLower, 'tiktok')) {
-                $badgeBg = '#f8fafc';
-                $badgeColor = '#0f172a';
-                $badgeBorder = '#94a3b8';
-            } elseif (str_contains($srcLower, 'whatsapp')) {
-                $badgeBg = '#ecfdf5';
-                $badgeColor = '#047857';
-                $badgeBorder = '#a7f3d0';
-            } elseif (str_contains($srcLower, 'admin')) {
-                $badgeBg = '#faf5ff';
-                $badgeColor = '#7e22ce';
-                $badgeBorder = '#e9d5ff';
-            }
+          // Platform rozet sınıfı, başlık, ikon ve ilk bakışta anlaşılır açıklama
+          $pillClass = 'traffic-pill-direct';
+          $sourceTitle = 'Doğrudan Giriş';
+          $sourceIcon = '⚡';
+          $sourceDesc = 'Müşteri site adresini (patenliayakkabilar.com) doğrudan tarayıcısına yazarak veya kayıtlı sekmesinden gelip sipariş verdi.';
 
-            $device = $order->device_type ?: 'Bilinmiyor';
-            $deviceIcon = match($device) {
-                'Mobil' => '📱 Mobil',
-                'Tablet' => '📟 Tablet',
-                'Masaüstü' => '💻 Masaüstü',
-                default => '🌐 ' . $device
-            };
-        @endphp
+          if (str_contains($srcLower, 'google ads')) {
+              $pillClass = 'traffic-pill-google-ads';
+              $sourceTitle = 'Google Ads Reklamı';
+              $sourceIcon = '🎯';
+              $sourceDesc = 'Müşteri Google sponsorlu arama veya alışveriş reklamına tıklayarak geldi.';
+          } elseif (str_contains($srcLower, 'google')) {
+              $pillClass = 'traffic-pill-google-organic';
+              $sourceTitle = 'Google Doğal Arama';
+              $sourceIcon = '🔍';
+              $sourceDesc = 'Müşteri Google arama motorunda arama yaparak doğal (SEO) sonuçlarından ulaştı.';
+          } elseif (str_contains($srcLower, 'instagram')) {
+              $pillClass = 'traffic-pill-instagram';
+              $isPaid = ($order->utm_medium === 'cpc' || str_contains($srcLower, 'ads'));
+              $sourceTitle = $isPaid ? 'Instagram Reklamı' : 'Instagram';
+              $sourceIcon = '📸';
+              $sourceDesc = $isPaid 
+                  ? 'Müşteri Instagram sponsorlu reklam kampanyasına (Meta Ads) tıklayarak geldi.' 
+                  : 'Müşteri Instagram profil linki (biyografi) veya hikaye üzerinden mağazaya ulaştı.';
+          } elseif (str_contains($srcLower, 'facebook') || str_contains($srcLower, 'meta')) {
+              $pillClass = 'traffic-pill-meta';
+              $isPaid = ($order->utm_medium === 'cpc' || str_contains($srcLower, 'ads'));
+              $sourceTitle = $isPaid ? 'Facebook Reklamı' : 'Facebook';
+              $sourceIcon = '👥';
+              $sourceDesc = $isPaid 
+                  ? 'Müşteri Facebook sponsorlu reklam kampanyasına tıklayarak geldi.' 
+                  : 'Müşteri Facebook sayfası veya gönderi bağlantısı üzerinden ulaştı.';
+          } elseif (str_contains($srcLower, 'tiktok')) {
+              $pillClass = 'traffic-pill-tiktok';
+              $isPaid = ($order->utm_medium === 'cpc' || str_contains($srcLower, 'ads'));
+              $sourceTitle = $isPaid ? 'TikTok Reklamı' : 'TikTok';
+              $sourceIcon = '🎵';
+              $sourceDesc = $isPaid 
+                  ? 'Müşteri TikTok sponsorlu reklam kampanyasına tıklayarak geldi.' 
+                  : 'Müşteri TikTok profil bağlantısı veya video linkinden yönlendirildi.';
+          } elseif (str_contains($srcLower, 'whatsapp')) {
+              $pillClass = 'traffic-pill-whatsapp';
+              $sourceTitle = 'WhatsApp';
+              $sourceIcon = '💬';
+              $sourceDesc = 'Müşteri WhatsApp sohbetinde paylaşılan ürün/sipariş linki üzerinden geldi.';
+          } elseif (str_contains($srcLower, 'admin')) {
+              $pillClass = 'traffic-pill-admin';
+              $sourceTitle = 'Admin Paneli';
+              $sourceIcon = '⚙️';
+              $sourceDesc = 'Bu sipariş yönetici tarafından admin panelinden manuel oluşturuldu.';
+          } elseif (str_contains($srcLower, 'sms')) {
+              $pillClass = 'traffic-pill-sms';
+              $sourceTitle = 'SMS Kampanyası';
+              $sourceIcon = '📱';
+              $sourceDesc = 'Müşteri gönderilen SMS mesajındaki kampanya bağlantısına tıklayarak geldi.';
+          } elseif (str_contains($srcLower, 'e-posta') || str_contains($srcLower, 'newsletter')) {
+              $pillClass = 'traffic-pill-email';
+              $sourceTitle = 'E-Posta Bülteni';
+              $sourceIcon = '✉️';
+              $sourceDesc = 'Müşteri e-posta bültenindeki bağlantıya tıklayarak ulaştı.';
+          } elseif (str_contains($srcLower, 'yönlendirme')) {
+              $pillClass = 'traffic-pill-referral';
+              $sourceTitle = $src;
+              $sourceIcon = '🔗';
+              $sourceDesc = 'Harici bir web sitesi yönlendirmesi üzerinden mağazaya geldi.';
+          }
 
-        <!-- Kaynak ve Cihaz Rozetleri -->
-        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-          <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
-            @if(str_contains($srcLower, 'google ads'))
-              🎯 {{ $src }}
-            @elseif(str_contains($srcLower, 'google'))
-              🔍 {{ $src }}
-            @elseif(str_contains($srcLower, 'instagram'))
-              📸 {{ $src }}
-            @elseif(str_contains($srcLower, 'facebook') || str_contains($srcLower, 'meta'))
-              👥 {{ $src }}
-            @elseif(str_contains($srcLower, 'tiktok'))
-              🎵 {{ $src }}
-            @elseif(str_contains($srcLower, 'whatsapp'))
-              💬 {{ $src }}
-            @elseif(str_contains($srcLower, 'admin'))
-              ⚙️ {{ $src }}
-            @elseif(str_contains($srcLower, 'yönlendirme'))
-              🔗 {{ $src }}
-            @else
-              ⚡ {{ $src }}
-            @endif
-          </span>
+          $deviceLabel = match($device) {
+              'Mobil' => 'Mobil Telefon',
+              'Tablet' => 'Tablet Cihaz',
+              'Masaüstü' => 'Masaüstü Bilgisayar',
+              default => $device
+          };
+          $deviceIcon = match($device) {
+              'Mobil' => '📱',
+              'Tablet' => '📟',
+              'Masaüstü' => '💻',
+              default => '🌐'
+          };
+      @endphp
 
-          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: rgba(0,0,0,0.05); color: #475569;">
-            {{ $deviceIcon }}
-          </span>
+      <div class="traffic-card">
+        <!-- Rozetler Satırı: Platform Kaynağı ve Cihaz Türü -->
+        <div class="traffic-badges-row">
+          <div class="traffic-source-pill {{ $pillClass }}">
+            <span>{{ $sourceIcon }}</span>
+            <span>{{ $sourceTitle }}</span>
+          </div>
+
+          <div class="traffic-device-pill">
+            <span>{{ $deviceIcon }}</span>
+            <span>{{ $deviceLabel }}</span>
+          </div>
         </div>
 
-        <!-- Kampanya & UTM Detayları -->
-        @if($order->utm_campaign || $order->utm_source || $order->utm_medium)
-          <div style="margin-top: 6px; padding: 6px 10px; background: rgba(0,0,0,0.02); border-radius: 6px; border: 1px dashed rgba(0,0,0,0.12); font-size: 0.75rem;">
+        <!-- İlk Bakışta Anlaşılır Açıklama -->
+        <div class="traffic-explanation">
+          {{ $sourceDesc }}
+        </div>
+
+        <!-- Kampanya & UTM Detayları (Varsa) -->
+        @if($order->utm_campaign || $order->utm_source || $order->utm_medium || $order->utm_term)
+          <div class="traffic-campaign-box">
             @if($order->utm_campaign)
-              <div><strong style="color: #64748b;">Kampanya:</strong> <span class="td-bold">{{ $order->utm_campaign }}</span></div>
+              <div>
+                <strong style="color: #64748b;">🎯 Kampanya:</strong>
+                <span class="td-bold" style="color: #3b82f6;">{{ $order->utm_campaign }}</span>
+              </div>
             @endif
             @if($order->utm_medium)
-              <div style="margin-top:2px;"><strong style="color: #64748b;">Mecra (Medium):</strong> {{ $order->utm_medium }}</div>
+              <div style="margin-top: 2px;">
+                <strong style="color: #64748b;">📊 Mecra (Medium):</strong>
+                <span>{{ $order->utm_medium }}</span>
+              </div>
             @endif
             @if($order->utm_source && $order->utm_source !== $order->traffic_source)
-              <div style="margin-top:2px;"><strong style="color: #64748b;">UTM Kaynak:</strong> {{ $order->utm_source }}</div>
+              <div style="margin-top: 2px;">
+                <strong style="color: #64748b;">📍 UTM Kaynak:</strong>
+                <span>{{ $order->utm_source }}</span>
+              </div>
             @endif
             @if($order->utm_term)
-              <div style="margin-top:2px;"><strong style="color: #64748b;">Anahtar Kelime:</strong> {{ $order->utm_term }}</div>
+              <div style="margin-top: 2px;">
+                <strong style="color: #64748b;">🔑 Anahtar Kelime:</strong>
+                <span>{{ $order->utm_term }}</span>
+              </div>
             @endif
           </div>
         @endif
 
         <!-- GCLID (Google Ads Tıklama Kimliği) -->
         @if($order->gclid)
-          <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; font-size: 0.74rem;">
-            <span style="color: #64748b; font-weight: 600;">GCLID:</span>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 0.74rem;">
+            <strong style="color: #64748b;">GCLID:</strong>
             <span 
               x-data="{ copied: false }" 
               @click.stop="navigator.clipboard.writeText('{{ e($order->gclid) }}'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'GCLID Kopyalandı!')"
               style="font-family: monospace; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
               title="Kopyalamak için tıklayın"
             >
-              {{ \Illuminate\Support\Str::limit($order->gclid, 14, '...') }}
+              {{ \Illuminate\Support\Str::limit($order->gclid, 16, '...') }}
               <svg style="width:12px; height:12px; opacity:0.7;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             </span>
           </div>
         @endif
 
-        <!-- Referrer & IP -->
-        @if($order->referrer)
-          @php
-              $refHost = parse_url($order->referrer, PHP_URL_HOST) ?: $order->referrer;
-          @endphp
-          <div class="td-muted" style="margin-top: 2px; font-size: 0.74rem; word-break: break-all;">
-            <strong style="color: #64748b;">Yönlendiren:</strong> {{ \Illuminate\Support\Str::limit($refHost, 30) }}
-          </div>
-        @endif
-
-        @if($order->ip_address)
-          <div class="td-muted" style="margin-top: 2px; font-size: 0.74rem;">
-            <strong style="color: #64748b;">IP:</strong> {{ $order->ip_address }}
-          </div>
-        @endif
+        <!-- Ağ & Referrer (IP ve Yönlendiren) -->
+        <div class="traffic-network-row">
+          @if($order->ip_address)
+            <span title="Müşteri IP Adresi">🌐 IP: <strong>{{ $order->ip_address }}</strong></span>
+          @endif
+          @if($order->referrer)
+            @php
+                $refHost = parse_url($order->referrer, PHP_URL_HOST) ?: $order->referrer;
+            @endphp
+            <span title="Önceki Sayfa (Referrer)">🔗 Yönlendiren: <strong>{{ \Illuminate\Support\Str::limit($refHost, 28) }}</strong></span>
+          @endif
+        </div>
       </div>
     </div>
   </div>

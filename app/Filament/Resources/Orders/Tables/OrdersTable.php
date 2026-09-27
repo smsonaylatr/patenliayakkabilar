@@ -68,7 +68,16 @@ class OrdersTable
                         str_contains(strtolower($record->traffic_source ?? ''), 'admin') => 'purple',
                         default => 'gray',
                     })
-                    ->tooltip(fn (Order $record) => 'Kaynak: ' . ($record->traffic_source ?: 'Doğrudan') . ($record->device_type ? ' (' . $record->device_type . ')' : '') . ($record->utm_campaign ? ' — Kampanya: ' . $record->utm_campaign : ''))
+                    ->tooltip(fn (Order $record) => match (true) {
+                        str_contains(strtolower($record->traffic_source ?? ''), 'instagram') => '📸 Instagram (' . ($record->device_type ?: 'Mobil') . ')' . ($record->utm_campaign ? ' — Kampanya: ' . $record->utm_campaign : ''),
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google ads') => '🎯 Google Ads Reklamı (' . ($record->device_type ?: 'Mobil') . ')' . ($record->utm_campaign ? ' — Kampanya: ' . $record->utm_campaign : ''),
+                        str_contains(strtolower($record->traffic_source ?? ''), 'google') => '🔍 Google Doğal Arama (' . ($record->device_type ?: 'Mobil') . ')',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'facebook') || str_contains(strtolower($record->traffic_source ?? ''), 'meta') => '👥 Facebook (' . ($record->device_type ?: 'Mobil') . ')',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'tiktok') => '🎵 TikTok (' . ($record->device_type ?: 'Mobil') . ')',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'whatsapp') => '💬 WhatsApp (' . ($record->device_type ?: 'Mobil') . ')',
+                        str_contains(strtolower($record->traffic_source ?? ''), 'admin') => '⚙️ Admin Manuel Sipariş',
+                        default => '⚡ Doğrudan Giriş (' . ($record->device_type ?: 'Mobil') . ')',
+                    })
                     ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
                     ->limit(30),
 
