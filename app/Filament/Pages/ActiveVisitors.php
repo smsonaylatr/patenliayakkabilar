@@ -1572,7 +1572,7 @@ class ActiveVisitors extends Page implements HasTable
                     </div>
                     <div class="channel-card-info">
                         <span class="channel-card-title">Sayfa / Kategori</span>
-                        <span class="channel-card-subtitle">Vitrin, Sepet, Model</span>
+                        <span class="channel-card-subtitle">Vitrin, Sepet, Rehber, Sözleşme</span>
                     </div>
                 </div>
             '),
@@ -1605,6 +1605,7 @@ class ActiveVisitors extends Page implements HasTable
                 '/' => '🏠 Ana Sayfa (Vitrin)',
                 '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
                 '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
+                '/siparis-takip' => '📦 Sipariş Takip Ekranı',
                 '/iletisim' => '📞 İletişim & Canlı Destek Sayfası',
             ],
         ];
@@ -1631,6 +1632,60 @@ class ActiveVisitors extends Page implements HasTable
                 '/kategori/erkek-cocuk' => '👦 Erkek Çocuk Modelleri',
                 '/kategori/kiz-cocuk' => '👧 Kız Çocuk Modelleri',
             ];
+        }
+
+        // 📖 REHBERLER VE BİLGİ MERKEZİ
+        $options['📖 REHBERLER VE BİLGİ MERKEZİ'] = [
+            '/beden-rehberi' => '📏 Patenli Ayakkabı Beden Rehberi (Ölçüm Tablosu)',
+            '/blog' => '📚 Rehber Merkezi (Blog & Faydalı İpuçları)',
+            '/guvenlik-ekipmanlari' => '⛑️ Güvenlik ve Koruyucu Ekipman Rehberi',
+            '/sikca-sorulan-sorular' => '❓ Sıkça Sorulan Sorular (S.S.S)',
+        ];
+
+        // ⚖️ SÖZLEŞMELER, AYDINLATMA VE YASAL METİNLER
+        $options['⚖️ SÖZLEŞMELER, AYDINLATMA VE YASAL METİNLER'] = [
+            '/mesafeli-satis-sozlesmesi' => '📜 Mesafeli Satış Sözleşmesi',
+            '/on-bilgilendirme-formu' => '📋 Ön Bilgilendirme Formu',
+            '/gizlilik-politikasi' => '🔒 Gizlilik Politikası & KVKK Aydınlatma Metni',
+            '/iade-ve-degisim' => '🔄 İade, İptal ve Değişim Koşulları',
+            '/hakkimizda' => '🏢 Hakkımızda & Kurumsal Bilgiler',
+        ];
+
+        // 🛡️ RESMİ DOĞRULAMA & ETBİS
+        $etbisId = (string) (config('services.etbis.site_id') ?: 'bd4ff21e-c40c-45d5-83f9-8c986c284a22');
+        $etbisUrl = 'https://etbis.ticaret.gov.tr/tr/SiteSorgulamaSonuc?siteId=' . $etbisId;
+        $options['🛡️ RESMİ DOĞRULAMA & ETBİS'] = [
+            $etbisUrl => '🛡️ ETBİS Kayıt Doğrulama (T.C. Ticaret Bakanlığı)',
+        ];
+
+        // 📄 DİĞER KURUMSAL SAYFALAR
+        try {
+            $handledSlugs = [
+                'beden-rehberi',
+                'guvenlik-ekipmanlari',
+                'sikca-sorulan-sorular',
+                'mesafeli-satis-sozlesmesi',
+                'on-bilgilendirme-formu',
+                'gizlilik-politikasi',
+                'iade-ve-degisim',
+                'hakkimizda',
+                'iletisim',
+            ];
+
+            $otherPages = \App\Models\Page::where('is_active', true)
+                ->whereNotIn('slug', $handledSlugs)
+                ->orderBy('title')
+                ->get();
+
+            if ($otherPages->isNotEmpty()) {
+                $otherOptions = [];
+                foreach ($otherPages as $page) {
+                    $otherOptions['/' . ltrim($page->slug, '/')] = '📄 ' . $page->title;
+                }
+                $options['📄 DİĞER KURUMSAL SAYFALAR'] = $otherOptions;
+            }
+        } catch (\Throwable $e) {
+            // Sessizce geç
         }
 
         return $options;
@@ -1809,9 +1864,9 @@ class ActiveVisitors extends Page implements HasTable
                 ->label('📄 Yönlendirilecek Sayfa veya Kategori')
                 ->native(false)
                 ->searchable()
-                ->options(self::getTargetUrlOptions())
+                ->options(fn () => self::getTargetUrlOptions())
                 ->default('/checkout')
-                ->helperText('💡 Ziyaretçi sitedeki seçtiğiniz kategoriye, vitrine veya ödeme sayfasına aktarılır.')
+                ->helperText('💡 Ziyaretçi sitedeki seçtiğiniz kategoriye, vitrine, rehberlere veya resmi sayfalara aktarılır.')
                 ->visible(fn ($get) => $get('channel') === 'page')
                 ->required(fn ($get) => $get('channel') === 'page'),
 

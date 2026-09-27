@@ -801,8 +801,18 @@ class ActiveVisitorTest extends TestCase
     {
         \App\Models\Category::create(['name' => 'Kız Çocuk', 'slug' => 'kiz-cocuk', 'status' => true]);
         \App\Models\Category::create(['name' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk', 'status' => true]);
+        \App\Models\Page::create(['title' => 'Özel Sıkı Denetim Sayfası', 'slug' => 'ozel-denetim-sayfasi', 'is_active' => true]);
 
         $options = \App\Filament\Pages\ActiveVisitors::getTargetUrlOptions();
+
+        // Kategori grup başlıkları kontrolü
+        $this->assertArrayHasKey('⚡ POPÜLER VE HIZLI DÖNÜŞÜM SAYFALARI', $options);
+        $this->assertArrayHasKey('📂 KATEGORİ SAYFALARI', $options);
+        $this->assertArrayHasKey('📖 REHBERLER VE BİLGİ MERKEZİ', $options);
+        $this->assertArrayHasKey('⚖️ SÖZLEŞMELER, AYDINLATMA VE YASAL METİNLER', $options);
+        $this->assertArrayHasKey('🛡️ RESMİ DOĞRULAMA & ETBİS', $options);
+        $this->assertArrayHasKey('📄 DİĞER KURUMSAL SAYFALAR', $options);
+
         $flatOptions = [];
         foreach ($options as $key => $val) {
             if (is_array($val)) {
@@ -812,15 +822,54 @@ class ActiveVisitorTest extends TestCase
             }
         }
 
+        // Hızlı dönüşüm sayfaları
         $this->assertArrayHasKey('/', $flatOptions);
         $this->assertArrayHasKey('/patenli-ayakkabilar', $flatOptions);
         $this->assertArrayHasKey('/checkout', $flatOptions);
+        $this->assertArrayHasKey('/siparis-takip', $flatOptions);
+        $this->assertArrayHasKey('/iletisim', $flatOptions);
+
+        // Kategoriler
         $this->assertArrayHasKey('/kategori/kiz-cocuk', $flatOptions);
         $this->assertArrayHasKey('/kategori/erkek-cocuk', $flatOptions);
+
+        // Rehberler ve Bilgi Merkezi
+        $this->assertArrayHasKey('/beden-rehberi', $flatOptions);
+        $this->assertArrayHasKey('/blog', $flatOptions);
+        $this->assertArrayHasKey('/guvenlik-ekipmanlari', $flatOptions);
+        $this->assertArrayHasKey('/sikca-sorulan-sorular', $flatOptions);
+
+        // Sözleşmeler & Aydınlatma Metinleri
+        $this->assertArrayHasKey('/mesafeli-satis-sozlesmesi', $flatOptions);
+        $this->assertArrayHasKey('/on-bilgilendirme-formu', $flatOptions);
+        $this->assertArrayHasKey('/gizlilik-politikasi', $flatOptions);
+        $this->assertArrayHasKey('/iade-ve-degisim', $flatOptions);
+        $this->assertArrayHasKey('/hakkimizda', $flatOptions);
+
+        // ETBİS doğrulaması
+        $etbisId = (string) (config('services.etbis.site_id') ?: 'bd4ff21e-c40c-45d5-83f9-8c986c284a22');
+        $expectedEtbisUrl = 'https://etbis.ticaret.gov.tr/tr/SiteSorgulamaSonuc?siteId=' . $etbisId;
+        $this->assertArrayHasKey($expectedEtbisUrl, $flatOptions);
+
+        // Dinamik diğer kurumsal sayfalar
+        $this->assertArrayHasKey('/ozel-denetim-sayfasi', $flatOptions);
 
         // Hatalı/geçersiz linkler kesinlikle olmamalı
         $this->assertArrayNotHasKey('/kategori/kiz-cocuk-patenli-ayakkabi', $flatOptions);
         $this->assertArrayNotHasKey('/kategori/erkek-cocuk-patenli-ayakkabi', $flatOptions);
+
+        // URL çözümleme kontrolü
+        $resolvedBeden = \App\Filament\Pages\ActiveVisitors::resolveRedirectUrl([
+            'channel' => 'page',
+            'site_page' => '/beden-rehberi',
+        ]);
+        $this->assertEquals('/beden-rehberi', $resolvedBeden);
+
+        $resolvedEtbis = \App\Filament\Pages\ActiveVisitors::resolveRedirectUrl([
+            'channel' => 'page',
+            'site_page' => $expectedEtbisUrl,
+        ]);
+        $this->assertEquals($expectedEtbisUrl, $resolvedEtbis);
     }
 
     public function test_voice_message_defaults_to_speech_only_mode(): void
