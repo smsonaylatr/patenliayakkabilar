@@ -32,11 +32,27 @@
             justify-content: space-between;
             min-height: 125px;
             transition: all 0.25s ease;
+            cursor: pointer;
+            user-select: none;
         }
         .war-card:hover {
             transform: translateY(-2px);
             border-color: rgba(255, 255, 255, 0.18);
             box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.5);
+        }
+        .war-card.is-active-filter {
+            border-color: #ff4e00 !important;
+            box-shadow: 0 0 24px rgba(255, 78, 0, 0.45) !important;
+            transform: translateY(-3px);
+        }
+        .war-card-active-pill {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1.5px 6px;
+            border-radius: 4px;
+            background: #ff4e00;
+            color: #ffffff;
+            letter-spacing: 0.04em;
         }
         .war-card-top-bar {
             position: absolute;
@@ -229,22 +245,32 @@
         {{-- 1. ÜST KOKPİT KPI KARTLARI (5'li Grid) --}}
         <div class="war-room-grid">
             {{-- Kart 1: Ziyaretçi & Canlı Sinyal --}}
-            <div class="war-card">
+            <div wire:click="setCardFilter('online')" class="war-card {{ ($activeCardFilter ?? 'all') === 'online' ? 'is-active-filter' : '' }}" title="Canlı yayındaki ziyaretçileri filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #10b981, #059669);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Ziyaretçi & Sinyal</span>
-                    <span class="live-radar-dot"></span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        @if(($activeCardFilter ?? 'all') === 'online')
+                            <span class="war-card-active-pill">FİLTRE</span>
+                        @endif
+                        <span class="live-radar-dot"></span>
+                    </div>
                 </div>
                 <div class="war-value">
                     <span>{{ $onlineCount }}</span>
-                    <span style="font-size: 13px; color: #10b981; font-weight: 700;">Canlı Yayında</span>
+                    @if($onlineCount > 0)
+                        <span style="font-size: 13px; color: #10b981; font-weight: 700;">Canlı Yayında</span>
+                    @else
+                        <span style="font-size: 13px; color: #94a3b8; font-weight: 700;">Radar Dinlemede</span>
+                    @endif
                 </div>
                 <div class="war-subtext" style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="color: #10b981;">●</span> Canlı sinyal verenler
+                        <span style="color: {{ $onlineCount > 0 ? '#10b981' : '#64748b' }};">●</span>
+                        <span>{{ $onlineCount > 0 ? 'Anlık canlı sinyal verenler' : 'Canlı sinyal bekleniyor' }}</span>
                     </div>
                     <div style="font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%;">
-                        <span title="Bugünkü Tekil Ziyaretçi">Bugün: <strong style="color: #38bdf8;">{{ number_format($dailyTraffic['unique_visitors'] ?? 0) }}</strong></span>
+                        <span title="Bugünkü Tekil Ziyaretçi">Bugün: <strong style="color: #38bdf8;">{{ number_format($todayVisitorsCount ?? ($dailyTraffic['unique_visitors'] ?? 0)) }}</strong></span>
                         <span style="color: #475569;">|</span>
                         <span title="Son 7 Günlük Tekil Ziyaretçi">7G: <strong style="color: #a78bfa;">{{ number_format($weeklyTraffic['unique_visitors'] ?? 0) }}</strong></span>
                         <span style="color: #475569;">|</span>
@@ -254,58 +280,96 @@
             </div>
 
             {{-- Kart 2: Canlı Sepetler & Potansiyel Ciro --}}
-            <div class="war-card">
+            <div wire:click="setCardFilter('cart')" class="war-card {{ ($activeCardFilter ?? 'all') === 'cart' ? 'is-active-filter' : '' }}" title="Sepetinde ürün olanları filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #06b6d4, #0284c7);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Bekleyen Sepetler</span>
-                    <span style="font-size: 16px;">🛒</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        @if(($activeCardFilter ?? 'all') === 'cart')
+                            <span class="war-card-active-pill">FİLTRE</span>
+                        @endif
+                        <span style="font-size: 16px;">🛒</span>
+                    </div>
                 </div>
                 <div class="war-value" style="color: #38bdf8;">
                     <span>{{ number_format($cartTotal, 2) }} ₺</span>
                 </div>
                 <div class="war-subtext">
-                    <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                    @if(($liveCartCount ?? 0) > 0)
+                        <strong style="color: #38bdf8;">{{ $liveCartCount }} canlı sepette</strong> ödeme bekleniyor
+                    @elseif(($cartCount ?? 0) > 0)
+                        <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                    @else
+                        <span>Sepette bekleyen ürün bulunmuyor</span>
+                    @endif
                 </div>
             </div>
 
             {{-- Kart 3: Sıcak Satın Alma Adayları --}}
-            <div class="war-card">
+            <div wire:click="setCardFilter('high_intent')" class="war-card {{ ($activeCardFilter ?? 'all') === 'high_intent' ? 'is-active-filter' : '' }}" title="Sıcak satın alma adaylarını filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #ff4e00, #ea580c);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Sıcak Adaylar</span>
-                    <span style="font-size: 16px;">🔥</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        @if(($activeCardFilter ?? 'all') === 'high_intent')
+                            <span class="war-card-active-pill">FİLTRE</span>
+                        @endif
+                        <span style="font-size: 16px;">🔥</span>
+                    </div>
                 </div>
                 <div class="war-value" style="color: #ffedd5;">
                     <span>{{ $highIntentCount }}</span>
-                    <span style="font-size: 12px; color: #fb923c; font-weight: 700;">Müşteri</span>
+                    <span style="font-size: 12px; color: #fb923c; font-weight: 700;">
+                        {{ ($liveHighIntentCount ?? 0) > 0 ? 'Canlı Aday' : 'Müşteri' }}
+                    </span>
                 </div>
                 <div class="war-subtext">
-                    Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong>
+                    @if(($liveHighIntentCount ?? 0) > 0)
+                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> (Canlı)
+                    @else
+                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> adaylar
+                    @endif
                 </div>
             </div>
 
             {{-- Kart 4: Tereddütte Olanlar --}}
-            <div class="war-card">
+            <div wire:click="setCardFilter('hesitating')" class="war-card {{ ($activeCardFilter ?? 'all') === 'hesitating' ? 'is-active-filter' : '' }}" title="Tereddüt yaşayanları filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Tereddütte Olanlar</span>
-                    <span style="font-size: 16px;">🤔</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        @if(($activeCardFilter ?? 'all') === 'hesitating')
+                            <span class="war-card-active-pill">FİLTRE</span>
+                        @endif
+                        <span style="font-size: 16px;">🤔</span>
+                    </div>
                 </div>
                 <div class="war-value" style="color: #fde68a;">
                     <span>{{ $hesitatingCount }}</span>
-                    <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">Müdahale Bekliyor</span>
+                    <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">
+                        {{ ($liveHesitatingCount ?? 0) > 0 ? 'Canlı Müdahale' : 'Tespit Edildi' }}
+                    </span>
                 </div>
                 <div class="war-subtext">
-                    Beden veya kargo bariyeri algılandı
+                    @if(($liveHesitatingCount ?? 0) > 0)
+                        <strong style="color: #f59e0b;">Beden/kargo bariyeri</strong> (Hızlı indirim önerilir)
+                    @else
+                        <span>Beden veya kargo bariyeri algılandı</span>
+                    @endif
                 </div>
             </div>
 
             {{-- Kart 5: Üye / Misafir Oranı --}}
-            <div class="war-card">
+            <div wire:click="setCardFilter('members')" class="war-card {{ ($activeCardFilter ?? 'all') === 'members' ? 'is-active-filter' : '' }}" title="Üye girişli kullanıcıları filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #8b5cf6, #6366f1);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Kullanıcı Segmenti</span>
-                    <span style="font-size: 16px;">👤</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        @if(($activeCardFilter ?? 'all') === 'members')
+                            <span class="war-card-active-pill">FİLTRE</span>
+                        @endif
+                        <span style="font-size: 16px;">👤</span>
+                    </div>
                 </div>
                 <div class="war-value" style="font-size: 20px;">
                     <span style="color: #c4b5fd;">{{ $membersCount }} Üye</span>
@@ -313,7 +377,7 @@
                     <span style="color: #94a3b8; font-size: 18px;">{{ $guestsCount }} Misafir</span>
                 </div>
                 <div class="war-subtext">
-                    Giriş oranı: <strong style="color: #a78bfa;">%{{ ($totalActive ?? $onlineCount) > 0 ? round(($membersCount / ($totalActive ?? $onlineCount)) * 100) : 0 }}</strong>
+                    Giriş oranı: <strong style="color: #a78bfa;">%{{ $loginRate ?? 0 }}</strong> {{ ($onlineCount ?? 0) > 0 ? '(Canlı)' : '(Genel)' }}
                 </div>
             </div>
         </div>
@@ -586,7 +650,7 @@
 
         {{-- 2. CANLI İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
         <div class="command-bar">
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <span style="font-size: 18px;">📡</span>
                 <div>
                     <div style="font-size: 12px; font-weight: 700; color: #f8fafc;">
@@ -596,6 +660,22 @@
                         Ziyaretçinin beden seçimleri, sepette kalış süresi ve sayfa gezinme izi analiz edilir; tereddüt anında tek tıkla kupon veya yönlendirme fırlatabilirsiniz.
                     </div>
                 </div>
+                @if(($activeCardFilter ?? 'all') !== 'all')
+                    @php
+                        $filterName = match($activeCardFilter) {
+                            'online' => '🟢 Canlı Yayındakiler',
+                            'cart' => '🛒 Sepetinde Ürün Olanlar',
+                            'high_intent' => '🔥 Sıcak Satın Alma Adayları',
+                            'hesitating' => '🤔 Tereddütte Olanlar',
+                            'members' => '👤 Üye Girişi Yapanlar',
+                            default => $activeCardFilter,
+                        };
+                    @endphp
+                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(255, 78, 0, 0.2); border: 1px solid rgba(255, 78, 0, 0.4); padding: 4px 10px; border-radius: 8px;">
+                        <span style="font-size: 11.5px; font-weight: 800; color: #ffedd5;">Filtre: {{ $filterName }}</span>
+                        <button type="button" wire:click="setCardFilter('all')" style="cursor: pointer; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; font-weight: 800; color: #ffffff;">✕ Filtreyi Temizle</button>
+                    </div>
+                @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="live-radar-dot"></span>

@@ -34,11 +34,18 @@ class ActiveVisitors extends Page implements HasTable
 
     public string $trafficPeriod = 'daily';
 
+    public string $activeCardFilter = 'all';
+
     public function setTrafficPeriod(string $period): void
     {
         if (in_array($period, ['daily', 'weekly', 'monthly'])) {
             $this->trafficPeriod = $period;
         }
+    }
+
+    public function setCardFilter(string $filter): void
+    {
+        $this->activeCardFilter = ($this->activeCardFilter === $filter) ? 'all' : $filter;
     }
 
     public function getView(): string
@@ -99,31 +106,86 @@ class ActiveVisitors extends Page implements HasTable
             if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
                 return [
                     'onlineCount' => 0,
+                    'todayVisitorsCount' => 0,
                     'highIntentCount' => 0,
+                    'liveHighIntentCount' => 0,
                     'cartCount' => 0,
                     'cartTotal' => 0,
+                    'liveCartCount' => 0,
                     'hesitatingCount' => 0,
+                    'liveHesitatingCount' => 0,
                     'membersCount' => 0,
                     'guestsCount' => 0,
+                    'loginRate' => 0,
+                    'totalActive' => 0,
+                    'blockedCount' => 0,
+                    'activeCardFilter' => 'all',
                 ];
             }
 
-            $activeRadarQuery = ActiveVisitor::query()
-                ->where('last_heartbeat_at', '>=', now()->subMinutes(15))
+            // 1. Canlı ve Dönemlik Ziyaretçi Sorguları
+            $onlineQuery = ActiveVisitor::online()->where('is_blocked', false);
+            $onlineCount = (clone $onlineQuery)->count();
+
+            $todayRadarQuery = ActiveVisitor::query()
+                ->where('last_heartbeat_at', '>=', now()->startOfDay())
                 ->where('is_blocked', false);
 
-            $onlineQuery = ActiveVisitor::online()->where('is_blocked', false);
+            $recentRadarQuery = ActiveVisitor::query()
+                ->where('last_heartbeat_at', '>=', now()->subHours(24))
+                ->where('is_blocked', false);
 
-            $onlineCount = (clone $onlineQuery)->count();
-            $highIntentCount = (clone $activeRadarQuery)->where('intent_score', '>=', 60)->count();
-            $cartCount = (clone $activeRadarQuery)->where('cart_items_count', '>', 0)->count();
-            $cartTotal = (clone $activeRadarQuery)->sum('cart_total');
-            $hesitatingCount = (clone $activeRadarQuery)->where('intent_level', 'hesitating')->count();
-            $membersCount = (clone $activeRadarQuery)->where(function ($q) {
+            $recentVisitorsCount = (clone $recentRadarQuery)->count();
+            $todayVisitorsCount = (clone $todayRadarQuery)->count();
+
+            // 2. Bekleyen Sepetler (Canlı & Bugünkü/24s & DB Carts)
+            $liveCartQuery = (clone $onlineQuery)->where('cart_items_count', '>', 0);
+            $liveCartCount = (clone $liveCartQuery)->count();
+            $liveCartTotal = (float) (clone $liveCartQuery)->sum('cart_total');
+
+            $recentCartQuery = (clone $recentRadarQuery)->where('cart_items_count', '>', 0);
+            $recentCartCount = (clone $recentCartQuery)->count();
+            $recentCartTotal = (float) (clone $recentCartQuery)->sum('cart_total');
+
+            $dbPendingCartsCount = 0;
+            $dbPendingCartsTotal = 0.0;
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('carts')) {
+                    $dbPendingCartsQuery = \App\Models\Cart::whereHas('items')->where('updated_at', '>=', now()->subDays(7));
+                    $dbPendingCartsCount = (clone $dbPendingCartsQuery)->count();
+                    $dbPendingCartsTotal = (float) (clone $dbPendingCartsQuery)->with('items')->get()->sum(fn($c) => $c->items->sum(fn($i) => ($i->price ?? 0) * ($i->quantity ?? 1)));
+                }
+            } catch (\Throwable $e) {}
+
+            $cartCount = $liveCartCount > 0 ? $liveCartCount : ($recentCartCount > 0 ? $recentCartCount : $dbPendingCartsCount);
+            $cartTotal = $liveCartCount > 0 ? $liveCartTotal : ($recentCartTotal > 0 ? $recentCartTotal : $dbPendingCartsTotal);
+
+            // 3. Sıcak Adaylar (%60 ve üzeri niyet)
+            $liveHighIntentCount = (clone $onlineQuery)->where('intent_score', '>=', 60)->count();
+            $recentHighIntentCount = (clone $recentRadarQuery)->where('intent_score', '>=', 60)->count();
+            $highIntentCount = $liveHighIntentCount > 0 ? $liveHighIntentCount : $recentHighIntentCount;
+
+            // 4. Tereddütte Olanlar (Beden/kargo bariyeri)
+            $liveHesitatingCount = (clone $onlineQuery)->where('intent_level', 'hesitating')->count();
+            $recentHesitatingCount = (clone $recentRadarQuery)->where('intent_level', 'hesitating')->count();
+            $hesitatingCount = $liveHesitatingCount > 0 ? $liveHesitatingCount : $recentHesitatingCount;
+
+            // 5. Kullanıcı Segmenti (Üye / Misafir Dağılımı)
+            $liveMembersCount = (clone $onlineQuery)->where(function ($q) {
                 $q->whereNotNull('user_id')->orWhere('is_identified', true);
             })->count();
-            $totalActive = (clone $activeRadarQuery)->count();
-            $guestsCount = max(0, $totalActive - $membersCount);
+            $liveGuestsCount = max(0, $onlineCount - $liveMembersCount);
+
+            $recentMembersCount = (clone $recentRadarQuery)->where(function ($q) {
+                $q->whereNotNull('user_id')->orWhere('is_identified', true);
+            })->count();
+            $recentGuestsCount = max(0, $recentVisitorsCount - $recentMembersCount);
+
+            $membersCount = $onlineCount > 0 ? $liveMembersCount : $recentMembersCount;
+            $guestsCount = $onlineCount > 0 ? $liveGuestsCount : $recentGuestsCount;
+            $totalActive = $membersCount + $guestsCount;
+            $loginRate = $totalActive > 0 ? round(($membersCount / $totalActive) * 100) : 0;
+
             $blockedCount = ActiveVisitor::where('is_blocked', true)->count();
 
             $trafficService = app(\App\Services\TrafficAnalyticsService::class);
@@ -138,14 +200,22 @@ class ActiveVisitors extends Page implements HasTable
 
             return [
                 'onlineCount' => $onlineCount,
+                'todayVisitorsCount' => max($todayVisitorsCount, $dailyTraffic['unique_visitors'] ?? 0),
                 'highIntentCount' => $highIntentCount,
+                'liveHighIntentCount' => $liveHighIntentCount,
                 'cartCount' => $cartCount,
                 'cartTotal' => $cartTotal,
+                'liveCartCount' => $liveCartCount,
+                'recentCartCount' => $recentCartCount,
+                'dbPendingCartsCount' => $dbPendingCartsCount,
                 'hesitatingCount' => $hesitatingCount,
+                'liveHesitatingCount' => $liveHesitatingCount,
                 'membersCount' => $membersCount,
                 'guestsCount' => $guestsCount,
+                'loginRate' => $loginRate,
                 'totalActive' => $totalActive,
                 'blockedCount' => $blockedCount,
+                'activeCardFilter' => $this->activeCardFilter,
                 'trafficPeriod' => $this->trafficPeriod,
                 'dailyTraffic' => $dailyTraffic,
                 'weeklyTraffic' => $weeklyTraffic,
@@ -197,9 +267,14 @@ class ActiveVisitors extends Page implements HasTable
                 ActiveVisitor::query()
                     ->with(['user', 'cart.items.product.images'])
                     ->where(function (Builder $query) {
-                        $query->where('last_heartbeat_at', '>=', now()->subMinutes(15))
+                        $query->where('last_heartbeat_at', '>=', now()->subHours(24))
                             ->orWhere('is_blocked', true);
                     })
+                    ->when($this->activeCardFilter === 'online', fn($q) => $q->online())
+                    ->when($this->activeCardFilter === 'cart', fn($q) => $q->where('cart_items_count', '>', 0))
+                    ->when($this->activeCardFilter === 'high_intent', fn($q) => $q->where('intent_score', '>=', 60))
+                    ->when($this->activeCardFilter === 'hesitating', fn($q) => $q->where('intent_level', 'hesitating'))
+                    ->when($this->activeCardFilter === 'members', fn($q) => $q->where(fn($sq) => $sq->whereNotNull('user_id')->orWhere('is_identified', true)))
                     ->latest('last_heartbeat_at')
             )
             ->columns([

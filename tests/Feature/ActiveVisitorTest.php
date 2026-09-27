@@ -908,6 +908,84 @@ class ActiveVisitorTest extends TestCase
             'visitor_token' => $visitor->visitor_token,
         ]);
     }
+
+    public function test_cockpit_cards_filter_and_calculate_metrics_flawlessly(): void
+    {
+        $admin = \App\Models\User::factory()->create([
+            'email' => 'cards_admin_' . uniqid() . '@patenliayakkabilar.com',
+        ]);
+        $memberUser = \App\Models\User::factory()->create([
+            'name' => 'Canan Kaya',
+            'email' => 'canan_' . uniqid() . '@patenliayakkabilar.com',
+        ]);
+
+        // 1. Canlı sepetli ziyaretçi
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_card_cart',
+            'current_url' => 'https://patenliayakkabilar.com/sepet',
+            'current_path' => '/sepet',
+            'cart_items_count' => 2,
+            'cart_total' => 3598.00,
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // 2. Sıcak satın alma adayı
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_card_hot',
+            'current_url' => 'https://patenliayakkabilar.com/urun/kick-speed',
+            'current_path' => '/urun/kick-speed',
+            'intent_score' => 90,
+            'intent_level' => 'ready_to_buy',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // 3. Tereddüt yaşayan ziyaretçi
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_card_hesitating',
+            'current_url' => 'https://patenliayakkabilar.com/urun/kick-speed',
+            'current_path' => '/urun/kick-speed',
+            'intent_score' => 65,
+            'intent_level' => 'hesitating',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // 4. Üye girişli ziyaretçi
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_card_member',
+            'current_url' => 'https://patenliayakkabilar.com/hesabim',
+            'current_path' => '/hesabim',
+            'user_id' => $memberUser->id,
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSee('Bekleyen Sepetler')
+            ->assertSee('3,598.00 ₺')
+            ->assertSee('Sıcak Adaylar')
+            ->assertSee('Tereddütte Olanlar')
+            ->assertSee('Kullanıcı Segmenti')
+            ->call('setCardFilter', 'cart')
+            ->assertSet('activeCardFilter', 'cart')
+            ->assertSee('Filtre: 🛒 Sepetinde Ürün Olanlar', false)
+            ->call('setCardFilter', 'high_intent')
+            ->assertSet('activeCardFilter', 'high_intent')
+            ->assertSee('Filtre: 🔥 Sıcak Satın Alma Adayları', false)
+            ->call('setCardFilter', 'hesitating')
+            ->assertSet('activeCardFilter', 'hesitating')
+            ->assertSee('Filtre: 🤔 Tereddütte Olanlar', false)
+            ->call('setCardFilter', 'members')
+            ->assertSet('activeCardFilter', 'members')
+            ->assertSee('Filtre: 👤 Üye Girişi Yapanlar', false)
+            ->call('setCardFilter', 'members') // Toggle off
+            ->assertSet('activeCardFilter', 'all')
+            ->assertDontSee('Filtre: 👤 Üye Girişi Yapanlar', false);
+    }
 }
 
 
