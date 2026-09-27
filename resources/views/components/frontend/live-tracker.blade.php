@@ -553,10 +553,24 @@
         }
     };
 
-    window.paLogAction = function(actionType, actionDetail) {
-        if (actionDetail) {
-            sendHeartbeat(actionType || 'click', actionDetail);
+    var lastLoggedActions = [];
+    function safeLogAction(actionType, actionDetail) {
+        if (!actionDetail) return;
+        var clean = actionDetail.trim().toLowerCase();
+        var now = Date.now();
+        for (var i = lastLoggedActions.length - 1; i >= 0; i--) {
+            if (lastLoggedActions[i].text === clean && (now - lastLoggedActions[i].time) < 700) {
+                return;
+            }
         }
+        lastLoggedActions.push({ text: clean, time: now });
+        if (lastLoggedActions.length > 20) lastLoggedActions.shift();
+
+        sendHeartbeat(actionType || 'click', actionDetail);
+    }
+
+    window.paLogAction = function(actionType, actionDetail) {
+        safeLogAction(actionType, actionDetail);
     };
 
     // Güvenli HTML escape
@@ -706,7 +720,23 @@
 
         var secondsLeft = countdown > 0 ? countdown : 3;
         var totalSeconds = secondsLeft;
-        var messageText = cmd.message || 'Sizin için hazırlanan özel fırsat sayfasına aktarılıyorsunuz...';
+
+        var isExternal = /^https?:\/\//i.test(targetUrl) && targetUrl.indexOf(window.location.hostname) === -1;
+        var modalTitle = 'Özel Fırsat Sayfasına Geçiş Yapılıyor';
+        var defaultMessage = 'Sizin için hazırlanan özel fırsat sayfasına aktarılıyorsunuz...';
+
+        if (/wa\.me|whatsapp\.com/i.test(targetUrl)) {
+            modalTitle = 'WhatsApp Destek Hattına Aktarılıyorsunuz';
+            defaultMessage = 'Müşteri temsilcimize WhatsApp üzerinden bağlanıyorsunuz...';
+        } else if (/instagram\.com/i.test(targetUrl)) {
+            modalTitle = 'Instagram Profilimize Aktarılıyorsunuz';
+            defaultMessage = 'Resmi Instagram profilimize yönlendiriliyorsunuz...';
+        } else if (isExternal) {
+            modalTitle = 'Hedef Web Adresine Aktarılıyorsunuz';
+            defaultMessage = 'Belirtilen harici adrese aktarılıyorsunuz...';
+        }
+
+        var messageText = cmd.message || defaultMessage;
 
         var modalHtml = 
             '<div class="pa-top-accent"></div>' +
@@ -726,7 +756,7 @@
                 '</svg>' +
             '</div>' +
 
-            '<h3 class="pa-modal-title">Özel Fırsat Sayfasına Geçiş Yapılıyor</h3>' +
+            '<h3 class="pa-modal-title">' + escapeHtml(modalTitle) + '</h3>' +
             '<p class="pa-modal-desc">' + escapeHtml(messageText) + '</p>' +
 
             '<div class="pa-countdown-badge">' +
@@ -776,6 +806,38 @@
         }, 1000);
     }
 
+    // Güvenilir Pano Kopyalama Yardımcısı (Mobil Safari ve Güvenlik Kısıtlamaları Dahil)
+    function safeCopyText(text) {
+        if (!text) return Promise.resolve(false);
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).then(function() {
+                return true;
+            }).catch(function() {
+                return fallbackCopyText(text);
+            });
+        }
+        return Promise.resolve(fallbackCopyText(text));
+    }
+
+    function fallbackCopyText(text) {
+        try {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            ta.setAttribute('readonly', '');
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            var success = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return success;
+        } catch(e) {
+            return false;
+        }
+    }
+
     // 5. Birebir Site Tasarımında Fırsat / Kupon Pop-up'ı (Offer Modal)
     function executeOfferCommand(cmd) {
         var couponHtml = '';
@@ -797,12 +859,12 @@
         }
 
         var actionBtnHtml = '';
-        if (cmd.action_button && cmd.action_url) {
+        if (cmd.action_button) {
             actionBtnHtml = 
-                '<a href="' + escapeHtml(cmd.action_url) + '" class="pa-btn-primary">' +
+                '<button type="button" id="pa-offer-action-btn" class="pa-btn-primary">' +
                     '<span>' + escapeHtml(cmd.action_button) + '</span>' +
                     '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>' +
-                '</a>';
+                '</button>';
         } else if (cmd.coupon_code) {
             actionBtnHtml = 
                 '<button type="button" id="pa-use-coupon-btn" class="pa-btn-primary">' +
@@ -861,25 +923,108 @@
         // Kupon Kopyalama Mantığı
         function copyCouponToClipboard() {
             if (!cmd.coupon_code) return;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(cmd.coupon_code).then(function() {
-                    var copyBtn = document.getElementById('pa-copy-coupon-btn');
-                    var btnText = document.getElementById('pa-copy-btn-text');
-                    if (copyBtn && btnText) {
-                        btnText.textContent = 'Kopyalandı! ✓';
-                        copyBtn.classList.add('pa-copied');
-                    }
-                });
-            }
+            safeCopyText(cmd.coupon_code).then(function() {
+                var copyBtn = document.getElementById('pa-copy-coupon-btn');
+                var btnText = document.getElementById('pa-copy-btn-text');
+                if (copyBtn && btnText) {
+                    btnText.textContent = 'Kopyalandı! ✓';
+                    copyBtn.classList.add('pa-copied');
+                }
+            });
         }
 
         var copyBtn = document.getElementById('pa-copy-coupon-btn');
         if (copyBtn) copyBtn.onclick = copyCouponToClipboard;
 
+        // Kuponu Uygula & Öde Buton Aksiyonu
+        var actionBtn = document.getElementById('pa-offer-action-btn');
+        if (actionBtn) {
+            actionBtn.onclick = function() {
+                var couponCode = (cmd.coupon_code || '').trim();
+                var targetUrl = cmd.action_url || '/checkout';
+
+                // 1. Panoya kopyala
+                if (couponCode) {
+                    copyCouponToClipboard();
+                }
+
+                // 2. Kuponu oturuma ve tarayıcıya kaydet
+                if (couponCode) {
+                    try {
+                        localStorage.setItem('pa_applied_coupon', couponCode);
+                        sessionStorage.setItem('pa_applied_coupon', couponCode);
+                    } catch(e) {}
+
+                    fetch('/api/coupon/apply', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ code: couponCode })
+                    }).catch(function() {});
+                }
+
+                var isCheckoutPage = window.location.pathname.indexOf('/checkout') !== -1;
+
+                if (isCheckoutPage && couponCode) {
+                    // Sayfa zaten checkout: Kuponu Livewire ile anında uygula ve modalı kapat
+                    if (window.Livewire) {
+                        try {
+                            window.Livewire.dispatch('apply-coupon', { code: couponCode });
+                        } catch(e) {}
+                    }
+
+                    // Sayfadaki form inputunu da doldur ve tetikle
+                    var couponInput = document.querySelector('input[wire\\:model="coupon_code"]') || document.querySelector('input[placeholder*="Kupon"]');
+                    if (couponInput) {
+                        couponInput.value = couponCode;
+                        couponInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        couponInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    closeModal();
+
+                    // Şık yeşil bildirim göster
+                    executeAlertCommand({
+                        title: '🎉 Kuponunuz Uygulandı!',
+                        message: couponCode + ' kuponu sepetinize başarıyla uygulandı! %10 indirim kazandınız.',
+                        type: 'success'
+                    });
+
+                    // Sipariş formuna / özete yumuşakça kaydır
+                    setTimeout(function() {
+                        var targetSection = document.querySelector('[wire\\:submit]') || document.querySelector('#checkout-form') || document.querySelector('.border-t');
+                        if (targetSection) {
+                            targetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }, 250);
+
+                } else {
+                    // Başka sayfadayız: Kupon parametresiyle /checkout'a git
+                    closeModal();
+                    var destUrl = targetUrl;
+                    if (couponCode && destUrl.indexOf('coupon=') === -1) {
+                        var delim = destUrl.indexOf('?') !== -1 ? '&' : '?';
+                        destUrl = destUrl + delim + 'coupon=' + encodeURIComponent(couponCode);
+                    }
+                    window.location.href = destUrl;
+                }
+            };
+        }
+
         var useBtn = document.getElementById('pa-use-coupon-btn');
         if (useBtn) {
             useBtn.onclick = function() {
                 copyCouponToClipboard();
+                if (cmd.coupon_code) {
+                    fetch('/api/coupon/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({ code: cmd.coupon_code })
+                    }).catch(function() {});
+                }
                 setTimeout(closeModal, 600);
             };
         }
@@ -1135,7 +1280,7 @@
         var btnHtml = '';
         if (cmd.action_button && cmd.action_url) {
             btnHtml = 
-                '<a href="' + escapeHtml(cmd.action_url) + '" style="background: linear-gradient(135deg, #FF7A1A 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 12px rgba(255,122,26,0.35);">' +
+                '<a href="' + escapeHtml(cmd.action_url) + '" class="pa-voice-action-btn" style="background: linear-gradient(135deg, #FF7A1A 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 12px rgba(255,122,26,0.35);">' +
                     escapeHtml(cmd.action_button) + ' ↗' +
                 '</a>';
         }
@@ -1181,11 +1326,53 @@
         var copyBtn = card.querySelector('.pa-copy-voice-coupon');
         if (copyBtn && cmd.coupon_code) {
             copyBtn.onclick = function() {
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(cmd.coupon_code).then(function() {
-                        copyBtn.textContent = 'Kopyalandı! ✓';
-                        copyBtn.style.background = '#16a34a';
+                safeCopyText(cmd.coupon_code).then(function() {
+                    copyBtn.textContent = 'Kopyalandı! ✓';
+                    copyBtn.style.background = '#16a34a';
+                });
+            };
+        }
+
+        // Sesli anons buton aksiyonu (Kuponu uygula & ödeme sayfasına aktar)
+        var voiceActionBtn = card.querySelector('.pa-voice-action-btn');
+        if (voiceActionBtn && cmd.coupon_code) {
+            voiceActionBtn.onclick = function(e) {
+                var couponCode = (cmd.coupon_code || '').trim();
+                var targetUrl = cmd.action_url || '/checkout';
+
+                try {
+                    localStorage.setItem('pa_applied_coupon', couponCode);
+                    sessionStorage.setItem('pa_applied_coupon', couponCode);
+                } catch(err) {}
+
+                fetch('/api/coupon/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ code: couponCode })
+                }).catch(function() {});
+
+                var isCheckoutPage = window.location.pathname.indexOf('/checkout') !== -1;
+                if (isCheckoutPage) {
+                    e.preventDefault();
+                    if (window.Livewire) {
+                        try { window.Livewire.dispatch('apply-coupon', { code: couponCode }); } catch(err) {}
+                    }
+                    var couponInput = document.querySelector('input[wire\\:model="coupon_code"]') || document.querySelector('input[placeholder*="Kupon"]');
+                    if (couponInput) {
+                        couponInput.value = couponCode;
+                        couponInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    closeToast();
+                    executeAlertCommand({
+                        title: '🎉 Kuponunuz Uygulandı!',
+                        message: couponCode + ' kuponu başarıyla uygulandı! %10 indirim kazandınız.',
+                        type: 'success'
                     });
+                } else if (targetUrl.indexOf('coupon=') === -1) {
+                    e.preventDefault();
+                    closeToast();
+                    var delim = targetUrl.indexOf('?') !== -1 ? '&' : '?';
+                    window.location.href = targetUrl + delim + 'coupon=' + encodeURIComponent(couponCode);
                 }
             };
         }
@@ -1393,6 +1580,60 @@
         });
     }
 
+    // 7.5. Form Alanlarına Tıklama / Odaklanma (Focus) Dinleyicisi ("Didik Didik" Takip)
+    function setupFocusListeners() {
+        document.addEventListener('focusin', function(e) {
+            var target = e.target;
+            if (!target || !target.tagName) return;
+
+            var tag = target.tagName.toLowerCase();
+            if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') return;
+            if (target.type === 'password' || target.type === 'hidden') return;
+
+            var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+            var idAttr = (target.id || '').toLowerCase();
+            var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+            var placeholder = (target.getAttribute('placeholder') || '').toLowerCase();
+            var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
+
+            // CC protection
+            if (autocomplete.indexOf('cc-') !== -1 || /card|kart|pan|cvv|cvc|expir|son_kullanim|guvenlik/i.test(nameAttr + ' ' + idAttr + ' ' + placeholder)) {
+                safeLogAction('focus', 'kart bilgisi alanına odaklandı');
+                return;
+            }
+
+            var label = '';
+            if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1 || placeholder.indexOf('adınız') !== -1) {
+                label = 'ad soyad alanına tıkladı';
+            } else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1 || nameAttr.indexOf('email') !== -1 || placeholder.indexOf('@') !== -1) {
+                label = 'e-posta kutusuna tıkladı';
+            } else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1 || nameAttr.indexOf('phone') !== -1 || placeholder.indexOf('5xx') !== -1 || placeholder.indexOf('telefon') !== -1) {
+                label = 'telefon kutusuna tıkladı';
+            } else if (wireModel.indexOf('city') !== -1 || nameAttr.indexOf('city') !== -1 || idAttr.indexOf('city') !== -1 || nameAttr.indexOf('il') !== -1) {
+                label = 'il (şehir) seçimine tıkladı';
+            } else if (wireModel.indexOf('district') !== -1 || nameAttr.indexOf('district') !== -1 || idAttr.indexOf('district') !== -1 || nameAttr.indexOf('ilce') !== -1) {
+                label = 'ilçe seçimine tıkladı';
+            } else if (wireModel.indexOf('neighborhood') !== -1 || nameAttr.indexOf('neighborhood') !== -1 || placeholder.indexOf('mahalle') !== -1) {
+                label = 'mahalle alanına tıkladı';
+            } else if (wireModel.indexOf('address') !== -1 || nameAttr.indexOf('address') !== -1 || placeholder.indexOf('adres') !== -1 || placeholder.indexOf('cadde') !== -1) {
+                label = 'teslimat adresi kutusuna tıkladı';
+            } else if (wireModel.indexOf('note') !== -1 || nameAttr.indexOf('note') !== -1 || placeholder.indexOf('not') !== -1) {
+                label = 'sipariş notu kutusuna tıkladı';
+            } else if (nameAttr.indexOf('coupon') !== -1 || placeholder.indexOf('kupon') !== -1) {
+                label = 'kupon kutusuna tıkladı';
+            } else if (nameAttr.indexOf('company') !== -1 || placeholder.indexOf('firma') !== -1) {
+                label = 'firma adı kutusuna tıkladı';
+            } else if (nameAttr.indexOf('tax') !== -1 || placeholder.indexOf('vergi') !== -1) {
+                label = 'vergi bilgisi kutusuna tıkladı';
+            } else {
+                var candidate = (placeholder || nameAttr || idAttr || '').replace(/[^a-zA-Z0-9çğıöşüÇĞİÖŞÜ\s_-]/g, '').trim();
+                label = (candidate ? candidate.substring(0, 15).toLowerCase() : 'giriş') + ' alanına tıkladı';
+            }
+
+            safeLogAction('focus', label);
+        }, true);
+    }
+
     // 8. Select (İl, İlçe, Sıralama), Radio ve Checkbox Dinleyicisi (Tüm Seçimler)
     function setupSelectAndChangeListeners() {
         document.addEventListener('change', function(e) {
@@ -1432,7 +1673,7 @@
                 }
 
                 var selectDetail = label + ': "' + text.toLowerCase() + '" seçti';
-                sendHeartbeat('click', selectDetail);
+                safeLogAction('click', selectDetail);
                 return;
             }
 
@@ -1455,7 +1696,7 @@
                 }
 
                 if (radioDetail) {
-                    sendHeartbeat('click', radioDetail);
+                    safeLogAction('click', radioDetail);
                 }
                 return;
             }
@@ -1476,7 +1717,7 @@
                     checkDetail = '"' + cleanText + '" kutusunu ' + state;
                 }
 
-                sendHeartbeat('click', checkDetail);
+                safeLogAction('click', checkDetail);
                 return;
             }
         }, true); // useCapture: true sayesinde hiçbir event engellenemez
@@ -1511,8 +1752,8 @@
             if (isCardField) {
                 if (inputDebounceTimers['cc_field']) clearTimeout(inputDebounceTimers['cc_field']);
                 inputDebounceTimers['cc_field'] = setTimeout(function() {
-                    sendHeartbeat('typing', 'kart bilgisi alanını dolduruyor');
-                }, 800);
+                    safeLogAction('typing', 'kart bilgisi alanını dolduruyor');
+                }, 600);
                 return;
             }
 
@@ -1565,9 +1806,9 @@
                 window.paIdentifyVisitor(null, null, val);
             }
 
-            // 2. Harf ve Metin Yazımını Debounce ile Mikro Detay Olarak Kaydet
+            // 2. Harf ve Metin Yazımını Debounce ile Mikro Detay Olarak Kaydet (1 karakterden itibaren!)
             var trimmed = val.trim();
-            if (trimmed.length < 2) return;
+            if (trimmed.length < 1) return;
 
             var timerKey = label;
             if (inputDebounceTimers[timerKey]) clearTimeout(inputDebounceTimers[timerKey]);
@@ -1578,24 +1819,29 @@
 
                 var displayVal = trimmed.length > 35 ? trimmed.substring(0, 35) + '...' : trimmed;
                 var actionMsg = label + ': "' + displayVal.toLowerCase() + '" yazdı';
-                sendHeartbeat('typing', actionMsg);
-            }, 750);
+                safeLogAction('typing', actionMsg);
+            }, 400);
         }, { passive: true });
 
-        // Blur anında anında gönder
+        // Blur anında anında gönder (flush)
         document.addEventListener('focusout', function(e) {
             var target = e.target;
             if (!target || !target.tagName) return;
             var tag = target.tagName.toLowerCase();
             if (tag !== 'input' && tag !== 'textarea') return;
-            if (target.type === 'password') return;
+            if (target.type === 'password' || target.type === 'hidden') return;
 
             var val = (target.value || '').trim();
-            if (!val || val.length < 2) return;
+            if (!val || val.length < 1) return;
 
             var nameAttr = (target.getAttribute('name') || '').toLowerCase();
             var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
             var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+
+            // CC protection
+            if (autocomplete.indexOf('cc-') !== -1 || /card|kart|pan|cvv|cvc|expir|son_kullanim|guvenlik/i.test(nameAttr + ' ' + (target.id || ''))) {
+                return;
+            }
 
             if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1) {
                 window.paIdentifyVisitor(val, null, null);
@@ -1614,7 +1860,7 @@
                 currentDelay = backgroundDelay;
             } else {
                 currentDelay = normalDelay;
-                sendHeartbeat('view', 'Sekmeye geri dönüldü');
+                safeLogAction('view', 'Sekmeye geri dönüldü');
             }
             restartLoop();
         });
@@ -1632,6 +1878,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             sendHeartbeat('view');
             setupInteractions();
+            setupFocusListeners();
             setupSelectAndChangeListeners();
             setupInputListeners();
             handleVisibility();
@@ -1640,6 +1887,7 @@
     } else {
         sendHeartbeat('view');
         setupInteractions();
+        setupFocusListeners();
         setupSelectAndChangeListeners();
         setupInputListeners();
         handleVisibility();

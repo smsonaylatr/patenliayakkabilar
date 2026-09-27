@@ -83,7 +83,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
-                                    <select wire:model.live="shipping_city" x-on:change="if(window.paLogAction && $el.value) { window.paLogAction('click', 'il (şehir): &quot;' + ($el.options[$el.selectedIndex] ? $el.options[$el.selectedIndex].text : $el.value).toLowerCase() + '&quot; seçti'); }" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
+                                    <select wire:model.live="shipping_city" x-on:change="if(window.paLogAction && $el.value) { window.paLogAction('click', 'il (şehir): \'' + ($el.options[$el.selectedIndex] ? $el.options[$el.selectedIndex].text : $el.value).toLowerCase() + '\' seçti'); }" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors">
                                         <option value="">İl Seçiniz</option>
                                         @foreach($cities as $city)
                                             <option value="{{ $city }}">{{ $city }}</option>
@@ -94,7 +94,7 @@
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">İlçe</label>
-                                    <select wire:model.live="shipping_district" x-on:change="if(window.paLogAction && $el.value) { window.paLogAction('click', 'ilçe: &quot;' + ($el.options[$el.selectedIndex] ? $el.options[$el.selectedIndex].text : $el.value).toLowerCase() + '&quot; seçti'); }" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
+                                    <select wire:model.live="shipping_district" x-on:change="if(window.paLogAction && $el.value) { window.paLogAction('click', 'ilçe: \'' + ($el.options[$el.selectedIndex] ? $el.options[$el.selectedIndex].text : $el.value).toLowerCase() + '\' seçti'); }" class="w-full px-4 py-3 text-base rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-0 focus:outline-none focus:border-black transition-colors" {{ empty($districts) ? 'disabled' : '' }}>
                                         <option value="">İlçe Seçiniz</option>
                                         @foreach($districts as $district)
                                             <option value="{{ $district }}">{{ $district }}</option>
@@ -124,6 +124,9 @@
                                                 this.search = item;
                                                 this.open = false;
                                                 $refs.searchInput.blur();
+                                                if(window.paLogAction) {
+                                                    window.paLogAction('click', 'mahalle: \'' + item.toLowerCase() + '\' seçti');
+                                                }
                                             },
                                             highlightIndex: -1,
                                             navigateList(direction) {

@@ -18,23 +18,50 @@ class VisitorBehaviorAnalyzer
         $actionDetail = $clientData['action_detail'] ?? null;
 
         // 1. Gezinme İzini (Journey Trail) Güncelle
-        $trail = $visitor->journey_trail ?? [];
         $previousPath = $clientData['previous_path'] ?? null;
+        $normalizePath = function (?string $p): string {
+            if (!$p) return '/';
+            $p = parse_url($p, PHP_URL_PATH) ?: $p;
+            $p = '/' . ltrim($p, '/');
+            return rtrim($p, '/') ?: '/';
+        };
+
+        $normalizedNewPath = $normalizePath($newPath);
+        $normalizedPrevPath = $previousPath !== null ? $normalizePath($previousPath) : null;
+
+        $trail = $visitor->journey_trail ?? [];
+        if ($visitor->exists && !empty($visitor->id)) {
+            $latestDbTrail = \Illuminate\Support\Facades\DB::table('active_visitors')
+                ->where('id', $visitor->id)
+                ->value('journey_trail');
+            if ($latestDbTrail) {
+                $decoded = is_array($latestDbTrail) ? $latestDbTrail : json_decode($latestDbTrail, true);
+                if (is_array($decoded) && !empty($decoded)) {
+                    $trail = $decoded;
+                }
+            }
+        }
+
         $nowFormatted = now()->format('H:i:s');
-
         $isFirstStep = empty($trail);
-        $isPathChanged = ($previousPath !== null && $previousPath !== $newPath);
-
         $lastIndex = count($trail) - 1;
+        $lastStepNormalized = ($lastIndex >= 0 && isset($trail[$lastIndex]['path']))
+            ? $normalizePath($trail[$lastIndex]['path'])
+            : null;
+
+        $isPathChanged = ($normalizedPrevPath !== null && $normalizedPrevPath !== $normalizedNewPath);
+        $isSamePage = (!$isFirstStep && $lastIndex >= 0 && $lastStepNormalized === $normalizedNewPath);
         $actionDetailLower = static::cleanLowercase($actionDetail);
 
         // İkon ve mikro işlem tipi belirleme (il, ilçe, adres, ödeme vb. için özel sezgisel ikonlar)
         $microIcon = '🖱️';
         if ($action === 'typing' || $action === 'input') {
             $microIcon = '⌨️';
-        } elseif (str_contains($actionDetailLower ?? '', 'şehir') || str_contains($actionDetailLower ?? '', 'il:') || str_contains($actionDetailLower ?? '', 'ilçe') || str_contains($actionDetailLower ?? '', 'mahalle') || str_contains($actionDetailLower ?? '', 'adres')) {
+        } elseif ($action === 'focus') {
+            $microIcon = '🎯';
+        } elseif (str_contains($actionDetailLower ?? '', 'şehir') || str_contains($actionDetailLower ?? '', 'il:') || str_contains($actionDetailLower ?? '', 'il (şehir)') || str_contains($actionDetailLower ?? '', 'ilçe') || str_contains($actionDetailLower ?? '', 'mahalle') || str_contains($actionDetailLower ?? '', 'adres')) {
             $microIcon = '📍';
-        } elseif (str_contains($actionDetailLower ?? '', 'ödeme')) {
+        } elseif (str_contains($actionDetailLower ?? '', 'ödeme') || str_contains($actionDetailLower ?? '', 'kart')) {
             $microIcon = '💳';
         } elseif ($action === 'coupon' || str_contains($actionDetailLower ?? '', 'kupon')) {
             $microIcon = '🏷️';
@@ -42,13 +69,15 @@ class VisitorBehaviorAnalyzer
             $microIcon = '💬';
         } elseif ($action === 'cart_add' || str_contains($actionDetailLower ?? '', 'sepet')) {
             $microIcon = '🛒';
-        } elseif (str_contains($actionDetailLower ?? '', 'fatura')) {
+        } elseif (str_contains($actionDetailLower ?? '', 'fatura') || str_contains($actionDetailLower ?? '', 'vergi')) {
             $microIcon = '📑';
+        } elseif (str_contains($actionDetailLower ?? '', 'not') || str_contains($actionDetailLower ?? '', 'sipariş notu')) {
+            $microIcon = '📝';
         } elseif ($action === 'tab' || $action === 'tab_switch' || $action === 'view') {
             $microIcon = '👁️';
         }
 
-        if ($isFirstStep || $isPathChanged || !empty($actionDetail)) {
+        if ($isFirstStep || $isPathChanged || !empty($actionDetail) || $isSamePage) {
             $pageInfo = ActiveVisitor::resolvePageInfo($newPath, $newTitle);
             $cleanTitle = ActiveVisitor::cleanTitle($newTitle);
             $stepTitle = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
@@ -56,7 +85,7 @@ class VisitorBehaviorAnalyzer
                 : $pageInfo['title'];
 
             // Eğer sayfa değişmediyse (aynı sayfada mikro hareket veya tekrarlı heartbeat)
-            if (!$isFirstStep && !$isPathChanged && $lastIndex >= 0 && ($trail[$lastIndex]['path'] ?? '') === $newPath) {
+            if ($isSamePage) {
                 $trail[$lastIndex]['time'] = $nowFormatted;
                 $trail[$lastIndex]['title'] = $stepTitle;
                 $trail[$lastIndex]['badge'] = $pageInfo['badge'];
@@ -69,11 +98,20 @@ class VisitorBehaviorAnalyzer
                     $trail[$lastIndex]['price'] = $pageInfo['price'];
                 }
 
-                // Mikro etkileşim varsa ve son etkileşim ile aynı değilse interactions dizisine ekle
+                // Mikro etkileşim varsa ve son etkileşimlerde aynı değilse interactions dizisine ekle
                 if (!empty($actionDetailLower)) {
                     $interactions = $trail[$lastIndex]['interactions'] ?? [];
-                    $lastMicro = !empty($interactions) ? end($interactions) : null;
-                    if (!$lastMicro || ($lastMicro['text'] ?? '') !== $actionDetailLower) {
+                    
+                    $isDuplicate = false;
+                    $checkLimit = min(5, count($interactions));
+                    for ($i = count($interactions) - 1; $i >= count($interactions) - $checkLimit; $i--) {
+                        if (isset($interactions[$i]['text']) && $interactions[$i]['text'] === $actionDetailLower) {
+                            $isDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (!$isDuplicate) {
                         $interactions[] = [
                             'time' => $nowFormatted,
                             'type' => $action,

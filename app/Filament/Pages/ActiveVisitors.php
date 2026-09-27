@@ -677,8 +677,10 @@ class ActiveVisitors extends Page implements HasTable
                                 ->visible(fn ($get) => $get('strategy_type') === 'offer'),
 
                             TextInput::make('redirect_url')
-                                ->label('Yönlendirilecek Hedef URL')
+                                ->label('Yönlendirilecek Hedef URL (Site İçi veya Site Dışı)')
                                 ->default($strategy['target_url'] ?? '/checkout')
+                                ->placeholder('Örn: /checkout veya https://instagram.com/... veya https://wa.me/...')
+                                ->helperText('Site içi sayfa (/checkout gibi) veya harici web adresi (https://... gibi) yazabilirsiniz.')
                                 ->visible(fn ($get) => $get('strategy_type') === 'redirect')
                                 ->required(),
 
@@ -696,8 +698,9 @@ class ActiveVisitors extends Page implements HasTable
                     })
                     ->action(function (ActiveVisitor $record, array $data) {
                         if (($data['strategy_type'] ?? 'offer') === 'redirect') {
+                            $target = self::normalizeUrl($data['redirect_url'] ?? '/checkout');
                             $record->queueRedirect(
-                                $data['redirect_url'] ?? '/checkout',
+                                $target,
                                 $data['offer_message'] ?? null,
                                 (int) ($data['countdown'] ?? 3)
                             );
@@ -729,15 +732,23 @@ class ActiveVisitors extends Page implements HasTable
                     ->modalSubmitActionLabel('Şimdi Yönlendir')
                     ->form([
                         Select::make('quick_target')
-                            ->label('Hızlı Hedef Seçimi')
+                            ->label('Hedef Sayfa veya Site Dışı Link')
                             ->native(false)
                             ->options(self::getTargetUrlOptions())
                             ->default('/checkout')
                             ->live(),
 
+                        TextInput::make('external_url')
+                            ->label('🌐 Site Dışı Harici Link / Web Adresi')
+                            ->placeholder('https://instagram.com/..., https://wa.me/... veya https://trendyol.com/...')
+                            ->helperText('💡 Ziyaretçi doğrudan siteniz dışındaki bu adrese aktarılır (WhatsApp, Instagram, Pazaryeri vb.). https:// yazmasanız da sistem otomatik tamamlar.')
+                            ->visible(fn ($get) => $get('quick_target') === 'custom_external')
+                            ->required(fn ($get) => $get('quick_target') === 'custom_external'),
+
                         TextInput::make('custom_url')
-                            ->label('Özel Hedef URL')
-                            ->placeholder('/urun/ornek-paten veya tam link')
+                            ->label('🔗 Özel Site İçi Sayfa Linki')
+                            ->placeholder('/urun/ornek-paten veya sayfa adresi')
+                            ->helperText('Siteniz içerisindeki herhangi bir sayfa yolu.')
                             ->visible(fn ($get) => $get('quick_target') === 'custom')
                             ->required(fn ($get) => $get('quick_target') === 'custom'),
 
@@ -750,11 +761,11 @@ class ActiveVisitors extends Page implements HasTable
                             ])
                             ->default('silent')
                             ->live()
-                            ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında hedef sayfaya yönlendirilir.'),
+                            ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında hedef sayfaya / harici adrese yönlendirilir.'),
 
                         TextInput::make('redirect_message')
                             ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
-                            ->placeholder('Örn: Sizi fırsat ürünlerimize aktarıyoruz...')
+                            ->placeholder('Örn: Sizi WhatsApp destek hattımıza aktarıyoruz...')
                             ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
 
                         Select::make('countdown')
@@ -769,7 +780,11 @@ class ActiveVisitors extends Page implements HasTable
                             ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
-                        $target = $data['quick_target'] === 'custom' ? $data['custom_url'] : $data['quick_target'];
+                        $target = match($data['quick_target'] ?? 'custom') {
+                            'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
+                            'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
+                            default => self::normalizeUrl($data['quick_target'] ?? '/checkout'),
+                        };
                         $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                         $showNotice = !$isSilent;
 
@@ -1004,14 +1019,23 @@ class ActiveVisitors extends Page implements HasTable
                 ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara tek tıkla yönlendirme emri gönderir.')
                 ->form([
                     Select::make('bulk_target')
-                        ->label('Hedef Sayfa')
+                        ->label('Hedef Sayfa veya Site Dışı Link')
                         ->native(false)
                         ->options(self::getTargetUrlOptions())
-                        ->default('/patenli-ayakkabilar')
+                        ->default('/checkout')
                         ->live(),
 
+                    TextInput::make('external_url')
+                        ->label('🌐 Site Dışı Harici Link / Web Adresi')
+                        ->placeholder('https://instagram.com/..., https://wa.me/... veya https://trendyol.com/...')
+                        ->helperText('💡 Tüm aktif ziyaretçiler doğrudan siteniz dışındaki bu adrese aktarılacaktır. https:// yazmasanız da otomatik eklenir.')
+                        ->visible(fn ($get) => $get('bulk_target') === 'custom_external')
+                        ->required(fn ($get) => $get('bulk_target') === 'custom_external'),
+
                     TextInput::make('custom_url')
-                        ->label('Özel URL')
+                        ->label('🔗 Özel Site İçi Sayfa Linki')
+                        ->placeholder('/urun/ornek-paten veya /blog')
+                        ->helperText('Siteniz içerisindeki herhangi bir sayfa yolu.')
                         ->visible(fn ($get) => $get('bulk_target') === 'custom')
                         ->required(fn ($get) => $get('bulk_target') === 'custom'),
 
@@ -1024,7 +1048,7 @@ class ActiveVisitors extends Page implements HasTable
                         ])
                         ->default('silent')
                         ->live()
-                        ->helperText('Bildirim göstermeden seçeneğinde kullanıcılara pop-up gösterilmez, doğrudan hedef sayfaya yönlendirilirler.'),
+                        ->helperText('Bildirim göstermeden seçeneğinde kullanıcılara pop-up gösterilmez, doğrudan hedef adrese yönlendirilirler.'),
 
                     TextInput::make('bulk_message')
                         ->label('Kullanıcılara Gösterilecek Mesaj (Opsiyonel)')
@@ -1032,7 +1056,11 @@ class ActiveVisitors extends Page implements HasTable
                         ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                 ])
                 ->action(function (array $data) {
-                    $target = $data['bulk_target'] === 'custom' ? $data['custom_url'] : $data['bulk_target'];
+                    $target = match($data['bulk_target'] ?? 'custom') {
+                        'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
+                        'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
+                        default => self::normalizeUrl($data['bulk_target'] ?? '/checkout'),
+                    };
                     $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                     $showNotice = !$isSilent;
                     $visitors = ActiveVisitor::online()->get();
@@ -1048,7 +1076,7 @@ class ActiveVisitors extends Page implements HasTable
 
                     Notification::make()
                         ->title('Toplu Yönlendirme Başlatıldı')
-                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' sayfasına yönlendiriliyor.')
+                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.')
                         ->success()
                         ->send();
                 }),
@@ -1341,21 +1369,61 @@ class ActiveVisitors extends Page implements HasTable
     }
 
     /**
-     * Yönlendirme ve anonslarda kullanılacak doğrulanmış güncel sayfa ve kategori linkleri
+     * URL'yi normalize eder (Site içi veya site dışı linkleri akıllıca düzenler)
+     */
+    public static function normalizeUrl(?string $url): string
+    {
+        $url = trim((string) $url);
+        if ($url === '') {
+            return '/';
+        }
+
+        // Protokol zaten varsa (https://, http://, whatsapp://, mailto:, tel:)
+        if (preg_match('#^(https?://|whatsapp://|tel:|mailto:)#i', $url)) {
+            return $url;
+        }
+
+        // Domain veya bilinen harici servis desenleri
+        if (
+            str_starts_with($url, '//') ||
+            preg_match('#^(wa\.me|api\.whatsapp\.com|instagram\.com|www\.|t\.me|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})#i', $url)
+        ) {
+            return 'https://' . ltrim($url, '/');
+        }
+
+        // Site içi göreceli yol: Başında / yoksa ekle
+        if (!str_starts_with($url, '/')) {
+            $url = '/' . $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Yönlendirme ve anonslarda kullanılacak doğrulanmış güncel sayfa, site dışı link ve kategori seçenekleri
      */
     public static function getTargetUrlOptions(): array
     {
         $options = [
-            '/' => '🏠 Ana Sayfa',
-            '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
-            '/checkout' => '🛒 Sepetim & Ödeme Sayfası',
+            '🌐 SİTE DIŞI / HARİCİ HEDEFLER' => [
+                'custom_external' => '🌐 Site Dışı Link (Harici Web Sitesi, WhatsApp, Instagram vb.)',
+            ],
+            '⚡ SİTE İÇİ HIZLI HEDEFLER' => [
+                '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
+                '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
+                '/' => '🏠 Ana Sayfa',
+                '/iletisim' => '📞 İletişim & Canlı Destek',
+                'custom' => '🔗 Özel Site İçi Sayfa Linki (/sayfa-adi)',
+            ],
         ];
 
+        // Kategoriler
+        $catOptions = [];
         try {
             $categories = \App\Models\Category::where('status', true)->orderBy('id')->get();
             if ($categories->isEmpty()) {
-                $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-                $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+                $catOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+                $catOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
             } else {
                 foreach ($categories as $cat) {
                     $icon = match (true) {
@@ -1365,16 +1433,17 @@ class ActiveVisitors extends Page implements HasTable
                         str_contains($cat->slug, 'kadin') => '👩',
                         default => '🏷️',
                     };
-                    $options['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
+                    $catOptions['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
                 }
             }
         } catch (\Throwable $e) {
-            $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-            $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+            $catOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+            $catOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
         }
 
-        $options['/iletisim'] = '📞 İletişim & Canlı Destek';
-        $options['custom'] = '🔗 Özel URL Yaz...';
+        if (!empty($catOptions)) {
+            $options['📂 Kategori Sayfaları'] = $catOptions;
+        }
 
         return $options;
     }

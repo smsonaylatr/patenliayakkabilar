@@ -87,6 +87,9 @@ class PresenceController extends Controller
 
         // 3. Aktif Ziyaretçi Kaydını Getir veya Oluştur
         $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
+        if ($visitor->exists) {
+            $visitor->refresh();
+        }
 
         if (!$visitor->exists) {
             $visitor->first_seen_at = $profile?->first_seen_at ?? now();
@@ -193,6 +196,10 @@ class PresenceController extends Controller
         );
 
         // 5. Davranış Analizi ve Strateji Üretimi
+        if ($visitor->exists) {
+            $visitor->refresh();
+        }
+
         $this->behaviorAnalyzer->analyze($visitor, [
             'previous_path' => $previousPath,
             'path' => $path,
@@ -615,5 +622,21 @@ class PresenceController extends Controller
                 });
             }
         } catch (\Throwable $e) {}
+    }
+
+    /**
+     * Filament Yolculuk Modalı için canlı HTML kısmi çıktısı döner.
+     */
+    public function journeyPartial(Request $request, $id)
+    {
+        $visitor = ActiveVisitor::with(['user', 'cart.items.product.images', 'cart.items.variant'])->find($id);
+        if (!$visitor) {
+            return response('<div style="padding: 20px; text-align: center; color: #ef4444;">Ziyaretçi kaydı bulunamadı.</div>', 404);
+        }
+
+        return view('filament.pages.partials.visitor-journey-modal', [
+            'record' => $visitor,
+            'isPartial' => true,
+        ]);
     }
 }

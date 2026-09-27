@@ -1126,6 +1126,148 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('ilçe: &quot;kadıköy&quot; seçti', $view);
         $this->assertStringContainsString('ödeme yöntemi: kapıda ödeme seçti', $view);
     }
+
+    public function test_journey_partial_endpoint_returns_live_html(): void
+    {
+        $token = 'pa_vt_partial_test_' . uniqid();
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => $token,
+            'current_url' => 'https://patenliayakkabilar.com/checkout',
+            'current_path' => '/checkout',
+            'current_title' => 'Ödeme Sayfası',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+            'is_online' => true,
+            'guest_name' => 'Canlı Test Kullanıcısı',
+            'journey_trail' => [
+                [
+                    'path' => '/checkout',
+                    'title' => 'Ödeme Sayfası',
+                    'badge' => 'Ödeme Adımı',
+                    'icon' => '💳',
+                    'color' => '#10b981',
+                    'time' => now()->format('H:i:s'),
+                    'interactions' => [
+                        [
+                            'time' => now()->format('H:i:s'),
+                            'type' => 'click',
+                            'icon' => '📍',
+                            'text' => 'il (şehir): "ankara" seçti',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->get('/api/presence/visitor/' . $visitor->id . '/journey-partial');
+
+        $response->assertStatus(200);
+        $html = $response->getContent();
+        $this->assertStringContainsString('visitor-journey-content-' . $visitor->id, $html);
+        $this->assertStringContainsString('Canlı Test Kullanıcısı', $html);
+        $this->assertStringContainsString('il (şehir): &quot;ankara&quot; seçti', $html);
+        $this->assertStringContainsString('CANLI YAYIN AKTİF', $html);
+    }
+
+    public function test_microscopic_focus_and_single_letter_tracking(): void
+    {
+        $token = 'pa_vt_micro_test_' . uniqid();
+
+        // 1. Sayfa açılışı
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'view',
+        ])->assertStatus(200);
+
+        // 2. Ad Soyad alanına tıklandı (Focus)
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'focus',
+            'action_detail' => 'Ad Soyad Alanına Tıkladı',
+        ])->assertStatus(200);
+
+        // 3. Tek harf yazıldı ("A")
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'typing',
+            'action_detail' => 'Ad Soyad: "A" Yazdı',
+        ])->assertStatus(200);
+
+        // 4. İl seçimine tıklandı (Focus)
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'focus',
+            'action_detail' => 'İl (Şehir) Seçimine Tıkladı',
+        ])->assertStatus(200);
+
+        // 5. İl seçildi
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'click',
+            'action_detail' => 'İl (Şehir): "İzmir" Seçti',
+        ])->assertStatus(200);
+
+        // 6. İlçe seçildi
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'click',
+            'action_detail' => 'İlçe: "Karşıyaka" Seçti',
+        ])->assertStatus(200);
+
+        // 7. Mahalle seçildi
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme',
+            'action' => 'click',
+            'action_detail' => 'Mahalle: "Bostanlı Mah." Seçti',
+        ])->assertStatus(200);
+
+        $visitor = ActiveVisitor::where('visitor_token', $token)->first();
+        $this->assertNotNull($visitor);
+        $this->assertCount(1, $visitor->journey_trail);
+        $step = $visitor->journey_trail[0];
+
+        $interactions = $step['interactions'];
+        $this->assertCount(6, $interactions);
+
+        $this->assertEquals('🎯', $interactions[0]['icon']);
+        $this->assertEquals('ad soyad alanına tıkladı', $interactions[0]['text']);
+
+        $this->assertEquals('⌨️', $interactions[1]['icon']);
+        $this->assertEquals('ad soyad: "a" yazdı', $interactions[1]['text']);
+
+        $this->assertEquals('🎯', $interactions[2]['icon']);
+        $this->assertEquals('il (şehir) seçimine tıkladı', $interactions[2]['text']);
+
+        $this->assertEquals('📍', $interactions[3]['icon']);
+        $this->assertEquals('il (şehir): "izmir" seçti', $interactions[3]['text']);
+
+        $this->assertEquals('📍', $interactions[4]['icon']);
+        $this->assertEquals('ilçe: "karşıyaka" seçti', $interactions[4]['text']);
+
+        $this->assertEquals('📍', $interactions[5]['icon']);
+        $this->assertEquals('mahalle: "bostanlı mah." seçti', $interactions[5]['text']);
+    }
 }
 
 

@@ -9,6 +9,8 @@ use App\Models\OrderItem;
 use App\Services\CartService;
 use App\Services\TrafficSourceDetector;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Illuminate\Support\Str;
 
@@ -146,6 +148,13 @@ class Checkout extends Component
         
         $this->shipping_address = session('co_address', $this->shipping_address);
         $this->customer_note = session('co_note', $this->customer_note);
+
+        // Kupon parametresi (URL query veya oturum) varsa otomatik uygula
+        $initialCoupon = request()->query('coupon') ?: session('applied_coupon_code');
+        if (!empty($initialCoupon)) {
+            $this->coupon_code = strtoupper(trim((string) $initialCoupon));
+            $this->applyCoupon();
+        }
     }
 
     public function updated($propertyName)
@@ -457,6 +466,7 @@ class Checkout extends Component
                 'used_by_name' => $this->customer_name,
                 'used_by_phone' => $this->customer_phone,
             ]);
+            session()->forget('applied_coupon_code');
         }
 
         // Create Order Items — Eager load ile ilişkileri yükle
@@ -816,6 +826,19 @@ class Checkout extends Component
 
         $coupon = Coupon::where('code', $code)->first();
 
+        // PATEN10 için dayanıklı otomatik oluşturma/bulma
+        if (!$coupon && $code === 'PATEN10') {
+            $coupon = Coupon::firstOrCreate(
+                ['code' => 'PATEN10'],
+                [
+                    'type' => 'percentage',
+                    'value' => 10.00,
+                    'min_cart_total' => 0,
+                    'status' => true,
+                ]
+            );
+        }
+
         if (!$coupon) {
             $this->coupon_error = 'Geçersiz kupon kodu.';
             return;
@@ -845,10 +868,30 @@ class Checkout extends Component
             return;
         }
 
-        // Kupon geçerli — sakla, indirim render'da hesaplanacak
+        // Kupon geçerli — sakla ve indirim tutarını anında hesapla
         $this->applied_coupon = $coupon;
-        $this->coupon_message = 'Kupon kodu uygulandı! ' . ($coupon->type === 'percentage' ? '%' . intval($coupon->value) : number_format($coupon->value, 2) . ' ₺') . ' indirim kazandınız.';
+        $this->coupon_code = $coupon->code;
+        session(['applied_coupon_code' => $coupon->code]);
+
+        $cart = $cartService->getCart();
+        $totalItems = $cart ? $cart->items->sum('quantity') : 0;
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? (200 + (1 * $totalItems)) : (1 * $totalItems);
+        $totalBeforeDiscount = $subtotal + $shippingPrice;
+
+        if ($coupon->type === 'percentage') {
+            $this->coupon_discount = round($totalBeforeDiscount * ($coupon->value / 100), 2);
+        } else {
+            $this->coupon_discount = min((float) $coupon->value, (float) $totalBeforeDiscount);
+        }
+
+        $discountText = $coupon->type === 'percentage' ? '%' . intval($coupon->value) : number_format($coupon->value, 2) . ' ₺';
+        $this->coupon_message = 'Kupon kodu uygulandı! ' . $discountText . ' indirim kazandınız.';
         $this->coupon_error = '';
+
+        $this->dispatch('coupon-applied', [
+            'code' => $coupon->code,
+            'discount' => $this->coupon_discount,
+        ]);
     }
 
     public function removeCoupon()
@@ -858,6 +901,17 @@ class Checkout extends Component
         $this->coupon_code = '';
         $this->coupon_message = '';
         $this->coupon_error = '';
+        session()->forget('applied_coupon_code');
+        $this->dispatch('coupon-removed');
+    }
+
+    #[On('apply-coupon')]
+    public function applyCouponFromEvent(?string $code = null): void
+    {
+        if (!empty($code)) {
+            $this->coupon_code = strtoupper(trim((string) $code));
+        }
+        $this->applyCoupon();
     }
 
     public function removeCartItem(int $cartItemId, CartService $cartService): void

@@ -31,6 +31,8 @@ Route::post('/api/presence/heartbeat', [\App\Http\Controllers\Api\PresenceContro
     ->name('api.presence.heartbeat');
 Route::post('/api/presence/identify', [\App\Http\Controllers\Api\PresenceController::class, 'identify'])
     ->name('api.presence.identify');
+Route::get('/api/presence/visitor/{id}/journey-partial', [\App\Http\Controllers\Api\PresenceController::class, 'journeyPartial'])
+    ->name('api.presence.journey-partial');
 
 // ========================
 // STORAGE FILE SERVE (RoadRunner symlink desteği olmadığı için)
@@ -262,6 +264,63 @@ Route::any('/order/fail/{order_number?}', function () {
     return redirect()->route('checkout')->with('error', 'Ödeme işleminiz reddedildi veya iptal edildi. Lütfen tekrar deneyiniz.');
 })->name('order.fail');
 Route::get('/iletisim', App\Livewire\Frontend\Contact::class)->name('contact');
+
+// Kupon Uygulama & Oturum API (Modal ve Canlı Takipçi Desteği)
+Route::post('/api/coupon/apply', function (\Illuminate\Http\Request $request) {
+    $code = strtoupper(trim($request->input('code') ?? $request->input('coupon_code', '')));
+    if (empty($code)) {
+        return response()->json(['success' => false, 'message' => 'Lütfen bir kupon kodu giriniz.'], 422);
+    }
+
+    $coupon = \App\Models\Coupon::where('code', $code)->first();
+    if (!$coupon && $code === 'PATEN10') {
+        $coupon = \App\Models\Coupon::firstOrCreate(
+            ['code' => 'PATEN10'],
+            [
+                'type' => 'percentage',
+                'value' => 10.00,
+                'min_cart_total' => 0,
+                'status' => true,
+            ]
+        );
+    }
+
+    if (!$coupon) {
+        return response()->json(['success' => false, 'message' => 'Geçersiz kupon kodu.'], 404);
+    }
+
+    if (!$coupon->status) {
+        return response()->json(['success' => false, 'message' => 'Bu kupon kodu aktif değil.'], 400);
+    }
+
+    if ($coupon->expires_at && $coupon->expires_at->isPast()) {
+        return response()->json(['success' => false, 'message' => 'Bu kupon kodunun süresi dolmuş.'], 400);
+    }
+
+    if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
+        return response()->json(['success' => false, 'message' => 'Bu kupon kodunun kullanım limiti dolmuş.'], 400);
+    }
+
+    session(['applied_coupon_code' => $coupon->code]);
+
+    $discountText = $coupon->type === 'percentage' ? '%' . intval($coupon->value) : number_format($coupon->value, 2) . ' ₺';
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Kupon kodu uygulandı! ' . $discountText . ' indirim kazandınız.',
+        'coupon' => [
+            'code' => $coupon->code,
+            'type' => $coupon->type,
+            'value' => (float) $coupon->value,
+            'discount_text' => $discountText,
+        ],
+    ]);
+})->name('api.coupon.apply');
+
+Route::post('/api/coupon/remove', function () {
+    session()->forget('applied_coupon_code');
+    return response()->json(['success' => true, 'message' => 'Kupon kaldırıldı.']);
+})->name('api.coupon.remove');
 
 // PayTR Ödeme Rotaları
 Route::any('/payment/paytr/success', [\App\Http\Controllers\Payment\PaytrWebhookController::class, 'success'])->name('payment.paytr.success');

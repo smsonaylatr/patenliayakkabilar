@@ -39,6 +39,7 @@ class OrderSuccess extends Component
             }
             // Sadece bir kere boşaltması için session'ı temizle (isteğe bağlı)
             session()->forget('last_order_number');
+            session()->forget('applied_coupon_code');
         }
 
         // Her ürün için varsayılan 5 yıldız

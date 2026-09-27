@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/n8n/blog-publish',
             'api/porego/*',
             'api/presence/*',
+            'api/coupon/*',
             'api/telegram/webhook',
             'admin/logout',
             'logout',

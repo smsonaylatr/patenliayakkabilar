@@ -239,6 +239,39 @@
             flex-direction: column;
             height: 100%;
         }
+
+        /* Ziyaretçi Sinyal Tablosu Hızlı Komuta Kısayolları */
+        .visitor-shortcuts-panel {
+            background: #111827;
+            background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .visitor-shortcuts-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .visitor-shortcuts-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .visitor-shortcuts-actions .fi-ac {
+            gap: 10px;
+            flex-wrap: wrap;
+        }
     </style>
 
     <div wire:poll.5s class="space-y-4">
@@ -647,6 +680,31 @@
                 </div>
             </div>
         @endif
+
+        {{-- HIZLI KOMUTA & TOPLU AKSİYON KISAYOLLARI (ZİYARETÇİ SİNYAL TABLOSU ÜSTÜ) --}}
+        <div class="visitor-shortcuts-panel">
+            <div class="visitor-shortcuts-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255, 78, 0, 0.18); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                        ⚡
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em;">
+                            Hızlı Müdahale &amp; Toplu İşlem Kısayolları
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8;">
+                            Sitedeki tüm aktif ziyaretçilere anında toplu yönlendirme, kupon veya sesli anons gönderin
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: #64748b; font-family: monospace;">
+                    6 HIZLI KISAYOL AKTİF
+                </div>
+            </div>
+            <div class="visitor-shortcuts-actions">
+                <x-filament::actions :actions="$this->getCachedHeaderActions()" />
+            </div>
+        </div>
 
         {{-- 2. CANLI İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
         <div class="command-bar">
