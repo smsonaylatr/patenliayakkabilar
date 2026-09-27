@@ -1013,50 +1013,9 @@ class ActiveVisitors extends Page implements HasTable
                         ->color('gray')
                         ->icon('heroicon-o-arrow-right-on-rectangle'),
                 ])
-                ->form([
-                    Select::make('bulk_target')
-                        ->label('Hedef Sayfa veya Site Dışı Link')
-                        ->native(false)
-                        ->options(self::getTargetUrlOptions())
-                        ->default('/checkout')
-                        ->live(),
-
-                    TextInput::make('external_url')
-                        ->label('🌐 Site Dışı Harici Link / Web Adresi')
-                        ->placeholder('https://instagram.com/..., https://wa.me/... veya https://trendyol.com/...')
-                        ->helperText('💡 Tüm aktif ziyaretçiler doğrudan siteniz dışındaki bu adrese aktarılacaktır. https:// yazmasanız da otomatik eklenir.')
-                        ->visible(fn ($get) => $get('bulk_target') === 'custom_external')
-                        ->required(fn ($get) => $get('bulk_target') === 'custom_external'),
-
-                    TextInput::make('custom_url')
-                        ->label('🔗 Özel Site İçi Sayfa Linki')
-                        ->placeholder('/urun/ornek-paten veya /blog')
-                        ->helperText('Siteniz içerisindeki herhangi bir sayfa yolu.')
-                        ->visible(fn ($get) => $get('bulk_target') === 'custom')
-                        ->required(fn ($get) => $get('bulk_target') === 'custom'),
-
-                    Select::make('redirect_mode')
-                        ->label('Yönlendirme Şekli')
-                        ->native(false)
-                        ->options([
-                            'silent' => '⚡ Bildirim Göstermeden Doğrudan Yönlendir (Sessiz / Anında)',
-                            'notify' => '💬 Bilgilendirme Pop-up\'ı Göster (Geri Sayım & Mesaj ile)',
-                        ])
-                        ->default('silent')
-                        ->live()
-                        ->helperText('Bildirim göstermeden seçeneğinde kullanıcılara pop-up gösterilmez, doğrudan hedef adrese yönlendirilirler.'),
-
-                    TextInput::make('bulk_message')
-                        ->label('Kullanıcılara Gösterilecek Mesaj (Opsiyonel)')
-                        ->placeholder('Örn: Fırsat ürünlerimize aktarılıyorsunuz...')
-                        ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
-                ])
+                ->form(self::getRedirectFormSchema())
                 ->action(function (array $data, array $arguments, Action $action) {
-                    $target = match($data['bulk_target'] ?? 'custom') {
-                        'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
-                        'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
-                        default => self::normalizeUrl($data['bulk_target'] ?? '/checkout'),
-                    };
+                    $target = self::resolveRedirectUrl($data);
                     $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                     $showNotice = !$isSilent;
                     $shouldClose = (bool) ($arguments['close'] ?? false);
@@ -1065,15 +1024,15 @@ class ActiveVisitors extends Page implements HasTable
                     foreach ($visitors as $v) {
                         $v->queueRedirect(
                             $target,
-                            $showNotice ? ($data['bulk_message'] ?? null) : null,
-                            $showNotice ? 3 : 0,
+                            $showNotice ? ($data['redirect_message'] ?? null) : null,
+                            $showNotice ? (int) ($data['countdown'] ?? 3) : 0,
                             $showNotice
                         );
                     }
 
                     Notification::make()
                         ->title('Toplu Yönlendirme Başlatıldı')
-                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
+                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' hedefine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
                         ->success()
                         ->send();
 
