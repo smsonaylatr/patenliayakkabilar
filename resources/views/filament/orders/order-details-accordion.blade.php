@@ -26,6 +26,7 @@ td.fi-ta-actions-cell {
     font-family: inherit;
     width: 100% !important;
     max-width: 100% !important;
+    overflow-x: hidden !important;
     box-sizing: border-box !important;
     transition: all 0.2s ease;
 }
@@ -41,6 +42,9 @@ td.fi-ta-actions-cell {
     flex-direction: column;
     gap: 10px;
     width: 100%;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .detail-title {
@@ -63,15 +67,19 @@ td.fi-ta-actions-cell {
 }
 
 .detail-meta {
-    display: flex;
-    flex-direction: column;
+    display: grid !important;
+    grid-template-columns: 1fr;
     gap: 20px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 880px) {
     .detail-meta {
-        flex-direction: row;
-        gap: 40px;
+        grid-template-columns: 240px 185px minmax(0, 1fr) !important;
+        gap: 24px;
+        align-items: start;
     }
 }
 
@@ -301,18 +309,21 @@ td.fi-ta-actions-cell {
 .traffic-card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px 14px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(226, 232, 240, 0.95);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    gap: 9px;
+    padding: 13px 15px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .dark .traffic-card {
-    background: rgba(30, 41, 59, 0.55);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: none;
+    background: #141e30;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .traffic-badges-row {
@@ -326,10 +337,11 @@ td.fi-ta-actions-cell {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
+    padding: 5px 11px;
     border-radius: 8px;
-    font-size: 0.83rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
     line-height: 1.25;
 }
 
@@ -339,53 +351,221 @@ td.fi-ta-actions-cell {
     gap: 5px;
     padding: 4px 10px;
     border-radius: 7px;
-    font-size: 0.77rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    background: #e2e8f0;
-    color: #334155;
+    background: #f1f5f9;
+    color: #475569;
     border: 1px solid #cbd5e1;
 }
 
 .dark .traffic-device-pill {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f1f5f9;
-    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .traffic-explanation {
-    font-size: 0.78rem;
-    line-height: 1.4;
+    font-size: 0.77rem;
+    line-height: 1.45;
     color: #475569;
 }
 
 .dark .traffic-explanation {
-    color: #cbd5e1;
+    color: #94a3b8;
 }
 
 .traffic-campaign-box {
-    padding: 7px 10px;
-    background: rgba(241, 245, 249, 0.6);
-    border-radius: 7px;
+    padding: 7px 11px;
+    background: #f8fafc;
+    border-radius: 8px;
     border: 1px dashed #cbd5e1;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     line-height: 1.45;
 }
 
 .dark .traffic-campaign-box {
-    background: rgba(15, 23, 42, 0.55);
-    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
+/* GCLID Chip */
+.traffic-gclid-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(37, 99, 235, 0.07);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 7px;
+    padding: 3px 9px;
+    font-size: 0.73rem;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.dark .traffic-gclid-chip {
+    background: rgba(37, 99, 235, 0.14);
+    border-color: rgba(59, 130, 246, 0.28);
+}
+
+/* GELDIĞI KAYNAK LINKI (PREMIUM URL CARD) */
+.traffic-url-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 8px 11px;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dark .traffic-url-card {
+    background: rgba(11, 17, 32, 0.85);
+    border-color: rgba(255, 255, 255, 0.09);
+}
+
+.traffic-url-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.traffic-url-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+
+.dark .traffic-url-title {
+    color: #94a3b8;
+}
+
+.traffic-url-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.traffic-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.71rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .traffic-action-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f1f5f9;
+    box-shadow: none;
+}
+
+.traffic-action-btn:hover {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #3b82f6;
+}
+
+.dark .traffic-action-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #60a5fa;
+}
+
+.traffic-action-btn.is-copied {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    color: #10b981 !important;
+}
+
+.dark .traffic-action-btn.is-copied {
+    color: #34d399 !important;
+}
+
+.traffic-action-btn.open-link {
+    color: #64748b;
+}
+
+.dark .traffic-action-btn.open-link {
+    color: #cbd5e1;
+}
+
+.traffic-url-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 9px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.dark .traffic-url-box {
+    background: #070b14;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.traffic-url-box:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+}
+
+.traffic-url-text {
+    flex: 1;
+    min-width: 0 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-all;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    color: #2563eb;
+    text-decoration: none;
+    line-height: 1.3;
+}
+
+.dark .traffic-url-text {
+    color: #38bdf8;
+}
+
+/* Alt Ağ & Referrer Satırı */
 .traffic-network-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    font-size: 0.73rem;
+    font-size: 0.72rem;
     color: #64748b;
     border-top: 1px solid rgba(226, 232, 240, 0.7);
-    padding-top: 6px;
+    padding-top: 7px;
     margin-top: 2px;
+    min-width: 0;
 }
 
 .dark .traffic-network-row {
@@ -513,106 +693,6 @@ td.fi-ta-actions-cell {
     background: rgba(148, 163, 184, 0.15);
     color: #cbd5e1;
     border-color: rgba(148, 163, 184, 0.25);
-}
-
-/* Geldiği Kaynak Linki Stilleri */
-.traffic-link-section {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 4px;
-}
-
-.traffic-link-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.traffic-link-title {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.dark .traffic-link-title {
-    color: #94a3b8;
-}
-
-.traffic-link-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 7px 10px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.74rem;
-    color: #1e293b;
-    transition: all 0.15s ease;
-}
-
-.dark .traffic-link-box {
-    background: rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.12);
-    color: #e2e8f0;
-}
-
-.traffic-link-text {
-    flex: 1;
-    word-break: break-all;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: inherit;
-    text-decoration: none;
-}
-
-.traffic-link-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.traffic-btn-mini {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 5px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    color: #ff4e00;
-    transition: all 0.15s ease;
-    text-decoration: none;
-}
-
-.traffic-btn-mini:hover {
-    background: rgba(255, 78, 0, 0.12);
-}
-
-.traffic-btn-mini.gray {
-    color: #64748b;
-}
-
-.dark .traffic-btn-mini.gray {
-    color: #94a3b8;
-}
-
-.traffic-btn-mini.gray:hover {
-    background: rgba(255, 255, 255, 0.08);
 }
 </style>
 
@@ -895,7 +975,7 @@ td.fi-ta-actions-cell {
     </div>
 
     <!-- Sipariş Kaynağı & Pazarlama -->
-    <div class="detail-section" style="flex:1">
+    <div class="detail-section">
       <div class="detail-title">Sipariş Kaynağı & Cihaz</div>
       @php
           $src = $order->traffic_source ?: 'Doğrudan';
@@ -1034,17 +1114,29 @@ td.fi-ta-actions-cell {
 
         <!-- GCLID (Google Ads Tıklama Kimliği) -->
         @if($order->gclid)
-          <div style="display: flex; align-items: center; gap: 6px; font-size: 0.74rem;">
-            <strong style="color: #64748b;">GCLID:</strong>
-            <span 
-              x-data="{ copied: false }" 
-              @click.stop="navigator.clipboard.writeText('{{ e($order->gclid) }}'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'GCLID Kopyalandı!')"
-              style="font-family: monospace; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
-              title="Kopyalamak için tıklayın"
-            >
-              {{ \Illuminate\Support\Str::limit($order->gclid, 16, '...') }}
-              <svg style="width:12px; height:12px; opacity:0.7;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          <div class="traffic-gclid-chip" x-data="{ gclidCopied: false }">
+            <span style="font-weight: 800; color: #2563eb; display: inline-flex; align-items: center; gap: 4px;">
+              <span>🔑</span> GCLID:
             </span>
+            <span 
+              style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.73rem; color: #475569;" 
+              title="{{ $order->gclid }}"
+            >
+              {{ \Illuminate\Support\Str::limit($order->gclid, 26, '...') }}
+            </span>
+            <button 
+              type="button" 
+              @click.stop="navigator.clipboard.writeText('{{ e($order->gclid) }}'); gclidCopied = true; setTimeout(() => gclidCopied = false, 1600); $dispatch('copy-toast', 'GCLID Kopyalandı!')"
+              style="background: transparent; border: none; cursor: pointer; padding: 2px 4px; display: inline-flex; align-items: center; color: #3b82f6; border-radius: 4px;"
+              title="GCLID'yi Kopyala"
+            >
+              <template x-if="!gclidCopied">
+                <svg style="width:12px; height:12px; opacity:0.8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </template>
+              <template x-if="gclidCopied">
+                <svg style="width:12px; height:12px; color:#10b981;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              </template>
+            </button>
           </div>
         @endif
 
@@ -1052,50 +1144,65 @@ td.fi-ta-actions-cell {
         @php
             $sourceUrl = $order->source_url;
         @endphp
-        <div class="traffic-link-section">
-          <div class="traffic-link-head">
-            <span class="traffic-link-title">
-              <span>🔗</span> Geldiği Kaynak Linki:
+        <div class="traffic-url-card" x-data="{ linkCopied: false }">
+          <div class="traffic-url-head">
+            <span class="traffic-url-title">
+              <svg style="width:13px; height:13px; color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+              <span>GELDİĞİ KAYNAK LİNKİ:</span>
             </span>
-            <div class="traffic-link-actions">
+            <div class="traffic-url-actions">
               <button 
                 type="button"
-                @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
-                class="traffic-btn-mini"
+                @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
+                class="traffic-action-btn"
+                :class="{ 'is-copied': linkCopied }"
                 title="Kaynak Linkini Panoya Kopyala"
               >
-                <svg style="width:13px; height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <span>Kopyala</span>
+                <template x-if="!linkCopied">
+                  <span style="display:inline-flex; align-items:center; gap:3px;">
+                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span>Kopyala</span>
+                  </span>
+                </template>
+                <template x-if="linkCopied">
+                  <span style="display:inline-flex; align-items:center; gap:3px;">
+                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span>Kopyalandı!</span>
+                  </span>
+                </template>
               </button>
               <a 
                 href="{{ $sourceUrl }}" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="traffic-btn-mini gray"
+                class="traffic-action-btn open-link"
                 title="Linki Yeni Sekmede Aç"
               >
-                <svg style="width:13px; height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 <span>Aç</span>
               </a>
             </div>
           </div>
-          <div class="traffic-link-box">
-            <a 
-              href="{{ $sourceUrl }}" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="traffic-link-text"
-              title="{{ $sourceUrl }}"
-            >
-              {{ $sourceUrl }}
-            </a>
+          <div 
+            class="traffic-url-box"
+            @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
+            title="Tıklayarak Linki Kopyala: {{ $sourceUrl }}"
+          >
+            <span class="traffic-url-text">{{ $sourceUrl }}</span>
           </div>
         </div>
 
         <!-- Ağ & Referrer (IP ve Yönlendiren) -->
         <div class="traffic-network-row">
           @if($order->ip_address)
-            <span title="Müşteri IP Adresi">🌐 IP: <strong>{{ $order->ip_address }}</strong></span>
+            <span 
+              x-data="{ ipCopied: false }"
+              @click.stop="navigator.clipboard.writeText('{{ e($order->ip_address) }}'); ipCopied = true; setTimeout(() => ipCopied = false, 1500); $dispatch('copy-toast', 'IP Kopyalandı!')"
+              title="Tıklayarak IP'yi Kopyala"
+              style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+            >
+              🌐 IP: <strong>{{ $order->ip_address }}</strong>
+            </span>
           @endif
           @if($order->referrer)
             @php

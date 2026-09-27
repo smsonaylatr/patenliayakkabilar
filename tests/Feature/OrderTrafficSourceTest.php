@@ -135,4 +135,41 @@ class OrderTrafficSourceTest extends TestCase
             ->assertSuccessful()
             ->assertTableActionExists('trackingLinks');
     }
+
+    public function test_order_details_accordion_renders_traffic_source_card_and_link_cleanly(): void
+    {
+        $order = Order::create([
+            'order_number' => 'TR' . rand(100000, 999999),
+            'status' => 'pending',
+            'payment_status' => 'paid',
+            'payment_method' => 'credit_card',
+            'traffic_source' => 'Google Ads',
+            'device_type' => 'Mobil',
+            'utm_source' => 'google',
+            'utm_medium' => 'cpc',
+            'utm_campaign' => 'sonbahar_indirimi',
+            'gclid' => 'Cj0KCQjwlNPVBHCMARIsAPZ5RqIC_test',
+            'landing_url' => 'https://patenliayakkabilar.com/?gclid=Cj0KCQjwlNPVBHCMARIsAPZ5RqIC_test',
+            'ip_address' => '172.69.250.184',
+            'subtotal' => 1999,
+            'shipping_price' => 0,
+            'grand_total' => 1999,
+            'customer_name' => 'Selçuk Yılmaz',
+            'customer_email' => 'selcuk@example.com',
+            'customer_phone' => '05413247585',
+        ]);
+
+        $view = view('filament.orders.order-details-accordion', [
+            'getRecord' => fn () => $order,
+        ])->render();
+
+        $this->assertStringContainsString('Google Ads Reklamı', $view);
+        $this->assertStringContainsString('GELDİĞİ KAYNAK LİNKİ:', $view);
+        $this->assertStringContainsString('gclid=Cj0KCQjwlNPVBHCMARIsAPZ5RqIC_test', $view);
+        $this->assertStringContainsString('172.69.250.184', $view);
+        $this->assertStringContainsString('traffic-url-box', $view);
+        $this->assertStringContainsString('traffic-action-btn', $view);
+
+        $order->delete();
+    }
 }
