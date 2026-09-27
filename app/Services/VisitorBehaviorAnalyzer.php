@@ -98,9 +98,18 @@ class VisitorBehaviorAnalyzer
 
         // Durum A: Sepette Ürün Var ve Ödeme (Checkout) Sayfasında
         if ($cartItemsCount > 0 && str_contains($newPath, 'checkout')) {
-            $intentScore = 88;
-            $intentLevel = 'hesitating';
-            $insight = "Ödeme adımında bekliyor! Sepetinde {$cartItemsCount} ürün (" . number_format($cartTotal, 2) . " ₺) var. Kargo ücreti veya ödeme bariyeri olabilir.";
+            $hasInfo = !empty($visitor->guest_name) || !empty($visitor->guest_phone) || !empty($visitor->guest_email);
+            $intentScore = $hasInfo ? 95 : 88;
+            $intentLevel = $hasInfo ? 'hot' : 'hesitating';
+
+            $displayName = $visitor->display_name;
+            if ($hasInfo) {
+                $contactNote = !empty($visitor->guest_phone) ? " (Tel: {$visitor->guest_phone})" : '';
+                $insight = "🔥 {$displayName} ödeme formunda bilgilerini dolduruyor!{$contactNote} Sepetinde {$cartItemsCount} ürün (" . number_format($cartTotal, 2) . " ₺) bekliyor.";
+            } else {
+                $insight = "Ödeme adımında bekliyor! Sepetinde {$cartItemsCount} ürün (" . number_format($cartTotal, 2) . " ₺) var. Kargo ücreti veya ödeme bariyeri olabilir.";
+            }
+
             $strategy = [
                 'key' => 'checkout_coupon',
                 'title' => '%10 Sepet İndirim Kuponu',

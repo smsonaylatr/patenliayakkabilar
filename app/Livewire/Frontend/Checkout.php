@@ -162,21 +162,53 @@ class Checkout extends Component
         if (array_key_exists($propertyName, $map)) {
             session([$map[$propertyName] => $this->$propertyName]);
             
-            // Sepeti Terk Edenler için iletişim bilgilerini Cart'a kaydet (Misafir kullanıcılar için)
+            // Sepeti Terk Edenler ve Canlı Ziyaretçi Kimliği için güncelle
             if (in_array($propertyName, ['customer_name', 'customer_email', 'customer_phone'])) {
-                $cartService = app(\App\Services\CartService::class);
-                $cart = $cartService->getCart();
-                if ($cart && !$cart->user_id) {
-                    $columnMap = [
-                        'customer_name' => 'guest_name',
-                        'customer_email' => 'guest_email',
-                        'customer_phone' => 'guest_phone',
-                    ];
-                    $cart->update([
-                        $columnMap[$propertyName] => $this->$propertyName
-                    ]);
-                }
+                $this->syncCustomerIdentity();
             }
+        }
+    }
+
+    /**
+     * Checkout'ta girilen ad, e-posta ve telefon bilgilerini anlık olarak
+     * sepete (Cart) ve Canlı Ziyaretçi Radarına (ActiveVisitor) senkronize eder.
+     * Numara veya mail girildiğinde müşteri tanımlaması yapar.
+     */
+    protected function syncCustomerIdentity(): void
+    {
+        $cartService = app(\App\Services\CartService::class);
+        $cart = $cartService->getCart();
+
+        if ($cart && !$cart->user_id) {
+            $cartUpdates = [];
+            if (!empty($this->customer_name)) $cartUpdates['guest_name'] = $this->customer_name;
+            if (!empty($this->customer_email)) $cartUpdates['guest_email'] = $this->customer_email;
+            if (!empty($this->customer_phone)) $cartUpdates['guest_phone'] = $this->customer_phone;
+            if (!empty($cartUpdates)) {
+                $cart->update($cartUpdates);
+            }
+        }
+
+        // Canlı Ziyaretçi (ActiveVisitor) Senkronizasyonu
+        try {
+            $visitor = null;
+            if (session()->getId()) {
+                $visitor = \App\Models\ActiveVisitor::where('session_id', session()->getId())->latest('last_heartbeat_at')->first();
+            }
+            if (!$visitor) {
+                $visitor = \App\Models\ActiveVisitor::where('ip_address', request()->ip())->latest('last_heartbeat_at')->first();
+            }
+
+            if ($visitor) {
+                app(\App\Http\Controllers\Api\PresenceController::class)->processIdentity(
+                    $visitor,
+                    $this->customer_name,
+                    $this->customer_email,
+                    $this->customer_phone
+                );
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Checkout identity sync error: ' . $e->getMessage());
         }
     }
 

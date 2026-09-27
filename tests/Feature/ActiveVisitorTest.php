@@ -253,6 +253,110 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('Renk: Beyaz, Mavi', $view);
         $this->assertStringContainsString('Ana Sayfa', $view);
     }
+
+    public function test_active_visitors_table_partial_renders_strategy_and_actions_underneath_log(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_table_layout_test',
+            'ip_address' => '184.23.188.224',
+            'device_type' => 'desktop',
+            'browser' => 'Chrome',
+            'first_seen_at' => now()->subMinutes(15),
+            'last_heartbeat_at' => now(),
+            'current_url' => 'https://patenliayakkabilar.com/patenli-ayakkabilar',
+            'current_path' => '/patenli-ayakkabilar',
+            'current_title' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+            'intent_score' => 65,
+            'intent_level' => 'hesitating',
+            'behavior_insight' => 'Beden tablosunu inceledi, tereddüt aşamasında.',
+            'cart_items_count' => 0,
+            'cart_total' => 0,
+            'recommended_strategy' => [
+                'title' => 'Hızlı Kargo & Güven Bildirimi',
+                'action_type' => 'offer',
+                'suggested_message' => 'Saat 16:00ya kadar sipariş verin bugün kargoda!',
+                'suggested_coupon' => 'CANLI10',
+            ],
+        ]);
+
+        $page = new \App\Filament\Pages\ActiveVisitors();
+        $table = $page->table(new \Filament\Tables\Table($page));
+
+        $this->assertNotEmpty($visitor->recommended_strategy);
+        $this->assertEquals('Hızlı Kargo & Güven Bildirimi', $visitor->recommended_strategy['title']);
+
+        $view = view('filament.pages.partials.active-visitors-table', [
+            'records' => collect([$visitor]),
+            'table' => $table,
+        ])->render();
+
+        // 1. Ziyaretçi bilgileri üst kısımda olmalı
+        $this->assertStringContainsString('184.23.188.224', $view);
+        $this->assertStringContainsString('Chrome', $view);
+        $this->assertStringContainsString('TEREDDÜTTE', $view);
+        $this->assertStringContainsString('Beden tablosunu inceledi', $view);
+
+        // 2. Alt satırda (visitor-log-footer) strateji yer almalı
+        $this->assertStringContainsString('visitor-log-footer', $view);
+        $this->assertStringContainsString('Önerilen Strateji:', $view);
+        $this->assertStringContainsString('Hızlı Kargo', $view);
+        $this->assertStringContainsString('CANLI10', $view);
+
+        // 3. Alt satırda hızlı aksiyon butonları yer almalı
+        $this->assertStringContainsString('Strateji Uygula', $view);
+        $this->assertStringContainsString('Yönlendir', $view);
+        $this->assertStringContainsString('İncele', $view);
+    }
+
+    public function test_visitor_identity_updated_live_when_typing_name_and_contact(): void
+    {
+        $token = 'pa_vt_live_typing_' . uniqid();
+        
+        // 1. İsim yazıldığında anında misafir adı güncellenmeli
+        $response1 = $this->postJson('/api/presence/identify', [
+            'visitor_token' => $token,
+            'guest_name' => 'Elif Demir',
+        ]);
+
+        $response1->assertOk();
+        $response1->assertJson([
+            'status' => 'ok',
+            'display_name' => 'Elif Demir',
+            'is_identified' => false,
+        ]);
+
+        $visitor = ActiveVisitor::where('visitor_token', $token)->first();
+        $this->assertNotNull($visitor);
+        $this->assertEquals('Elif Demir', $visitor->guest_name);
+        $this->assertEquals('Elif Demir', $visitor->display_name);
+
+        // 2. Numara ve e-posta girildiğinde müşteri tanımlanmalı
+        $testEmail = 'elif_' . uniqid() . '@example.com';
+        $response2 = $this->postJson('/api/presence/identify', [
+            'visitor_token' => $token,
+            'guest_name' => 'Elif Demir',
+            'guest_email' => $testEmail,
+            'guest_phone' => '05321234567',
+        ]);
+
+        $response2->assertOk();
+        $response2->assertJson([
+            'status' => 'ok',
+            'display_name' => 'Elif Demir',
+            'is_identified' => true,
+        ]);
+
+        $visitor->refresh();
+        $this->assertTrue((bool)$visitor->is_identified);
+        $this->assertNotNull($visitor->user_id);
+        $this->assertEquals($testEmail, $visitor->user->email);
+
+        // Temizlik
+        if ($visitor->user) {
+            $visitor->user->delete();
+        }
+        $visitor->delete();
+    }
 }
 
 

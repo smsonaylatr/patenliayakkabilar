@@ -102,8 +102,10 @@ class ActiveVisitors extends Page implements HasTable
             $cartCount = (clone $onlineQuery)->where('cart_items_count', '>', 0)->count();
             $cartTotal = (clone $onlineQuery)->sum('cart_total');
             $hesitatingCount = (clone $onlineQuery)->where('intent_level', 'hesitating')->count();
-            $membersCount = (clone $onlineQuery)->whereNotNull('user_id')->count();
-            $guestsCount = $onlineCount - $membersCount;
+            $membersCount = (clone $onlineQuery)->where(function ($q) {
+                $q->whereNotNull('user_id')->orWhere('is_identified', true);
+            })->count();
+            $guestsCount = max(0, $onlineCount - $membersCount);
 
             return [
                 'onlineCount' => $onlineCount,
@@ -141,7 +143,7 @@ class ActiveVisitors extends Page implements HasTable
                 // 1. Ziyaretçi Kimliği & Canlı Sinyal
                 TextColumn::make('visitor_identity')
                     ->label('Ziyaretçi & Sinyal')
-                    ->searchable(['ip_address', 'user.name', 'user.email'])
+                    ->searchable(['ip_address', 'guest_name', 'guest_email', 'guest_phone', 'user.name', 'user.email'])
                     ->getStateUsing(function (ActiveVisitor $record) {
                         $isOnline = $record->is_currently_online;
                         $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
@@ -151,30 +153,51 @@ class ActiveVisitors extends Page implements HasTable
                             default => '💻',
                         };
 
-                        $name = $record->user_id && $record->user ? e($record->user->name) : $record->display_name;
-                        $isMember = $record->user_id && $record->user;
+                        $name = $record->user_id && $record->user ? e($record->user->name) : e($record->display_name);
+                        $isMember = ($record->user_id && $record->user) || $record->is_identified;
+                        $hasCustomName = !empty($record->guest_name);
                         $initial = mb_substr($name, 0, 1);
                         $duration = $record->duration_formatted;
                         $pageCount = $record->page_views_count ?: 1;
+
+                        $phone = $record->user?->phone ?? $record->guest_phone;
+                        $email = $record->user?->email ?? $record->guest_email;
 
                         $onlineBadge = $isOnline
                             ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);"><span class="live-radar-dot" style="width:7px;height:7px;"></span> CANLI</span>'
                             : '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">AYRILDI (' . $diff . ')</span>';
 
+                        $badgeHtml = '';
+                        if ($isMember) {
+                            $badgeHtml = '<span style="background:rgba(16,185,129,0.25);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MÜŞTERİ</span>';
+                        } elseif ($hasCustomName) {
+                            $badgeHtml = '<span style="background:rgba(56,189,248,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MİSAFİR</span>';
+                        }
+
+                        $contactHtml = '';
+                        if ($phone || $email) {
+                            $contactHtml = '<div style="font-size:11px;color:#38bdf8;font-weight:700;display:flex;align-items:center;gap:5px;margin-top:2px;">'
+                                . ($phone ? '<span>📱 ' . e($phone) . '</span>' : '')
+                                . ($phone && $email ? '<span>•</span>' : '')
+                                . ($email ? '<span style="color:#94a3b8;">✉️ ' . e($email) . '</span>' : '')
+                                . '</div>';
+                        }
+
                         return new HtmlString('
-                            <div style="display:flex;align-items:flex-start;gap:12px;min-width:210px;">
+                            <div style="display:flex;align-items:flex-start;gap:12px;min-width:220px;">
                                 <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff4e00,#b45309);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(255,78,0,0.35);">
                                     ' . $initial . '
                                 </div>
                                 <div style="flex:1;">
-                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
                                         <span style="font-weight:800;color:#f8fafc;font-size:13px;">' . $name . '</span>
-                                        ' . ($isMember ? '<span style="background:rgba(255,78,0,0.25);color:#ff7849;border:1px solid rgba(255,78,0,0.4);padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;">ÜYE</span>' : '') . '
+                                        ' . $badgeHtml . '
                                     </div>
                                     <div style="margin-bottom:4px;">
                                         ' . $onlineBadge . '
                                     </div>
-                                    <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;">
+                                    ' . $contactHtml . '
+                                    <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;margin-top:2px;">
                                         <span>' . $deviceIcon . ' ' . e($record->browser ?? 'Tarayıcı') . '</span>
                                         <span>•</span>
                                         <span style="font-family:monospace;color:#64748b;">' . e($record->ip_address) . '</span>
@@ -378,7 +401,7 @@ class ActiveVisitors extends Page implements HasTable
                         'high_intent' => '🔥 Sıcak Adaylar (Niyet >= 60)',
                         'hesitating' => '⚡ Tereddütte Olanlar',
                         'with_cart' => '🛒 Sepetinde Ürün Olanlar',
-                        'members' => '👤 Kayıtlı Üyeler',
+                        'members' => '👤 Kayıtlı Üyeler / Müşteriler',
                     ])
                     ->query(function (Builder $query, array $data) {
                         $val = $data['value'] ?? null;
@@ -389,7 +412,9 @@ class ActiveVisitors extends Page implements HasTable
                         } elseif ($val === 'with_cart') {
                             $query->where('cart_items_count', '>', 0);
                         } elseif ($val === 'members') {
-                            $query->whereNotNull('user_id');
+                            $query->where(function ($q) {
+                                $q->whereNotNull('user_id')->orWhere('is_identified', true);
+                            });
                         }
                     }),
             ])

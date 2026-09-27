@@ -4,7 +4,16 @@
         <div>
             <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Ziyaretçi Kimliği</div>
             <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-top: 2px;">{{ $record->display_name }}</div>
-            <div style="font-size: 11px; color: #64748b; font-family: monospace;">{{ $record->ip_address }}</div>
+            @php
+                $phone = $record->user?->phone ?? $record->guest_phone;
+                $email = $record->user?->email ?? $record->guest_email;
+            @endphp
+            @if($phone || $email)
+                <div style="font-size: 11px; color: #38bdf8; font-weight: 700; margin-top: 3px;">
+                    {{ $phone ? '📱 ' . $phone : '' }} {{ $phone && $email ? '• ' : '' }} {{ $email ? '✉️ ' . $email : '' }}
+                </div>
+            @endif
+            <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 2px;">{{ $record->ip_address }}</div>
         </div>
         <div>
             <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Satın Alma Niyeti</div>
