@@ -37,6 +37,23 @@ class ActiveVisitors extends Page implements HasTable
 
     public string $activeCardFilter = 'all';
 
+    public string $viewMode = 'list';
+
+    public function mount(): void
+    {
+        $saved = request()->cookie('av_view_mode', session('av_view_mode', 'list'));
+        $this->viewMode = in_array($saved, ['list', 'grid']) ? $saved : 'list';
+    }
+
+    public function setViewMode(string $mode): void
+    {
+        if (in_array($mode, ['list', 'grid'])) {
+            $this->viewMode = $mode;
+            session(['av_view_mode' => $mode]);
+            \Illuminate\Support\Facades\Cookie::queue('av_view_mode', $mode, 60 * 24 * 365);
+        }
+    }
+
     public function setTrafficPeriod(string $period): void
     {
         if (in_array($period, ['daily', 'weekly', 'monthly'])) {
@@ -549,7 +566,10 @@ class ActiveVisitors extends Page implements HasTable
                         return new HtmlString('<span style="color:#64748b;font-size:11px;">Sepet Boş</span>');
                     }),
             ])
-            ->content(fn (Table $table) => view('filament.pages.partials.active-visitors-table', ['table' => $table]))
+            ->content(fn (Table $table) => view('filament.pages.partials.active-visitors-table', [
+                'table' => $table,
+                'viewMode' => $this->viewMode,
+            ]))
             ->filters([
                 SelectFilter::make('intent_filter')
                     ->label('Filtrele & Durum')

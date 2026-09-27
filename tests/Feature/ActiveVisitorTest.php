@@ -1276,6 +1276,131 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals('📍', $interactions[5]['icon']);
         $this->assertEquals('mahalle: "bostanlı mah." seçti', $interactions[5]['text']);
     }
+
+    public function test_force_redirect_action_has_both_buttons_and_correct_halt_behavior(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_redirect_btn_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $page = new \App\Filament\Pages\ActiveVisitors();
+        $table = $page->table(new \Filament\Tables\Table($page));
+        $action = $table->getAction('force_redirect');
+        $this->assertNotNull($action);
+        $action->livewire($page)->record($visitor);
+
+        // 1. Buton etiketlerini doğrula
+        $this->assertEquals('Şimdi Yönlendir', $action->getModalSubmitActionLabel());
+        $footerActions = $action->getExtraModalFooterActions();
+        $this->assertCount(1, $footerActions);
+        $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['force_redirect_and_close']->getLabel());
+
+        // 2. 'Şimdi Yönlendir' tıklandığında (close => false) pop-up kapanmamalı (Halt fırlatmalı)
+        $halted = false;
+        try {
+            $action->call([
+                'record' => $visitor,
+                'data' => [
+                    'quick_target' => '/checkout',
+                    'redirect_mode' => 'silent',
+                ],
+                'arguments' => ['close' => false],
+                'action' => $action,
+            ]);
+        } catch (\Filament\Support\Exceptions\Halt $e) {
+            $halted = true;
+        }
+
+        $this->assertTrue($halted, "'Şimdi Yönlendir' butonu tıklandığında pop-up kapanmamalı (Halt fırlatılmalı).");
+        $visitor->refresh();
+        $this->assertNotNull($visitor->pending_command);
+        $this->assertEquals('/checkout', $visitor->pending_command['target_url']);
+
+        // 3. 'Şimdi Yönlendir ve Çık' tıklandığında (close => true) işlem tamamlanıp pop-up kapanmalı (Halt fırlatılmamalı)
+        $haltedOnClose = false;
+        try {
+            $action->call([
+                'record' => $visitor,
+                'data' => [
+                    'quick_target' => '/patenli-ayakkabilar',
+                    'redirect_mode' => 'silent',
+                ],
+                'arguments' => ['close' => true],
+                'action' => $action,
+            ]);
+        } catch (\Filament\Support\Exceptions\Halt $e) {
+            $haltedOnClose = true;
+        }
+
+        $this->assertFalse($haltedOnClose, "'Şimdi Yönlendir ve Çık' butonu tıklandığında pop-up kapanmalı (Halt fırlatılmamalı).");
+        $visitor->refresh();
+        $this->assertEquals('/patenli-ayakkabilar', $visitor->pending_command['target_url']);
+    }
+
+    public function test_bulk_redirect_action_has_both_buttons_and_correct_halt_behavior(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_bulk_btn_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $page = new \App\Filament\Pages\ActiveVisitors();
+        $reflection = new \ReflectionMethod($page, 'getHeaderActions');
+        $reflection->setAccessible(true);
+        $headerActions = $reflection->invoke($page);
+        $bulkAction = $headerActions[0];
+        $this->assertNotNull($bulkAction);
+        $bulkAction->livewire($page);
+
+        // 1. Buton etiketlerini doğrula
+        $this->assertEquals('Şimdi Yönlendir', $bulkAction->getModalSubmitActionLabel());
+        $footerActions = $bulkAction->getExtraModalFooterActions();
+        $this->assertCount(1, $footerActions);
+        $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['bulk_redirect_and_close']->getLabel());
+
+        // 2. 'Şimdi Yönlendir' tıklandığında pop-up açık kalmalı (Halt)
+        $halted = false;
+        try {
+            $bulkAction->call([
+                'data' => [
+                    'bulk_target' => '/checkout',
+                    'redirect_mode' => 'silent',
+                ],
+                'arguments' => ['close' => false],
+                'action' => $bulkAction,
+            ]);
+        } catch (\Filament\Support\Exceptions\Halt $e) {
+            $halted = true;
+        }
+
+        $this->assertTrue($halted, "Toplu yönlendirmede 'Şimdi Yönlendir' pop-up'ı açık tutmalıdır.");
+
+        // 3. 'Şimdi Yönlendir ve Çık' tıklandığında pop-up kapanmalı (normal tamamlanmalı)
+        $haltedOnClose = false;
+        try {
+            $bulkAction->call([
+                'data' => [
+                    'bulk_target' => '/checkout',
+                    'redirect_mode' => 'silent',
+                ],
+                'arguments' => ['close' => true],
+                'action' => $bulkAction,
+            ]);
+        } catch (\Filament\Support\Exceptions\Halt $e) {
+            $haltedOnClose = true;
+        }
+
+        $this->assertFalse($haltedOnClose, "Toplu yönlendirmede 'Şimdi Yönlendir ve Çık' pop-up'ı kapatmalıdır.");
+    }
 }
 
 
