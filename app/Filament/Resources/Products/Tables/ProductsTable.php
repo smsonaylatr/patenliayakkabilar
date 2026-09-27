@@ -138,6 +138,17 @@ class ProductsTable
                     }),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('trackingLinks')
+                    ->label('Instagram Linki')
+                    ->icon('heroicon-o-share')
+                    ->color('pink')
+                    ->tooltip('Instagram Linki')
+                    ->iconButton()
+                    ->modalHeading(fn (Product $record) => $record->name . ' — Takip Linkleri')
+                    ->modalWidth('lg')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Kapat')
+                    ->modalContent(fn (Product $record) => view('filament.products.product-tracking-links-modal', ['record' => $record])),
                 \Filament\Actions\Action::make('duplicate')
                     ->label('Çoğalt')
                     ->icon('heroicon-o-document-duplicate')
@@ -152,15 +163,6 @@ class ProductsTable
                             ->success()
                             ->send();
                     }),
-                \Filament\Actions\Action::make('trackingLinks')
-                    ->label('Instagram Linki')
-                    ->icon('heroicon-o-share')
-                    ->color('pink')
-                    ->modalHeading(fn (Product $record) => $record->name . ' — Takip Linkleri')
-                    ->modalWidth('lg')
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Kapat')
-                    ->modalContent(fn (Product $record) => view('filament.products.product-tracking-links-modal', ['record' => $record])),
                 EditAction::make(),
                 \Filament\Actions\DeleteAction::make(),
             ])

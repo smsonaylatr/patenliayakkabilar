@@ -550,6 +550,75 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('1,799.00 ₺', $view);
         $this->assertStringContainsString('Sekmeye geri dönüldü', $view);
     }
+
+    public function test_voice_message_command_includes_audio_url_when_provided(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_voice_audio_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $visitor->queueVoiceMessage(
+            'ElevenLabs ile seslendirildi!',
+            '🎙️ Canlı Yapay Zeka Sesi',
+            'chime_and_speech',
+            'AI10',
+            'İncele',
+            '/patenli-ayakkabilar',
+            'https://patenliayakkabilar.com/storage/voice-cache/test_voice.mp3'
+        );
+
+        $response = $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => 'pa_vt_voice_audio_test',
+            'url' => 'https://patenliayakkabilar.com/',
+            'path' => '/',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'command' => [
+                    'action' => 'voice',
+                    'title' => '🎙️ Canlı Yapay Zeka Sesi',
+                    'sound_type' => 'chime_and_speech',
+                    'coupon_code' => 'AI10',
+                    'audio_url' => 'https://patenliayakkabilar.com/storage/voice-cache/test_voice.mp3',
+                ],
+            ]);
+    }
+
+    public function test_elevenlabs_service_handles_unconfigured_api_key_gracefully(): void
+    {
+        config(['services.elevenlabs.api_key' => null]);
+        $service = app(\App\Services\ElevenLabsService::class);
+
+        $result = $service->generateSpeech('Merhaba dünya');
+        $this->assertNull($result);
+    }
+
+    public function test_elevenlabs_service_generates_and_caches_audio_when_api_key_is_provided(): void
+    {
+        config(['services.elevenlabs.api_key' => 'test-api-key']);
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        \Illuminate\Support\Facades\Http::fake([
+            'https://api.elevenlabs.io/v1/text-to-speech/*' => \Illuminate\Support\Facades\Http::response('fake-mp3-content', 200),
+        ]);
+
+        $service = app(\App\Services\ElevenLabsService::class);
+        $url = $service->generateSpeech('Hoş geldiniz!');
+
+        $this->assertNotNull($url);
+        $this->assertStringContainsString('voice-cache/', $url);
+
+        // İkinci çağrıda API'ye gitmeden cache'den dönmeli
+        $url2 = $service->generateSpeech('Hoş geldiniz!');
+        $this->assertEquals($url, $url2);
+        \Illuminate\Support\Facades\Http::assertSentCount(1);
+    }
 }
 
 

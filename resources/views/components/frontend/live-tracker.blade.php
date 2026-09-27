@@ -57,14 +57,14 @@
         opacity: 1 !important;
     }
 
-    /* Üst İnce Turuncu Degrade Çizgisi */
+    /* Üst İnce Siyah Çizgi */
     .pa-top-accent {
         position: absolute !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        height: 6px !important;
-        background: linear-gradient(90deg, #FF7A1A 0%, #f59e0b 50%, #FF7A1A 100%) !important;
+        height: 5px !important;
+        background: #0f172a !important;
     }
 
     /* Kapat Butonu */
@@ -99,9 +99,9 @@
         gap: 7px !important;
         padding: 6px 15px !important;
         border-radius: 9999px !important;
-        background: #fff7ed !important;
-        border: 1px solid #fed7aa !important;
-        color: #ea580c !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #0f172a !important;
         font-size: 11px !important;
         font-weight: 800 !important;
         letter-spacing: 0.08em !important;
@@ -114,15 +114,15 @@
         width: 7px !important;
         height: 7px !important;
         border-radius: 50% !important;
-        background: #ea580c !important;
-        box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.7) !important;
+        background: #0f172a !important;
+        box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.7) !important;
         animation: pa-pulse 1.8s infinite !important;
         flex-shrink: 0 !important;
     }
     @keyframes pa-pulse {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(234, 88, 12, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 88, 12, 0); }
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(15, 23, 42, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(15, 23, 42, 0); }
     }
 
     /* İkon Rozetleri */
@@ -130,28 +130,28 @@
         width: 76px !important;
         height: 76px !important;
         border-radius: 26px !important;
-        background: linear-gradient(135deg, #FF7A1A 0%, #ea580c 100%) !important;
+        background: #0f172a !important;
         color: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         margin: 0 auto 16px !important;
-        box-shadow: 0 15px 30px -5px rgba(255, 122, 26, 0.45) !important;
-        border: 4px solid #fff7ed !important;
+        box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.35) !important;
+        border: 4px solid #f8fafc !important;
     }
 
     .pa-hero-icon-redirect {
         width: 76px !important;
         height: 76px !important;
         border-radius: 26px !important;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-        color: #FF7A1A !important;
+        background: #0f172a !important;
+        color: #ffffff !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         margin: 0 auto 16px !important;
         box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.35) !important;
-        border: 3px solid rgba(255, 122, 26, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
     }
 
     /* Başlık ve Açıklamalar */
@@ -239,7 +239,7 @@
     .pa-btn-primary {
         width: 100% !important;
         padding: 15px 24px !important;
-        background: linear-gradient(135deg, #FF7A1A 0%, #ea580c 100%) !important;
+        background: #0f172a !important;
         color: #ffffff !important;
         border-radius: 9999px !important;
         font-weight: 800 !important;
@@ -249,16 +249,17 @@
         justify-content: center !important;
         gap: 8px !important;
         text-decoration: none !important;
-        box-shadow: 0 10px 24px -4px rgba(255, 122, 26, 0.45) !important;
+        box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.35) !important;
         cursor: pointer !important;
         border: none !important;
         transition: all 0.2s ease !important;
         box-sizing: border-box !important;
     }
     .pa-btn-primary:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 14px 28px -4px rgba(255, 122, 26, 0.55) !important;
+        background: #000000 !important;
         color: #ffffff !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.5) !important;
     }
 
     .pa-btn-group {
@@ -327,9 +328,9 @@
     .pa-progress-fill {
         height: 100% !important;
         border-radius: 9999px !important;
-        background: linear-gradient(90deg, #FF7A1A 0%, #f59e0b 100%) !important;
+        background: #0f172a !important;
         transition: width 1s linear !important;
-        box-shadow: 0 0 10px rgba(255, 122, 26, 0.4) !important;
+        box-shadow: 0 0 8px rgba(15, 23, 42, 0.25) !important;
     }
 
     /* Güven Satırı (Trust Footer) */

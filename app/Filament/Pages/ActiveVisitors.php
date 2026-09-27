@@ -661,12 +661,36 @@ class ActiveVisitors extends Page implements HasTable
                                 };
                             }),
 
+                        Select::make('voice_engine')
+                            ->label('Seslendirme Motoru')
+                            ->native(false)
+                            ->options([
+                                'elevenlabs' => '✨ ElevenLabs AI (Stüdyo Kalitesinde Gerçekçi Türkçe Ses)',
+                                'browser' => '🌐 Tarayıcı Konuşma Motoru (Web Speech API - Standart)',
+                            ])
+                            ->default(\App\Services\ElevenLabsService::isConfigured() ? 'elevenlabs' : 'browser')
+                            ->live(),
+
+                        Select::make('elevenlabs_voice')
+                            ->label('ElevenLabs Ses Karakteri')
+                            ->native(false)
+                            ->options(\App\Services\ElevenLabsService::getVoices())
+                            ->default('21m00Tcm4TlvDq8ikWAM')
+                            ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs')
+                            ->live(),
+
+                        TextInput::make('custom_voice_id')
+                            ->label('Özel ElevenLabs Voice ID')
+                            ->placeholder('Örn: 21m00Tcm4TlvDq8ikWAM')
+                            ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom')
+                            ->required(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom'),
+
                         Select::make('sound_type')
                             ->label('Ses Efekti & Seslendirme Tipi')
                             ->native(false)
                             ->options([
-                                'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Türkçe Sesli Okuma (TTS) + Görsel Kart',
-                                'speech_only' => '🗣️ Sadece Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                                'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Sesli Okuma + Görsel Kart',
+                                'speech_only' => '🗣️ Sadece Sesli Okuma + Görsel Kart',
                                 'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
                             ])
                             ->default('chime_and_speech')
@@ -696,18 +720,36 @@ class ActiveVisitors extends Page implements HasTable
                             ->default('/patenli-ayakkabilar'),
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
+                        $audioUrl = null;
+                        if (($data['voice_engine'] ?? 'browser') === 'elevenlabs') {
+                            $voiceId = ($data['elevenlabs_voice'] ?? '') === 'custom'
+                                ? ($data['custom_voice_id'] ?? null)
+                                : ($data['elevenlabs_voice'] ?? null);
+
+                            $audioUrl = app(\App\Services\ElevenLabsService::class)->generateSpeech($data['message'], $voiceId);
+
+                            if (!$audioUrl && \App\Services\ElevenLabsService::isConfigured()) {
+                                Notification::make()
+                                    ->title('ElevenLabs API Uyarısı')
+                                    ->body('Ses dosyası üretilemedi (kota veya ağ). Tarayıcı ses motoruyla devam ediliyor.')
+                                    ->warning()
+                                    ->send();
+                            }
+                        }
+
                         $record->queueVoiceMessage(
                             $data['message'],
                             $data['title'] ?? '🎙️ Canlı Mağaza Anonsu',
                             $data['sound_type'] ?? 'chime_and_speech',
                             $data['coupon_code'] ?? null,
                             $data['action_button'] ?? null,
-                            $data['action_url'] ?? null
+                            $data['action_url'] ?? null,
+                            $audioUrl
                         );
 
                         Notification::make()
                             ->title('Sesli İleti İletildi! 🎙️')
-                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.')
+                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.' . ($audioUrl ? ' (ElevenLabs AI Stüdyo Sesi)' : ''))
                             ->success()
                             ->send();
                     }),
@@ -917,12 +959,36 @@ class ActiveVisitors extends Page implements HasTable
                             };
                         }),
 
+                    Select::make('voice_engine')
+                        ->label('Seslendirme Motoru')
+                        ->native(false)
+                        ->options([
+                            'elevenlabs' => '✨ ElevenLabs AI (Stüdyo Kalitesinde Gerçekçi Türkçe Ses)',
+                            'browser' => '🌐 Tarayıcı Konuşma Motoru (Web Speech API - Standart)',
+                        ])
+                        ->default(\App\Services\ElevenLabsService::isConfigured() ? 'elevenlabs' : 'browser')
+                        ->live(),
+
+                    Select::make('elevenlabs_voice')
+                        ->label('ElevenLabs Ses Karakteri')
+                        ->native(false)
+                        ->options(\App\Services\ElevenLabsService::getVoices())
+                        ->default('21m00Tcm4TlvDq8ikWAM')
+                        ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs')
+                        ->live(),
+
+                    TextInput::make('custom_voice_id')
+                        ->label('Özel ElevenLabs Voice ID')
+                        ->placeholder('Örn: 21m00Tcm4TlvDq8ikWAM')
+                        ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom')
+                        ->required(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom'),
+
                     Select::make('sound_type')
                         ->label('Ses Efekti & Seslendirme Tipi')
                         ->native(false)
                         ->options([
-                            'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Türkçe Sesli Okuma (TTS) + Görsel Kart',
-                            'speech_only' => '🗣️ Sadece Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                            'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Sesli Okuma + Görsel Kart',
+                            'speech_only' => '🗣️ Sadece Sesli Okuma + Görsel Kart',
                             'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
                         ])
                         ->default('chime_and_speech')
@@ -952,6 +1018,23 @@ class ActiveVisitors extends Page implements HasTable
                         ->default('/patenli-ayakkabilar'),
                 ])
                 ->action(function (array $data) {
+                    $audioUrl = null;
+                    if (($data['voice_engine'] ?? 'browser') === 'elevenlabs') {
+                        $voiceId = ($data['elevenlabs_voice'] ?? '') === 'custom'
+                            ? ($data['custom_voice_id'] ?? null)
+                            : ($data['elevenlabs_voice'] ?? null);
+
+                        $audioUrl = app(\App\Services\ElevenLabsService::class)->generateSpeech($data['message'], $voiceId);
+
+                        if (!$audioUrl && \App\Services\ElevenLabsService::isConfigured()) {
+                            Notification::make()
+                                ->title('ElevenLabs API Uyarısı')
+                                ->body('Ses dosyası üretilemedi (kota veya ağ). Tarayıcı ses motoruyla devam ediliyor.')
+                                ->warning()
+                                ->send();
+                        }
+                    }
+
                     $visitors = ActiveVisitor::online()->get();
                     foreach ($visitors as $v) {
                         $v->queueVoiceMessage(
@@ -960,13 +1043,14 @@ class ActiveVisitors extends Page implements HasTable
                             $data['sound_type'] ?? 'chime_and_speech',
                             $data['coupon_code'] ?? null,
                             $data['action_button'] ?? null,
-                            $data['action_url'] ?? null
+                            $data['action_url'] ?? null,
+                            $audioUrl
                         );
                     }
 
                     Notification::make()
                         ->title('Toplu Sesli Anons İletildi! 🎙️')
-                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.')
+                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.' . ($audioUrl ? ' (ElevenLabs AI Stüdyo Sesi Aktif)' : ''))
                         ->success()
                         ->send();
                 }),
