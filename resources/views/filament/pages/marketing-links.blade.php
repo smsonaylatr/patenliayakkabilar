@@ -428,12 +428,19 @@
             selectedTarget: 'home',
             customPath: '',
             selectedProductSlug: '{{ $products->first()?->slug ?? '' }}',
+            selectedCategorySlug: '{{ $categories->first()?->slug ?? '' }}',
             selectedChannel: 'ig_story',
             campaignName: '',
             get generatedUrl() {
                 let targetUrl = this.baseUrl;
                 if (this.selectedTarget === 'product' && this.selectedProductSlug) {
                     targetUrl += '/urun/' + this.selectedProductSlug;
+                } else if (this.selectedTarget === 'category' && this.selectedCategorySlug) {
+                    targetUrl += '/kategori/' + this.selectedCategorySlug;
+                } else if (this.selectedTarget === 'catalog') {
+                    targetUrl += '/patenli-ayakkabilar';
+                } else if (this.selectedTarget === 'checkout') {
+                    targetUrl += '/checkout';
                 } else if (this.selectedTarget === 'custom' && this.customPath) {
                     let path = this.customPath.trim();
                     if (!path.startsWith('http')) {
@@ -665,9 +672,24 @@
                     <label class="ml-form-label">1. Hedef Sayfa</label>
                     <select x-model="selectedTarget" class="ml-form-control">
                         <option value="home">Ana Sayfa (/)</option>
-                        <option value="product">Belirli Bir Ürün Sayfası</option>
-                        <option value="custom">Özel Link / Yol Yaz</option>
+                        <option value="catalog">👟 Tüm Modeller / Katalog (/patenli-ayakkabilar)</option>
+                        <option value="category">🏷️ Kategori Sayfası (Kız Çocuk, Erkek Çocuk vb.)</option>
+                        <option value="product">📦 Belirli Bir Ürün Sayfası</option>
+                        <option value="checkout">🛒 Sepet & Ödeme Sayfası (/checkout)</option>
+                        <option value="custom">🔗 Özel Link / Yol Yaz...</option>
                     </select>
+
+                    <!-- Kategori Seçimi -->
+                    <template x-if="selectedTarget === 'category'">
+                        <div style="margin-top: 6px;">
+                            <label class="ml-form-hint" style="font-weight: 600; display: block; margin-bottom: 3px;">Kategori Seçin:</label>
+                            <select x-model="selectedCategorySlug" class="ml-form-control">
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->slug }}">{{ $category->name }} (/kategori/{{ $category->slug }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </template>
 
                     <!-- Ürün Seçimi -->
                     <template x-if="selectedTarget === 'product'">
@@ -688,7 +710,7 @@
                             <input 
                                 type="text" 
                                 x-model="customPath" 
-                                placeholder="/kategori/patenler veya tam link" 
+                                placeholder="/kategori/kiz-cocuk veya tam link" 
                                 class="ml-form-control"
                             />
                         </div>

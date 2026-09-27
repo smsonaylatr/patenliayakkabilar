@@ -66,7 +66,7 @@ return new class extends Migration
                 'audio_path' => null,
                 'coupon_code' => null,
                 'action_button' => 'WhatsApp Destek',
-                'action_url' => 'https://wa.me/905051234567',
+                'action_url' => 'https://wa.me/908503073164?text=' . urlencode('Merhaba, patenli ayakkabılar hakkında beden ve model desteği almak istiyorum.'),
                 'is_active' => true,
                 'sort_order' => 4,
                 'created_at' => now(),

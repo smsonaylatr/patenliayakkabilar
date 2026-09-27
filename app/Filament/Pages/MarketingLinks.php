@@ -44,9 +44,14 @@ class MarketingLinks extends Page
             ->orderBy('name')
             ->get(['id', 'name', 'slug', 'price']);
 
+        $categories = \App\Models\Category::where('status', 1)
+            ->orderBy('id')
+            ->get(['id', 'name', 'slug']);
+
         return [
             'baseUrl' => $baseUrl,
             'products' => $products,
+            'categories' => $categories,
         ];
     }
 }

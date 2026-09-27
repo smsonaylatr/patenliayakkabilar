@@ -725,6 +725,55 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('Instagram', $viewCard);
         $this->assertStringContainsString('hikaye_indirimi', $viewCard);
     }
+
+    public function test_category_routes_redirect_variations_smartly_without_404(): void
+    {
+        \App\Models\Category::create(['name' => 'Kız Çocuk', 'slug' => 'kiz-cocuk', 'status' => true]);
+        \App\Models\Category::create(['name' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk', 'status' => true]);
+
+        // 1. Doğru kategori URL'si (200 OK)
+        $resp = $this->get('/kategori/kiz-cocuk');
+        $resp->assertStatus(200);
+
+        // 2. Yanlış ekli yönlendirme linki (/kategori/kiz-cocuk-patenli-ayakkabi -> 301 /kategori/kiz-cocuk)
+        $resp2 = $this->get('/kategori/kiz-cocuk-patenli-ayakkabi');
+        $resp2->assertStatus(301);
+        $resp2->assertRedirect(route('category.show', ['slug' => 'kiz-cocuk']));
+
+        // 3. Erkek çocuk yanlış yönlendirme linki -> 301 /kategori/erkek-cocuk
+        $resp3 = $this->get('/kategori/erkek-cocuk-patenli-ayakkabi');
+        $resp3->assertStatus(301);
+        $resp3->assertRedirect(route('category.show', ['slug' => 'erkek-cocuk']));
+
+        // 4. Alt tireli giriş -> 301 /kategori/kiz-cocuk
+        $resp4 = $this->get('/kategori/kiz_cocuk');
+        $resp4->assertStatus(301);
+        $resp4->assertRedirect(route('category.show', ['slug' => 'kiz-cocuk']));
+
+        // 5. Olmayan rastgele kategori -> 404 DEĞİL, 301 /patenli-ayakkabilar kataloğuna yönlenmeli
+        $resp5 = $this->get('/kategori/olmayan-kategori-xyz-123');
+        $resp5->assertStatus(301);
+        $resp5->assertRedirect(route('products.index'));
+    }
+
+    public function test_active_visitors_page_provides_verified_target_url_options(): void
+    {
+        \App\Models\Category::create(['name' => 'Kız Çocuk', 'slug' => 'kiz-cocuk', 'status' => true]);
+        \App\Models\Category::create(['name' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk', 'status' => true]);
+
+        $options = \App\Filament\Pages\ActiveVisitors::getTargetUrlOptions();
+
+        $this->assertArrayHasKey('/', $options);
+        $this->assertArrayHasKey('/patenli-ayakkabilar', $options);
+        $this->assertArrayHasKey('/checkout', $options);
+        $this->assertArrayHasKey('/kategori/kiz-cocuk', $options);
+        $this->assertArrayHasKey('/kategori/erkek-cocuk', $options);
+
+        // Hatalı/geçersiz linkler kesinlikle olmamalı
+        $this->assertArrayNotHasKey('/kategori/kiz-cocuk-patenli-ayakkabi', $options);
+        $this->assertArrayNotHasKey('/kategori/erkek-cocuk-patenli-ayakkabi', $options);
+    }
 }
+
 
 

@@ -588,15 +588,7 @@ class ActiveVisitors extends Page implements HasTable
                         Select::make('quick_target')
                             ->label('Hızlı Hedef Seçimi')
                             ->native(false)
-                            ->options([
-                                '/' => '🏠 Ana Sayfa',
-                                '/patenli-ayakkabilar' => '👟 Tüm Modeller (Çok Satanlar)',
-                                '/checkout' => '🛒 Sepetim & Ödeme Sayfası',
-                                '/kategori/erkek-cocuk-patenli-ayakkabi' => '👦 Erkek Çocuk Patenleri',
-                                '/kategori/kiz-cocuk-patenli-ayakkabi' => '👧 Kız Çocuk Patenleri',
-                                '/iletisim' => '📞 İletişim & Destek',
-                                'custom' => '🔗 Özel URL Yaz...',
-                            ])
+                            ->options(self::getTargetUrlOptions())
                             ->default('/checkout')
                             ->live(),
 
@@ -844,12 +836,7 @@ class ActiveVisitors extends Page implements HasTable
                     Select::make('bulk_target')
                         ->label('Hedef Sayfa')
                         ->native(false)
-                        ->options([
-                            '/' => '🏠 Ana Sayfa',
-                            '/patenli-ayakkabilar' => '👟 Tüm Modeller / Çok Satanlar',
-                            '/checkout' => '🛒 Sepet / Ödeme Sayfası',
-                            'custom' => '🔗 Özel URL...',
-                        ])
+                        ->options(self::getTargetUrlOptions())
                         ->default('/patenli-ayakkabilar')
                         ->live(),
 
@@ -1152,4 +1139,44 @@ class ActiveVisitors extends Page implements HasTable
             ->danger()
             ->send();
     }
+
+    /**
+     * Yönlendirme ve anonslarda kullanılacak doğrulanmış güncel sayfa ve kategori linkleri
+     */
+    public static function getTargetUrlOptions(): array
+    {
+        $options = [
+            '/' => '🏠 Ana Sayfa',
+            '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
+            '/checkout' => '🛒 Sepetim & Ödeme Sayfası',
+        ];
+
+        try {
+            $categories = \App\Models\Category::where('status', true)->orderBy('id')->get();
+            if ($categories->isEmpty()) {
+                $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+                $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+            } else {
+                foreach ($categories as $cat) {
+                    $icon = match (true) {
+                        str_contains($cat->slug, 'kiz') => '👧',
+                        str_contains($cat->slug, 'erkek') => '👦',
+                        str_contains($cat->slug, 'cocuk') => '🧒',
+                        str_contains($cat->slug, 'kadin') => '👩',
+                        default => '🏷️',
+                    };
+                    $options['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
+                }
+            }
+        } catch (\Throwable $e) {
+            $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+            $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+        }
+
+        $options['/iletisim'] = '📞 İletişim & Canlı Destek';
+        $options['custom'] = '🔗 Özel URL Yaz...';
+
+        return $options;
+    }
 }
+
