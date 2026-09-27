@@ -256,6 +256,16 @@
                                         </span>
                                     @endif
                                 </div>
+
+                                {{-- Ziyaret Sıklığı & Sinyal Geçmişi --}}
+                                @php $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record); @endphp
+                                <div style="margin-top: 5px;">
+                                    <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 9.5px; font-weight: 800; background: {{ $freqSignal['bg'] }}; color: {{ $freqSignal['color'] }}; border: 1px solid {{ $freqSignal['border'] }};">
+                                        <span>{{ $freqSignal['icon'] }}</span>
+                                        <span>{{ $freqSignal['badge'] }}</span>
+                                        <span style="opacity: 0.85; font-weight: 600;">({{ $freqSignal['label'] }})</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>

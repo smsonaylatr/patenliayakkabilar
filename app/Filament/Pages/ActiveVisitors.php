@@ -31,6 +31,15 @@ class ActiveVisitors extends Page implements HasTable
 
     protected static ?int $navigationSort = 1;
 
+    public string $trafficPeriod = 'daily';
+
+    public function setTrafficPeriod(string $period): void
+    {
+        if (in_array($period, ['daily', 'weekly', 'monthly'])) {
+            $this->trafficPeriod = $period;
+        }
+    }
+
     public function getView(): string
     {
         return 'filament.pages.active-visitors';
@@ -116,6 +125,16 @@ class ActiveVisitors extends Page implements HasTable
             $guestsCount = max(0, $totalActive - $membersCount);
             $blockedCount = ActiveVisitor::where('is_blocked', true)->count();
 
+            $trafficService = app(\App\Services\TrafficAnalyticsService::class);
+            $dailyTraffic = $trafficService->getMetricsForPeriod('daily');
+            $weeklyTraffic = $trafficService->getMetricsForPeriod('weekly');
+            $monthlyTraffic = $trafficService->getMetricsForPeriod('monthly');
+            $currentTraffic = match ($this->trafficPeriod) {
+                'weekly' => $weeklyTraffic,
+                'monthly' => $monthlyTraffic,
+                default => $dailyTraffic,
+            };
+
             return [
                 'onlineCount' => $onlineCount,
                 'highIntentCount' => $highIntentCount,
@@ -126,8 +145,30 @@ class ActiveVisitors extends Page implements HasTable
                 'guestsCount' => $guestsCount,
                 'totalActive' => $totalActive,
                 'blockedCount' => $blockedCount,
+                'trafficPeriod' => $this->trafficPeriod,
+                'dailyTraffic' => $dailyTraffic,
+                'weeklyTraffic' => $weeklyTraffic,
+                'monthlyTraffic' => $monthlyTraffic,
+                'currentTraffic' => $currentTraffic,
             ];
         } catch (\Throwable $e) {
+            $emptyTraffic = [
+                'period' => 'daily',
+                'period_label' => 'Günlük',
+                'unique_visitors' => 0,
+                'page_views' => 0,
+                'sessions' => 0,
+                'cart_additions' => 0,
+                'orders_count' => 0,
+                'orders_revenue' => 0,
+                'cart_rate' => 0,
+                'conversion_rate' => 0,
+                'avg_duration_formatted' => '0 sn',
+                'device_breakdown' => ['mobile' => 85, 'desktop' => 12, 'tablet' => 3],
+                'source_breakdown' => [],
+                'analysis' => 'Veriler toplanıyor...',
+            ];
+
             return [
                 'onlineCount' => 0,
                 'highIntentCount' => 0,
@@ -138,6 +179,11 @@ class ActiveVisitors extends Page implements HasTable
                 'guestsCount' => 0,
                 'totalActive' => 0,
                 'blockedCount' => 0,
+                'trafficPeriod' => 'daily',
+                'dailyTraffic' => $emptyTraffic,
+                'weeklyTraffic' => $emptyTraffic,
+                'monthlyTraffic' => $emptyTraffic,
+                'currentTraffic' => $emptyTraffic,
             ];
         }
     }
@@ -208,6 +254,15 @@ class ActiveVisitors extends Page implements HasTable
                             . (!empty($record->utm_campaign) ? '<span title="Kampanya: ' . e($record->utm_campaign) . '" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(255,255,255,0.06);color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);">🎯 ' . e($record->utm_campaign) . '</span>' : '')
                             . '</div>';
 
+                        $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record);
+                        $freqHtml = '<div style="margin-top:4px;">'
+                            . '<span title="' . e($freqSignal['label']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:800;background:' . $freqSignal['bg'] . ';color:' . $freqSignal['color'] . ';border:1px solid ' . $freqSignal['border'] . ';">'
+                            . '<span>' . $freqSignal['icon'] . '</span>'
+                            . '<span>' . $freqSignal['badge'] . '</span>'
+                            . '<span style="opacity:0.85;font-weight:600;">(' . e($freqSignal['label']) . ')</span>'
+                            . '</span>'
+                            . '</div>';
+
                         return new HtmlString('
                             <div style="display:flex;align-items:flex-start;gap:12px;min-width:220px;">
                                 <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff4e00,#b45309);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(255,78,0,0.35);">
@@ -231,6 +286,7 @@ class ActiveVisitors extends Page implements HasTable
                                         ⏱️ ' . $duration . ' (' . $pageCount . '. sayfa)
                                     </div>
                                     ' . $sourceHtml . '
+                                    ' . $freqHtml . '
                                 </div>
                             </div>
                         ');

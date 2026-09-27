@@ -788,6 +788,67 @@ class ActiveVisitorTest extends TestCase
 
         $this->assertEquals('speech_only', $visitor->pending_command['sound_type']);
     }
+
+    public function test_daily_traffic_metric_is_recorded_and_aggregated_correctly(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_traffic_test_1',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'ip_address' => '176.240.10.55',
+            'device_type' => 'mobile',
+            'referrer' => 'https://instagram.com',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $service = app(\App\Services\TrafficAnalyticsService::class);
+        $service->recordHit($visitor, [
+            'action' => 'pageview',
+            'path' => '/urun/test-paten',
+        ]);
+
+        $daily = $service->getMetricsForPeriod('daily');
+        $this->assertGreaterThanOrEqual(1, $daily['unique_visitors']);
+        $this->assertGreaterThanOrEqual(1, $daily['page_views']);
+        $this->assertNotEmpty($daily['analysis']['headline']);
+        $this->assertNotEmpty($daily['analysis']['summary']);
+
+        $weekly = $service->getMetricsForPeriod('weekly');
+        $this->assertGreaterThanOrEqual(1, $weekly['unique_visitors']);
+        $this->assertEquals('Son 7 Gün (Haftalık Sinyal)', $weekly['period_label']);
+
+        $monthly = $service->getMetricsForPeriod('monthly');
+        $this->assertGreaterThanOrEqual(1, $monthly['unique_visitors']);
+        $this->assertEquals('Son 30 Gün (Aylık Sinyal)', $monthly['period_label']);
+    }
+
+    public function test_active_visitors_page_renders_traffic_analytics_and_switches_periods(): void
+    {
+        $admin = \App\Models\User::factory()->create([
+            'email' => 'traffic_admin_' . uniqid() . '@patenliayakkabilar.com',
+        ]);
+
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_panel_traffic',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSee('Ziyaretçi Trafik Sinyali', false)
+            ->assertSee('Bugün (Günlük Sinyal)', false)
+            ->call('setTrafficPeriod', 'weekly')
+            ->assertSet('trafficPeriod', 'weekly')
+            ->assertSee('Son 7 Gün (Haftalık Sinyal)', false)
+            ->call('setTrafficPeriod', 'monthly')
+            ->assertSet('trafficPeriod', 'monthly')
+            ->assertSee('Son 30 Gün (Aylık Sinyal)', false);
+    }
 }
 
 

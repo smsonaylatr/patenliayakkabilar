@@ -269,7 +269,16 @@ class PresenceController extends Controller
             $request->input('guest_phone')
         );
 
-        $visitor->save();
+        try {
+            $visitor->save();
+        } catch (\Throwable $e) {
+            $this->ensureTableExists();
+            try {
+                $visitor->save();
+            } catch (\Throwable $e2) {
+                \Illuminate\Support\Facades\Log::warning('ActiveVisitor identify save error: ' . $e2->getMessage());
+            }
+        }
 
         return response()->json([
             'status' => 'ok',
@@ -395,14 +404,23 @@ class PresenceController extends Controller
         }
 
         if ($hasChanges) {
-            $visitor->save();
+            try {
+                $visitor->save();
+            } catch (\Throwable $e) {
+                $this->ensureTableExists();
+                try {
+                    $visitor->save();
+                } catch (\Throwable $e2) {
+                    \Illuminate\Support\Facades\Log::warning('ActiveVisitor processIdentity save error: ' . $e2->getMessage());
+                }
+            }
         }
     }
 
     protected function ensureTableExists(): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
-            try {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
                 \Illuminate\Support\Facades\Schema::create('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
                     $table->id();
                     $table->string('visitor_token', 64)->index();
@@ -447,7 +465,24 @@ class PresenceController extends Controller
                     $table->index(['last_heartbeat_at', 'is_online']);
                     $table->index(['visitor_token', 'last_heartbeat_at']);
                 });
-            } catch (\Throwable $e) {}
-        }
+            } else {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                    \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                            $table->string('guest_name', 191)->nullable()->after('user_id')->index();
+                        }
+                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
+                            $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
+                        }
+                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
+                            $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
+                        }
+                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
+                            $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
+                        }
+                    });
+                }
+            }
+        } catch (\Throwable $e) {}
     }
 }

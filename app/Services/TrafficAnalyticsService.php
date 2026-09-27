@@ -88,7 +88,7 @@ class TrafficAnalyticsService
             $metric->orders_revenue = (clone $ordersToday)->sum('grand_total');
 
             // Akıllı Analiz Notunu Yenile
-            $metric->analysis_summary = $this->generateAnalysis('daily', [
+            $analysisResult = $this->generateAnalysis('daily', [
                 'unique_visitors' => $metric->unique_visitors_count,
                 'page_views' => $metric->page_views_count,
                 'cart_additions' => $metric->cart_additions_count,
@@ -98,6 +98,7 @@ class TrafficAnalyticsService
                 'source_stats' => $metric->source_stats,
                 'avg_duration' => $metric->avg_duration_seconds,
             ]);
+            $metric->analysis_summary = $analysisResult['full_text'];
 
             $metric->save();
         } catch (\Throwable $e) {
@@ -361,15 +362,16 @@ class TrafficAnalyticsService
     /**
      * Akıllı, veriye dayalı Türkçe Yönetici Özeti & Trafik Analizi üretir.
      */
-    public function generateAnalysis(string $period, array $data): string
+    public function generateAnalysis(string $period, array $data): array
     {
-        $unique = $data['unique_visitors'] ?? 0;
-        $pageViews = $data['page_views'] ?? 0;
-        $ordersCount = $data['orders_count'] ?? 0;
-        $ordersRevenue = $data['orders_revenue'] ?? 0;
+        $unique = (int) ($data['unique_visitors'] ?? 0);
+        $pageViews = (int) ($data['page_views'] ?? 0);
+        $ordersCount = (int) ($data['orders_count'] ?? 0);
+        $ordersRevenue = (float) ($data['orders_revenue'] ?? 0);
         $devices = $data['device_stats'] ?? [];
         $sources = $data['source_stats'] ?? [];
         $cartRate = $data['cart_rate'] ?? 0;
+        $conversionRate = $data['conversion_rate'] ?? 0;
 
         // En çok gelen kaynak
         arsort($sources);
@@ -382,42 +384,83 @@ class TrafficAnalyticsService
         $mobilePct = round((($devices['mobile'] ?? 0) / $totalDevices) * 100);
 
         if ($period === 'daily') {
-            $notes = [];
-            $notes[] = "Bugün mağaza toplam **{$unique} tekil ziyaretçi** ve **{$pageViews} sayfa görüntülemesi** ile aktif sinyal alıyor.";
-            
-            if ($mobilePct >= 70) {
-                $notes[] = "Ziyaretçilerin **%{$mobilePct}'i mobil telefon** üzerinden bağlanıyor, mobil hız ve tek tıkla ödeme bariyersiz çalışıyor.";
-            }
+            $status = match (true) {
+                $ordersCount >= 3 || $cartRate >= 20 => 'CANLI & ÇOK SICAK',
+                $cartRate >= 10 => 'HAREKETLİ TRAFİK',
+                default => 'DENGELİ AKIŞ',
+            };
 
-            if ($topSourcePct > 0) {
-                $notes[] = "En baskın trafik kanalı **%{$topSourcePct} oranla {$topSource}** olarak öne çıkıyor.";
-            }
+            $headline = "Bugün {$unique} Tekil Ziyaretçi ve %{$mobilePct} Mobil Hakimiyeti";
+            $summary = "Mağaza bugün {$unique} tekil ziyaretçiden sinyal aldı. Ziyaretçiler ortalama " . round($pageViews / max(1, $unique), 1) . " sayfa inceledi. En aktif kanal %{$topSourcePct} pay ile {$topSource} oldu.";
 
+            $highlights = [];
+            $highlights[] = "Mobil trafik payı %{$mobilePct} seviyesinde.";
+            $highlights[] = "En baskın müşteri akışı {$topSource} kanalından geliyor (%{$topSourcePct}).";
             if ($ordersCount > 0) {
-                $revFmt = number_format($ordersRevenue, 0, ',', '.') . ' ₺';
-                $notes[] = "Bugün tamamlanan **{$ordersCount} sipariş** ile **{$revFmt}** ciro üretildi (Dönüşüm: %{$data['conversion_rate']}).";
+                $highlights[] = "Tamamlanan {$ordersCount} siparişle " . number_format($ordersRevenue, 2) . " ₺ ciro kazanıldı (Dönüşüm: %{$conversionRate}).";
             } elseif ($cartRate > 0) {
-                $notes[] = "Ziyaretçilerin **%{$cartRate}'i sepete ürün ekledi**; tereddüt sinyali verenlere hızlı indirim veya yönlendirme önerilir.";
+                $highlights[] = "Ziyaretçilerin %{$cartRate}'i sepete ürün ekledi, ödeme adımı bekleniyor.";
             } else {
-                $notes[] = "Ziyaretçiler ağırlıklı olarak ürün keşfi ve numara kontrolü yapıyor.";
+                $highlights[] = "Ziyaretçiler ağırlıklı olarak model ve numara incelemesi yapıyor.";
             }
 
-            return implode(' ', $notes);
+            $recommendedAction = match (true) {
+                $cartRate >= 15 && $ordersCount === 0 => "Sepette ürün bırakan sıcak ziyaretçilere anlık kupon fırlatın.",
+                $mobilePct >= 80 => "Mobil sepet terk bariyerini aşmak için WhatsApp destek butonunu canlı tutun.",
+                default => "En çok görüntülenen modellerde popüler numara yönlendirmesi yapın.",
+            };
+
+            return [
+                'status' => $status,
+                'headline' => $headline,
+                'summary' => $summary,
+                'highlights' => $highlights,
+                'recommended_action' => $recommendedAction,
+                'full_text' => "{$headline}. {$summary}",
+            ];
         }
 
         if ($period === 'weekly') {
             $revFmt = number_format($ordersRevenue, 0, ',', '.') . ' ₺';
-            return "Son 7 günde **{$unique} tekil ziyaretçi** sitede gezindi ve **{$pageViews} sayfa** inceledi. " .
-                   "Trafikte **%{$mobilePct} mobil ağırlık** korunurken, en güçlü müşteri kaynağı **{$topSource}** oldu. " .
-                   "Haftalık süreçte **{$ordersCount} sipariş** gerçekleşerek **{$revFmt}** satış hacmi oluşturuldu. " .
-                   "Sepet oluşturma oranı **%{$cartRate}** seviyesinde stabil ilerliyor.";
+            $headline = "Haftalık {$unique} Ziyaretçi ile Stabil Satış Sinyali";
+            $summary = "Son 7 günde {$unique} tekil ziyaretçi mağazada {$pageViews} sayfa inceledi. %{$mobilePct} mobil ağırlıkla toplam {$ordersCount} sipariş ve {$revFmt} ciro üretildi.";
+
+            $highlights = [
+                "Haftalık en güçlü trafik motoru: {$topSource} (%{$topSourcePct}).",
+                "Sepete ekleme performansı: %{$cartRate}.",
+                "Satış dönüşüm oranı: %{$conversionRate} ({$ordersCount} sipariş, {$revFmt}).",
+            ];
+
+            return [
+                'status' => $ordersCount >= 5 ? 'YÜKSEK DÖNÜŞÜM' : 'DENGELİ BÜYÜME',
+                'headline' => $headline,
+                'summary' => $summary,
+                'highlights' => $highlights,
+                'recommended_action' => "Instagram ve reklam kampanyalarında en çok sepete eklenen modelleri öne çıkarın.",
+                'full_text' => "{$headline}. {$summary}",
+            ];
         }
 
         // Monthly
         $revFmt = number_format($ordersRevenue, 0, ',', '.') . ' ₺';
-        return "Son 30 günde toplam **{$unique} tekil kullanıcı** mağazayı ziyaret etti. " .
-               "Kanal dağılımında lider mecra **{$topSource}**; toplam ciro **{$revFmt}** ({$ordersCount} başarılı sipariş). " .
-               "Kullanıcıların %{$mobilePct}'si mobilden geliyor. Tekrar gelen ziyaretçi oranı marka sadakatinin ve güven sinyallerinin yüksek olduğunu doğruluyor.";
+        $headline = "Aylık {$unique} Ziyaretçi & Kalıcı Müşteri Sadakati";
+        $summary = "Son 30 günde toplam {$unique} tekil ziyaretçi markayla etkileşime girdi. Kanal lideri {$topSource}; toplam satış {$revFmt} ({$ordersCount} sipariş).";
+
+        $highlights = [
+            "Aylık tekil ziyaretçi hacmi: {$unique} kullanıcı.",
+            "Toplam üretilen ciro: {$revFmt}.",
+            "Mobil alışveriş tercihi: %{$mobilePct}.",
+            "Tekrar gelen ziyaretçi oranı marka sadakatini pekiştiriyor.",
+        ];
+
+        return [
+            'status' => 'STRATEJİK PERFORMANS',
+            'headline' => $headline,
+            'summary' => $summary,
+            'highlights' => $highlights,
+            'recommended_action' => "Sadık ve tekrar gelen ziyaretçilere özel yeniden hedefleme kampanyaları kurgulayın.",
+            'full_text' => "{$headline}. {$summary}",
+        ];
     }
 
     /**
@@ -553,11 +596,11 @@ class TrafficAnalyticsService
             return;
         }
 
-        // Geçmiş 30 gün için gerçekçi temel veriler oluştur
-        $today = now();
-        for ($i = 29; $i >= 0; $i--) {
+        // Geçmiş 29 gün için gerçekçi temel veriler oluştur (bugün dinamik tutulur)
+        $today = now()->startOfDay();
+        for ($i = 29; $i >= 1; $i--) {
             $d = $today->copy()->subDays($i)->toDateString();
-            if (DailyTrafficMetric::where('date', $d)->exists()) {
+            if (DailyTrafficMetric::whereDate('date', $d)->exists()) {
                 continue;
             }
 
@@ -578,30 +621,32 @@ class TrafficAnalyticsService
             $direct = (int) round($baseVisitors * 0.20);
             $gOrg = max(1, $baseVisitors - $insta - $gAds - $direct);
 
-            DailyTrafficMetric::create([
-                'date' => $d,
-                'unique_visitors_count' => $baseVisitors,
-                'page_views_count' => $pageViews,
-                'sessions_count' => (int) round($baseVisitors * 1.2),
-                'cart_additions_count' => (int) round($baseVisitors * 0.16),
-                'checkout_starts_count' => (int) round($baseVisitors * 0.08),
-                'orders_count' => $orders,
-                'orders_revenue' => $revenue,
-                'device_stats' => ['mobile' => $mob, 'desktop' => $desk, 'tablet' => $tab],
-                'source_stats' => [
-                    'Instagram' => $insta,
-                    'Google Ads' => $gAds,
-                    'Doğrudan Giriş' => $direct,
-                    'Google Organik' => $gOrg,
-                ],
-                'top_paths' => [
-                    '/patenli-ayakkabilar' => (int) round($pageViews * 0.4),
-                    '/' => (int) round($pageViews * 0.3),
-                    '/sepet' => (int) round($pageViews * 0.1),
-                ],
-                'avg_duration_seconds' => rand(85, 160),
-                'analysis_summary' => "Günlük {$baseVisitors} tekil ziyaretçi, %{$mob} mobil ağırlık.",
-            ]);
+            DailyTrafficMetric::firstOrCreate(
+                ['date' => $d],
+                [
+                    'unique_visitors_count' => $baseVisitors,
+                    'page_views_count' => $pageViews,
+                    'sessions_count' => (int) round($baseVisitors * 1.2),
+                    'cart_additions_count' => (int) round($baseVisitors * 0.16),
+                    'checkout_starts_count' => (int) round($baseVisitors * 0.08),
+                    'orders_count' => $orders,
+                    'orders_revenue' => $revenue,
+                    'device_stats' => ['mobile' => $mob, 'desktop' => $desk, 'tablet' => $tab],
+                    'source_stats' => [
+                        'Instagram' => $insta,
+                        'Google Ads' => $gAds,
+                        'Doğrudan Giriş' => $direct,
+                        'Google Organik' => $gOrg,
+                    ],
+                    'top_paths' => [
+                        '/patenli-ayakkabilar' => (int) round($pageViews * 0.4),
+                        '/' => (int) round($pageViews * 0.3),
+                        '/sepet' => (int) round($pageViews * 0.1),
+                    ],
+                    'avg_duration_seconds' => rand(85, 160),
+                    'analysis_summary' => "Günlük {$baseVisitors} tekil ziyaretçi, %{$mob} mobil ağırlık.",
+                ]
+            );
         }
     }
 }
