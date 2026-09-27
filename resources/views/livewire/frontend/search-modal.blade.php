@@ -50,7 +50,7 @@
         >
             <div class="p-3 sm:p-4" data-ai-search="true" data-search-suggest="ai" data-ai-module="semantic-search" role="search">
                 <!-- Search Input Bar -->
-                <div class="relative flex items-center">
+                <form wire:submit.prevent="performSearch" @submit="closeSearch()" class="relative flex items-center">
                     <div class="pointer-events-none absolute left-4 flex items-center justify-center text-gray-400">
                         <svg class="h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -77,6 +77,7 @@
                     
                     <!-- Close Button -->
                     <button 
+                        type="button"
                         @click="closeSearch()" 
                         aria-label="Aramayı Kapat" 
                         class="absolute right-2 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-200 active:scale-90"
@@ -85,7 +86,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-                </div>
+                </form>
 
                 <!-- Search Results -->
                 @if(strlen($search) >= 2)
@@ -163,6 +164,12 @@
                                     </li>
                                 @endforeach
                             </ul>
+                            <div class="mt-3 pt-3 border-t border-gray-100 px-1">
+                                <a href="{{ route('products.index', ['search' => $search]) }}" @click="closeSearch()" wire:navigate class="w-full py-2.5 px-4 bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-bold rounded-xl text-center transition-all flex items-center justify-center gap-2 shadow-sm">
+                                    <span>"{{ $search }}" ile ilgili tüm ürünleri incele</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </a>
+                            </div>
                         @else
                             <div class="px-4 py-8 text-center">
                                 <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
@@ -172,6 +179,9 @@
                                 </div>
                                 <p class="text-sm text-gray-700 font-medium">"<strong>{{ $search }}</strong>" ile ilgili sonuç bulunamadı</p>
                                 <p class="text-xs text-gray-400 mt-1">Popüler arama önerilerinden birini seçebilir veya tüm modelleri gezebilirsiniz.</p>
+                                <a href="{{ route('products.index') }}" @click="closeSearch()" wire:navigate class="inline-flex items-center gap-1.5 mt-3.5 text-xs font-bold text-gray-900 underline hover:text-brand-orange transition-colors">
+                                    Tüm Modelleri Gör →
+                                </a>
                             </div>
                         @endif
                     </div>
