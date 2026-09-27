@@ -19,35 +19,32 @@
         }
 
         .war-card {
-            background: #111827;
-            background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 18px 20px;
+            background: #131d2f;
+            background: linear-gradient(180deg, #182234 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 16px 18px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 125px;
-            transition: all 0.25s ease;
+            min-height: 110px;
+            transition: all 0.15s ease;
             cursor: pointer;
             user-select: none;
         }
         .war-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.18);
-            box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
         }
         .war-card.is-active-filter {
             border-color: #ff4e00 !important;
-            box-shadow: 0 0 24px rgba(255, 78, 0, 0.45) !important;
-            transform: translateY(-3px);
+            box-shadow: 0 0 16px rgba(255, 78, 0, 0.3) !important;
         }
         .war-card-active-pill {
             font-size: 9px;
-            font-weight: 800;
+            font-weight: 700;
             padding: 1.5px 6px;
             border-radius: 4px;
             background: #ff4e00;
@@ -55,11 +52,7 @@
             letter-spacing: 0.04em;
         }
         .war-card-top-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
+            display: none;
         }
 
         .war-header-row {
@@ -72,13 +65,13 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #94a3b8;
+            letter-spacing: 0.05em;
+            color: #64748b;
         }
         .war-value {
-            font-size: 28px;
-            font-weight: 900;
-            color: #ffffff;
+            font-size: 24px;
+            font-weight: 800;
+            color: #f8fafc;
             line-height: 1.1;
             display: flex;
             align-items: baseline;
@@ -86,7 +79,7 @@
         }
         .war-subtext {
             font-size: 11px;
-            color: #64748b;
+            color: #94a3b8;
             margin-top: 6px;
             display: flex;
             align-items: center;
@@ -95,40 +88,32 @@
 
         /* Canlı Nabız Sinyali */
         .live-radar-dot {
-            width: 10px;
-            height: 10px;
+            width: 7px;
+            height: 7px;
             background-color: #10b981;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 10px #10b981;
-            animation: radar-pulse 1.8s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
-        }
-        @keyframes radar-pulse {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         /* Komuta Bilgi Çubuğu */
         .command-bar {
-            background: #111827;
-            background: linear-gradient(90deg, rgba(255, 78, 0, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border: 1px solid rgba(255, 78, 0, 0.25);
-            border-radius: 12px;
-            padding: 12px 18px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             gap: 12px;
             flex-wrap: wrap;
         }
 
         /* İlerleme Çubuğu */
         .intent-bar-bg {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 9999px;
-            height: 6px;
+            height: 4px;
             overflow: hidden;
             width: 100%;
             margin-top: 4px;
@@ -136,18 +121,18 @@
         .intent-bar-fill {
             height: 100%;
             border-radius: 9999px;
-            transition: width 0.5s ease;
+            background: #ff4e00;
+            transition: width 0.3s ease;
         }
 
         /* Ziyaretçi Trafik Sinyali & Dönemlik Analiz Kartı */
         .traffic-intel-panel {
-            background: #111827;
-            background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px 22px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            background: #131d2f;
+            background: linear-gradient(180deg, #182234 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
             position: relative;
             overflow: hidden;
         }
@@ -159,26 +144,25 @@
             gap: 16px;
             flex-wrap: wrap;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding-bottom: 14px;
+            padding-bottom: 12px;
         }
         .traffic-period-btn {
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-size: 11.5px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             border: 1px solid transparent;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
         .traffic-period-btn.active {
             background: #ff4e00;
-            background: linear-gradient(135deg, #ff4e00, #ea580c);
             color: #ffffff;
-            box-shadow: 0 0 14px rgba(255, 78, 0, 0.4);
-            border-color: rgba(255, 120, 73, 0.4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            border-color: transparent;
         }
         .traffic-period-btn:not(.active) {
             background: rgba(255, 255, 255, 0.04);
@@ -188,13 +172,12 @@
         .traffic-period-btn:not(.active):hover {
             background: rgba(255, 255, 255, 0.08);
             color: #f8fafc;
-            border-color: rgba(255, 255, 255, 0.16);
         }
         .traffic-kpi-grid {
             display: grid;
             grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
         @media (max-width: 1024px) {
             .traffic-kpi-grid {
@@ -207,9 +190,9 @@
             }
         }
         .traffic-kpi-card {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 12px 14px;
             display: flex;
             flex-direction: column;
@@ -218,7 +201,7 @@
         .traffic-intel-details-grid {
             display: grid;
             grid-template-columns: 28% 22% 50%;
-            gap: 16px;
+            gap: 14px;
         }
         @media (max-width: 1200px) {
             .traffic-intel-details-grid {
@@ -231,10 +214,10 @@
             }
         }
         .traffic-sub-box {
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 14px 16px;
+            border-radius: 10px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -242,16 +225,14 @@
 
         /* Ziyaretçi Sinyal Tablosu Hızlı Komuta Kısayolları */
         .visitor-shortcuts-panel {
-            background: #111827;
-            background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
+            background: rgba(15, 23, 42, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 16px 20px;
+            border-radius: 12px;
+            padding: 14px 18px;
             margin-bottom: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         .visitor-shortcuts-header {
             display: flex;
@@ -259,7 +240,7 @@
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .visitor-shortcuts-actions {
@@ -269,7 +250,7 @@
             flex-wrap: wrap;
         }
         .visitor-shortcuts-actions .fi-ac {
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
@@ -277,63 +258,51 @@
         .av-tabs-nav-bar {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             margin-bottom: 16px;
-            padding: 5px;
+            padding: 4px;
             background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
         }
         .av-tab-nav-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 9px 18px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 600;
             color: #94a3b8;
             background: transparent;
             border: 1px solid transparent;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s ease;
             text-decoration: none !important;
             user-select: none;
         }
         .av-tab-nav-btn:hover {
             color: #f8fafc;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
         }
-        .av-tab-nav-btn.is-active-tab.is-live {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.28) 100%);
-            color: #10b981;
-            border-color: rgba(16, 185, 129, 0.45);
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
-        }
-        .av-tab-nav-btn.is-active-tab.is-recent {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.28) 100%);
-            color: #f59e0b;
-            border-color: rgba(245, 158, 11, 0.45);
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+        .av-tab-nav-btn.is-active-tab {
+            background: #1e293b;
+            color: #f8fafc;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         .av-tab-nav-badge {
-            padding: 2px 7.5px;
+            padding: 2px 7px;
             border-radius: 999px;
             font-size: 11px;
-            font-weight: 800;
-            background: rgba(255, 255, 255, 0.08);
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.06);
             color: #94a3b8;
         }
-        .av-tab-nav-badge.is-badge-live {
-            background: #10b981;
-            color: #ffffff;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-        }
-        .av-tab-nav-badge.is-badge-recent {
-            background: #f59e0b;
-            color: #ffffff;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+        .av-tab-nav-btn.is-active-tab .av-tab-nav-badge {
+            background: rgba(255, 78, 0, 0.15);
+            color: #ff7849;
+            border: 1px solid rgba(255, 78, 0, 0.3);
         }
 
         /* ─── POP-UP & MODAL GENEL DÜZEN VE HİZALAMA STİLLERİ ─── */
@@ -836,8 +805,10 @@
                     </div>
                 </div>
                 <div class="war-value">
-                    <span>{{ $onlineCount }}</span>
-                    @if($onlineCount > 0)
+                    <span>{{ ($activeTab ?? 'live') === 'recent' ? ($recentCount ?? ($recentLeftCount ?? 0)) : ($onlineCount ?? 0) }}</span>
+                    @if(($activeTab ?? 'live') === 'recent')
+                        <span style="font-size: 13px; color: #f59e0b; font-weight: 700;">Ayrılan Misafir</span>
+                    @elseif(($onlineCount ?? 0) > 0)
                         <span style="font-size: 13px; color: #10b981; font-weight: 700;">Canlı Yayında</span>
                     @else
                         <span style="font-size: 13px; color: #94a3b8; font-weight: 700;">Radar Dinlemede</span>
@@ -845,8 +816,13 @@
                 </div>
                 <div class="war-subtext" style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="color: {{ $onlineCount > 0 ? '#10b981' : '#64748b' }};">●</span>
-                        <span>{{ $onlineCount > 0 ? 'Anlık canlı sinyal verenler' : 'Canlı sinyal bekleniyor' }}</span>
+                        @if(($activeTab ?? 'live') === 'recent')
+                            <span style="color: #f59e0b;">●</span>
+                            <span>Son 24 saat içinde sitede gezinenler</span>
+                        @else
+                            <span style="color: {{ ($onlineCount ?? 0) > 0 ? '#10b981' : '#64748b' }};">●</span>
+                            <span>{{ ($onlineCount ?? 0) > 0 ? 'Anlık canlı sinyal verenler' : 'Canlı sinyal bekleniyor' }}</span>
+                        @endif
                     </div>
                     <div style="font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%;">
                         <span title="Bugünkü Tekil Ziyaretçi">Bugün: <strong style="color: #38bdf8;">{{ number_format($todayVisitorsCount ?? ($dailyTraffic['unique_visitors'] ?? 0)) }}</strong></span>
@@ -862,7 +838,7 @@
             <div wire:click="setCardFilter('cart')" class="war-card {{ ($activeCardFilter ?? 'all') === 'cart' ? 'is-active-filter' : '' }}" title="Sepetinde ürün olanları filtrelemek için tıklayın">
                 <div class="war-card-top-bar" style="background: linear-gradient(90deg, #06b6d4, #0284c7);"></div>
                 <div class="war-header-row">
-                    <span class="war-label">Bekleyen Sepetler</span>
+                    <span class="war-label">{{ ($activeTab ?? 'live') === 'recent' ? 'Terk Edilen Sepetler' : 'Bekleyen Sepetler' }}</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         @if(($activeCardFilter ?? 'all') === 'cart')
                             <span class="war-card-active-pill">FİLTRE</span>
@@ -871,15 +847,27 @@
                     </div>
                 </div>
                 <div class="war-value" style="color: #38bdf8;">
-                    <span>{{ number_format($cartTotal, 2) }} ₺</span>
+                    <span>{{ number_format($cartTotal ?? 0, 2) }} ₺</span>
                 </div>
                 <div class="war-subtext">
-                    @if(($liveCartCount ?? 0) > 0)
-                        <strong style="color: #38bdf8;">{{ $liveCartCount }} canlı sepette</strong> ödeme bekleniyor
-                    @elseif(($cartCount ?? 0) > 0)
-                        <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                    @if(($activeTab ?? 'live') === 'recent')
+                        @if(($recentCartCount ?? 0) > 0)
+                            <strong style="color: #38bdf8;">{{ $recentCartCount }} sepette</strong> ürün terk edildi
+                        @elseif(($cartCount ?? 0) > 0)
+                            <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                        @else
+                            <span>Sepette bekleyen ürün bulunmuyor</span>
+                        @endif
                     @else
-                        <span>Sepette bekleyen ürün bulunmuyor</span>
+                        @if(($liveCartCount ?? 0) > 0)
+                            <strong style="color: #38bdf8;">{{ $liveCartCount }} canlı sepette</strong> ödeme bekleniyor
+                        @elseif(($recentCartCount ?? 0) > 0)
+                            <strong style="color: #38bdf8;">{{ $recentCartCount }} sepette (24s)</strong> {{ number_format($recentCartTotal ?? $cartTotal, 2) }} ₺ bekliyor
+                        @elseif(($cartCount ?? 0) > 0)
+                            <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                        @else
+                            <span>Sepette bekleyen ürün bulunmuyor</span>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -897,14 +885,22 @@
                     </div>
                 </div>
                 <div class="war-value" style="color: #ffedd5;">
-                    <span>{{ $highIntentCount }}</span>
+                    <span>{{ $highIntentCount ?? 0 }}</span>
                     <span style="font-size: 12px; color: #fb923c; font-weight: 700;">
-                        {{ ($liveHighIntentCount ?? 0) > 0 ? 'Canlı Aday' : 'Müşteri' }}
+                        @if(($activeTab ?? 'live') === 'recent')
+                            {{ ($highIntentCount ?? 0) > 0 ? '24s Adayı' : 'Müşteri' }}
+                        @else
+                            {{ ($liveHighIntentCount ?? 0) > 0 ? 'Canlı Aday' : (($recentHighIntentCount ?? 0) > 0 ? '24s Adayı' : 'Müşteri') }}
+                        @endif
                     </span>
                 </div>
                 <div class="war-subtext">
-                    @if(($liveHighIntentCount ?? 0) > 0)
+                    @if(($activeTab ?? 'live') === 'recent')
+                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> (Son 24s)
+                    @elseif(($liveHighIntentCount ?? 0) > 0)
                         Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> (Canlı)
+                    @elseif(($recentHighIntentCount ?? 0) > 0)
+                        Son 24 saatte <strong style="color: #fb923c;">{{ $recentHighIntentCount }} sıcak aday</strong> tespit edildi
                     @else
                         Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> adaylar
                     @endif
@@ -924,14 +920,22 @@
                     </div>
                 </div>
                 <div class="war-value" style="color: #fde68a;">
-                    <span>{{ $hesitatingCount }}</span>
+                    <span>{{ $hesitatingCount ?? 0 }}</span>
                     <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">
-                        {{ ($liveHesitatingCount ?? 0) > 0 ? 'Canlı Müdahale' : 'Tespit Edildi' }}
+                        @if(($activeTab ?? 'live') === 'recent')
+                            {{ ($hesitatingCount ?? 0) > 0 ? '24s Tespit' : 'Tespit Edildi' }}
+                        @else
+                            {{ ($liveHesitatingCount ?? 0) > 0 ? 'Canlı Müdahale' : (($recentHesitatingCount ?? 0) > 0 ? '24s Tespit' : 'Tespit Edildi') }}
+                        @endif
                     </span>
                 </div>
                 <div class="war-subtext">
-                    @if(($liveHesitatingCount ?? 0) > 0)
+                    @if(($activeTab ?? 'live') === 'recent')
+                        <strong style="color: #f59e0b;">Beden veya kargo bariyeri</strong> yaşayan son ziyaretçiler
+                    @elseif(($liveHesitatingCount ?? 0) > 0)
                         <strong style="color: #f59e0b;">Beden/kargo bariyeri</strong> (Hızlı indirim önerilir)
+                    @elseif(($recentHesitatingCount ?? 0) > 0)
+                        Son 24 saatte <strong style="color: #f59e0b;">{{ $recentHesitatingCount }} tereddüt</strong> tespit edildi
                     @else
                         <span>Beden veya kargo bariyeri algılandı</span>
                     @endif
@@ -951,12 +955,12 @@
                     </div>
                 </div>
                 <div class="war-value" style="font-size: 20px;">
-                    <span style="color: #c4b5fd;">{{ $membersCount }} Üye</span>
+                    <span style="color: #c4b5fd;">{{ $membersCount ?? 0 }} Üye</span>
                     <span style="font-size: 13px; color: #64748b;">/</span>
-                    <span style="color: #94a3b8; font-size: 18px;">{{ $guestsCount }} Misafir</span>
+                    <span style="color: #94a3b8; font-size: 18px;">{{ $guestsCount ?? 0 }} Misafir</span>
                 </div>
                 <div class="war-subtext">
-                    Giriş oranı: <strong style="color: #a78bfa;">%{{ $loginRate ?? 0 }}</strong> {{ ($onlineCount ?? 0) > 0 ? '(Canlı)' : '(Genel)' }}
+                    Giriş oranı: <strong style="color: #a78bfa;">%{{ $loginRate ?? 0 }}</strong> {{ (($activeTab ?? 'live') === 'live' && ($onlineCount ?? 0) > 0) ? '(Canlı)' : '(24s / Genel)' }}
                 </div>
             </div>
         </div>
@@ -1269,7 +1273,7 @@
                class="av-tab-nav-btn {{ ($activeTab ?? 'live') === 'recent' ? 'is-active-tab is-recent' : '' }}">
                 <span>⏱️ Son Ziyaret Edenler (Ayrılanlar)</span>
                 <span class="av-tab-nav-badge {{ ($activeTab ?? 'live') === 'recent' ? 'is-badge-recent' : '' }}">
-                    {{ $recentCount ?? 0 }}
+                    {{ $recentCount ?? ($recentLeftCount ?? 0) }}
                 </span>
             </a>
         </div>
