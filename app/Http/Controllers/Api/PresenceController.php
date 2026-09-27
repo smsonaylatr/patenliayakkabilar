@@ -80,9 +80,9 @@ class PresenceController extends Controller
         // 3. Sepet Durumunu İlişkilendir
         $cart = null;
         if (auth()->check()) {
-            $cart = Cart::where('user_id', auth()->id())->with(['items.product', 'items.variant'])->first();
+            $cart = Cart::where('user_id', auth()->id())->with(['items.product.images', 'items.variant'])->first();
         } elseif ($request->hasSession()) {
-            $cart = Cart::where('session_id', $request->session()->getId())->with(['items.product', 'items.variant'])->first();
+            $cart = Cart::where('session_id', $request->session()->getId())->with(['items.product.images', 'items.variant'])->first();
         }
 
         if ($cart) {
@@ -95,8 +95,13 @@ class PresenceController extends Controller
                 foreach ($cart->items as $item) {
                     $color = $item->variant?->color;
                     $size = $item->variant?->size;
+                    $itemProduct = $item->product;
+                    $itemImage = $itemProduct ? ($itemProduct->images->first()?->image_url ?? $itemProduct->images->first()?->raw_image_url) : null;
                     $summary[] = [
-                        'product_name' => $item->product?->name ?? 'Patenli Ayakkabı',
+                        'product_id' => $item->product_id,
+                        'product_name' => $itemProduct?->name ?? 'Patenli Ayakkabı',
+                        'product_image' => $itemImage,
+                        'product_url' => $itemProduct ? ('/urun/' . $itemProduct->slug) : null,
                         'size' => is_array($size) ? implode(', ', $size) : ($size ?? null),
                         'color' => is_array($color) ? implode(', ', $color) : ($color ?? null),
                         'quantity' => $item->quantity,

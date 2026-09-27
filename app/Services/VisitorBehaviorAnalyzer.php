@@ -41,6 +41,12 @@ class VisitorBehaviorAnalyzer
                 $trail[$lastIndex]['badge'] = $pageInfo['badge'];
                 $trail[$lastIndex]['icon'] = $pageInfo['icon'];
                 $trail[$lastIndex]['color'] = $pageInfo['color'];
+                if (!empty($pageInfo['image'])) {
+                    $trail[$lastIndex]['image'] = $pageInfo['image'];
+                }
+                if (!empty($pageInfo['price'])) {
+                    $trail[$lastIndex]['price'] = $pageInfo['price'];
+                }
                 $visitor->journey_trail = $trail;
             } else {
                 // Önceki adım varsa süresini güncelle
@@ -55,6 +61,8 @@ class VisitorBehaviorAnalyzer
                     'badge' => $pageInfo['badge'],
                     'icon' => $pageInfo['icon'],
                     'color' => $pageInfo['color'],
+                    'image' => $pageInfo['image'] ?? null,
+                    'price' => $pageInfo['price'] ?? null,
                     'time' => $nowFormatted,
                     'action' => $action,
                     'detail' => $actionDetail,

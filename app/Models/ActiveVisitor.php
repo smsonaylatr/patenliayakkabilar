@@ -142,6 +142,10 @@ class ActiveVisitor extends Model
      */
     public static function resolvePageInfo(?string $path, ?string $rawTitle = null): array
     {
+        if ($path && (str_starts_with($path, 'http://') || str_starts_with($path, 'https://'))) {
+            $parsed = parse_url($path, PHP_URL_PATH);
+            $path = $parsed ?: '/';
+        }
         $path = '/' . ltrim($path ?: '/', '/');
         $pathWithoutQuery = explode('?', $path)[0];
         $cacheKey = $pathWithoutQuery . '|' . ($rawTitle ?? '');
@@ -232,9 +236,28 @@ class ActiveVisitor extends Model
             if ($slug) {
                 $slugClean = explode('?', $slug)[0];
                 if (!array_key_exists($slugClean, static::$productCache)) {
-                    static::$productCache[$slugClean] = \App\Models\Product::where('slug', $slugClean)->with('images')->first();
+                    $found = \App\Models\Product::where('slug', $slugClean)
+                        ->orWhere('slug', urldecode($slugClean))
+                        ->with('images')
+                        ->first();
+
+                    if (!$found && !empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0) {
+                        $found = \App\Models\Product::where('name', $cleanTitle)
+                            ->orWhere('name', 'like', '%' . $cleanTitle . '%')
+                            ->with('images')
+                            ->first();
+                    }
+
+                    static::$productCache[$slugClean] = $found;
                 }
                 $product = static::$productCache[$slugClean];
+            }
+
+            if (!$product && !empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0) {
+                $product = \App\Models\Product::where('name', $cleanTitle)
+                    ->orWhere('name', 'like', '%' . $cleanTitle . '%')
+                    ->with('images')
+                    ->first();
             }
 
             $productTitle = $product ? $product->name : ($cleanTitle ?: \Illuminate\Support\Str::headline($slugClean ?? 'urun'));
@@ -242,10 +265,13 @@ class ActiveVisitor extends Model
                 $productTitle .= ' (Yorumlar)';
             }
 
+            $productImage = $product ? ($product->images->first()?->image_url ?? $product->images->first()?->raw_image_url) : null;
+            $productPrice = $product ? ($product->discount_price ?: $product->price) : null;
+
             $info = [
                 'type' => 'product',
                 'title' => $productTitle,
-                'subtitle' => $isReviews ? 'Müşteri Değerlendirmeleri' : ($product ? number_format($product->discount_price ?: $product->price, 2) . ' ₺ • İnceliyor' : 'Ürün İnceleme'),
+                'subtitle' => $isReviews ? 'Müşteri Değerlendirmeleri' : ($productPrice ? number_format($productPrice, 2) . ' ₺ • İnceliyor' : 'Ürün İnceleme'),
                 'badge' => $isReviews ? 'Ürün Yorumları' : 'Ürün Detayı',
                 'icon' => $isReviews ? '⭐' : '👟',
                 'color' => '#ff7849',
@@ -254,6 +280,8 @@ class ActiveVisitor extends Model
                 'is_product' => true,
                 'is_checkout' => false,
                 'product' => $product,
+                'image' => $productImage,
+                'price' => $productPrice,
             ];
             return static::$pageInfoCache[$cacheKey] = $info;
         }
@@ -507,22 +535,44 @@ class ActiveVisitor extends Model
 
     public function getCurrentProductAttribute(): ?\App\Models\Product
     {
+        $info = $this->page_info;
+        if (!empty($info['product'])) {
+            return $info['product'];
+        }
+
         if (!empty($this->current_path) && str_starts_with($this->current_path, '/urun/')) {
             $parts = explode('/', trim($this->current_path, '/'));
             $slug = $parts[1] ?? null;
             if ($slug) {
                 $slug = explode('?', $slug)[0];
                 if (!array_key_exists($slug, static::$productCache)) {
-                    static::$productCache[$slug] = \App\Models\Product::where('slug', $slug)->with('images')->first();
+                    static::$productCache[$slug] = \App\Models\Product::where('slug', $slug)
+                        ->orWhere('slug', urldecode($slug))
+                        ->with('images')
+                        ->first();
                 }
-                return static::$productCache[$slug];
+                $product = static::$productCache[$slug];
+                if ($product) return $product;
             }
         }
+
+        if (!empty($this->current_title)) {
+            $clean = static::cleanTitle($this->current_title);
+            if (!empty($clean) && strcasecmp($clean, 'Patenli Ayakkabılar') !== 0) {
+                return \App\Models\Product::where('name', $clean)->with('images')->first();
+            }
+        }
+
         return null;
     }
 
     public function getCurrentProductImageAttribute(): ?string
     {
+        $info = $this->page_info;
+        if (!empty($info['image'])) {
+            return $info['image'];
+        }
+
         $product = $this->current_product;
         if (!$product) return null;
         return $product->images->first()?->image_url ?? $product->images->first()?->raw_image_url;

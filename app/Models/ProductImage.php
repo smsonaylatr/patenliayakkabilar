@@ -39,7 +39,7 @@ class ProductImage extends Model
      */
     public function getImageUrlAttribute(): string
     {
-        $originalUrl = Storage::disk('public')->url($this->image_path);
+        $originalUrl = $this->raw_image_url;
         
         // Geliştirme ortamında veya çoktan optimize edilmiş CDN url'siyse orijinali döndür
         if (app()->environment('local') || str_contains($originalUrl, 'wsrv.nl')) {

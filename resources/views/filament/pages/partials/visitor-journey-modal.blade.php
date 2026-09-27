@@ -60,28 +60,60 @@
             </div>
             <div style="background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden;">
                 @foreach($record->cart_summary as $item)
-                    <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
-                        <div>
-                            <div style="font-weight: 700; color: #ffffff; font-size: 13px;">{{ $item['product_name'] ?? 'Patenli Ayakkabı' }}</div>
-                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
-                                @if(!empty($item['size']))
-                                    @php
-                                        $sizeVal = is_array($item['size']) ? implode(', ', $item['size']) : $item['size'];
-                                    @endphp
-                                    <span style="background: rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; color: #f8fafc; margin-right: 4px;">
-                                        Beden: {{ $sizeVal }}
-                                    </span>
-                                @endif
-                                @if(!empty($item['color']))
-                                    @php
-                                        $colorVal = is_array($item['color']) ? implode(', ', $item['color']) : $item['color'];
-                                    @endphp
-                                    <span>Renk: {{ $colorVal }} • </span>
-                                @endif
-                                <span>{{ $item['quantity'] ?? 1 }} Adet</span>
+                    @php
+                        $itemImage = $item['product_image'] ?? null;
+                        if (!$itemImage && $record->cart) {
+                            $matched = $record->cart->items->first(function ($ci) use ($item) {
+                                return ($ci->product?->name === ($item['product_name'] ?? ''))
+                                    || ($ci->product_id === ($item['product_id'] ?? null));
+                            });
+                            $itemImage = $matched?->product?->images?->first()?->image_url ?? $matched?->product?->images?->first()?->raw_image_url;
+                        }
+                        if (!$itemImage && !empty($item['product_name'])) {
+                            $prod = \App\Models\Product::where('name', $item['product_name'])->with('images')->first();
+                            $itemImage = $prod?->images?->first()?->image_url ?? $prod?->images?->first()?->raw_image_url;
+                        }
+                        $productUrl = $item['product_url'] ?? null;
+                    @endphp
+                    <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                            @if ($itemImage)
+                                <img src="{{ $itemImage }}" alt="{{ $item['product_name'] ?? '' }}" style="width: 46px; height: 46px; min-width: 46px; max-width: 46px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); flex-shrink: 0;" />
+                            @else
+                                <div style="width: 46px; height: 46px; min-width: 46px; max-width: 46px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                                    👟
+                                </div>
+                            @endif
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 700; color: #ffffff; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    @if($productUrl)
+                                        <a href="{{ $productUrl }}" target="_blank" style="color: #ffffff; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#ffffff'">
+                                            {{ $item['product_name'] ?? 'Patenli Ayakkabı' }} ↗
+                                        </a>
+                                    @else
+                                        {{ $item['product_name'] ?? 'Patenli Ayakkabı' }}
+                                    @endif
+                                </div>
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                    @if(!empty($item['size']))
+                                        @php
+                                            $sizeVal = is_array($item['size']) ? implode(', ', $item['size']) : $item['size'];
+                                        @endphp
+                                        <span style="background: rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; color: #f8fafc; margin-right: 4px;">
+                                            Beden: {{ $sizeVal }}
+                                        </span>
+                                    @endif
+                                    @if(!empty($item['color']))
+                                        @php
+                                            $colorVal = is_array($item['color']) ? implode(', ', $item['color']) : $item['color'];
+                                        @endphp
+                                        <span>Renk: {{ $colorVal }} • </span>
+                                    @endif
+                                    <span>{{ $item['quantity'] ?? 1 }} Adet</span>
+                                </div>
                             </div>
                         </div>
-                        <div style="font-size: 13px; font-weight: 800; color: #38bdf8;">
+                        <div style="font-size: 13px; font-weight: 800; color: #10b981; flex-shrink: 0;">
                             {{ number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 2) }} ₺
                         </div>
                     </div>
@@ -114,17 +146,52 @@
                         $displayTitle = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
                             ? $cleanTitle
                             : $stepInfo['title'];
+
+                        $stepProduct = $stepInfo['product'] ?? null;
+                        $stepImage = $step['image'] ?? $stepInfo['image'] ?? null;
+                        if (!$stepImage && $stepProduct) {
+                            $stepImage = $stepProduct->images->first()?->image_url ?? $stepProduct->images->first()?->raw_image_url;
+                        }
+                        if (!$stepImage && ($stepInfo['is_product'] ?? false)) {
+                            // Slug veya başlık ile son çare ürün bulma
+                            $parts = explode('/', trim(explode('?', $stepPath)[0], '/'));
+                            $slug = $parts[1] ?? null;
+                            if ($slug) {
+                                $foundProduct = \App\Models\Product::where('slug', $slug)
+                                    ->orWhere('slug', urldecode($slug))
+                                    ->with('images')
+                                    ->first();
+                                if ($foundProduct) {
+                                    $stepProduct = $foundProduct;
+                                    $stepImage = $foundProduct->images->first()?->image_url ?? $foundProduct->images->first()?->raw_image_url;
+                                }
+                            }
+                            if (!$stepImage && !empty($displayTitle)) {
+                                $foundProduct = \App\Models\Product::where('name', $displayTitle)
+                                    ->orWhere('name', 'like', '%' . $displayTitle . '%')
+                                    ->with('images')
+                                    ->first();
+                                if ($foundProduct) {
+                                    $stepProduct = $foundProduct;
+                                    $stepImage = $foundProduct->images->first()?->image_url ?? $foundProduct->images->first()?->raw_image_url;
+                                }
+                            }
+                        }
+                        $stepPrice = $stepInfo['price'] ?? ($stepProduct ? ($stepProduct->discount_price ?: $stepProduct->price) : null);
+                        $isProduct = $stepInfo['is_product'] ?? (bool) $stepProduct;
                     @endphp
                     <div style="position: relative;">
-                        <span style="position: absolute; left: -27px; top: 12px; width: 12px; height: 12px; border-radius: 50%; background: {{ $isCurrent ? '#ff4e00' : '#475569' }}; box-shadow: 0 0 10px {{ $isCurrent ? '#ff4e00' : 'transparent' }};"></span>
-                        <div style="background: #1e293b; padding: 12px 16px; border-radius: 14px; border: 1px solid {{ $isCurrent ? 'rgba(255, 78, 0, 0.4)' : 'rgba(255, 255, 255, 0.08)' }}; {{ $isCurrent ? 'box-shadow: 0 4px 16px rgba(255, 78, 0, 0.08);' : '' }}">
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px;">
+                        <span style="position: absolute; left: -27px; top: 16px; width: 12px; height: 12px; border-radius: 50%; background: {{ $isCurrent ? '#ff4e00' : '#475569' }}; box-shadow: 0 0 10px {{ $isCurrent ? '#ff4e00' : 'transparent' }};"></span>
+                        <div style="background: #1e293b; padding: 14px 16px; border-radius: 14px; border: 1px solid {{ $isCurrent ? 'rgba(255, 78, 0, 0.4)' : 'rgba(255, 255, 255, 0.08)' }}; {{ $isCurrent ? 'box-shadow: 0 4px 16px rgba(255, 78, 0, 0.1);' : '' }}">
+                            
+                            {{-- Üst Başlık Satırı: Badge ve Saat --}}
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
                                 <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                     <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
                                         {{ $icon }} {{ $badgeText }}
                                     </span>
                                     @if($isCurrent)
-                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
                                             ● ŞU AN BURADA
                                         </span>
                                     @endif
@@ -134,22 +201,55 @@
                                 </span>
                             </div>
 
-                            <div style="margin-bottom: 4px;">
-                                <a href="{{ $stepPath }}" target="_blank" style="font-weight: 800; font-size: 13.5px; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: color 0.15s;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#ffffff'">
-                                    <span>{{ $displayTitle }}</span>
-                                    <span style="font-size: 11px; color: #94a3b8;">↗</span>
-                                </a>
-                            </div>
+                            {{-- İçerik Satırı: Görsel + Bilgiler --}}
+                            <div style="display: flex; align-items: flex-start; gap: 14px;">
+                                {{-- Görsel / İkon Alanı --}}
+                                @if ($stepImage)
+                                    <a href="{{ $stepPath }}" target="_blank" style="display: block; flex-shrink: 0; position: relative;">
+                                        <img src="{{ $stepImage }}" alt="{{ $displayTitle }}" style="width: 58px; height: 58px; min-width: 58px; max-width: 58px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45); transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
+                                    </a>
+                                @elseif ($isProduct)
+                                    <div style="width: 58px; height: 58px; min-width: 58px; max-width: 58px; border-radius: 12px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+                                        👟
+                                    </div>
+                                @else
+                                    <div style="width: 50px; height: 50px; min-width: 50px; max-width: 50px; border-radius: 12px; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+                                        {{ $icon }}
+                                    </div>
+                                @endif
 
-                            <div style="font-size: 11px; color: #64748b; font-family: monospace; word-break: break-all;">
-                                {{ $stepPath }}
-                            </div>
+                                {{-- Metin ve Detaylar --}}
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="margin-bottom: 3px;">
+                                        <a href="{{ $stepPath }}" target="_blank" style="font-weight: 800; font-size: 13.5px; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; line-height: 1.35; transition: color 0.15s;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#ffffff'">
+                                            <span>{{ $displayTitle }}</span>
+                                            <span style="font-size: 11px; color: #94a3b8;">↗</span>
+                                        </a>
+                                    </div>
 
-                            @if(!empty($step['detail']))
-                                <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
-                                    🎯 {{ $step['detail'] }}
+                                    @if ($stepPrice)
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                            <span style="font-weight: 800; color: #10b981; font-size: 12.5px;">
+                                                {{ number_format($stepPrice, 2) }} ₺
+                                            </span>
+                                            <span style="font-size: 10px; color: #94a3b8; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1px 6px; border-radius: 4px;">
+                                                {{ $isCurrent ? 'Şu An İnceliyor' : 'İncelendi' }}
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    <div style="font-size: 10.5px; color: #64748b; font-family: monospace; word-break: break-all; margin-bottom: 2px;">
+                                        {{ $stepPath }}
+                                    </div>
+
+                                    @if(!empty($step['detail']))
+                                        <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+                                            🎯 {{ $step['detail'] }}
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
+
                         </div>
                     </div>
                 @endforeach

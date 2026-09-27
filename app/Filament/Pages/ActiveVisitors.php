@@ -135,7 +135,7 @@ class ActiveVisitors extends Page implements HasTable
             ->poll('5s')
             ->query(
                 ActiveVisitor::query()
-                    ->with(['user', 'cart.items.product'])
+                    ->with(['user', 'cart.items.product.images'])
                     ->where('last_heartbeat_at', '>=', now()->subMinutes(15))
                     ->latest('last_heartbeat_at')
             )

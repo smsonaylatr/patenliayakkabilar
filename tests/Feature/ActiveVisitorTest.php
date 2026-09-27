@@ -395,6 +395,58 @@ class ActiveVisitorTest extends TestCase
             ->assertSee('Sepet İndirimi')
             ->assertSee('SEPET10');
     }
+
+    public function test_journey_modal_renders_product_image_in_timeline_and_cart(): void
+    {
+        $product = \App\Models\Product::create([
+            'name' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+            'slug' => 'kick-speed-sky-roll-isikli-patenli-spor-ayakkabi',
+            'price' => 1999.00,
+            'discount_price' => 1799.00,
+            'status' => true,
+        ]);
+
+        \App\Models\ProductImage::create([
+            'product_id' => $product->id,
+            'image_path' => 'products/kick-speed-sky-roll.webp',
+            'sort_order' => 1,
+        ]);
+
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_img_test_' . uniqid(),
+            'current_url' => 'https://patenliayakkabilar.com/urun/kick-speed-sky-roll-isikli-patenli-spor-ayakkabi',
+            'current_path' => '/urun/kick-speed-sky-roll-isikli-patenli-spor-ayakkabi',
+            'current_title' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+            'cart_items_count' => 1,
+            'cart_total' => 1799.00,
+            'cart_summary' => [
+                [
+                    'product_name' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+                    'size' => '36',
+                    'color' => 'Mavi',
+                    'quantity' => 1,
+                    'price' => 1799.00,
+                ],
+            ],
+            'journey_trail' => [
+                [
+                    'path' => '/urun/kick-speed-sky-roll-isikli-patenli-spor-ayakkabi',
+                    'title' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+                    'time' => '03:44:58',
+                    'detail' => 'Sekmeye geri dönüldü',
+                ],
+            ],
+        ]);
+
+        $view = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
+
+        $this->assertStringContainsString('kick-speed-sky-roll.webp', $view);
+        $this->assertStringContainsString('Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı', $view);
+        $this->assertStringContainsString('1,799.00 ₺', $view);
+        $this->assertStringContainsString('Sekmeye geri dönüldü', $view);
+    }
 }
 
 
