@@ -327,6 +327,186 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
             background: rgba(0, 0, 0, 0.25) !important;
         }
+
+        /* ─── SOSYAL MEDYA RENKLİ BUTON IZGARASI ─── */
+        .social-buttons-radio-container {
+            width: 100% !important;
+        }
+
+        .social-buttons-radio-container .fi-fo-radio-list,
+        .social-buttons-radio-container [role="radiogroup"],
+        .social-buttons-radio-container .grid {
+            gap: 12px !important;
+        }
+
+        /* Radio Öğesi Kapsayıcısı */
+        .social-buttons-radio-container .fi-fo-radio-item {
+            position: relative !important;
+            display: flex !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 14px !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .social-buttons-radio-container .fi-fo-radio-item label {
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex !important;
+            cursor: pointer !important;
+        }
+
+        /* Standart Radio Dairesini Gizle */
+        .social-buttons-radio-container input[type="radio"] {
+            position: absolute !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .social-buttons-radio-container .fi-fo-radio-label {
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Renkli Buton Kartı Taban Stili */
+        .social-card-btn {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            width: 100% !important;
+            min-height: 96px !important;
+            padding: 16px 10px !important;
+            border-radius: 14px !important;
+            position: relative !important;
+            border: 2px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            cursor: pointer !important;
+            user-select: none !important;
+        }
+
+        .social-card-btn:hover {
+            transform: translateY(-2px) !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        /* İkon ve Başlıklar */
+        .social-card-btn .card-svg {
+            width: 32px !important;
+            height: 32px !important;
+            margin-bottom: 8px !important;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4)) !important;
+        }
+
+        .social-card-btn .card-title {
+            font-size: 13.5px !important;
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            letter-spacing: 0.02em !important;
+            line-height: 1.2 !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .social-card-btn .card-sub {
+            font-size: 10px !important;
+            font-weight: 600 !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            margin-top: 4px !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* 1. WHATSAPP BUTONU */
+        .social-card-btn.channel-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+        }
+        .social-card-btn.channel-whatsapp:hover {
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.45) !important;
+        }
+
+        /* 2. TELEFON ARAMA BUTONU */
+        .social-card-btn.channel-call {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+        }
+        .social-card-btn.channel-call:hover {
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.45) !important;
+        }
+
+        /* 3. INSTAGRAM BUTONU */
+        .social-card-btn.channel-instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+        }
+        .social-card-btn.channel-instagram:hover {
+            box-shadow: 0 10px 25px rgba(225, 48, 108, 0.45) !important;
+        }
+
+        /* 4. TIKTOK BUTONU */
+        .social-card-btn.channel-tiktok {
+            background: linear-gradient(135deg, #09090b 0%, #1c1917 100%) !important;
+            border-color: rgba(254, 44, 85, 0.6) !important;
+        }
+        .social-card-btn.channel-tiktok .card-svg {
+            color: #fe2c55 !important;
+        }
+        .social-card-btn.channel-tiktok:hover {
+            box-shadow: 0 10px 25px rgba(254, 44, 85, 0.45) !important;
+            border-color: #fe2c55 !important;
+        }
+
+        /* 5. FACEBOOK BUTONU */
+        .social-card-btn.channel-facebook {
+            background: linear-gradient(135deg, #1877F2 0%, #0d5bb5 100%) !important;
+        }
+        .social-card-btn.channel-facebook:hover {
+            box-shadow: 0 10px 25px rgba(24, 119, 242, 0.45) !important;
+        }
+
+        /* 6. TELEGRAM BUTONU */
+        .social-card-btn.channel-telegram {
+            background: linear-gradient(135deg, #229ED9 0%, #1783b8 100%) !important;
+        }
+        .social-card-btn.channel-telegram:hover {
+            box-shadow: 0 10px 25px rgba(34, 158, 217, 0.45) !important;
+        }
+
+        /* 7. SITE İÇİ ARAMA BUTONU */
+        .social-card-btn.channel-search {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+        }
+        .social-card-btn.channel-search:hover {
+            box-shadow: 0 10px 25px rgba(234, 88, 12, 0.45) !important;
+        }
+
+        /* ─── SEÇİLİ OLAN BUTONUN AKTİF PARLAMA EFEKTİ ─── */
+        .social-buttons-radio-container .fi-fo-radio-item:has(input:checked) .social-card-btn,
+        .social-buttons-radio-container label:has(input:checked) .social-card-btn {
+            border-color: #ffffff !important;
+            transform: translateY(-3px) scale(1.025) !important;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .social-buttons-radio-container .fi-fo-radio-item:has(input:checked) .social-card-btn::after,
+        .social-buttons-radio-container label:has(input:checked) .social-card-btn::after {
+            content: '✓ SEÇİLDİ' !important;
+            position: absolute !important;
+            top: 6px !important;
+            right: 8px !important;
+            background: #ffffff !important;
+            color: #0f172a !important;
+            font-size: 9px !important;
+            font-weight: 900 !important;
+            padding: 2px 6px !important;
+            border-radius: 9999px !important;
+            letter-spacing: 0.04em !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+        }
     </style>
 
     <div wire:poll.5s class="space-y-4">

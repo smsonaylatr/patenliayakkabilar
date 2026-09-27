@@ -1364,62 +1364,82 @@ class ActiveVisitors extends Page implements HasTable
     }
 
     /**
-     * Yönlendirme ve anonslarda kullanılacak doğrulanmış güncel sayfa, site dışı link ve kategori seçenekleri
+     * Sadece kayıtlı sosyal medya ve iletişim kanalları için renkli & ikonlu buton seçenekleri
      */
-    public static function getTargetUrlOptions(): array
+    public static function getSocialChannelOptions(): array
     {
-        $options = [
-            '📱 SOSYAL MEDYA & İLETİŞİM' => [
-                'whatsapp' => '💬 WhatsApp Sohbet & Bilgi Hattı',
-                'call' => '📞 Telefonla Doğrudan Arama (Hemen Ara - tel:)',
-                'instagram' => '📸 Instagram Profil Sayfamız',
-                'tiktok' => '🎵 TikTok Hesabımız',
-                'telegram' => '✈️ Telegram Destek & Duyuru Kanalı',
-                'facebook' => '📘 Facebook Resmi Sayfamız',
-                'search' => '🔍 Sitede Otomatik Arama Yap',
-            ],
-            '⚡ HIZLI DÖNÜŞÜM & SİTE SAYFALARI' => [
-                '/' => '🏠 Ana Sayfa (Vitrin & Popüler Modeller)',
-                '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
-                '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
-                '/iletisim' => '📞 İletişim & Canlı Destek Sayfası',
-            ],
+        return [
+            'whatsapp' => new HtmlString('
+                <div class="social-card-btn channel-whatsapp">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                    </svg>
+                    <span class="card-title">WhatsApp Sohbet</span>
+                    <span class="card-sub">Kayıtlı Destek Hattı</span>
+                </div>
+            '),
+
+            'call' => new HtmlString('
+                <div class="social-card-btn channel-call">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span class="card-title">Telefon Arama</span>
+                    <span class="card-sub">Hemen Ara (tel:)</span>
+                </div>
+            '),
+
+            'instagram' => new HtmlString('
+                <div class="social-card-btn channel-instagram">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    <span class="card-title">Instagram</span>
+                    <span class="card-sub">@patenliayakkabilar</span>
+                </div>
+            '),
+
+            'tiktok' => new HtmlString('
+                <div class="social-card-btn channel-tiktok">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                    </svg>
+                    <span class="card-title">TikTok</span>
+                    <span class="card-sub">@patenliayakkabilar</span>
+                </div>
+            '),
+
+            'facebook' => new HtmlString('
+                <div class="social-card-btn channel-facebook">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span class="card-title">Facebook</span>
+                    <span class="card-sub">Resmi Sayfamız</span>
+                </div>
+            '),
+
+            'telegram' => new HtmlString('
+                <div class="social-card-btn channel-telegram">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.196 1.006.128.832.942z"/>
+                    </svg>
+                    <span class="card-title">Telegram</span>
+                    <span class="card-sub">Canlı Destek Hattı</span>
+                </div>
+            '),
+
+            'search' => new HtmlString('
+                <div class="social-card-btn channel-search">
+                    <svg class="card-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span class="card-title">Site İçi Arama</span>
+                    <span class="card-sub">Kelime & Ürün Ara</span>
+                </div>
+            '),
         ];
-
-        // Kategoriler
-        $categoryOptions = [];
-        try {
-            $categories = \App\Models\Category::where('status', true)->orderBy('id')->get();
-            if ($categories->isEmpty()) {
-                $categoryOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-                $categoryOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
-            } else {
-                foreach ($categories as $cat) {
-                    $icon = match (true) {
-                        str_contains($cat->slug, 'kiz') => '👧',
-                        str_contains($cat->slug, 'erkek') => '👦',
-                        str_contains($cat->slug, 'cocuk') => '🧒',
-                        str_contains($cat->slug, 'kadin') => '👩',
-                        default => '🏷️',
-                    };
-                    $categoryOptions['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
-                }
-            }
-        } catch (\Throwable $e) {
-            $categoryOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-            $categoryOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
-        }
-
-        if (!empty($categoryOptions)) {
-            $options['📂 KATEGORİ SAYFALARI'] = $categoryOptions;
-        }
-
-        $options['🌐 ÖZEL / HARİCİ LİNKLER'] = [
-            'custom_internal' => '🔗 Özel Site İçi Sayfa Linki (/sayfa-adi)',
-            'custom_external' => '🌐 Site Dışı Link (Harici Web Sitesi, Özel URL)',
-        ];
-
-        return $options;
     }
 
     /**
@@ -1427,96 +1447,57 @@ class ActiveVisitors extends Page implements HasTable
      */
     public static function resolveRedirectUrl(array $data): string
     {
-        // Hedef belirleme: target_destination veya quick_target veya channel veya direct url
-        $target = $data['target_destination'] ?? $data['quick_target'] ?? $data['target_url'] ?? $data['channel'] ?? 'whatsapp';
+        $channel = $data['channel'] ?? 'whatsapp';
 
-        // Eğer doğrudan / ile başlayan bir site içi yol veya tam URL girildiyse
-        if (str_starts_with($target, '/') || str_starts_with($target, 'http://') || str_starts_with($target, 'https://') || str_starts_with($target, 'tel:')) {
-            return self::normalizeUrl($target);
-        }
-
-        switch ($target) {
+        switch ($channel) {
             case 'whatsapp':
-                $rawNumber = preg_replace('/[^0-9]/', '', (string) ($data['whatsapp_number'] ?? ''));
-                if (empty($rawNumber)) {
-                    $rawNumber = preg_replace('/[^0-9]/', '', (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567'));
-                }
+                $rawNumber = (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567');
+                $rawNumber = preg_replace('/[^0-9]/', '', $rawNumber);
                 if (strlen($rawNumber) === 10 && str_starts_with($rawNumber, '5')) {
                     $rawNumber = '90' . $rawNumber;
                 } elseif (strlen($rawNumber) === 11 && str_starts_with($rawNumber, '0')) {
                     $rawNumber = '90' . substr($rawNumber, 1);
                 }
-                $url = 'https://wa.me/' . $rawNumber;
-                if (!empty($data['whatsapp_message'])) {
-                    $url .= '?text=' . urlencode($data['whatsapp_message']);
-                }
-                return $url;
+                return 'https://wa.me/' . $rawNumber;
 
             case 'call':
-                $rawPhone = trim((string) ($data['phone_number'] ?? ''));
-                if (empty($rawPhone)) {
-                    $rawPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
-                }
+                $rawPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
                 $cleanDigits = preg_replace('/[^\+0-9]/', '', $rawPhone);
                 return 'tel:' . $cleanDigits;
 
             case 'instagram':
-                $acc = trim((string) ($data['instagram_account'] ?? ''));
-                if (empty($acc)) {
-                    $acc = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
-                }
+                $acc = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://instagram.com/' . ltrim($acc, '@');
                 }
                 return $acc;
 
             case 'tiktok':
-                $acc = trim((string) ($data['tiktok_account'] ?? ''));
-                if (empty($acc)) {
-                    $acc = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
-                }
+                $acc = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://tiktok.com/@' . ltrim($acc, '@');
                 }
                 return $acc;
 
-            case 'telegram':
-                $acc = trim((string) ($data['telegram_account'] ?? ''));
-                if (empty($acc)) {
-                    $acc = 'https://t.me/patenliayakkabilar';
-                }
-                if (!str_starts_with($acc, 'http')) {
-                    $acc = 'https://t.me/' . ltrim($acc, '@');
-                }
-                return $acc;
-
             case 'facebook':
-                $acc = trim((string) ($data['facebook_page'] ?? ''));
-                if (empty($acc)) {
-                    $acc = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
-                }
+                $acc = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://facebook.com/' . ltrim($acc, '/');
                 }
                 return $acc;
 
+            case 'telegram':
+                return 'https://t.me/patenliayakkabilar';
+
             case 'search':
                 $q = trim((string) ($data['search_query'] ?? ''));
                 return '/patenli-ayakkabilar' . (!empty($q) ? '?search=' . urlencode($q) : '');
-
-            case 'checkout':
-                return '/checkout';
-
-            case 'custom_internal':
-            case 'custom_external':
-            case 'custom':
-                return self::normalizeUrl($data['custom_url'] ?? '/');
 
             default:
                 if (!empty($data['custom_url'])) {
                     return self::normalizeUrl($data['custom_url']);
                 }
-                return self::normalizeUrl($target);
+                return '/';
         }
     }
 
@@ -1525,135 +1506,27 @@ class ActiveVisitors extends Page implements HasTable
      */
     public static function getRedirectFormSchema(): array
     {
-        $defaultPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
-        $defaultWhatsapp = (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567');
-        $defaultInstagram = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
-        $defaultTiktok = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
-        $defaultFacebook = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
-
         return [
-            // 1. Hızlı Kanal / Buton Seçimi (Kullanıcı ister üstten hızlı tıklar)
             Radio::make('channel')
-                ->label('🚀 Hızlı Kanal Seçimi')
-                ->options([
-                    'whatsapp' => '💬 WhatsApp',
-                    'call' => '📞 Telefon Arama',
-                    'instagram' => '📸 Instagram',
-                    'tiktok' => '🎵 TikTok',
-                    'telegram' => '✈️ Telegram',
-                    'facebook' => '📘 Facebook',
-                    'search' => '🔍 Arama',
-                    'page' => '📄 Sayfa Seç',
-                    'custom' => '🌐 Özel Link',
-                ])
+                ->label('🚀 Yönlendirilecek Kayıtlı Sosyal Medya veya Kanalı Seçin')
+                ->options(self::getSocialChannelOptions())
+                ->extraAttributes(['class' => 'social-buttons-radio-container'])
                 ->columns([
-                    'default' => 3,
-                    'sm' => 3,
-                    'md' => 5,
-                    'lg' => 5,
+                    'default' => 2,
+                    'sm' => 2,
+                    'md' => 3,
+                    'lg' => 4,
                 ])
                 ->default('whatsapp')
-                ->live()
-                ->afterStateUpdated(function ($state, $set) {
-                    if (in_array($state, ['whatsapp', 'call', 'instagram', 'tiktok', 'telegram', 'facebook', 'search'])) {
-                        $set('target_destination', $state);
-                    } elseif ($state === 'custom') {
-                        $set('target_destination', 'custom_external');
-                    } elseif ($state === 'page') {
-                        $set('target_destination', '/patenli-ayakkabilar');
-                    }
-                }),
+                ->live(),
 
-            // 2. Dropdown (Açıldığında Pop-up Uzayan Esas Seçim Listesi)
-            Select::make('target_destination')
-                ->label('🎯 Hedef Sayfa, Sosyal Medya veya Site Dışı Link')
-                ->native(false)
-                ->searchable()
-                ->options(self::getTargetUrlOptions())
-                ->default('whatsapp')
-                ->live()
-                ->afterStateUpdated(function ($state, $set) {
-                    if (in_array($state, ['whatsapp', 'call', 'instagram', 'tiktok', 'telegram', 'facebook', 'search'])) {
-                        $set('channel', $state);
-                    } elseif (in_array($state, ['custom_internal', 'custom_external', 'custom'])) {
-                        $set('channel', 'custom');
-                    } else {
-                        $set('channel', 'page');
-                    }
-                })
-                ->helperText('💡 Dropdown açıldığında tüm sosyal medya hesapları, arama, site içi sayfalar ve özel linkler ferah şekilde listelenir.'),
-
-            // WhatsApp Alanları
-            TextInput::make('whatsapp_number')
-                ->label('💬 WhatsApp Numarası veya wa.me Linki')
-                ->default($defaultWhatsapp)
-                ->placeholder('905xxxxxxxxx veya wa.me/...')
-                ->helperText('💡 Ziyaretçinin cihazında WhatsApp sohbeti anında başlatılır.')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['whatsapp']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['whatsapp'])),
-
-            TextInput::make('whatsapp_message')
-                ->label('Hazır Sohbet Başlangıç Mesajı (Opsiyonel)')
-                ->placeholder('Örn: Merhaba, patenli ayakkabılar hakkında bilgi almak istiyorum.')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['whatsapp'])),
-
-            // Telefon Arama Alanı ("arama dahil")
-            TextInput::make('phone_number')
-                ->label('📞 Doğrudan Aranacak Telefon Numarası')
-                ->default($defaultPhone)
-                ->placeholder('0850xxxxxxx veya 05xxxxxxxxx')
-                ->helperText('💡 Ziyaretçi yönlendirildiğinde özellikle cep telefonunda doğrudan arama ekranı tetiklenir (tel: bağlantısı).')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['call']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['call'])),
-
-            // Instagram Alanı
-            TextInput::make('instagram_account')
-                ->label('📸 Instagram Profil Linki veya Kullanıcı Adı')
-                ->default($defaultInstagram)
-                ->placeholder('patenliayakkabilar veya https://instagram.com/...')
-                ->helperText('💡 Ziyaretçi resmi Instagram sayfanıza aktarılır.')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['instagram']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['instagram'])),
-
-            // TikTok Alanı
-            TextInput::make('tiktok_account')
-                ->label('🎵 TikTok Profil Linki veya Kullanıcı Adı')
-                ->default($defaultTiktok)
-                ->placeholder('patenliayakkabilar veya https://tiktok.com/@...')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['tiktok']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['tiktok'])),
-
-            // Telegram Alanı
-            TextInput::make('telegram_account')
-                ->label('✈️ Telegram Kanal / Kullanıcı Adı')
-                ->default('https://t.me/patenliayakkabilar')
-                ->placeholder('patenliayakkabilar veya https://t.me/...')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['telegram']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['telegram'])),
-
-            // Facebook Alanı
-            TextInput::make('facebook_page')
-                ->label('📘 Facebook Sayfa Linki')
-                ->default($defaultFacebook)
-                ->placeholder('https://facebook.com/patenliayakkabilar')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['facebook']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['facebook'])),
-
-            // Site İçi Arama Alanı
+            // Sadece Arama seçildiğinde aranacak kelime kutusu çıkar
             TextInput::make('search_query')
                 ->label('🔍 Sitede Otomatik Aranacak Kelime / Ürün')
-                ->placeholder('Örn: ışıklı, 4 tekerlekli, pembe, erkek çocuk...')
+                ->placeholder('Örn: ışıklı, 4 tekerlekli, pembe...')
                 ->helperText('💡 Ziyaretçi sitede doğrudan bu kelimenin arama sonuçları sayfasına aktarılır.')
-                ->visible(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['search']))
-                ->required(fn ($get) => in_array($get('target_destination') ?? $get('channel'), ['search'])),
-
-            // Manuel Özel URL
-            TextInput::make('custom_url')
-                ->label('🌐 Manuel Özel Web Linki (URL)')
-                ->placeholder('https://... veya /sayfa')
-                ->helperText('İstediğiniz herhangi bir tam web linki veya site içi yol.')
-                ->visible(fn ($get) => in_array($get('target_destination'), ['custom_internal', 'custom_external', 'custom']) || $get('channel') === 'custom')
-                ->required(fn ($get) => in_array($get('target_destination'), ['custom_internal', 'custom_external', 'custom']) || $get('channel') === 'custom'),
+                ->visible(fn ($get) => $get('channel') === 'search')
+                ->required(fn ($get) => $get('channel') === 'search'),
 
             // Yönlendirme Şekli
             Select::make('redirect_mode')
@@ -1665,7 +1538,7 @@ class ActiveVisitors extends Page implements HasTable
                 ])
                 ->default('silent')
                 ->live()
-                ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında ilgili kanala/adrese yönlendirilir.'),
+                ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı gösterilmez; anında ilgili kanala yönlendirilir.'),
 
             TextInput::make('redirect_message')
                 ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
