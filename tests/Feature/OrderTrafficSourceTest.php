@@ -122,4 +122,10 @@ class OrderTrafficSourceTest extends TestCase
 
         $order->delete();
     }
+
+    public function test_marketing_links_admin_page_renders_successfully(): void
+    {
+        \Livewire\Livewire::test(\App\Filament\Pages\MarketingLinks::class)
+            ->assertSuccessful();
+    }
 }

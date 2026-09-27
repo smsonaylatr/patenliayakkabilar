@@ -586,10 +586,126 @@ class ActiveVisitors extends Page implements HasTable
                     ->stickyModalFooter()
                     ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                     ->modalSubmitAction(false)
-                    ->modalCancelAction(fn (\Filament\Actions\StaticAction $action) => $action->label('Kapat')->color('gray'))
+                    ->modalCancelActionLabel('Kapat')
                     ->modalContent(fn (ActiveVisitor $record) => view('filament.pages.partials.visitor-journey-modal', ['record' => $record])),
 
-                // ─── 4. Diğer Aksiyonlar ───
+                // ─── 4. Sesli İleti / Anons Gönder ───
+                Action::make('send_voice')
+                    ->label('🎙️ Sesli İleti')
+                    ->button()
+                    ->size('sm')
+                    ->color('warning')
+                    ->icon('heroicon-o-speaker-wave')
+                    ->modalHeading(fn (ActiveVisitor $record) => '🎙️ Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
+                    ->modalDescription('Ziyaretçinin ekranında melodili mağaza zili çalar, yazdığınız mesaj Türkçe seslendirilir (TTS) ve şık bir bildirim kartı açılır.')
+                    ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
+                    ->form([
+                        Select::make('preset_template')
+                            ->label('Hazır Sesli İleti Şablonu')
+                            ->native(false)
+                            ->options([
+                                'welcome' => '👋 Hoş Geldiniz & İndirim Fırsatı',
+                                'cart_reminder' => '🛒 Sepet Hatırlatma & Ücretsiz Kargo',
+                                'discount_offer' => '🎁 Size Özel %10 İndirim Kuponu',
+                                'size_help' => '👟 Beden / Numara Canlı Desteği',
+                                'fast_shipping' => '⚡ Aynı Gün Hızlı Kargo Bildirimi',
+                                'custom' => '✍️ Özel Mesaj Yaz...',
+                            ])
+                            ->default('welcome')
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set) {
+                                match ($state) {
+                                    'welcome' => [
+                                        $set('title', '🎙️ Mağazamıza Hoş Geldiniz!'),
+                                        $set('message', 'Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!'),
+                                        $set('coupon_code', null),
+                                        $set('action_button', 'Tüm Modelleri Gör'),
+                                        $set('action_url', '/patenli-ayakkabilar'),
+                                    ],
+                                    'cart_reminder' => [
+                                        $set('title', '🛒 Sepetiniz Sizi Bekliyor!'),
+                                        $set('message', 'Sepetinizdeki ürünler tükenmeden siparişinizi hemen tamamlayabilirsiniz. Ücretsiz kargo fırsatınız devam ediyor!'),
+                                        $set('coupon_code', null),
+                                        $set('action_button', 'Sepetime Git'),
+                                        $set('action_url', '/checkout'),
+                                    ],
+                                    'discount_offer' => [
+                                        $set('title', '🎁 Size Özel Sürpriz İndirim!'),
+                                        $set('message', 'Alışverişinize özel anında geçerli %10 indirim kuponu tanımladık! İndiriminizi hemen kullanabilirsiniz.'),
+                                        $set('coupon_code', 'SESLI10'),
+                                        $set('action_button', 'Kuponla Sepete Git'),
+                                        $set('action_url', '/checkout'),
+                                    ],
+                                    'size_help' => [
+                                        $set('title', '👟 Beden Konusunda Yardım İster misiniz?'),
+                                        $set('message', 'Doğru paten numarasını seçmekte kararsız kaldıysanız WhatsApp destek hattımızdan uzman ekibimize danışabilirsiniz.'),
+                                        $set('coupon_code', null),
+                                        $set('action_button', 'WhatsApp Destek'),
+                                        $set('action_url', 'https://wa.me/905051234567'),
+                                    ],
+                                    'fast_shipping' => [
+                                        $set('title', '⚡ Aynı Gün Hızlı Kargo!'),
+                                        $set('message', 'Seçtiğiniz patenli ayakkabı modelleri bugün saat 16:00\'a kadar vereceğiniz siparişlerde aynı gün kargoya teslim edilir!'),
+                                        $set('coupon_code', null),
+                                        $set('action_button', 'Modelleri İncele'),
+                                        $set('action_url', '/patenli-ayakkabilar'),
+                                    ],
+                                    default => null,
+                                };
+                            }),
+
+                        Select::make('sound_type')
+                            ->label('Ses Efekti & Seslendirme Tipi')
+                            ->native(false)
+                            ->options([
+                                'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                                'speech_only' => '🗣️ Sadece Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                                'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
+                            ])
+                            ->default('chime_and_speech')
+                            ->required(),
+
+                        TextInput::make('title')
+                            ->label('Bildirim Başlığı')
+                            ->default('🎙️ Mağazamıza Hoş Geldiniz!')
+                            ->required(),
+
+                        Textarea::make('message')
+                            ->label('Seslendirilecek ve Gösterilecek Mesaj')
+                            ->rows(3)
+                            ->default('Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!')
+                            ->required(),
+
+                        TextInput::make('coupon_code')
+                            ->label('İndirim Kuponu (Opsiyonel)')
+                            ->placeholder('Örn: SESLI10'),
+
+                        TextInput::make('action_button')
+                            ->label('Buton Metni (Opsiyonel)')
+                            ->default('Tüm Modelleri Gör'),
+
+                        TextInput::make('action_url')
+                            ->label('Buton Linki (Opsiyonel)')
+                            ->default('/patenli-ayakkabilar'),
+                    ])
+                    ->action(function (ActiveVisitor $record, array $data) {
+                        $record->queueVoiceMessage(
+                            $data['message'],
+                            $data['title'] ?? '🎙️ Canlı Mağaza Anonsu',
+                            $data['sound_type'] ?? 'chime_and_speech',
+                            $data['coupon_code'] ?? null,
+                            $data['action_button'] ?? null,
+                            $data['action_url'] ?? null
+                        );
+
+                        Notification::make()
+                            ->title('Sesli İleti İletildi! 🎙️')
+                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.')
+                            ->success()
+                            ->send();
+                    }),
+
+                // ─── 5. Diğer Aksiyonlar ───
                 ActionGroup::make([
                     Action::make('remote_reload')
                         ->label('Sayfayı Yenilet')
@@ -735,6 +851,115 @@ class ActiveVisitors extends Page implements HasTable
                     Notification::make()
                         ->title('Fırsat Gönderildi')
                         ->body($visitors->count() . ' aktif kullanıcının ekranına bildirim ulaştırıldı.')
+                        ->success()
+                        ->send();
+                }),
+
+            // Toplu Sesli Anons (Tüm Canlı Ziyaretçilere)
+            Action::make('broadcast_voice')
+                ->label('🎙️ Herkese Canlı Sesli Anons')
+                ->color('warning')
+                ->icon('heroicon-o-speaker-wave')
+                ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
+                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda melodili mağaza zili çalar ve sesli mesajınız Türkçe anons edilir.')
+                ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
+                ->form([
+                    Select::make('preset_template')
+                        ->label('Hazır Anons Şablonu')
+                        ->native(false)
+                        ->options([
+                            'welcome' => '👋 Genel Hoş Geldiniz Anonsu',
+                            'discount' => '🎁 Sürpriz İndirim Kuponu Fırsatı',
+                            'closing_soon' => '⏰ Günün Fırsatı Bitiyor Hatırlatması',
+                            'fast_shipping' => '⚡ Aynı Gün Hızlı Kargo Duyurusu',
+                            'custom' => '✍️ Özel Anons Yaz...',
+                        ])
+                        ->default('welcome')
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            match ($state) {
+                                'welcome' => [
+                                    $set('title', '🎙️ Patenli Ayakkabılar Mağaza Anonsu'),
+                                    $set('message', 'Değerli ziyaretçilerimiz, Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli sürpriz fırsatları kaçırmayın, keyifli alışverişler dileriz!'),
+                                    $set('coupon_code', null),
+                                    $set('action_button', 'Çok Satanları İncele'),
+                                    $set('action_url', '/patenli-ayakkabilar'),
+                                ],
+                                'discount' => [
+                                    $set('title', '🎁 Sürpriz Günün İndirimi!'),
+                                    $set('message', 'Şu an sitede olan tüm müşterilerimize özel %10 indirim kuponunuz tanımlanmıştır. Kupon kodunuz: CANLI10.'),
+                                    $set('coupon_code', 'CANLI10'),
+                                    $set('action_button', 'Kuponu Kullan'),
+                                    $set('action_url', '/patenli-ayakkabilar'),
+                                ],
+                                'closing_soon' => [
+                                    $set('title', '⏰ Fırsatlar İçin Son Saatler!'),
+                                    $set('message', 'Bugüne özel indirimli fiyatlarımız ve ücretsiz kargo avantajı için son saatler! Beğendiğiniz numarayı tükenmeden sepetinize ekleyin.'),
+                                    $set('coupon_code', null),
+                                    $set('action_button', 'Modelleri Gör'),
+                                    $set('action_url', '/patenli-ayakkabilar'),
+                                ],
+                                'fast_shipping' => [
+                                    $set('title', '⚡ Aynı Gün Kargo Bildirimi'),
+                                    $set('message', 'Bugün vereceğiniz tüm ışıklı ve tekerlekli ayakkabı siparişleri aynı gün hızlı kargoya teslim edilmektedir!'),
+                                    $set('coupon_code', null),
+                                    $set('action_button', 'Hemen İncele'),
+                                    $set('action_url', '/patenli-ayakkabilar'),
+                                ],
+                                default => null,
+                            };
+                        }),
+
+                    Select::make('sound_type')
+                        ->label('Ses Efekti & Seslendirme Tipi')
+                        ->native(false)
+                        ->options([
+                            'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                            'speech_only' => '🗣️ Sadece Türkçe Sesli Okuma (TTS) + Görsel Kart',
+                            'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
+                        ])
+                        ->default('chime_and_speech')
+                        ->required(),
+
+                    TextInput::make('title')
+                        ->label('Anons Başlığı')
+                        ->default('🎙️ Patenli Ayakkabılar Mağaza Anonsu')
+                        ->required(),
+
+                    Textarea::make('message')
+                        ->label('Seslendirilecek ve Gösterilecek Mesaj')
+                        ->rows(3)
+                        ->default('Değerli ziyaretçilerimiz, Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli sürpriz fırsatları kaçırmayın, keyifli alışverişler dileriz!')
+                        ->required(),
+
+                    TextInput::make('coupon_code')
+                        ->label('Kupon Kodu (Opsiyonel)')
+                        ->placeholder('Örn: CANLI10'),
+
+                    TextInput::make('action_button')
+                        ->label('Buton Metni (Opsiyonel)')
+                        ->default('Çok Satanları İncele'),
+
+                    TextInput::make('action_url')
+                        ->label('Buton Linki (Opsiyonel)')
+                        ->default('/patenli-ayakkabilar'),
+                ])
+                ->action(function (array $data) {
+                    $visitors = ActiveVisitor::online()->get();
+                    foreach ($visitors as $v) {
+                        $v->queueVoiceMessage(
+                            $data['message'],
+                            $data['title'] ?? '🎙️ Patenli Ayakkabılar Mağaza Anonsu',
+                            $data['sound_type'] ?? 'chime_and_speech',
+                            $data['coupon_code'] ?? null,
+                            $data['action_button'] ?? null,
+                            $data['action_url'] ?? null
+                        );
+                    }
+
+                    Notification::make()
+                        ->title('Toplu Sesli Anons İletildi! 🎙️')
+                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.')
                         ->success()
                         ->send();
                 }),

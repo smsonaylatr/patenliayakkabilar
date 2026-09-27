@@ -231,6 +231,45 @@ class ActiveVisitorTest extends TestCase
             ]);
     }
 
+    public function test_queued_voice_command_is_delivered(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_voice_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $visitor->queueVoiceMessage(
+            'Patenli Ayakkabılar mağazamıza hoş geldiniz!',
+            '🎙️ Canlı Anons',
+            'chime_and_speech',
+            'SESLI10',
+            'Fırsatları Gör',
+            '/patenli-ayakkabilar'
+        );
+
+        $response = $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => 'pa_vt_voice_test',
+            'url' => 'https://patenliayakkabilar.com/',
+            'path' => '/',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'command' => [
+                    'action' => 'voice',
+                    'title' => '🎙️ Canlı Anons',
+                    'sound_type' => 'chime_and_speech',
+                    'coupon_code' => 'SESLI10',
+                    'action_button' => 'Fırsatları Gör',
+                    'action_url' => '/patenli-ayakkabilar',
+                ],
+            ]);
+    }
+
     public function test_page_info_resolution_and_clean_titles(): void
     {
         // 1. Ana Sayfa (Site başlığı ile gelse bile Ana Sayfa olarak çözümlenmeli)

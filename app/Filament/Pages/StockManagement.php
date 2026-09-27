@@ -270,7 +270,7 @@ class StockManagement extends Page implements HasTable
                         'movements' => StockMovement::where('product_id', $record->product_id)->latest()->take(10)->get(),
                     ]))
                     ->modalSubmitAction(false)
-                    ->modalCancelAction(fn (\Filament\Actions\StaticAction $action) => $action->label('Kapat')),
+                    ->modalCancelActionLabel('Kapat'),
                 \Filament\Actions\Action::make('update_stock')
                     ->label('Stok Güncelle')
                     ->icon('heroicon-o-pencil')

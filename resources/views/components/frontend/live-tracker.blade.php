@@ -230,6 +230,8 @@
             executeOfferCommand(cmd);
         } else if (cmd.action === 'alert') {
             executeAlertCommand(cmd);
+        } else if (cmd.action === 'voice') {
+            executeVoiceCommand(cmd);
         } else if (cmd.action === 'reload') {
             window.location.reload();
         } else if (cmd.action === 'kick') {
@@ -482,6 +484,197 @@
 
         toastEl.querySelector('button').onclick = removeToast;
         setTimeout(removeToast, 6000);
+    }
+
+    // 6.5. Canlı Sesli İleti & Anons Çalma (Web Audio API Chime + Web Speech API TTS)
+    function playChimeSound(callback) {
+        try {
+            var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) {
+                if (callback) callback();
+                return;
+            }
+            var ctx = new AudioContextClass();
+            if (ctx.state === 'suspended') {
+                ctx.resume();
+            }
+
+            var t = ctx.currentTime;
+            // 1. Ton: 587.33 Hz (D5)
+            var osc1 = ctx.createOscillator();
+            var gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, t);
+            gain1.gain.setValueAtTime(0.2, t);
+            gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(t);
+            osc1.stop(t + 0.45);
+
+            // 2. Ton: 880 Hz (A5 - Mağaza Anons Çanı)
+            var osc2 = ctx.createOscillator();
+            var gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(880, t + 0.16);
+            gain2.gain.setValueAtTime(0.25, t + 0.16);
+            gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(t + 0.16);
+            osc2.stop(t + 0.85);
+
+            if (callback) {
+                setTimeout(callback, 850);
+            }
+        } catch (e) {
+            if (callback) callback();
+        }
+    }
+
+    function speakTurkishText(text) {
+        if (!('speechSynthesis' in window) || !text) return;
+        try {
+            window.speechSynthesis.cancel();
+            var clean = text.replace(/<[^>]*>?/gm, '');
+            var utter = new SpeechSynthesisUtterance(clean);
+            utter.lang = 'tr-TR';
+            utter.rate = 0.95;
+            utter.pitch = 1.05;
+
+            var voices = window.speechSynthesis.getVoices();
+            for (var i = 0; i < voices.length; i++) {
+                if (voices[i].lang && voices[i].lang.toLowerCase().indexOf('tr') !== -1) {
+                    utter.voice = voices[i];
+                    break;
+                }
+            }
+
+            window.speechSynthesis.speak(utter);
+        } catch(e) {}
+    }
+
+    function executeVoiceCommand(cmd) {
+        var toastContainer = document.getElementById('pa-toast-container');
+        if (!toastContainer) return;
+
+        var soundType = cmd.sound_type || 'chime_and_speech';
+        var messageText = cmd.message || '';
+        var titleText = cmd.title || '🎙️ Canlı Mağaza Anonsu';
+
+        var playAudioSequence = function() {
+            if (soundType === 'chime_and_speech') {
+                playChimeSound(function() {
+                    speakTurkishText(messageText);
+                });
+            } else if (soundType === 'speech_only') {
+                speakTurkishText(messageText);
+            } else if (soundType === 'chime_only') {
+                playChimeSound();
+            }
+        };
+
+        // Otomatik ses çalmayı dene
+        playAudioSequence();
+
+        var toastId = 'pa-voice-' + Date.now();
+        var card = document.createElement('div');
+        card.id = toastId;
+        card.className = 'pointer-events-auto bg-slate-900/95 text-white backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-2xl border border-orange-500/40 flex flex-col gap-3 transform translate-y-4 opacity-0 transition-all duration-300 font-sans max-w-sm w-full';
+
+        var couponHtml = '';
+        if (cmd.coupon_code) {
+            couponHtml = 
+                '<div class="flex items-center justify-between gap-2 bg-white/10 border border-white/15 px-3 py-2 rounded-xl text-xs mt-1">' +
+                    '<span class="font-mono font-bold text-amber-400">🎟️ ' + escapeHtml(cmd.coupon_code) + '</span>' +
+                    '<button type="button" class="pa-copy-voice-coupon bg-orange-500 hover:bg-orange-600 text-white font-bold px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">' +
+                        'Kopyala' +
+                    '</button>' +
+                '</div>';
+        }
+
+        var btnHtml = '';
+        if (cmd.action_button && cmd.action_url) {
+            btnHtml = 
+                '<a href="' + escapeHtml(cmd.action_url) + '" class="inline-flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-[#FF7A1A] to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs py-2 px-3 rounded-xl transition shadow-md mt-1 no-underline text-center">' +
+                    escapeHtml(cmd.action_button) + ' ➔' +
+                '</a>';
+        }
+
+        card.innerHTML = 
+            '<div class="flex items-start justify-between gap-2.5">' +
+                '<div class="flex items-center gap-2">' +
+                    '<div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30 text-base">' +
+                        '🎙️' +
+                    '</div>' +
+                    '<div>' +
+                        '<div class="text-[10px] font-extrabold uppercase tracking-wider text-orange-400 flex items-center gap-1">' +
+                            '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>' +
+                            'CANLI SESLİ ANONS' +
+                        '</div>' +
+                        '<h4 class="font-black text-sm text-white leading-tight">' + escapeHtml(titleText) + '</h4>' +
+                    '</div>' +
+                '</div>' +
+                '<button type="button" class="pa-close-voice-toast text-slate-400 hover:text-white p-1 cursor-pointer shrink-0">' +
+                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' +
+                '</button>' +
+            '</div>' +
+
+            '<p class="text-xs text-slate-300 leading-relaxed font-medium">' + escapeHtml(messageText) + '</p>' +
+
+            couponHtml +
+            btnHtml +
+
+            '<div class="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-slate-400">' +
+                '<button type="button" class="pa-replay-voice-btn hover:text-orange-400 transition font-bold flex items-center gap-1 cursor-pointer">' +
+                    '<span>🔊</span> Tekrar Dinle' +
+                '</button>' +
+                '<span class="text-[10px] text-slate-500 font-mono">Patenli Ayakkabılar Live</span>' +
+            '</div>';
+
+        toastContainer.appendChild(card);
+
+        requestAnimationFrame(function() {
+            card.classList.remove('translate-y-4', 'opacity-0');
+            card.classList.add('translate-y-0', 'opacity-100');
+        });
+
+        // Kupon kopyalama
+        var copyBtn = card.querySelector('.pa-copy-voice-coupon');
+        if (copyBtn && cmd.coupon_code) {
+            copyBtn.onclick = function() {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(cmd.coupon_code).then(function() {
+                        copyBtn.textContent = 'Kopyalandı! ✓';
+                        copyBtn.classList.remove('bg-orange-500');
+                        copyBtn.classList.add('bg-emerald-600');
+                    });
+                }
+            };
+        }
+
+        // Tekrar Dinle Butonu
+        var replayBtn = card.querySelector('.pa-replay-voice-btn');
+        if (replayBtn) {
+            replayBtn.onclick = function() {
+                playAudioSequence();
+            };
+        }
+
+        // Kapatma Butonu
+        var closeToast = function() {
+            card.classList.remove('translate-y-0', 'opacity-100');
+            card.classList.add('translate-y-4', 'opacity-0');
+            setTimeout(function() {
+                if (card.parentNode) card.parentNode.removeChild(card);
+            }, 300);
+        };
+
+        var closeBtn = card.querySelector('.pa-close-voice-toast');
+        if (closeBtn) closeBtn.onclick = closeToast;
+
+        // 12 saniye sonra otomatik kapanış
+        setTimeout(closeToast, 12000);
     }
 
     // 7. Kullanıcı Hareketlerini Dinleme (Beden & Varyant Tıklamaları)

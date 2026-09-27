@@ -1,3 +1,8 @@
+@php
+    $metaTag = '{' . '{campaign.name}' . '}';
+    $googleTag = '{' . '{campaignid}' . '}';
+@endphp
+
 <x-filament-panels::page>
     <div 
         x-data="{
@@ -41,7 +46,7 @@
                         break;
                     case 'meta_ads':
                         params.push('utm_source=instagram', 'utm_medium=cpc');
-                        params.push('utm_campaign=' + (cleanCamp || '{{campaign.name}}'));
+                        params.push('utm_campaign=' + (cleanCamp || '{{ $metaTag }}'));
                         break;
                     case 'tiktok_bio':
                         params.push('utm_source=tiktok', 'utm_medium=bio');
@@ -53,7 +58,7 @@
                         break;
                     case 'google_ads':
                         params.push('utm_source=google', 'utm_medium=cpc');
-                        params.push('utm_campaign=' + (cleanCamp || '{{campaignid}}'));
+                        params.push('utm_campaign=' + (cleanCamp || '{{ $googleTag }}'));
                         break;
                     case 'whatsapp':
                         params.push('utm_source=whatsapp', 'utm_medium=chat');
@@ -207,12 +212,12 @@
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta Reklam Yöneticisi'nde "URL Parametreleri" kutusuna yapıştırın:</p>
                         <div class="bg-white dark:bg-gray-950 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 font-mono text-xs text-purple-600 dark:text-purple-400 break-all select-all">
-                            utm_source=instagram&utm_medium=cpc&utm_campaign=@{{campaign.name}}
+                            utm_source=instagram&amp;utm_medium=cpc&amp;utm_campaign={{ $metaTag }}
                         </div>
                     </div>
                     <button 
                         type="button"
-                        @click="copyText('utm_source=instagram&utm_medium=cpc&utm_campaign=\{\{campaign.name\}\}', 'Meta Reklam Parametresi')"
+                        @click="copyText('utm_source=instagram&utm_medium=cpc&utm_campaign=' + '{{ $metaTag }}', 'Meta Reklam Parametresi')"
                         class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-sm active:scale-95 cursor-pointer"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -413,12 +418,12 @@
                             <span>🔍</span> Google Ads URL Son Eki
                         </div>
                         <div class="bg-white dark:bg-gray-950 p-2 rounded border border-gray-200 dark:border-gray-800 font-mono text-[11px] text-gray-600 dark:text-gray-300 break-all select-all">
-                            utm_source=google&utm_medium=cpc&utm_campaign=@{{campaignid}}
+                            utm_source=google&amp;utm_medium=cpc&amp;utm_campaign={{ $googleTag }}
                         </div>
                     </div>
                     <button 
                         type="button" 
-                        @click="copyText('utm_source=google&utm_medium=cpc&utm_campaign=\{\{campaignid\}\}', 'Google Ads Parametresi')" 
+                        @click="copyText('utm_source=google&utm_medium=cpc&utm_campaign=' + '{{ $googleTag }}', 'Google Ads Parametresi')" 
                         class="w-full py-1.5 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer"
                     >
                         Kopyala

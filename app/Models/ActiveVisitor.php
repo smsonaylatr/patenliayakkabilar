@@ -637,6 +637,32 @@ class ActiveVisitor extends Model
     }
 
     /**
+     * Ziyaretçiye sesli anons / sesli bildirim ilet
+     */
+    public function queueVoiceMessage(
+        string $message,
+        string $title = '🎙️ Canlı Mağaza Anonsu',
+        string $soundType = 'chime_and_speech',
+        ?string $couponCode = null,
+        ?string $actionButton = null,
+        ?string $actionUrl = null
+    ): void {
+        $this->update([
+            'pending_command' => [
+                'id' => 'cmd_' . uniqid(),
+                'action' => 'voice',
+                'title' => $title,
+                'message' => $message,
+                'sound_type' => $soundType,
+                'coupon_code' => $couponCode,
+                'action_button' => $actionButton,
+                'action_url' => $actionUrl,
+                'created_at' => now()->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
      * Sayfayı uzaktan yenilet
      */
     public function queueReload(): void
