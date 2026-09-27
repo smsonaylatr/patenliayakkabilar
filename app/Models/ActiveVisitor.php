@@ -840,6 +840,291 @@ class ActiveVisitor extends Model
     }
 
     /**
+     * Ziyaretçinin ilgilendiği ürünü (mevcut gezdiği, son incelediği veya sepetine attığı ürün)
+     * görseli, adı, fiyatı ve rozetiyle çözer.
+     */
+    public function getInterestedProductInfoAttribute(): ?array
+    {
+        // 1. Ziyaretçi şu an bir ürün sayfasında mı?
+        $currProd = $this->current_product;
+        if ($currProd) {
+            $currImg = $this->current_product_image;
+            $price = $currProd->discount_price ?: $currProd->price;
+            return [
+                'product' => $currProd,
+                'name' => $currProd->name,
+                'image' => $currImg,
+                'url' => '/urun/' . $currProd->slug,
+                'price' => (float) $price,
+                'badge' => 'Şu An İnceliyor',
+                'badge_color' => '#ff7849',
+                'is_current' => true,
+            ];
+        }
+
+        // 2. Gezinme izinde (journey_trail) ürün sayfası var mı? (En sondan geriye doğru ara)
+        if (!empty($this->journey_trail) && is_array($this->journey_trail)) {
+            foreach (array_reverse($this->journey_trail) as $step) {
+                $stepPath = $step['path'] ?? '';
+                $stepPathClean = explode('?', $stepPath)[0];
+                if (str_starts_with($stepPathClean, '/urun/')) {
+                    $parts = explode('/', trim($stepPathClean, '/'));
+                    $slug = $parts[1] ?? null;
+                    $stepProduct = null;
+                    $stepImage = $step['image'] ?? null;
+                    $stepTitle = $step['title'] ?? null;
+                    $stepPrice = $step['price'] ?? null;
+
+                    if ($slug) {
+                        $slugClean = explode('?', $slug)[0];
+                        if (!array_key_exists($slugClean, static::$productCache)) {
+                            static::$productCache[$slugClean] = \App\Models\Product::where('slug', $slugClean)
+                                ->orWhere('slug', urldecode($slugClean))
+                                ->with('images')
+                                ->first();
+                        }
+                        $stepProduct = static::$productCache[$slugClean];
+                    }
+
+                    if (!$stepProduct && !empty($stepTitle)) {
+                        $cleanTitle = static::cleanTitle($stepTitle);
+                        if (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0) {
+                            $stepProduct = \App\Models\Product::where('name', $cleanTitle)
+                                ->orWhere('name', 'like', '%' . $cleanTitle . '%')
+                                ->with('images')
+                                ->first();
+                        }
+                    }
+
+                    if ($stepProduct) {
+                        $stepImage = $stepImage ?: ($stepProduct->images->first()?->image_url ?? $stepProduct->images->first()?->raw_image_url);
+                        $stepPrice = $stepPrice ?: ($stepProduct->discount_price ?: $stepProduct->price);
+                        $stepTitle = $stepTitle ?: $stepProduct->name;
+                    }
+
+                    if ($stepProduct || $stepImage || $stepTitle) {
+                        return [
+                            'product' => $stepProduct,
+                            'name' => $stepTitle ?: ($stepProduct?->name ?? 'Paten Modeli'),
+                            'image' => $stepImage,
+                            'url' => $stepProduct ? ('/urun/' . $stepProduct->slug) : $stepPath,
+                            'price' => $stepPrice ? (float) $stepPrice : null,
+                            'badge' => 'Son İncelediği',
+                            'badge_color' => '#38bdf8',
+                            'is_current' => false,
+                        ];
+                    }
+                }
+            }
+        }
+
+        // 3. Sepetinde ürün var mı? (cart_summary dizisi)
+        if (!empty($this->cart_summary) && is_array($this->cart_summary)) {
+            $firstCartItem = reset($this->cart_summary);
+            if ($firstCartItem && is_array($firstCartItem)) {
+                $cartImg = $firstCartItem['product_image'] ?? null;
+                $cartName = $firstCartItem['product_name'] ?? null;
+                $cartPrice = $firstCartItem['price'] ?? null;
+                $cartUrl = $firstCartItem['product_url'] ?? null;
+                $productId = $firstCartItem['product_id'] ?? null;
+                $prod = null;
+
+                if ($productId) {
+                    $prod = \App\Models\Product::with('images')->find($productId);
+                }
+                if (!$prod && $cartName) {
+                    $prod = \App\Models\Product::where('name', $cartName)->with('images')->first();
+                }
+
+                if ($prod) {
+                    $cartImg = $cartImg ?: ($prod->images->first()?->image_url ?? $prod->images->first()?->raw_image_url);
+                    $cartUrl = $cartUrl ?: ('/urun/' . $prod->slug);
+                    $cartPrice = $cartPrice ?: ($prod->discount_price ?: $prod->price);
+                }
+
+                return [
+                    'product' => $prod,
+                    'name' => $cartName ?: ($prod?->name ?? 'Sepetteki Ürün'),
+                    'image' => $cartImg,
+                    'url' => $cartUrl ?: ($prod ? '/urun/' . $prod->slug : null),
+                    'price' => $cartPrice ? (float) $cartPrice : null,
+                    'badge' => 'Sepetindeki Ürün',
+                    'badge_color' => '#10b981',
+                    'is_current' => false,
+                ];
+            }
+        }
+
+        // 4. Cart ilişkisi üzerinden sepet ürünü kontrolü
+        try {
+            $cart = $this->cart;
+            if (!$cart && $this->cart_id) {
+                $cart = \App\Models\Cart::with(['items.product.images', 'items.variant'])->find($this->cart_id);
+            }
+            if (!$cart && $this->session_id) {
+                $cart = \App\Models\Cart::where('session_id', $this->session_id)->with(['items.product.images', 'items.variant'])->first();
+            }
+            if (!$cart && $this->user_id) {
+                $cart = \App\Models\Cart::where('user_id', $this->user_id)->with(['items.product.images', 'items.variant'])->first();
+            }
+
+            if ($cart && $cart->items && $cart->items->isNotEmpty()) {
+                $item = $cart->items->first();
+                $prod = $item->product;
+                $img = $prod?->images->first()?->image_url ?? $prod?->images->first()?->raw_image_url;
+                $price = $item->price ?: ($prod?->discount_price ?: $prod?->price);
+
+                return [
+                    'product' => $prod,
+                    'name' => $prod?->name ?? 'Sepetteki Ürün',
+                    'image' => $img,
+                    'url' => $prod ? '/urun/' . $prod->slug : null,
+                    'price' => $price ? (float) $price : null,
+                    'badge' => 'Sepetindeki Ürün',
+                    'badge_color' => '#10b981',
+                    'is_current' => false,
+                ];
+            }
+        } catch (\Throwable $e) {}
+
+        // 5. Fallback: Eğer sepetinde tutar varsa ancak model bilgisi boş kalmışsa
+        if ((float) $this->cart_total > 0) {
+            try {
+                $fallbackProd = \App\Models\Product::where('discount_price', $this->cart_total)
+                    ->orWhere('price', $this->cart_total)
+                    ->with('images')
+                    ->first();
+                if ($fallbackProd) {
+                    $img = $fallbackProd->images->first()?->image_url ?? $fallbackProd->images->first()?->raw_image_url;
+                    return [
+                        'product' => $fallbackProd,
+                        'name' => $fallbackProd->name,
+                        'image' => $img,
+                        'url' => '/urun/' . $fallbackProd->slug,
+                        'price' => (float) $this->cart_total,
+                        'badge' => 'Sepetindeki Ürün',
+                        'badge_color' => '#10b981',
+                        'is_current' => false,
+                    ];
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        return null;
+    }
+
+    /**
+     * Sepetteki tüm ürünleri küçük resim, ad, fiyat ve adetleriyle döndürür.
+     */
+    public function getCartThumbnailsAttribute(): array
+    {
+        $thumbnails = [];
+
+        // 1. Önce cart_summary dizisini tara
+        if (!empty($this->cart_summary) && is_array($this->cart_summary)) {
+            foreach ($this->cart_summary as $item) {
+                if (!is_array($item)) continue;
+                $img = $item['product_image'] ?? null;
+                $name = $item['product_name'] ?? 'Patenli Ayakkabı';
+                $productId = $item['product_id'] ?? null;
+                $url = $item['product_url'] ?? null;
+                $price = $item['price'] ?? 0;
+                $qty = $item['quantity'] ?? 1;
+
+                if (!$img) {
+                    $prod = null;
+                    if ($productId) {
+                        $prod = \App\Models\Product::with('images')->find($productId);
+                    }
+                    if (!$prod && !empty($name)) {
+                        $prod = \App\Models\Product::where('name', $name)->with('images')->first();
+                    }
+                    if ($prod) {
+                        $img = $prod->images->first()?->image_url ?? $prod->images->first()?->raw_image_url;
+                        $url = $url ?: ('/urun/' . $prod->slug);
+                        $price = $price ?: ($prod->discount_price ?: $prod->price);
+                    }
+                }
+
+                $thumbnails[] = [
+                    'id' => $productId,
+                    'name' => $name,
+                    'image' => $img,
+                    'url' => $url,
+                    'price' => (float) $price,
+                    'quantity' => (int) $qty,
+                    'size' => $item['size'] ?? null,
+                    'color' => $item['color'] ?? null,
+                ];
+            }
+        }
+
+        // 2. Eğer cart_summary boş ama cart_items_count > 0 ise Cart ilişkisinden çek
+        if (empty($thumbnails) && ($this->cart_items_count > 0 || $this->cart_id || (float) $this->cart_total > 0)) {
+            try {
+                $cart = $this->cart;
+                if (!$cart && $this->cart_id) {
+                    $cart = \App\Models\Cart::with(['items.product.images', 'items.variant'])->find($this->cart_id);
+                }
+                if (!$cart && $this->session_id) {
+                    $cart = \App\Models\Cart::where('session_id', $this->session_id)->with(['items.product.images', 'items.variant'])->first();
+                }
+                if (!$cart && $this->user_id) {
+                    $cart = \App\Models\Cart::where('user_id', $this->user_id)->with(['items.product.images', 'items.variant'])->first();
+                }
+
+                if ($cart && $cart->items && $cart->items->isNotEmpty()) {
+                    foreach ($cart->items as $ci) {
+                        $p = $ci->product;
+                        $thumbnails[] = [
+                            'id' => $ci->product_id,
+                            'name' => $p?->name ?? 'Sepetteki Ürün',
+                            'image' => $p?->images->first()?->image_url ?? $p?->images->first()?->raw_image_url,
+                            'url' => $p ? '/urun/' . $p->slug : null,
+                            'price' => (float) ($ci->price ?: ($p?->discount_price ?: $p?->price ?: 0)),
+                            'quantity' => (int) ($ci->quantity ?: 1),
+                            'size' => $ci->variant?->size,
+                            'color' => $ci->variant?->color,
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 3. Hala boşsa ve cart_total > 0 ise interested_product fallback
+        if (empty($thumbnails) && (float) $this->cart_total > 0) {
+            $interested = $this->interested_product_info;
+            if ($interested && !empty($interested['image'])) {
+                $thumbnails[] = [
+                    'id' => $interested['product']?->id ?? null,
+                    'name' => $interested['name'],
+                    'image' => $interested['image'],
+                    'url' => $interested['url'],
+                    'price' => (float) ($interested['price'] ?? $this->cart_total),
+                    'quantity' => max(1, (int) $this->cart_items_count),
+                    'size' => null,
+                    'color' => null,
+                ];
+            }
+        }
+
+        return $thumbnails;
+    }
+
+    /**
+     * Sepetteki ilk ürünün küçük resim görselini döndürür.
+     */
+    public function getFirstCartThumbnailImageAttribute(): ?string
+    {
+        $thumbs = $this->cart_thumbnails;
+        if (!empty($thumbs[0]['image'])) {
+            return $thumbs[0]['image'];
+        }
+
+        return null;
+    }
+
+    /**
      * Ziyaretçiye yönlendirme emri kuyrukla
      */
     public function queueRedirect(string $targetUrl, ?string $message = null, int $countdown = 0, ?bool $showNotice = null): void

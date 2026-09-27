@@ -313,6 +313,8 @@
                     $pageInfo = $record->page_info ?? [];
                     $product = $record->current_product;
                     $productImage = $record->current_product_image;
+                    $interestedProduct = $record->interested_product_info;
+                    $cartThumbnails = $record->cart_thumbnails;
                     $title = $pageInfo['title'] ?? ($product ? $product->name : ($record->current_title ?: $record->current_path));
                     $url = $record->current_url ?: $record->current_path;
                     $isCheckout = ($pageInfo['type'] ?? '') === 'checkout' || str_contains($record->current_path, 'checkout');
@@ -467,85 +469,65 @@
                             </div>
                         </div>
 
-                        {{-- 2. Bulunduğu Sayfa & Model --}}
+                        {{-- 2. Bulunduğu Sayfa & İlgilendiği Model --}}
                         <div>
-                            @if ($product)
-                                @php $price = $product->discount_price ?: $product->price; @endphp
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    @if ($productImage)
-                                        <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);" />
+                            @php
+                                $badgeColor = $pageInfo['color'] ?? '#94a3b8';
+                                $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
+                                $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
+                                $badgeIcon = $pageInfo['icon'] ?? '📄';
+                            @endphp
+
+                            {{-- 1. Satır: Mevcut Bulunduğu Sayfa --}}
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);">
+                                    {{ $badgeIcon }}
+                                </div>
+                                <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
+                                            {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#f8fafc'">
+                                        {{ $title }} ↗
+                                    </a>
+                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ $record->current_path }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 2. Satır: İlgilendiği Ürün (Mevcut bulunduğu sayfanın altındaki satırda) --}}
+                            @if ($interestedProduct)
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 10px;">
+                                    @if (!empty($interestedProduct['image']))
+                                        <img src="{{ $interestedProduct['image'] }}" alt="{{ $interestedProduct['name'] }}" style="width: 38px; height: 38px; min-width: 38px; max-width: 38px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(249, 115, 22, 0.4); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);" />
                                     @else
-                                        <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 38px; height: 38px; min-width: 38px; max-width: 38px; border-radius: 8px; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.35); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">👟</div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(255, 78, 0, 0.15); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.35);">
-                                                👟 {{ $pageInfo['badge'] ?? 'Model' }}
+                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; background: rgba(249, 115, 22, 0.15); color: {{ $interestedProduct['badge_color'] ?? '#ff7849' }}; border: 1px solid rgba(249, 115, 22, 0.35);">
+                                                🎯 {{ $interestedProduct['badge'] ?? 'İlgilendiği Ürün' }}
                                             </span>
+                                            @if (!empty($interestedProduct['price']))
+                                                <span style="font-weight: 800; color: #10b981; font-size: 11px;">
+                                                    {{ number_format($interestedProduct['price'], 2) }} ₺
+                                                </span>
+                                            @endif
                                         </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f8fafc'">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 3px;">
-                                            <span style="font-weight: 800; color: #10b981; font-size: 12px;">{{ number_format($price, 2) }} ₺</span>
-                                            <span style="font-size: 10px; color: #94a3b8; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1px 5px; border-radius: 4px;">İnceliyor</span>
-                                        </div>
-                                        @if ($recentDetail)
-                                            <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
-                                            </div>
+                                        @if (!empty($interestedProduct['url']))
+                                            <a href="{{ $interestedProduct['url'] }}" target="_blank" style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#f8fafc'">
+                                                {{ $interestedProduct['name'] }} ↗
+                                            </a>
+                                        @else
+                                            <span style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                {{ $interestedProduct['name'] }}
+                                            </span>
                                         @endif
-                                    </div>
-                                </div>
-                            @elseif ($isCheckout)
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);">
-                                        🛒
-                                    </div>
-                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);">
-                                                🛒 {{ $pageInfo['badge'] ?? 'Ödeme Ekranı' }}
-                                            </span>
-                                        </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #38bdf8; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#7dd3fc'" onmouseout="this.style.color='#38bdf8'">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="font-size: 11px; color: #10b981; font-weight: 700; margin-top: 3px;">
-                                            Sepet Tutarı: {{ number_format($record->cart_total, 2) }} ₺ {{ $record->cart_items_count > 0 ? "({$record->cart_items_count} ürün)" : '' }}
-                                        </div>
                                         @if ($recentDetail)
-                                            <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @else
-                                @php
-                                    $badgeColor = $pageInfo['color'] ?? '#94a3b8';
-                                    $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
-                                    $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
-                                    $badgeIcon = $pageInfo['icon'] ?? '📄';
-                                @endphp
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
-                                        {{ $badgeIcon }}
-                                    </div>
-                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
-                                                {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
-                                            </span>
-                                        </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#f8fafc'">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                            {{ $record->current_path }}
-                                        </div>
-                                        @if ($recentDetail)
-                                            <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <div style="font-size: 9.5px; color: #fcd34d; font-weight: 700; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 🎯 {{ $recentDetail }}
                                             </div>
                                         @endif
@@ -572,12 +554,26 @@
                         {{-- 4. Sepet --}}
                         <div>
                             @if ($record->cart_items_count > 0)
-                                <div>
-                                    <div style="font-weight: 800; color: #10b981; font-size: 14px; display: flex; align-items: center; gap: 5px;">
-                                        🛒 {{ number_format($record->cart_total, 2) }} ₺
-                                    </div>
-                                    <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
-                                        {{ $record->cart_items_count }} ürün sepette
+                                @php
+                                    $firstCartThumb = !empty($cartThumbnails) ? reset($cartThumbnails) : null;
+                                    $cartThumbImg = $firstCartThumb['image'] ?? $record->first_cart_thumbnail_image;
+                                    $cartThumbName = $firstCartThumb['name'] ?? null;
+                                @endphp
+                                <div style="display: flex; align-items: center; gap: 9px;">
+                                    @if ($cartThumbImg)
+                                        <img src="{{ $cartThumbImg }}" alt="Sepetteki Ürün" title="{{ $cartThumbName ?? 'Sepetteki Ürün' }}" style="width: 36px; height: 36px; min-width: 36px; max-width: 36px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); flex-shrink: 0;" />
+                                    @else
+                                        <div style="width: 36px; height: 36px; min-width: 36px; max-width: 36px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">
+                                            🛒
+                                        </div>
+                                    @endif
+                                    <div style="min-width: 0;">
+                                        <div style="font-weight: 800; color: #10b981; font-size: 13.5px; display: flex; align-items: center; gap: 4px;">
+                                            🛒 {{ number_format($record->cart_total, 2) }} ₺
+                                        </div>
+                                        <div style="font-size: 10px; color: #94a3b8; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $cartThumbName }}">
+                                            {{ $record->cart_items_count }} ürün {{ $cartThumbName ? '• ' . $cartThumbName : '' }}
+                                        </div>
                                     </div>
                                 </div>
                             @else
@@ -690,6 +686,8 @@
                     $pageInfo = $record->page_info ?? [];
                     $product = $record->current_product;
                     $productImage = $record->current_product_image;
+                    $interestedProduct = $record->interested_product_info;
+                    $cartThumbnails = $record->cart_thumbnails;
                     $title = $pageInfo['title'] ?? ($product ? $product->name : ($record->current_title ?: $record->current_path));
                     $url = $record->current_url ?: $record->current_path;
                     $isCheckout = ($pageInfo['type'] ?? '') === 'checkout' || str_contains($record->current_path, 'checkout');
@@ -847,83 +845,68 @@
                     {{-- 2. Kart Gövdesi (Bulunduğu Sayfa, Niyet, Sepet) --}}
                     <div class="av-grid-body">
                         
-                        {{-- Bulunduğu Sayfa & Model Kutusu --}}
+                        {{-- Bulunduğu Sayfa & İlgilendiği Ürün Kutusu --}}
                         <div class="av-grid-section-box">
-                            @if ($product)
-                                @php $price = $product->discount_price ?: $product->price; @endphp
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    @if ($productImage)
-                                        <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);" />
+                            @php
+                                $badgeColor = $pageInfo['color'] ?? '#94a3b8';
+                                $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
+                                $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
+                                $badgeIcon = $pageInfo['icon'] ?? '📄';
+                            @endphp
+
+                            {{-- 1. Satır: Mevcut Bulunduğu Sayfa --}}
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);">
+                                    {{ $badgeIcon }}
+                                </div>
+                                <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
+                                            {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#f8fafc'">
+                                        {{ $title }} ↗
+                                    </a>
+                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ $record->current_path }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 2. Satır: İlgilendiği Ürün (Mevcut bulunduğu sayfanın altındaki satırda) --}}
+                            @if ($interestedProduct)
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 10px;">
+                                    @if (!empty($interestedProduct['image']))
+                                        <img src="{{ $interestedProduct['image'] }}" alt="{{ $interestedProduct['name'] }}" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 9px; object-fit: cover; border: 1px solid rgba(249, 115, 22, 0.4); flex-shrink: 0; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);" />
                                     @else
-                                        <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 10px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 9px; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.35); display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">👟</div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800; text-transform: uppercase; background: rgba(255, 78, 0, 0.15); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.35);">
-                                                👟 {{ $pageInfo['badge'] ?? 'Model' }}
+                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; background: rgba(249, 115, 22, 0.15); color: {{ $interestedProduct['badge_color'] ?? '#ff7849' }}; border: 1px solid rgba(249, 115, 22, 0.35);">
+                                                🎯 {{ $interestedProduct['badge'] ?? 'İlgilendiği Ürün' }}
                                             </span>
+                                            @if (!empty($interestedProduct['price']))
+                                                <span style="font-weight: 800; color: #10b981; font-size: 11px;">
+                                                    {{ number_format($interestedProduct['price'], 2) }} ₺
+                                                </span>
+                                            @endif
                                         </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f8fafc'">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                                            <span style="font-weight: 800; color: #10b981; font-size: 11.5px;">{{ number_format($price, 2) }} ₺</span>
-                                            <span style="font-size: 9.5px; color: #94a3b8; background: rgba(255, 255, 255, 0.06); padding: 0.5px 4px; border-radius: 3px;">İnceliyor</span>
-                                        </div>
+                                        @if (!empty($interestedProduct['url']))
+                                            <a href="{{ $interestedProduct['url'] }}" target="_blank" style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#f8fafc'">
+                                                {{ $interestedProduct['name'] }} ↗
+                                            </a>
+                                        @else
+                                            <span style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                {{ $interestedProduct['name'] }}
+                                            </span>
+                                        @endif
                                         @if ($recentDetail)
-                                            <div style="font-size: 10px; color: #fcd34d; font-weight: 700; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <div style="font-size: 9.5px; color: #fcd34d; font-weight: 700; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 🎯 {{ $recentDetail }}
                                             </div>
                                         @endif
-                                    </div>
-                                </div>
-                            @elseif ($isCheckout)
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-                                        🛒
-                                    </div>
-                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800; text-transform: uppercase; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);">
-                                                🛒 {{ $pageInfo['badge'] ?? 'Ödeme Ekranı' }}
-                                            </span>
-                                        </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #38bdf8; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#7dd3fc'" onmouseout="this.style.color='#38bdf8'">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="font-size: 11px; color: #10b981; font-weight: 700; margin-top: 2px;">
-                                            Sepet Tutarı: {{ number_format($record->cart_total, 2) }} ₺
-                                        </div>
-                                        @if ($recentDetail)
-                                            <div style="font-size: 10px; color: #fcd34d; font-weight: 700; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            @else
-                                @php
-                                    $badgeColor = $pageInfo['color'] ?? '#94a3b8';
-                                    $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
-                                    $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
-                                    $badgeIcon = $pageInfo['icon'] ?? '📄';
-                                @endphp
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }};">
-                                        {{ $badgeIcon }}
-                                    </div>
-                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
-                                                {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
-                                            </span>
-                                        </div>
-                                        <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;">
-                                            {{ $title }} ↗
-                                        </a>
-                                        <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                            {{ $record->current_path }}
-                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -945,14 +928,44 @@
                         </div>
 
                         {{-- Sepet Bilgisi --}}
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                            <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">Sepet Durumu:</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.06); gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1;">
+                                @if ($record->cart_items_count > 0)
+                                    @php
+                                        $firstCartThumb = !empty($cartThumbnails) ? reset($cartThumbnails) : null;
+                                        $cartThumbImg = $firstCartThumb['image'] ?? $record->first_cart_thumbnail_image;
+                                        $cartThumbName = $firstCartThumb['name'] ?? null;
+                                    @endphp
+                                    @if ($cartThumbImg)
+                                        <img src="{{ $cartThumbImg }}" alt="Sepetteki Ürün" title="{{ $cartThumbName ?? 'Sepetteki Ürün' }}" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); flex-shrink: 0;" />
+                                    @else
+                                        <div style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; border-radius: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;">
+                                            🛒
+                                        </div>
+                                    @endif
+                                    <div style="min-width: 0; overflow: hidden;">
+                                        <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.03em;">Sepet Durumu</div>
+                                        @if ($cartThumbName)
+                                            <div style="font-size: 10px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $cartThumbName }}">
+                                                {{ $cartThumbName }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">Sepet Durumu:</span>
+                                    <span style="font-size: 10.5px; color: #64748b;">Sepet Boş</span>
+                                @endif
+                            </div>
+
                             @if ($record->cart_items_count > 0)
-                                <div style="font-weight: 800; color: #10b981; font-size: 12.5px; display: flex; align-items: center; gap: 4px;">
-                                    🛒 {{ number_format($record->cart_total, 2) }} ₺ <span style="font-size: 9.5px; color: #94a3b8; font-weight: 600;">({{ $record->cart_items_count }} ürün)</span>
+                                <div style="text-align: right; flex-shrink: 0;">
+                                    <div style="font-weight: 800; color: #10b981; font-size: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 3px;">
+                                        🛒 {{ number_format($record->cart_total, 2) }} ₺
+                                    </div>
+                                    <div style="font-size: 9px; color: #94a3b8; font-weight: 600;">
+                                        ({{ $record->cart_items_count }} ürün)
+                                    </div>
                                 </div>
-                            @else
-                                <span style="font-size: 10.5px; color: #64748b;">Sepet Boş</span>
                             @endif
                         </div>
                     </div>
