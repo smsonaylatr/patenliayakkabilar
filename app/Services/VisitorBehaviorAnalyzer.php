@@ -25,16 +25,28 @@ class VisitorBehaviorAnalyzer
         $isFirstStep = empty($trail);
         $isPathChanged = ($previousPath !== null && $previousPath !== $newPath);
 
-        // İkon ve mikro işlem tipi belirleme
-        $microIcon = match ($action) {
-            'typing', 'input' => '⌨️',
-            'click', 'size_click' => '🖱️',
-            'cart_add', 'cart' => '🛒',
-            'coupon' => '🏷️',
-            'whatsapp' => '💬',
-            'tab', 'tab_switch', 'view' => '👁️',
-            default => '⚡',
-        };
+        $lastIndex = count($trail) - 1;
+        $actionDetailLower = static::cleanLowercase($actionDetail);
+
+        // İkon ve mikro işlem tipi belirleme (il, ilçe, adres, ödeme vb. için özel sezgisel ikonlar)
+        $microIcon = '🖱️';
+        if ($action === 'typing' || $action === 'input') {
+            $microIcon = '⌨️';
+        } elseif (str_contains($actionDetailLower ?? '', 'şehir') || str_contains($actionDetailLower ?? '', 'il:') || str_contains($actionDetailLower ?? '', 'ilçe') || str_contains($actionDetailLower ?? '', 'mahalle') || str_contains($actionDetailLower ?? '', 'adres')) {
+            $microIcon = '📍';
+        } elseif (str_contains($actionDetailLower ?? '', 'ödeme')) {
+            $microIcon = '💳';
+        } elseif ($action === 'coupon' || str_contains($actionDetailLower ?? '', 'kupon')) {
+            $microIcon = '🏷️';
+        } elseif ($action === 'whatsapp' || str_contains($actionDetailLower ?? '', 'whatsapp')) {
+            $microIcon = '💬';
+        } elseif ($action === 'cart_add' || str_contains($actionDetailLower ?? '', 'sepet')) {
+            $microIcon = '🛒';
+        } elseif (str_contains($actionDetailLower ?? '', 'fatura')) {
+            $microIcon = '📑';
+        } elseif ($action === 'tab' || $action === 'tab_switch' || $action === 'view') {
+            $microIcon = '👁️';
+        }
 
         if ($isFirstStep || $isPathChanged || !empty($actionDetail)) {
             $pageInfo = ActiveVisitor::resolvePageInfo($newPath, $newTitle);
@@ -42,9 +54,6 @@ class VisitorBehaviorAnalyzer
             $stepTitle = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
                 ? $cleanTitle
                 : $pageInfo['title'];
-
-            $lastIndex = count($trail) - 1;
-            $actionDetailLower = !empty($actionDetail) ? mb_strtolower(trim($actionDetail), 'UTF-8') : null;
 
             // Eğer sayfa değişmediyse (aynı sayfada mikro hareket veya tekrarlı heartbeat)
             if (!$isFirstStep && !$isPathChanged && $lastIndex >= 0 && ($trail[$lastIndex]['path'] ?? '') === $newPath) {
@@ -71,8 +80,9 @@ class VisitorBehaviorAnalyzer
                             'icon' => $microIcon,
                             'text' => $actionDetailLower,
                         ];
-                        if (count($interactions) > 15) {
-                            $interactions = array_slice($interactions, -15);
+                        // Müşterinin hiçbir adımı kaybolmasın: sayfa başına 50 mikro hareket
+                        if (count($interactions) > 50) {
+                            $interactions = array_slice($interactions, -50);
                         }
                         $trail[$lastIndex]['interactions'] = $interactions;
                     }
@@ -112,9 +122,9 @@ class VisitorBehaviorAnalyzer
 
                 $trail[] = $newStep;
 
-                // Trail maksimum 15 adımda tutulsun
-                if (count($trail) > 15) {
-                    $trail = array_slice($trail, -15);
+                // Müşterinin gezindiği tüm sayfalar korunsun: 30 sayfa adımı
+                if (count($trail) > 30) {
+                    $trail = array_slice($trail, -30);
                 }
 
                 $visitor->journey_trail = $trail;
@@ -247,5 +257,19 @@ class VisitorBehaviorAnalyzer
         $visitor->intent_level = $intentLevel;
         $visitor->behavior_insight = $insight;
         $visitor->recommended_strategy = $strategy;
+    }
+
+    /**
+     * Türkçe karakter uyumlu temiz küçük harf dönüşümü yapar.
+     */
+    public static function cleanLowercase(?string $text): ?string
+    {
+        if ($text === null || $text === '') {
+            return null;
+        }
+
+        $normalized = str_replace(['İ', 'I', 'i̇'], ['i', 'ı', 'i'], trim($text));
+
+        return mb_strtolower($normalized, 'UTF-8');
     }
 }

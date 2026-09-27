@@ -118,6 +118,47 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals('/checkout', $visitor->last_command_executed['target_url']);
     }
 
+    public function test_queued_silent_redirect_command_is_delivered(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_silent_redirect_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // Bildirimsiz sessiz yönlendirme kuyrukla
+        $visitor->queueRedirect('/kampanya', null, 0, false);
+
+        $this->assertNotNull($visitor->pending_command);
+        $this->assertEquals('redirect', $visitor->pending_command['action']);
+        $this->assertEquals('/kampanya', $visitor->pending_command['target_url']);
+        $this->assertFalse($visitor->pending_command['show_notice']);
+        $this->assertNull($visitor->pending_command['message']);
+        $this->assertEquals(0, $visitor->pending_command['countdown']);
+
+        // İstemci heartbeat gönderir
+        $response = $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => 'pa_vt_silent_redirect_test',
+            'url' => 'https://patenliayakkabilar.com/',
+            'path' => '/',
+            'title' => 'Ana Sayfa',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'command' => [
+                    'action' => 'redirect',
+                    'target_url' => '/kampanya',
+                    'countdown' => 0,
+                    'show_notice' => false,
+                ],
+            ]);
+    }
+
     public function test_queued_offer_command_is_delivered(): void
     {
         $visitor = ActiveVisitor::create([
@@ -1020,7 +1061,27 @@ class ActiveVisitorTest extends TestCase
             'action_detail' => 'Kupon Kodu: "PATEN10" yazdı',
         ])->assertStatus(200);
 
-        // 4. Kullanıcı kapıda ödeme seçeneğini tıklar
+        // 4. Kullanıcı il (şehir) seçer
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'click',
+            'action_detail' => 'İl (Şehir): "İstanbul" seçti',
+        ])->assertStatus(200);
+
+        // 5. Kullanıcı ilçe seçer
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'click',
+            'action_detail' => 'İlçe: "Kadıköy" seçti',
+        ])->assertStatus(200);
+
+        // 6. Kullanıcı kapıda ödeme seçeneğini tıklar
         $this->postJson('/api/presence/heartbeat', [
             'visitor_token' => $token,
             'url' => 'https://patenliayakkabilar.com/checkout',
@@ -1033,12 +1094,12 @@ class ActiveVisitorTest extends TestCase
         $visitor = ActiveVisitor::where('visitor_token', $token)->first();
         $this->assertNotNull($visitor);
 
-        // Aynı sayfada olduğu için 1 adet step olmalı, ancak içinde 3 mikro hareket olmalı
+        // Aynı sayfada olduğu için 1 adet step olmalı, ancak içinde 5 mikro hareket olmalı
         $this->assertCount(1, $visitor->journey_trail);
         $step = $visitor->journey_trail[0];
 
         $this->assertArrayHasKey('interactions', $step);
-        $this->assertCount(3, $step['interactions']);
+        $this->assertCount(5, $step['interactions']);
 
         // Tüm metinler küçük harflerle saklanmalı
         $this->assertEquals('⌨️', $step['interactions'][0]['icon']);
@@ -1047,14 +1108,22 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals('⌨️', $step['interactions'][1]['icon']);
         $this->assertEquals('kupon kodu: "paten10" yazdı', $step['interactions'][1]['text']);
 
-        $this->assertEquals('🖱️', $step['interactions'][2]['icon']);
-        $this->assertEquals('ödeme yöntemi: kapıda ödeme seçti', $step['interactions'][2]['text']);
+        $this->assertEquals('📍', $step['interactions'][2]['icon']);
+        $this->assertEquals('il (şehir): "istanbul" seçti', $step['interactions'][2]['text']);
+
+        $this->assertEquals('📍', $step['interactions'][3]['icon']);
+        $this->assertEquals('ilçe: "kadıköy" seçti', $step['interactions'][3]['text']);
+
+        $this->assertEquals('💳', $step['interactions'][4]['icon']);
+        $this->assertEquals('ödeme yöntemi: kapıda ödeme seçti', $step['interactions'][4]['text']);
 
         // Modal blade görünümünde mikro hareketlerin render edildiğini test et
         $view = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
         $this->assertStringContainsString('mikro hareketler & tıklamalar', $view);
         $this->assertStringContainsString('ad soyad: &quot;ahmet yılmaz&quot; yazdı', $view);
         $this->assertStringContainsString('kupon kodu: &quot;paten10&quot; yazdı', $view);
+        $this->assertStringContainsString('il (şehir): &quot;istanbul&quot; seçti', $view);
+        $this->assertStringContainsString('ilçe: &quot;kadıköy&quot; seçti', $view);
         $this->assertStringContainsString('ödeme yöntemi: kapıda ödeme seçti', $view);
     }
 }

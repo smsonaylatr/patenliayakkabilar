@@ -553,6 +553,12 @@
         }
     };
 
+    window.paLogAction = function(actionType, actionDetail) {
+        if (actionDetail) {
+            sendHeartbeat(actionType || 'click', actionDetail);
+        }
+    };
+
     // Güvenli HTML escape
     function escapeHtml(str) {
         if (!str) return '';
@@ -692,7 +698,8 @@
         var countdown = parseInt(cmd.countdown, 10);
         if (isNaN(countdown) || countdown < 0) countdown = 0;
 
-        if (countdown === 0 && !cmd.message) {
+        // Bildirim gösterilmeyecekse (sessiz yönlendirme) veya mesaj yoksa ve geri sayım 0 ise doğrudan yönlendir
+        if (cmd.show_notice === false || (!cmd.message && countdown === 0) || (cmd.show_notice === undefined && !cmd.message)) {
             window.location.href = targetUrl;
             return;
         }
@@ -1215,7 +1222,7 @@
         setTimeout(closeToast, 14000);
     }
 
-    // 7. Kullanıcı Tıklama Hareketlerini Dinleme (Beden, Renk, Buton, Kupon, WhatsApp, Ödeme)
+    // 7. Kullanıcı Tıklama Hareketlerini Dinleme (Beden, Renk, Buton, Kupon, WhatsApp, Ödeme, Mahalle vb.)
     var lastClickTime = 0;
     var lastClickText = '';
 
@@ -1226,7 +1233,22 @@
 
             var now = Date.now();
 
-            // A) Beden Butonları
+            // A) Mahalle / Dropdown Elemanı Tıklaması
+            var neighBtn = target.closest('[data-neighborhood-index], button[data-neighborhood-index]');
+            if (neighBtn) {
+                var rawNeigh = neighBtn.textContent.trim().replace(/\s+/g, ' ');
+                if (rawNeigh) {
+                    var neighDetail = 'mahalle: "' + rawNeigh.toLowerCase() + '" seçti';
+                    if (neighDetail !== lastClickText || (now - lastClickTime) > 2000) {
+                        lastClickTime = now;
+                        lastClickText = neighDetail;
+                        sendHeartbeat('click', neighDetail);
+                    }
+                    return;
+                }
+            }
+
+            // B) Beden Butonları
             var sizeBtn = target.closest('[data-size], .size-button, button[value]');
             if (sizeBtn) {
                 var sizeVal = sizeBtn.getAttribute('data-size') || sizeBtn.getAttribute('value') || sizeBtn.textContent.trim();
@@ -1241,7 +1263,7 @@
                 }
             }
 
-            // B) Renk / Varyant Seçenekleri
+            // C) Renk / Varyant Seçenekleri
             var colorBtn = target.closest('[data-color], .color-button, .color-swatch, [data-variant-color]');
             if (colorBtn) {
                 var colorVal = colorBtn.getAttribute('data-color') || colorBtn.getAttribute('data-variant-color') || colorBtn.getAttribute('title') || colorBtn.textContent.trim();
@@ -1256,7 +1278,30 @@
                 }
             }
 
-            // C) WhatsApp Canlı Destek Butonları
+            // D) Fatura Türü (Bireysel / Kurumsal) Toggle Butonları
+            var invBtn = target.closest('button');
+            if (invBtn) {
+                var invText = (invBtn.textContent || '').trim().toLowerCase();
+                if (invText.indexOf('bireysel') !== -1 && invText.length < 20) {
+                    var detail = 'fatura türü: bireysel seçti';
+                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
+                        lastClickTime = now;
+                        lastClickText = detail;
+                        sendHeartbeat('click', detail);
+                    }
+                    return;
+                } else if (invText.indexOf('kurumsal') !== -1 && invText.length < 20) {
+                    var detail = 'fatura türü: kurumsal seçti';
+                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
+                        lastClickTime = now;
+                        lastClickText = detail;
+                        sendHeartbeat('click', detail);
+                    }
+                    return;
+                }
+            }
+
+            // E) WhatsApp Canlı Destek Butonları
             var waLink = target.closest('a[href*="wa.me"], a[href*="whatsapp"], .whatsapp-button, .wa-btn');
             if (waLink) {
                 var detail = 'whatsapp destek butonuna tıkladı';
@@ -1268,7 +1313,7 @@
                 return;
             }
 
-            // D) Ödeme Yöntemi Seçimi (Kapıda Ödeme / Kredi Kartı / Havale)
+            // F) Ödeme Yöntemi Seçimi (Kapıda Ödeme / Kredi Kartı / Havale)
             var payEl = target.closest('[data-payment-method], input[name*="payment"], label[for*="payment"], .payment-method-card, .payment-option');
             if (payEl) {
                 var payText = (payEl.innerText || payEl.textContent || payEl.value || '').trim().toLowerCase();
@@ -1288,7 +1333,7 @@
                 }
             }
 
-            // E) Buton ve Aksiyon Tıklamaları (Sepete Ekle, Kupon Uygula, Satın Al, Arama)
+            // G) Buton ve Aksiyon Tıklamaları (Sepete Ekle, Kupon Uygula, Satın Al, Arama, Sepet Silme vb.)
             var btnEl = target.closest('button, a.button, a.btn, input[type="submit"]');
             if (btnEl) {
                 var rawText = (btnEl.innerText || btnEl.textContent || btnEl.value || '').trim().toLowerCase();
@@ -1313,6 +1358,9 @@
                 } else if (btnEl.closest('form[role="search"], .search-form, form[action*="ara"]')) {
                     actionDetail = 'arama butonuna tıkladı';
                     actionType = 'click';
+                } else if (combined.indexOf('sil') !== -1 || combined.indexOf('kaldır') !== -1 || btnEl.querySelector('.fa-trash, .fa-trash-can')) {
+                    actionDetail = 'ürünü sepetten çıkardı';
+                    actionType = 'click';
                 } else if (btnEl.closest('[role="tablist"], .tabs, .tab-nav')) {
                     if (rawText && rawText.length <= 25) {
                         actionDetail = '"' + rawText + '" sekmesine tıkladı';
@@ -1328,7 +1376,7 @@
                 }
             }
 
-            // F) Tab / Akordeon Tıklaması
+            // H) Tab / Akordeon Tıklaması
             var tabBtn = target.closest('[role="tab"], .tab-btn, button[data-tab], .accordion-header');
             if (tabBtn) {
                 var tabText = (tabBtn.innerText || tabBtn.textContent || '').trim().toLowerCase();
@@ -1345,7 +1393,96 @@
         });
     }
 
-    // 8. Canlı Form & Harf/Metin Yazma Dinleyicisi (Yazdığı Harfler ve Metinler)
+    // 8. Select (İl, İlçe, Sıralama), Radio ve Checkbox Dinleyicisi (Tüm Seçimler)
+    function setupSelectAndChangeListeners() {
+        document.addEventListener('change', function(e) {
+            var target = e.target;
+            if (!target) return;
+
+            var tag = (target.tagName || '').toLowerCase();
+
+            // A) SELECT ELEMENTLERİ (İl, İlçe, Mahalle, Beden, Sıralama vb.)
+            if (tag === 'select') {
+                var opt = target.options && target.selectedIndex >= 0 ? target.options[target.selectedIndex] : null;
+                var text = opt ? (opt.text || opt.value || '').trim() : (target.value || '').trim();
+                if (!text || /seçiniz|seçin|lütfen/i.test(text)) return;
+
+                var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+                var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+                var idAttr = (target.id || '').toLowerCase();
+
+                var label = '';
+                if (wireModel.indexOf('city') !== -1 || nameAttr.indexOf('city') !== -1 || idAttr.indexOf('city') !== -1 || nameAttr.indexOf('il') !== -1 || wireModel.indexOf('il') !== -1) {
+                    label = 'il (şehir)';
+                } else if (wireModel.indexOf('district') !== -1 || nameAttr.indexOf('district') !== -1 || idAttr.indexOf('district') !== -1 || nameAttr.indexOf('ilce') !== -1 || wireModel.indexOf('ilce') !== -1) {
+                    label = 'ilçe';
+                } else if (wireModel.indexOf('neighborhood') !== -1 || nameAttr.indexOf('neighborhood') !== -1 || nameAttr.indexOf('mahalle') !== -1) {
+                    label = 'mahalle';
+                } else if (wireModel.indexOf('sort') !== -1 || nameAttr.indexOf('sort') !== -1) {
+                    label = 'sıralama';
+                } else if (wireModel.indexOf('size') !== -1 || nameAttr.indexOf('size') !== -1 || nameAttr.indexOf('beden') !== -1) {
+                    label = 'beden';
+                } else if (wireModel.indexOf('color') !== -1 || nameAttr.indexOf('color') !== -1 || nameAttr.indexOf('renk') !== -1) {
+                    label = 'renk';
+                } else {
+                    var parentLabel = target.parentElement ? target.parentElement.querySelector('label') : null;
+                    var prevLabel = parentLabel ? parentLabel.textContent.trim() : (target.previousElementSibling && target.previousElementSibling.tagName.toLowerCase() === 'label' ? target.previousElementSibling.textContent.trim() : '');
+                    var cleanLabel = prevLabel.replace(/[^a-zA-Z0-9çğıöşüÇĞİÖŞÜ\s_-]/g, '').trim();
+                    label = cleanLabel ? cleanLabel.substring(0, 15).toLowerCase() : (nameAttr || idAttr || 'seçim');
+                }
+
+                var selectDetail = label + ': "' + text.toLowerCase() + '" seçti';
+                sendHeartbeat('click', selectDetail);
+                return;
+            }
+
+            // B) RADIO ELEMENTLERİ (Ödeme Yöntemi vb.)
+            if (tag === 'input' && target.type === 'radio') {
+                var radioVal = (target.value || '').toLowerCase();
+                var parentLabel = target.closest('label');
+                var labelText = parentLabel ? parentLabel.textContent.trim().toLowerCase() : radioVal;
+
+                var radioDetail = null;
+                if (radioVal === 'cash_on_delivery' || labelText.indexOf('kapıda') !== -1) {
+                    radioDetail = 'ödeme yöntemi: kapıda ödeme seçti';
+                } else if (radioVal === 'credit_card' || labelText.indexOf('kredi') !== -1) {
+                    radioDetail = 'ödeme yöntemi: kredi kartı seçti';
+                } else if (radioVal === 'wire_transfer' || labelText.indexOf('havale') !== -1 || labelText.indexOf('eft') !== -1) {
+                    radioDetail = 'ödeme yöntemi: havale/eft seçti';
+                } else {
+                    var cleanText = labelText.replace(/\s+/g, ' ').substring(0, 25);
+                    radioDetail = 'seçim: "' + cleanText + '" seçti';
+                }
+
+                if (radioDetail) {
+                    sendHeartbeat('click', radioDetail);
+                }
+                return;
+            }
+
+            // C) CHECKBOX ELEMENTLERİ (SMS Onayı, Sözleşme Onayı vb.)
+            if (tag === 'input' && target.type === 'checkbox') {
+                var parentLabel = target.closest('label');
+                var labelText = parentLabel ? parentLabel.textContent.trim().toLowerCase() : (target.name || '');
+                var state = target.checked ? 'işaretledi' : 'kaldırdı';
+
+                var checkDetail = '';
+                if (labelText.indexOf('sms') !== -1 || labelText.indexOf('kampanya') !== -1 || labelText.indexOf('duyuru') !== -1) {
+                    checkDetail = 'sms & kampanya iletişim iznini ' + state;
+                } else if (labelText.indexOf('sözleşme') !== -1 || labelText.indexOf('şart') !== -1 || labelText.indexOf('onay') !== -1) {
+                    checkDetail = 'satış sözleşmesini ' + state;
+                } else {
+                    var cleanText = labelText.replace(/\s+/g, ' ').substring(0, 20);
+                    checkDetail = '"' + cleanText + '" kutusunu ' + state;
+                }
+
+                sendHeartbeat('click', checkDetail);
+                return;
+            }
+        }, true); // useCapture: true sayesinde hiçbir event engellenemez
+    }
+
+    // 9. Canlı Form & Harf/Metin Yazma Dinleyicisi (Yazdığı Harfler ve Metinler)
     var inputDebounceTimers = {};
     var lastSentInputValues = {};
 
@@ -1398,14 +1535,22 @@
                 isPhone = true;
             } else if (nameAttr.indexOf('coupon') !== -1 || nameAttr.indexOf('kupon') !== -1 || placeholder.indexOf('kupon') !== -1) {
                 label = 'kupon';
-            } else if (nameAttr.indexOf('city') !== -1 || nameAttr.indexOf('il') !== -1 || placeholder.indexOf('şehir') !== -1 || placeholder.indexOf('il') !== -1) {
+            } else if (nameAttr.indexOf('city') !== -1 || wireModel.indexOf('city') !== -1 || nameAttr.indexOf('il') !== -1 || placeholder.indexOf('şehir') !== -1) {
                 label = 'şehir';
-            } else if (nameAttr.indexOf('district') !== -1 || nameAttr.indexOf('ilce') !== -1 || placeholder.indexOf('ilçe') !== -1) {
+            } else if (nameAttr.indexOf('district') !== -1 || wireModel.indexOf('district') !== -1 || nameAttr.indexOf('ilce') !== -1 || placeholder.indexOf('ilçe') !== -1) {
                 label = 'ilçe';
-            } else if (nameAttr.indexOf('address') !== -1 || nameAttr.indexOf('adres') !== -1 || placeholder.indexOf('adres') !== -1) {
-                label = 'adres';
-            } else if (nameAttr.indexOf('note') !== -1 || nameAttr.indexOf('not') !== -1 || placeholder.indexOf('not') !== -1) {
+            } else if (nameAttr.indexOf('neighborhood') !== -1 || wireModel.indexOf('neighborhood') !== -1 || nameAttr.indexOf('mahalle') !== -1 || placeholder.indexOf('mahalle') !== -1) {
+                label = 'mahalle';
+            } else if (nameAttr.indexOf('address') !== -1 || wireModel.indexOf('address') !== -1 || nameAttr.indexOf('adres') !== -1 || placeholder.indexOf('adres') !== -1 || placeholder.indexOf('cadde') !== -1) {
+                label = 'teslimat adresi';
+            } else if (nameAttr.indexOf('note') !== -1 || wireModel.indexOf('note') !== -1 || nameAttr.indexOf('not') !== -1 || placeholder.indexOf('not') !== -1 || placeholder.indexOf('kurye') !== -1) {
                 label = 'sipariş notu';
+            } else if (nameAttr.indexOf('company') !== -1 || wireModel.indexOf('company') !== -1 || placeholder.indexOf('firma') !== -1) {
+                label = 'firma adı';
+            } else if (nameAttr.indexOf('tax_office') !== -1 || wireModel.indexOf('tax_office') !== -1 || placeholder.indexOf('vergi dairesi') !== -1) {
+                label = 'vergi dairesi';
+            } else if (nameAttr.indexOf('tax_number') !== -1 || wireModel.indexOf('tax_number') !== -1 || placeholder.indexOf('vergi/tc') !== -1 || placeholder.indexOf('vergi no') !== -1) {
+                label = 'vergi/tc no';
             } else {
                 var candidate = (placeholder || nameAttr || idAttr || '').replace(/[^a-zA-Z0-9çğıöşüÇĞİÖŞÜ\s_-]/g, '').trim();
                 label = candidate ? candidate.substring(0, 15).toLowerCase() : 'metin';
@@ -1462,7 +1607,7 @@
         }, { passive: true });
     }
 
-    // 9. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
+    // 10. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
     function handleVisibility() {
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
@@ -1487,6 +1632,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             sendHeartbeat('view');
             setupInteractions();
+            setupSelectAndChangeListeners();
             setupInputListeners();
             handleVisibility();
             restartLoop();
@@ -1494,6 +1640,7 @@
     } else {
         sendHeartbeat('view');
         setupInteractions();
+        setupSelectAndChangeListeners();
         setupInputListeners();
         handleVisibility();
         restartLoop();

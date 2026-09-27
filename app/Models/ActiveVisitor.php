@@ -842,15 +842,20 @@ class ActiveVisitor extends Model
     /**
      * Ziyaretçiye yönlendirme emri kuyrukla
      */
-    public function queueRedirect(string $targetUrl, ?string $message = null, int $countdown = 0): void
+    public function queueRedirect(string $targetUrl, ?string $message = null, int $countdown = 0, ?bool $showNotice = null): void
     {
+        if ($showNotice === null) {
+            $showNotice = (!empty($message) && $countdown > 0);
+        }
+
         $this->update([
             'pending_command' => [
                 'id' => 'cmd_' . uniqid(),
                 'action' => 'redirect',
                 'target_url' => $targetUrl,
-                'message' => $message,
-                'countdown' => $countdown,
+                'message' => $showNotice ? $message : null,
+                'countdown' => $showNotice ? $countdown : 0,
+                'show_notice' => (bool) $showNotice,
                 'created_at' => now()->toIso8601String(),
             ],
         ]);

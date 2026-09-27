@@ -256,8 +256,8 @@
                                     </div>
 
                                     @if(!empty($step['interactions']) && is_array($step['interactions']))
-                                        <div style="margin-top: 8px; padding: 7px 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
-                                            <div style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="margin-top: 8px; padding: 7px 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; display: flex; flex-direction: column; gap: 4px; max-height: 250px; overflow-y: auto;">
+                                            <div style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); padding: 2px 0; z-index: 1;">
                                                 <span>⚡ mikro hareketler & tıklamalar</span>
                                                 <span style="font-size: 9px; font-family: monospace; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px;">{{ count($step['interactions']) }} işlem</span>
                                             </div>

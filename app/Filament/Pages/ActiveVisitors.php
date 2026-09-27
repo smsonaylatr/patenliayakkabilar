@@ -741,10 +741,21 @@ class ActiveVisitors extends Page implements HasTable
                             ->visible(fn ($get) => $get('quick_target') === 'custom')
                             ->required(fn ($get) => $get('quick_target') === 'custom'),
 
+                        Select::make('redirect_mode')
+                            ->label('Yönlendirme Şekli')
+                            ->native(false)
+                            ->options([
+                                'silent' => '⚡ Bildirim Göstermeden Doğrudan Yönlendir (Sessiz / Anında)',
+                                'notify' => '💬 Bilgilendirme Pop-up\'ı Göster (Geri Sayım & Mesaj ile)',
+                            ])
+                            ->default('silent')
+                            ->live()
+                            ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında hedef sayfaya yönlendirilir.'),
+
                         TextInput::make('redirect_message')
                             ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
                             ->placeholder('Örn: Sizi fırsat ürünlerimize aktarıyoruz...')
-                            ->default('Sizi özel indirim sayfasına aktarıyoruz...'),
+                            ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
 
                         Select::make('countdown')
                             ->label('Geri Sayım')
@@ -754,19 +765,24 @@ class ActiveVisitors extends Page implements HasTable
                                 '3' => '3 Saniye Geri Sayım',
                                 '5' => '5 Saniye Geri Sayım',
                             ])
-                            ->default('3'),
+                            ->default('3')
+                            ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
                         $target = $data['quick_target'] === 'custom' ? $data['custom_url'] : $data['quick_target'];
+                        $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
+                        $showNotice = !$isSilent;
+
                         $record->queueRedirect(
                             $target,
-                            $data['redirect_message'] ?? null,
-                            (int) ($data['countdown'] ?? 3)
+                            $showNotice ? ($data['redirect_message'] ?? null) : null,
+                            $showNotice ? (int) ($data['countdown'] ?? 3) : 0,
+                            $showNotice
                         );
 
                         Notification::make()
                             ->title('Yönlendirme Başlatıldı')
-                            ->body('Ziyaretçi ' . $target . ' adresine yönlendiriliyor.')
+                            ->body('Ziyaretçi ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.')
                             ->success()
                             ->send();
                     }),
@@ -999,21 +1015,40 @@ class ActiveVisitors extends Page implements HasTable
                         ->visible(fn ($get) => $get('bulk_target') === 'custom')
                         ->required(fn ($get) => $get('bulk_target') === 'custom'),
 
+                    Select::make('redirect_mode')
+                        ->label('Yönlendirme Şekli')
+                        ->native(false)
+                        ->options([
+                            'silent' => '⚡ Bildirim Göstermeden Doğrudan Yönlendir (Sessiz / Anında)',
+                            'notify' => '💬 Bilgilendirme Pop-up\'ı Göster (Geri Sayım & Mesaj ile)',
+                        ])
+                        ->default('silent')
+                        ->live()
+                        ->helperText('Bildirim göstermeden seçeneğinde kullanıcılara pop-up gösterilmez, doğrudan hedef sayfaya yönlendirilirler.'),
+
                     TextInput::make('bulk_message')
-                        ->label('Kullanıcılara Gösterilecek Mesaj')
-                        ->default('Fırsat ürünlerimize aktarılıyorsunuz...'),
+                        ->label('Kullanıcılara Gösterilecek Mesaj (Opsiyonel)')
+                        ->placeholder('Örn: Fırsat ürünlerimize aktarılıyorsunuz...')
+                        ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                 ])
                 ->action(function (array $data) {
                     $target = $data['bulk_target'] === 'custom' ? $data['custom_url'] : $data['bulk_target'];
+                    $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
+                    $showNotice = !$isSilent;
                     $visitors = ActiveVisitor::online()->get();
 
                     foreach ($visitors as $v) {
-                        $v->queueRedirect($target, $data['bulk_message'] ?? null, 3);
+                        $v->queueRedirect(
+                            $target,
+                            $showNotice ? ($data['bulk_message'] ?? null) : null,
+                            $showNotice ? 3 : 0,
+                            $showNotice
+                        );
                     }
 
                     Notification::make()
                         ->title('Toplu Yönlendirme Başlatıldı')
-                        ->body($visitors->count() . ' aktif kullanıcı ' . $target . ' sayfasına yönlendiriliyor.')
+                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' sayfasına yönlendiriliyor.')
                         ->success()
                         ->send();
                 }),
