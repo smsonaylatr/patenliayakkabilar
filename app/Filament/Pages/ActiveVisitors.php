@@ -729,7 +729,15 @@ class ActiveVisitors extends Page implements HasTable
                     ->color('primary')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->modalHeading('🚀 Ziyaretçiyi Sayfaya Yönlendir')
+                    ->modalDescription('Ziyaretçiyi istediğiniz adrese aktarın. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
                     ->modalSubmitActionLabel('Şimdi Yönlendir')
+                    ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
+                    ->extraModalFooterActions(fn (Action $action): array => [
+                        $action->makeModalSubmitAction('force_redirect_and_close', ['close' => true])
+                            ->label('Şimdi Yönlendir ve Çık')
+                            ->color('gray')
+                            ->icon('heroicon-o-arrow-right-on-rectangle'),
+                    ])
                     ->form([
                         Select::make('quick_target')
                             ->label('Hedef Sayfa veya Site Dışı Link')
@@ -779,7 +787,7 @@ class ActiveVisitors extends Page implements HasTable
                             ->default('3')
                             ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                     ])
-                    ->action(function (ActiveVisitor $record, array $data) {
+                    ->action(function (ActiveVisitor $record, array $data, array $arguments, Action $action) {
                         $target = match($data['quick_target'] ?? 'custom') {
                             'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
                             'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
@@ -787,6 +795,7 @@ class ActiveVisitors extends Page implements HasTable
                         };
                         $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                         $showNotice = !$isSilent;
+                        $shouldClose = (bool) ($arguments['close'] ?? false);
 
                         $record->queueRedirect(
                             $target,
@@ -797,9 +806,14 @@ class ActiveVisitors extends Page implements HasTable
 
                         Notification::make()
                             ->title('Yönlendirme Başlatıldı')
-                            ->body('Ziyaretçi ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.')
+                            ->body('Ziyaretçi ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
                             ->success()
                             ->send();
+
+                        if (! $shouldClose) {
+                            $action->arguments([]);
+                            $action->halt();
+                        }
                     }),
 
                 // ─── 3. Gezinme Yolculuğunu İncele ───
@@ -1016,7 +1030,15 @@ class ActiveVisitors extends Page implements HasTable
                 ->color('primary')
                 ->icon('heroicon-o-paper-airplane')
                 ->modalHeading('📢 Sitedeki Tüm Aktif Ziyaretçileri Toplu Yönlendir')
-                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara tek tıkla yönlendirme emri gönderir.')
+                ->modalDescription('Sitedeki tüm aktif kullanıcılara tek tıkla yönlendirme emri gönderir. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
+                ->modalSubmitActionLabel('Şimdi Yönlendir')
+                ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
+                ->extraModalFooterActions(fn (Action $action): array => [
+                    $action->makeModalSubmitAction('bulk_redirect_and_close', ['close' => true])
+                        ->label('Şimdi Yönlendir ve Çık')
+                        ->color('gray')
+                        ->icon('heroicon-o-arrow-right-on-rectangle'),
+                ])
                 ->form([
                     Select::make('bulk_target')
                         ->label('Hedef Sayfa veya Site Dışı Link')
@@ -1055,7 +1077,7 @@ class ActiveVisitors extends Page implements HasTable
                         ->placeholder('Örn: Fırsat ürünlerimize aktarılıyorsunuz...')
                         ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
                 ])
-                ->action(function (array $data) {
+                ->action(function (array $data, array $arguments, Action $action) {
                     $target = match($data['bulk_target'] ?? 'custom') {
                         'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
                         'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
@@ -1063,6 +1085,7 @@ class ActiveVisitors extends Page implements HasTable
                     };
                     $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                     $showNotice = !$isSilent;
+                    $shouldClose = (bool) ($arguments['close'] ?? false);
                     $visitors = ActiveVisitor::online()->get();
 
                     foreach ($visitors as $v) {
@@ -1076,9 +1099,14 @@ class ActiveVisitors extends Page implements HasTable
 
                     Notification::make()
                         ->title('Toplu Yönlendirme Başlatıldı')
-                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.')
+                        ->body($visitors->count() . ' aktif kullanıcı ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
                         ->success()
                         ->send();
+
+                    if (! $shouldClose) {
+                        $action->arguments([]);
+                        $action->halt();
+                    }
                 }),
 
             // Toplu Duyuru / Kupon
@@ -1405,25 +1433,17 @@ class ActiveVisitors extends Page implements HasTable
     public static function getTargetUrlOptions(): array
     {
         $options = [
-            '🌐 SİTE DIŞI / HARİCİ HEDEFLER' => [
-                'custom_external' => '🌐 Site Dışı Link (Harici Web Sitesi, WhatsApp, Instagram vb.)',
-            ],
-            '⚡ SİTE İÇİ HIZLI HEDEFLER' => [
-                '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
-                '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
-                '/' => '🏠 Ana Sayfa',
-                '/iletisim' => '📞 İletişim & Canlı Destek',
-                'custom' => '🔗 Özel Site İçi Sayfa Linki (/sayfa-adi)',
-            ],
+            '/' => '🏠 Ana Sayfa',
+            '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
+            '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
         ];
 
         // Kategoriler
-        $catOptions = [];
         try {
             $categories = \App\Models\Category::where('status', true)->orderBy('id')->get();
             if ($categories->isEmpty()) {
-                $catOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-                $catOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+                $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+                $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
             } else {
                 foreach ($categories as $cat) {
                     $icon = match (true) {
@@ -1433,17 +1453,17 @@ class ActiveVisitors extends Page implements HasTable
                         str_contains($cat->slug, 'kadin') => '👩',
                         default => '🏷️',
                     };
-                    $catOptions['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
+                    $options['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
                 }
             }
         } catch (\Throwable $e) {
-            $catOptions['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
-            $catOptions['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
+            $options['/kategori/erkek-cocuk'] = '👦 Erkek Çocuk Modelleri';
+            $options['/kategori/kiz-cocuk'] = '👧 Kız Çocuk Modelleri';
         }
 
-        if (!empty($catOptions)) {
-            $options['📂 Kategori Sayfaları'] = $catOptions;
-        }
+        $options['/iletisim'] = '📞 İletişim & Canlı Destek';
+        $options['custom'] = '🔗 Özel Site İçi Sayfa Linki (/sayfa-adi)';
+        $options['custom_external'] = '🌐 Site Dışı Link (Harici Web Sitesi, WhatsApp, Instagram vb.)';
 
         return $options;
     }

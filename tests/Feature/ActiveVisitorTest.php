@@ -803,16 +803,24 @@ class ActiveVisitorTest extends TestCase
         \App\Models\Category::create(['name' => 'Erkek Çocuk', 'slug' => 'erkek-cocuk', 'status' => true]);
 
         $options = \App\Filament\Pages\ActiveVisitors::getTargetUrlOptions();
+        $flatOptions = [];
+        foreach ($options as $key => $val) {
+            if (is_array($val)) {
+                $flatOptions = array_merge($flatOptions, $val);
+            } else {
+                $flatOptions[$key] = $val;
+            }
+        }
 
-        $this->assertArrayHasKey('/', $options);
-        $this->assertArrayHasKey('/patenli-ayakkabilar', $options);
-        $this->assertArrayHasKey('/checkout', $options);
-        $this->assertArrayHasKey('/kategori/kiz-cocuk', $options);
-        $this->assertArrayHasKey('/kategori/erkek-cocuk', $options);
+        $this->assertArrayHasKey('/', $flatOptions);
+        $this->assertArrayHasKey('/patenli-ayakkabilar', $flatOptions);
+        $this->assertArrayHasKey('/checkout', $flatOptions);
+        $this->assertArrayHasKey('/kategori/kiz-cocuk', $flatOptions);
+        $this->assertArrayHasKey('/kategori/erkek-cocuk', $flatOptions);
 
         // Hatalı/geçersiz linkler kesinlikle olmamalı
-        $this->assertArrayNotHasKey('/kategori/kiz-cocuk-patenli-ayakkabi', $options);
-        $this->assertArrayNotHasKey('/kategori/erkek-cocuk-patenli-ayakkabi', $options);
+        $this->assertArrayNotHasKey('/kategori/kiz-cocuk-patenli-ayakkabi', $flatOptions);
+        $this->assertArrayNotHasKey('/kategori/erkek-cocuk-patenli-ayakkabi', $flatOptions);
     }
 
     public function test_voice_message_defaults_to_speech_only_mode(): void
