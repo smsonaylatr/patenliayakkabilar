@@ -187,14 +187,14 @@ class ActiveVisitors extends Page implements HasTable
                         ');
                     }),
 
-                // 2. Bulunduğu Sayfa & İncelenen Ürün
+                // 2. Bulunduğu Sayfa & Model
                 TextColumn::make('current_path')
                     ->label('Bulunduğu Sayfa & Model')
                     ->searchable(['current_title', 'current_path'])
                     ->getStateUsing(function (ActiveVisitor $record) {
+                        $pageInfo = $record->page_info;
                         $product = $record->current_product;
                         $productImage = $record->current_product_image;
-                        $title = $product ? $product->name : ($record->current_title ?: $record->current_path);
                         $url = $record->current_url ?: $record->current_path;
 
                         // Beden seçimi veya son hareket
@@ -208,57 +208,84 @@ class ActiveVisitors extends Page implements HasTable
                             }
                         }
 
-                        $isCheckout = str_contains($record->current_path, 'checkout');
-
+                        // Durum 1: Ürün Sayfasında
                         if ($product) {
                             $price = $product->discount_price ?: $product->price;
                             $imgHtml = $productImage
-                                ? '<img src="' . e($productImage) . '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;" />'
-                                : '<div style="width:48px;height:48px;border-radius:10px;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👟</div>';
+                                ? '<img src="' . e($productImage) . '" style="width:48px;height:48px;border-radius:12px;object-fit:cover;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.35);" />'
+                                : '<div style="width:48px;height:48px;border-radius:12px;background:rgba(255,78,0,0.15);border:1px solid rgba(255,78,0,0.35);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">👟</div>';
 
                             return new HtmlString('
-                                <div style="display:flex;align-items:center;gap:12px;max-width:280px;">
+                                <div style="display:flex;align-items:center;gap:12px;max-width:290px;">
                                     ' . $imgHtml . '
-                                    <div style="overflow:hidden;">
-                                        <a href="' . e($url) . '" target="_blank" style="font-weight:700;color:#ff7849;font-size:12px;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                            ' . e($title) . ' ↗
+                                    <div style="overflow:hidden;flex:1;">
+                                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                            <span style="display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;background:rgba(255,78,0,0.15);color:#ff7849;border:1px solid rgba(255,78,0,0.35);">
+                                                👟 ' . e($pageInfo['badge']) . '
+                                            </span>
+                                        </div>
+                                        <a href="' . e($url) . '" target="_blank" style="font-weight:800;color:#f8fafc;font-size:12.5px;line-height:1.35;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            ' . e($pageInfo['title']) . ' ↗
                                         </a>
-                                        <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
-                                            <span style="font-weight:800;color:#22c55e;font-size:12px;">' . number_format($price, 2) . ' ₺</span>
+                                        <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+                                            <span style="font-weight:800;color:#10b981;font-size:12px;">' . number_format($price, 2) . ' ₺</span>
                                             <span style="font-size:10px;color:#94a3b8;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;">İnceliyor</span>
                                         </div>
-                                        ' . ($recentDetail ? '<div style="font-size:11px;color:#fbbf24;font-weight:700;margin-top:2px;">🎯 ' . e($recentDetail) . '</div>' : '') . '
+                                        ' . ($recentDetail ? '<div style="font-size:10px;color:#fbbf24;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎯 ' . e($recentDetail) . '</div>' : '') . '
                                     </div>
                                 </div>
                             ');
                         }
 
-                        if ($isCheckout) {
+                        // Durum 2: Ödeme Sayfası (Checkout)
+                        if ($pageInfo['type'] === 'checkout') {
                             return new HtmlString('
-                                <div style="display:flex;align-items:center;gap:10px;max-width:260px;">
-                                    <div style="width:44px;height:44px;border-radius:10px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
+                                <div style="display:flex;align-items:center;gap:12px;max-width:290px;">
+                                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 14px rgba(16,185,129,0.2);">
                                         🛒
                                     </div>
-                                    <div>
-                                        <div style="font-weight:800;color:#38bdf8;font-size:12px;">Ödeme Sayfası (Checkout)</div>
-                                        <div style="font-size:11px;color:#10b981;font-weight:700;margin-top:2px;">
-                                            Sepet Tutarını Tamamlıyor: ' . number_format($record->cart_total, 2) . ' ₺
+                                    <div style="overflow:hidden;flex:1;">
+                                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                            <span style="display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.35);">
+                                                🛒 ' . e($pageInfo['badge']) . '
+                                            </span>
                                         </div>
+                                        <a href="' . e($url) . '" target="_blank" style="font-weight:800;color:#38bdf8;font-size:12.5px;line-height:1.35;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            ' . e($pageInfo['title']) . ' ↗
+                                        </a>
+                                        <div style="font-size:11px;color:#10b981;font-weight:700;margin-top:2px;">
+                                            Sepet Tutarı: ' . number_format($record->cart_total, 2) . ' ₺' . ($record->cart_items_count > 0 ? ' (' . $record->cart_items_count . ' ürün)' : '') . '
+                                        </div>
+                                        ' . ($recentDetail ? '<div style="font-size:10px;color:#fbbf24;font-weight:700;margin-top:3px;">🎯 ' . e($recentDetail) . '</div>' : '') . '
                                     </div>
                                 </div>
                             ');
                         }
 
+                        // Durum 3: Diğer Tüm Sayfalar (Ana Sayfa, Kategoriler, Sipariş Takip, Blog, Kurumsal vb.)
+                        $color = $pageInfo['color'];
+                        $bgColor = $pageInfo['bg_color'];
+                        $borderColor = $pageInfo['border_color'];
+                        $icon = $pageInfo['icon'];
+
                         return new HtmlString('
-                            <div style="display:flex;align-items:center;gap:10px;max-width:260px;">
-                                <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                                    📄
+                            <div style="display:flex;align-items:center;gap:12px;max-width:290px;">
+                                <div style="width:48px;height:48px;border-radius:12px;background:' . $bgColor . ';border:1px solid ' . $borderColor . ';display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+                                    ' . $icon . '
                                 </div>
-                                <div style="overflow:hidden;">
-                                    <a href="' . e($url) . '" target="_blank" style="font-weight:700;color:#cbd5e1;font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                        ' . e($title) . ' ↗
+                                <div style="overflow:hidden;flex:1;">
+                                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                                        <span style="display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;background:' . $bgColor . ';color:' . $color . ';border:1px solid ' . $borderColor . ';">
+                                            ' . $icon . ' ' . e($pageInfo['badge']) . '
+                                        </span>
+                                    </div>
+                                    <a href="' . e($url) . '" target="_blank" style="font-weight:800;color:#f8fafc;font-size:12.5px;line-height:1.35;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        ' . e($pageInfo['title']) . ' ↗
                                     </a>
-                                    <div style="font-size:10px;color:#64748b;margin-top:2px;font-family:monospace;">' . e($record->current_path) . '</div>
+                                    <div style="font-size:10px;color:#64748b;margin-top:2px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        ' . e($record->current_path) . '
+                                    </div>
+                                    ' . ($recentDetail ? '<div style="font-size:10px;color:#fbbf24;font-weight:700;margin-top:3px;">🎯 ' . e($recentDetail) . '</div>' : '') . '
                                 </div>
                             </div>
                         ');

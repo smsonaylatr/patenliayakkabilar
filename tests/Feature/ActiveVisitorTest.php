@@ -194,5 +194,29 @@ class ActiveVisitorTest extends TestCase
                 ],
             ]);
     }
+
+    public function test_page_info_resolution_and_clean_titles(): void
+    {
+        // 1. Ana Sayfa (Site başlığı ile gelse bile Ana Sayfa olarak çözümlenmeli)
+        $homeInfo = ActiveVisitor::resolvePageInfo('/', 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri');
+        $this->assertEquals('Ana Sayfa', $homeInfo['title']);
+        $this->assertEquals('Ana Sayfa', $homeInfo['badge']);
+        $this->assertEquals('🏠', $homeInfo['icon']);
+
+        // 2. Ödeme Sayfası (Boş veya genel başlık ile gelse bile Ödeme olarak çözümlenmeli)
+        $checkoutInfo = ActiveVisitor::resolvePageInfo('/checkout', 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri');
+        $this->assertEquals('Ödeme Sayfası (Checkout)', $checkoutInfo['title']);
+        $this->assertEquals('Ödeme Ekranı', $checkoutInfo['badge']);
+        $this->assertEquals('🛒', $checkoutInfo['icon']);
+
+        // 3. Başlık Temizleme (Marka ekleri temizlenmeli)
+        $cleanTitle = ActiveVisitor::cleanTitle('Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı - Patenli Ayakkabılar');
+        $this->assertEquals('Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı', $cleanTitle);
+
+        // 4. Kargo & Sipariş Takibi
+        $trackingInfo = ActiveVisitor::resolvePageInfo('/siparis-takip');
+        $this->assertEquals('Sipariş & Kargo Takibi', $trackingInfo['title']);
+        $this->assertEquals('📦', $trackingInfo['icon']);
+    }
 }
 

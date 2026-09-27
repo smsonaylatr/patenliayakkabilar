@@ -26,31 +26,49 @@ class VisitorBehaviorAnalyzer
         $isPathChanged = ($previousPath !== null && $previousPath !== $newPath);
 
         if ($isFirstStep || $isPathChanged || !empty($actionDetail)) {
-            // Önceki adım varsa süresini güncelle
-            if (!empty($trail)) {
-                $lastIndex = count($trail) - 1;
-                if (!isset($trail[$lastIndex]['end_time'])) {
+            $pageInfo = ActiveVisitor::resolvePageInfo($newPath, $newTitle);
+            $cleanTitle = ActiveVisitor::cleanTitle($newTitle);
+            $stepTitle = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
+                ? $cleanTitle
+                : $pageInfo['title'];
+
+            $lastIndex = count($trail) - 1;
+
+            // Eğer son adım ile aynı sayfa ve aynı aksiyon detayı ise mükerrer adım ekleme, sadece zamanını güncelle
+            if (!$isFirstStep && $lastIndex >= 0 && ($trail[$lastIndex]['path'] ?? '') === $newPath && ($trail[$lastIndex]['detail'] ?? null) === $actionDetail) {
+                $trail[$lastIndex]['time'] = $nowFormatted;
+                $trail[$lastIndex]['title'] = $stepTitle;
+                $trail[$lastIndex]['badge'] = $pageInfo['badge'];
+                $trail[$lastIndex]['icon'] = $pageInfo['icon'];
+                $trail[$lastIndex]['color'] = $pageInfo['color'];
+                $visitor->journey_trail = $trail;
+            } else {
+                // Önceki adım varsa süresini güncelle
+                if (!empty($trail) && $lastIndex >= 0 && !isset($trail[$lastIndex]['end_time'])) {
                     $trail[$lastIndex]['end_time'] = $nowFormatted;
                 }
-            }
 
-            // Yeni adımı ekle
-            $trail[] = [
-                'path' => $newPath,
-                'title' => $newTitle,
-                'time' => $nowFormatted,
-                'action' => $action,
-                'detail' => $actionDetail,
-            ];
+                // Yeni adımı ekle
+                $trail[] = [
+                    'path' => $newPath,
+                    'title' => $stepTitle,
+                    'badge' => $pageInfo['badge'],
+                    'icon' => $pageInfo['icon'],
+                    'color' => $pageInfo['color'],
+                    'time' => $nowFormatted,
+                    'action' => $action,
+                    'detail' => $actionDetail,
+                ];
 
-            // Trail maksimum 10 adımda tutulsun (hafiflik için)
-            if (count($trail) > 10) {
-                $trail = array_slice($trail, -10);
-            }
+                // Trail maksimum 10 adımda tutulsun (hafiflik için)
+                if (count($trail) > 10) {
+                    $trail = array_slice($trail, -10);
+                }
 
-            $visitor->journey_trail = $trail;
-            if ($isPathChanged) {
-                $visitor->page_views_count = ($visitor->page_views_count ?? 0) + 1;
+                $visitor->journey_trail = $trail;
+                if ($isPathChanged) {
+                    $visitor->page_views_count = ($visitor->page_views_count ?? 0) + 1;
+                }
             }
         }
 

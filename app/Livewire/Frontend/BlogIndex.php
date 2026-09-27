@@ -59,6 +59,8 @@ class BlogIndex extends Component
         return view('livewire.frontend.blog-index', [
             'posts' => $posts,
             'suggestions' => $suggestions
-        ])->layout('components.layouts.app');
+        ])->layout('components.layouts.app', [
+            'title' => 'Paten Rehberi & Blog | Patenli Ayakkabılar',
+        ]);
     }
 }

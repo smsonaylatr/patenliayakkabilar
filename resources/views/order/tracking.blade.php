@@ -1,4 +1,5 @@
 <x-layouts.app>
+    <x-slot:title>Sipariş & Kargo Takibi | Patenli Ayakkabılar</x-slot:title>
     <div class="min-h-[70vh] bg-gray-50 py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
         <div class="max-w-2xl mx-auto">
             <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 text-center">

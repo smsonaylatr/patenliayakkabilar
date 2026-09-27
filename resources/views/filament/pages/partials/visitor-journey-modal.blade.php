@@ -84,22 +84,54 @@
         @if(!empty($record->journey_trail) && is_array($record->journey_trail))
             <div style="position: relative; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; border-left: 2px solid rgba(255, 255, 255, 0.1); margin-left: 8px;">
                 @foreach(array_reverse($record->journey_trail) as $index => $step)
+                    @php
+                        $stepPath = $step['path'] ?? '/';
+                        $stepRawTitle = $step['title'] ?? null;
+                        $stepInfo = \App\Models\ActiveVisitor::resolvePageInfo($stepPath, $stepRawTitle);
+                        $isCurrent = ($index === 0);
+                        $badgeText = $step['badge'] ?? $stepInfo['badge'];
+                        $icon = $step['icon'] ?? $stepInfo['icon'];
+                        $badgeColor = $step['color'] ?? $stepInfo['color'];
+                        $badgeBg = $stepInfo['bg_color'];
+                        $badgeBorder = $stepInfo['border_color'];
+                        
+                        $cleanTitle = \App\Models\ActiveVisitor::cleanTitle($stepRawTitle);
+                        $displayTitle = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
+                            ? $cleanTitle
+                            : $stepInfo['title'];
+                    @endphp
                     <div style="position: relative;">
-                        <span style="position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: {{ $index === 0 ? '#ff4e00' : '#475569' }}; box-shadow: 0 0 8px {{ $index === 0 ? '#ff4e00' : 'transparent' }};"></span>
-                        <div style="background: #1e293b; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.07);">
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                                <span style="font-weight: 700; font-size: 13px; color: #ffffff;">
-                                    {{ $step['title'] ?? $step['path'] ?? 'Sayfa' }}
-                                </span>
-                                <span style="font-size: 11px; font-family: monospace; color: #64748b;">
+                        <span style="position: absolute; left: -27px; top: 12px; width: 12px; height: 12px; border-radius: 50%; background: {{ $isCurrent ? '#ff4e00' : '#475569' }}; box-shadow: 0 0 10px {{ $isCurrent ? '#ff4e00' : 'transparent' }};"></span>
+                        <div style="background: #1e293b; padding: 12px 16px; border-radius: 14px; border: 1px solid {{ $isCurrent ? 'rgba(255, 78, 0, 0.4)' : 'rgba(255, 255, 255, 0.08)' }}; {{ $isCurrent ? 'box-shadow: 0 4px 16px rgba(255, 78, 0, 0.08);' : '' }}">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
+                                        {{ $icon }} {{ $badgeText }}
+                                    </span>
+                                    @if($isCurrent)
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                            ● ŞU AN BURADA
+                                        </span>
+                                    @endif
+                                </div>
+                                <span style="font-size: 11px; font-family: monospace; color: #94a3b8; font-weight: 600;">
                                     {{ $step['time'] ?? '' }}
                                 </span>
                             </div>
-                            <div style="font-size: 11px; color: #94a3b8; font-family: monospace; margin-top: 2px; word-break: break-all;">
-                                {{ $step['path'] ?? '' }}
+
+                            <div style="margin-bottom: 4px;">
+                                <a href="{{ $stepPath }}" target="_blank" style="font-weight: 800; font-size: 13.5px; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: color 0.15s;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#ffffff'">
+                                    <span>{{ $displayTitle }}</span>
+                                    <span style="font-size: 11px; color: #94a3b8;">↗</span>
+                                </a>
                             </div>
+
+                            <div style="font-size: 11px; color: #64748b; font-family: monospace; word-break: break-all;">
+                                {{ $stepPath }}
+                            </div>
+
                             @if(!empty($step['detail']))
-                                <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
                                     🎯 {{ $step['detail'] }}
                                 </div>
                             @endif

@@ -132,6 +132,9 @@ class OrderSuccess extends Component
 
     public function render()
     {
-        return view('livewire.frontend.order-success')->layout('components.layouts.app');
+        return view('livewire.frontend.order-success')->layout('components.layouts.app', [
+            'title' => 'Siparişiniz Alındı | Patenli Ayakkabılar',
+            'robots' => 'noindex, nofollow',
+        ]);
     }
 }

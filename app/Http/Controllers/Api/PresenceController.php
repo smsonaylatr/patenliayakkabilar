@@ -59,9 +59,13 @@ class PresenceController extends Controller
 
         $previousPath = $visitor->current_path;
 
+        $cleanTitle = ActiveVisitor::cleanTitle($title);
+        $pageInfo = ActiveVisitor::resolvePageInfo($path, $title);
         $visitor->current_url = $url;
         $visitor->current_path = $path;
-        $visitor->current_title = $title;
+        $visitor->current_title = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
+            ? $cleanTitle
+            : $pageInfo['title'];
         if ($referrer && empty($visitor->referrer)) {
             $visitor->referrer = $referrer;
             $visitor->referrer_host = parse_url($referrer, PHP_URL_HOST);

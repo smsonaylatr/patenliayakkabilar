@@ -100,6 +100,405 @@ class ActiveVisitor extends Model
     }
 
     protected static array $productCache = [];
+    protected static array $pageInfoCache = [];
+
+    /**
+     * Ham sayfa başlığını marka eklerinden ve SEO kalıplarından arındırır.
+     */
+    public static function cleanTitle(?string $title): string
+    {
+        if (empty($title)) {
+            return '';
+        }
+
+        $clean = trim($title);
+
+        $patterns = [
+            '/\s*[-|–—•]\s*Patenli\s*Ayakkabılar®?/ui',
+            '/\s*[-|–—•]\s*Tekerlekli\s*Ayakkabı(\s*Modelleri)?/ui',
+            '/^Patenli\s*Ayakkabılar®?\s*[-|–—•]\s*/ui',
+        ];
+
+        foreach ($patterns as $pattern) {
+            $clean = preg_replace($pattern, '', $clean);
+        }
+
+        $clean = trim($clean, " \t\n\r\0\x0B-|–—•");
+
+        if (preg_match('/^Patenli\s*Ayakkabılar®?$/ui', $clean)) {
+            return '';
+        }
+
+        return $clean;
+    }
+
+    /**
+     * Verilen URL yolu (path) ve ham başlığı insan tarafından kolayca anlaşılır sayfa bilgisine dönüştürür.
+     */
+    public static function resolvePageInfo(?string $path, ?string $rawTitle = null): array
+    {
+        $path = '/' . ltrim($path ?: '/', '/');
+        $pathWithoutQuery = explode('?', $path)[0];
+        $cacheKey = $pathWithoutQuery . '|' . ($rawTitle ?? '');
+
+        if (isset(static::$pageInfoCache[$cacheKey])) {
+            return static::$pageInfoCache[$cacheKey];
+        }
+
+        $cleanTitle = static::cleanTitle($rawTitle);
+
+        // 1. Ana Sayfa
+        if ($pathWithoutQuery === '/' || empty($pathWithoutQuery)) {
+            $info = [
+                'type' => 'home',
+                'title' => 'Ana Sayfa',
+                'subtitle' => 'Vitrin & Popüler Modeller',
+                'badge' => 'Ana Sayfa',
+                'icon' => '🏠',
+                'color' => '#38bdf8',
+                'bg_color' => 'rgba(56, 189, 248, 0.15)',
+                'border_color' => 'rgba(56, 189, 248, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 2. Ödeme Sayfası (Checkout)
+        if (str_starts_with($pathWithoutQuery, '/checkout')) {
+            $info = [
+                'type' => 'checkout',
+                'title' => 'Ödeme Sayfası (Checkout)',
+                'subtitle' => 'Sepet Onayı & Adres / Ödeme',
+                'badge' => 'Ödeme Ekranı',
+                'icon' => '🛒',
+                'color' => '#10b981',
+                'bg_color' => 'rgba(16, 185, 129, 0.15)',
+                'border_color' => 'rgba(16, 185, 129, 0.35)',
+                'is_product' => false,
+                'is_checkout' => true,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 3. Sipariş Başarılı
+        if (str_starts_with($pathWithoutQuery, '/order/success')) {
+            $parts = explode('/', trim($pathWithoutQuery, '/'));
+            $orderNo = $parts[2] ?? '';
+            $info = [
+                'type' => 'order_success',
+                'title' => $orderNo ? "Sipariş Alındı (#{$orderNo})" : 'Sipariş Başarıyla Tamamlandı',
+                'subtitle' => 'Satış Başarılı (Teşekkür Sayfası)',
+                'badge' => 'Satış Yapıldı',
+                'icon' => '🎉',
+                'color' => '#10b981',
+                'bg_color' => 'rgba(16, 185, 129, 0.15)',
+                'border_color' => 'rgba(16, 185, 129, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 4. Sipariş Başarısız
+        if (str_starts_with($pathWithoutQuery, '/order/fail')) {
+            $info = [
+                'type' => 'order_fail',
+                'title' => 'Ödeme Başarısız Oldu',
+                'subtitle' => 'Kart veya Bakiye Hatası',
+                'badge' => 'Ödeme Uyarısı',
+                'icon' => '⚠️',
+                'color' => '#ef4444',
+                'bg_color' => 'rgba(239, 68, 68, 0.15)',
+                'border_color' => 'rgba(239, 68, 68, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 5. Ürün Detayı veya Yorumları
+        if (str_starts_with($pathWithoutQuery, '/urun/')) {
+            $isReviews = str_ends_with($pathWithoutQuery, '/yorumlar');
+            $parts = explode('/', trim($pathWithoutQuery, '/'));
+            $slug = $parts[1] ?? null;
+
+            $product = null;
+            if ($slug) {
+                $slugClean = explode('?', $slug)[0];
+                if (!array_key_exists($slugClean, static::$productCache)) {
+                    static::$productCache[$slugClean] = \App\Models\Product::where('slug', $slugClean)->with('images')->first();
+                }
+                $product = static::$productCache[$slugClean];
+            }
+
+            $productTitle = $product ? $product->name : ($cleanTitle ?: \Illuminate\Support\Str::headline($slugClean ?? 'urun'));
+            if ($isReviews) {
+                $productTitle .= ' (Yorumlar)';
+            }
+
+            $info = [
+                'type' => 'product',
+                'title' => $productTitle,
+                'subtitle' => $isReviews ? 'Müşteri Değerlendirmeleri' : ($product ? number_format($product->discount_price ?: $product->price, 2) . ' ₺ • İnceliyor' : 'Ürün İnceleme'),
+                'badge' => $isReviews ? 'Ürün Yorumları' : 'Ürün Detayı',
+                'icon' => $isReviews ? '⭐' : '👟',
+                'color' => '#ff7849',
+                'bg_color' => 'rgba(255, 78, 0, 0.15)',
+                'border_color' => 'rgba(255, 78, 0, 0.35)',
+                'is_product' => true,
+                'is_checkout' => false,
+                'product' => $product,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 6. Tüm Ürünler Kataloğu
+        if ($pathWithoutQuery === '/patenli-ayakkabilar' || $pathWithoutQuery === '/urunler') {
+            $info = [
+                'type' => 'catalog',
+                'title' => $cleanTitle ?: 'Tüm Paten Modelleri (Katalog)',
+                'subtitle' => 'Tüm Patenli Ayakkabılar Kataloğu',
+                'badge' => 'Katalog',
+                'icon' => '🛍️',
+                'color' => '#a855f7',
+                'bg_color' => 'rgba(168, 85, 247, 0.15)',
+                'border_color' => 'rgba(168, 85, 247, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 7. Kategori Sayfası
+        if (str_starts_with($pathWithoutQuery, '/kategori/')) {
+            $parts = explode('/', trim($pathWithoutQuery, '/'));
+            $slug = $parts[1] ?? '';
+            $categoryName = null;
+            if ($slug) {
+                $category = \App\Models\Category::where('slug', $slug)->first();
+                if ($category) {
+                    $categoryName = $category->name . ' Modelleri';
+                }
+            }
+            $title = $categoryName ?: ($cleanTitle ?: \Illuminate\Support\Str::headline($slug) . ' Kategorisi');
+
+            $info = [
+                'type' => 'category',
+                'title' => $title,
+                'subtitle' => 'Kategori Kataloğu',
+                'badge' => 'Kategori',
+                'icon' => '🏷️',
+                'color' => '#8b5cf6',
+                'bg_color' => 'rgba(139, 92, 246, 0.15)',
+                'border_color' => 'rgba(139, 92, 246, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 8. Sipariş Takip
+        if (str_starts_with($pathWithoutQuery, '/siparis-takip')) {
+            $info = [
+                'type' => 'tracking',
+                'title' => 'Sipariş & Kargo Takibi',
+                'subtitle' => 'Kargo Durumu Sorgulama',
+                'badge' => 'Sipariş Takip',
+                'icon' => '📦',
+                'color' => '#06b6d4',
+                'bg_color' => 'rgba(6, 182, 212, 0.15)',
+                'border_color' => 'rgba(6, 182, 212, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 9. İletişim
+        if (str_starts_with($pathWithoutQuery, '/iletisim')) {
+            $info = [
+                'type' => 'contact',
+                'title' => 'İletişim & Canlı Destek',
+                'subtitle' => 'Müşteri Hizmetleri & Form',
+                'badge' => 'İletişim',
+                'icon' => '📞',
+                'color' => '#14b8a6',
+                'bg_color' => 'rgba(20, 184, 166, 0.15)',
+                'border_color' => 'rgba(20, 184, 166, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 10. Blog / Rehber
+        if (str_starts_with($pathWithoutQuery, '/blog')) {
+            $parts = explode('/', trim($pathWithoutQuery, '/'));
+            $slug = $parts[1] ?? null;
+            if ($slug) {
+                $post = \App\Models\BlogPost::where('slug', $slug)->first();
+                $title = $post ? $post->title : ($cleanTitle ?: \Illuminate\Support\Str::headline($slug));
+                $badge = 'Blog Yazısı';
+                $subtitle = 'Rehber & Bilgi İçeriği';
+                $icon = '📖';
+            } else {
+                $title = 'Blog & Paten Rehberleri';
+                $badge = 'Blog & Rehber';
+                $subtitle = 'Makaleler & Kullanım İpuçları';
+                $icon = '📰';
+            }
+
+            $info = [
+                'type' => 'blog',
+                'title' => $title,
+                'subtitle' => $subtitle,
+                'badge' => $badge,
+                'icon' => $icon,
+                'color' => '#ec4899',
+                'bg_color' => 'rgba(236, 72, 153, 0.15)',
+                'border_color' => 'rgba(236, 72, 153, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 11. Hesabım & Giriş
+        if (str_starts_with($pathWithoutQuery, '/hesabim')) {
+            $subtitle = 'Müşteri Paneli';
+            $title = 'Hesabım';
+            if (str_contains($pathWithoutQuery, 'siparis')) {
+                $title = 'Siparişlerim';
+                $subtitle = 'Geçmiş Sipariş Listesi';
+            } elseif (str_contains($pathWithoutQuery, 'profil')) {
+                $title = 'Profil Bilgilerim';
+                $subtitle = 'Hesap Ayarları';
+            }
+
+            $info = [
+                'type' => 'account',
+                'title' => $title,
+                'subtitle' => $subtitle,
+                'badge' => 'Müşteri Hesabı',
+                'icon' => '👤',
+                'color' => '#6366f1',
+                'bg_color' => 'rgba(99, 102, 241, 0.15)',
+                'border_color' => 'rgba(99, 102, 241, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        if ($pathWithoutQuery === '/login') {
+            $info = [
+                'type' => 'auth',
+                'title' => 'Üye Girişi',
+                'subtitle' => 'Kullanıcı Giriş Ekranı',
+                'badge' => 'Giriş',
+                'icon' => '🔐',
+                'color' => '#64748b',
+                'bg_color' => 'rgba(100, 116, 139, 0.15)',
+                'border_color' => 'rgba(100, 116, 139, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        if ($pathWithoutQuery === '/register') {
+            $info = [
+                'type' => 'auth',
+                'title' => 'Yeni Üye Kaydı',
+                'subtitle' => 'Üyelik Formu',
+                'badge' => 'Kayıt',
+                'icon' => '📝',
+                'color' => '#10b981',
+                'bg_color' => 'rgba(16, 185, 129, 0.15)',
+                'border_color' => 'rgba(16, 185, 129, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        if ($pathWithoutQuery === '/sifremi-unuttum') {
+            $info = [
+                'type' => 'auth',
+                'title' => 'Şifre Sıfırlama',
+                'subtitle' => 'Şifremi Unuttum Ekranı',
+                'badge' => 'Güvenlik',
+                'icon' => '🔑',
+                'color' => '#64748b',
+                'bg_color' => 'rgba(100, 116, 139, 0.15)',
+                'border_color' => 'rgba(100, 116, 139, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        if (str_contains($pathWithoutQuery, 'cekilis')) {
+            $info = [
+                'type' => 'campaign',
+                'title' => 'Instagram Çekilişi',
+                'subtitle' => 'Hediye Paten Kampanyası',
+                'badge' => 'Kampanya',
+                'icon' => '🎁',
+                'color' => '#e11d48',
+                'bg_color' => 'rgba(225, 29, 72, 0.15)',
+                'border_color' => 'rgba(225, 29, 72, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 12. Kurumsal Sayfalar (Hakkımızda, SSS, İade, vb.)
+        $staticSlug = trim($pathWithoutQuery, '/');
+        $pageRecord = \App\Models\Page::where('slug', $staticSlug)->first();
+        if ($pageRecord) {
+            $info = [
+                'type' => 'corporate',
+                'title' => $pageRecord->title,
+                'subtitle' => 'Kurumsal Bilgi',
+                'badge' => 'Kurumsal',
+                'icon' => 'ℹ️',
+                'color' => '#94a3b8',
+                'bg_color' => 'rgba(148, 163, 184, 0.15)',
+                'border_color' => 'rgba(148, 163, 184, 0.35)',
+                'is_product' => false,
+                'is_checkout' => false,
+            ];
+            return static::$pageInfoCache[$cacheKey] = $info;
+        }
+
+        // 13. Genel / Diğer Sayfalar
+        $title = $cleanTitle;
+        if (empty($title) || strcasecmp($title, 'Patenli Ayakkabılar') === 0) {
+            $title = \Illuminate\Support\Str::headline($staticSlug ?: 'Sayfa');
+        }
+
+        $info = [
+            'type' => 'general',
+            'title' => $title,
+            'subtitle' => $pathWithoutQuery,
+            'badge' => 'Sayfa',
+            'icon' => '📄',
+            'color' => '#94a3b8',
+            'bg_color' => 'rgba(148, 163, 184, 0.12)',
+            'border_color' => 'rgba(148, 163, 184, 0.3)',
+            'is_product' => false,
+            'is_checkout' => false,
+        ];
+        return static::$pageInfoCache[$cacheKey] = $info;
+    }
+
+    public function getPageInfoAttribute(): array
+    {
+        return static::resolvePageInfo($this->current_path, $this->current_title);
+    }
 
     public function getCurrentProductAttribute(): ?\App\Models\Product
     {
