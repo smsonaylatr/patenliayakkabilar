@@ -4,52 +4,462 @@
 @endphp
 
 <style>
-    .ml-svg-24 {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        max-width: 24px !important;
-        flex-shrink: 0 !important;
+/* ============================================================== */
+/* PAZARLAMA & TAKİP LİNKLERİ SAYFASI ÖZEL VE DAYANIKLI TASARIMI  */
+/* ============================================================== */
+
+.ml-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+/* Bilgi Banner'ı */
+.ml-info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.dark .ml-info-banner {
+    background: rgba(30, 58, 138, 0.25);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: #bfdbfe;
+}
+
+.ml-info-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    max-width: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.ml-info-content {
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+/* Ana Kart */
+.ml-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.dark .ml-card {
+    background: #111827;
+    background: linear-gradient(180deg, #182234 0%, #0f172a 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.ml-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+}
+
+.dark .ml-card-header {
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+.ml-card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ml-avatar-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    max-width: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ml-avatar-instagram {
+    background: linear-gradient(135deg, #f58529 0%, #dd2a7b 50%, #8134af 100%);
+}
+
+.ml-avatar-blue {
+    background: #2563eb;
+}
+
+.ml-avatar-gray {
+    background: #475569;
+}
+
+.ml-title-text h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.dark .ml-title-text h3 {
+    color: #f8fafc;
+}
+
+.ml-title-text p {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 2px 0 0 0;
+}
+
+.dark .ml-title-text p {
+    color: #94a3b8;
+}
+
+.ml-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ml-tag-pink {
+    background: #fdf2f8;
+    color: #be185d;
+    border: 1px solid #fbcfe8;
+}
+
+.dark .ml-tag-pink {
+    background: rgba(219, 39, 119, 0.2);
+    color: #f472b6;
+    border-color: rgba(244, 114, 182, 0.35);
+}
+
+.ml-tag-blue {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.dark .ml-tag-blue {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border-color: rgba(147, 197, 253, 0.35);
+}
+
+/* Izgara Düzenleri */
+.ml-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.ml-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.ml-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+@media (max-width: 900px) {
+    .ml-grid-2, .ml-grid-3, .ml-grid-4 {
+        grid-template-columns: 1fr;
     }
-    .ml-svg-16 {
-        width: 16px !important;
-        height: 16px !important;
-        min-width: 16px !important;
-        max-width: 16px !important;
-        flex-shrink: 0 !important;
+}
+
+/* Tekil Link Kartı */
+.ml-item-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.dark .ml-item-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.ml-item-box:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dark .ml-item-box:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ml-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ml-item-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dark .ml-item-title {
+    color: #ffffff;
+}
+
+.ml-item-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.dark .ml-item-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+}
+
+.ml-item-help {
+    font-size: 0.76rem;
+    color: #64748b;
+    margin: 4px 0 0 0;
+    line-height: 1.35;
+}
+
+.dark .ml-item-help {
+    color: #94a3b8;
+}
+
+.ml-url-code {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.74rem;
+    color: #334155;
+    word-break: break-all;
+    user-select: all;
+    line-height: 1.4;
+}
+
+.dark .ml-url-code {
+    background: #090d16;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+
+.ml-url-code.purple {
+    color: #7c3aed;
+}
+
+.dark .ml-url-code.purple {
+    color: #c084fc;
+}
+
+/* Buton Stilleri */
+.ml-action-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.ml-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ml-action-btn:active {
+    transform: translateY(1px);
+}
+
+.btn-instagram {
+    background: linear-gradient(135deg, #e1306c 0%, #c13584 100%);
+}
+.btn-instagram:hover {
+    background: linear-gradient(135deg, #d82b67 0%, #b32e78 100%);
+}
+
+.btn-meta {
+    background: #6366f1;
+}
+.btn-meta:hover {
+    background: #4f46e5;
+}
+
+.btn-primary {
+    background: #ff4e00;
+}
+.btn-primary:hover {
+    background: #e04500;
+}
+
+.btn-blue {
+    background: #2563eb;
+}
+.btn-blue:hover {
+    background: #1d4ed8;
+}
+
+.btn-tiktok {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-tiktok:hover {
+    background: #1e293b;
+}
+
+.btn-whatsapp {
+    background: #059669;
+}
+.btn-whatsapp:hover {
+    background: #047857;
+}
+
+.btn-sms {
+    background: #d97706;
+}
+.btn-sms:hover {
+    background: #b45309;
+}
+
+.btn-google {
+    background: #1e40af;
+}
+.btn-google:hover {
+    background: #1e3a8a;
+}
+
+/* Form Elemanları */
+.ml-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ml-form-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+}
+
+.dark .ml-form-label {
+    color: #cbd5e1;
+}
+
+.ml-form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    font-size: 0.86rem;
+    outline: none;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+}
+
+.dark .ml-form-control {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.ml-form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.ml-form-hint {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin: 2px 0 0 0;
+}
+
+.dark .ml-form-hint {
+    color: #94a3b8;
+}
+
+/* Canlı Üretilen Kutu */
+.ml-live-result-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dark .ml-live-result-box {
+    background: rgba(30, 58, 138, 0.2);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.ml-live-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 640px) {
+    .ml-live-row {
+        flex-direction: column;
+        align-items: stretch;
     }
-    .ml-icon-box {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        flex-shrink: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    .marketing-links-container svg.w-6,
-    .marketing-links-container svg.w-6.h-6 {
-        width: 24px !important;
-        height: 24px !important;
-        max-width: 24px !important;
-        max-height: 24px !important;
-        flex-shrink: 0 !important;
-    }
-    .marketing-links-container svg.w-4,
-    .marketing-links-container svg.w-4.h-4 {
-        width: 16px !important;
-        height: 16px !important;
-        max-width: 16px !important;
-        max-height: 16px !important;
-        flex-shrink: 0 !important;
-    }
-    .marketing-links-container .w-10.h-10 {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        flex-shrink: 0 !important;
-    }
+}
 </style>
 
 <x-filament-panels::page>
@@ -136,7 +546,7 @@
                 setTimeout(() => this.copyToast = false, 2500);
             }
         }"
-        class="marketing-links-container space-y-6"
+        class="ml-wrapper"
     >
         <!-- Floating Toast Bildirimi -->
         <div 
@@ -154,148 +564,149 @@
             <span x-text="toastMsg"></span>
         </div>
 
-        <!-- Bilgi Banner -->
-        <div class="p-4 rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/20 text-blue-900 dark:text-blue-300 flex items-start gap-3">
-            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 ml-svg-24" style="width: 24px; height: 24px; min-width: 24px; max-width: 24px; flex-shrink: 0;" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <div class="text-sm">
-                <strong>Bu linkler ne işe yarar?</strong> Aşağıdaki linkleri Instagram profilinizde, hikayelerinizde, Reels videolarınızda veya reklamlarınızda kullandığınızda; tıklayıp gelen müşteriler sipariş verdiğinde sistemimiz otomatik olarak kaynağı tespit eder ve <strong>Siparişler</strong> sayfasında <em>(📸 Instagram, 📱 Mobil, Kampanya Adı)</em> şeklinde rozetlerle gösterir.
+        <!-- 1. BİLGİ BANNERI (NASIL ÇALIŞIR?) -->
+        <div class="ml-info-banner">
+            <svg class="ml-info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="ml-info-content">
+                <strong>Bu Takip Linkleri Nasıl Çalışır?</strong><br>
+                Aşağıdaki hazır bağlantıları Instagram biyografinizde, hikayelerinizde, Reels videolarınızda veya sponsorlu reklamlarınızda kullandığınızda; tıklayan ziyaretçiler sipariş verdiğinde sistemimiz kaynağı otomatik olarak algılar ve <strong>Siparişler sayfasında</strong> <em>(📸 Instagram, 📱 Mobil, Kampanya Adı)</em> şeklinde anında gösterir.
             </div>
         </div>
 
-        <!-- 1. INSTAGRAM HIZLI KOPYALAMA KARTLARI -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 ml-icon-box rounded-xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center text-white shadow-md" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; flex-shrink: 0;">
-                        <svg class="w-6 h-6 ml-svg-24" style="width: 24px; height: 24px; min-width: 24px; max-width: 24px; flex-shrink: 0;" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.13-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <!-- 2. INSTAGRAM HAZIR KOPYALAMA KARTLARI -->
+        <div class="ml-card">
+            <div class="ml-card-header">
+                <div class="ml-card-title-group">
+                    <div class="ml-avatar-icon ml-avatar-instagram">
+                        <svg style="width:24px; height:24px;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.13-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </div>
-                    <div>
-                        <h3 class="text-base font-bold text-gray-900 dark:text-white">Instagram İçin Hazır Linkler</h3>
-                        <p class="text-xs text-gray-500">Instagram hesabınızda doğrudan kullanabileceğiniz hazır bağlantılar</p>
+                    <div class="ml-title-text">
+                        <h3>Instagram İçin Hazır Bağlantılar</h3>
+                        <p>Instagram hesabınızda doğrudan kullanabileceğiniz hazır takip linkleri</p>
                     </div>
                 </div>
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300">En Çok Kullanılan</span>
+                <span class="ml-tag ml-tag-pink">⭐ En Çok Tercih Edilen</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="ml-grid-2">
                 <!-- 1. Bio Linki -->
-                <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-3">
+                <div class="ml-item-box">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
                                 <span>📌</span> Instagram Profil Biyografisi (Bio)
                             </span>
-                            <span class="text-[11px] px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">Profil</span>
+                            <span class="ml-item-badge">Profil</span>
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Profildeki "Web Sitesi" alanına yapıştırılacak ana link.</p>
-                        <div class="bg-white dark:bg-gray-950 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 font-mono text-xs text-gray-700 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=instagram&utm_medium=bio
+                        <p class="ml-item-help">Instagram profilinizde <strong>"Profili Düzenle > Bağlantılar > Web Sitesi"</strong> alanına yapıştırın.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=instagram&amp;utm_medium=bio
                         </div>
                     </div>
                     <button 
                         type="button"
                         @click="copyText('{{ $baseUrl }}/?utm_source=instagram&utm_medium=bio', 'Instagram Bio Linki')"
-                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                        class="ml-action-btn btn-instagram"
                     >
-                        <svg class="w-4 h-4 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span>Bio Linkini Kopyala</span>
                     </button>
                 </div>
 
                 <!-- 2. Story Linki -->
-                <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-3">
+                <div class="ml-item-box">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
                                 <span>✨</span> Instagram Hikaye (Story) Linki
                             </span>
-                            <span class="text-[11px] px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">Hikaye</span>
+                            <span class="ml-item-badge">Hikaye</span>
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Hikayelere ekleyeceğiniz bağlantı çıkartmasında kullanılır.</p>
-                        <div class="bg-white dark:bg-gray-950 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 font-mono text-xs text-gray-700 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=instagram&utm_medium=story&utm_campaign=story_paylasim
+                        <p class="ml-item-help">Hikaye paylaşırken çıkartmalardan <strong>"🔗 Bağlantı"</strong> etiketini seçip yapıştırın.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=instagram&amp;utm_medium=story&amp;utm_campaign=story_paylasim
                         </div>
                     </div>
                     <button 
                         type="button"
                         @click="copyText('{{ $baseUrl }}/?utm_source=instagram&utm_medium=story&utm_campaign=story_paylasim', 'Instagram Story Linki')"
-                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                        class="ml-action-btn btn-instagram"
                     >
-                        <svg class="w-4 h-4 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span>Story Linkini Kopyala</span>
                     </button>
                 </div>
 
                 <!-- 3. Reels Linki -->
-                <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-3">
+                <div class="ml-item-box">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
                                 <span>🎬</span> Instagram Reels Paylaşımı
                             </span>
-                            <span class="text-[11px] px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">Reels</span>
+                            <span class="ml-item-badge">Reels</span>
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Reels açıklamalarında veya DM yönlendirmelerinde kullanılır.</p>
-                        <div class="bg-white dark:bg-gray-950 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 font-mono text-xs text-gray-700 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=instagram&utm_medium=reels
+                        <p class="ml-item-help">Reels açıklamalarında veya müşteriye özel mesajlarda (DM) doğrudan gönderin.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=instagram&amp;utm_medium=reels
                         </div>
                     </div>
                     <button 
                         type="button"
                         @click="copyText('{{ $baseUrl }}/?utm_source=instagram&utm_medium=reels', 'Instagram Reels Linki')"
-                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-pink-600 hover:bg-pink-700 text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                        class="ml-action-btn btn-instagram"
                     >
-                        <svg class="w-4 h-4 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span>Reels Linkini Kopyala</span>
                     </button>
                 </div>
 
                 <!-- 4. Meta / Instagram Reklam Parametresi -->
-                <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-3">
+                <div class="ml-item-box">
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                                <span>🎯</span> Meta (Instagram / Facebook) Reklam Parametresi
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
+                                <span>🎯</span> Meta (Instagram & Facebook) Reklam Parametresi
                             </span>
-                            <span class="text-[11px] px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Meta Ads</span>
+                            <span class="ml-item-badge">Meta Ads</span>
                         </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Meta Reklam Yöneticisi'nde "URL Parametreleri" kutusuna yapıştırın:</p>
-                        <div class="bg-white dark:bg-gray-950 p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 font-mono text-xs text-purple-600 dark:text-purple-400 break-all select-all">
+                        <p class="ml-item-help">Meta Ads Manager'da reklam oluştururken <strong>"URL Parametreleri"</strong> kutusuna yapıştırın:</p>
+                        <div style="margin-top: 8px;" class="ml-url-code purple">
                             utm_source=instagram&amp;utm_medium=cpc&amp;utm_campaign={{ $metaTag }}
                         </div>
                     </div>
                     <button 
                         type="button"
                         @click="copyText('utm_source=instagram&utm_medium=cpc&utm_campaign=' + '{{ $metaTag }}', 'Meta Reklam Parametresi')"
-                        class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                        class="ml-action-btn btn-meta"
                     >
-                        <svg class="w-4 h-4 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span>Reklam Parametresini Kopyala</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 2. ÖZEL ÜRÜN & KAMPANYA LINK OLUŞTURUCU (İNTERAKTİF) -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-            <div class="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4 mb-5">
-                <div class="w-10 h-10 ml-icon-box rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; flex-shrink: 0;">
-                    <svg class="w-6 h-6 ml-svg-24" style="width: 24px; height: 24px; min-width: 24px; max-width: 24px; flex-shrink: 0;" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        <!-- 3. ÖZEL ÜRÜN & KAMPANYA LINK OLUŞTURUCU (İNTERAKTİF) -->
+        <div class="ml-card">
+            <div class="ml-card-header">
+                <div class="ml-card-title-group">
+                    <div class="ml-avatar-icon ml-avatar-blue">
+                        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    </div>
+                    <div class="ml-title-text">
+                        <h3>Özel Ürün & Kampanya Link Oluşturucu</h3>
+                        <p>İstediğiniz ürünü ve paylaşım kanalını seçin, takip linkiniz anında oluşturulsun</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-base font-bold text-gray-900 dark:text-white">Özel Ürün & Kampanya Link Oluşturucu</h3>
-                    <p class="text-xs text-gray-500">İstediğiniz ürünü ve paylaşım kanalını seçin, takip linkiniz anında oluşturulsun</p>
-                </div>
+                <span class="ml-tag ml-tag-blue">⚡ Canlı UTM Oluşturucu</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+            <div class="ml-grid-3">
                 <!-- 1. Hedef Sayfa / Ürün -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">1. Hedef Sayfa</label>
-                    <select 
-                        x-model="selectedTarget" 
-                        class="w-full text-sm rounded-xl border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                    >
+                <div class="ml-form-group">
+                    <label class="ml-form-label">1. Hedef Sayfa</label>
+                    <select x-model="selectedTarget" class="ml-form-control">
                         <option value="home">Ana Sayfa (/)</option>
                         <option value="product">Belirli Bir Ürün Sayfası</option>
                         <option value="custom">Özel Link / Yol Yaz</option>
@@ -303,12 +714,9 @@
 
                     <!-- Ürün Seçimi -->
                     <template x-if="selectedTarget === 'product'">
-                        <div class="mt-3">
-                            <label class="block text-xs text-gray-500 mb-1">Ürünü Seçin:</label>
-                            <select 
-                                x-model="selectedProductSlug"
-                                class="w-full text-sm rounded-xl border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                            >
+                        <div style="margin-top: 8px;">
+                            <label class="ml-form-hint" style="font-weight: 600; display: block; margin-bottom: 4px;">Ürünü Seçin:</label>
+                            <select x-model="selectedProductSlug" class="ml-form-control">
                                 @foreach($products as $product)
                                     <option value="{{ $product->slug }}">{{ $product->name }} (₺{{ number_format($product->price, 0) }})</option>
                                 @endforeach
@@ -318,25 +726,22 @@
 
                     <!-- Özel Link -->
                     <template x-if="selectedTarget === 'custom'">
-                        <div class="mt-3">
-                            <label class="block text-xs text-gray-500 mb-1">Özel URL / Yol:</label>
+                        <div style="margin-top: 8px;">
+                            <label class="ml-form-hint" style="font-weight: 600; display: block; margin-bottom: 4px;">Özel URL / Yol:</label>
                             <input 
                                 type="text" 
                                 x-model="customPath" 
                                 placeholder="/kategori/patenler veya tam link" 
-                                class="w-full text-sm rounded-xl border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                                class="ml-form-control"
                             />
                         </div>
                     </template>
                 </div>
 
                 <!-- 2. Paylaşım Kanalı / Mecra -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">2. Paylaşım Kanalı</label>
-                    <select 
-                        x-model="selectedChannel" 
-                        class="w-full text-sm rounded-xl border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                    >
+                <div class="ml-form-group">
+                    <label class="ml-form-label">2. Paylaşım Kanalı</label>
+                    <select x-model="selectedChannel" class="ml-form-control">
                         <optgroup label="Instagram">
                             <option value="ig_story">📸 Instagram Hikaye (Story)</option>
                             <option value="ig_bio">📌 Instagram Profil Biyografisi (Bio)</option>
@@ -354,128 +759,155 @@
                             <option value="influencer">🤝 Influencer / İş Birliği</option>
                         </optgroup>
                     </select>
-                    <p class="text-[11px] text-gray-400 mt-2">Kanal seçildiğinde kaynak etiketi otomatik ayarlanır.</p>
+                    <p class="ml-form-hint">Kanal seçildiğinde kaynak parametresi otomatik eklenir.</p>
                 </div>
 
                 <!-- 3. Kampanya Adı (Opsiyonel) -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">3. Kampanya Adı (Opsiyonel)</label>
+                <div class="ml-form-group">
+                    <label class="ml-form-label">3. Kampanya Adı (Opsiyonel)</label>
                     <input 
                         type="text" 
                         x-model="campaignName" 
-                        placeholder="Örn: eylul_indirimi, okuladonus, reels1" 
-                        class="w-full text-sm rounded-xl border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                        placeholder="Örn: bahar_indirimi, okuladonus, fenomen1" 
+                        class="ml-form-control"
                     />
-                    <p class="text-[11px] text-gray-400 mt-2">Sipariş geldiğinde hangi kampanyanızdan satıldığını görmek için isim verin.</p>
+                    <p class="ml-form-hint">Hangi kampanyanızdan satış geldiğini raporlarda görmek için ad verin.</p>
                 </div>
             </div>
 
             <!-- Canlı Üretilen Link Gösterimi -->
-            <div class="mt-6 p-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/40 dark:bg-blue-950/20">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-blue-600 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            <div class="ml-live-result-box">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                         Üretilen Takip Bağlantısı
                     </span>
-                    <span class="text-xs text-blue-600 dark:text-blue-400 font-medium">Kullanıma Hazır</span>
+                    <span style="font-size: 0.74rem; font-weight: 600; opacity: 0.85;">Kullanıma Hazır</span>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="ml-live-row">
                     <div 
                         x-text="generatedUrl" 
-                        class="flex-1 p-3 rounded-xl bg-white dark:bg-gray-950 border border-blue-200 dark:border-blue-900/60 font-mono text-xs text-blue-950 dark:text-blue-200 break-all select-all shadow-inner"
+                        class="ml-url-code"
+                        style="flex: 1; font-size: 0.82rem; padding: 12px 14px;"
                     ></div>
                     <button 
                         type="button" 
                         @click="copyText(generatedUrl, 'Özel Takip Linki')" 
-                        class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+                        class="ml-action-btn btn-blue"
+                        style="width: auto; padding: 12px 24px; white-space: nowrap;"
                     >
-                        <svg class="w-4 h-4 ml-svg-16" style="width: 16px; height: 16px; min-width: 16px; max-width: 16px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         <span>Linki Kopyala</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 3. DİĞER KANALLAR (TIKTOK, WHATSAPP, SMS, GOOGLE) -->
-        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-            <h3 class="text-base font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-3 mb-4">
-                Diğer Pazarlama Kanalları
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 4. DİĞER KANALLAR (TIKTOK, WHATSAPP, SMS, GOOGLE) -->
+        <div class="ml-card">
+            <div class="ml-card-header">
+                <div class="ml-card-title-group">
+                    <div class="ml-avatar-icon ml-avatar-gray">
+                        <svg style="width:24px; height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <div class="ml-title-text">
+                        <h3>Diğer Pazarlama & İletişim Kanalları</h3>
+                        <p>TikTok, WhatsApp, SMS ve Google Ads için hazır takip bağlantıları</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ml-grid-4">
                 <!-- TikTok -->
-                <div class="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-2.5">
+                <div class="ml-item-box">
                     <div>
-                        <div class="font-bold text-xs text-gray-900 dark:text-white flex items-center gap-1.5 mb-1">
-                            <span>🎵</span> TikTok Biyografi / Profil
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
+                                <span>🎵</span> TikTok Profil
+                            </span>
+                            <span class="ml-item-badge">TikTok</span>
                         </div>
-                        <div class="bg-white dark:bg-gray-950 p-2 rounded border border-gray-200 dark:border-gray-800 font-mono text-[11px] text-gray-600 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=tiktok&utm_medium=bio
+                        <p class="ml-item-help">TikTok profil açıklamasındaki bağlantı için kullanılır.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=tiktok&amp;utm_medium=bio
                         </div>
                     </div>
                     <button 
                         type="button" 
                         @click="copyText('{{ $baseUrl }}/?utm_source=tiktok&utm_medium=bio', 'TikTok Linki')" 
-                        class="w-full py-1.5 px-3 rounded bg-gray-900 hover:bg-black text-white text-xs font-semibold cursor-pointer"
+                        class="ml-action-btn btn-tiktok"
                     >
-                        Kopyala
+                        <span>Kopyala</span>
                     </button>
                 </div>
 
                 <!-- WhatsApp -->
-                <div class="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-2.5">
+                <div class="ml-item-box">
                     <div>
-                        <div class="font-bold text-xs text-gray-900 dark:text-white flex items-center gap-1.5 mb-1">
-                            <span>💬</span> WhatsApp Müşteri Linki
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
+                                <span>💬</span> WhatsApp
+                            </span>
+                            <span class="ml-item-badge">Destek</span>
                         </div>
-                        <div class="bg-white dark:bg-gray-950 p-2 rounded border border-gray-200 dark:border-gray-800 font-mono text-[11px] text-gray-600 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=whatsapp&utm_medium=chat
+                        <p class="ml-item-help">Müşteriye WhatsApp mesajında gönderilen linkler.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=whatsapp&amp;utm_medium=chat
                         </div>
                     </div>
                     <button 
                         type="button" 
                         @click="copyText('{{ $baseUrl }}/?utm_source=whatsapp&utm_medium=chat', 'WhatsApp Linki')" 
-                        class="w-full py-1.5 px-3 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer"
+                        class="ml-action-btn btn-whatsapp"
                     >
-                        Kopyala
+                        <span>Kopyala</span>
                     </button>
                 </div>
 
                 <!-- Toplu SMS -->
-                <div class="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-2.5">
+                <div class="ml-item-box">
                     <div>
-                        <div class="font-bold text-xs text-gray-900 dark:text-white flex items-center gap-1.5 mb-1">
-                            <span>✉️</span> Toplu SMS Kampanyası
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
+                                <span>✉️</span> Toplu SMS
+                            </span>
+                            <span class="ml-item-badge">SMS</span>
                         </div>
-                        <div class="bg-white dark:bg-gray-950 p-2 rounded border border-gray-200 dark:border-gray-800 font-mono text-[11px] text-gray-600 dark:text-gray-300 break-all select-all">
-                            {{ $baseUrl }}/?utm_source=sms&utm_medium=bulk_sms&utm_campaign=firsat
+                        <p class="ml-item-help">Toplu SMS iletilerinde gönderilen kampanya linki.</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
+                            {{ $baseUrl }}/?utm_source=sms&amp;utm_medium=bulk_sms&amp;utm_campaign=firsat
                         </div>
                     </div>
                     <button 
                         type="button" 
                         @click="copyText('{{ $baseUrl }}/?utm_source=sms&utm_medium=bulk_sms&utm_campaign=firsat', 'SMS Linki')" 
-                        class="w-full py-1.5 px-3 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold cursor-pointer"
+                        class="ml-action-btn btn-sms"
                     >
-                        Kopyala
+                        <span>Kopyala</span>
                     </button>
                 </div>
 
                 <!-- Google Ads -->
-                <div class="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between gap-2.5">
+                <div class="ml-item-box">
                     <div>
-                        <div class="font-bold text-xs text-gray-900 dark:text-white flex items-center gap-1.5 mb-1">
-                            <span>🔍</span> Google Ads URL Son Eki
+                        <div class="ml-item-head">
+                            <span class="ml-item-title">
+                                <span>🔍</span> Google Ads
+                            </span>
+                            <span class="ml-item-badge">Google</span>
                         </div>
-                        <div class="bg-white dark:bg-gray-950 p-2 rounded border border-gray-200 dark:border-gray-800 font-mono text-[11px] text-gray-600 dark:text-gray-300 break-all select-all">
+                        <p class="ml-item-help">Google Ads kampanya URL son eki (Final URL suffix).</p>
+                        <div style="margin-top: 8px;" class="ml-url-code">
                             utm_source=google&amp;utm_medium=cpc&amp;utm_campaign={{ $googleTag }}
                         </div>
                     </div>
                     <button 
                         type="button" 
                         @click="copyText('utm_source=google&utm_medium=cpc&utm_campaign=' + '{{ $googleTag }}', 'Google Ads Parametresi')" 
-                        class="w-full py-1.5 px-3 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer"
+                        class="ml-action-btn btn-google"
                     >
-                        Kopyala
+                        <span>Kopyala</span>
                     </button>
                 </div>
             </div>

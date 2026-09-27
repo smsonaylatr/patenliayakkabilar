@@ -21,9 +21,9 @@
         align-items: center !important;
         justify-content: center !important;
         padding: 20px !important;
-        background: rgba(15, 23, 42, 0.75) !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
+        background: rgba(15, 23, 42, 0.72) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
         opacity: 0;
         transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         pointer-events: auto !important;
@@ -40,9 +40,9 @@
         width: 100% !important;
         max-width: 440px !important;
         background: #ffffff !important;
-        border-radius: 30px !important;
+        border-radius: 28px !important;
         padding: 34px 28px 28px 28px !important;
-        box-shadow: 0 30px 80px -15px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 32px 80px -15px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
         text-align: center !important;
         font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         transform: scale(0.92) translateY(16px) !important;
@@ -268,11 +268,18 @@
         width: 100% !important;
         margin-top: 10px !important;
     }
+    .pa-btn-group .pa-btn-primary {
+        flex: 1 1 auto !important;
+        width: auto !important;
+    }
+    .pa-btn-group .pa-btn-secondary {
+        flex: 0 0 auto !important;
+    }
 
     .pa-btn-secondary {
         background: #f1f5f9 !important;
         color: #475569 !important;
-        padding: 14px 22px !important;
+        padding: 15px 22px !important;
         border-radius: 9999px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
@@ -284,7 +291,6 @@
         align-items: center !important;
         justify-content: center !important;
         box-sizing: border-box !important;
-        flex-shrink: 0 !important;
     }
     .pa-btn-secondary:hover {
         background: #e2e8f0 !important;
@@ -559,7 +565,7 @@
 
         var secondsLeft = countdown > 0 ? countdown : 3;
         var totalSeconds = secondsLeft;
-        var messageText = cmd.message || 'Sizin için hazırlanan özel sayfaya aktarılıyorsunuz...';
+        var messageText = cmd.message || 'Sizin için hazırlanan özel fırsat sayfasına aktarılıyorsunuz...';
 
         var modalHtml = 
             '<div class="pa-top-accent"></div>' +
@@ -615,10 +621,13 @@
             secondsLeft--;
             var textEl = document.getElementById('pa-redirect-countdown-text');
             var progEl = document.getElementById('pa-redirect-progress');
-            if (textEl) textEl.textContent = secondsLeft + ' saniye içinde yönlendirileceksiniz';
-            if (progEl) progEl.style.width = Math.max(0, (secondsLeft / totalSeconds) * 100) + '%';
-
-            if (secondsLeft <= 0) {
+            
+            if (secondsLeft > 0) {
+                if (textEl) textEl.textContent = secondsLeft + ' saniye içinde yönlendirileceksiniz';
+                if (progEl) progEl.style.width = Math.max(0, (secondsLeft / totalSeconds) * 100) + '%';
+            } else {
+                if (textEl) textEl.textContent = 'Yönlendiriliyorsunuz...';
+                if (progEl) progEl.style.width = '0%';
                 clearInterval(activeRedirectTimer);
                 activeRedirectTimer = null;
                 window.location.href = targetUrl;

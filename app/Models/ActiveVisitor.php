@@ -645,7 +645,8 @@ class ActiveVisitor extends Model
         string $soundType = 'chime_and_speech',
         ?string $couponCode = null,
         ?string $actionButton = null,
-        ?string $actionUrl = null
+        ?string $actionUrl = null,
+        ?string $audioUrl = null
     ): void {
         $this->update([
             'pending_command' => [
@@ -657,6 +658,7 @@ class ActiveVisitor extends Model
                 'coupon_code' => $couponCode,
                 'action_button' => $actionButton,
                 'action_url' => $actionUrl,
+                'audio_url' => $audioUrl,
                 'created_at' => now()->toIso8601String(),
             ],
         ]);
