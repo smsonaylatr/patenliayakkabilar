@@ -12,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Colors\Color;
@@ -708,7 +709,7 @@ class ActiveVisitors extends Page implements HasTable
                     ->color('warning')
                     ->icon('heroicon-o-speaker-wave')
                     ->modalHeading(fn (ActiveVisitor $record) => '🎙️ Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
-                    ->modalDescription('Ziyaretçinin ekranında ses kaydınız oynatılır ve şık bir bildirim kartı açılır.')
+                    ->modalDescription('Ziyaretçinin ekranında ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
                     ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
                     ->form([
                         Select::make('voice_source')
@@ -767,34 +768,45 @@ class ActiveVisitors extends Page implements HasTable
                             ->label('Ses Çalma Modu')
                             ->native(false)
                             ->options([
-                                'speech_only' => '🎵 Sadece Sesi Oynat + Görsel Kart',
-                                'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart',
+                                'speech_only' => '🎵 Sadece Sesi Oynat',
+                                'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat',
                             ])
                             ->default('speech_only')
                             ->required(),
 
+                        Toggle::make('show_visual_card')
+                            ->label('Ekranda Görsel Bildirim Kartı Gösterilsin mi?')
+                            ->helperText('Kapalıyken ziyaretçiye sadece ses dinletilir, ekranda kart açılmaz. Açılırsa başlık ve mesaj içeren bildirim kutusu ekranda belirir.')
+                            ->default(false)
+                            ->live(),
+
                         TextInput::make('title')
                             ->label('Bildirim Başlığı')
                             ->default('🎙️ Mağazamıza Hoş Geldiniz!')
-                            ->required(),
+                            ->visible(fn ($get) => (bool) $get('show_visual_card'))
+                            ->required(fn ($get) => (bool) $get('show_visual_card')),
 
                         Textarea::make('message')
                             ->label('Seslendirilecek ve Gösterilecek Mesaj')
                             ->rows(3)
                             ->default('Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!')
-                            ->required(),
+                            ->visible(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts')
+                            ->required(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts'),
 
                         TextInput::make('coupon_code')
                             ->label('İndirim Kuponu (Opsiyonel)')
-                            ->placeholder('Örn: SESLI10'),
+                            ->placeholder('Örn: SESLI10')
+                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
 
                         TextInput::make('action_button')
                             ->label('Buton Metni (Opsiyonel)')
-                            ->default('Tüm Modelleri Gör'),
+                            ->default('Tüm Modelleri Gör')
+                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
 
                         TextInput::make('action_url')
                             ->label('Buton Linki (Opsiyonel)')
-                            ->default('/patenli-ayakkabilar'),
+                            ->default('/patenli-ayakkabilar')
+                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
                         $audioUrl = null;
@@ -805,19 +817,22 @@ class ActiveVisitors extends Page implements HasTable
                             $audioUrl = $canned?->audio_url;
                         }
 
+                        $showCard = (bool) ($data['show_visual_card'] ?? false);
+
                         $record->queueVoiceMessage(
-                            $data['message'],
+                            $data['message'] ?? '',
                             $data['title'] ?? '🎙️ Canlı Mağaza Anonsu',
                             $data['sound_type'] ?? 'speech_only',
-                            $data['coupon_code'] ?? null,
-                            $data['action_button'] ?? null,
-                            $data['action_url'] ?? null,
-                            $audioUrl
+                            $showCard ? ($data['coupon_code'] ?? null) : null,
+                            $showCard ? ($data['action_button'] ?? null) : null,
+                            $showCard ? ($data['action_url'] ?? null) : null,
+                            $audioUrl,
+                            $showCard
                         );
 
                         Notification::make()
                             ->title('Sesli İleti İletildi! 🎙️')
-                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.' . ($audioUrl ? ' (Özel Ses Kaydı Aktif)' : ''))
+                            ->body($record->display_name . ' adlı ziyaretçinin ekranında ses çalacak.' . ($showCard ? ' (Görsel Kart Aktif)' : ' (Yalnızca Ses)'))
                             ->success()
                             ->send();
                     }),
@@ -981,7 +996,7 @@ class ActiveVisitors extends Page implements HasTable
                 ->color('warning')
                 ->icon('heroicon-o-speaker-wave')
                 ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
-                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda ses kaydınız oynatılır ve şık bir bildirim kartı açılır.')
+                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
                 ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
                 ->form([
                     Select::make('voice_source')
@@ -1040,34 +1055,45 @@ class ActiveVisitors extends Page implements HasTable
                         ->label('Ses Çalma Modu')
                         ->native(false)
                         ->options([
-                            'speech_only' => '🎵 Sadece Sesi Oynat + Görsel Kart',
-                            'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart',
+                            'speech_only' => '🎵 Sadece Sesi Oynat',
+                            'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat',
                         ])
                         ->default('speech_only')
                         ->required(),
 
+                    Toggle::make('show_visual_card')
+                        ->label('Ekranda Görsel Bildirim Kartı Gösterilsin mi?')
+                        ->helperText('Kapalıyken ziyaretçilere sadece ses dinletilir, ekranda kart açılmaz. Açılırsa başlık ve mesaj kartı ekranda belirir.')
+                        ->default(false)
+                        ->live(),
+
                     TextInput::make('title')
                         ->label('Anons Başlığı')
                         ->default('🎙️ Patenli Ayakkabılar Mağaza Anonsu')
-                        ->required(),
+                        ->visible(fn ($get) => (bool) $get('show_visual_card'))
+                        ->required(fn ($get) => (bool) $get('show_visual_card')),
 
                     Textarea::make('message')
                         ->label('Seslendirilecek ve Gösterilecek Mesaj')
                         ->rows(3)
                         ->default('Değerli ziyaretçilerimiz, Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli sürpriz fırsatları kaçırmayın, keyifli alışverişler dileriz!')
-                        ->required(),
+                        ->visible(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts')
+                        ->required(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts'),
 
                     TextInput::make('coupon_code')
                         ->label('Kupon Kodu (Opsiyonel)')
-                        ->placeholder('Örn: CANLI10'),
+                        ->placeholder('Örn: CANLI10')
+                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
 
                     TextInput::make('action_button')
                         ->label('Buton Metni (Opsiyonel)')
-                        ->default('Çok Satanları İncele'),
+                        ->default('Çok Satanları İncele')
+                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
 
                     TextInput::make('action_url')
                         ->label('Buton Linki (Opsiyonel)')
-                        ->default('/patenli-ayakkabilar'),
+                        ->default('/patenli-ayakkabilar')
+                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
                 ])
                 ->action(function (array $data) {
                     $audioUrl = null;
@@ -1078,22 +1104,24 @@ class ActiveVisitors extends Page implements HasTable
                         $audioUrl = $canned?->audio_url;
                     }
 
+                    $showCard = (bool) ($data['show_visual_card'] ?? false);
                     $visitors = ActiveVisitor::online()->get();
                     foreach ($visitors as $v) {
                         $v->queueVoiceMessage(
-                            $data['message'],
+                            $data['message'] ?? '',
                             $data['title'] ?? '🎙️ Patenli Ayakkabılar Mağaza Anonsu',
                             $data['sound_type'] ?? 'speech_only',
-                            $data['coupon_code'] ?? null,
-                            $data['action_button'] ?? null,
-                            $data['action_url'] ?? null,
-                            $audioUrl
+                            $showCard ? ($data['coupon_code'] ?? null) : null,
+                            $showCard ? ($data['action_button'] ?? null) : null,
+                            $showCard ? ($data['action_url'] ?? null) : null,
+                            $audioUrl,
+                            $showCard
                         );
                     }
 
                     Notification::make()
                         ->title('Toplu Sesli Anons İletildi! 🎙️')
-                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.' . ($audioUrl ? ' (Özel Ses Kaydı Aktif)' : ''))
+                        ->body($visitors->count() . ' aktif ziyaretçinin ekranında ses çalacak.' . ($showCard ? ' (Görsel Kart Aktif)' : ' (Yalnızca Ses)'))
                         ->success()
                         ->send();
                 }),

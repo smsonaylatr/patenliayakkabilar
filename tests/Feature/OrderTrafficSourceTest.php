@@ -172,4 +172,37 @@ class OrderTrafficSourceTest extends TestCase
 
         $order->delete();
     }
+
+    public function test_checkout_create_order_resiliently_ignores_missing_database_columns(): void
+    {
+        $checkout = new \App\Livewire\Frontend\Checkout();
+        $reflector = new \ReflectionClass($checkout);
+        $method = $reflector->getMethod('createOrderResiliently');
+        $method->setAccessible(true);
+
+        $orderData = [
+            'order_number' => 'TR' . rand(100000, 999999),
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => 'cash_on_delivery',
+            'subtotal' => 1499,
+            'shipping_price' => 0,
+            'grand_total' => 1499,
+            'customer_name' => 'Test Müşteri',
+            'customer_email' => 'test@example.com',
+            'customer_phone' => '05551112233',
+            // Gerçek tabloda kesinlikle olmayan hayali/eksik sütunlar verelim
+            'non_existing_column_foo' => 'bar_baz',
+            'another_fake_telemetry_field' => 'test_123',
+        ];
+
+        /** @var Order $order */
+        $order = $method->invoke($checkout, $orderData);
+
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertEquals('Test Müşteri', $order->customer_name);
+        $this->assertEquals(1499, $order->grand_total);
+
+        $order->delete();
+    }
 }

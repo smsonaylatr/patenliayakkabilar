@@ -789,6 +789,46 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals('speech_only', $visitor->pending_command['sound_type']);
     }
 
+    public function test_voice_message_supports_optional_visual_card(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_optional_card_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // Kart kapalı (showCard = false)
+        $visitor->queueVoiceMessage(
+            'Ses çalıyor.',
+            'Başlık',
+            'speech_only',
+            null,
+            null,
+            null,
+            'https://patenliayakkabilar.com/storage/voice-announcements/test.mp3',
+            false
+        );
+
+        $this->assertFalse($visitor->pending_command['show_card']);
+
+        $response = $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => 'pa_vt_optional_card_test',
+            'url' => 'https://patenliayakkabilar.com/',
+            'path' => '/',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'command' => [
+                    'action' => 'voice',
+                    'show_card' => false,
+                ],
+            ]);
+    }
+
     public function test_daily_traffic_metric_is_recorded_and_aggregated_correctly(): void
     {
         $visitor = ActiveVisitor::create([

@@ -969,11 +969,8 @@
         } catch(e) {}
     }
 
-    // Sesli İleti & Anons Yönetimi (ElevenLabs AI Audio + TTS Fallback + Görsel Kart)
+    // Sesli İleti & Anons Yönetimi (Özel Ses Kaydı + TTS Fallback + Opsiyonel Görsel Kart)
     function executeVoiceCommand(cmd) {
-        var toastContainer = document.getElementById('pa-toast-container');
-        if (!toastContainer) return;
-
         var soundType = cmd.sound_type || 'speech_only';
         var messageText = cmd.message || '';
         var titleText = cmd.title || '🎙️ Canlı Mağaza Anonsu';
@@ -996,12 +993,12 @@
                         playChimeSound(function() {
                             currentAudio.play().catch(function() {
                                 // Tarayıcı otomatik oynatmayı engellerse Web Speech fallback dene
-                                speakTurkishText(messageText);
+                                if (messageText) speakTurkishText(messageText);
                             });
                         });
                     } else if (soundType === 'speech_only') {
                         currentAudio.play().catch(function() {
-                            speakTurkishText(messageText);
+                            if (messageText) speakTurkishText(messageText);
                         });
                     } else if (soundType === 'chime_only') {
                         playChimeSound();
@@ -1013,19 +1010,29 @@
             }
 
             // Fallback: Web Speech API TTS
-            if (soundType === 'chime_and_speech') {
-                playChimeSound(function() {
+            if (messageText) {
+                if (soundType === 'chime_and_speech') {
+                    playChimeSound(function() {
+                        speakTurkishText(messageText);
+                    });
+                } else if (soundType === 'speech_only') {
                     speakTurkishText(messageText);
-                });
-            } else if (soundType === 'speech_only') {
-                speakTurkishText(messageText);
-            } else if (soundType === 'chime_only') {
-                playChimeSound();
+                } else if (soundType === 'chime_only') {
+                    playChimeSound();
+                }
             }
         };
 
         // Otomatik ses çalmayı başlat
         playAudioSequence();
+
+        // Görsel kart gösterimi opsiyoneldir (cmd.show_card === false ise sadece ses çalar, ekranda kart açılmaz)
+        if (cmd.show_card === false) {
+            return;
+        }
+
+        var toastContainer = document.getElementById('pa-toast-container');
+        if (!toastContainer) return;
 
         var toastId = 'pa-voice-' + Date.now();
         var card = document.createElement('div');
@@ -1113,6 +1120,15 @@
 
         // Kapatma Butonu
         var closeToast = function() {
+            if (currentAudio) {
+                try {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                } catch(e) {}
+            }
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
             card.classList.remove('pa-show');
             setTimeout(function() {
                 if (card.parentNode) card.parentNode.removeChild(card);

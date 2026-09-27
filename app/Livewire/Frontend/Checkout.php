@@ -377,7 +377,7 @@ class Checkout extends Component
         $landingUrl = $attribution['landing_url'] ?? session('traffic_landing_url');
         $gclid = session('gclid') ?? ($attribution['gclid'] ?? request()->cookie('gclid'));
 
-        $order = Order::create([
+        $orderData = [
             'user_id' => auth()->id(),
             'order_number' => $orderNumber,
             'status' => 'pending',
@@ -422,7 +422,9 @@ class Checkout extends Component
             'tax_number' => $this->invoice_type === 'corporate' ? $this->tax_number : null,
 
             'ip_address' => request()->ip(),
-        ]);
+        ];
+
+        $order = $this->createOrderResiliently($orderData);
 
         // Satın alma olayını (purchase) kaydet (Dönüşüm & Kaynak Raporlaması İçin)
         try {
@@ -608,7 +610,10 @@ class Checkout extends Component
                 'payment_method' => $this->payment_method ?? null,
             ]);
             $this->created_order_number = null;
-            $this->dispatch('notify', message: 'Sipariş oluşturulurken bir hata oluştu: ' . $e->getMessage(), type: 'error');
+            $msg = config('app.debug')
+                ? 'Sipariş oluşturulurken bir hata oluştu: ' . $e->getMessage()
+                : 'Sipariş oluşturulurken beklenmeyen bir hata meydana geldi. Lütfen tekrar deneyiniz.';
+            $this->dispatch('notify', message: $msg, type: 'error');
         }
     }
 
@@ -917,6 +922,52 @@ class Checkout extends Component
             }
             $this->created_order_number = null;
         }
+    }
+
+    /**
+     * Siparişi güvenli ve dayanıklı bir biçimde oluşturur.
+     * Canlı ortamda migration henüz çalıştırılmamışsa veya isteğe bağlı telemetri/UTM sütunları
+     * eksikse siparişin patlamasını (SQLSTATE 42S22) engeller ve siparişi tamamlar.
+     */
+    protected function createOrderResiliently(array $orderData): Order
+    {
+        $maxRetries = 10;
+        $attempt = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+            try {
+                return Order::create($orderData);
+            } catch (\Illuminate\Database\QueryException $e) {
+                $msg = $e->getMessage();
+                $missingColumn = null;
+
+                // MySQL: Unknown column 'column_name' in 'field list'
+                if (preg_match("/Unknown column '([^']+)'/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                }
+                // SQLite: table orders has no column named column_name
+                elseif (preg_match("/has no column named ([a-zA-Z0-9_]+)/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                }
+                // PostgreSQL: column "column_name" of relation ... does not exist
+                elseif (preg_match("/column \"([^\"]+)\" of relation/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                }
+
+                if ($missingColumn && array_key_exists($missingColumn, $orderData)) {
+                    \Illuminate\Support\Facades\Log::warning("Checkout createOrderResiliently: orders tablosunda '{$missingColumn}' sütunu eksik, siparişin kırılmaması için alan atlandı.", [
+                        'order_number' => $orderData['order_number'] ?? null,
+                    ]);
+                    unset($orderData[$missingColumn]);
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
+
+        return Order::create($orderData);
     }
 
     public function render(CartService $cartService)

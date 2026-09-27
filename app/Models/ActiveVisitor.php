@@ -23,6 +23,40 @@ class ActiveVisitor extends Model
         'cart_total' => 'decimal:2',
     ];
 
+    public function save(array $options = []): bool
+    {
+        $maxRetries = 5;
+        $attempt = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+            try {
+                return parent::save($options);
+            } catch (\Illuminate\Database\QueryException $e) {
+                $msg = $e->getMessage();
+                $missingColumn = null;
+
+                if (preg_match("/Unknown column '([^']+)'/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                } elseif (preg_match("/has no column named ([a-zA-Z0-9_]+)/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                } elseif (preg_match("/column \"([^\"]+)\" of relation/i", $msg, $matches)) {
+                    $missingColumn = $matches[1];
+                }
+
+                if ($missingColumn && array_key_exists($missingColumn, $this->attributes)) {
+                    \Illuminate\Support\Facades\Log::warning("ActiveVisitor: active_visitors tablosunda '{$missingColumn}' kolonu eksik, alan atlanıp kayıt tamamlanıyor.");
+                    unset($this->attributes[$missingColumn]);
+                    continue;
+                }
+
+                throw $e;
+            }
+        }
+
+        return false;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -824,7 +858,8 @@ class ActiveVisitor extends Model
         ?string $couponCode = null,
         ?string $actionButton = null,
         ?string $actionUrl = null,
-        ?string $audioUrl = null
+        ?string $audioUrl = null,
+        bool $showCard = true
     ): void {
         $this->update([
             'pending_command' => [
@@ -837,6 +872,7 @@ class ActiveVisitor extends Model
                 'action_button' => $actionButton,
                 'action_url' => $actionUrl,
                 'audio_url' => $audioUrl,
+                'show_card' => $showCard,
                 'created_at' => now()->toIso8601String(),
             ],
         ]);

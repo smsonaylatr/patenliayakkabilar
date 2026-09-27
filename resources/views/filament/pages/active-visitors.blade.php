@@ -335,7 +335,7 @@
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em;">
-                                Ziyaretçi Trafik Sinyali & Dönemlik Analiz
+                                Ziyaretçi Trafik Sinyali &amp; Dönemlik Analiz
                             </h3>
                             <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700;">
                                 {{ $cur['period_label'] ?? 'Günlük Sinyal' }}

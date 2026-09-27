@@ -24,7 +24,7 @@ class DailyTrafficMetric extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'date' => 'string',
         'device_stats' => 'array',
         'source_stats' => 'array',
         'top_paths' => 'array',
@@ -43,11 +43,16 @@ class DailyTrafficMetric extends Model
      */
     public static function getOrCreateForDate(?Carbon $date = null): self
     {
-        $date = $date ? $date->toDateString() : now()->toDateString();
+        $dateStr = $date ? $date->toDateString() : now()->toDateString();
 
-        return static::firstOrCreate(
-            ['date' => $date],
-            [
+        $existing = static::where('date', $dateStr)->first() ?? static::whereDate('date', $dateStr)->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        try {
+            return static::create([
+                'date' => $dateStr,
                 'unique_visitors_count' => 0,
                 'page_views_count' => 0,
                 'sessions_count' => 0,
@@ -59,7 +64,9 @@ class DailyTrafficMetric extends Model
                 'source_stats' => [],
                 'top_paths' => [],
                 'avg_duration_seconds' => 0,
-            ]
-        );
+            ]);
+        } catch (\Throwable $e) {
+            return static::where('date', $dateStr)->first() ?? static::whereDate('date', $dateStr)->first() ?? static::first();
+        }
     }
 }

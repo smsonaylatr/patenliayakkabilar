@@ -118,6 +118,10 @@ Route::get('/run-migrations', function () {
                 $table->string('visitor_token', 64)->index();
                 $table->string('session_id', 191)->nullable()->index();
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->string('guest_name', 191)->nullable()->index();
+                $table->string('guest_email', 191)->nullable()->index();
+                $table->string('guest_phone', 50)->nullable()->index();
+                $table->boolean('is_identified')->default(false)->index();
                 $table->string('ip_address', 45)->nullable()->index();
                 $table->text('user_agent')->nullable();
                 $table->string('device_type', 20)->default('desktop');
@@ -152,6 +156,21 @@ Route::get('/run-migrations', function () {
 
                 $table->index(['last_heartbeat_at', 'is_online']);
                 $table->index(['visitor_token', 'last_heartbeat_at']);
+            });
+        } elseif (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+            \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                    $table->string('guest_name', 191)->nullable()->after('user_id')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
+                    $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
+                    $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
+                    $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
+                }
             });
         }
 
@@ -451,6 +470,25 @@ Route::get('/feeds/google-merchant.xml', [\App\Http\Controllers\MerchantFeedCont
 // ========================
 Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
     try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                        $table->string('guest_name', 191)->nullable()->after('user_id')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
+                        $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
+                        $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
+                        $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
+                    }
+                });
+            }
+        }
+
         $params = ['--force' => true];
         if ($request->query('path')) {
             $params['--path'] = $request->query('path');
@@ -506,6 +544,10 @@ Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
                 $table->string('visitor_token', 64)->index();
                 $table->string('session_id', 191)->nullable()->index();
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->string('guest_name', 191)->nullable()->index();
+                $table->string('guest_email', 191)->nullable()->index();
+                $table->string('guest_phone', 50)->nullable()->index();
+                $table->boolean('is_identified')->default(false)->index();
                 $table->string('ip_address', 45)->nullable()->index();
                 $table->text('user_agent')->nullable();
                 $table->string('device_type', 20)->default('desktop');
@@ -542,6 +584,22 @@ Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
                 $table->index(['visitor_token', 'last_heartbeat_at']);
             });
             $output .= "\n✅ 'active_visitors' tablosu doğrudan oluşturuldu.";
+        } elseif (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+            \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                    $table->string('guest_name', 191)->nullable()->after('user_id')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
+                    $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
+                    $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
+                }
+                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
+                    $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
+                }
+            });
+            $output .= "\n✅ 'active_visitors' tablosuna eksik misafir kolonları (guest_name vs.) eklendi.";
         }
 
         return response()->json([
