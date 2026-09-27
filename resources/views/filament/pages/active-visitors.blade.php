@@ -687,16 +687,136 @@
             text-overflow: ellipsis !important;
         }
 
-        /* Choices.js ve Dropdown Seçim Listesi */
+        /* ─── DROPDOWN & SELECT SEÇİM LİSTESİ ÖZEL RENK TONU & VURGUSU ─── */
+        /* Dropdown Paneli: Modal zemininden net ayrışan derin Slate-800 tonu, gölge ve mavi ışıma */
         .choices__list--dropdown,
         .fi-select-input-options-list,
-        [role="listbox"],
-        .fi-dropdown-panel {
-            max-height: 280px !important;
+        .fi-dropdown-panel,
+        div.choices__list[role="listbox"] {
+            background: #1e293b !important;
+            background: linear-gradient(180deg, #1e293b 0%, #151e2e 100%) !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
             border-radius: 12px !important;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 45px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 24px rgba(56, 189, 248, 0.15) !important;
             z-index: 999999 !important;
+            max-height: 280px !important;
             overflow-y: auto !important;
+            backdrop-filter: blur(16px) !important;
+        }
+
+        /* Dropdown İçi Arama Çubuğu */
+        .choices__list--dropdown .choices__input,
+        .choices__list--dropdown input[type="search"] {
+            background: #0f172a !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
+            border-radius: 8px !important;
+            color: #f8fafc !important;
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+            margin: 8px 8px 6px 8px !important;
+            width: calc(100% - 16px) !important;
+            box-sizing: border-box !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .choices__list--dropdown .choices__input:focus,
+        .choices__list--dropdown input[type="search"]:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+            outline: none !important;
+        }
+
+        /* Grup Başlıkları (Örn: 📂 KATEGORİ SAYFALARI) */
+        .choices__list--dropdown .choices__heading,
+        .fi-select-input-options-list .fi-dropdown-header {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #38bdf8 !important;
+            font-size: 11px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            padding: 7px 14px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+            margin: 4px 0 2px 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+
+        /* Liste Seçenekleri */
+        .choices__list--dropdown .choices__item--choice,
+        .fi-select-input-options-list [role="option"],
+        .fi-dropdown-panel [role="option"] {
+            padding: 9px 14px !important;
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            color: #e2e8f0 !important;
+            background: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer !important;
+        }
+
+        /* Seçenek Üzerine Gelindiğinde (Hover & Highlighted) */
+        .choices__list--dropdown .choices__item--choice.is-highlighted,
+        .choices__list--dropdown .choices__item--choice:hover,
+        .fi-select-input-options-list [role="option"]:hover,
+        .fi-select-input-options-list [role="option"][aria-selected="true"] {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0.06) 100%) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border-left: 3px solid #38bdf8 !important;
+            padding-left: 12px !important;
+        }
+
+        /* Halihazırda Seçili Olan Öğe */
+        .choices__list--dropdown .choices__item--choice.is-selected {
+            background: rgba(249, 115, 22, 0.18) !important;
+            color: #fb923c !important;
+            font-weight: 700 !important;
+            border-left: 3px solid #f97316 !important;
+            padding-left: 12px !important;
+        }
+
+        /* Choices Tetikleyici Kutu (Input Wrapper) */
+        .choices__inner {
+            background: rgba(30, 41, 59, 0.65) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 8px !important;
+            color: #f8fafc !important;
+            min-height: 38px !important;
+            padding: 4px 10px !important;
+            font-size: 12.5px !important;
+            transition: all 0.15s ease !important;
+        }
+
+        .choices.is-open .choices__inner {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 1px #38bdf8, 0 0 12px rgba(56, 189, 248, 0.25) !important;
+        }
+
+        /* Dropdown Scrollbar */
+        .choices__list--dropdown::-webkit-scrollbar,
+        .choices__list--dropdown .choices__list::-webkit-scrollbar,
+        .fi-select-input-options-list::-webkit-scrollbar {
+            width: 6px !important;
+        }
+        .choices__list--dropdown::-webkit-scrollbar-track,
+        .choices__list--dropdown .choices__list::-webkit-scrollbar-track,
+        .fi-select-input-options-list::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6) !important;
+        }
+        .choices__list--dropdown::-webkit-scrollbar-thumb,
+        .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb,
+        .fi-select-input-options-list::-webkit-scrollbar-thumb {
+            background: #475569 !important;
+            border-radius: 4px !important;
+        }
+        .choices__list--dropdown::-webkit-scrollbar-thumb:hover,
+        .choices__list--dropdown .choices__list::-webkit-scrollbar-thumb:hover,
+        .fi-select-input-options-list::-webkit-scrollbar-thumb:hover {
+            background: #64748b !important;
         }
     </style>
 
