@@ -124,7 +124,7 @@ class ActiveVisitor extends Model
             return $this->attributes['guest_id'];
         }
 
-        return GuestProfile::generateGuestId($this->visitor_token);
+        return GuestProfile::generateGuestId((string) ($this->visitor_token ?? ''));
     }
 
     public function getStarsCountAttribute(): int

@@ -226,7 +226,7 @@
         {{-- Sütun Başlıkları Çubuğu (Geniş Ekranda) --}}
         <div class="av-table-header">
             <div>ZİYARETÇİ &amp; SİNYAL</div>
-            <div>BULUNDUĞU SAYFA &amp; MODEL</div>
+            <div>{{ ($activeTab ?? 'live') === 'recent' ? 'SON GEZDİĞİ SAYFA & MODEL' : 'BULUNDUĞU SAYFA & MODEL' }}</div>
             <div>DAVRANIŞ TEŞHİSİ &amp; NİYET</div>
             <div>SEPET</div>
         </div>
@@ -586,11 +586,21 @@
                 </div>
             @empty
                 <div style="padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
-                    <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
-                    <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
-                        Kullanıcılar siteye girdiğinde veya sayfaları gezmeye başladığında canlı radar sinyalleri anlık olarak burada listelenecektir.
-                    </div>
+                    @if (($activeTab ?? 'live') === 'recent')
+                        <div style="font-size: 36px; margin-bottom: 10px;">⏱️</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                            Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
+                        </div>
+                    @else
+                        <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                            Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 
+                            <button type="button" wire:click="setActiveTab('recent')" style="color: #38bdf8; font-weight: 800; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
+                            sekmesine tıklayabilirsiniz.
+                        </div>
+                    @endif
                 </div>
             @endforelse
         </div>
@@ -939,11 +949,21 @@
                 </div>
             @empty
                 <div style="grid-column: 1 / -1; padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
-                    <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
-                    <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
-                    <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
-                        Kullanıcılar siteye girdiğinde veya sayfaları gezmeye başladığında canlı radar sinyalleri anlık olarak burada listelenecektir.
-                    </div>
+                    @if (($activeTab ?? 'live') === 'recent')
+                        <div style="font-size: 36px; margin-bottom: 10px;">⏱️</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                            Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
+                        </div>
+                    @else
+                        <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                            Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 
+                            <button type="button" wire:click="setActiveTab('recent')" style="color: #38bdf8; font-weight: 800; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
+                            sekmesine tıklayabilirsiniz.
+                        </div>
+                    @endif
                 </div>
             @endforelse
         </div>

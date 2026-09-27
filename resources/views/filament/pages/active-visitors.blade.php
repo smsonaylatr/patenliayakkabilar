@@ -273,239 +273,284 @@
             flex-wrap: wrap;
         }
 
-        /* ─── FİLAMENT MODAL & DİNAMİK DROPDOWN UZAMA STİLLERİ ─── */
-        /* Modal penceresi taban boyutu ve akıcı geçiş animasyonu */
+        /* ─── Canlı & Son Ziyaret Edenler Sekme Çubuğu Stilleri ─── */
+        .av-tabs-nav-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 5px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        }
+        .av-tab-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #94a3b8;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none !important;
+            user-select: none;
+        }
+        .av-tab-nav-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .av-tab-nav-btn.is-active-tab.is-live {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.28) 100%);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+        }
+        .av-tab-nav-btn.is-active-tab.is-recent {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.28) 100%);
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+        }
+        .av-tab-nav-badge {
+            padding: 2px 7.5px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+        .av-tab-nav-badge.is-badge-live {
+            background: #10b981;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+        .av-tab-nav-badge.is-badge-recent {
+            background: #f59e0b;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+        }
+
+        /* ─── POP-UP & MODAL GENEL DÜZEN VE HİZALAMA STİLLERİ ─── */
+        /* Modal penceresi taban boyutu ve estetik çerçeve */
         .fi-modal-window {
-            min-height: 540px !important;
+            border-radius: 18px !important;
+            overflow: hidden !important;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .fi-modal-header {
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+
+        .fi-modal-heading {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            color: #f8fafc !important;
+            letter-spacing: -0.01em !important;
+        }
+
+        .fi-modal-description {
+            margin-top: 4px !important;
+            font-size: 0.85rem !important;
+            color: #94a3b8 !important;
+            line-height: 1.4 !important;
+        }
+
+        /* Modal İçeriği: Rahat Kaydırma, Asla Butonlarla Çakışmayan Düzen */
+        .fi-modal-content {
+            padding: 20px 24px 28px 24px !important;
+            overflow-y: auto !important;
+            max-height: calc(85vh - 130px) !important;
+        }
+
+        /* Modal Footer / Aksiyon Butonları: Çakışmayı Önleyen Sabit & Şık Çubuk */
+        .fi-modal-footer {
+            padding: 16px 24px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            backdrop-filter: blur(12px) !important;
+            z-index: 10 !important;
+        }
+
+        .fi-modal-footer-actions {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 12px !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* Modal içi form alanları ve yardım metinleri hizalaması */
+        .fi-modal-content .fi-fo-field-wrp {
+            margin-bottom: 4px !important;
+        }
+
+        .fi-modal-content .fi-fo-field-wrp-helper-text {
+            margin-top: 6px !important;
+            font-size: 0.82rem !important;
+            color: #94a3b8 !important;
+            line-height: 1.45 !important;
+        }
+
+        /* ─── HIZLI KANAL SEÇİMİ BUTON IZGARASI (3x3 MÜKEMMEL HİZALI KARTLAR) ─── */
+        .channel-selection-grid {
+            width: 100% !important;
+        }
+
+        .channel-selection-grid .fi-fo-radio {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+
+        @media (max-width: 640px) {
+            .channel-selection-grid .fi-fo-radio {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        .channel-selection-grid .fi-fo-radio-label {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            padding: 10px 12px !important;
+            min-height: 60px !important;
+            border-radius: 12px !important;
+            background: rgba(30, 41, 59, 0.55) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            margin: 0 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+            user-select: none !important;
+        }
+
+        .channel-selection-grid .fi-fo-radio-label:hover {
+            background: rgba(51, 65, 85, 0.7) !important;
+            border-color: rgba(249, 115, 22, 0.45) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Standart radio dairesini gizle */
+        .channel-selection-grid .fi-radio-input {
+            position: absolute !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .channel-selection-grid .fi-fo-radio-label-text {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        .channel-selection-grid .fi-fo-radio-label-text > p {
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        /* Seçili Kart Vurgusu */
+        .channel-selection-grid .fi-fo-radio-label:has(input:checked) {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.18) 0%, rgba(234, 88, 12, 0.28) 100%) !important;
+            border-color: #f97316 !important;
+            box-shadow: 0 0 0 1px #f97316, 0 6px 18px rgba(249, 115, 22, 0.28) !important;
+        }
+
+        .channel-selection-grid .fi-fo-radio-label:has(input:checked)::after {
+            content: '✓' !important;
+            position: absolute !important;
+            top: 6px !important;
+            right: 7px !important;
+            width: 16px !important;
+            height: 16px !important;
+            background: #f97316 !important;
+            color: #ffffff !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Kart İçeriği Düzeni */
+        .channel-card-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+
+        .channel-card-icon {
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 9px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+
+        .channel-card-icon svg {
+            width: 18px !important;
+            height: 18px !important;
+        }
+
+        .channel-card-info {
             display: flex !important;
             flex-direction: column !important;
-            transition: min-height 0.28s cubic-bezier(0.4, 0, 0.2, 1), height 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-
-        .fi-modal-window .fi-modal-content {
+            align-items: flex-start !important;
+            text-align: left !important;
+            min-width: 0 !important;
             flex: 1 1 auto !important;
-            overflow-y: visible !important;
-            padding-bottom: 35px !important;
         }
 
-        /* DROPDOWN AÇILDIĞINDA POP-UP'IN UZAMASI (CSS :has & JS fallback) */
-        .fi-modal-window:has(.choices.is-open),
-        .fi-modal-window:has(.choices.is-flipped),
-        .fi-modal-window:has([aria-expanded="true"]),
-        .fi-modal-window:has(.fi-dropdown-panel),
-        .fi-modal-window:has(.fi-select-input-options-list),
-        .fi-modal-window.dropdown-expanded {
-            min-height: 740px !important;
+        .channel-card-title {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #f8fafc !important;
+            line-height: 1.25 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
-        /* Choices.js ve Filament Select Dropdown Liste Paneli */
+        .channel-card-subtitle {
+            font-size: 10.5px !important;
+            font-weight: 500 !important;
+            color: #94a3b8 !important;
+            line-height: 1.2 !important;
+            margin-top: 2px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* Choices.js ve Dropdown Seçim Listesi */
         .choices__list--dropdown,
         .fi-select-input-options-list,
         [role="listbox"],
         .fi-dropdown-panel {
-            max-height: 400px !important;
-            min-height: 220px !important;
+            max-height: 280px !important;
             border-radius: 12px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
             z-index: 999999 !important;
             overflow-y: auto !important;
-        }
-
-        .choices__list--dropdown .choices__item,
-        .fi-select-input-options-list [role="option"] {
-            padding: 10px 14px !important;
-            font-size: 13.5px !important;
-            line-height: 1.4 !important;
-        }
-
-        .choices__list--dropdown .choices__group .choices__heading {
-            font-weight: 800 !important;
-            font-size: 11px !important;
-            letter-spacing: 0.05em !important;
-            color: #f97316 !important;
-            padding: 8px 12px 4px 12px !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
-            background: rgba(0, 0, 0, 0.25) !important;
-        }
-
-        /* ─── SOSYAL MEDYA RENKLİ BUTON IZGARASI ─── */
-        .social-buttons-radio-container {
-            width: 100% !important;
-        }
-
-        .social-buttons-radio-container .fi-fo-radio-list,
-        .social-buttons-radio-container [role="radiogroup"],
-        .social-buttons-radio-container .grid {
-            gap: 12px !important;
-        }
-
-        /* Radio Öğesi Kapsayıcısı */
-        .social-buttons-radio-container .fi-fo-radio-item {
-            position: relative !important;
-            display: flex !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border-radius: 14px !important;
-            background: transparent !important;
-            border: none !important;
-        }
-
-        .social-buttons-radio-container .fi-fo-radio-item label {
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            display: flex !important;
-            cursor: pointer !important;
-        }
-
-        /* Standart Radio Dairesini Gizle */
-        .social-buttons-radio-container input[type="radio"] {
-            position: absolute !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            width: 0 !important;
-            height: 0 !important;
-        }
-
-        .social-buttons-radio-container .fi-fo-radio-label {
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* Renkli Buton Kartı Taban Stili */
-        .social-card-btn {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
-            width: 100% !important;
-            min-height: 96px !important;
-            padding: 16px 10px !important;
-            border-radius: 14px !important;
-            position: relative !important;
-            border: 2px solid rgba(255, 255, 255, 0.12) !important;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
-            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            cursor: pointer !important;
-            user-select: none !important;
-        }
-
-        .social-card-btn:hover {
-            transform: translateY(-2px) !important;
-            border-color: rgba(255, 255, 255, 0.35) !important;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45) !important;
-        }
-
-        /* İkon ve Başlıklar */
-        .social-card-btn .card-svg {
-            width: 32px !important;
-            height: 32px !important;
-            margin-bottom: 8px !important;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4)) !important;
-        }
-
-        .social-card-btn .card-title {
-            font-size: 13.5px !important;
-            font-weight: 800 !important;
-            color: #ffffff !important;
-            letter-spacing: 0.02em !important;
-            line-height: 1.2 !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .social-card-btn .card-sub {
-            font-size: 10px !important;
-            font-weight: 600 !important;
-            color: rgba(255, 255, 255, 0.85) !important;
-            margin-top: 4px !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        /* 1. WHATSAPP BUTONU */
-        .social-card-btn.channel-whatsapp {
-            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
-        }
-        .social-card-btn.channel-whatsapp:hover {
-            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.45) !important;
-        }
-
-        /* 2. TELEFON ARAMA BUTONU */
-        .social-card-btn.channel-call {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
-        }
-        .social-card-btn.channel-call:hover {
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.45) !important;
-        }
-
-        /* 3. INSTAGRAM BUTONU */
-        .social-card-btn.channel-instagram {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
-        }
-        .social-card-btn.channel-instagram:hover {
-            box-shadow: 0 10px 25px rgba(225, 48, 108, 0.45) !important;
-        }
-
-        /* 4. TIKTOK BUTONU */
-        .social-card-btn.channel-tiktok {
-            background: linear-gradient(135deg, #09090b 0%, #1c1917 100%) !important;
-            border-color: rgba(254, 44, 85, 0.6) !important;
-        }
-        .social-card-btn.channel-tiktok .card-svg {
-            color: #fe2c55 !important;
-        }
-        .social-card-btn.channel-tiktok:hover {
-            box-shadow: 0 10px 25px rgba(254, 44, 85, 0.45) !important;
-            border-color: #fe2c55 !important;
-        }
-
-        /* 5. FACEBOOK BUTONU */
-        .social-card-btn.channel-facebook {
-            background: linear-gradient(135deg, #1877F2 0%, #0d5bb5 100%) !important;
-        }
-        .social-card-btn.channel-facebook:hover {
-            box-shadow: 0 10px 25px rgba(24, 119, 242, 0.45) !important;
-        }
-
-        /* 6. TELEGRAM BUTONU */
-        .social-card-btn.channel-telegram {
-            background: linear-gradient(135deg, #229ED9 0%, #1783b8 100%) !important;
-        }
-        .social-card-btn.channel-telegram:hover {
-            box-shadow: 0 10px 25px rgba(34, 158, 217, 0.45) !important;
-        }
-
-        /* 7. SITE İÇİ ARAMA BUTONU */
-        .social-card-btn.channel-search {
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
-        }
-        .social-card-btn.channel-search:hover {
-            box-shadow: 0 10px 25px rgba(234, 88, 12, 0.45) !important;
-        }
-
-        /* ─── SEÇİLİ OLAN BUTONUN AKTİF PARLAMA EFEKTİ ─── */
-        .social-buttons-radio-container .fi-fo-radio-item:has(input:checked) .social-card-btn,
-        .social-buttons-radio-container label:has(input:checked) .social-card-btn {
-            border-color: #ffffff !important;
-            transform: translateY(-3px) scale(1.025) !important;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 12px 28px rgba(0, 0, 0, 0.6) !important;
-        }
-
-        .social-buttons-radio-container .fi-fo-radio-item:has(input:checked) .social-card-btn::after,
-        .social-buttons-radio-container label:has(input:checked) .social-card-btn::after {
-            content: '✓ SEÇİLDİ' !important;
-            position: absolute !important;
-            top: 6px !important;
-            right: 8px !important;
-            background: #ffffff !important;
-            color: #0f172a !important;
-            font-size: 9px !important;
-            font-weight: 900 !important;
-            padding: 2px 6px !important;
-            border-radius: 9999px !important;
-            letter-spacing: 0.04em !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
         }
     </style>
 
@@ -941,16 +986,38 @@
             </div>
         </div>
 
-        {{-- 2. CANLI İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
+        {{-- 2. CANLI & SON ZİYARET EDENLER SEKME GEÇİŞ ÇUBUĞU --}}
+        <div class="av-tabs-nav-bar">
+            <a href="{{ route('filament.admin.pages.canli-ziyaretciler') }}" 
+               wire:click.prevent="setActiveTab('live')" 
+               class="av-tab-nav-btn {{ ($activeTab ?? 'live') === 'live' ? 'is-active-tab is-live' : '' }}">
+                <span class="live-radar-dot" style="width: 8px; height: 8px;"></span>
+                <span>🟢 Canlı Yayındakiler</span>
+                <span class="av-tab-nav-badge {{ ($activeTab ?? 'live') === 'live' ? 'is-badge-live' : '' }}">
+                    {{ $onlineCount }}
+                </span>
+            </a>
+
+            <a href="{{ route('filament.admin.pages.son-ziyaret-edenler') }}" 
+               wire:click.prevent="setActiveTab('recent')" 
+               class="av-tab-nav-btn {{ ($activeTab ?? 'live') === 'recent' ? 'is-active-tab is-recent' : '' }}">
+                <span>⏱️ Son Ziyaret Edenler (Ayrılanlar)</span>
+                <span class="av-tab-nav-badge {{ ($activeTab ?? 'live') === 'recent' ? 'is-badge-recent' : '' }}">
+                    {{ $recentCount ?? 0 }}
+                </span>
+            </a>
+        </div>
+
+        {{-- 2.1. CANLI / GEÇMİŞ İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
         <div class="command-bar">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-size: 18px;">📡</span>
+                <span style="font-size: 18px;">{{ ($activeTab ?? 'live') === 'recent' ? '⏱️' : '📡' }}</span>
                 <div>
                     <div style="font-size: 12px; font-weight: 700; color: #f8fafc;">
-                        Canlı Satış İstihbaratı & Müşteri Karar Radarı
+                        {{ ($activeTab ?? 'live') === 'recent' ? 'Son Ziyaret Edenler (Siteden Ayrılan Müşteriler)' : 'Canlı Satış İstihbaratı & Müşteri Karar Radarı' }}
                     </div>
                     <div style="font-size: 11px; color: #94a3b8;">
-                        Ziyaretçinin beden seçimleri, sepette kalış süresi ve sayfa gezinme izi analiz edilir; tereddüt anında tek tıkla kupon veya yönlendirme fırlatabilirsiniz.
+                        {{ ($activeTab ?? 'live') === 'recent' ? 'Sitede gezinip son 24 saat içinde ayrılmış olan ziyaretçiler, ayrılma süreleri, gezdikleri sayfalar ve sepetleri listelenir.' : 'Şu an sitede aktif olarak bulunan canlı ziyaretçiler listelenir; beden seçimleri ve niyet puanları anlık izlenir.' }}
                     </div>
                 </div>
                 @if(($activeCardFilter ?? 'all') !== 'all')
@@ -971,8 +1038,12 @@
                 @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="live-radar-dot"></span>
-                <span style="font-size: 11px; color: #10b981; font-weight: 700; font-family: monospace;">CANLI RADAR AKTİF (5sn)</span>
+                @if(($activeTab ?? 'live') === 'recent')
+                    <span style="font-size: 11px; color: #f59e0b; font-weight: 700; font-family: monospace;">⏱️ SON 24 SAATİN KAYITLARI</span>
+                @else
+                    <span class="live-radar-dot"></span>
+                    <span style="font-size: 11px; color: #10b981; font-weight: 700; font-family: monospace;">CANLI RADAR AKTİF (5sn)</span>
+                @endif
             </div>
         </div>
 
@@ -1005,53 +1076,4 @@
         })();
     </script>
 
-    {{-- Dropdown Açıldığında Pop-up Penceresini Uzatan Dinamik Gözlemci --}}
-    <script>
-        (function() {
-            function updateModalDropdownExpansion() {
-                const modals = document.querySelectorAll('.fi-modal-window');
-                modals.forEach(function(modal) {
-                    const isOpen = modal.querySelector('.choices.is-open, [aria-expanded="true"], .fi-select-input-options-list:not([hidden])');
-                    if (isOpen) {
-                        modal.classList.add('dropdown-expanded');
-                    } else {
-                        modal.classList.remove('dropdown-expanded');
-                    }
-                });
-            }
-
-            // Tıklama, focus ve tuş olaylarını anında yakala
-            document.addEventListener('click', function() {
-                setTimeout(updateModalDropdownExpansion, 40);
-                setTimeout(updateModalDropdownExpansion, 150);
-            }, true);
-
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    setTimeout(updateModalDropdownExpansion, 50);
-                }
-            });
-
-            // Choices.js ve DOM değişimlerini MutationObserver ile anlık yakala
-            const modalObserver = new MutationObserver(function() {
-                updateModalDropdownExpansion();
-            });
-
-            modalObserver.observe(document.body, {
-                attributes: true,
-                attributeFilter: ['class', 'aria-expanded', 'style'],
-                subtree: true
-            });
-
-            document.addEventListener('DOMContentLoaded', updateModalDropdownExpansion);
-            document.addEventListener('livewire:navigated', updateModalDropdownExpansion);
-            document.addEventListener('livewire:initialized', function() {
-                if (window.Livewire && Livewire.hook) {
-                    Livewire.hook('morph.updated', function() {
-                        setTimeout(updateModalDropdownExpansion, 50);
-                    });
-                }
-            });
-        })();
-    </script>
 </x-filament-panels::page>

@@ -40,10 +40,26 @@ class ActiveVisitors extends Page implements HasTable
 
     public string $viewMode = 'list';
 
+    public string $activeTab = 'live';
+
     public function mount(): void
     {
         $saved = request()->cookie('av_view_mode', session('av_view_mode', 'list'));
         $this->viewMode = in_array($saved, ['list', 'grid']) ? $saved : 'list';
+
+        $tab = request()->query('tab');
+        if (in_array($tab, ['live', 'recent'])) {
+            $this->activeTab = $tab;
+        }
+    }
+
+    public function setActiveTab(string $tab): void
+    {
+        if (in_array($tab, ['live', 'recent'])) {
+            $this->activeTab = $tab;
+            $this->activeCardFilter = 'all';
+            $this->resetTable();
+        }
     }
 
     public function setViewMode(string $mode): void
@@ -206,6 +222,10 @@ class ActiveVisitors extends Page implements HasTable
             $loginRate = $totalActive > 0 ? round(($membersCount / $totalActive) * 100) : 0;
 
             $blockedCount = ActiveVisitor::where('is_blocked', true)->count();
+            $recentLeftCount = ActiveVisitor::where('last_heartbeat_at', '<', now()->subSeconds(75))
+                ->where('last_heartbeat_at', '>=', now()->subHours(24))
+                ->where('is_blocked', false)
+                ->count();
 
             $trafficService = app(\App\Services\TrafficAnalyticsService::class);
             $dailyTraffic = $trafficService->getMetricsForPeriod('daily');
@@ -219,6 +239,9 @@ class ActiveVisitors extends Page implements HasTable
 
             return [
                 'onlineCount' => $onlineCount,
+                'recentCount' => $recentLeftCount,
+                'recentLeftCount' => $recentLeftCount,
+                'activeTab' => $this->activeTab,
                 'todayVisitorsCount' => max($todayVisitorsCount, $dailyTraffic['unique_visitors'] ?? 0),
                 'highIntentCount' => $highIntentCount,
                 'liveHighIntentCount' => $liveHighIntentCount,
@@ -261,6 +284,9 @@ class ActiveVisitors extends Page implements HasTable
 
             return [
                 'onlineCount' => 0,
+                'recentCount' => 0,
+                'recentLeftCount' => 0,
+                'activeTab' => $this->activeTab,
                 'highIntentCount' => 0,
                 'cartCount' => 0,
                 'cartTotal' => 0,
@@ -282,14 +308,21 @@ class ActiveVisitors extends Page implements HasTable
     {
         return $table
             ->poll('5s')
-            ->query(
+            ->query(fn (): Builder =>
                 ActiveVisitor::query()
                     ->with(['user', 'cart.items.product.images'])
-                    ->where(function (Builder $query) {
-                        $query->where('last_heartbeat_at', '>=', now()->subHours(24))
-                            ->orWhere('is_blocked', true);
+                    ->when($this->activeTab === 'recent', function (Builder $query) {
+                        $query->where('is_blocked', false)
+                            ->where(function (Builder $sq) {
+                                $sq->where('last_heartbeat_at', '<', now()->subSeconds(75))
+                                    ->where('last_heartbeat_at', '>=', now()->subDays(7));
+                            });
+                    }, function (Builder $query) {
+                        // SADECE CANLI OLANLAR VEYA ENGELLENMİŞ OLANLAR (Yönetim & Engel Kaldırma için)
+                        $query->where(function (Builder $sq) {
+                            $sq->online()->orWhere('is_blocked', true);
+                        });
                     })
-                    ->when($this->activeCardFilter === 'online', fn($q) => $q->online())
                     ->when($this->activeCardFilter === 'cart', fn($q) => $q->where('cart_items_count', '>', 0))
                     ->when($this->activeCardFilter === 'high_intent', fn($q) => $q->where('intent_score', '>=', 60))
                     ->when($this->activeCardFilter === 'hesitating', fn($q) => $q->where('intent_level', 'hesitating'))
@@ -570,6 +603,9 @@ class ActiveVisitors extends Page implements HasTable
             ->content(fn (Table $table) => view('filament.pages.partials.active-visitors-table', [
                 'table' => $table,
                 'viewMode' => $this->viewMode,
+                'activeTab' => $this->activeTab,
+                'onlineCount' => ActiveVisitor::online()->where('is_blocked', false)->count(),
+                'recentCount' => ActiveVisitor::where('last_heartbeat_at', '<', now()->subSeconds(75))->where('last_heartbeat_at', '>=', now()->subHours(24))->where('is_blocked', false)->count(),
             ]))
             ->filters([
                 SelectFilter::make('intent_filter')
@@ -653,6 +689,10 @@ class ActiveVisitors extends Page implements HasTable
                     ->size('sm')
                     ->color('success')
                     ->icon('heroicon-o-bolt')
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
+                    ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                     ->modalHeading(fn (ActiveVisitor $record) => '⚡ Satış Stratejisini Uygula: ' . ($record->recommended_strategy['title'] ?? 'Özel Teklif'))
                     ->modalDescription(fn (ActiveVisitor $record) => 'Davranış Teşhisi: ' . ($record->behavior_insight ?? ''))
                     ->modalSubmitActionLabel('🚀 Ziyaretçiye Hemen Gönder')
@@ -750,10 +790,13 @@ class ActiveVisitors extends Page implements HasTable
                     ->size('sm')
                     ->color('primary')
                     ->icon('heroicon-o-arrow-right-circle')
-                    ->modalWidth(Width::TwoExtraLarge)
+                    ->modalWidth(Width::ThreeExtraLarge)
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
+                    ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                     ->modalHeading('🚀 Ziyaretçiyi Sayfaya Yönlendir')
                     ->modalDescription('Ziyaretçiyi istediğiniz adrese aktarın. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
-                    ->modalSubmitActionLabel('Şimdi Yönlendir')
+                    ->modalSubmitActionLabel('🚀 Şimdi Yönlendir')
                     ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
                     ->extraModalFooterActions(fn (Action $action): array => [
                         $action->makeModalSubmitAction('force_redirect_and_close', ['close' => true])
@@ -810,6 +853,10 @@ class ActiveVisitors extends Page implements HasTable
                     ->size('sm')
                     ->color('warning')
                     ->icon('heroicon-o-speaker-wave')
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
+                    ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                     ->modalHeading(fn (ActiveVisitor $record) => '🎙️ Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
                     ->modalDescription('Ziyaretçinin ekranında ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
                     ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
@@ -1005,10 +1052,13 @@ class ActiveVisitors extends Page implements HasTable
                 ->label('📢 Tüm Canlıları Toplu Yönlendir')
                 ->color('primary')
                 ->icon('heroicon-o-paper-airplane')
-                ->modalWidth(Width::TwoExtraLarge)
+                ->modalWidth(Width::ThreeExtraLarge)
+                ->stickyModalHeader()
+                ->stickyModalFooter()
+                ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                 ->modalHeading('📢 Sitedeki Tüm Aktif Ziyaretçileri Toplu Yönlendir')
                 ->modalDescription('Sitedeki tüm aktif kullanıcılara tek tıkla yönlendirme emri gönderir. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
-                ->modalSubmitActionLabel('Şimdi Yönlendir')
+                ->modalSubmitActionLabel('🚀 Şimdi Yönlendir')
                 ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
                 ->extraModalFooterActions(fn (Action $action): array => [
                     $action->makeModalSubmitAction('bulk_redirect_and_close', ['close' => true])
@@ -1050,6 +1100,10 @@ class ActiveVisitors extends Page implements HasTable
                 ->label('💬 Herkese Canlı Fırsat / Kupon Gönder')
                 ->color('success')
                 ->icon('heroicon-o-gift')
+                ->modalWidth(Width::TwoExtraLarge)
+                ->stickyModalHeader()
+                ->stickyModalFooter()
+                ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                 ->modalHeading('💬 Herkese Canlı Fırsat / Kupon Gönder')
                 ->form([
                     TextInput::make('title')
@@ -1106,6 +1160,10 @@ class ActiveVisitors extends Page implements HasTable
                 ->label('🎙️ Herkese Canlı Sesli Anons')
                 ->color('warning')
                 ->icon('heroicon-o-speaker-wave')
+                ->modalWidth(Width::TwoExtraLarge)
+                ->stickyModalHeader()
+                ->stickyModalFooter()
+                ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                 ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
                 ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
                 ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
@@ -1247,6 +1305,9 @@ class ActiveVisitors extends Page implements HasTable
                 ->modalHeading('🚫 Engellenen Ziyaretçiler & Kara Liste')
                 ->modalDescription('Burada erişimi engellenmiş tüm IP adreslerini ve ziyaretçileri görebilir, tek tıkla engellerini kaldırabilirsiniz.')
                 ->modalWidth('4xl')
+                ->stickyModalHeader()
+                ->stickyModalFooter()
+                ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Kapat')
                 ->modalContent(fn () => view('filament.pages.partials.blocked-visitors-modal', [
@@ -1364,171 +1425,368 @@ class ActiveVisitors extends Page implements HasTable
     }
 
     /**
-     * Sadece kayıtlı sosyal medya ve iletişim kanalları için renkli & ikonlu buton seçenekleri
+     * Sadece kayıtlı sosyal medya ve iletişim kanalları için renkli & ikonlu buton seçenekleri (3x3 Mükemmel Hizalı Izgara)
      */
     public static function getSocialChannelOptions(): array
     {
         return [
             'whatsapp' => new HtmlString('
-                <div class="social-card-btn channel-whatsapp">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                    </svg>
-                    <span class="card-title">WhatsApp Sohbet</span>
-                    <span class="card-sub">Kayıtlı Destek Hattı</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(37, 211, 102, 0.15); color: #25D366;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">WhatsApp</span>
+                        <span class="channel-card-subtitle">Destek Sohbeti</span>
+                    </div>
                 </div>
             '),
 
             'call' => new HtmlString('
-                <div class="social-card-btn channel-call">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    <span class="card-title">Telefon Arama</span>
-                    <span class="card-sub">Hemen Ara (tel:)</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Telefon Arama</span>
+                        <span class="channel-card-subtitle">Hemen Ara (tel:)</span>
+                    </div>
                 </div>
             '),
 
             'instagram' => new HtmlString('
-                <div class="social-card-btn channel-instagram">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                    <span class="card-title">Instagram</span>
-                    <span class="card-sub">@patenliayakkabilar</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(225, 48, 108, 0.15); color: #e1306c;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Instagram</span>
+                        <span class="channel-card-subtitle">@patenliayakkabilar</span>
+                    </div>
                 </div>
             '),
 
             'tiktok' => new HtmlString('
-                <div class="social-card-btn channel-tiktok">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
-                    </svg>
-                    <span class="card-title">TikTok</span>
-                    <span class="card-sub">@patenliayakkabilar</span>
-                </div>
-            '),
-
-            'facebook' => new HtmlString('
-                <div class="social-card-btn channel-facebook">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    <span class="card-title">Facebook</span>
-                    <span class="card-sub">Resmi Sayfamız</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(254, 44, 85, 0.15); color: #fe2c55;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">TikTok</span>
+                        <span class="channel-card-subtitle">@patenliayakkabilar</span>
+                    </div>
                 </div>
             '),
 
             'telegram' => new HtmlString('
-                <div class="social-card-btn channel-telegram">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.196 1.006.128.832.942z"/>
-                    </svg>
-                    <span class="card-title">Telegram</span>
-                    <span class="card-sub">Canlı Destek Hattı</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(34, 158, 217, 0.15); color: #229ed9;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.196 1.006.128.832.942z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Telegram</span>
+                        <span class="channel-card-subtitle">Kanal & Destek</span>
+                    </div>
+                </div>
+            '),
+
+            'facebook' => new HtmlString('
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(24, 119, 242, 0.15); color: #1877f2;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Facebook</span>
+                        <span class="channel-card-subtitle">Resmi Sayfamız</span>
+                    </div>
                 </div>
             '),
 
             'search' => new HtmlString('
-                <div class="social-card-btn channel-search">
-                    <svg class="card-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span class="card-title">Site İçi Arama</span>
-                    <span class="card-sub">Kelime & Ürün Ara</span>
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(234, 88, 12, 0.15); color: #ea580c;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Sitede Arama</span>
+                        <span class="channel-card-subtitle">Kelime / Ürün Ara</span>
+                    </div>
+                </div>
+            '),
+
+            'page' => new HtmlString('
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Sayfa / Kategori</span>
+                        <span class="channel-card-subtitle">Vitrin, Sepet, Model</span>
+                    </div>
+                </div>
+            '),
+
+            'custom' => new HtmlString('
+                <div class="channel-card-row">
+                    <div class="channel-card-icon" style="background: rgba(129, 140, 248, 0.15); color: #818cf8;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    </div>
+                    <div class="channel-card-info">
+                        <span class="channel-card-title">Özel Link</span>
+                        <span class="channel-card-subtitle">Manuel URL Adresi</span>
+                    </div>
                 </div>
             '),
         ];
     }
 
     /**
-     * Yönlendirme hedefi için tam URL çözer (WhatsApp, Telefon Arama, Instagram, TikTok, Telegram, Facebook, Arama vb.)
+     * Doğrulanmış hedef sayfa ve link seçeneklerini döner.
+     */
+    public static function getTargetUrlOptions(): array
+    {
+        $options = [
+            '⚡ POPÜLER VE HIZLI DÖNÜŞÜM SAYFALARI' => [
+                '/' => '🏠 Ana Sayfa (Vitrin)',
+                '/patenli-ayakkabilar' => '👟 Tüm Modeller (Katalog & Çok Satanlar)',
+                '/checkout' => '🛒 Sepetim & Ödeme Sayfası (Kasa)',
+                '/iletisim' => '📞 İletişim & Canlı Destek Sayfası',
+            ],
+        ];
+
+        try {
+            $categories = \App\Models\Category::where('status', true)->orderBy('id')->get();
+            if ($categories->isNotEmpty()) {
+                $catOptions = [];
+                foreach ($categories as $cat) {
+                    $icon = match (true) {
+                        str_contains($cat->slug, 'kiz') => '👧',
+                        str_contains($cat->slug, 'erkek') => '👦',
+                        str_contains($cat->slug, 'cocuk') => '🧒',
+                        str_contains($cat->slug, 'kadin') => '👩',
+                        default => '🏷️',
+                    };
+                    $catOptions['/kategori/' . $cat->slug] = "{$icon} {$cat->name} Modelleri";
+                }
+                $options['📂 KATEGORİ SAYFALARI'] = $catOptions;
+            }
+        } catch (\Throwable $e) {
+            // Hata durumunda varsayılan kategori linkleri
+            $options['📂 KATEGORİ SAYFALARI'] = [
+                '/kategori/erkek-cocuk' => '👦 Erkek Çocuk Modelleri',
+                '/kategori/kiz-cocuk' => '👧 Kız Çocuk Modelleri',
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Yönlendirme hedefi için tam URL çözer (WhatsApp, Telefon Arama, Instagram, TikTok, Telegram, Facebook, Arama, Sayfa veya Özel Link)
      */
     public static function resolveRedirectUrl(array $data): string
     {
+        if (!empty($data['quick_target'])) {
+            return self::normalizeUrl($data['quick_target']);
+        }
+
+        if (!empty($data['bulk_target'])) {
+            return self::normalizeUrl($data['bulk_target']);
+        }
+
+        if (!empty($data['target_url'])) {
+            return self::normalizeUrl($data['target_url']);
+        }
+
         $channel = $data['channel'] ?? 'whatsapp';
 
         switch ($channel) {
             case 'whatsapp':
-                $rawNumber = (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567');
+                $rawNumber = (string) ($data['whatsapp_number'] ?? \App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567');
                 $rawNumber = preg_replace('/[^0-9]/', '', $rawNumber);
                 if (strlen($rawNumber) === 10 && str_starts_with($rawNumber, '5')) {
                     $rawNumber = '90' . $rawNumber;
                 } elseif (strlen($rawNumber) === 11 && str_starts_with($rawNumber, '0')) {
                     $rawNumber = '90' . substr($rawNumber, 1);
                 }
-                return 'https://wa.me/' . $rawNumber;
+                $url = 'https://wa.me/' . $rawNumber;
+                if (!empty($data['whatsapp_message'])) {
+                    $url .= '?text=' . urlencode($data['whatsapp_message']);
+                }
+                return $url;
 
             case 'call':
-                $rawPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
+                $rawPhone = (string) ($data['phone_number'] ?? \App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
                 $cleanDigits = preg_replace('/[^\+0-9]/', '', $rawPhone);
                 return 'tel:' . $cleanDigits;
 
             case 'instagram':
-                $acc = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
+                $acc = (string) ($data['instagram_account'] ?? \App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://instagram.com/' . ltrim($acc, '@');
                 }
                 return $acc;
 
             case 'tiktok':
-                $acc = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
+                $acc = (string) ($data['tiktok_account'] ?? \App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://tiktok.com/@' . ltrim($acc, '@');
                 }
                 return $acc;
 
             case 'facebook':
-                $acc = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
+                $acc = (string) ($data['facebook_page'] ?? \App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
                 if (!str_starts_with($acc, 'http')) {
                     $acc = 'https://facebook.com/' . ltrim($acc, '/');
                 }
                 return $acc;
 
             case 'telegram':
-                return 'https://t.me/patenliayakkabilar';
+                $acc = (string) ($data['telegram_account'] ?? 'https://t.me/patenliayakkabilar');
+                if (!str_starts_with($acc, 'http')) {
+                    $acc = 'https://t.me/' . ltrim($acc, '@');
+                }
+                return $acc;
 
             case 'search':
                 $q = trim((string) ($data['search_query'] ?? ''));
                 return '/patenli-ayakkabilar' . (!empty($q) ? '?search=' . urlencode($q) : '');
 
+            case 'page':
+                return self::normalizeUrl($data['site_page'] ?? '/checkout');
+
+            case 'custom':
+                return self::normalizeUrl($data['custom_url'] ?? '/');
+
             default:
-                if (!empty($data['custom_url'])) {
-                    return self::normalizeUrl($data['custom_url']);
-                }
                 return '/';
         }
     }
 
     /**
-     * Sosyal medya, telefon arama ve sayfa yönlendirme form alanları
+     * Sosyal medya, telefon arama ve sayfa yönlendirme form alanları (Hizalı ve Düzenli Yapı)
      */
     public static function getRedirectFormSchema(): array
     {
         return [
             Radio::make('channel')
-                ->label('🚀 Yönlendirilecek Kayıtlı Sosyal Medya veya Kanalı Seçin')
+                ->label('🚀 Yönlendirilecek Kanal veya Hedefi Seçin')
                 ->options(self::getSocialChannelOptions())
-                ->extraAttributes(['class' => 'social-buttons-radio-container'])
+                ->extraAttributes(['class' => 'channel-selection-grid'])
                 ->columns([
-                    'default' => 2,
-                    'sm' => 2,
+                    'default' => 3,
+                    'sm' => 3,
                     'md' => 3,
-                    'lg' => 4,
+                    'lg' => 3,
                 ])
                 ->default('whatsapp')
                 ->live(),
 
-            // Sadece Arama seçildiğinde aranacak kelime kutusu çıkar
+            // 1. WhatsApp Alanları
+            TextInput::make('whatsapp_number')
+                ->label('💬 WhatsApp Numarası veya wa.me Linki')
+                ->default(fn () => (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567'))
+                ->placeholder('905xxxxxxxxx')
+                ->helperText('💡 Ziyaretçinin cihazında doğrudan WhatsApp sohbeti başlatılır.')
+                ->visible(fn ($get) => $get('channel') === 'whatsapp')
+                ->required(fn ($get) => $get('channel') === 'whatsapp'),
+
+            TextInput::make('whatsapp_message')
+                ->label('Hazır Sohbet Başlangıç Mesajı (Opsiyonel)')
+                ->placeholder('Örn: Merhaba, patenli ayakkabılar hakkında danışmak istiyorum...')
+                ->visible(fn ($get) => $get('channel') === 'whatsapp'),
+
+            // 2. Telefon Arama Alanı
+            TextInput::make('phone_number')
+                ->label('📞 Doğrudan Aranacak Telefon Numarası')
+                ->default(fn () => (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000'))
+                ->placeholder('+90850xxxxxxx veya 05xxxxxxxxx')
+                ->helperText('💡 Ziyaretçi yönlendirildiğinde doğrudan arama ekranı açılır (tel: bağlantısı).')
+                ->visible(fn ($get) => $get('channel') === 'call')
+                ->required(fn ($get) => $get('channel') === 'call'),
+
+            // 3. Instagram Alanı
+            TextInput::make('instagram_account')
+                ->label('📸 Instagram Profil Linki veya Kullanıcı Adı')
+                ->default(fn () => (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://instagram.com/patenliayakkabilar'))
+                ->helperText('💡 Ziyaretçi resmi Instagram hesabınıza yönlendirilir.')
+                ->visible(fn ($get) => $get('channel') === 'instagram')
+                ->required(fn ($get) => $get('channel') === 'instagram'),
+
+            // 4. TikTok Alanı
+            TextInput::make('tiktok_account')
+                ->label('🎵 TikTok Profil Linki veya Kullanıcı Adı')
+                ->default(fn () => (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://tiktok.com/@patenliayakkabilar'))
+                ->helperText('💡 Ziyaretçi resmi TikTok hesabınıza yönlendirilir.')
+                ->visible(fn ($get) => $get('channel') === 'tiktok')
+                ->required(fn ($get) => $get('channel') === 'tiktok'),
+
+            // 5. Telegram Alanı
+            TextInput::make('telegram_account')
+                ->label('✈️ Telegram Kanal veya Destek Linki')
+                ->default('https://t.me/patenliayakkabilar')
+                ->helperText('💡 Ziyaretçi resmi Telegram kanalınıza yönlendirilir.')
+                ->visible(fn ($get) => $get('channel') === 'telegram')
+                ->required(fn ($get) => $get('channel') === 'telegram'),
+
+            // 6. Facebook Alanı
+            TextInput::make('facebook_page')
+                ->label('📘 Facebook Sayfa Linki')
+                ->default(fn () => (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar'))
+                ->helperText('💡 Ziyaretçi resmi Facebook sayfanıza aktarılır.')
+                ->visible(fn ($get) => $get('channel') === 'facebook')
+                ->required(fn ($get) => $get('channel') === 'facebook'),
+
+            // 7. Site İçi Arama Alanı
             TextInput::make('search_query')
                 ->label('🔍 Sitede Otomatik Aranacak Kelime / Ürün')
                 ->placeholder('Örn: ışıklı, 4 tekerlekli, pembe...')
-                ->helperText('💡 Ziyaretçi sitede doğrudan bu kelimenin arama sonuçları sayfasına aktarılır.')
+                ->helperText('💡 Ziyaretçi sitede doğrudan bu arama kelimesinin sonuç sayfasına aktarılır.')
                 ->visible(fn ($get) => $get('channel') === 'search')
                 ->required(fn ($get) => $get('channel') === 'search'),
 
-            // Yönlendirme Şekli
+            // 8. Site İçi Sayfa / Kategori Seçimi
+            Select::make('site_page')
+                ->label('📄 Yönlendirilecek Sayfa veya Kategori')
+                ->native(false)
+                ->searchable()
+                ->options(self::getTargetUrlOptions())
+                ->default('/checkout')
+                ->helperText('💡 Ziyaretçi sitedeki seçtiğiniz kategoriye, vitrine veya ödeme sayfasına aktarılır.')
+                ->visible(fn ($get) => $get('channel') === 'page')
+                ->required(fn ($get) => $get('channel') === 'page'),
+
+            // 9. Manuel Özel URL
+            TextInput::make('custom_url')
+                ->label('🌐 Manuel Özel Web Linki (URL)')
+                ->placeholder('https://... veya /sayfa')
+                ->helperText('İstediğiniz herhangi bir tam web bağlantısı veya site içi adres.')
+                ->visible(fn ($get) => $get('channel') === 'custom')
+                ->required(fn ($get) => $get('channel') === 'custom'),
+
+            // Yönlendirme Şekli ve Bildirim Ayarları
             Select::make('redirect_mode')
                 ->label('Yönlendirme Şekli')
                 ->native(false)
@@ -1538,15 +1796,15 @@ class ActiveVisitors extends Page implements HasTable
                 ])
                 ->default('silent')
                 ->live()
-                ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı gösterilmez; anında ilgili kanala yönlendirilir.'),
+                ->helperText('Bildirim göstermeden seçeneğinde ziyaretçi ekranında herhangi bir uyarı penceresi gösterilmez; anında ilgili adrese aktarılır.'),
 
             TextInput::make('redirect_message')
                 ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
-                ->placeholder('Örn: Sizi WhatsApp destek hattımıza aktarıyoruz...')
+                ->placeholder('Örn: Sizi müşteri destek hattımıza aktarıyoruz...')
                 ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
 
             Select::make('countdown')
-                ->label('Geri Sayım')
+                ->label('Geri Sayım Süresi')
                 ->native(false)
                 ->options([
                     '0' => 'Anında Yönlendir (0 sn)',

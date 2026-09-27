@@ -1295,7 +1295,7 @@ class ActiveVisitorTest extends TestCase
         $action->livewire($page)->record($visitor);
 
         // 1. Buton etiketlerini doğrula
-        $this->assertEquals('Şimdi Yönlendir', $action->getModalSubmitActionLabel());
+        $this->assertEquals('🚀 Şimdi Yönlendir', $action->getModalSubmitActionLabel());
         $footerActions = $action->getExtraModalFooterActions();
         $this->assertCount(1, $footerActions);
         $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['force_redirect_and_close']->getLabel());
@@ -1362,7 +1362,7 @@ class ActiveVisitorTest extends TestCase
         $bulkAction->livewire($page);
 
         // 1. Buton etiketlerini doğrula
-        $this->assertEquals('Şimdi Yönlendir', $bulkAction->getModalSubmitActionLabel());
+        $this->assertEquals('🚀 Şimdi Yönlendir', $bulkAction->getModalSubmitActionLabel());
         $footerActions = $bulkAction->getExtraModalFooterActions();
         $this->assertCount(1, $footerActions);
         $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['bulk_redirect_and_close']->getLabel());
@@ -1592,6 +1592,121 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('Liste', $toggleHtml);
         $this->assertStringContainsString('Izgara', $toggleHtml);
         $this->assertStringContainsString('is-active', $toggleHtml);
+    }
+
+    public function test_canli_ziyaretciler_page_lists_only_online_visitors_and_excludes_departed_ones(): void
+    {
+        $admin = User::factory()->create();
+
+        // 1. Canlı Ziyaretçi (Sitede aktif)
+        $liveVisitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_live_active_999',
+            'guest_name' => 'Canlı Misafir MUJ0RC',
+            'current_url' => 'https://patenliayakkabilar.com/patenli-ayakkabilar',
+            'current_path' => '/patenli-ayakkabilar',
+            'current_title' => 'Tüm Patenli Ayakkabı Modelleri',
+            'is_online' => true,
+            'first_seen_at' => now()->subMinutes(10),
+            'last_heartbeat_at' => now(), // Anlık canlı
+        ]);
+
+        // 2. Ayrılmış Ziyaretçi (Osman Baba - 2 dakika önce çıkmış)
+        $departedVisitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_departed_osman',
+            'guest_name' => 'Osman Baba',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'is_online' => false,
+            'first_seen_at' => now()->subHours(1),
+            'last_heartbeat_at' => now()->subMinutes(2), // 2 dk önce ayrılmış
+        ]);
+
+        // Canlı Ziyaretçiler sayfası testi
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSet('activeTab', 'live')
+            // Canlı olan listelenmeli
+            ->assertSee('Canlı Misafir MUJ0RC')
+            ->assertSee('CANLI')
+            // Ayrılmış olan CANLI listesinde YER ALMAMALI!
+            ->assertDontSee('Osman Baba')
+            // Sekme düğmeleri ve sayaçları görünmeli
+            ->assertSee('Canlı Yayındakiler')
+            ->assertSee('Son Ziyaret Edenler');
+    }
+
+    public function test_son_ziyaret_edenler_page_and_tab_lists_departed_visitors_and_excludes_online_ones(): void
+    {
+        $admin = User::factory()->create();
+
+        // 1. Canlı Ziyaretçi
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_live_user_111',
+            'guest_name' => 'Canlı Kullanıcı Zeynep',
+            'current_url' => 'https://patenliayakkabilar.com/patenli-ayakkabilar',
+            'current_path' => '/patenli-ayakkabilar',
+            'current_title' => 'Tüm Patenli Ayakkabı Modelleri',
+            'is_online' => true,
+            'first_seen_at' => now()->subMinutes(5),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // 2. Ayrılmış Ziyaretçi (Osman Baba)
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_departed_osman_2',
+            'guest_name' => 'Osman Baba',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'is_online' => false,
+            'first_seen_at' => now()->subHours(2),
+            'last_heartbeat_at' => now()->subMinutes(5),
+        ]);
+
+        // 1. Sekme üzerinden Son Ziyaret Edenler'e geçiş
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->call('setActiveTab', 'recent')
+            ->assertSet('activeTab', 'recent')
+            ->assertSee('Osman Baba')
+            ->assertSee('AYRILDI')
+            ->assertDontSee('Canlı Kullanıcı Zeynep');
+
+        // 2. Doğrudan RecentVisitors Filament Sayfası
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\RecentVisitors::class)
+            ->assertSuccessful()
+            ->assertSet('activeTab', 'recent')
+            ->assertSee('Osman Baba')
+            ->assertSee('AYRILDI')
+            ->assertDontSee('Canlı Kullanıcı Zeynep');
+    }
+
+    public function test_navigation_badges_for_active_and_recent_visitors(): void
+    {
+        // 1 Canlı
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_badge_live',
+            'guest_name' => 'Canlı Test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'last_heartbeat_at' => now(),
+        ]);
+
+        // 1 Ayrılmış
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_badge_recent',
+            'guest_name' => 'Ayrılan Test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'last_heartbeat_at' => now()->subMinutes(10),
+        ]);
+
+        $this->assertEquals('1', \App\Filament\Pages\ActiveVisitors::getNavigationBadge());
+        $this->assertEquals('1', \App\Filament\Pages\RecentVisitors::getNavigationBadge());
     }
 }
 

@@ -114,7 +114,7 @@ class AdminPanelProvider extends PanelProvider
                         ]);
                     }
 
-                    if (request()->routeIs('filament.admin.pages.canli-ziyaretciler') || str_contains(request()->path(), 'canli-ziyaretciler') || (app('livewire')->isLivewireRequest() && str_contains(app('livewire')->originalPath(), 'canli-ziyaretciler'))) {
+                    if (request()->routeIs('filament.admin.pages.canli-ziyaretciler') || request()->routeIs('filament.admin.pages.son-ziyaret-edenler') || str_contains(request()->path(), 'canli-ziyaretciler') || str_contains(request()->path(), 'son-ziyaret-edenler') || (app('livewire')->isLivewireRequest() && (str_contains(app('livewire')->originalPath(), 'canli-ziyaretciler') || str_contains(app('livewire')->originalPath(), 'son-ziyaret-edenler')))) {
                         $mode = request()->cookie('av_view_mode', session('av_view_mode', 'list'));
                         return view('filament.pages.partials.visitor-view-toggle', [
                             'viewMode' => in_array($mode, ['list', 'grid']) ? $mode : 'list',
