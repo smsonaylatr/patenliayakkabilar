@@ -1473,5 +1473,251 @@ class ActiveVisitors extends Page implements HasTable
 
         return $options;
     }
+
+    /**
+     * Yönlendirme hedefi için tam URL çözer (WhatsApp, Telefon Arama, Instagram, TikTok, Telegram, Facebook, Arama vb.)
+     */
+    public static function resolveRedirectUrl(array $data): string
+    {
+        $channel = $data['channel'] ?? 'whatsapp';
+
+        switch ($channel) {
+            case 'whatsapp':
+                $rawNumber = preg_replace('/[^0-9]/', '', (string) ($data['whatsapp_number'] ?? ''));
+                if (empty($rawNumber)) {
+                    $rawNumber = preg_replace('/[^0-9]/', '', (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567'));
+                }
+                if (strlen($rawNumber) === 10 && str_starts_with($rawNumber, '5')) {
+                    $rawNumber = '90' . $rawNumber;
+                } elseif (strlen($rawNumber) === 11 && str_starts_with($rawNumber, '0')) {
+                    $rawNumber = '90' . substr($rawNumber, 1);
+                }
+                $url = 'https://wa.me/' . $rawNumber;
+                if (!empty($data['whatsapp_message'])) {
+                    $url .= '?text=' . urlencode($data['whatsapp_message']);
+                }
+                return $url;
+
+            case 'call':
+                $rawPhone = trim((string) ($data['phone_number'] ?? ''));
+                if (empty($rawPhone)) {
+                    $rawPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
+                }
+                $cleanDigits = preg_replace('/[^\+0-9]/', '', $rawPhone);
+                return 'tel:' . $cleanDigits;
+
+            case 'instagram':
+                $acc = trim((string) ($data['instagram_account'] ?? ''));
+                if (empty($acc)) {
+                    $acc = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
+                }
+                if (!str_starts_with($acc, 'http')) {
+                    $acc = 'https://instagram.com/' . ltrim($acc, '@');
+                }
+                return $acc;
+
+            case 'tiktok':
+                $acc = trim((string) ($data['tiktok_account'] ?? ''));
+                if (empty($acc)) {
+                    $acc = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
+                }
+                if (!str_starts_with($acc, 'http')) {
+                    $acc = 'https://tiktok.com/@' . ltrim($acc, '@');
+                }
+                return $acc;
+
+            case 'telegram':
+                $acc = trim((string) ($data['telegram_account'] ?? ''));
+                if (empty($acc)) {
+                    $acc = 'https://t.me/patenliayakkabilar';
+                }
+                if (!str_starts_with($acc, 'http')) {
+                    $acc = 'https://t.me/' . ltrim($acc, '@');
+                }
+                return $acc;
+
+            case 'facebook':
+                $acc = trim((string) ($data['facebook_page'] ?? ''));
+                if (empty($acc)) {
+                    $acc = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
+                }
+                if (!str_starts_with($acc, 'http')) {
+                    $acc = 'https://facebook.com/' . ltrim($acc, '/');
+                }
+                return $acc;
+
+            case 'search':
+                $q = trim((string) ($data['search_query'] ?? ''));
+                return '/patenli-ayakkabilar' . (!empty($q) ? '?search=' . urlencode($q) : '');
+
+            case 'checkout':
+                return '/checkout';
+
+            case 'page':
+                return self::normalizeUrl($data['site_page'] ?? '/patenli-ayakkabilar');
+
+            case 'custom':
+            default:
+                return self::normalizeUrl($data['custom_url'] ?? '/');
+        }
+    }
+
+    /**
+     * Sosyal medya, telefon arama ve sayfa yönlendirme form alanları
+     */
+    public static function getRedirectFormSchema(): array
+    {
+        $defaultPhone = (string) (\App\Models\Setting::where('key', 'company_phone')->value('value') ?: '08503080000');
+        $defaultWhatsapp = (string) (\App\Models\Setting::where('key', 'footer_whatsapp')->value('value') ?: '905551234567');
+        $defaultInstagram = (string) (\App\Models\Setting::where('key', 'footer_instagram')->value('value') ?: 'https://www.instagram.com/patenliayakkabilar');
+        $defaultTiktok = (string) (\App\Models\Setting::where('key', 'footer_tiktok')->value('value') ?: 'https://www.tiktok.com/@patenliayakkabilar');
+        $defaultFacebook = (string) (\App\Models\Setting::where('key', 'footer_facebook')->value('value') ?: 'https://facebook.com/patenliayakkabilar');
+
+        return [
+            Radio::make('channel')
+                ->label('🚀 Yönlendirilecek Kanal veya Sosyal Medya Seçin')
+                ->options([
+                    'whatsapp' => '💬 WhatsApp Sohbet',
+                    'call' => '📞 Telefon Arama (Hemen Ara)',
+                    'instagram' => '📸 Instagram Profili',
+                    'tiktok' => '🎵 TikTok Sayfası',
+                    'telegram' => '✈️ Telegram Kanalı',
+                    'facebook' => '📘 Facebook Sayfası',
+                    'search' => '🔍 Site İçi Arama',
+                    'checkout' => '🛒 Sepetim & Ödeme',
+                    'page' => '📄 Diğer Sayfalar',
+                    'custom' => '🌐 Manuel Özel Link',
+                ])
+                ->descriptions([
+                    'whatsapp' => 'WhatsApp uygulamasını veya sohbetini açar',
+                    'call' => 'Ziyaretçinin telefonunda doğrudan arama ekranını başlatır',
+                    'instagram' => 'Resmi Instagram profilinizi açar',
+                    'tiktok' => 'TikTok hesabınızı veya videonuzu açar',
+                    'telegram' => 'Telegram destek veya duyuru kanalınızı açar',
+                    'facebook' => 'Facebook sayfanızı açar',
+                    'search' => 'Sitede belirttiğiniz kelime ile ürün aratır',
+                    'checkout' => 'Ziyaretçiyi doğrudan kasaya & ödeme sayfasına aktarır',
+                    'page' => 'Ana sayfa, katalog veya kategori sayfalarını seçin',
+                    'custom' => 'Herhangi bir harici web sitesi veya özel link yazın',
+                ])
+                ->columns([
+                    'default' => 2,
+                    'sm' => 2,
+                    'md' => 3,
+                    'lg' => 3,
+                ])
+                ->default('whatsapp')
+                ->live(),
+
+            // WhatsApp Alanları
+            TextInput::make('whatsapp_number')
+                ->label('💬 WhatsApp Numarası veya wa.me Linki')
+                ->default($defaultWhatsapp)
+                ->placeholder('905xxxxxxxxx veya wa.me/...')
+                ->helperText('💡 Ziyaretçinin cihazında WhatsApp sohbeti anında başlatılır.')
+                ->visible(fn ($get) => ($get('channel') ?? 'whatsapp') === 'whatsapp')
+                ->required(fn ($get) => ($get('channel') ?? 'whatsapp') === 'whatsapp'),
+
+            TextInput::make('whatsapp_message')
+                ->label('Hazır Sohbet Başlangıç Mesajı (Opsiyonel)')
+                ->placeholder('Örn: Merhaba, patenli ayakkabılar hakkında bilgi almak istiyorum.')
+                ->visible(fn ($get) => ($get('channel') ?? 'whatsapp') === 'whatsapp'),
+
+            // Telefon Arama Alanları ("arama dahil")
+            TextInput::make('phone_number')
+                ->label('📞 Doğrudan Aranacak Telefon Numarası')
+                ->default($defaultPhone)
+                ->placeholder('0850xxxxxxx veya 05xxxxxxxxx')
+                ->helperText('💡 Ziyaretçi yönlendirildiğinde özellikle cep telefonunda doğrudan arama ekranı tetiklenir (tel: bağlantısı).')
+                ->visible(fn ($get) => $get('channel') === 'call')
+                ->required(fn ($get) => $get('channel') === 'call'),
+
+            // Instagram Alanı
+            TextInput::make('instagram_account')
+                ->label('📸 Instagram Profil Linki veya Kullanıcı Adı')
+                ->default($defaultInstagram)
+                ->placeholder('patenliayakkabilar veya https://instagram.com/...')
+                ->helperText('💡 Ziyaretçi resmi Instagram sayfanıza aktarılır.')
+                ->visible(fn ($get) => $get('channel') === 'instagram')
+                ->required(fn ($get) => $get('channel') === 'instagram'),
+
+            // TikTok Alanı
+            TextInput::make('tiktok_account')
+                ->label('🎵 TikTok Profil Linki veya Kullanıcı Adı')
+                ->default($defaultTiktok)
+                ->placeholder('patenliayakkabilar veya https://tiktok.com/@...')
+                ->visible(fn ($get) => $get('channel') === 'tiktok')
+                ->required(fn ($get) => $get('channel') === 'tiktok'),
+
+            // Telegram Alanı
+            TextInput::make('telegram_account')
+                ->label('✈️ Telegram Kanal / Kullanıcı Adı')
+                ->default('https://t.me/patenliayakkabilar')
+                ->placeholder('patenliayakkabilar veya https://t.me/...')
+                ->visible(fn ($get) => $get('channel') === 'telegram')
+                ->required(fn ($get) => $get('channel') === 'telegram'),
+
+            // Facebook Alanı
+            TextInput::make('facebook_page')
+                ->label('📘 Facebook Sayfa Linki')
+                ->default($defaultFacebook)
+                ->placeholder('https://facebook.com/patenliayakkabilar')
+                ->visible(fn ($get) => $get('channel') === 'facebook')
+                ->required(fn ($get) => $get('channel') === 'facebook'),
+
+            // Site İçi Arama Alanı
+            TextInput::make('search_query')
+                ->label('🔍 Sitede Otomatik Aranacak Kelime / Ürün')
+                ->placeholder('Örn: ışıklı, 4 tekerlekli, pembe, erkek çocuk...')
+                ->helperText('💡 Ziyaretçi sitede doğrudan bu kelimenin arama sonuçları sayfasına aktarılır.')
+                ->visible(fn ($get) => $get('channel') === 'search')
+                ->required(fn ($get) => $get('channel') === 'search'),
+
+            // Site İçi Sayfa Seçimi
+            Select::make('site_page')
+                ->label('Hedef Sayfa veya Kategori')
+                ->native(false)
+                ->options(self::getTargetUrlOptions())
+                ->default('/checkout')
+                ->visible(fn ($get) => $get('channel') === 'page')
+                ->required(fn ($get) => $get('channel') === 'page'),
+
+            // Manuel Özel URL
+            TextInput::make('custom_url')
+                ->label('🌐 Manuel Özel Web Linki (URL)')
+                ->placeholder('https://... veya /sayfa')
+                ->helperText('İstediğiniz herhangi bir tam web linki veya site içi yol.')
+                ->visible(fn ($get) => $get('channel') === 'custom')
+                ->required(fn ($get) => $get('channel') === 'custom'),
+
+            // Yönlendirme Şekli
+            Select::make('redirect_mode')
+                ->label('Yönlendirme Şekli')
+                ->native(false)
+                ->options([
+                    'silent' => '⚡ Bildirim Göstermeden Doğrudan Yönlendir (Sessiz / Anında)',
+                    'notify' => '💬 Bilgilendirme Pop-up\'ı Göster (Geri Sayım & Mesaj ile)',
+                ])
+                ->default('silent')
+                ->live()
+                ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında ilgili kanala/adrese yönlendirilir.'),
+
+            TextInput::make('redirect_message')
+                ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
+                ->placeholder('Örn: Sizi WhatsApp destek hattımıza aktarıyoruz...')
+                ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
+
+            Select::make('countdown')
+                ->label('Geri Sayım')
+                ->native(false)
+                ->options([
+                    '0' => 'Anında Yönlendir (0 sn)',
+                    '3' => '3 Saniye Geri Sayım',
+                    '5' => '5 Saniye Geri Sayım',
+                ])
+                ->default('3')
+                ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
+        ];
+    }
 }
 

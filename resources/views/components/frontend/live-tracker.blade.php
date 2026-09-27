@@ -721,19 +721,53 @@
         var secondsLeft = countdown > 0 ? countdown : 3;
         var totalSeconds = secondsLeft;
 
+        var isTel = /^tel:/i.test(targetUrl);
+        var isWhatsApp = /wa\.me|whatsapp\.com/i.test(targetUrl);
+        var isInstagram = /instagram\.com/i.test(targetUrl);
+        var isTikTok = /tiktok\.com/i.test(targetUrl);
+        var isTelegram = /t\.me/i.test(targetUrl);
+        var isFacebook = /facebook\.com/i.test(targetUrl);
+        var isSearch = targetUrl.indexOf('search=') !== -1;
         var isExternal = /^https?:\/\//i.test(targetUrl) && targetUrl.indexOf(window.location.hostname) === -1;
+
         var modalTitle = 'Özel Fırsat Sayfasına Geçiş Yapılıyor';
         var defaultMessage = 'Sizin için hazırlanan özel fırsat sayfasına aktarılıyorsunuz...';
+        var btnText = 'Hemen Geçiş Yap';
+        var heroIconSvg = '<svg width="34" height="34" style="transform: rotate(-45deg); color: #ffffff;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>';
 
-        if (/wa\.me|whatsapp\.com/i.test(targetUrl)) {
-            modalTitle = 'WhatsApp Destek Hattına Aktarılıyorsunuz';
+        if (isTel) {
+            modalTitle = '📞 Müşteri Hizmetleri Aranıyor';
+            defaultMessage = 'Müşteri temsilcimiz ile doğrudan telefon görüşmesi başlatılıyor...';
+            btnText = '📞 Hemen Ara';
+            heroIconSvg = '<svg width="34" height="34" style="color: #ffffff;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>';
+        } else if (isWhatsApp) {
+            modalTitle = '💬 WhatsApp Destek Hattına Aktarılıyorsunuz';
             defaultMessage = 'Müşteri temsilcimize WhatsApp üzerinden bağlanıyorsunuz...';
-        } else if (/instagram\.com/i.test(targetUrl)) {
-            modalTitle = 'Instagram Profilimize Aktarılıyorsunuz';
+            btnText = '💬 WhatsApp\'ta Aç';
+        } else if (isInstagram) {
+            modalTitle = '📸 Instagram Sayfamıza Aktarılıyorsunuz';
             defaultMessage = 'Resmi Instagram profilimize yönlendiriliyorsunuz...';
+            btnText = '📸 Instagram\'da Aç';
+        } else if (isTikTok) {
+            modalTitle = '🎵 TikTok Sayfamıza Aktarılıyorsunuz';
+            defaultMessage = 'Resmi TikTok sayfamıza yönlendiriliyorsunuz...';
+            btnText = '🎵 TikTok\'ta Aç';
+        } else if (isTelegram) {
+            modalTitle = '✈️ Telegram Kanalımıza Aktarılıyorsunuz';
+            defaultMessage = 'Resmi Telegram kanalımıza yönlendiriliyorsunuz...';
+            btnText = '✈️ Telegram\'da Aç';
+        } else if (isFacebook) {
+            modalTitle = '📘 Facebook Sayfamıza Aktarılıyorsunuz';
+            defaultMessage = 'Resmi Facebook sayfamıza yönlendiriliyorsunuz...';
+            btnText = '📘 Facebook\'ta Aç';
+        } else if (isSearch) {
+            modalTitle = '🔍 Arama Sonuçlarına Aktarılıyorsunuz';
+            defaultMessage = 'Aradığınız ürünler listeleniyor, lütfen bekleyin...';
+            btnText = '🔍 Sonuçları Gör';
         } else if (isExternal) {
             modalTitle = 'Hedef Web Adresine Aktarılıyorsunuz';
-            defaultMessage = 'Belirtilen harici adrese aktarılıyorsunuz...';
+            defaultMessage = 'Belirtilen harici web adresine aktarılıyorsunuz...';
+            btnText = 'Hemen Geçiş Yap';
         }
 
         var messageText = cmd.message || defaultMessage;
@@ -751,9 +785,7 @@
             '</div>' +
 
             '<div class="pa-hero-icon-redirect">' +
-                '<svg width="34" height="34" style="transform: rotate(-45deg); color: #ffffff;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
-                    '<path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>' +
-                '</svg>' +
+                heroIconSvg +
             '</div>' +
 
             '<h3 class="pa-modal-title">' + escapeHtml(modalTitle) + '</h3>' +
@@ -770,7 +802,7 @@
 
             '<div class="pa-btn-group">' +
                 '<a href="' + escapeHtml(targetUrl) + '" id="pa-redirect-go-btn" class="pa-btn-primary">' +
-                    '<span>Hemen Geçiş Yap</span>' +
+                    '<span>' + escapeHtml(btnText) + '</span>' +
                     '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>' +
                 '</a>' +
                 '<button type="button" id="pa-redirect-cancel-btn" class="pa-btn-secondary">' +
