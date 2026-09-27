@@ -128,4 +128,11 @@ class OrderTrafficSourceTest extends TestCase
         \Livewire\Livewire::test(\App\Filament\Pages\MarketingLinks::class)
             ->assertSuccessful();
     }
+
+    public function test_products_admin_page_renders_with_tracking_links_action(): void
+    {
+        \Livewire\Livewire::test(\App\Filament\Resources\Products\Pages\ListProducts::class)
+            ->assertSuccessful()
+            ->assertTableActionExists('trackingLinks');
+    }
 }
