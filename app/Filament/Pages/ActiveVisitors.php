@@ -43,6 +43,12 @@ class ActiveVisitors extends Page implements HasTable
 
     public string $activeTab = 'live';
 
+    public bool $showPageViewsChart = true;
+
+    public string $chartType = 'line';
+
+    public bool $chartCompareVisitors = false;
+
     public function mount(): void
     {
         $saved = request()->cookie('av_view_mode', session('av_view_mode', 'list'));
@@ -76,7 +82,27 @@ class ActiveVisitors extends Page implements HasTable
     {
         if (in_array($period, ['daily', 'weekly', 'monthly'])) {
             $this->trafficPeriod = $period;
+            if ($period === 'monthly') {
+                $this->showPageViewsChart = true;
+            }
         }
+    }
+
+    public function togglePageViewsChart(): void
+    {
+        $this->showPageViewsChart = !$this->showPageViewsChart;
+    }
+
+    public function setChartType(string $type): void
+    {
+        if (in_array($type, ['line', 'bar'])) {
+            $this->chartType = $type;
+        }
+    }
+
+    public function toggleChartCompareVisitors(): void
+    {
+        $this->chartCompareVisitors = !$this->chartCompareVisitors;
     }
 
     public function setCardFilter(string $filter): void
@@ -339,6 +365,10 @@ class ActiveVisitors extends Page implements HasTable
             'weeklyTraffic' => $weeklyTraffic,
             'monthlyTraffic' => $monthlyTraffic,
             'currentTraffic' => $currentTraffic,
+            'monthlyChart' => $monthlyTraffic['chart'] ?? ($currentTraffic['chart'] ?? null),
+            'showPageViewsChart' => $this->showPageViewsChart,
+            'chartType' => $this->chartType,
+            'chartCompareVisitors' => $this->chartCompareVisitors,
         ];
     }
 
