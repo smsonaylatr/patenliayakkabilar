@@ -1699,6 +1699,7 @@ class ActiveVisitors extends Page implements HasTable
                 ->label('🚀 Yönlendirilecek Kanal veya Hedefi Seçin')
                 ->options(self::getSocialChannelOptions())
                 ->extraAttributes(['class' => 'channel-selection-grid'])
+                ->extraFieldWrapperAttributes(['class' => 'channel-selection-field-wrapper'])
                 ->columns([
                     'default' => 3,
                     'sm' => 3,

@@ -173,21 +173,78 @@
     .av-grid-footer {
         background: rgba(10, 15, 26, 0.96);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 13px 18px;
+        padding: 11px 13px;
         display: flex;
         flex-direction: column;
-        gap: 11px;
+        gap: 9px;
     }
     .av-grid-actions-area {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        justify-content: space-between !important;
     }
     .av-grid-actions-area .fi-btn {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
         white-space: nowrap !important;
-        font-size: 11.5px !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        gap: 2px !important;
+    }
+    .av-grid-actions-area .fi-btn .fi-btn-label {
+        font-size: 10.5px !important;
+        letter-spacing: -0.02em !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.2 !important;
+    }
+    /* Grid kartlarında buton metinlerindeki emojiler yeterli olduğundan SVG ikonları gizleyip butonların tek satıra tam sığmasını sağlıyoruz */
+    .av-grid-actions-area .fi-btn svg,
+    .av-grid-actions-area .fi-btn .fi-btn-icon {
+        display: none !important;
+    }
+    .av-grid-actions-area .fi-action-group,
+    .av-grid-actions-area .fi-dropdown {
+        flex: 0 0 auto !important;
+    }
+    .av-grid-actions-area .fi-icon-btn {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        padding: 4px !important;
+        border-radius: 7px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .av-grid-actions-area .fi-icon-btn svg {
+        display: block !important;
+        width: 15px !important;
+        height: 15px !important;
+    }
+    @media (max-width: 1400px) {
+        .av-grid-actions-area {
+            gap: 3px !important;
+        }
+        .av-grid-actions-area .fi-btn {
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+        }
+        .av-grid-actions-area .fi-btn .fi-btn-label {
+            font-size: 10px !important;
+        }
     }
 
     @media (max-width: 1024px) {
@@ -934,7 +991,7 @@
                                 <button 
                                     type="button" 
                                     wire:click="unblockVisitorById({{ $record->id }})" 
-                                    style="background: #10b981; color: #ffffff; border: none; border-radius: 7px; padding: 5px 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                    style="background: #10b981; color: #ffffff; border: none; border-radius: 7px; padding: 5px 8px; font-size: 10.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; white-space: nowrap;"
                                     title="Bu kullanıcının engelini kaldır"
                                 >
                                     <span>✅</span> Engeli Aç
