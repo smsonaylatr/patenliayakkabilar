@@ -969,43 +969,94 @@
         } catch(e) {}
     }
 
-    // Sesli İleti & Anons Yönetimi (Özel Ses Kaydı + TTS Fallback + Opsiyonel Görsel Kart)
+    // Mobil ve webview tarayıcılarda ses motoru kilidini ilk kullanıcı etkileşiminde aç
+    var _paAudioUnlocked = false;
+    function _paUnlockAudio() {
+        if (_paAudioUnlocked) return;
+        try {
+            var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) {
+                var ctx = new AudioContextClass();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                var buffer = ctx.createBuffer(1, 1, 22050);
+                var source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(ctx.destination);
+                source.start(0);
+            }
+            var silentAudio = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+            silentAudio.volume = 0.01;
+            silentAudio.play().catch(function() {});
+            _paAudioUnlocked = true;
+        } catch(e) {}
+    }
+    document.addEventListener('touchstart', _paUnlockAudio, { once: true, passive: true });
+    document.addEventListener('touchend', _paUnlockAudio, { once: true, passive: true });
+    document.addEventListener('click', _paUnlockAudio, { once: true, passive: true });
+
+    // Sesli İleti & Anons Yönetimi (Özel Ses Kaydı + Otomatik Oynatma + Opsiyonel Görsel Kart)
     function executeVoiceCommand(cmd) {
         var soundType = cmd.sound_type || 'speech_only';
+        // Yalnızca açıkça show_card === true ise görsel kart açılır.
+        var showCard = (cmd.show_card === true);
         var messageText = cmd.message || '';
         var titleText = cmd.title || '🎙️ Canlı Mağaza Anonsu';
         var audioUrl = cmd.audio_url || null;
 
         var currentAudio = null;
 
+        // Ekranda önceden açık kalan ses kartlarını temizle (üst üste binmeyi engelle)
+        try {
+            var oldCards = document.querySelectorAll('.pa-voice-toast, .pa-toast-card');
+            oldCards.forEach(function(el) {
+                if (el.id && el.id.indexOf('pa-voice-') !== -1) {
+                    el.remove();
+                }
+            });
+        } catch(e) {}
+
         var playAudioSequence = function() {
             // Eğer ses dosyası hazırsa doğrudan sesi çal
             if (audioUrl) {
                 try {
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        currentAudio.currentTime = 0;
+                    if (window._paCurrentPlayingAudio) {
+                        try {
+                            window._paCurrentPlayingAudio.pause();
+                            window._paCurrentPlayingAudio.currentTime = 0;
+                        } catch(e) {}
                     }
                     currentAudio = new Audio(audioUrl);
                     currentAudio.volume = 1.0;
+                    currentAudio.preload = 'auto';
+                    window._paCurrentPlayingAudio = currentAudio;
+
+                    var handleAutoplayBlock = function(err) {
+                        console.warn('Autoplay kısıtlandı, ilk dokunuşta çalınacak:', err);
+                        var playOnTouch = function() {
+                            if (currentAudio) {
+                                currentAudio.play().catch(function() {});
+                            }
+                            document.removeEventListener('touchstart', playOnTouch);
+                            document.removeEventListener('touchend', playOnTouch);
+                            document.removeEventListener('click', playOnTouch);
+                        };
+                        document.addEventListener('touchstart', playOnTouch, { once: true, passive: true });
+                        document.addEventListener('touchend', playOnTouch, { once: true, passive: true });
+                        document.addEventListener('click', playOnTouch, { once: true, passive: true });
+                    };
 
                     if (soundType === 'chime_and_speech') {
                         playChimeSound(function() {
-                            currentAudio.play().catch(function() {
-                                // Tarayıcı otomatik oynatmayı engellerse Web Speech fallback dene
-                                if (messageText) speakTurkishText(messageText);
-                            });
+                            currentAudio.play().catch(handleAutoplayBlock);
                         });
-                    } else if (soundType === 'speech_only') {
-                        currentAudio.play().catch(function() {
-                            if (messageText) speakTurkishText(messageText);
-                        });
-                    } else if (soundType === 'chime_only') {
-                        playChimeSound();
+                    } else {
+                        currentAudio.play().catch(handleAutoplayBlock);
                     }
                     return;
                 } catch(e) {
-                    // Fallback to TTS
+                    console.error('Audio play error:', e);
                 }
             }
 
@@ -1015,10 +1066,8 @@
                     playChimeSound(function() {
                         speakTurkishText(messageText);
                     });
-                } else if (soundType === 'speech_only') {
+                } else {
                     speakTurkishText(messageText);
-                } else if (soundType === 'chime_only') {
-                    playChimeSound();
                 }
             }
         };
@@ -1026,8 +1075,8 @@
         // Otomatik ses çalmayı başlat
         playAudioSequence();
 
-        // Görsel kart gösterimi opsiyoneldir (cmd.show_card === false ise sadece ses çalar, ekranda kart açılmaz)
-        if (cmd.show_card === false) {
+        // Görsel kart istenmemişse (showCard false ise) ekranda kart AÇMA, sadece ses çalsın
+        if (!showCard) {
             return;
         }
 
@@ -1037,7 +1086,7 @@
         var toastId = 'pa-voice-' + Date.now();
         var card = document.createElement('div');
         card.id = toastId;
-        card.className = 'pa-toast-card';
+        card.className = 'pa-toast-card pa-voice-toast';
         card.style.cssText = 'background: #0f172a !important; color: #ffffff !important; border-left: 4px solid #f97316 !important; border: 1px solid rgba(249, 115, 22, 0.4) !important; flex-direction: column !important; gap: 12px !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;';
 
         var couponHtml = '';

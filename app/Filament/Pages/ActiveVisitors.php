@@ -840,48 +840,44 @@ class ActiveVisitors extends Page implements HasTable
                             ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                         Select::make('sound_type')
-                            ->label('Ses Çalma Modu')
+                            ->label('Ses & Bildirim Modu')
                             ->native(false)
                             ->options([
-                                'speech_only' => '🎵 Sadece Sesi Oynat',
-                                'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat',
+                                'speech_only' => '🎵 Sadece Sesi Oynat (Bildirim Kartsız / Otomatik Çal)',
+                                'speech_with_card' => '💬 Sesi Oynat + Görsel Bildirim Kartı Göster',
+                                'chime_with_card' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart Göster',
                             ])
                             ->default('speech_only')
-                            ->required(),
-
-                        Toggle::make('show_visual_card')
-                            ->label('Ekranda Görsel Bildirim Kartı Gösterilsin mi?')
-                            ->helperText('Kapalıyken ziyaretçiye sadece ses dinletilir, ekranda kart açılmaz. Açılırsa başlık ve mesaj içeren bildirim kutusu ekranda belirir.')
-                            ->default(false)
+                            ->required()
                             ->live(),
 
                         TextInput::make('title')
                             ->label('Bildirim Başlığı')
                             ->default('🎙️ Mağazamıza Hoş Geldiniz!')
-                            ->visible(fn ($get) => (bool) $get('show_visual_card'))
-                            ->required(fn ($get) => (bool) $get('show_visual_card')),
+                            ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']))
+                            ->required(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                         Textarea::make('message')
                             ->label('Seslendirilecek ve Gösterilecek Mesaj')
                             ->rows(3)
                             ->default('Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!')
-                            ->visible(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts')
-                            ->required(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts'),
+                            ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']) || $get('voice_source') === 'browser_tts')
+                            ->required(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']) || $get('voice_source') === 'browser_tts'),
 
                         TextInput::make('coupon_code')
                             ->label('İndirim Kuponu (Opsiyonel)')
                             ->placeholder('Örn: SESLI10')
-                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                            ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                         TextInput::make('action_button')
                             ->label('Buton Metni (Opsiyonel)')
                             ->default('Tüm Modelleri Gör')
-                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                            ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                         TextInput::make('action_url')
                             ->label('Buton Linki (Opsiyonel)')
                             ->default('/patenli-ayakkabilar')
-                            ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                            ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
                         $audioUrl = null;
@@ -892,12 +888,14 @@ class ActiveVisitors extends Page implements HasTable
                             $audioUrl = $canned?->audio_url;
                         }
 
-                        $showCard = (bool) ($data['show_visual_card'] ?? false);
+                        $soundMode = $data['sound_type'] ?? 'speech_only';
+                        $showCard = in_array($soundMode, ['speech_with_card', 'chime_with_card']);
+                        $chime = ($soundMode === 'chime_with_card') ? 'chime_and_speech' : 'speech_only';
 
                         $record->queueVoiceMessage(
                             $data['message'] ?? '',
                             $data['title'] ?? '🎙️ Canlı Mağaza Anonsu',
-                            $data['sound_type'] ?? 'speech_only',
+                            $chime,
                             $showCard ? ($data['coupon_code'] ?? null) : null,
                             $showCard ? ($data['action_button'] ?? null) : null,
                             $showCard ? ($data['action_url'] ?? null) : null,
@@ -907,7 +905,7 @@ class ActiveVisitors extends Page implements HasTable
 
                         Notification::make()
                             ->title('Sesli İleti İletildi! 🎙️')
-                            ->body($record->display_name . ' adlı ziyaretçinin ekranında ses çalacak.' . ($showCard ? ' (Görsel Kart Aktif)' : ' (Yalnızca Ses)'))
+                            ->body($record->display_name . ' adlı ziyaretçinin ekranında ' . ($showCard ? 'ses ve görsel kart açılacak.' : 'kart olmadan yalnızca ses otomatik çalacak.'))
                             ->success()
                             ->send();
                     }),
@@ -1127,48 +1125,44 @@ class ActiveVisitors extends Page implements HasTable
                         ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                     Select::make('sound_type')
-                        ->label('Ses Çalma Modu')
+                        ->label('Ses & Bildirim Modu')
                         ->native(false)
                         ->options([
-                            'speech_only' => '🎵 Sadece Sesi Oynat',
-                            'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat',
+                            'speech_only' => '🎵 Sadece Sesi Oynat (Bildirim Kartsız / Otomatik Çal)',
+                            'speech_with_card' => '💬 Sesi Oynat + Görsel Bildirim Kartı Göster',
+                            'chime_with_card' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart Göster',
                         ])
                         ->default('speech_only')
-                        ->required(),
-
-                    Toggle::make('show_visual_card')
-                        ->label('Ekranda Görsel Bildirim Kartı Gösterilsin mi?')
-                        ->helperText('Kapalıyken ziyaretçilere sadece ses dinletilir, ekranda kart açılmaz. Açılırsa başlık ve mesaj kartı ekranda belirir.')
-                        ->default(false)
+                        ->required()
                         ->live(),
 
                     TextInput::make('title')
                         ->label('Anons Başlığı')
                         ->default('🎙️ Patenli Ayakkabılar Mağaza Anonsu')
-                        ->visible(fn ($get) => (bool) $get('show_visual_card'))
-                        ->required(fn ($get) => (bool) $get('show_visual_card')),
+                        ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']))
+                        ->required(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                     Textarea::make('message')
                         ->label('Seslendirilecek ve Gösterilecek Mesaj')
                         ->rows(3)
                         ->default('Değerli ziyaretçilerimiz, Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli sürpriz fırsatları kaçırmayın, keyifli alışverişler dileriz!')
-                        ->visible(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts')
-                        ->required(fn ($get) => (bool) $get('show_visual_card') || $get('voice_source') === 'browser_tts'),
+                        ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']) || $get('voice_source') === 'browser_tts')
+                        ->required(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']) || $get('voice_source') === 'browser_tts'),
 
                     TextInput::make('coupon_code')
                         ->label('Kupon Kodu (Opsiyonel)')
                         ->placeholder('Örn: CANLI10')
-                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                        ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                     TextInput::make('action_button')
                         ->label('Buton Metni (Opsiyonel)')
                         ->default('Çok Satanları İncele')
-                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                        ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
                     TextInput::make('action_url')
                         ->label('Buton Linki (Opsiyonel)')
                         ->default('/patenli-ayakkabilar')
-                        ->visible(fn ($get) => (bool) $get('show_visual_card')),
+                        ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
                 ])
                 ->action(function (array $data) {
                     $audioUrl = null;
@@ -1179,13 +1173,16 @@ class ActiveVisitors extends Page implements HasTable
                         $audioUrl = $canned?->audio_url;
                     }
 
-                    $showCard = (bool) ($data['show_visual_card'] ?? false);
+                    $soundMode = $data['sound_type'] ?? 'speech_only';
+                    $showCard = in_array($soundMode, ['speech_with_card', 'chime_with_card']);
+                    $chime = ($soundMode === 'chime_with_card') ? 'chime_and_speech' : 'speech_only';
+
                     $visitors = ActiveVisitor::online()->get();
                     foreach ($visitors as $v) {
                         $v->queueVoiceMessage(
                             $data['message'] ?? '',
                             $data['title'] ?? '🎙️ Patenli Ayakkabılar Mağaza Anonsu',
-                            $data['sound_type'] ?? 'speech_only',
+                            $chime,
                             $showCard ? ($data['coupon_code'] ?? null) : null,
                             $showCard ? ($data['action_button'] ?? null) : null,
                             $showCard ? ($data['action_url'] ?? null) : null,
@@ -1196,7 +1193,7 @@ class ActiveVisitors extends Page implements HasTable
 
                     Notification::make()
                         ->title('Toplu Sesli Anons İletildi! 🎙️')
-                        ->body($visitors->count() . ' aktif ziyaretçinin ekranında ses çalacak.' . ($showCard ? ' (Görsel Kart Aktif)' : ' (Yalnızca Ses)'))
+                        ->body($visitors->count() . ' aktif ziyaretçinin ekranında ' . ($showCard ? 'ses ve görsel kart açılacak.' : 'kart olmadan yalnızca ses otomatik çalacak.'))
                         ->success()
                         ->send();
                 }),
