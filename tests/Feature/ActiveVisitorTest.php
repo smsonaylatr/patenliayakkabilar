@@ -562,13 +562,13 @@ class ActiveVisitorTest extends TestCase
         ]);
 
         $visitor->queueVoiceMessage(
-            'ElevenLabs ile seslendirildi!',
-            '🎙️ Canlı Yapay Zeka Sesi',
+            'Özel ses kaydınız iletilmiştir!',
+            '🎙️ Canlı Mağaza Anonsu',
             'chime_and_speech',
-            'AI10',
+            'SES10',
             'İncele',
             '/patenli-ayakkabilar',
-            'https://patenliayakkabilar.com/storage/voice-cache/test_voice.mp3'
+            'https://patenliayakkabilar.com/storage/voice-announcements/test_anons.mp3'
         );
 
         $response = $this->postJson('/api/presence/heartbeat', [
@@ -582,42 +582,50 @@ class ActiveVisitorTest extends TestCase
                 'status' => 'ok',
                 'command' => [
                     'action' => 'voice',
-                    'title' => '🎙️ Canlı Yapay Zeka Sesi',
+                    'title' => '🎙️ Canlı Mağaza Anonsu',
                     'sound_type' => 'chime_and_speech',
-                    'coupon_code' => 'AI10',
-                    'audio_url' => 'https://patenliayakkabilar.com/storage/voice-cache/test_voice.mp3',
+                    'coupon_code' => 'SES10',
+                    'audio_url' => 'https://patenliayakkabilar.com/storage/voice-announcements/test_anons.mp3',
                 ],
             ]);
     }
 
-    public function test_elevenlabs_service_handles_unconfigured_api_key_gracefully(): void
+    public function test_canned_voice_message_model_and_audio_helpers(): void
     {
-        config(['services.elevenlabs.api_key' => null]);
-        $service = app(\App\Services\ElevenLabsService::class);
-
-        $result = $service->generateSpeech('Merhaba dünya');
-        $this->assertNull($result);
-    }
-
-    public function test_elevenlabs_service_generates_and_caches_audio_when_api_key_is_provided(): void
-    {
-        config(['services.elevenlabs.api_key' => 'test-api-key']);
         \Illuminate\Support\Facades\Storage::fake('public');
 
-        \Illuminate\Support\Facades\Http::fake([
-            'https://api.elevenlabs.io/v1/text-to-speech/*' => \Illuminate\Support\Facades\Http::response('fake-mp3-content', 200),
+        $canned = \App\Models\CannedVoiceMessage::create([
+            'title' => 'Test Özel Anons',
+            'message' => 'Test anons mesajı',
+            'audio_path' => 'voice-announcements/demo.mp3',
+            'coupon_code' => 'TEST10',
+            'action_button' => 'Hemen Al',
+            'action_url' => '/checkout',
+            'is_active' => true,
+            'sort_order' => 1,
         ]);
 
-        $service = app(\App\Services\ElevenLabsService::class);
-        $url = $service->generateSpeech('Hoş geldiniz!');
+        $this->assertNotNull($canned->audio_url);
+        $this->assertStringContainsString('voice-announcements/demo.mp3', $canned->audio_url);
 
-        $this->assertNotNull($url);
-        $this->assertStringContainsString('voice-cache/', $url);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('voice-announcements/demo.mp3', 'dummy-audio');
+        $this->assertTrue($canned->hasAudio());
 
-        // İkinci çağrıda API'ye gitmeden cache'den dönmeli
-        $url2 = $service->generateSpeech('Hoş geldiniz!');
-        $this->assertEquals($url, $url2);
-        \Illuminate\Support\Facades\Http::assertSentCount(1);
+        $activeList = \App\Models\CannedVoiceMessage::active()->ordered()->get();
+        $this->assertTrue($activeList->contains('id', $canned->id));
+    }
+
+    public function test_canned_voice_messages_admin_resource_renders_successfully(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin_canned_' . uniqid() . '@patenli.com',
+            'role' => 'admin',
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\CannedVoiceMessages\Pages\ListCannedVoiceMessages::class)
+            ->assertSuccessful()
+            ->assertSee('Sesli Anons');
     }
 
     public function test_active_visitor_source_info_detects_google_ads_instagram_direct_and_referral(): void

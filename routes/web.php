@@ -266,10 +266,74 @@ Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) 
     return view('products.index', compact('category'));
 })->name('products.index');
 
-// Kategori sayfası (SEO-friendly URL)
-Route::get('/kategori/{slug}', function ($slug) {
-    $category = \App\Models\Category::where('slug', $slug)->where('status', true)->firstOrFail();
-    return view('products.index', compact('category'));
+// Kategori sayfası (SEO-friendly URL ve Akıllı Yönlendirme Koruması)
+Route::get('/kategori/{slug}', function (string $slug) {
+    // 1. Birebir aktif kategori kontrolü
+    $category = \App\Models\Category::where('slug', $slug)->where('status', true)->first();
+    if ($category) {
+        return view('products.index', compact('category'));
+    }
+
+    // 2. Normalizasyon: Alt tire, URL encode ve Türkçe karakter dönüşümü (örn: kiz_cocuk -> kiz-cocuk)
+    $cleanSlug = \Illuminate\Support\Str::slug(str_replace('_', '-', urldecode($slug)));
+    $category = \App\Models\Category::where('slug', $cleanSlug)->where('status', true)->first();
+    if ($category) {
+        return redirect()->route('category.show', ['slug' => $category->slug], 301);
+    }
+
+    // 3. Akıllı Kelime Eşleme: Yanlış/uzun link varyasyonlarını yakala (Örn: kiz-cocuk-patenli-ayakkabi, erkek-cocuk-patenleri)
+    $lowerSlug = strtolower(urldecode($slug));
+
+    if (str_contains($lowerSlug, 'kiz') || str_contains($lowerSlug, 'kız')) {
+        $matched = \App\Models\Category::where('slug', 'kiz-cocuk')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    if (str_contains($lowerSlug, 'erkek-cocuk') || str_contains($lowerSlug, 'erkek_cocuk')) {
+        $matched = \App\Models\Category::where('slug', 'erkek-cocuk')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    if (str_contains($lowerSlug, 'erkek-yetiskin') || str_contains($lowerSlug, 'erkek-yetişkin')) {
+        $matched = \App\Models\Category::where('slug', 'like', '%erkek-yetiskin%')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    if (str_contains($lowerSlug, 'kadin') || str_contains($lowerSlug, 'kadın')) {
+        $matched = \App\Models\Category::where('slug', 'like', '%kadin%')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    if (str_contains($lowerSlug, 'cocuk') || str_contains($lowerSlug, 'çocuk')) {
+        $matched = \App\Models\Category::where('slug', 'like', '%cocuk%')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    if (str_contains($lowerSlug, 'paten')) {
+        $matched = \App\Models\Category::where('slug', 'like', '%paten%')->where('status', true)->first();
+        if ($matched) {
+            return redirect()->route('category.show', ['slug' => $matched->slug], 301);
+        }
+    }
+
+    // 4. Yanlışlıkla /kategori/ altına yazılmış bir ürün slug'ı ise doğrudan ürüne yönlendir
+    $product = \App\Models\Product::where('slug', $slug)->orWhere('slug', $cleanSlug)->first();
+    if ($product) {
+        return redirect()->route('products.show', ['slug' => $product->slug], 301);
+    }
+
+    // 5. Hiçbir kategori bulunamazsa 404 vermek yerine ana ürünler kataloğuna 301 yönlendir
+    return redirect()->route('products.index', [], 301);
 })->name('category.show');
 
 Route::redirect('/urunler', '/patenli-ayakkabilar', 301);

@@ -56,10 +56,4 @@ return [
         'api_key' => env('GOOGLE_PLACES_API_KEY'),
     ],
 
-    'elevenlabs' => [
-        'api_key' => env('ELEVENLABS_API_KEY'),
-        'default_voice_id' => env('ELEVENLABS_DEFAULT_VOICE_ID', '21m00Tcm4TlvDq8ikWAM'),
-        'model_id' => env('ELEVENLABS_MODEL_ID', 'eleven_multilingual_v2'),
-    ],
-
 ];

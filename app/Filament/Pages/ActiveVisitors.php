@@ -2,10 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\CannedVoiceMessages\CannedVoiceMessageResource;
 use App\Models\ActiveVisitor;
+use App\Models\CannedVoiceMessage;
 use App\Models\Cart;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -660,90 +663,64 @@ class ActiveVisitors extends Page implements HasTable
                     ->modalDescription('Ziyaretçinin ekranında melodili mağaza zili çalar, yazdığınız mesaj Türkçe seslendirilir (TTS) ve şık bir bildirim kartı açılır.')
                     ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
                     ->form([
-                        Select::make('preset_template')
-                            ->label('Hazır Sesli İleti Şablonu')
+                        Select::make('voice_source')
+                            ->label('Seslendirme & Şablon Kaynağı')
                             ->native(false)
                             ->options([
-                                'welcome' => '👋 Hoş Geldiniz & İndirim Fırsatı',
-                                'cart_reminder' => '🛒 Sepet Hatırlatma & Ücretsiz Kargo',
-                                'discount_offer' => '🎁 Size Özel %10 İndirim Kuponu',
-                                'size_help' => '👟 Beden / Numara Canlı Desteği',
-                                'fast_shipping' => '⚡ Aynı Gün Hızlı Kargo Bildirimi',
-                                'custom' => '✍️ Özel Mesaj Yaz...',
+                                'canned' => '🎙️ Hazır Ses Kayıtlı Şablondan Seç',
+                                'custom_upload' => '📤 Şimdi Yeni Ses Kaydı Yükle (.mp3, .wav, .m4a)',
+                                'browser_tts' => '🔔 Sadece Mağaza Zili & Bildirim (Ses Dosyasız)',
                             ])
-                            ->default('welcome')
+                            ->default('canned')
+                            ->live(),
+
+                        Select::make('canned_message_id')
+                            ->label('Hazır Sesli Anons Şablonu')
+                            ->native(false)
+                            ->options(function () {
+                                return CannedVoiceMessage::active()->ordered()->get()->mapWithKeys(function ($item) {
+                                    $badge = $item->hasAudio() ? ' [🎵 Ses Kaydı Yüklü]' : ' [⚠️ Ses Kaydı Yok]';
+                                    return [$item->id => $item->title . $badge];
+                                })->toArray();
+                            })
+                            ->default(fn () => CannedVoiceMessage::active()->ordered()->value('id'))
+                            ->visible(fn ($get) => ($get('voice_source') ?? 'canned') === 'canned')
                             ->live()
                             ->afterStateUpdated(function ($state, $set) {
-                                match ($state) {
-                                    'welcome' => [
-                                        $set('title', '🎙️ Mağazamıza Hoş Geldiniz!'),
-                                        $set('message', 'Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!'),
-                                        $set('coupon_code', null),
-                                        $set('action_button', 'Tüm Modelleri Gör'),
-                                        $set('action_url', '/patenli-ayakkabilar'),
-                                    ],
-                                    'cart_reminder' => [
-                                        $set('title', '🛒 Sepetiniz Sizi Bekliyor!'),
-                                        $set('message', 'Sepetinizdeki ürünler tükenmeden siparişinizi hemen tamamlayabilirsiniz. Ücretsiz kargo fırsatınız devam ediyor!'),
-                                        $set('coupon_code', null),
-                                        $set('action_button', 'Sepetime Git'),
-                                        $set('action_url', '/checkout'),
-                                    ],
-                                    'discount_offer' => [
-                                        $set('title', '🎁 Size Özel Sürpriz İndirim!'),
-                                        $set('message', 'Alışverişinize özel anında geçerli %10 indirim kuponu tanımladık! İndiriminizi hemen kullanabilirsiniz.'),
-                                        $set('coupon_code', 'SESLI10'),
-                                        $set('action_button', 'Kuponla Sepete Git'),
-                                        $set('action_url', '/checkout'),
-                                    ],
-                                    'size_help' => [
-                                        $set('title', '👟 Beden Konusunda Yardım İster misiniz?'),
-                                        $set('message', 'Doğru paten numarasını seçmekte kararsız kaldıysanız WhatsApp destek hattımızdan uzman ekibimize danışabilirsiniz.'),
-                                        $set('coupon_code', null),
-                                        $set('action_button', 'WhatsApp Destek'),
-                                        $set('action_url', 'https://wa.me/905051234567'),
-                                    ],
-                                    'fast_shipping' => [
-                                        $set('title', '⚡ Aynı Gün Hızlı Kargo!'),
-                                        $set('message', 'Seçtiğiniz patenli ayakkabı modelleri bugün saat 16:00\'a kadar vereceğiniz siparişlerde aynı gün kargoya teslim edilir!'),
-                                        $set('coupon_code', null),
-                                        $set('action_button', 'Modelleri İncele'),
-                                        $set('action_url', '/patenli-ayakkabilar'),
-                                    ],
-                                    default => null,
-                                };
+                                if ($item = CannedVoiceMessage::find($state)) {
+                                    $set('title', $item->title);
+                                    $set('message', $item->message);
+                                    $set('coupon_code', $item->coupon_code);
+                                    $set('action_button', $item->action_button);
+                                    $set('action_url', $item->action_url);
+                                }
                             }),
 
-                        Select::make('voice_engine')
-                            ->label('Seslendirme Motoru')
-                            ->native(false)
-                            ->options([
-                                'elevenlabs' => '✨ ElevenLabs AI (Stüdyo Kalitesinde Gerçekçi Türkçe Ses)',
-                                'browser' => '🌐 Tarayıcı Konuşma Motoru (Web Speech API - Standart)',
+                        FileUpload::make('uploaded_audio')
+                            ->label('Ses Kaydı Dosyası (.mp3, .wav, .m4a, .ogg)')
+                            ->disk('public')
+                            ->directory('voice-announcements')
+                            ->acceptedFileTypes([
+                                'audio/mpeg',
+                                'audio/mp3',
+                                'audio/wav',
+                                'audio/x-wav',
+                                'audio/x-m4a',
+                                'audio/mp4',
+                                'audio/ogg',
+                                'audio/webm',
+                                'audio/aac',
                             ])
-                            ->default(\App\Services\ElevenLabsService::isConfigured() ? 'elevenlabs' : 'browser')
-                            ->live(),
-
-                        Select::make('elevenlabs_voice')
-                            ->label('ElevenLabs Ses Karakteri')
-                            ->native(false)
-                            ->options(\App\Services\ElevenLabsService::getVoices())
-                            ->default('21m00Tcm4TlvDq8ikWAM')
-                            ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs')
-                            ->live(),
-
-                        TextInput::make('custom_voice_id')
-                            ->label('Özel ElevenLabs Voice ID')
-                            ->placeholder('Örn: 21m00Tcm4TlvDq8ikWAM')
-                            ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom')
-                            ->required(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom'),
+                            ->maxSize(25600)
+                            ->visible(fn ($get) => $get('voice_source') === 'custom_upload')
+                            ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                         Select::make('sound_type')
                             ->label('Ses Efekti & Seslendirme Tipi')
                             ->native(false)
                             ->options([
-                                'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Sesli Okuma + Görsel Kart',
-                                'speech_only' => '🗣️ Sadece Sesli Okuma + Görsel Kart',
+                                'chime_and_speech' => '🔔 Mağaza Zili + Ses Kaydı Oynat + Görsel Kart',
+                                'speech_only' => '🗣️ Sadece Ses Kaydı Oynat + Görsel Kart',
                                 'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
                             ])
                             ->default('chime_and_speech')
@@ -774,20 +751,11 @@ class ActiveVisitors extends Page implements HasTable
                     ])
                     ->action(function (ActiveVisitor $record, array $data) {
                         $audioUrl = null;
-                        if (($data['voice_engine'] ?? 'browser') === 'elevenlabs') {
-                            $voiceId = ($data['elevenlabs_voice'] ?? '') === 'custom'
-                                ? ($data['custom_voice_id'] ?? null)
-                                : ($data['elevenlabs_voice'] ?? null);
-
-                            $audioUrl = app(\App\Services\ElevenLabsService::class)->generateSpeech($data['message'], $voiceId);
-
-                            if (!$audioUrl && \App\Services\ElevenLabsService::isConfigured()) {
-                                Notification::make()
-                                    ->title('ElevenLabs API Uyarısı')
-                                    ->body('Ses dosyası üretilemedi (kota veya ağ). Tarayıcı ses motoruyla devam ediliyor.')
-                                    ->warning()
-                                    ->send();
-                            }
+                        if (($data['voice_source'] ?? 'canned') === 'custom_upload' && !empty($data['uploaded_audio'])) {
+                            $audioUrl = asset('storage/' . ltrim($data['uploaded_audio'], '/'));
+                        } elseif (($data['voice_source'] ?? 'canned') === 'canned' && !empty($data['canned_message_id'])) {
+                            $canned = CannedVoiceMessage::find($data['canned_message_id']);
+                            $audioUrl = $canned?->audio_url;
                         }
 
                         $record->queueVoiceMessage(
@@ -802,7 +770,7 @@ class ActiveVisitors extends Page implements HasTable
 
                         Notification::make()
                             ->title('Sesli İleti İletildi! 🎙️')
-                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.' . ($audioUrl ? ' (ElevenLabs AI Stüdyo Sesi)' : ''))
+                            ->body($record->display_name . ' adlı ziyaretçinin ekranında sesli anons çalacak.' . ($audioUrl ? ' (Özel Ses Kaydı Aktif)' : ''))
                             ->success()
                             ->send();
                     }),
@@ -957,91 +925,81 @@ class ActiveVisitors extends Page implements HasTable
                         ->send();
                 }),
 
+            // Hazır Ses Kayıtları Yönetimi
+            Action::make('manage_voice_records')
+                ->label('🎙️ Hazır Ses Kayıtları')
+                ->color('warning')
+                ->icon('heroicon-o-microphone')
+                ->url(fn () => CannedVoiceMessageResource::getUrl('index'))
+                ->tooltip('Hazır anons şablonlarını yönetin, ses dosyası yükleyin ve dinleyin'),
+
             // Toplu Sesli Anons (Tüm Canlı Ziyaretçilere)
             Action::make('broadcast_voice')
                 ->label('🎙️ Herkese Canlı Sesli Anons')
                 ->color('warning')
                 ->icon('heroicon-o-speaker-wave')
                 ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
-                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda melodili mağaza zili çalar ve sesli mesajınız Türkçe anons edilir.')
+                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda melodili mağaza zili çalar ve ses kaydınız veya bildiriminiz anons edilir.')
                 ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
                 ->form([
-                    Select::make('preset_template')
-                        ->label('Hazır Anons Şablonu')
+                    Select::make('voice_source')
+                        ->label('Seslendirme & Şablon Kaynağı')
                         ->native(false)
                         ->options([
-                            'welcome' => '👋 Genel Hoş Geldiniz Anonsu',
-                            'discount' => '🎁 Sürpriz İndirim Kuponu Fırsatı',
-                            'closing_soon' => '⏰ Günün Fırsatı Bitiyor Hatırlatması',
-                            'fast_shipping' => '⚡ Aynı Gün Hızlı Kargo Duyurusu',
-                            'custom' => '✍️ Özel Anons Yaz...',
+                            'canned' => '🎙️ Hazır Ses Kayıtlı Şablondan Seç',
+                            'custom_upload' => '📤 Şimdi Yeni Ses Kaydı Yükle (.mp3, .wav, .m4a)',
+                            'browser_tts' => '🔔 Sadece Mağaza Zili & Bildirim (Ses Dosyasız)',
                         ])
-                        ->default('welcome')
+                        ->default('canned')
+                        ->live(),
+
+                    Select::make('canned_message_id')
+                        ->label('Hazır Sesli Anons Şablonu')
+                        ->native(false)
+                        ->options(function () {
+                            return CannedVoiceMessage::active()->ordered()->get()->mapWithKeys(function ($item) {
+                                $badge = $item->hasAudio() ? ' [🎵 Ses Kaydı Yüklü]' : ' [⚠️ Ses Kaydı Yok]';
+                                return [$item->id => $item->title . $badge];
+                            })->toArray();
+                        })
+                        ->default(fn () => CannedVoiceMessage::active()->ordered()->value('id'))
+                        ->visible(fn ($get) => ($get('voice_source') ?? 'canned') === 'canned')
                         ->live()
                         ->afterStateUpdated(function ($state, $set) {
-                            match ($state) {
-                                'welcome' => [
-                                    $set('title', '🎙️ Patenli Ayakkabılar Mağaza Anonsu'),
-                                    $set('message', 'Değerli ziyaretçilerimiz, Patenli Ayakkabılar\'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli sürpriz fırsatları kaçırmayın, keyifli alışverişler dileriz!'),
-                                    $set('coupon_code', null),
-                                    $set('action_button', 'Çok Satanları İncele'),
-                                    $set('action_url', '/patenli-ayakkabilar'),
-                                ],
-                                'discount' => [
-                                    $set('title', '🎁 Sürpriz Günün İndirimi!'),
-                                    $set('message', 'Şu an sitede olan tüm müşterilerimize özel %10 indirim kuponunuz tanımlanmıştır. Kupon kodunuz: CANLI10.'),
-                                    $set('coupon_code', 'CANLI10'),
-                                    $set('action_button', 'Kuponu Kullan'),
-                                    $set('action_url', '/patenli-ayakkabilar'),
-                                ],
-                                'closing_soon' => [
-                                    $set('title', '⏰ Fırsatlar İçin Son Saatler!'),
-                                    $set('message', 'Bugüne özel indirimli fiyatlarımız ve ücretsiz kargo avantajı için son saatler! Beğendiğiniz numarayı tükenmeden sepetinize ekleyin.'),
-                                    $set('coupon_code', null),
-                                    $set('action_button', 'Modelleri Gör'),
-                                    $set('action_url', '/patenli-ayakkabilar'),
-                                ],
-                                'fast_shipping' => [
-                                    $set('title', '⚡ Aynı Gün Kargo Bildirimi'),
-                                    $set('message', 'Bugün vereceğiniz tüm ışıklı ve tekerlekli ayakkabı siparişleri aynı gün hızlı kargoya teslim edilmektedir!'),
-                                    $set('coupon_code', null),
-                                    $set('action_button', 'Hemen İncele'),
-                                    $set('action_url', '/patenli-ayakkabilar'),
-                                ],
-                                default => null,
-                            };
+                            if ($item = CannedVoiceMessage::find($state)) {
+                                $set('title', $item->title);
+                                $set('message', $item->message);
+                                $set('coupon_code', $item->coupon_code);
+                                $set('action_button', $item->action_button);
+                                $set('action_url', $item->action_url);
+                            }
                         }),
 
-                    Select::make('voice_engine')
-                        ->label('Seslendirme Motoru')
-                        ->native(false)
-                        ->options([
-                            'elevenlabs' => '✨ ElevenLabs AI (Stüdyo Kalitesinde Gerçekçi Türkçe Ses)',
-                            'browser' => '🌐 Tarayıcı Konuşma Motoru (Web Speech API - Standart)',
+                    FileUpload::make('uploaded_audio')
+                        ->label('Ses Kaydı Dosyası (.mp3, .wav, .m4a, .ogg)')
+                        ->disk('public')
+                        ->directory('voice-announcements')
+                        ->acceptedFileTypes([
+                            'audio/mpeg',
+                            'audio/mp3',
+                            'audio/wav',
+                            'audio/x-wav',
+                            'audio/x-m4a',
+                            'audio/mp4',
+                            'audio/ogg',
+                            'audio/webm',
+                            'audio/aac',
                         ])
-                        ->default(\App\Services\ElevenLabsService::isConfigured() ? 'elevenlabs' : 'browser')
-                        ->live(),
-
-                    Select::make('elevenlabs_voice')
-                        ->label('ElevenLabs Ses Karakteri')
-                        ->native(false)
-                        ->options(\App\Services\ElevenLabsService::getVoices())
-                        ->default('21m00Tcm4TlvDq8ikWAM')
-                        ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs')
-                        ->live(),
-
-                    TextInput::make('custom_voice_id')
-                        ->label('Özel ElevenLabs Voice ID')
-                        ->placeholder('Örn: 21m00Tcm4TlvDq8ikWAM')
-                        ->visible(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom')
-                        ->required(fn ($get) => $get('voice_engine') === 'elevenlabs' && $get('elevenlabs_voice') === 'custom'),
+                        ->maxSize(25600)
+                        ->visible(fn ($get) => $get('voice_source') === 'custom_upload')
+                        ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                     Select::make('sound_type')
                         ->label('Ses Efekti & Seslendirme Tipi')
                         ->native(false)
                         ->options([
-                            'chime_and_speech' => '🔔 Mağaza Zili + 🗣️ Sesli Okuma + Görsel Kart',
-                            'speech_only' => '🗣️ Sadece Sesli Okuma + Görsel Kart',
+                            'chime_and_speech' => '🔔 Mağaza Zili + Ses Kaydı Oynat + Görsel Kart',
+                            'speech_only' => '🗣️ Sadece Ses Kaydı Oynat + Görsel Kart',
                             'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
                         ])
                         ->default('chime_and_speech')
@@ -1072,20 +1030,11 @@ class ActiveVisitors extends Page implements HasTable
                 ])
                 ->action(function (array $data) {
                     $audioUrl = null;
-                    if (($data['voice_engine'] ?? 'browser') === 'elevenlabs') {
-                        $voiceId = ($data['elevenlabs_voice'] ?? '') === 'custom'
-                            ? ($data['custom_voice_id'] ?? null)
-                            : ($data['elevenlabs_voice'] ?? null);
-
-                        $audioUrl = app(\App\Services\ElevenLabsService::class)->generateSpeech($data['message'], $voiceId);
-
-                        if (!$audioUrl && \App\Services\ElevenLabsService::isConfigured()) {
-                            Notification::make()
-                                ->title('ElevenLabs API Uyarısı')
-                                ->body('Ses dosyası üretilemedi (kota veya ağ). Tarayıcı ses motoruyla devam ediliyor.')
-                                ->warning()
-                                ->send();
-                        }
+                    if (($data['voice_source'] ?? 'canned') === 'custom_upload' && !empty($data['uploaded_audio'])) {
+                        $audioUrl = asset('storage/' . ltrim($data['uploaded_audio'], '/'));
+                    } elseif (($data['voice_source'] ?? 'canned') === 'canned' && !empty($data['canned_message_id'])) {
+                        $canned = CannedVoiceMessage::find($data['canned_message_id']);
+                        $audioUrl = $canned?->audio_url;
                     }
 
                     $visitors = ActiveVisitor::online()->get();
@@ -1103,7 +1052,7 @@ class ActiveVisitors extends Page implements HasTable
 
                     Notification::make()
                         ->title('Toplu Sesli Anons İletildi! 🎙️')
-                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.' . ($audioUrl ? ' (ElevenLabs AI Stüdyo Sesi Aktif)' : ''))
+                        ->body($visitors->count() . ' aktif ziyaretçinin ekranına sesli anons gönderildi.' . ($audioUrl ? ' (Özel Ses Kaydı Aktif)' : ''))
                         ->success()
                         ->send();
                 }),
