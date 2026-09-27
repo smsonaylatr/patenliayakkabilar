@@ -358,6 +358,11 @@
                                             <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: lowercase; background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25);">
                                                 🎯 {{ mb_strtolower($step['detail'], 'UTF-8') }}
                                             </div>
+                                        @elseif($isCurrent)
+                                            <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 600; background: rgba(56, 189, 248, 0.08); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25);">
+                                                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 6px #38bdf8;"></span>
+                                                <span>⚡ sayfa şu an inceleniyor... (tıklamalar ve hareketler anında burada listelenir)</span>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>

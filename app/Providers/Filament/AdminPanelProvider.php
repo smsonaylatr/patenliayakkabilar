@@ -103,6 +103,26 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::SIDEBAR_LOGO_AFTER,
                 fn () => view('filament.components.sidebar-close-btn')
+            )
+            ->renderHook(
+                \Filament\Tables\View\TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_AFTER,
+                function () {
+                    $livewire = app('livewire')->current();
+                    if ($livewire instanceof \App\Filament\Pages\ActiveVisitors) {
+                        return view('filament.pages.partials.visitor-view-toggle', [
+                            'viewMode' => $livewire->viewMode,
+                        ]);
+                    }
+
+                    if (request()->routeIs('filament.admin.pages.canli-ziyaretciler') || str_contains(request()->path(), 'canli-ziyaretciler') || (app('livewire')->isLivewireRequest() && str_contains(app('livewire')->originalPath(), 'canli-ziyaretciler'))) {
+                        $mode = request()->cookie('av_view_mode', session('av_view_mode', 'list'));
+                        return view('filament.pages.partials.visitor-view-toggle', [
+                            'viewMode' => in_array($mode, ['list', 'grid']) ? $mode : 'list',
+                        ]);
+                    }
+
+                    return '';
+                }
             );
     }
 

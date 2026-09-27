@@ -53,27 +53,41 @@ class VisitorBehaviorAnalyzer
         $isSamePage = (!$isFirstStep && $lastIndex >= 0 && $lastStepNormalized === $normalizedNewPath);
         $actionDetailLower = static::cleanLowercase($actionDetail);
 
-        // İkon ve mikro işlem tipi belirleme (il, ilçe, adres, ödeme vb. için özel sezgisel ikonlar)
+        // İkon ve mikro işlem tipi belirleme (fotoğraf, zoom, beden, adet, sekme, adres, ödeme vb. için özel sezgisel ikonlar)
         $microIcon = '🖱️';
         if ($action === 'typing' || $action === 'input') {
             $microIcon = '⌨️';
         } elseif ($action === 'focus') {
             $microIcon = '🎯';
+        } elseif (str_contains($actionDetailLower ?? '', 'fotoğraf') || str_contains($actionDetailLower ?? '', 'görsel') || str_contains($actionDetailLower ?? '', 'zoom') || str_contains($actionDetailLower ?? '', 'resim') || str_contains($actionDetailLower ?? '', 'galeri')) {
+            $microIcon = '🖼️';
+        } elseif ($action === 'size_click' || str_contains($actionDetailLower ?? '', 'beden') || str_contains($actionDetailLower ?? '', 'numara')) {
+            $microIcon = '👟';
+        } elseif (str_contains($actionDetailLower ?? '', 'adedi') || str_contains($actionDetailLower ?? '', 'adet') || str_contains($actionDetailLower ?? '', 'artırdı') || str_contains($actionDetailLower ?? '', 'azalttı')) {
+            $microIcon = '🔢';
+        } elseif (str_contains($actionDetailLower ?? '', 'haber ver')) {
+            $microIcon = '🔔';
+        } elseif (str_contains($actionDetailLower ?? '', 'değerlendirme') || str_contains($actionDetailLower ?? '', 'yorum') || str_contains($actionDetailLower ?? '', 'yıldız')) {
+            $microIcon = '⭐';
+        } elseif (str_contains($actionDetailLower ?? '', 'paylaş')) {
+            $microIcon = '🔗';
         } elseif (str_contains($actionDetailLower ?? '', 'şehir') || str_contains($actionDetailLower ?? '', 'il:') || str_contains($actionDetailLower ?? '', 'il (şehir)') || str_contains($actionDetailLower ?? '', 'ilçe') || str_contains($actionDetailLower ?? '', 'mahalle') || str_contains($actionDetailLower ?? '', 'adres')) {
             $microIcon = '📍';
-        } elseif (str_contains($actionDetailLower ?? '', 'ödeme') || str_contains($actionDetailLower ?? '', 'kart')) {
+        } elseif (str_contains($actionDetailLower ?? '', 'ödeme') || str_contains($actionDetailLower ?? '', 'kart') || str_contains($actionDetailLower ?? '', 'havale') || str_contains($actionDetailLower ?? '', 'kapıda')) {
             $microIcon = '💳';
         } elseif ($action === 'coupon' || str_contains($actionDetailLower ?? '', 'kupon')) {
             $microIcon = '🏷️';
         } elseif ($action === 'whatsapp' || str_contains($actionDetailLower ?? '', 'whatsapp')) {
             $microIcon = '💬';
-        } elseif ($action === 'cart_add' || str_contains($actionDetailLower ?? '', 'sepet')) {
+        } elseif ($action === 'cart_add' || str_contains($actionDetailLower ?? '', 'sepet') || str_contains($actionDetailLower ?? '', 'hemen al')) {
             $microIcon = '🛒';
         } elseif (str_contains($actionDetailLower ?? '', 'fatura') || str_contains($actionDetailLower ?? '', 'vergi')) {
             $microIcon = '📑';
         } elseif (str_contains($actionDetailLower ?? '', 'not') || str_contains($actionDetailLower ?? '', 'sipariş notu')) {
             $microIcon = '📝';
-        } elseif ($action === 'tab' || $action === 'tab_switch' || $action === 'view') {
+        } elseif ($action === 'tab' || $action === 'tab_switch' || str_contains($actionDetailLower ?? '', 'sekme') || str_contains($actionDetailLower ?? '', 'özellik') || str_contains($actionDetailLower ?? '', 'soru') || str_contains($actionDetailLower ?? '', 'tanıtım') || str_contains($actionDetailLower ?? '', 'teknik')) {
+            $microIcon = '📑';
+        } elseif ($action === 'view') {
             $microIcon = '👁️';
         }
 

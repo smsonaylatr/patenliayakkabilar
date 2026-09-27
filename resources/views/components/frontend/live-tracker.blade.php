@@ -1441,98 +1441,179 @@
         setTimeout(closeToast, 14000);
     }
 
-    // 7. Kullanıcı Tıklama Hareketlerini Dinleme (Beden, Renk, Buton, Kupon, WhatsApp, Ödeme, Mahalle vb.)
-    var lastClickTime = 0;
-    var lastClickText = '';
-
+    // 7. Kullanıcı Tıklama Hareketlerini Dinleme (Ürün Fotoğrafı, Zoom, Beden, Adet, Akordeon, Kupon, Butonlar vb.)
     function setupInteractions() {
         document.addEventListener('click', function(e) {
             var target = e.target;
             if (!target) return;
 
-            var now = Date.now();
+            // Kendi modal ve toast bileşenlerimizdeki tıklamaları yoksay
+            if (target.closest && target.closest('#pa-modal-overlay, #pa-toast-container, .pa-toast-card')) {
+                return;
+            }
 
-            // A) Mahalle / Dropdown Elemanı Tıklaması
+            // 1) ÜRÜN GALERİSİ — KÜÇÜK FOTOĞRAF (THUMBNAIL) TIKLAMASI
+            var thumbBtn = target.closest('button[aria-label*="Görsel"], button:has(img)');
+            if (thumbBtn && (thumbBtn.closest('[class*="grid-cols-5"]') || thumbBtn.closest('.order-2, .order-1') || thumbBtn.getAttribute('aria-label') || thumbBtn.querySelector('img'))) {
+                var aria = (thumbBtn.getAttribute('aria-label') || '').trim();
+                var imgEl = thumbBtn.querySelector('img');
+                var alt = imgEl ? (imgEl.getAttribute('alt') || '') : '';
+                var match = (aria + ' ' + alt).match(/(\d+)/);
+                var num = match ? match[1] : '';
+                var detail = num ? 'küçük fotoğrafa tıkladı: ' + num + '. görsel' : 'küçük ürün fotoğrafına tıkladı';
+                safeLogAction('click', detail);
+                return;
+            }
+
+            // 2) ÜRÜN GALERİSİ — BÜYÜTME / ZOOM TIKLAMASI
+            var zoomContainer = target.closest('[x-ref="mainImageContainer"], .cursor-zoom-in, .cursor-zoom-out');
+            if (zoomContainer) {
+                safeLogAction('click', 'ürün fotoğrafını büyüttü (zoom)');
+                return;
+            }
+
+            // 3) ÜRÜN GALERİSİ — ÖNCEKİ / SONRAKİ OK BUTONLARI
+            var arrowBtn = target.closest('button[aria-label*="Önceki"], button[aria-label*="Sonraki"]');
+            if (arrowBtn) {
+                var ariaText = (arrowBtn.getAttribute('aria-label') || '').toLowerCase();
+                var arrowDetail = ariaText.indexOf('önceki') !== -1 ? 'fotoğraf galerisinde gezindi (önceki görsel)' : 'fotoğraf galerisinde gezindi (sonraki görsel)';
+                safeLogAction('click', arrowDetail);
+                return;
+            }
+
+            // 4) ÜRÜNÜ PAYLAŞ BUTONU
+            var shareBtn = target.closest('button[aria-label*="Paylaş"], button[title*="Paylaş"]');
+            if (shareBtn) {
+                safeLogAction('click', 'ürünü paylaş butonuna tıkladı');
+                return;
+            }
+
+            // 5) GELİNCE HABER VER BUTONU
+            var stockNotifyBtn = target.closest('button[title*="Haber Ver"], button:has(.fa-bell)');
+            if (stockNotifyBtn || (target.textContent && target.textContent.trim().toLowerCase().indexOf('haber ver') !== -1)) {
+                safeLogAction('click', "tükenen beden için 'gelince haber ver' butonuna tıkladı");
+                return;
+            }
+
+            // 6) BEDEN / VARYANT MENÜSÜ & SEÇENEKLERİ
+            // 6.a) Menü içindeki beden/renk butonu
+            var variantOptBtn = target.closest('ul li button, [x-show="open"] button');
+            if (variantOptBtn) {
+                var rawOpt = (variantOptBtn.textContent || '').trim().replace(/\s+/g, ' ');
+                if (rawOpt) {
+                    var cleanOpt = rawOpt.replace(/tükendi/gi, '').trim().toLowerCase();
+                    safeLogAction('size_click', 'beden: "' + cleanOpt + '" seçti');
+                    return;
+                }
+            }
+
+            // 6.b) Beden dropdown açma butonu
+            var variantToggleBtn = target.closest('[x-data*="requiresSize"] button, [x-data*="variants"] button');
+            if (variantToggleBtn) {
+                var toggleText = (variantToggleBtn.textContent || '').trim().toLowerCase();
+                if (toggleText.indexOf('beden') !== -1 || toggleText.indexOf('seçenek') !== -1 || toggleText.indexOf('seçiniz') !== -1) {
+                    safeLogAction('size_click', 'beden menüsünü açtı');
+                    return;
+                }
+            }
+
+            // 6.c) Doğrudan beden butonları (data-size veya .size-button)
+            var sizeBtn = target.closest('[data-size], .size-button, button[data-variant-id]');
+            if (sizeBtn) {
+                var sizeVal = sizeBtn.getAttribute('data-size') || sizeBtn.textContent.trim();
+                if (sizeVal && sizeVal.length <= 15) {
+                    safeLogAction('size_click', 'beden ' + sizeVal.toLowerCase() + ' seçti');
+                    return;
+                }
+            }
+
+            // 7) ADET (+/-) BUTONLARI
+            var qtyDecBtn = target.closest('button[aria-label*="Azalt"], button:has(.fa-minus)');
+            if (qtyDecBtn) {
+                safeLogAction('click', 'adedi azalttı (-)');
+                return;
+            }
+            var qtyIncBtn = target.closest('button[aria-label*="Artır"], button:has(.fa-plus)');
+            if (qtyIncBtn) {
+                safeLogAction('click', 'adedi artırdı (+)');
+                return;
+            }
+
+            // 8) AKORDEON & SEKMELER (Öne Çıkan Özellikler, SSS, Teknik Bilgiler, Kargo & İade, Ürün Tanıtımı)
+            var accordionBtn = target.closest('button[\\@click*="openPanel"], button[\\@click*="toggle-tanitim"], .accordion-header, [role="tab"]');
+            if (accordionBtn) {
+                var titleEl = accordionBtn.querySelector('span.font-semibold, .text-sm, h3, h4') || accordionBtn;
+                var accTitle = (titleEl.textContent || accordionBtn.textContent || '').trim().replace(/\s+/g, ' ');
+                accTitle = accTitle.replace(/\s*\d+\s*$/, '').trim().toLowerCase();
+                if (accTitle && accTitle.length <= 35) {
+                    safeLogAction('tab', '"' + accTitle + '" sekmesini açtı');
+                    return;
+                }
+            }
+
+            // 9) MÜŞTERİ DEĞERLENDİRMELERİ & YORUMLAR
+            var reviewLink = target.closest('a[href*="#reviews"], a[href*="degerlendirme"], a[href*="yorum"]');
+            if (reviewLink) {
+                safeLogAction('click', 'müşteri değerlendirmelerine tıkladı');
+                return;
+            }
+
+            // 10) WHATSAPP & TELEFON
+            var waLink = target.closest('a[href*="wa.me"], a[href*="whatsapp"], .whatsapp-button, .wa-btn');
+            if (waLink) {
+                safeLogAction('whatsapp', 'whatsapp destek butonuna tıkladı');
+                return;
+            }
+            var telLink = target.closest('a[href^="tel:"]');
+            if (telLink) {
+                safeLogAction('click', 'telefonla arama butonuna tıkladı');
+                return;
+            }
+
+            // 11) BREADCRUMB & NAVİGASYON
+            var bcLink = target.closest('nav ol a, nav ul a, .breadcrumb a');
+            if (bcLink) {
+                var bcText = bcLink.textContent.trim().replace(/\s+/g, ' ').toLowerCase();
+                if (bcText && bcText.length <= 25) {
+                    safeLogAction('click', 'navigasyon: "' + bcText + '" sayfasına tıkladı');
+                    return;
+                }
+            }
+
+            // 12) MAHALLE / DROPDOWN SEÇİMİ
             var neighBtn = target.closest('[data-neighborhood-index], button[data-neighborhood-index]');
             if (neighBtn) {
                 var rawNeigh = neighBtn.textContent.trim().replace(/\s+/g, ' ');
                 if (rawNeigh) {
-                    var neighDetail = 'mahalle: "' + rawNeigh.toLowerCase() + '" seçti';
-                    if (neighDetail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = neighDetail;
-                        sendHeartbeat('click', neighDetail);
-                    }
+                    safeLogAction('click', 'mahalle: "' + rawNeigh.toLowerCase() + '" seçti');
                     return;
                 }
             }
 
-            // B) Beden Butonları
-            var sizeBtn = target.closest('[data-size], .size-button, button[value]');
-            if (sizeBtn) {
-                var sizeVal = sizeBtn.getAttribute('data-size') || sizeBtn.getAttribute('value') || sizeBtn.textContent.trim();
-                if (sizeVal && sizeVal.length <= 10) {
-                    var detail = 'beden ' + sizeVal.toLowerCase() + ' seçti';
-                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = detail;
-                        sendHeartbeat('size_click', detail);
-                    }
-                    return;
-                }
-            }
-
-            // C) Renk / Varyant Seçenekleri
+            // 13) RENK / SWATCH BUTONLARI
             var colorBtn = target.closest('[data-color], .color-button, .color-swatch, [data-variant-color]');
             if (colorBtn) {
                 var colorVal = colorBtn.getAttribute('data-color') || colorBtn.getAttribute('data-variant-color') || colorBtn.getAttribute('title') || colorBtn.textContent.trim();
                 if (colorVal && colorVal.length <= 20) {
-                    var detail = 'renk ' + colorVal.toLowerCase() + ' seçti';
-                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = detail;
-                        sendHeartbeat('click', detail);
-                    }
+                    safeLogAction('click', 'renk ' + colorVal.toLowerCase() + ' seçti');
                     return;
                 }
             }
 
-            // D) Fatura Türü (Bireysel / Kurumsal) Toggle Butonları
+            // 14) FATURA TÜRÜ (Bireysel / Kurumsal)
             var invBtn = target.closest('button');
             if (invBtn) {
                 var invText = (invBtn.textContent || '').trim().toLowerCase();
                 if (invText.indexOf('bireysel') !== -1 && invText.length < 20) {
-                    var detail = 'fatura türü: bireysel seçti';
-                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = detail;
-                        sendHeartbeat('click', detail);
-                    }
+                    safeLogAction('click', 'fatura türü: bireysel seçti');
                     return;
                 } else if (invText.indexOf('kurumsal') !== -1 && invText.length < 20) {
-                    var detail = 'fatura türü: kurumsal seçti';
-                    if (detail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = detail;
-                        sendHeartbeat('click', detail);
-                    }
+                    safeLogAction('click', 'fatura türü: kurumsal seçti');
                     return;
                 }
             }
 
-            // E) WhatsApp Canlı Destek Butonları
-            var waLink = target.closest('a[href*="wa.me"], a[href*="whatsapp"], .whatsapp-button, .wa-btn');
-            if (waLink) {
-                var detail = 'whatsapp destek butonuna tıkladı';
-                if (detail !== lastClickText || (now - lastClickTime) > 3000) {
-                    lastClickTime = now;
-                    lastClickText = detail;
-                    sendHeartbeat('whatsapp', detail);
-                }
-                return;
-            }
-
-            // F) Ödeme Yöntemi Seçimi (Kapıda Ödeme / Kredi Kartı / Havale)
+            // 15) ÖDEME YÖNTEMİ SEÇİMİ (Kapıda, Kredi Kartı, Havale/EFT)
             var payEl = target.closest('[data-payment-method], input[name*="payment"], label[for*="payment"], .payment-method-card, .payment-option');
             if (payEl) {
                 var payText = (payEl.innerText || payEl.textContent || payEl.value || '').trim().toLowerCase();
@@ -1544,72 +1625,77 @@
                 } else if (payText.indexOf('havale') !== -1 || payText.indexOf('eft') !== -1) {
                     payDetail = 'ödeme yöntemi: havale/eft seçti';
                 }
-                if (payDetail && (payDetail !== lastClickText || (now - lastClickTime) > 2000)) {
-                    lastClickTime = now;
-                    lastClickText = payDetail;
-                    sendHeartbeat('click', payDetail);
+                if (payDetail) {
+                    safeLogAction('click', payDetail);
                     return;
                 }
             }
 
-            // G) Buton ve Aksiyon Tıklamaları (Sepete Ekle, Kupon Uygula, Satın Al, Arama, Sepet Silme vb.)
-            var btnEl = target.closest('button, a.button, a.btn, input[type="submit"]');
-            if (btnEl) {
-                var rawText = (btnEl.innerText || btnEl.textContent || btnEl.value || '').trim().toLowerCase();
-                var ariaText = (btnEl.getAttribute('aria-label') || '').toLowerCase();
+            // 16) BUTON VE AKSİYON TIKLAMALARI (Sepete Ekle, Kupon, Siparişi Tamamla, Hemen Al vb.)
+            var actionBtn = target.closest('button, a.button, a.btn, input[type="submit"]');
+            if (actionBtn) {
+                var rawText = (actionBtn.innerText || actionBtn.textContent || actionBtn.value || '').trim().toLowerCase();
+                var ariaText = (actionBtn.getAttribute('aria-label') || '').toLowerCase();
                 var combined = rawText + ' ' + ariaText;
 
-                var actionDetail = null;
-                var actionType = 'click';
-
                 if (combined.indexOf('sepete ekle') !== -1 || combined.indexOf('sepete') !== -1) {
-                    actionDetail = '"sepete ekle" butonuna tıkladı';
-                    actionType = 'cart_add';
-                } else if (combined.indexOf('kupon') !== -1 && (combined.indexOf('uygula') !== -1 || combined.indexOf('ekle') !== -1)) {
-                    actionDetail = '"kupon uygula" butonuna tıkladı';
-                    actionType = 'coupon';
-                } else if (combined.indexOf('siparişi tamamla') !== -1 || combined.indexOf('sipariş ver') !== -1 || combined.indexOf('öde') !== -1) {
-                    actionDetail = '"siparişi tamamla" butonuna tıkladı';
-                    actionType = 'click';
+                    safeLogAction('cart_add', '"sepete ekle" butonuna tıkladı');
+                    return;
                 } else if (combined.indexOf('hemen al') !== -1) {
-                    actionDetail = '"hemen al" butonuna tıkladı';
-                    actionType = 'cart_add';
-                } else if (btnEl.closest('form[role="search"], .search-form, form[action*="ara"]')) {
-                    actionDetail = 'arama butonuna tıkladı';
-                    actionType = 'click';
-                } else if (combined.indexOf('sil') !== -1 || combined.indexOf('kaldır') !== -1 || btnEl.querySelector('.fa-trash, .fa-trash-can')) {
-                    actionDetail = 'ürünü sepetten çıkardı';
-                    actionType = 'click';
-                } else if (btnEl.closest('[role="tablist"], .tabs, .tab-nav')) {
-                    if (rawText && rawText.length <= 25) {
-                        actionDetail = '"' + rawText + '" sekmesine tıkladı';
-                        actionType = 'tab';
-                    }
-                }
-
-                if (actionDetail && (actionDetail !== lastClickText || (now - lastClickTime) > 2000)) {
-                    lastClickTime = now;
-                    lastClickText = actionDetail;
-                    sendHeartbeat(actionType, actionDetail);
+                    safeLogAction('cart_add', '"hemen al" butonuna tıkladı');
+                    return;
+                } else if (combined.indexOf('kupon') !== -1 && (combined.indexOf('uygula') !== -1 || combined.indexOf('ekle') !== -1)) {
+                    safeLogAction('coupon', '"kupon uygula" butonuna tıkladı');
+                    return;
+                } else if (combined.indexOf('siparişi tamamla') !== -1 || combined.indexOf('sipariş ver') !== -1 || combined.indexOf('öde') !== -1) {
+                    safeLogAction('click', '"siparişi tamamla" butonuna tıkladı');
+                    return;
+                } else if (actionBtn.closest('form[role="search"], .search-form, form[action*="ara"]')) {
+                    safeLogAction('click', 'arama butonuna tıkladı');
+                    return;
+                } else if (combined.indexOf('sil') !== -1 || combined.indexOf('kaldır') !== -1 || actionBtn.querySelector('.fa-trash, .fa-trash-can')) {
+                    safeLogAction('click', 'ürünü sepetten çıkardı');
                     return;
                 }
             }
 
-            // H) Tab / Akordeon Tıklaması
-            var tabBtn = target.closest('[role="tab"], .tab-btn, button[data-tab], .accordion-header');
-            if (tabBtn) {
-                var tabText = (tabBtn.innerText || tabBtn.textContent || '').trim().toLowerCase();
-                if (tabText && tabText.length <= 30) {
-                    var tabDetail = '"' + tabText + '" sekmesine tıkladı';
-                    if (tabDetail !== lastClickText || (now - lastClickTime) > 2000) {
-                        lastClickTime = now;
-                        lastClickText = tabDetail;
-                        sendHeartbeat('tab', tabDetail);
-                        return;
+            // 17) DİDİK DİDİK GENEL TIKLAMA YAKALAYICI (Universal Catch-All)
+            // Sayfada tıklanan diğer herhangi bir buton, bağlantı veya interaktif nesne
+            var anyClickable = target.closest('button, a, summary, [role="button"], input[type="button"], input[type="submit"]');
+            if (anyClickable) {
+                var tagName = (anyClickable.tagName || '').toLowerCase();
+                var textVal = (anyClickable.innerText || anyClickable.textContent || anyClickable.value || '').trim().replace(/\s+/g, ' ');
+                var ariaVal = (anyClickable.getAttribute('aria-label') || anyClickable.getAttribute('title') || '').trim();
+                var candidate = (textVal || ariaVal).trim();
+
+                if (candidate.length > 25) {
+                    candidate = candidate.substring(0, 25) + '...';
+                }
+
+                var generalDetail = '';
+                if (candidate) {
+                    var cleanCand = candidate.toLowerCase();
+                    if (tagName === 'a') {
+                        generalDetail = '"' + cleanCand + '" bağlantısına tıkladı';
+                    } else {
+                        generalDetail = '"' + cleanCand + '" butonuna tıkladı';
+                    }
+                } else {
+                    if (anyClickable.querySelector('img')) {
+                        generalDetail = 'görsel butonuna tıkladı';
+                    } else if (anyClickable.querySelector('svg, i')) {
+                        generalDetail = 'ikon/menü butonuna tıkladı';
+                    } else {
+                        generalDetail = (tagName === 'a' ? 'bağlantıya' : 'butona') + ' tıkladı';
                     }
                 }
+
+                if (generalDetail) {
+                    safeLogAction('click', generalDetail);
+                    return;
+                }
             }
-        });
+        }, true); // capture: true sayesinde hiçbir event engellenemez (@click.stop dahil)
     }
 
     // 7.5. Form Alanlarına Tıklama / Odaklanma (Focus) Dinleyicisi ("Didik Didik" Takip)

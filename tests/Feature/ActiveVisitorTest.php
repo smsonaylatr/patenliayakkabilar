@@ -1401,6 +1401,135 @@ class ActiveVisitorTest extends TestCase
 
         $this->assertFalse($haltedOnClose, "Toplu yönlendirmede 'Şimdi Yönlendir ve Çık' pop-up'ı kapatmalıdır.");
     }
+
+    public function test_product_page_clicks_and_interactions_tracked_in_journey_modal(): void
+    {
+        $token = 'pa_vt_product_clicks_' . uniqid();
+        $productPath = '/urun/kick-speed-sky-roll-isikli-patenli-spor-ayakkabi';
+        $productTitle = 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı';
+
+        // 1. Ziyaretçi ürün sayfasına girdi (view)
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'view',
+        ])->assertOk();
+
+        $visitor = ActiveVisitor::where('visitor_token', $token)->first();
+        $this->assertNotNull($visitor);
+        $this->assertCount(1, $visitor->journey_trail);
+
+        // 2. Ürün fotoğrafına ve zoom'a tıkladı
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'click',
+            'action_detail' => 'küçük fotoğrafa tıkladı: 2. görsel',
+        ])->assertOk();
+
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'click',
+            'action_detail' => 'ürün fotoğrafını büyüttü (zoom)',
+        ])->assertOk();
+
+        // 3. Beden menüsünü açtı ve 34 beden seçti
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'size_click',
+            'action_detail' => 'beden menüsünü açtı',
+        ])->assertOk();
+
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'size_click',
+            'action_detail' => 'beden: "34 beden" seçti',
+        ])->assertOk();
+
+        // 4. Adedi artırdı
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'click',
+            'action_detail' => 'adedi artırdı (+)',
+        ])->assertOk();
+
+        // 5. Akordeon sekmesini açtı
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'tab',
+            'action_detail' => '"kargo & iade" sekmesini açtı',
+        ])->assertOk();
+
+        // 6. Sepete ekle butonuna tıkladı
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com' . $productPath,
+            'path' => $productPath,
+            'title' => $productTitle,
+            'action' => 'cart_add',
+            'action_detail' => '"sepete ekle" butonuna tıkladı',
+        ])->assertOk();
+
+        // Doğrulama: Tüm bu hareketler aynı sayfadaki satırın interactions dizisine eklenmeli
+        $visitor->refresh();
+        $trail = $visitor->journey_trail;
+        $this->assertCount(1, $trail, "Tüm tıklamalar mevcut ürün sayfasının tek satırında toplanmalıdır.");
+
+        $interactions = $trail[0]['interactions'];
+        $this->assertCount(7, $interactions, "7 mikro tıklama da sırasıyla kaydedilmiş olmalıdır.");
+
+        // İkonların ve metinlerin doğrulanması
+        $this->assertEquals('🖼️', $interactions[0]['icon']);
+        $this->assertStringContainsString('küçük fotoğrafa tıkladı: 2. görsel', $interactions[0]['text']);
+
+        $this->assertEquals('🖼️', $interactions[1]['icon']);
+        $this->assertStringContainsString('ürün fotoğrafını büyüttü (zoom)', $interactions[1]['text']);
+
+        $this->assertEquals('👟', $interactions[2]['icon']);
+        $this->assertStringContainsString('beden menüsünü açtı', $interactions[2]['text']);
+
+        $this->assertEquals('👟', $interactions[3]['icon']);
+        $this->assertStringContainsString('beden: "34 beden" seçti', $interactions[3]['text']);
+
+        $this->assertEquals('🔢', $interactions[4]['icon']);
+        $this->assertStringContainsString('adedi artırdı (+)', $interactions[4]['text']);
+
+        $this->assertEquals('📑', $interactions[5]['icon']);
+        $this->assertStringContainsString('"kargo & iade" sekmesini açtı', $interactions[5]['text']);
+
+        $this->assertEquals('🛒', $interactions[6]['icon']);
+        $this->assertStringContainsString('"sepete ekle" butonuna tıkladı', $interactions[6]['text']);
+
+        // Journey Modal Render Testi
+        $modalHtml = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
+        $this->assertStringContainsString('küçük fotoğrafa tıkladı: 2. görsel', $modalHtml);
+        $this->assertStringContainsString('ürün fotoğrafını büyüttü (zoom)', $modalHtml);
+        $this->assertStringContainsString('beden menüsünü açtı', $modalHtml);
+        $this->assertStringContainsString('34 beden', $modalHtml);
+        $this->assertStringContainsString('adedi artırdı (+)', $modalHtml);
+        $this->assertStringContainsString('kargo &amp; iade', $modalHtml);
+        $this->assertStringContainsString('sepete ekle', $modalHtml);
+        $this->assertStringContainsString('7 işlem', $modalHtml);
+    }
 }
 
 

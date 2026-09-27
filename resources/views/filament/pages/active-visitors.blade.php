@@ -744,4 +744,29 @@
         {{-- 3. CANLI İSTİHBARAT TABLOSU --}}
         {{ $this->table }}
     </div>
+
+    {{-- Görünüm Modu Buton Pozisyonu Güvenceleyici (Filtrele Butonunun Sağında) --}}
+    <script>
+        (function() {
+            function ensureViewTogglePosition() {
+                const toggle = document.querySelector('.av-view-toggle-group');
+                const filterDropdown = document.querySelector('.fi-ta-filters-dropdown');
+                if (toggle && filterDropdown && toggle.previousElementSibling !== filterDropdown) {
+                    filterDropdown.after(toggle);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', ensureViewTogglePosition);
+            document.addEventListener('livewire:navigated', ensureViewTogglePosition);
+            document.addEventListener('livewire:initialized', () => {
+                if (window.Livewire && Livewire.hook) {
+                    Livewire.hook('morph.updated', () => {
+                        ensureViewTogglePosition();
+                    });
+                }
+            });
+            setTimeout(ensureViewTogglePosition, 200);
+            setTimeout(ensureViewTogglePosition, 800);
+        })();
+    </script>
 </x-filament-panels::page>
