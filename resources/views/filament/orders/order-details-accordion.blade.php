@@ -14,13 +14,13 @@ td.fi-ta-actions-cell {
 }
 
 .order-detail-panel {
-    padding: 16px 20px;
+    padding: 10px 14px;
     background-color: rgba(248, 250, 252, 0.95);
     border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     text-align: left;
     color: #0f172a;
     font-family: inherit;
@@ -40,7 +40,7 @@ td.fi-ta-actions-cell {
 .detail-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
     min-width: 0 !important;
     max-width: 100% !important;
@@ -48,11 +48,12 @@ td.fi-ta-actions-cell {
 }
 
 .detail-title {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: #64748b;
+    margin-bottom: 1px;
 }
 
 .dark .detail-title {
@@ -62,14 +63,15 @@ td.fi-ta-actions-cell {
 .detail-addr {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    font-size: 0.84rem;
+    gap: 2px;
+    font-size: 0.8rem;
+    line-height: 1.35;
 }
 
 .detail-meta {
     display: grid !important;
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 12px;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -77,28 +79,28 @@ td.fi-ta-actions-cell {
 
 @media (min-width: 880px) {
     .detail-meta {
-        grid-template-columns: 240px 185px minmax(0, 1fr) !important;
-        gap: 24px;
+        grid-template-columns: 210px 170px minmax(0, 1fr) !important;
+        gap: 16px;
         align-items: start;
     }
 }
 
 .table-responsive-container {
     width: 100%;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .inner-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 4px;
-    font-size: 0.84rem;
+    border-spacing: 0 3px;
+    font-size: 0.8rem;
 }
 
 .inner-table th {
-    padding: 8px 12px;
+    padding: 4px 8px;
     text-align: left;
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -112,7 +114,7 @@ td.fi-ta-actions-cell {
 }
 
 .inner-table td {
-    padding: 10px 12px !important;
+    padding: 5px 8px !important;
     border-bottom: none !important;
     vertical-align: middle;
     background: rgba(0, 0, 0, 0.03);
@@ -123,42 +125,42 @@ td.fi-ta-actions-cell {
 }
 
 .inner-table td:first-child {
-    border-radius: 8px 0 0 8px;
-    padding-right: 6px !important;
-    width: 145px;
+    border-radius: 6px 0 0 6px;
+    padding: 3px 6px !important;
+    width: 74px;
     vertical-align: middle;
     position: relative;
     overflow: visible;
 }
 
 .inner-table td:last-child {
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 6px 6px 0;
 }
 
 .inner-thumb {
-    width: 140px;
-    height: 140px;
-    border-radius: 12px;
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
     background: #ffffff;
     overflow: hidden;
     flex-shrink: 0;
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.25s ease, box-shadow 0.25s ease;
+    transition: width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease;
     position: relative;
     z-index: 10;
     cursor: zoom-in;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .dark .inner-thumb {
     background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .inner-thumb:hover {
-    width: 250px;
-    height: 250px;
-    border-radius: 16px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+    width: 160px;
+    height: 160px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
     z-index: 9999 !important;
     border-color: #38bdf8 !important;
 }
@@ -168,7 +170,6 @@ td.fi-ta-actions-cell {
     height: 100%;
     object-fit: cover;
     border-radius: 6px;
-    transition: border-radius 0.25s ease;
 }
 
 .inner-thumb:hover img {
@@ -429,8 +430,7 @@ td.fi-ta-actions-cell {
 .traffic-url-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    width: 100%;
     min-width: 0;
 }
 
@@ -443,6 +443,7 @@ td.fi-ta-actions-cell {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #64748b;
+    white-space: nowrap;
 }
 
 .dark .traffic-url-title {
@@ -452,8 +453,8 @@ td.fi-ta-actions-cell {
 .traffic-url-actions {
     display: flex;
     align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
+    gap: 6px;
+    width: 100%;
 }
 
 .traffic-action-btn {
@@ -724,7 +725,7 @@ td.fi-ta-actions-cell {
       <table class="inner-table">
         <thead>
           <tr>
-            <th style="width:116px"></th>
+            <th style="width:74px"></th>
             <th>Ürün</th>
             <th>Renk / Numara</th>
             <th>Adet</th>
@@ -783,7 +784,7 @@ td.fi-ta-actions-cell {
                   $sku = $variant?->sku ?: ($product?->sku ?: '-');
               @endphp
               <tr>
-                <td style="width:145px; text-align:center; vertical-align:middle; padding:10px 8px !important;">
+                <td style="width:74px; text-align:center; vertical-align:middle; padding:3px 6px !important;">
                   <div class="inner-thumb">
                     <img src="{{ $imageUrl }}" alt="{{ $item->product_name }}" />
                   </div>
@@ -1150,38 +1151,38 @@ td.fi-ta-actions-cell {
               <svg style="width:13px; height:13px; color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
               <span>GELDİĞİ KAYNAK LİNKİ:</span>
             </span>
-            <div class="traffic-url-actions">
-              <button 
-                type="button"
-                @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
-                class="traffic-action-btn"
-                :class="{ 'is-copied': linkCopied }"
-                title="Kaynak Linkini Panoya Kopyala"
-              >
-                <template x-if="!linkCopied">
-                  <span style="display:inline-flex; align-items:center; gap:3px;">
-                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    <span>Kopyala</span>
-                  </span>
-                </template>
-                <template x-if="linkCopied">
-                  <span style="display:inline-flex; align-items:center; gap:3px;">
-                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    <span>Kopyalandı!</span>
-                  </span>
-                </template>
-              </button>
-              <a 
-                href="{{ $sourceUrl }}" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="traffic-action-btn open-link"
-                title="Linki Yeni Sekmede Aç"
-              >
-                <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                <span>Aç</span>
-              </a>
-            </div>
+          </div>
+          <div class="traffic-url-actions">
+            <button 
+              type="button"
+              @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
+              class="traffic-action-btn"
+              :class="{ 'is-copied': linkCopied }"
+              title="Kaynak Linkini Panoya Kopyala"
+            >
+              <template x-if="!linkCopied">
+                <span style="display:inline-flex; align-items:center; gap:3px;">
+                  <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span>Kopyala</span>
+                </span>
+              </template>
+              <template x-if="linkCopied">
+                <span style="display:inline-flex; align-items:center; gap:3px;">
+                  <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  <span>Kopyalandı!</span>
+                </span>
+              </template>
+            </button>
+            <a 
+              href="{{ $sourceUrl }}" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="traffic-action-btn open-link"
+              title="Linki Yeni Sekmede Aç"
+            >
+              <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              <span>Aç</span>
+            </a>
           </div>
           <div 
             class="traffic-url-box"
