@@ -1,14 +1,103 @@
+<style>
+    .av-table-header {
+        display: grid;
+        grid-template-columns: 28% 26% 32% 14%;
+        gap: 16px;
+        padding: 12px 20px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+        background: #0f172a;
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+    .av-card {
+        background: #111827;
+        background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+        transition: all 0.2s ease;
+    }
+    .av-card:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5);
+    }
+    .av-body {
+        display: grid;
+        grid-template-columns: 28% 26% 32% 14%;
+        gap: 16px;
+        padding: 18px 20px;
+        align-items: center;
+    }
+    .av-footer {
+        background: rgba(10, 15, 26, 0.96);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+    .av-strategy-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        flex: 1;
+        min-width: 260px;
+    }
+    .av-actions-area {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        justify-content: flex-end;
+    }
+    .av-actions-area .fi-btn {
+        white-space: nowrap !important;
+    }
+    @media (max-width: 1024px) {
+        .av-table-header {
+            display: none !important;
+        }
+        .av-body {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+            padding: 16px !important;
+        }
+        .av-footer {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 14px !important;
+            padding: 14px 16px !important;
+        }
+        .av-actions-area {
+            justify-content: flex-start !important;
+        }
+    }
+</style>
+
 <div>
     {{-- Sütun Başlıkları Çubuğu (Geniş Ekranda) --}}
-    <div class="hidden lg:grid grid-cols-12 gap-4 px-5 py-3 text-xs font-extrabold text-slate-400 uppercase tracking-wider bg-slate-900/80 rounded-xl border border-slate-800/90 mb-3 shadow-sm select-none">
-        <div class="col-span-3">ZİYARETÇİ & SİNYAL</div>
-        <div class="col-span-3">BULUNDUĞU SAYFA & MODEL</div>
-        <div class="col-span-4">DAVRANIŞ TEŞHİSİ & NİYET</div>
-        <div class="col-span-2">SEPET</div>
+    <div class="av-table-header">
+        <div>ZİYARETÇİ &amp; SİNYAL</div>
+        <div>BULUNDUĞU SAYFA &amp; MODEL</div>
+        <div>DAVRANIŞ TEŞHİSİ &amp; NİYET</div>
+        <div>SEPET</div>
     </div>
 
     {{-- Ziyaretçi Kayıtları Listesi --}}
-    <div class="space-y-3.5">
+    <div style="display: flex; flex-direction: column; gap: 14px;">
         @forelse ($records as $record)
             @php
                 // 1. Ziyaretçi Verileri
@@ -94,104 +183,114 @@
                 );
             @endphp
 
-            <div wire:key="visitor-log-{{ $record->id }}" class="visitor-log-card bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl overflow-hidden shadow-md transition-all duration-200">
+            <div wire:key="visitor-log-{{ $record->id }}" class="av-card">
                 {{-- ÜST KISIM: 4 Sütunlu Canlı Bilgiler --}}
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center p-4 lg:p-5">
+                <div class="av-body">
                     
-                    {{-- 1. Ziyaretçi & Sinyal (3 Sütun) --}}
-                    <div class="lg:col-span-3">
-                        <div class="flex items-start gap-3">
-                            <div class="relative w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-white text-sm shrink-0 shadow-md" style="background: linear-gradient(135deg, #ff4e00, #b45309); box-shadow: 0 0 12px rgba(255, 78, 0, 0.35);">
+                    {{-- 1. Ziyaretçi & Sinyal --}}
+                    <div>
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            {{-- Avatar Dairesi (Kesin Genişlik/Yükseklik) --}}
+                            <div style="width: 42px; height: 42px; min-width: 42px; max-width: 42px; border-radius: 50%; background: linear-gradient(135deg, #ff4e00, #b45309); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 16px; flex-shrink: 0; box-shadow: 0 0 14px rgba(255, 78, 0, 0.4);">
                                 {{ $initial }}
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                                    <span class="font-extrabold text-slate-100 text-sm truncate">{{ $name }}</span>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
+                                    <span style="font-weight: 800; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">
+                                        {{ $name }}
+                                    </span>
                                     @if ($isMember)
-                                        <span class="bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.5 rounded text-[9px] font-extrabold">MÜŞTERİ</span>
+                                        <span style="background: rgba(16, 185, 129, 0.25); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
+                                            MÜŞTERİ
+                                        </span>
                                     @elseif ($hasCustomName)
-                                        <span class="bg-sky-500/20 text-sky-400 border border-sky-500/40 px-1.5 py-0.5 rounded text-[9px] font-extrabold">MİSAFİR</span>
+                                        <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
+                                            MİSAFİR
+                                        </span>
                                     @endif
                                 </div>
-                                @if($phone || $email)
-                                    <div class="text-[11px] text-sky-400 font-bold flex items-center gap-1.5 mb-1 flex-wrap">
-                                        @if($phone) <span>📱 {{ $phone }}</span> @endif
-                                        @if($phone && $email) <span>•</span> @endif
-                                        @if($email) <span class="text-slate-400">✉️ {{ $email }}</span> @endif
-                                    </div>
-                                @endif
-                                <div class="mb-1.5">
+
+                                <div style="margin-bottom: 4px;">
                                     @if ($isOnline)
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40">
-                                            <span class="live-radar-dot" style="width:7px; height:7px;"></span> CANLI
+                                        <span style="display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                            <span class="live-radar-dot" style="width: 7px; height: 7px;"></span> CANLI
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
                                             AYRILDI ({{ $diff }})
                                         </span>
                                     @endif
                                 </div>
-                                <div class="text-[11px] text-slate-400 flex items-center gap-1.5 flex-wrap">
+
+                                @if($phone || $email)
+                                    <div style="font-size: 11px; color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
+                                        @if($phone) <span>📱 {{ $phone }}</span> @endif
+                                        @if($phone && $email) <span style="color: #64748b;">•</span> @endif
+                                        @if($email) <span style="color: #94a3b8;">✉️ {{ $email }}</span> @endif
+                                    </div>
+                                @endif
+
+                                <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                     <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
-                                    <span>•</span>
-                                    <span class="font-mono text-slate-500">{{ $record->ip_address }}</span>
+                                    <span style="color: #64748b;">•</span>
+                                    <span style="font-family: monospace; color: #64748b;">{{ $record->ip_address }}</span>
                                 </div>
-                                <div class="text-[10px] text-slate-500 mt-0.5">
+                                <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
                                     ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 2. Bulunduğu Sayfa & Model (3 Sütun) --}}
-                    <div class="lg:col-span-3">
+                    {{-- 2. Bulunduğu Sayfa & Model --}}
+                    <div>
                         @if ($product)
                             @php $price = $product->discount_price ?: $product->price; @endphp
-                            <div class="flex items-center gap-3">
+                            <div style="display: flex; align-items: center; gap: 12px;">
                                 @if ($productImage)
-                                    <img src="{{ $productImage }}" alt="{{ $title }}" class="w-12 h-12 rounded-xl object-cover border border-white/15 shrink-0 shadow-sm" />
+                                    <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.15); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);" />
                                 @else
-                                    <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-xl shrink-0 border border-white/10">👟</div>
+                                    <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">👟</div>
                                 @endif
-                                <div class="overflow-hidden min-w-0">
-                                    <div class="flex items-center gap-1.5 mb-0.5">
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-orange-500/15 text-orange-400 border border-orange-500/35">
+                                <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(255, 78, 0, 0.15); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.35);">
                                             👟 {{ $pageInfo['badge'] ?? 'Model' }}
                                         </span>
                                     </div>
-                                    <a href="{{ $url }}" target="_blank" class="font-extrabold text-slate-100 hover:text-orange-400 text-[12.5px] leading-snug block truncate transition-colors">
+                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f8fafc'">
                                         {{ $title }} ↗
                                     </a>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="font-extrabold text-emerald-400 text-xs">{{ number_format($price, 2) }} ₺</span>
-                                        <span class="text-[10px] text-slate-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">İnceliyor</span>
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 3px;">
+                                        <span style="font-weight: 800; color: #10b981; font-size: 12px;">{{ number_format($price, 2) }} ₺</span>
+                                        <span style="font-size: 10px; color: #94a3b8; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1px 5px; border-radius: 4px;">İnceliyor</span>
                                     </div>
                                     @if ($recentDetail)
-                                        <div class="text-[11px] text-amber-300 font-bold mt-1 truncate">
+                                        <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                             🎯 {{ $recentDetail }}
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         @elseif ($isCheckout)
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);">
                                     🛒
                                 </div>
-                                <div class="min-w-0">
-                                    <div class="flex items-center gap-1.5 mb-0.5">
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-emerald-500/15 text-emerald-400 border border-emerald-500/35">
+                                <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);">
                                             🛒 {{ $pageInfo['badge'] ?? 'Ödeme Ekranı' }}
                                         </span>
                                     </div>
-                                    <a href="{{ $url }}" target="_blank" class="font-extrabold text-sky-400 hover:text-sky-300 text-[12.5px] block truncate transition-colors">
+                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #38bdf8; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#7dd3fc'" onmouseout="this.style.color='#38bdf8'">
                                         {{ $title }} ↗
                                     </a>
-                                    <div class="text-[11px] text-emerald-400 font-bold mt-1">
+                                    <div style="font-size: 11px; color: #10b981; font-weight: 700; margin-top: 3px;">
                                         Sepet Tutarı: {{ number_format($record->cart_total, 2) }} ₺ {{ $record->cart_items_count > 0 ? "({$record->cart_items_count} ürün)" : '' }}
                                     </div>
                                     @if ($recentDetail)
-                                        <div class="text-[11px] text-amber-300 font-bold mt-1 truncate">
+                                        <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                             🎯 {{ $recentDetail }}
                                         </div>
                                     @endif
@@ -204,24 +303,24 @@
                                 $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
                                 $badgeIcon = $pageInfo['icon'] ?? '📄';
                             @endphp
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm" style="background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }};">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);">
                                     {{ $badgeIcon }}
                                 </div>
-                                <div class="overflow-hidden min-w-0">
-                                    <div class="flex items-center gap-1.5 mb-0.5">
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide" style="background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
+                                <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
                                             {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
                                         </span>
                                     </div>
-                                    <a href="{{ $url }}" target="_blank" class="font-extrabold text-slate-100 hover:text-white text-[12.5px] block truncate transition-colors">
+                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12.5px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#f8fafc'">
                                         {{ $title }} ↗
                                     </a>
-                                    <div class="text-[10px] text-slate-500 mt-1 font-mono truncate">
+                                    <div style="font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ $record->current_path }}
                                     </div>
                                     @if ($recentDetail)
-                                        <div class="text-[11px] text-amber-300 font-bold mt-1 truncate">
+                                        <div style="font-size: 11px; color: #fcd34d; font-weight: 700; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                             🎯 {{ $recentDetail }}
                                         </div>
                                     @endif
@@ -230,36 +329,34 @@
                         @endif
                     </div>
 
-                    {{-- 3. Davranış Teşhisi & Niyet (4 Sütun) --}}
-                    <div class="lg:col-span-4">
-                        <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-black tracking-wider" style="color: {{ $color }};">
-                                    {{ $intentLabel }}
-                                </span>
-                            </div>
-                            <div class="bg-white/10 rounded-full h-1.5 w-full overflow-hidden">
-                                <div class="h-full rounded-full transition-all duration-500" style="background: {{ $gradient }}; width: {{ min(100, max(5, $score)) }}%;"></div>
-                            </div>
-                            <div class="text-[11px] text-slate-200 bg-slate-950/70 border-l-[3px] px-2.5 py-1.5 rounded leading-relaxed" style="border-left-color: {{ $color }};">
-                                {{ $insight }}
-                            </div>
+                    {{-- 3. Davranış Teşhisi & Niyet --}}
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                            <span style="font-size: 10.5px; font-weight: 900; letter-spacing: 0.05em; color: {{ $color }};">
+                                {{ $intentLabel }}
+                            </span>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.08); border-radius: 999px; height: 6px; width: 100%; overflow: hidden; margin-bottom: 6px;">
+                            <div style="background: {{ $gradient }}; width: {{ min(100, max(5, $score)) }}%; height: 100%; border-radius: 999px; transition: width 0.5s ease;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #cbd5e1; background: rgba(0, 0, 0, 0.45); border-left: 3px solid {{ $color }}; padding: 6px 10px; border-radius: 6px; line-height: 1.4;">
+                            {{ $insight }}
                         </div>
                     </div>
 
-                    {{-- 4. Sepet (2 Sütun) --}}
-                    <div class="lg:col-span-2">
+                    {{-- 4. Sepet --}}
+                    <div>
                         @if ($record->cart_items_count > 0)
                             <div>
-                                <div class="font-extrabold text-emerald-400 text-sm flex items-center gap-1.5">
+                                <div style="font-weight: 800; color: #10b981; font-size: 14px; display: flex; align-items: center; gap: 5px;">
                                     🛒 {{ number_format($record->cart_total, 2) }} ₺
                                 </div>
-                                <div class="text-[10px] text-slate-400 mt-0.5">
+                                <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
                                     {{ $record->cart_items_count }} ürün sepette
                                 </div>
                             </div>
                         @else
-                            <div class="text-xs text-slate-500 font-medium">
+                            <div style="font-size: 11.5px; color: #64748b; font-weight: 500;">
                                 Sepet Boş
                             </div>
                         @endif
@@ -267,39 +364,39 @@
                 </div>
 
                 {{-- ALT SATIR: Önerilen Strateji ve Hızlı Butonlar (Satır Olarak Altında) --}}
-                <div class="visitor-log-footer bg-slate-950/85 border-t border-slate-800/80 px-4 lg:px-5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="av-footer visitor-log-footer">
                     
                     {{-- SOL: Önerilen Strateji Bilgisi --}}
-                    <div class="flex items-center gap-2 flex-wrap min-w-0">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1 shrink-0">
-                            <span class="text-amber-400">⚡</span> Önerilen Strateji:
+                    <div class="av-strategy-area">
+                        <span style="font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                            <span style="color: #fbbf24;">⚡</span> Önerilen Strateji:
                         </span>
 
                         @if ($strategy)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-orange-500/15 text-orange-400 border border-orange-500/40 shadow-sm shrink-0">
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; background: rgba(255, 78, 0, 0.16); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.38); flex-shrink: 0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
                                 ⚡ {{ $strategy['title'] ?? 'Strateji' }}
                             </span>
 
                             @if (!empty($strategy['suggested_coupon']))
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; font-weight: 700; background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); flex-shrink: 0;">
                                     🎟️ {{ $strategy['suggested_coupon'] }}
                                 </span>
                             @endif
 
                             @if (!empty($strategy['suggested_message']))
-                                <span class="text-xs text-slate-300 italic hidden xl:inline truncate max-w-md" title="{{ $strategy['suggested_message'] }}">
+                                <span style="font-size: 12px; color: #cbd5e1; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px;" title="{{ $strategy['suggested_message'] }}">
                                     "{{ $strategy['suggested_message'] }}"
                                 </span>
                             @endif
                         @else
-                            <span class="text-xs text-slate-500 italic">
+                            <span style="font-size: 11.5px; color: #64748b; font-style: italic;">
                                 Sitede gezinmeye devam ediyor, henüz tetikleyici oluşmadı.
                             </span>
                         @endif
                     </div>
 
                     {{-- SAĞ: Hızlı Butonlar (Aksiyonlar) --}}
-                    <div class="flex items-center gap-2 flex-wrap shrink-0 justify-end">
+                    <div class="av-actions-area">
                         @foreach ($recordActions as $action)
                             {{ $action }}
                         @endforeach
@@ -307,10 +404,10 @@
                 </div>
             </div>
         @empty
-            <div class="p-10 text-center bg-slate-900/60 border border-slate-800/80 rounded-2xl">
-                <div class="text-4xl mb-3">📡</div>
-                <div class="text-base font-extrabold text-slate-200">Şu An Sitede Canlı Ziyaretçi Yok</div>
-                <div class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            <div style="padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+                <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
+                <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                     Kullanıcılar siteye girdiğinde veya sayfaları gezmeye başladığında canlı radar sinyalleri anlık olarak burada listelenecektir.
                 </div>
             </div>
