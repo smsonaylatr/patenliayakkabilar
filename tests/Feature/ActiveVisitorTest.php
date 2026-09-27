@@ -773,6 +773,21 @@ class ActiveVisitorTest extends TestCase
         $this->assertArrayNotHasKey('/kategori/kiz-cocuk-patenli-ayakkabi', $options);
         $this->assertArrayNotHasKey('/kategori/erkek-cocuk-patenli-ayakkabi', $options);
     }
+
+    public function test_voice_message_defaults_to_speech_only_mode(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_speech_only_test',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $visitor->queueVoiceMessage('Yalnızca ses çalınacak.');
+
+        $this->assertEquals('speech_only', $visitor->pending_command['sound_type']);
+    }
 }
 
 

@@ -310,9 +310,9 @@ td.fi-ta-actions-cell {
 .traffic-card {
     display: flex;
     flex-direction: column;
-    gap: 9px;
-    padding: 13px 15px;
-    border-radius: 12px;
+    gap: 7px;
+    padding: 10px 12px;
+    border-radius: 10px;
     background: #ffffff;
     border: 1px solid rgba(226, 232, 240, 0.9);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -324,23 +324,23 @@ td.fi-ta-actions-cell {
 .dark .traffic-card {
     background: #141e30;
     border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
 }
 
 .traffic-badges-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
 }
 
 .traffic-source-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 11px;
-    border-radius: 8px;
-    font-size: 0.8rem;
+    gap: 5px;
+    padding: 3.5px 9px;
+    border-radius: 7px;
+    font-size: 0.76rem;
     font-weight: 800;
     letter-spacing: 0.02em;
     line-height: 1.25;
@@ -349,10 +349,10 @@ td.fi-ta-actions-cell {
 .traffic-device-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 7px;
-    font-size: 0.75rem;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
     font-weight: 600;
     background: #f1f5f9;
     color: #475569;
@@ -366,8 +366,8 @@ td.fi-ta-actions-cell {
 }
 
 .traffic-explanation {
-    font-size: 0.77rem;
-    line-height: 1.45;
+    font-size: 0.74rem;
+    line-height: 1.35;
     color: #475569;
 }
 
@@ -376,12 +376,12 @@ td.fi-ta-actions-cell {
 }
 
 .traffic-campaign-box {
-    padding: 7px 11px;
+    padding: 5px 9px;
     background: #f8fafc;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px dashed #cbd5e1;
-    font-size: 0.74rem;
-    line-height: 1.45;
+    font-size: 0.72rem;
+    line-height: 1.35;
 }
 
 .dark .traffic-campaign-box {
@@ -393,12 +393,12 @@ td.fi-ta-actions-cell {
 .traffic-gclid-chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     background: rgba(37, 99, 235, 0.07);
     border: 1px solid rgba(37, 99, 235, 0.2);
-    border-radius: 7px;
-    padding: 3px 9px;
-    font-size: 0.73rem;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 0.71rem;
     max-width: 100%;
     box-sizing: border-box;
 }
@@ -412,11 +412,11 @@ td.fi-ta-actions-cell {
 .traffic-url-card {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 9px;
-    padding: 8px 11px;
+    border-radius: 8px;
+    padding: 5px 8px;
     min-width: 0 !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -430,6 +430,8 @@ td.fi-ta-actions-cell {
 .traffic-url-head {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 6px;
     width: 100%;
     min-width: 0;
 }
@@ -437,8 +439,8 @@ td.fi-ta-actions-cell {
 .traffic-url-title {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.68rem;
+    gap: 4px;
+    font-size: 0.64rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -453,17 +455,17 @@ td.fi-ta-actions-cell {
 .traffic-url-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
-    width: 100%;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
 .traffic-action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 3.5px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.71rem;
+    gap: 3px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 0.67rem;
     font-weight: 700;
     cursor: pointer;
     background: #ffffff;
@@ -522,7 +524,7 @@ td.fi-ta-actions-cell {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 6px 9px;
+    padding: 4px 8px;
     cursor: pointer;
     transition: all 0.15s ease;
 }
@@ -545,10 +547,10 @@ td.fi-ta-actions-cell {
     white-space: nowrap;
     word-break: break-all;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.72rem;
+    font-size: 0.69rem;
     color: #2563eb;
     text-decoration: none;
-    line-height: 1.3;
+    line-height: 1.25;
 }
 
 .dark .traffic-url-text {
@@ -560,12 +562,12 @@ td.fi-ta-actions-cell {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    font-size: 0.72rem;
+    gap: 10px;
+    font-size: 0.69rem;
     color: #64748b;
     border-top: 1px solid rgba(226, 232, 240, 0.7);
-    padding-top: 7px;
-    margin-top: 2px;
+    padding-top: 5px;
+    margin-top: 1px;
     min-width: 0;
 }
 

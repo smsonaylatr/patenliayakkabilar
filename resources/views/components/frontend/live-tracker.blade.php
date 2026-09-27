@@ -974,7 +974,7 @@
         var toastContainer = document.getElementById('pa-toast-container');
         if (!toastContainer) return;
 
-        var soundType = cmd.sound_type || 'chime_and_speech';
+        var soundType = cmd.sound_type || 'speech_only';
         var messageText = cmd.message || '';
         var titleText = cmd.title || '🎙️ Canlı Mağaza Anonsu';
         var audioUrl = cmd.audio_url || null;
@@ -982,7 +982,7 @@
         var currentAudio = null;
 
         var playAudioSequence = function() {
-            // Eğer ElevenLabs MP3 dosyası hazırsa doğrudan stüdyo kalitesindeki sesi çal
+            // Eğer ses dosyası hazırsa doğrudan sesi çal
             if (audioUrl) {
                 try {
                     if (currentAudio) {

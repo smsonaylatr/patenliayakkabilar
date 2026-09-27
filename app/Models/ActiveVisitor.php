@@ -820,7 +820,7 @@ class ActiveVisitor extends Model
     public function queueVoiceMessage(
         string $message,
         string $title = '🎙️ Canlı Mağaza Anonsu',
-        string $soundType = 'chime_and_speech',
+        string $soundType = 'speech_only',
         ?string $couponCode = null,
         ?string $actionButton = null,
         ?string $actionUrl = null,

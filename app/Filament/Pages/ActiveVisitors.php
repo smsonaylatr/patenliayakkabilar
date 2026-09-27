@@ -652,7 +652,7 @@ class ActiveVisitors extends Page implements HasTable
                     ->color('warning')
                     ->icon('heroicon-o-speaker-wave')
                     ->modalHeading(fn (ActiveVisitor $record) => '🎙️ Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
-                    ->modalDescription('Ziyaretçinin ekranında melodili mağaza zili çalar, yazdığınız mesaj Türkçe seslendirilir (TTS) ve şık bir bildirim kartı açılır.')
+                    ->modalDescription('Ziyaretçinin ekranında ses kaydınız oynatılır ve şık bir bildirim kartı açılır.')
                     ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
                     ->form([
                         Select::make('voice_source')
@@ -708,14 +708,13 @@ class ActiveVisitors extends Page implements HasTable
                             ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                         Select::make('sound_type')
-                            ->label('Ses Efekti & Seslendirme Tipi')
+                            ->label('Ses Çalma Modu')
                             ->native(false)
                             ->options([
-                                'chime_and_speech' => '🔔 Mağaza Zili + Ses Kaydı Oynat + Görsel Kart',
-                                'speech_only' => '🗣️ Sadece Ses Kaydı Oynat + Görsel Kart',
-                                'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
+                                'speech_only' => '🎵 Sadece Sesi Oynat + Görsel Kart',
+                                'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart',
                             ])
-                            ->default('chime_and_speech')
+                            ->default('speech_only')
                             ->required(),
 
                         TextInput::make('title')
@@ -753,7 +752,7 @@ class ActiveVisitors extends Page implements HasTable
                         $record->queueVoiceMessage(
                             $data['message'],
                             $data['title'] ?? '🎙️ Canlı Mağaza Anonsu',
-                            $data['sound_type'] ?? 'chime_and_speech',
+                            $data['sound_type'] ?? 'speech_only',
                             $data['coupon_code'] ?? null,
                             $data['action_button'] ?? null,
                             $data['action_url'] ?? null,
@@ -926,7 +925,7 @@ class ActiveVisitors extends Page implements HasTable
                 ->color('warning')
                 ->icon('heroicon-o-speaker-wave')
                 ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
-                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda melodili mağaza zili çalar ve ses kaydınız veya bildiriminiz anons edilir.')
+                ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda ses kaydınız oynatılır ve şık bir bildirim kartı açılır.')
                 ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
                 ->form([
                     Select::make('voice_source')
@@ -982,14 +981,13 @@ class ActiveVisitors extends Page implements HasTable
                         ->helperText('Telefonunuzdan veya mikrofonunuzdan kaydettiğiniz ses dosyasını yükleyin. Ziyaretçilere bu ses dinletilecektir.'),
 
                     Select::make('sound_type')
-                        ->label('Ses Efekti & Seslendirme Tipi')
+                        ->label('Ses Çalma Modu')
                         ->native(false)
                         ->options([
-                            'chime_and_speech' => '🔔 Mağaza Zili + Ses Kaydı Oynat + Görsel Kart',
-                            'speech_only' => '🗣️ Sadece Ses Kaydı Oynat + Görsel Kart',
-                            'chime_only' => '🔔 Sadece Dikkat Çeken Mağaza Zili + Görsel Kart',
+                            'speech_only' => '🎵 Sadece Sesi Oynat + Görsel Kart',
+                            'chime_and_speech' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart',
                         ])
-                        ->default('chime_and_speech')
+                        ->default('speech_only')
                         ->required(),
 
                     TextInput::make('title')
@@ -1029,7 +1027,7 @@ class ActiveVisitors extends Page implements HasTable
                         $v->queueVoiceMessage(
                             $data['message'],
                             $data['title'] ?? '🎙️ Patenli Ayakkabılar Mağaza Anonsu',
-                            $data['sound_type'] ?? 'chime_and_speech',
+                            $data['sound_type'] ?? 'speech_only',
                             $data['coupon_code'] ?? null,
                             $data['action_button'] ?? null,
                             $data['action_url'] ?? null,
