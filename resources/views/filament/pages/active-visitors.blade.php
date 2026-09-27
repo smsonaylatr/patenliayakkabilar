@@ -337,45 +337,58 @@
         }
 
         /* ─── POP-UP & MODAL GENEL DÜZEN VE HİZALAMA STİLLERİ ─── */
-        /* Modal penceresi taban boyutu ve estetik çerçeve */
+        /* Modal penceresi taban boyutu ve estetik çerçeve (Tam Responsive) */
         .fi-modal-window {
-            border-radius: 18px !important;
+            border-radius: 16px !important;
             overflow: hidden !important;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.09) !important;
+            max-width: min(740px, calc(100vw - 20px)) !important;
+            width: 100% !important;
         }
 
         .fi-modal-header {
-            padding: 20px 24px 16px 24px !important;
+            padding: 16px 22px 14px 22px !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            background: rgba(15, 23, 42, 0.95) !important;
+            background: rgba(15, 23, 42, 0.96) !important;
             backdrop-filter: blur(12px) !important;
         }
 
         .fi-modal-heading {
-            font-size: 1.15rem !important;
+            font-size: 1.1rem !important;
             font-weight: 700 !important;
             color: #f8fafc !important;
             letter-spacing: -0.01em !important;
+            line-height: 1.3 !important;
         }
 
         .fi-modal-description {
-            margin-top: 4px !important;
-            font-size: 0.85rem !important;
+            margin-top: 3px !important;
+            font-size: 0.82rem !important;
             color: #94a3b8 !important;
-            line-height: 1.4 !important;
+            line-height: 1.35 !important;
         }
 
-        /* Modal İçeriği: Rahat Kaydırma, Asla Butonlarla Çakışmayan Düzen */
+        /* Modal İçeriği: Rahat Kaydırma, İdeal Boşluklar */
         .fi-modal-content {
-            padding: 20px 24px 28px 24px !important;
+            padding: 16px 22px 20px 22px !important;
             overflow-y: auto !important;
-            max-height: calc(85vh - 130px) !important;
+            max-height: calc(85vh - 120px) !important;
+            scrollbar-width: thin !important;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
         }
 
-        /* Modal Footer / Aksiyon Butonları: Çakışmayı Önleyen Sabit & Şık Çubuk */
+        .fi-modal-content::-webkit-scrollbar {
+            width: 6px !important;
+        }
+        .fi-modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 4px !important;
+        }
+
+        /* Modal Footer / Aksiyon Butonları */
         .fi-modal-footer {
-            padding: 16px 24px !important;
+            padding: 12px 22px !important;
             border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             background: rgba(15, 23, 42, 0.98) !important;
             backdrop-filter: blur(12px) !important;
@@ -386,66 +399,195 @@
             display: flex !important;
             align-items: center !important;
             justify-content: flex-end !important;
-            gap: 12px !important;
+            gap: 10px !important;
             flex-wrap: wrap !important;
         }
 
+        .fi-modal-footer-actions .fi-btn,
+        .fi-modal-footer .fi-btn {
+            height: 36px !important;
+            padding: 0 14px !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+        }
+
         /* Modal içi form alanları ve yardım metinleri hizalaması */
+        .fi-modal-content .fi-fo-field,
         .fi-modal-content .fi-fo-field-wrp {
-            margin-bottom: 4px !important;
+            margin-bottom: 12px !important;
         }
 
+        .fi-modal-content .fi-fo-field-label-col {
+            margin-bottom: 5px !important;
+            display: block !important;
+        }
+
+        .fi-modal-content .fi-fo-field-label,
+        .fi-modal-content .fi-fo-field-label-content {
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            color: #e2e8f0 !important;
+            line-height: 1.35 !important;
+        }
+
+        .fi-modal-content .fi-fo-field-helper-text,
         .fi-modal-content .fi-fo-field-wrp-helper-text {
-            margin-top: 6px !important;
-            font-size: 0.82rem !important;
+            margin-top: 4px !important;
+            font-size: 11px !important;
             color: #94a3b8 !important;
-            line-height: 1.45 !important;
+            line-height: 1.35 !important;
         }
 
-        /* ─── HIZLI KANAL SEÇİMİ BUTON IZGARASI (3x3 MÜKEMMEL HİZALI KARTLAR) ─── */
-        .channel-selection-grid {
+        .fi-modal-content .fi-input-wrp {
+            border-radius: 8px !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            transition: all 0.15s ease !important;
+            min-height: 38px !important;
+        }
+
+        .fi-modal-content .fi-input-wrp:focus-within {
+            border-color: #f97316 !important;
+            box-shadow: 0 0 0 1px #f97316, 0 0 10px rgba(249, 115, 22, 0.25) !important;
+        }
+
+        .fi-modal-content input.fi-input,
+        .fi-modal-content textarea.fi-input,
+        .fi-modal-content .fi-select-input {
+            font-size: 12.5px !important;
+            padding: 7px 11px !important;
+            color: #f8fafc !important;
+        }
+
+        /* ─── HIZLI KANAL SEÇİMİ BUTON IZGARASI (MÜKEMMEL HİZALI, ÇAKIŞMASIZ KARTLAR) ─── */
+        .channel-selection-field-wrapper {
+            margin-top: 4px !important;
+            margin-bottom: 14px !important;
+            width: 100% !important;
+            display: block !important;
+        }
+
+        .channel-selection-field-wrapper .fi-fo-field-label-col {
+            display: block !important;
+            margin-bottom: 8px !important;
+            padding: 0 !important;
             width: 100% !important;
         }
 
-        .channel-selection-grid .fi-fo-radio {
+        .channel-selection-field-wrapper .fi-fo-field-label,
+        .channel-selection-field-wrapper .fi-fo-field-label-content {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #f8fafc !important;
+            margin-bottom: 0 !important;
+        }
+
+        .channel-selection-grid,
+        .fi-fo-radio.channel-selection-grid,
+        .channel-selection-field-wrapper .fi-fo-radio {
             display: grid !important;
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            gap: 10px !important;
+            gap: 8px !important;
             width: 100% !important;
+            margin-top: 2px !important;
+            margin-bottom: 0 !important;
+            padding: 0 !important;
         }
 
         @media (max-width: 640px) {
-            .channel-selection-grid .fi-fo-radio {
+            .channel-selection-grid,
+            .fi-fo-radio.channel-selection-grid,
+            .channel-selection-field-wrapper .fi-fo-radio {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 6px !important;
+            }
+
+            .fi-modal-window {
+                max-width: calc(100vw - 16px) !important;
+                margin: 8px auto !important;
+                border-radius: 14px !important;
+            }
+
+            .fi-modal-header {
+                padding: 12px 14px !important;
+            }
+
+            .fi-modal-heading {
+                font-size: 1rem !important;
+            }
+
+            .fi-modal-description {
+                font-size: 0.78rem !important;
+            }
+
+            .fi-modal-content {
+                padding: 12px 14px !important;
+            }
+
+            .fi-modal-footer {
+                padding: 10px 14px !important;
+            }
+
+            .fi-modal-footer-actions {
+                flex-direction: column-reverse !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+
+            .fi-modal-footer-actions .fi-btn {
+                width: 100% !important;
+                justify-content: center !important;
             }
         }
 
-        .channel-selection-grid .fi-fo-radio-label {
+        @media (max-width: 440px) {
+            .channel-selection-grid,
+            .fi-fo-radio.channel-selection-grid,
+            .channel-selection-field-wrapper .fi-fo-radio {
+                grid-template-columns: 1fr !important;
+                gap: 6px !important;
+            }
+        }
+
+        .channel-selection-grid .fi-fo-radio-label,
+        .channel-selection-field-wrapper .fi-fo-radio-label {
             position: relative !important;
             display: flex !important;
             align-items: center !important;
             justify-content: flex-start !important;
-            padding: 10px 12px !important;
-            min-height: 60px !important;
-            border-radius: 12px !important;
-            background: rgba(30, 41, 59, 0.55) !important;
+            padding: 7px 10px !important;
+            min-height: 48px !important;
+            border-radius: 10px !important;
+            background: rgba(30, 41, 59, 0.6) !important;
             border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
             cursor: pointer !important;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
             margin: 0 !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
             user-select: none !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
         }
 
-        .channel-selection-grid .fi-fo-radio-label:hover {
-            background: rgba(51, 65, 85, 0.7) !important;
+        .channel-selection-grid .fi-fo-radio-label:hover,
+        .channel-selection-field-wrapper .fi-fo-radio-label:hover {
+            background: rgba(51, 65, 85, 0.75) !important;
             border-color: rgba(249, 115, 22, 0.45) !important;
             transform: translateY(-1px) !important;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
         }
 
         /* Standart radio dairesini gizle */
-        .channel-selection-grid .fi-radio-input {
+        .channel-selection-grid .fi-radio-input,
+        .channel-selection-field-wrapper .fi-radio-input {
             position: absolute !important;
             opacity: 0 !important;
             width: 0 !important;
@@ -453,53 +595,57 @@
             pointer-events: none !important;
         }
 
-        .channel-selection-grid .fi-fo-radio-label-text {
+        .channel-selection-grid .fi-fo-radio-label-text,
+        .channel-selection-field-wrapper .fi-fo-radio-label-text {
             width: 100% !important;
             margin: 0 !important;
         }
 
-        .channel-selection-grid .fi-fo-radio-label-text > p {
+        .channel-selection-grid .fi-fo-radio-label-text > p,
+        .channel-selection-field-wrapper .fi-fo-radio-label-text > p {
             margin: 0 !important;
             width: 100% !important;
         }
 
         /* Seçili Kart Vurgusu */
-        .channel-selection-grid .fi-fo-radio-label:has(input:checked) {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.18) 0%, rgba(234, 88, 12, 0.28) 100%) !important;
+        .channel-selection-grid .fi-fo-radio-label:has(input:checked),
+        .channel-selection-field-wrapper .fi-fo-radio-label:has(input:checked) {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.16) 0%, rgba(234, 88, 12, 0.25) 100%) !important;
             border-color: #f97316 !important;
-            box-shadow: 0 0 0 1px #f97316, 0 6px 18px rgba(249, 115, 22, 0.28) !important;
+            box-shadow: 0 0 0 1px #f97316, 0 4px 12px rgba(249, 115, 22, 0.22) !important;
         }
 
-        .channel-selection-grid .fi-fo-radio-label:has(input:checked)::after {
+        .channel-selection-grid .fi-fo-radio-label:has(input:checked)::after,
+        .channel-selection-field-wrapper .fi-fo-radio-label:has(input:checked)::after {
             content: '✓' !important;
             position: absolute !important;
-            top: 6px !important;
-            right: 7px !important;
-            width: 16px !important;
-            height: 16px !important;
+            top: 5px !important;
+            right: 6px !important;
+            width: 14px !important;
+            height: 14px !important;
             background: #f97316 !important;
             color: #ffffff !important;
-            font-size: 10px !important;
+            font-size: 8.5px !important;
             font-weight: 800 !important;
             border-radius: 50% !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
         }
 
         /* Kart İçeriği Düzeni */
         .channel-card-row {
             display: flex !important;
             align-items: center !important;
-            gap: 10px !important;
+            gap: 8px !important;
             width: 100% !important;
         }
 
         .channel-card-icon {
-            width: 34px !important;
-            height: 34px !important;
-            border-radius: 9px !important;
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 7px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -507,8 +653,8 @@
         }
 
         .channel-card-icon svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 15px !important;
+            height: 15px !important;
         }
 
         .channel-card-info {
@@ -521,21 +667,21 @@
         }
 
         .channel-card-title {
-            font-size: 13px !important;
+            font-size: 11.5px !important;
             font-weight: 700 !important;
             color: #f8fafc !important;
-            line-height: 1.25 !important;
+            line-height: 1.2 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
 
         .channel-card-subtitle {
-            font-size: 10.5px !important;
+            font-size: 9.5px !important;
             font-weight: 500 !important;
             color: #94a3b8 !important;
-            line-height: 1.2 !important;
-            margin-top: 2px !important;
+            line-height: 1.15 !important;
+            margin-top: 1px !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
