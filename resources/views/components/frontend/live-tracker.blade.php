@@ -424,6 +424,74 @@
     var isSending = false;
     var activeRedirectTimer = null;
 
+    // Ziyaretçi Kimlik Durumu (Canlı Form ve Müşteri Tanıma)
+    var lastKnownIdentity = {
+        guest_name: null,
+        guest_email: null,
+        guest_phone: null
+    };
+    var identityTimer = null;
+
+    function sendIdentityNow() {
+        if (!lastKnownIdentity.guest_name && !lastKnownIdentity.guest_email && !lastKnownIdentity.guest_phone) {
+            return;
+        }
+
+        var payload = {
+            visitor_token: visitorToken,
+            guest_name: lastKnownIdentity.guest_name,
+            guest_email: lastKnownIdentity.guest_email,
+            guest_phone: lastKnownIdentity.guest_phone,
+            url: window.location.href,
+            path: window.location.pathname
+        };
+
+        fetch('/api/presence/identify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .catch(function() {});
+    }
+
+    function triggerIdentityUpdate(delayMs) {
+        if (identityTimer) clearTimeout(identityTimer);
+        identityTimer = setTimeout(sendIdentityNow, delayMs || 250);
+    }
+
+    window.paIdentifyVisitor = function(name, email, phone) {
+        var changed = false;
+        if (typeof name !== 'undefined' && name !== null) {
+            var trimmedName = name.trim();
+            if (trimmedName !== lastKnownIdentity.guest_name) {
+                lastKnownIdentity.guest_name = trimmedName;
+                changed = true;
+            }
+        }
+        if (typeof email !== 'undefined' && email !== null) {
+            var trimmedEmail = email.trim();
+            if (trimmedEmail !== lastKnownIdentity.guest_email) {
+                lastKnownIdentity.guest_email = trimmedEmail;
+                changed = true;
+            }
+        }
+        if (typeof phone !== 'undefined' && phone !== null) {
+            var trimmedPhone = phone.trim();
+            if (trimmedPhone !== lastKnownIdentity.guest_phone) {
+                lastKnownIdentity.guest_phone = trimmedPhone;
+                changed = true;
+            }
+        }
+        if (changed) {
+            triggerIdentityUpdate(300);
+        }
+    };
+
     // Güvenli HTML escape
     function escapeHtml(str) {
         if (!str) return '';
@@ -536,6 +604,8 @@
             executeOfferCommand(cmd);
         } else if (cmd.action === 'alert') {
             executeAlertCommand(cmd);
+        } else if (cmd.action === 'voice') {
+            executeVoiceCommand(cmd);
         } else if (cmd.action === 'reload') {
             window.location.reload();
         } else if (cmd.action === 'kick') {
@@ -790,6 +860,232 @@
         setTimeout(removeToast, 6000);
     }
 
+    // 6.5. Melodili Mağaza Anons Zili (Web Audio API)
+    function playChimeSound(callback) {
+        try {
+            var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) {
+                if (callback) callback();
+                return;
+            }
+            var ctx = new AudioContextClass();
+            if (ctx.state === 'suspended') {
+                ctx.resume();
+            }
+
+            var t = ctx.currentTime;
+            // 1. Ton: 587.33 Hz (D5)
+            var osc1 = ctx.createOscillator();
+            var gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, t);
+            gain1.gain.setValueAtTime(0.2, t);
+            gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(t);
+            osc1.stop(t + 0.45);
+
+            // 2. Ton: 880 Hz (A5 - Mağaza Anons Çanı)
+            var osc2 = ctx.createOscillator();
+            var gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(880, t + 0.16);
+            gain2.gain.setValueAtTime(0.25, t + 0.16);
+            gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(t + 0.16);
+            osc2.stop(t + 0.85);
+
+            if (callback) {
+                setTimeout(callback, 850);
+            }
+        } catch (e) {
+            if (callback) callback();
+        }
+    }
+
+    // Tarayıcı Yerleşik Türkçe Konuşma Sentezi (TTS Fallback)
+    function speakTurkishText(text) {
+        if (!('speechSynthesis' in window) || !text) return;
+        try {
+            window.speechSynthesis.cancel();
+            var clean = text.replace(/<[^>]*>?/gm, '');
+            var utter = new SpeechSynthesisUtterance(clean);
+            utter.lang = 'tr-TR';
+            utter.rate = 0.95;
+            utter.pitch = 1.05;
+
+            var voices = window.speechSynthesis.getVoices();
+            for (var i = 0; i < voices.length; i++) {
+                if (voices[i].lang && voices[i].lang.toLowerCase().indexOf('tr') !== -1) {
+                    utter.voice = voices[i];
+                    break;
+                }
+            }
+
+            window.speechSynthesis.speak(utter);
+        } catch(e) {}
+    }
+
+    // Sesli İleti & Anons Yönetimi (ElevenLabs AI Audio + TTS Fallback + Görsel Kart)
+    function executeVoiceCommand(cmd) {
+        var toastContainer = document.getElementById('pa-toast-container');
+        if (!toastContainer) return;
+
+        var soundType = cmd.sound_type || 'chime_and_speech';
+        var messageText = cmd.message || '';
+        var titleText = cmd.title || '🎙️ Canlı Mağaza Anonsu';
+        var audioUrl = cmd.audio_url || null;
+
+        var currentAudio = null;
+
+        var playAudioSequence = function() {
+            // Eğer ElevenLabs MP3 dosyası hazırsa doğrudan stüdyo kalitesindeki sesi çal
+            if (audioUrl) {
+                try {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                    }
+                    currentAudio = new Audio(audioUrl);
+                    currentAudio.volume = 1.0;
+
+                    if (soundType === 'chime_and_speech') {
+                        playChimeSound(function() {
+                            currentAudio.play().catch(function() {
+                                // Tarayıcı otomatik oynatmayı engellerse Web Speech fallback dene
+                                speakTurkishText(messageText);
+                            });
+                        });
+                    } else if (soundType === 'speech_only') {
+                        currentAudio.play().catch(function() {
+                            speakTurkishText(messageText);
+                        });
+                    } else if (soundType === 'chime_only') {
+                        playChimeSound();
+                    }
+                    return;
+                } catch(e) {
+                    // Fallback to TTS
+                }
+            }
+
+            // Fallback: Web Speech API TTS
+            if (soundType === 'chime_and_speech') {
+                playChimeSound(function() {
+                    speakTurkishText(messageText);
+                });
+            } else if (soundType === 'speech_only') {
+                speakTurkishText(messageText);
+            } else if (soundType === 'chime_only') {
+                playChimeSound();
+            }
+        };
+
+        // Otomatik ses çalmayı başlat
+        playAudioSequence();
+
+        var toastId = 'pa-voice-' + Date.now();
+        var card = document.createElement('div');
+        card.id = toastId;
+        card.className = 'pa-toast-card';
+        card.style.cssText = 'background: #0f172a !important; color: #ffffff !important; border-left: 4px solid #f97316 !important; border: 1px solid rgba(249, 115, 22, 0.4) !important; flex-direction: column !important; gap: 12px !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;';
+
+        var couponHtml = '';
+        if (cmd.coupon_code) {
+            couponHtml = 
+                '<div style="background: rgba(255,255,255,0.06); border: 1px dashed #f97316; border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">' +
+                    '<div>' +
+                        '<div style="font-size: 9px; font-weight: 800; color: #fb923c; text-transform: uppercase; letter-spacing: 0.08em;">İNDİRİM KUPONUNUZ</div>' +
+                        '<div style="font-family: monospace; font-size: 14px; font-weight: 800; color: #ffffff;">' + escapeHtml(cmd.coupon_code) + '</div>' +
+                    '</div>' +
+                    '<button type="button" class="pa-copy-voice-coupon" style="background: #f97316; color: #ffffff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer;">Kopyala</button>' +
+                '</div>';
+        }
+
+        var btnHtml = '';
+        if (cmd.action_button && cmd.action_url) {
+            btnHtml = 
+                '<a href="' + escapeHtml(cmd.action_url) + '" style="background: linear-gradient(135deg, #FF7A1A 0%, #ea580c 100%); color: #ffffff; text-decoration: none; padding: 10px 16px; border-radius: 999px; font-size: 12px; font-weight: 800; text-align: center; display: block; box-shadow: 0 4px 12px rgba(255,122,26,0.35);">' +
+                    escapeHtml(cmd.action_button) + ' ↗' +
+                '</a>';
+        }
+
+        card.innerHTML = 
+            '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; width: 100%;">' +
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    '<div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.4); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fb923c; flex-shrink: 0;">' +
+                        '🎙️' +
+                    '</div>' +
+                    '<div>' +
+                        '<div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #fb923c; display: flex; align-items: center; gap: 5px;">' +
+                            '<span class="pa-pulse-dot" style="width: 6px; height: 6px;"></span>' +
+                            'CANLI SESLİ ANONS' +
+                        '</div>' +
+                        '<h4 style="font-size: 13.5px; font-weight: 900; color: #ffffff; margin: 2px 0 0 0; line-height: 1.25;">' + escapeHtml(titleText) + '</h4>' +
+                    '</div>' +
+                '</div>' +
+                '<button type="button" class="pa-close-voice-toast" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px;" aria-label="Kapat">' +
+                    '<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' +
+                '</button>' +
+            '</div>' +
+
+            '<p style="font-size: 12.5px; color: #cbd5e1; line-height: 1.55; margin: 0; font-weight: 500;">' + escapeHtml(messageText) + '</p>' +
+
+            couponHtml +
+            btnHtml +
+
+            '<div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; color: #94a3b8; width: 100%;">' +
+                '<button type="button" class="pa-replay-voice-btn" style="background: none; border: none; color: #fb923c; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">' +
+                    '<span>🔊</span> Tekrar Dinle' +
+                '</button>' +
+                '<span style="font-size: 10px; color: #64748b; font-family: monospace;">Patenli Ayakkabılar Live</span>' +
+            '</div>';
+
+        toastContainer.appendChild(card);
+
+        requestAnimationFrame(function() {
+            card.classList.add('pa-show');
+        });
+
+        // Kupon kopyalama
+        var copyBtn = card.querySelector('.pa-copy-voice-coupon');
+        if (copyBtn && cmd.coupon_code) {
+            copyBtn.onclick = function() {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(cmd.coupon_code).then(function() {
+                        copyBtn.textContent = 'Kopyalandı! ✓';
+                        copyBtn.style.background = '#16a34a';
+                    });
+                }
+            };
+        }
+
+        // Tekrar Dinle Butonu
+        var replayBtn = card.querySelector('.pa-replay-voice-btn');
+        if (replayBtn) {
+            replayBtn.onclick = function() {
+                playAudioSequence();
+            };
+        }
+
+        // Kapatma Butonu
+        var closeToast = function() {
+            card.classList.remove('pa-show');
+            setTimeout(function() {
+                if (card.parentNode) card.parentNode.removeChild(card);
+            }, 300);
+        };
+
+        var closeBtn = card.querySelector('.pa-close-voice-toast');
+        if (closeBtn) closeBtn.onclick = closeToast;
+
+        // 14 saniye sonra otomatik kapanış
+        setTimeout(closeToast, 14000);
+    }
+
     // 7. Kullanıcı Hareketlerini Dinleme (Beden & Varyant Tıklamaları)
     function setupInteractions() {
         document.addEventListener('click', function(e) {
@@ -807,7 +1103,58 @@
         });
     }
 
-    // 8. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
+    // 8. Canlı Form Dinleyicisi (Checkout İsim, E-posta, Telefon Canlı Takip)
+    function setupCheckoutListeners() {
+        document.addEventListener('input', function(e) {
+            var target = e.target;
+            if (!target || !target.tagName || target.tagName.toLowerCase() !== 'input') return;
+
+            var val = target.value;
+            var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+            var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
+            var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+            var placeholder = (target.getAttribute('placeholder') || '').toLowerCase();
+
+            // Ad Soyad alanı (canlı isim yazarken anında güncelle)
+            if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1 || placeholder.indexOf('adınız') !== -1) {
+                if (val && val.length >= 2) {
+                    window.paIdentifyVisitor(val, null, null);
+                }
+            }
+            // E-posta alanı
+            else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1 || nameAttr.indexOf('email') !== -1 || placeholder.indexOf('@') !== -1) {
+                if (val && val.length >= 4) {
+                    window.paIdentifyVisitor(null, val, null);
+                }
+            }
+            // Telefon alanı
+            else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1 || nameAttr.indexOf('phone') !== -1 || placeholder.indexOf('5xx') !== -1 || placeholder.indexOf('telefon') !== -1) {
+                if (val && val.length >= 6) {
+                    window.paIdentifyVisitor(null, null, val);
+                }
+            }
+        }, { passive: true });
+
+        // Input dışına çıkıldığında (blur)
+        document.addEventListener('focusout', function(e) {
+            var target = e.target;
+            if (!target || !target.tagName || target.tagName.toLowerCase() !== 'input') return;
+            var val = target.value;
+            var nameAttr = (target.getAttribute('name') || '').toLowerCase();
+            var autocomplete = (target.getAttribute('autocomplete') || '').toLowerCase();
+            var wireModel = (target.getAttribute('wire:model') || target.getAttribute('wire:model.live') || target.getAttribute('wire:model.blur') || '').toLowerCase();
+
+            if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1) {
+                if (val) window.paIdentifyVisitor(val, null, null);
+            } else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1) {
+                if (val) window.paIdentifyVisitor(null, val, null);
+            } else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1) {
+                if (val) window.paIdentifyVisitor(null, null, val);
+            }
+        }, { passive: true });
+    }
+
+    // 9. Tab Görünürlük Yönetimi (Pil & Kaynak Optimizasyonu)
     function handleVisibility() {
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
@@ -832,12 +1179,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             sendHeartbeat('view');
             setupInteractions();
+            setupCheckoutListeners();
             handleVisibility();
             restartLoop();
         });
     } else {
         sendHeartbeat('view');
         setupInteractions();
+        setupCheckoutListeners();
         handleVisibility();
         restartLoop();
     }
