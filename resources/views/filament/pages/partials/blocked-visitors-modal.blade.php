@@ -76,8 +76,10 @@
                                         ⛔
                                     </span>
                                     <div>
-                                        <div style="font-weight: 800; color: #f8fafc;">
-                                            {{ $name }}
+                                        <div style="font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 5px;">
+                                            <span>{{ $name }}</span>
+                                            {!! $visitor->stars_html !!}
+                                            <span style="font-family: monospace; color: #38bdf8; font-size: 10px;">#{{ $visitor->guest_id }}</span>
                                         </div>
                                         <div style="font-family: monospace; color: #fb7185; font-size: 11px;">
                                             {{ $visitor->ip_address ?: 'IP Bilinmiyor' }}

@@ -281,7 +281,7 @@ class ActiveVisitors extends Page implements HasTable
                 // 1. Ziyaretçi Kimliği & Canlı Sinyal
                 TextColumn::make('visitor_identity')
                     ->label('Ziyaretçi & Sinyal')
-                    ->searchable(['ip_address', 'guest_name', 'guest_email', 'guest_phone', 'referrer_host', 'utm_source', 'utm_campaign', 'user.name', 'user.email'])
+                    ->searchable(['ip_address', 'guest_name', 'guest_id', 'visitor_token', 'guest_email', 'guest_phone', 'referrer_host', 'utm_source', 'utm_campaign', 'user.name', 'user.email'])
                     ->getStateUsing(function (ActiveVisitor $record) {
                         $isOnline = $record->is_currently_online;
                         $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
@@ -297,6 +297,8 @@ class ActiveVisitors extends Page implements HasTable
                         $initial = mb_substr($name, 0, 1);
                         $duration = $record->duration_formatted;
                         $pageCount = $record->page_views_count ?: 1;
+                        $starsHtml = $record->stars_html;
+                        $guestId = e($record->guest_id);
 
                         $phone = $record->user?->phone ?? $record->guest_phone;
                         $email = $record->user?->email ?? $record->guest_email;
@@ -310,6 +312,11 @@ class ActiveVisitors extends Page implements HasTable
                             $badgeHtml = '<span style="background:rgba(16,185,129,0.25);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MÜŞTERİ</span>';
                         } elseif ($hasCustomName) {
                             $badgeHtml = '<span style="background:rgba(56,189,248,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MİSAFİR</span>';
+                        }
+
+                        $idBadge = '';
+                        if ($hasCustomName) {
+                            $idBadge = '<span title="Kalıcı Misafir ID: #' . $guestId . '" style="background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-size:9.5px;font-family:monospace;font-weight:700;">#' . $guestId . '</span>';
                         }
 
                         $contactHtml = '';
@@ -347,16 +354,20 @@ class ActiveVisitors extends Page implements HasTable
                                 <div style="flex:1;">
                                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
                                         <span style="font-weight:800;color:#f8fafc;font-size:13px;">' . $name . '</span>
+                                        ' . $starsHtml . '
                                         ' . $badgeHtml . '
+                                        ' . $idBadge . '
                                     </div>
                                     <div style="margin-bottom:4px;">
                                         ' . $onlineBadge . '
                                     </div>
                                     ' . $contactHtml . '
-                                    <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;margin-top:2px;">
+                                    <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
                                         <span>' . $deviceIcon . ' ' . e($record->browser ?? 'Tarayıcı') . '</span>
                                         <span>•</span>
                                         <span style="font-family:monospace;color:#64748b;">' . e($record->ip_address) . '</span>
+                                        <span>•</span>
+                                        <span title="Kalıcı Misafir ID" style="font-family:monospace;color:#38bdf8;font-size:10px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);padding:0.5px 5px;border-radius:4px;">ID: #' . $guestId . '</span>
                                     </div>
                                     <div style="font-size:10px;color:#64748b;margin-top:2px;">
                                         ⏱️ ' . $duration . ' (' . $pageCount . '. sayfa)

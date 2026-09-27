@@ -408,15 +408,38 @@
 (function() {
     'use strict';
 
-    // 1. Kalıcı Ziyaretçi Belirteci (Persistent Visitor Token)
+    // 1. Kalıcı Misafir Belirteci (Persistent Visitor Token & Cookie Sync)
     var storageKey = 'pa_visitor_token';
-    var visitorToken = localStorage.getItem(storageKey);
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        return match ? decodeURIComponent(match[3]) : null;
+    }
+    function setCookie(name, val, days) {
+        var d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + encodeURIComponent(val) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+    }
+
+    var visitorToken = null;
+    try {
+        visitorToken = localStorage.getItem(storageKey);
+    } catch(e) {}
+
+    if (!visitorToken) {
+        visitorToken = getCookie(storageKey);
+    }
+
     if (!visitorToken) {
         visitorToken = 'pa_vt_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
-        try {
-            localStorage.setItem(storageKey, visitorToken);
-        } catch(e) {}
     }
+
+    // Hem LocalStorage hem de Cookie'de 2 yıl boyunca kalıcı sakla
+    try {
+        localStorage.setItem(storageKey, visitorToken);
+    } catch(e) {}
+    try {
+        setCookie(storageKey, visitorToken, 730);
+    } catch(e) {}
 
     // 1.1 İlk Giriş Kaynağı ve Kampanya Belleği (First-touch Attribution)
     var initialReferrer = '';

@@ -199,6 +199,7 @@
                                     <span style="font-weight: 800; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">
                                         {{ $name }}
                                     </span>
+                                    {!! $record->stars_html !!}
                                     @if ($record->is_blocked)
                                         <span style="background: rgba(239, 68, 68, 0.25); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
                                             🚫 ENGELLENDİ
@@ -210,6 +211,9 @@
                                     @elseif ($hasCustomName)
                                         <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
                                             MİSAFİR
+                                        </span>
+                                        <span title="Kalıcı Misafir ID: #{{ $record->guest_id }}" style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-family: monospace; font-weight: 700;">
+                                            #{{ $record->guest_id }}
                                         </span>
                                     @endif
                                 </div>
@@ -238,6 +242,8 @@
                                     <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
                                     <span style="color: #64748b;">•</span>
                                     <span style="font-family: monospace; color: #64748b;">{{ $record->ip_address }}</span>
+                                    <span style="color: #64748b;">•</span>
+                                    <span title="Kalıcı Misafir ID" style="font-family: monospace; color: #38bdf8; font-size: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 0.5px 5px; border-radius: 4px;">ID: #{{ $record->guest_id }}</span>
                                 </div>
                                 <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
                                     ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)

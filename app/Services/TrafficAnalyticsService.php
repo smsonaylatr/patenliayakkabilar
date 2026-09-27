@@ -309,53 +309,40 @@ class TrafficAnalyticsService
      */
     public function getVisitorFrequencySignal(ActiveVisitor $visitor): array
     {
-        $ip = $visitor->ip_address;
-        $token = $visitor->visitor_token;
+        $visitCount = (int) ($visitor->visit_count ?: 1);
 
-        $visitsThisMonth = ActiveVisitor::where(function ($q) use ($ip, $token) {
-            $q->where('visitor_token', $token);
-            if ($ip) {
-                $q->orWhere('ip_address', $ip);
-            }
-        })
-        ->where('first_seen_at', '>=', now()->subDays(30))
-        ->count();
-
-        $firstSeen = $visitor->first_seen_at ?: $visitor->created_at;
-        $isReturning = $firstSeen && $firstSeen->lt(now()->subHours(12));
-
-        if ($visitsThisMonth >= 4 || ($isReturning && $visitor->page_views_count >= 5)) {
+        if ($visitCount >= 3) {
             return [
                 'type' => 'loyal',
-                'badge' => '🌟 SADIK ZİYARETÇİ',
-                'label' => 'Bu ay ' . max(2, $visitsThisMonth) . '. ziyareti',
+                'badge' => '🌟 ' . $visitCount . '. GELİŞİ',
+                'label' => 'Sadık Misafir (' . $visitCount . '. gelişi)',
                 'color' => '#8b5cf6',
                 'bg' => 'rgba(139, 92, 246, 0.16)',
                 'border' => 'rgba(139, 92, 246, 0.35)',
-                'icon' => '💎',
+                'icon' => '⭐⭐⭐',
             ];
         }
 
-        if ($isReturning) {
+        if ($visitCount === 2) {
             return [
                 'type' => 'returning',
-                'badge' => '🔁 TEKRAR GELEN',
-                'label' => 'Bu hafta ' . max(2, $visitsThisMonth) . '. gelişi',
+                'badge' => '🔁 2. GELİŞİ',
+                'label' => 'Tekrar Gelen Misafir (2. gelişi)',
                 'color' => '#38bdf8',
                 'bg' => 'rgba(56, 189, 248, 0.16)',
                 'border' => 'rgba(56, 189, 248, 0.35)',
-                'icon' => '🔄',
+                'icon' => '⭐⭐',
             ];
         }
 
         return [
             'type' => 'new',
-            'badge' => '✨ İLK SİNYAL',
+            'badge' => '⚡ 1. GELİŞİ',
             'label' => 'İlk defa sitede',
             'color' => '#10b981',
             'bg' => 'rgba(16, 185, 129, 0.16)',
             'border' => 'rgba(16, 185, 129, 0.35)',
-            'icon' => '⚡',
+            'icon' => '⭐',
         ];
     }
 

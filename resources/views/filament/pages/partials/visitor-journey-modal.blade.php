@@ -3,7 +3,11 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; padding: 16px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
         <div>
             <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Ziyaretçi Kimliği</div>
-            <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-top: 2px;">{{ $record->display_name }}</div>
+            <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span>{{ $record->display_name }}</span>
+                {!! $record->stars_html !!}
+                <span title="Kalıcı Misafir ID" style="font-family: monospace; color: #38bdf8; font-size: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 1px 6px; border-radius: 4px;">ID: #{{ $record->guest_id }}</span>
+            </div>
             @php
                 $phone = $record->user?->phone ?? $record->guest_phone;
                 $email = $record->user?->email ?? $record->guest_email;
@@ -14,9 +18,12 @@
                 </div>
             @endif
             @php $modalSource = $record->source_info; @endphp
-            <div style="margin-top: 5px;">
+            <div style="margin-top: 5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <span title="{{ $modalSource['detail'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; background: {{ $modalSource['bg_color'] }}; color: {{ $modalSource['color'] }}; border: 1px solid {{ $modalSource['border_color'] }};">
                     {{ $modalSource['icon'] }} {{ $modalSource['name'] }}
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
+                    {{ $record->stars_string }} {{ $record->visit_count ?: 1 }}. Gelişi
                 </span>
             </div>
             <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 4px;">{{ $record->ip_address }}</div>

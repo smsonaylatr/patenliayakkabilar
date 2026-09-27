@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ActiveVisitor;
 use App\Models\Cart;
+use App\Models\GuestProfile;
 use App\Services\VisitorBehaviorAnalyzer;
 use App\Services\TrafficAnalyticsService;
 use Illuminate\Http\JsonResponse;
@@ -39,16 +40,70 @@ class PresenceController extends Controller
         // 1. Cihaz, Tarayıcı ve İşletim Sistemi Tespiti
         $deviceInfo = $this->parseUserAgent($userAgent);
 
-        // 2. Aktif Ziyaretçi Kaydını Getir veya Oluştur
+        // 2. Kalıcı Misafir Profilini Getir veya Oluştur (Kalıcı ID ve Geliş Sayacı)
+        $profile = null;
+        try {
+            $profile = GuestProfile::firstOrNew(['visitor_token' => $token]);
+            $isNewProfile = !$profile->exists;
+            $guestId = $profile->guest_id ?: GuestProfile::generateGuestId($token);
+
+            if ($isNewProfile) {
+                $profile->guest_id = $guestId;
+                $profile->first_seen_at = now();
+                $profile->last_visit_at = now();
+                $profile->visit_count = 1;
+                $profile->total_page_views = 1;
+                if ($referrer) {
+                    $profile->referrer = $referrer;
+                    $profile->referrer_host = parse_url($referrer, PHP_URL_HOST);
+                }
+                if ($request->filled('utm_source')) {
+                    $profile->utm_source = $request->input('utm_source');
+                    $profile->utm_campaign = $request->input('utm_campaign');
+                }
+            } else {
+                // Eğer son hareket üzerinden 30 dakikadan fazla geçmişse bu yeni bir geliş/ziyarettir!
+                $lastHeartbeat = $profile->last_heartbeat_at;
+                if ($lastHeartbeat && $lastHeartbeat->lt(now()->subMinutes(30))) {
+                    $profile->visit_count = ($profile->visit_count ?: 1) + 1;
+                    $profile->last_visit_at = now();
+                }
+                $profile->total_page_views = ($profile->total_page_views ?: 0) + 1;
+            }
+
+            $profile->last_heartbeat_at = now();
+            $profile->ip_address = $ip;
+            $profile->user_agent = $userAgent;
+            $profile->device_type = $deviceInfo['device'];
+            $profile->browser = $deviceInfo['browser'];
+            $profile->operating_system = $deviceInfo['os'];
+            if (auth()->check()) {
+                $profile->user_id = auth()->id();
+            }
+            $profile->save();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('GuestProfile save error: ' . $e->getMessage());
+        }
+
+        // 3. Aktif Ziyaretçi Kaydını Getir veya Oluştur
         $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
 
         if (!$visitor->exists) {
-            $visitor->first_seen_at = now();
+            $visitor->first_seen_at = $profile?->first_seen_at ?? now();
             $visitor->page_views_count = 1;
 
             if (!empty($ip) && ActiveVisitor::where('ip_address', $ip)->where('is_blocked', true)->exists()) {
                 $visitor->is_blocked = true;
             }
+        }
+
+        if ($profile) {
+            $visitor->guest_profile_id = $profile->id;
+            $visitor->guest_id = $profile->guest_id;
+            $visitor->visit_count = $profile->visit_count ?: 1;
+        } else {
+            $visitor->guest_id = GuestProfile::generateGuestId($token);
+            $visitor->visit_count = $visitor->visit_count ?: 1;
         }
 
         $visitor->session_id = $request->hasSession() ? $request->session()->getId() : null;
@@ -246,14 +301,27 @@ class PresenceController extends Controller
 
         $this->ensureTableExists();
 
+        $profile = GuestProfile::firstOrNew(['visitor_token' => $token]);
+        if (!$profile->exists) {
+            $profile->guest_id = GuestProfile::generateGuestId($token);
+            $profile->first_seen_at = now();
+            $profile->last_visit_at = now();
+            $profile->visit_count = 1;
+            try { $profile->save(); } catch (\Throwable $e) {}
+        }
+
         $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
         if (!$visitor->exists) {
-            $visitor->first_seen_at = now();
+            $visitor->first_seen_at = $profile->first_seen_at ?? now();
             $visitor->current_url = $request->input('url', url('/checkout'));
             $visitor->current_path = $request->input('path', '/checkout');
             $visitor->current_title = 'Ödeme Sayfası (Checkout)';
             $visitor->ip_address = $request->ip();
         }
+
+        $visitor->guest_profile_id = $profile->id;
+        $visitor->guest_id = $profile->guest_id;
+        $visitor->visit_count = $profile->visit_count ?: 1;
 
         if ($request->hasSession()) {
             $visitor->session_id = $request->session()->getId();
@@ -404,6 +472,31 @@ class PresenceController extends Controller
         }
 
         if ($hasChanges) {
+            // 6. Kalıcı Misafir Profilini Senkronize Et
+            if ($visitor->visitor_token) {
+                try {
+                    $p = GuestProfile::where('visitor_token', $visitor->visitor_token)->first();
+                    if ($p) {
+                        $pUpdates = [];
+                        if (!empty($visitor->guest_name) && $p->guest_name !== $visitor->guest_name) {
+                            $pUpdates['guest_name'] = $visitor->guest_name;
+                        }
+                        if (!empty($visitor->guest_email) && $p->guest_email !== $visitor->guest_email) {
+                            $pUpdates['guest_email'] = $visitor->guest_email;
+                        }
+                        if (!empty($visitor->guest_phone) && $p->guest_phone !== $visitor->guest_phone) {
+                            $pUpdates['guest_phone'] = $visitor->guest_phone;
+                        }
+                        if ($visitor->user_id && !$p->user_id) {
+                            $pUpdates['user_id'] = $visitor->user_id;
+                        }
+                        if (!empty($pUpdates)) {
+                            $p->update($pUpdates);
+                        }
+                    }
+                } catch (\Throwable $e) {}
+            }
+
             try {
                 $visitor->save();
             } catch (\Throwable $e) {
@@ -420,12 +513,43 @@ class PresenceController extends Controller
     protected function ensureTableExists(): void
     {
         try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('guest_profiles')) {
+                \Illuminate\Support\Facades\Schema::create('guest_profiles', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->string('guest_id', 20)->unique()->index();
+                    $table->string('visitor_token', 64)->unique()->index();
+                    $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                    $table->string('guest_name', 191)->nullable()->index();
+                    $table->string('guest_email', 191)->nullable()->index();
+                    $table->string('guest_phone', 50)->nullable()->index();
+                    $table->integer('visit_count')->default(1)->index();
+                    $table->integer('total_page_views')->default(1);
+                    $table->integer('total_time_spent_seconds')->default(0);
+                    $table->timestamp('first_seen_at')->useCurrent();
+                    $table->timestamp('last_visit_at')->useCurrent()->index();
+                    $table->timestamp('last_heartbeat_at')->useCurrent()->index();
+                    $table->string('ip_address', 45)->nullable()->index();
+                    $table->text('user_agent')->nullable();
+                    $table->string('device_type', 20)->default('desktop');
+                    $table->string('browser', 50)->nullable();
+                    $table->string('operating_system', 50)->nullable();
+                    $table->text('referrer')->nullable();
+                    $table->string('referrer_host', 100)->nullable();
+                    $table->string('utm_source', 100)->nullable();
+                    $table->string('utm_campaign', 100)->nullable();
+                    $table->timestamps();
+                });
+            }
+
             if (!\Illuminate\Support\Facades\Schema::hasTable('active_visitors')) {
                 \Illuminate\Support\Facades\Schema::create('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
                     $table->id();
                     $table->string('visitor_token', 64)->index();
+                    $table->string('guest_id', 20)->nullable()->index();
+                    $table->integer('visit_count')->default(1)->index();
                     $table->string('session_id', 191)->nullable()->index();
                     $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                    $table->foreignId('guest_profile_id')->nullable()->constrained('guest_profiles')->nullOnDelete();
                     $table->string('guest_name', 191)->nullable()->index();
                     $table->string('guest_email', 191)->nullable()->index();
                     $table->string('guest_phone', 50)->nullable()->index();
@@ -466,22 +590,29 @@ class PresenceController extends Controller
                     $table->index(['visitor_token', 'last_heartbeat_at']);
                 });
             } else {
-                if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
-                    \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
-                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
-                            $table->string('guest_name', 191)->nullable()->after('user_id')->index();
-                        }
-                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
-                            $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
-                        }
-                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
-                            $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
-                        }
-                        if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
-                            $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
-                        }
-                    });
-                }
+                \Illuminate\Support\Facades\Schema::table('active_visitors', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_id')) {
+                        $table->string('guest_id', 20)->nullable()->after('visitor_token')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'visit_count')) {
+                        $table->integer('visit_count')->default(1)->after('guest_id')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_profile_id')) {
+                        $table->foreignId('guest_profile_id')->nullable()->after('user_id')->constrained('guest_profiles')->nullOnDelete();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_name')) {
+                        $table->string('guest_name', 191)->nullable()->after('user_id')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_email')) {
+                        $table->string('guest_email', 191)->nullable()->after('guest_name')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'guest_phone')) {
+                        $table->string('guest_phone', 50)->nullable()->after('guest_email')->index();
+                    }
+                    if (!\Illuminate\Support\Facades\Schema::hasColumn('active_visitors', 'is_identified')) {
+                        $table->boolean('is_identified')->default(false)->after('guest_phone')->index();
+                    }
+                });
             }
         } catch (\Throwable $e) {}
     }

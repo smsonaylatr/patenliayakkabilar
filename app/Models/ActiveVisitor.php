@@ -21,6 +21,7 @@ class ActiveVisitor extends Model
         'first_seen_at' => 'datetime',
         'last_heartbeat_at' => 'datetime',
         'cart_total' => 'decimal:2',
+        'visit_count' => 'integer',
     ];
 
     public function save(array $options = []): bool
@@ -65,6 +66,11 @@ class ActiveVisitor extends Model
     public function cart(): BelongsTo
     {
         return $this->belongsTo(Cart::class);
+    }
+
+    public function guestProfile(): BelongsTo
+    {
+        return $this->belongsTo(GuestProfile::class, 'guest_profile_id');
     }
 
     public function scopeOnline($query)
@@ -112,6 +118,45 @@ class ActiveVisitor extends Model
         return $this->last_heartbeat_at && $this->last_heartbeat_at->gte(now()->subSeconds(75));
     }
 
+    public function getGuestIdAttribute(): string
+    {
+        if (!empty($this->attributes['guest_id'])) {
+            return $this->attributes['guest_id'];
+        }
+
+        return GuestProfile::generateGuestId($this->visitor_token);
+    }
+
+    public function getStarsCountAttribute(): int
+    {
+        $count = (int) ($this->visit_count ?: 1);
+        if ($count <= 1) {
+            return 1;
+        }
+        if ($count === 2) {
+            return 2;
+        }
+        return 3;
+    }
+
+    public function getStarsStringAttribute(): string
+    {
+        return match ($this->stars_count) {
+            1 => '⭐',
+            2 => '⭐⭐',
+            default => '⭐⭐⭐',
+        };
+    }
+
+    public function getStarsHtmlAttribute(): string
+    {
+        $count = (int) ($this->visit_count ?: 1);
+        $title = $count . '. Gelişi';
+        $stars = $this->stars_string;
+
+        return '<span class="guest-stars" title="' . e($title) . '" style="color:#fbbf24;font-size:12px;letter-spacing:1px;display:inline-flex;align-items:center;vertical-align:middle;filter:drop-shadow(0 0 4px rgba(245,158,11,0.5));">' . $stars . '</span>';
+    }
+
     public function getDisplayNameAttribute(): string
     {
         if ($this->user_id && $this->user) {
@@ -122,8 +167,7 @@ class ActiveVisitor extends Model
             return trim($this->guest_name);
         }
 
-        $shortId = strtoupper(substr(str_replace(['pa_vt_', '-'], '', $this->visitor_token), 0, 6));
-        return "Misafir #{$shortId}";
+        return "Misafir #{$this->guest_id}";
     }
 
     public function getDurationFormattedAttribute(): string
