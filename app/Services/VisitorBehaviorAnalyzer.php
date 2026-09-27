@@ -25,6 +25,17 @@ class VisitorBehaviorAnalyzer
         $isFirstStep = empty($trail);
         $isPathChanged = ($previousPath !== null && $previousPath !== $newPath);
 
+        // İkon ve mikro işlem tipi belirleme
+        $microIcon = match ($action) {
+            'typing', 'input' => '⌨️',
+            'click', 'size_click' => '🖱️',
+            'cart_add', 'cart' => '🛒',
+            'coupon' => '🏷️',
+            'whatsapp' => '💬',
+            'tab', 'tab_switch', 'view' => '👁️',
+            default => '⚡',
+        };
+
         if ($isFirstStep || $isPathChanged || !empty($actionDetail)) {
             $pageInfo = ActiveVisitor::resolvePageInfo($newPath, $newTitle);
             $cleanTitle = ActiveVisitor::cleanTitle($newTitle);
@@ -33,9 +44,10 @@ class VisitorBehaviorAnalyzer
                 : $pageInfo['title'];
 
             $lastIndex = count($trail) - 1;
+            $actionDetailLower = !empty($actionDetail) ? mb_strtolower(trim($actionDetail), 'UTF-8') : null;
 
-            // Eğer son adım ile aynı sayfa ve aynı aksiyon detayı ise mükerrer adım ekleme, sadece zamanını güncelle
-            if (!$isFirstStep && $lastIndex >= 0 && ($trail[$lastIndex]['path'] ?? '') === $newPath && ($trail[$lastIndex]['detail'] ?? null) === $actionDetail) {
+            // Eğer sayfa değişmediyse (aynı sayfada mikro hareket veya tekrarlı heartbeat)
+            if (!$isFirstStep && !$isPathChanged && $lastIndex >= 0 && ($trail[$lastIndex]['path'] ?? '') === $newPath) {
                 $trail[$lastIndex]['time'] = $nowFormatted;
                 $trail[$lastIndex]['title'] = $stepTitle;
                 $trail[$lastIndex]['badge'] = $pageInfo['badge'];
@@ -47,15 +59,35 @@ class VisitorBehaviorAnalyzer
                 if (!empty($pageInfo['price'])) {
                     $trail[$lastIndex]['price'] = $pageInfo['price'];
                 }
+
+                // Mikro etkileşim varsa ve son etkileşim ile aynı değilse interactions dizisine ekle
+                if (!empty($actionDetailLower)) {
+                    $interactions = $trail[$lastIndex]['interactions'] ?? [];
+                    $lastMicro = !empty($interactions) ? end($interactions) : null;
+                    if (!$lastMicro || ($lastMicro['text'] ?? '') !== $actionDetailLower) {
+                        $interactions[] = [
+                            'time' => $nowFormatted,
+                            'type' => $action,
+                            'icon' => $microIcon,
+                            'text' => $actionDetailLower,
+                        ];
+                        if (count($interactions) > 15) {
+                            $interactions = array_slice($interactions, -15);
+                        }
+                        $trail[$lastIndex]['interactions'] = $interactions;
+                    }
+                    $trail[$lastIndex]['detail'] = $actionDetailLower;
+                    $trail[$lastIndex]['action'] = $action;
+                }
+
                 $visitor->journey_trail = $trail;
             } else {
-                // Önceki adım varsa süresini güncelle
+                // Sayfa değişti veya ilk adım
                 if (!empty($trail) && $lastIndex >= 0 && !isset($trail[$lastIndex]['end_time'])) {
                     $trail[$lastIndex]['end_time'] = $nowFormatted;
                 }
 
-                // Yeni adımı ekle
-                $trail[] = [
+                $newStep = [
                     'path' => $newPath,
                     'title' => $stepTitle,
                     'badge' => $pageInfo['badge'],
@@ -65,12 +97,24 @@ class VisitorBehaviorAnalyzer
                     'price' => $pageInfo['price'] ?? null,
                     'time' => $nowFormatted,
                     'action' => $action,
-                    'detail' => $actionDetail,
+                    'detail' => $actionDetailLower,
+                    'interactions' => [],
                 ];
 
-                // Trail maksimum 10 adımda tutulsun (hafiflik için)
-                if (count($trail) > 10) {
-                    $trail = array_slice($trail, -10);
+                if (!empty($actionDetailLower)) {
+                    $newStep['interactions'][] = [
+                        'time' => $nowFormatted,
+                        'type' => $action,
+                        'icon' => $microIcon,
+                        'text' => $actionDetailLower,
+                    ];
+                }
+
+                $trail[] = $newStep;
+
+                // Trail maksimum 15 adımda tutulsun
+                if (count($trail) > 15) {
+                    $trail = array_slice($trail, -15);
                 }
 
                 $visitor->journey_trail = $trail;

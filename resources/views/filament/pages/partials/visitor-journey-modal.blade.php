@@ -248,9 +248,28 @@
                                         {{ $stepPath }}
                                     </div>
 
-                                    @if(!empty($step['detail']))
-                                        <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35);">
-                                            🎯 {{ $step['detail'] }}
+                                    @if(!empty($step['interactions']) && is_array($step['interactions']))
+                                        <div style="margin-top: 8px; padding: 7px 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                            <div style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between;">
+                                                <span>⚡ mikro hareketler & tıklamalar</span>
+                                                <span style="font-size: 9px; font-family: monospace; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px;">{{ count($step['interactions']) }} işlem</span>
+                                            </div>
+                                            @foreach($step['interactions'] as $micro)
+                                                <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; line-height: 1.4; border-top: 1px dashed rgba(255, 255, 255, 0.05); padding-top: 3px;">
+                                                    <span style="color: #cbd5e1; text-transform: lowercase;">
+                                                        {{ $micro['icon'] ?? '•' }} {{ mb_strtolower($micro['text'] ?? '', 'UTF-8') }}
+                                                    </span>
+                                                    @if(!empty($micro['time']))
+                                                        <span style="font-size: 9.5px; font-family: monospace; color: #64748b; flex-shrink: 0;">
+                                                            {{ $micro['time'] }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @elseif(!empty($step['detail']))
+                                        <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: lowercase; background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                            🎯 {{ mb_strtolower($step['detail'], 'UTF-8') }}
                                         </div>
                                     @endif
                                 </div>

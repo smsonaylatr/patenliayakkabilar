@@ -548,7 +548,7 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('kick-speed-sky-roll.webp', $view);
         $this->assertStringContainsString('Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı', $view);
         $this->assertStringContainsString('1,799.00 ₺', $view);
-        $this->assertStringContainsString('Sekmeye geri dönüldü', $view);
+        $this->assertStringContainsString('sekmeye geri dönüldü', $view);
     }
 
     public function test_voice_message_command_includes_audio_url_when_provided(): void
@@ -985,6 +985,77 @@ class ActiveVisitorTest extends TestCase
             ->call('setCardFilter', 'members') // Toggle off
             ->assertSet('activeCardFilter', 'all')
             ->assertDontSee('Filtre: 👤 Üye Girişi Yapanlar', false);
+    }
+
+    public function test_micro_interactions_and_keystrokes_tracked_in_lowercase_details(): void
+    {
+        $token = 'pa_vt_micro_test_888';
+
+        // 1. İlk sayfa ziyareti (Checkout)
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'view',
+        ])->assertStatus(200);
+
+        // 2. Kullanıcı isim alanına harfler yazar
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'typing',
+            'action_detail' => 'Ad Soyad: "Ahmet Yılmaz" yazdı',
+        ])->assertStatus(200);
+
+        // 3. Kullanıcı kupon kodunu yazar
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'typing',
+            'action_detail' => 'Kupon Kodu: "PATEN10" yazdı',
+        ])->assertStatus(200);
+
+        // 4. Kullanıcı kapıda ödeme seçeneğini tıklar
+        $this->postJson('/api/presence/heartbeat', [
+            'visitor_token' => $token,
+            'url' => 'https://patenliayakkabilar.com/checkout',
+            'path' => '/checkout',
+            'title' => 'Ödeme ve Sipariş',
+            'action' => 'click',
+            'action_detail' => 'Ödeme Yöntemi: Kapıda Ödeme seçti',
+        ])->assertStatus(200);
+
+        $visitor = ActiveVisitor::where('visitor_token', $token)->first();
+        $this->assertNotNull($visitor);
+
+        // Aynı sayfada olduğu için 1 adet step olmalı, ancak içinde 3 mikro hareket olmalı
+        $this->assertCount(1, $visitor->journey_trail);
+        $step = $visitor->journey_trail[0];
+
+        $this->assertArrayHasKey('interactions', $step);
+        $this->assertCount(3, $step['interactions']);
+
+        // Tüm metinler küçük harflerle saklanmalı
+        $this->assertEquals('⌨️', $step['interactions'][0]['icon']);
+        $this->assertEquals('ad soyad: "ahmet yılmaz" yazdı', $step['interactions'][0]['text']);
+
+        $this->assertEquals('⌨️', $step['interactions'][1]['icon']);
+        $this->assertEquals('kupon kodu: "paten10" yazdı', $step['interactions'][1]['text']);
+
+        $this->assertEquals('🖱️', $step['interactions'][2]['icon']);
+        $this->assertEquals('ödeme yöntemi: kapıda ödeme seçti', $step['interactions'][2]['text']);
+
+        // Modal blade görünümünde mikro hareketlerin render edildiğini test et
+        $view = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
+        $this->assertStringContainsString('mikro hareketler & tıklamalar', $view);
+        $this->assertStringContainsString('ad soyad: &quot;ahmet yılmaz&quot; yazdı', $view);
+        $this->assertStringContainsString('kupon kodu: &quot;paten10&quot; yazdı', $view);
+        $this->assertStringContainsString('ödeme yöntemi: kapıda ödeme seçti', $view);
     }
 }
 
