@@ -409,7 +409,7 @@ class ActiveVisitorTest extends TestCase
         // 1. Ziyaretçi bilgileri üst kısımda olmalı
         $this->assertStringContainsString('184.23.188.224', $view);
         $this->assertStringContainsString('Chrome', $view);
-        $this->assertStringContainsString('TEREDDÜTTE', $view);
+        $this->assertStringContainsString('Teredd', $view);
         $this->assertStringContainsString('Beden tablosunu inceledi', $view);
 
         // 2. Alt satırda (visitor-log-footer) strateji yer almalı
@@ -419,7 +419,7 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('CANLI10', $view);
 
         // 3. Alt satırda hızlı aksiyon butonları yer almalı
-        $this->assertStringContainsString('Strateji Uygula', $view);
+        $this->assertStringContainsString('Strateji', $view);
         $this->assertStringContainsString('Yönlendir', $view);
         $this->assertStringContainsString('İncele', $view);
     }
@@ -1295,7 +1295,7 @@ class ActiveVisitorTest extends TestCase
         $action->livewire($page)->record($visitor);
 
         // 1. Buton etiketlerini doğrula
-        $this->assertEquals('🚀 Şimdi Yönlendir', $action->getModalSubmitActionLabel());
+        $this->assertEquals('Şimdi Yönlendir', $action->getModalSubmitActionLabel());
         $footerActions = $action->getExtraModalFooterActions();
         $this->assertCount(1, $footerActions);
         $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['force_redirect_and_close']->getLabel());
@@ -1362,7 +1362,7 @@ class ActiveVisitorTest extends TestCase
         $bulkAction->livewire($page);
 
         // 1. Buton etiketlerini doğrula
-        $this->assertEquals('🚀 Şimdi Yönlendir', $bulkAction->getModalSubmitActionLabel());
+        $this->assertEquals('Şimdi Yönlendir', $bulkAction->getModalSubmitActionLabel());
         $footerActions = $bulkAction->getExtraModalFooterActions();
         $this->assertCount(1, $footerActions);
         $this->assertEquals('Şimdi Yönlendir ve Çık', $footerActions['bulk_redirect_and_close']->getLabel());

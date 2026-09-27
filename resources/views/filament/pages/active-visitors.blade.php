@@ -839,7 +839,7 @@
                         @if(($activeCardFilter ?? 'all') === 'cart')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 15px;">🛒</span>
+                        <x-filament::icon icon="heroicon-m-shopping-cart" class="w-4 h-4 text-slate-400" />
                     </div>
                 </div>
                 <div class="war-value">
@@ -876,7 +876,7 @@
                         @if(($activeCardFilter ?? 'all') === 'high_intent')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 15px;">🔥</span>
+                        <x-filament::icon icon="heroicon-m-fire" class="w-4 h-4 text-slate-400" />
                     </div>
                 </div>
                 <div class="war-value">
@@ -910,7 +910,7 @@
                         @if(($activeCardFilter ?? 'all') === 'hesitating')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 15px;">🤔</span>
+                        <x-filament::icon icon="heroicon-m-question-mark-circle" class="w-4 h-4 text-slate-400" />
                     </div>
                 </div>
                 <div class="war-value">
@@ -944,7 +944,7 @@
                         @if(($activeCardFilter ?? 'all') === 'members')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 15px;">👤</span>
+                        <x-filament::icon icon="heroicon-m-user-group" class="w-4 h-4 text-slate-400" />
                     </div>
                 </div>
                 <div class="war-value" style="font-size: 19px;">
@@ -969,34 +969,34 @@
             {{-- Panel Üst Başlık & Periyot Seçici --}}
             <div class="traffic-intel-header">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, rgba(255, 78, 0, 0.2), rgba(234, 88, 12, 0.1)); border: 1px solid rgba(255, 78, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                        🚦
+                    <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(255, 78, 0, 0.12); border: 1px solid rgba(255, 78, 0, 0.25); display: flex; align-items: center; justify-content: center; color: #ff7849;">
+                        <x-filament::icon icon="heroicon-m-chart-bar-square" class="w-4 h-4 text-primary-500" />
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em;">
+                            <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #f8fafc; letter-spacing: -0.01em;">
                                 Ziyaretçi Trafik Sinyali &amp; Dönemlik Analiz
                             </h3>
-                            <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700;">
+                            <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 78, 0, 0.12); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25); font-weight: 600;">
                                 {{ $cur['period_label'] ?? 'Günlük Sinyal' }}
                             </span>
                         </div>
                         <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #94a3b8;">
-                            Kalıcı olarak kaydedilen tekil ziyaretçi, oturum, kanal, sepet ve satış sinyalleri ile yapay zeka analiz raporu.
+                            Kalıcı olarak kaydedilen tekil ziyaretçi, oturum, kanal, sepet ve satış sinyalleri ile analiz raporu.
                         </p>
                     </div>
                 </div>
 
                 {{-- Periyot Geçiş Butonları --}}
-                <div style="display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.8); padding: 4px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                <div style="display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.8); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">
                     <button type="button" wire:click="setTrafficPeriod('daily')" class="traffic-period-btn {{ ($trafficPeriod ?? 'daily') === 'daily' ? 'active' : '' }}">
-                        <span>📅</span> Günlük (Bugün)
+                        Günlük
                     </button>
                     <button type="button" wire:click="setTrafficPeriod('weekly')" class="traffic-period-btn {{ ($trafficPeriod ?? 'daily') === 'weekly' ? 'active' : '' }}">
-                        <span>📊</span> Haftalık (Son 7 Gün)
+                        Haftalık (Son 7 Gün)
                     </button>
                     <button type="button" wire:click="setTrafficPeriod('monthly')" class="traffic-period-btn {{ ($trafficPeriod ?? 'daily') === 'monthly' ? 'active' : '' }}">
-                        <span>📈</span> Aylık (Son 30 Gün)
+                        Aylık (Son 30 Gün)
                     </button>
                 </div>
             </div>
@@ -1004,12 +1004,12 @@
             {{-- 5'li Özet Trafik & Dönüşüm KPI Şeridi --}}
             <div class="traffic-kpi-grid">
                 {{-- Metrik 1: Tekil Ziyaretçi --}}
-                <div class="traffic-kpi-card" style="border-left: 3px solid #38bdf8;">
+                <div class="traffic-kpi-card">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
                         <span>Tekil Ziyaretçi</span>
-                        <span style="font-size: 14px;">👥</span>
+                        <x-filament::icon icon="heroicon-m-users" class="w-4 h-4 text-slate-400" />
                     </div>
-                    <div style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 4px 0;">
+                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0;">
                         {{ number_format($cur['unique_visitors'] ?? 0) }}
                     </div>
                     <div style="font-size: 11px; color: #64748b;">
@@ -1018,12 +1018,12 @@
                 </div>
 
                 {{-- Metrik 2: Sayfa Görüntüleme --}}
-                <div class="traffic-kpi-card" style="border-left: 3px solid #a855f7;">
+                <div class="traffic-kpi-card">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
                         <span>Sayfa Gösterimi</span>
-                        <span style="font-size: 14px;">👁️</span>
+                        <x-filament::icon icon="heroicon-m-eye" class="w-4 h-4 text-slate-400" />
                     </div>
-                    <div style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 4px 0;">
+                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0;">
                         {{ number_format($cur['page_views'] ?? 0) }}
                     </div>
                     <div style="font-size: 11px; color: #64748b;">
@@ -1032,40 +1032,40 @@
                 </div>
 
                 {{-- Metrik 3: Sepete Ekleme Oranı --}}
-                <div class="traffic-kpi-card" style="border-left: 3px solid #06b6d4;">
+                <div class="traffic-kpi-card">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
                         <span>Sepet Hareketi</span>
-                        <span style="font-size: 14px;">🛒</span>
+                        <x-filament::icon icon="heroicon-m-shopping-cart" class="w-4 h-4 text-slate-400" />
                     </div>
-                    <div style="font-size: 22px; font-weight: 900; color: #38bdf8; margin: 4px 0;">
+                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0;">
                         %{{ $cur['cart_rate'] ?? 0 }}
                     </div>
                     <div style="font-size: 11px; color: #64748b;">
-                        <strong style="color: #cbd5e1;">{{ number_format($cur['cart_additions'] ?? 0) }}</strong> kişi sepete ürün attı
+                        <strong style="color: #cbd5e1;">{{ number_format($cur['cart_additions'] ?? 0) }}</strong> kişi sepete attı
                     </div>
                 </div>
 
                 {{-- Metrik 4: Satış Dönüşümü --}}
-                <div class="traffic-kpi-card" style="border-left: 3px solid #10b981;">
+                <div class="traffic-kpi-card">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
                         <span>Dönüşüm Oranı</span>
-                        <span style="font-size: 14px;">🎯</span>
+                        <x-filament::icon icon="heroicon-m-cursor-arrow-rays" class="w-4 h-4 text-slate-400" />
                     </div>
-                    <div style="font-size: 22px; font-weight: 900; color: #34d399; margin: 4px 0;">
+                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0;">
                         %{{ $cur['conversion_rate'] ?? 0 }}
                     </div>
                     <div style="font-size: 11px; color: #64748b;">
-                        Tamamlanan: <strong style="color: #34d399;">{{ number_format($cur['orders_count'] ?? 0) }} Sipariş</strong>
+                        Tamamlanan: <strong style="color: #cbd5e1;">{{ number_format($cur['orders_count'] ?? 0) }} Sipariş</strong>
                     </div>
                 </div>
 
                 {{-- Metrik 5: Ciro --}}
-                <div class="traffic-kpi-card" style="border-left: 3px solid #ff4e00;">
+                <div class="traffic-kpi-card">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
                         <span>Toplam Ciro</span>
-                        <span style="font-size: 14px;">💰</span>
+                        <x-filament::icon icon="heroicon-m-banknotes" class="w-4 h-4 text-slate-400" />
                     </div>
-                    <div style="font-size: 20px; font-weight: 900; color: #ffedd5; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         {{ number_format($cur['orders_revenue'] ?? 0, 2) }} ₺
                     </div>
                     <div style="font-size: 11px; color: #64748b;">
@@ -1082,9 +1082,10 @@
             <div class="traffic-intel-details-grid">
                 {{-- Kolon 1: Trafik Kaynakları Dağılımı --}}
                 <div class="traffic-sub-box">
-                    <div style="font-size: 12px; font-weight: 800; color: #f1f5f9; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 12px; font-weight: 700; color: #f1f5f9; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 6px;">
-                            <span>🌐</span> Kaynak Dağılımı
+                            <x-filament::icon icon="heroicon-m-globe-alt" class="w-3.5 h-3.5 text-slate-400" />
+                            <span>Kaynak Dağılımı</span>
                         </span>
                         <span style="font-size: 10.5px; color: #64748b; font-weight: 600;">Pay / Tekil</span>
                     </div>
@@ -1093,15 +1094,14 @@
                             <div>
                                 <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 3px;">
                                     <span style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
-                                        <span>{{ $src['icon'] ?? '📍' }}</span>
                                         <span>{{ $src['name'] }}</span>
                                     </span>
-                                    <span style="font-weight: 700; color: {{ $src['color'] ?? '#38bdf8' }};">
+                                    <span style="font-weight: 700; color: #cbd5e1;">
                                         %{{ $src['percentage'] }} <span style="font-size: 10px; color: #64748b; font-weight: 500;">({{ number_format($src['count']) }})</span>
                                     </span>
                                 </div>
                                 <div style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
-                                    <div style="width: {{ min(100, max(5, $src['percentage'])) }}%; height: 100%; background: {{ $src['color'] ?? '#38bdf8' }}; border-radius: 999px;"></div>
+                                    <div style="width: {{ min(100, max(5, $src['percentage'])) }}%; height: 100%; background: #ff4e00; border-radius: 999px;"></div>
                                 </div>
                             </div>
                         @empty
@@ -1114,9 +1114,10 @@
 
                 {{-- Kolon 2: Cihaz Dağılımı --}}
                 <div class="traffic-sub-box">
-                    <div style="font-size: 12px; font-weight: 800; color: #f1f5f9; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 12px; font-weight: 700; color: #f1f5f9; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 6px;">
-                            <span>📱</span> Cihaz Tercihleri
+                            <x-filament::icon icon="heroicon-m-device-phone-mobile" class="w-3.5 h-3.5 text-slate-400" />
+                            <span>Cihaz Tercihleri</span>
                         </span>
                         <span style="font-size: 10.5px; color: #64748b; font-weight: 600;">Yüzde</span>
                     </div>
@@ -1125,12 +1126,13 @@
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
                                 <span style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
-                                    <span>📱</span> Mobil Cihazlar
+                                    <x-filament::icon icon="heroicon-m-device-phone-mobile" class="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Mobil Cihazlar</span>
                                 </span>
-                                <span style="font-weight: 800; color: #10b981;">%{{ $deviceBreakdown['mobile'] ?? 0 }}</span>
+                                <span style="font-weight: 700; color: #f8fafc;">%{{ $deviceBreakdown['mobile'] ?? 0 }}</span>
                             </div>
-                            <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
-                                <div style="width: {{ $deviceBreakdown['mobile'] ?? 0 }}%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 999px;"></div>
+                            <div style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                                <div style="width: {{ $deviceBreakdown['mobile'] ?? 0 }}%; height: 100%; background: #ff4e00; border-radius: 999px;"></div>
                             </div>
                         </div>
 
@@ -1138,12 +1140,13 @@
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
                                 <span style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
-                                    <span>💻</span> Masaüstü Bilgisayar
+                                    <x-filament::icon icon="heroicon-m-computer-desktop" class="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Masaüstü Bilgisayar</span>
                                 </span>
-                                <span style="font-weight: 800; color: #38bdf8;">%{{ $deviceBreakdown['desktop'] ?? 0 }}</span>
+                                <span style="font-weight: 700; color: #94a3b8;">%{{ $deviceBreakdown['desktop'] ?? 0 }}</span>
                             </div>
-                            <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
-                                <div style="width: {{ $deviceBreakdown['desktop'] ?? 0 }}%; height: 100%; background: linear-gradient(90deg, #38bdf8, #0284c7); border-radius: 999px;"></div>
+                            <div style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                                <div style="width: {{ $deviceBreakdown['desktop'] ?? 0 }}%; height: 100%; background: #475569; border-radius: 999px;"></div>
                             </div>
                         </div>
 
@@ -1151,32 +1154,33 @@
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
                                 <span style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
-                                    <span>📟</span> Tablet Cihazlar
+                                    <x-filament::icon icon="heroicon-m-device-tablet" class="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Tablet Cihazlar</span>
                                 </span>
-                                <span style="font-weight: 800; color: #a855f7;">%{{ $deviceBreakdown['tablet'] ?? 0 }}</span>
+                                <span style="font-weight: 700; color: #64748b;">%{{ $deviceBreakdown['tablet'] ?? 0 }}</span>
                             </div>
-                            <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
-                                <div style="width: {{ $deviceBreakdown['tablet'] ?? 0 }}%; height: 100%; background: linear-gradient(90deg, #a855f7, #7c3aed); border-radius: 999px;"></div>
+                            <div style="height: 5px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden;">
+                                <div style="width: {{ $deviceBreakdown['tablet'] ?? 0 }}%; height: 100%; background: #334155; border-radius: 999px;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Kolon 3: Phoenix AI Trafik & Sinyal Analizi --}}
-                <div class="traffic-sub-box" style="background: linear-gradient(145deg, rgba(24, 34, 52, 0.9) 0%, rgba(13, 21, 34, 0.95) 100%); border: 1px solid rgba(255, 78, 0, 0.2);">
+                <div class="traffic-sub-box" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 78, 0, 0.2);">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 16px;">🧠</span>
-                            <span style="font-size: 12px; font-weight: 800; color: #f8fafc; text-transform: uppercase; letter-spacing: 0.04em;">
+                            <x-filament::icon icon="heroicon-m-cpu-chip" class="w-4 h-4 text-primary-500" />
+                            <span style="font-size: 12px; font-weight: 700; color: #f8fafc; text-transform: uppercase; letter-spacing: 0.04em;">
                                 Phoenix AI Trafik & Sinyal Analizi
                             </span>
                         </div>
-                        <span style="font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 5px; background: rgba(255, 78, 0, 0.15); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.35);">
+                        <span style="font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: rgba(255, 78, 0, 0.12); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);">
                             {{ $analysis['status'] ?? 'DENGELİ BÜYÜME' }}
                         </span>
                     </div>
 
-                    <div style="font-size: 13px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; line-height: 1.3;">
+                    <div style="font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; line-height: 1.3;">
                         {{ $analysis['headline'] ?? 'Trafik ve Ziyaretçi Sinyalleri Analiz Ediliyor' }}
                     </div>
 
@@ -1188,7 +1192,7 @@
                         <div style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px;">
                             @foreach($analysis['highlights'] as $highlight)
                                 <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: flex-start; gap: 6px;">
-                                    <span style="color: #ff7849; font-weight: 800;">›</span>
+                                    <span style="color: #ff7849; font-weight: 700;">›</span>
                                     <span>{{ $highlight }}</span>
                                 </div>
                             @endforeach
@@ -1197,7 +1201,7 @@
 
                     @if(!empty($analysis['recommended_action']))
                         <div style="margin-top: auto; padding: 9px 12px; border-radius: 8px; background: rgba(255, 78, 0, 0.08); border: 1px solid rgba(255, 78, 0, 0.25); display: flex; align-items: flex-start; gap: 8px;">
-                            <span style="font-size: 14px; flex-shrink: 0; margin-top: 1px;">💡</span>
+                            <x-filament::icon icon="heroicon-m-light-bulb" class="w-4 h-4 text-primary-500" style="flex-shrink: 0; margin-top: 2px;" />
                             <div style="font-size: 11px; color: #ffedd5; line-height: 1.4;">
                                 <strong style="color: #ff7849;">Stratejik Eylem:</strong> {{ $analysis['recommended_action'] }}
                             </div>
@@ -1209,15 +1213,17 @@
 
         {{-- Engelli Kullanıcılar Bilgi Çubuğu (Varsa) --}}
         @if (($blockedCount ?? 0) > 0)
-            <div style="background: linear-gradient(90deg, rgba(239, 68, 68, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 20px;">⛔</span>
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #f87171;">
+                        <x-filament::icon icon="heroicon-m-no-symbol" class="w-5 h-5 text-rose-400" />
+                    </div>
                     <div>
-                        <div style="font-size: 13px; font-weight: 800; color: #fca5a5;">
+                        <div style="font-size: 13px; font-weight: 700; color: #fca5a5;">
                             {{ $blockedCount }} Ziyaretçinin Erişimi Engellenmiş Durumda
                         </div>
                         <div style="font-size: 11px; color: #cbd5e1;">
-                            Bu kullanıcılar siteye erişememektedir. Üstteki <strong>"🚫 Engellenenler (Kara Liste)"</strong> butonundan veya aşağıdaki listeden yeşil <strong>"Engeli Kaldır"</strong> butonuyla erişimlerini anında açabilirsiniz.
+                            Bu kullanıcılar siteye erişememektedir. Üstteki <strong>"Engellenenler (Kara Liste)"</strong> butonundan veya listeden erişimlerini açabilirsiniz.
                         </div>
                     </div>
                 </div>
@@ -1228,11 +1234,11 @@
         <div class="visitor-shortcuts-panel">
             <div class="visitor-shortcuts-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255, 78, 0, 0.18); border: 1px solid rgba(255, 78, 0, 0.35); display: flex; align-items: center; justify-content: center; font-size: 14px;">
-                        ⚡
+                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255, 78, 0, 0.12); border: 1px solid rgba(255, 78, 0, 0.25); display: flex; align-items: center; justify-content: center; color: #ff7849;">
+                        <x-filament::icon icon="heroicon-m-bolt" class="w-4 h-4 text-primary-500" />
                     </div>
                     <div>
-                        <div style="font-size: 13px; font-weight: 800; color: #f8fafc; letter-spacing: -0.01em;">
+                        <div style="font-size: 13px; font-weight: 700; color: #f8fafc; letter-spacing: -0.01em;">
                             Hızlı Müdahale &amp; Toplu İşlem Kısayolları
                         </div>
                         <div style="font-size: 11px; color: #94a3b8;">
@@ -1255,7 +1261,7 @@
                wire:click.prevent="setActiveTab('live')" 
                class="av-tab-nav-btn {{ ($activeTab ?? 'live') === 'live' ? 'is-active-tab is-live' : '' }}">
                 <span class="live-radar-dot" style="width: 8px; height: 8px;"></span>
-                <span>🟢 Canlı Yayındakiler</span>
+                <span>Canlı Yayındakiler</span>
                 <span class="av-tab-nav-badge {{ ($activeTab ?? 'live') === 'live' ? 'is-badge-live' : '' }}">
                     {{ $onlineCount }}
                 </span>
@@ -1264,7 +1270,8 @@
             <a href="{{ route('filament.admin.pages.son-ziyaret-edenler') }}" 
                wire:click.prevent="setActiveTab('recent')" 
                class="av-tab-nav-btn {{ ($activeTab ?? 'live') === 'recent' ? 'is-active-tab is-recent' : '' }}">
-                <span>⏱️ Son Ziyaret Edenler (Ayrılanlar)</span>
+                <x-filament::icon icon="heroicon-m-clock" class="w-3.5 h-3.5 text-slate-400" />
+                <span>Son Ziyaret Edenler (Ayrılanlar)</span>
                 <span class="av-tab-nav-badge {{ ($activeTab ?? 'live') === 'recent' ? 'is-badge-recent' : '' }}">
                     {{ $recentCount ?? ($recentLeftCount ?? 0) }}
                 </span>
@@ -1274,7 +1281,6 @@
         {{-- 2.1. CANLI / GEÇMİŞ İSTİHBARAT BİLGİ & DURUM ÇUBUĞU --}}
         <div class="command-bar">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-size: 18px;">{{ ($activeTab ?? 'live') === 'recent' ? '⏱️' : '📡' }}</span>
                 <div>
                     <div style="font-size: 12px; font-weight: 700; color: #f8fafc;">
                         {{ ($activeTab ?? 'live') === 'recent' ? 'Son Ziyaret Edenler (Siteden Ayrılan Müşteriler)' : 'Canlı Satış İstihbaratı & Müşteri Karar Radarı' }}
@@ -1294,18 +1300,18 @@
                             default => $activeCardFilter,
                         };
                     @endphp
-                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(255, 78, 0, 0.2); border: 1px solid rgba(255, 78, 0, 0.4); padding: 4px 10px; border-radius: 8px;">
-                        <span style="font-size: 11.5px; font-weight: 800; color: #ffedd5;">Filtre: {{ $filterName }}</span>
-                        <button type="button" wire:click="setCardFilter('all')" style="cursor: pointer; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; font-weight: 800; color: #ffffff;">✕ Filtreyi Temizle</button>
+                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.35); padding: 4px 10px; border-radius: 6px;">
+                        <span style="font-size: 11.5px; font-weight: 700; color: #ffedd5;">Filtre: {{ $filterName }}</span>
+                        <button type="button" wire:click="setCardFilter('all')" style="cursor: pointer; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; padding: 2px 7px; font-size: 10.5px; font-weight: 600; color: #ffffff;">✕ Temizle</button>
                     </div>
                 @endif
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 @if(($activeTab ?? 'live') === 'recent')
-                    <span style="font-size: 11px; color: #f59e0b; font-weight: 700; font-family: monospace;">⏱️ SON 24 SAATİN KAYITLARI</span>
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600; font-family: monospace;">SON 24 SAATİN KAYITLARI</span>
                 @else
                     <span class="live-radar-dot"></span>
-                    <span style="font-size: 11px; color: #10b981; font-weight: 700; font-family: monospace;">CANLI RADAR AKTİF (5sn)</span>
+                    <span style="font-size: 11px; color: #ff7849; font-weight: 600; font-family: monospace;">CANLI RADAR AKTİF (5sn)</span>
                 @endif
             </div>
         </div>

@@ -251,10 +251,10 @@
                     // 1. Ziyaretçi Verileri
                     $isOnline = $record->is_currently_online;
                     $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
-                    $deviceIcon = match ($record->device_type) {
-                        'mobile' => '📱',
-                        'tablet' => '📟',
-                        default => '💻',
+                    $deviceHeroicon = match ($record->device_type) {
+                        'mobile' => 'heroicon-m-device-phone-mobile',
+                        'tablet' => 'heroicon-m-device-tablet',
+                        default => 'heroicon-m-computer-desktop',
                     };
                     $name = $record->user_id && $record->user ? $record->user->name : $record->display_name;
                     $isMember = ($record->user_id && $record->user) || $record->is_identified;
@@ -333,7 +333,11 @@
                             <div style="display: flex; align-items: flex-start; gap: 12px;">
                                 {{-- Avatar (Admin Panel Slate Uyumlu) --}}
                                 <div style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.15)' : 'rgba(30, 41, 59, 0.9)' }}; border: 1px solid {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.1)' }}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: {{ $record->is_blocked ? '#f87171' : '#f1f5f9' }}; font-size: 14px; flex-shrink: 0;">
-                                    {{ $record->is_blocked ? '⛔' : $initial }}
+                                    @if($record->is_blocked)
+                                        <x-filament::icon icon="heroicon-m-no-symbol" class="w-4 h-4 text-rose-400" />
+                                    @else
+                                        {{ $initial }}
+                                    @endif
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
@@ -365,7 +369,7 @@
                                                 <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> CANLI
                                             </span>
                                         @else
-                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
                                                 AYRILDI ({{ $diff }})
                                             </span>
                                         @endif
@@ -373,32 +377,34 @@
 
                                     @if($phone || $email)
                                         <div style="font-size: 11px; color: #cbd5e1; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
-                                            @if($phone) <span>📱 {{ $phone }}</span> @endif
+                                            @if($phone) <span>{{ $phone }}</span> @endif
                                             @if($phone && $email) <span style="color: #475569;">•</span> @endif
-                                            @if($email) <span style="color: #94a3b8;">✉️ {{ $email }}</span> @endif
+                                            @if($email) <span style="color: #94a3b8;">{{ $email }}</span> @endif
                                         </div>
                                     @endif
 
                                     <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                        <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
+                                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                            <x-filament::icon :icon="$deviceHeroicon" class="w-3.5 h-3.5 text-slate-400" />
+                                            <span>{{ $record->browser ?? 'Tarayıcı' }}</span>
+                                        </span>
                                         <span>•</span>
                                         <span style="font-family: monospace;">{{ $record->ip_address }}</span>
                                         <span>•</span>
                                         <span title="Kalıcı Misafir ID" style="font-family: monospace; font-size: 10px;">ID: #{{ $record->guest_id }}</span>
                                     </div>
                                     <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
-                                        ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
+                                        {{ $duration }} ({{ $pageCount }}. sayfa)
                                     </div>
 
                                     {{-- Geldiği Kaynak & Ziyaret Sıklığı (Slate Rozetler) --}}
                                     <div style="margin-top: 6px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
                                         <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
-                                            <span>{{ $sourceInfo['icon'] }}</span>
                                             <span>{{ $sourceInfo['name'] }}</span>
                                         </span>
                                         @if(!empty($record->utm_campaign))
                                             <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 500; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
-                                                🎯 {{ $record->utm_campaign }}
+                                                {{ $record->utm_campaign }}
                                             </span>
                                         @endif
                                         <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
@@ -417,7 +423,9 @@
                                     @if ($productImage)
                                         <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;" />
                                     @else
-                                        <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <x-filament::icon icon="heroicon-m-photo" class="w-5 h-5 text-slate-500" />
+                                        </div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
@@ -434,15 +442,15 @@
                                         </div>
                                         @if ($recentDetail)
                                             <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
+                                                {{ $recentDetail }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @elseif ($isCheckout)
                                 <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 12px;">
-                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-                                        🛒
+                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <x-filament::icon icon="heroicon-m-shopping-bag" class="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
@@ -458,15 +466,15 @@
                                         </div>
                                         @if ($recentDetail)
                                             <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
+                                                {{ $recentDetail }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @else
                                 <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 12px;">
-                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
-                                        {{ $pageInfo['icon'] ?? '📄' }}
+                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                        <x-filament::icon icon="heroicon-m-document-text" class="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
@@ -482,7 +490,7 @@
                                         </div>
                                         @if ($recentDetail)
                                             <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
+                                                {{ $recentDetail }}
                                             </div>
                                         @endif
                                     </div>
@@ -512,8 +520,9 @@
                         <div>
                             @if ($record->cart_items_count > 0)
                                 <div>
-                                    <div style="font-weight: 700; color: #f8fafc; font-size: 13.5px; display: flex; align-items: center; gap: 5px;">
-                                        🛒 {{ number_format($record->cart_total, 2) }} ₺
+                                    <div style="font-weight: 700; color: #f8fafc; font-size: 13.5px; display: flex; align-items: center; gap: 6px;">
+                                        <x-filament::icon icon="heroicon-m-shopping-cart" class="w-4 h-4 text-slate-400" />
+                                        <span>{{ number_format($record->cart_total, 2) }} ₺</span>
                                     </div>
                                     <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
                                         {{ $record->cart_items_count }} ürün sepette
@@ -528,12 +537,12 @@
                     </div>
 
                     {{-- ALT SATIR: Önerilen Strateji ve Hızlı Butonlar --}}
-                    <div class="av-footer">
+                    <div class="av-footer visitor-log-footer">
                         
                         {{-- SOL: Önerilen Strateji Bilgisi --}}
                         <div class="av-strategy-area">
                             <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                                Öneri:
+                                Önerilen Strateji:
                             </span>
 
                             @if ($strategy)
@@ -543,7 +552,7 @@
 
                                 @if (!empty($strategy['suggested_coupon']))
                                     <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 10.5px; font-family: monospace; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.09); flex-shrink: 0;">
-                                        🎟️ {{ $strategy['suggested_coupon'] }}
+                                        {{ $strategy['suggested_coupon'] }}
                                     </span>
                                 @endif
 
@@ -581,13 +590,17 @@
             @empty
                 <div style="padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
                     @if (($activeTab ?? 'live') === 'recent')
-                        <div style="font-size: 32px; margin-bottom: 8px;">⏱️</div>
+                        <div style="margin-bottom: 8px;">
+                            <x-filament::icon icon="heroicon-o-clock" class="w-10 h-10 text-slate-500" style="margin: 0 auto;" />
+                        </div>
                         <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
                         <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
                         </div>
                     @else
-                        <div style="font-size: 32px; margin-bottom: 8px;">📡</div>
+                        <div style="margin-bottom: 8px;">
+                            <x-filament::icon icon="heroicon-o-signal" class="w-10 h-10 text-slate-500" style="margin: 0 auto;" />
+                        </div>
                         <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
                         <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 
@@ -609,10 +622,10 @@
                     // 1. Ziyaretçi Verileri
                     $isOnline = $record->is_currently_online;
                     $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
-                    $deviceIcon = match ($record->device_type) {
-                        'mobile' => '📱',
-                        'tablet' => '📟',
-                        default => '💻',
+                    $deviceHeroicon = match ($record->device_type) {
+                        'mobile' => 'heroicon-m-device-phone-mobile',
+                        'tablet' => 'heroicon-m-device-tablet',
+                        default => 'heroicon-m-computer-desktop',
                     };
                     $name = $record->user_id && $record->user ? $record->user->name : $record->display_name;
                     $isMember = ($record->user_id && $record->user) || $record->is_identified;
@@ -690,7 +703,11 @@
                             {{-- Avatar + İsim + Rozetler --}}
                             <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
                                 <div style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.15)' : 'rgba(30, 41, 59, 0.9)' }}; border: 1px solid {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.1)' }}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: {{ $record->is_blocked ? '#f87171' : '#f1f5f9' }}; font-size: 14px; flex-shrink: 0;">
-                                    {{ $record->is_blocked ? '⛔' : $initial }}
+                                    @if($record->is_blocked)
+                                        <x-filament::icon icon="heroicon-m-no-symbol" class="w-4 h-4 text-rose-400" />
+                                    @else
+                                        {{ $initial }}
+                                    @endif
                                 </div>
                                 <div style="min-width: 0; flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
@@ -727,7 +744,7 @@
                                         <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> CANLI
                                     </span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
                                         AYRILDI ({{ $diff }})
                                     </span>
                                 @endif
@@ -737,32 +754,32 @@
                         {{-- İletişim & Cihaz & Ziyaret Bilgisi --}}
                         @if($phone || $email)
                             <div style="font-size: 10.5px; color: #cbd5e1; font-weight: 500; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; flex-wrap: wrap;">
-                                @if($phone) <span>📱 {{ $phone }}</span> @endif
+                                @if($phone) <span>{{ $phone }}</span> @endif
                                 @if($phone && $email) <span style="color: #475569;">•</span> @endif
-                                @if($email) <span style="color: #94a3b8;">✉️ {{ $email }}</span> @endif
+                                @if($email) <span style="color: #94a3b8;">{{ $email }}</span> @endif
                             </div>
                         @endif
 
                         <div style="font-size: 10.5px; color: #64748b; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 4px;">
-                                <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
+                                <x-filament::icon :icon="$deviceHeroicon" class="w-3.5 h-3.5 text-slate-400" />
+                                <span>{{ $record->browser ?? 'Tarayıcı' }}</span>
                                 <span>•</span>
                                 <span style="font-family: monospace;">{{ $record->ip_address }}</span>
                             </div>
                             <div style="font-size: 10px;">
-                                ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
+                                {{ $duration }} ({{ $pageCount }}. sayfa)
                             </div>
                         </div>
 
                         {{-- Kaynak & Frekans Rozetleri (Muted Slate) --}}
                         <div style="margin-top: 6px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
                             <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
-                                <span>{{ $sourceInfo['icon'] }}</span>
                                 <span>{{ $sourceInfo['name'] }}</span>
                             </span>
                             @if(!empty($record->utm_campaign))
                                 <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 500; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
-                                    🎯 {{ $record->utm_campaign }}
+                                    {{ $record->utm_campaign }}
                                 </span>
                             @endif
                             <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
@@ -782,7 +799,9 @@
                                     @if ($productImage)
                                         <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;" />
                                     @else
-                                        <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <x-filament::icon icon="heroicon-m-photo" class="w-5 h-5 text-slate-500" />
+                                        </div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
@@ -799,15 +818,15 @@
                                         </div>
                                         @if ($recentDetail)
                                             <div style="font-size: 10px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
+                                                {{ $recentDetail }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @elseif ($isCheckout)
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                                        🛒
+                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <x-filament::icon icon="heroicon-m-shopping-bag" class="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
@@ -823,15 +842,15 @@
                                         </div>
                                         @if ($recentDetail)
                                             <div style="font-size: 10px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                🎯 {{ $recentDetail }}
+                                                {{ $recentDetail }}
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             @else
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
-                                        {{ $pageInfo['icon'] ?? '📄' }}
+                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                        <x-filament::icon icon="heroicon-m-document-text" class="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
@@ -872,8 +891,10 @@
                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
                             <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Sepet:</span>
                             @if ($record->cart_items_count > 0)
-                                <div style="font-weight: 700; color: #f8fafc; font-size: 12px; display: flex; align-items: center; gap: 4px;">
-                                    🛒 {{ number_format($record->cart_total, 2) }} ₺ <span style="font-size: 9.5px; color: #94a3b8; font-weight: 500;">({{ $record->cart_items_count }} ürün)</span>
+                                <div style="font-weight: 700; color: #f8fafc; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                                    <x-filament::icon icon="heroicon-m-shopping-cart" class="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{{ number_format($record->cart_total, 2) }} ₺</span>
+                                    <span style="font-size: 9.5px; color: #94a3b8; font-weight: 500;">({{ $record->cart_items_count }} ürün)</span>
                                 </div>
                             @else
                                 <span style="font-size: 10.5px; color: #64748b;">Sepet Boş</span>
@@ -895,7 +916,7 @@
                                     </span>
                                     @if (!empty($strategy['suggested_coupon']))
                                         <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-family: monospace; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
-                                            🎟️ {{ $strategy['suggested_coupon'] }}
+                                            {{ $strategy['suggested_coupon'] }}
                                         </span>
                                     @endif
                                 @else
@@ -931,13 +952,17 @@
             @empty
                 <div style="grid-column: 1 / -1; padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
                     @if (($activeTab ?? 'live') === 'recent')
-                        <div style="font-size: 32px; margin-bottom: 8px;">⏱️</div>
+                        <div style="margin-bottom: 8px;">
+                            <x-filament::icon icon="heroicon-o-clock" class="w-10 h-10 text-slate-500" style="margin: 0 auto;" />
+                        </div>
                         <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
                         <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
                         </div>
                     @else
-                        <div style="font-size: 32px; margin-bottom: 8px;">📡</div>
+                        <div style="margin-bottom: 8px;">
+                            <x-filament::icon icon="heroicon-o-signal" class="w-10 h-10 text-slate-500" style="margin: 0 auto;" />
+                        </div>
                         <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
                         <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 

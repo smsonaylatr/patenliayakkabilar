@@ -375,10 +375,10 @@ class ActiveVisitors extends Page implements HasTable
                     ->getStateUsing(function (ActiveVisitor $record) {
                         $isOnline = $record->is_currently_online;
                         $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
-                        $deviceIcon = match ($record->device_type) {
-                            'mobile' => '📱',
-                            'tablet' => '📟',
-                            default => '💻',
+                        $deviceLabel = match ($record->device_type) {
+                            'mobile' => 'Mobil',
+                            'tablet' => 'Tablet',
+                            default => 'Masaüstü',
                         };
 
                         $name = $record->user_id && $record->user ? e($record->user->name) : e($record->display_name);
@@ -394,56 +394,53 @@ class ActiveVisitors extends Page implements HasTable
                         $email = $record->user?->email ?? $record->guest_email;
 
                         $onlineBadge = $isOnline
-                            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);"><span class="live-radar-dot" style="width:7px;height:7px;"></span> CANLI</span>'
-                            : '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">AYRILDI (' . $diff . ')</span>';
+                            ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.25);"><span class="live-radar-dot" style="width:6px;height:6px;"></span> CANLI</span>'
+                            : '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);">AYRILDI (' . $diff . ')</span>';
 
                         $badgeHtml = '';
                         if ($isMember) {
-                            $badgeHtml = '<span style="background:rgba(16,185,129,0.25);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MÜŞTERİ</span>';
+                            $badgeHtml = '<span style="background:rgba(255,78,0,0.1);color:#ff7849;border:1px solid rgba(255,78,0,0.25);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;">MÜŞTERİ</span>';
                         } elseif ($hasCustomName) {
-                            $badgeHtml = '<span style="background:rgba(56,189,248,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:800;">MİSAFİR</span>';
+                            $badgeHtml = '<span style="background:rgba(255,255,255,0.05);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600;">MİSAFİR</span>';
                         }
 
                         $idBadge = '';
                         if ($hasCustomName) {
-                            $idBadge = '<span title="Kalıcı Misafir ID: #' . $guestId . '" style="background:rgba(255,255,255,0.08);color:#94a3b8;border:1px solid rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;font-size:9.5px;font-family:monospace;font-weight:700;">#' . $guestId . '</span>';
+                            $idBadge = '<span title="Kalıcı Misafir ID: #' . $guestId . '" style="background:rgba(255,255,255,0.05);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);padding:1px 5px;border-radius:4px;font-size:9px;font-family:monospace;font-weight:600;">#' . $guestId . '</span>';
                         }
 
                         $contactHtml = '';
                         if ($phone || $email) {
-                            $contactHtml = '<div style="font-size:11px;color:#38bdf8;font-weight:700;display:flex;align-items:center;gap:5px;margin-top:2px;">'
-                                . ($phone ? '<span>📱 ' . e($phone) . '</span>' : '')
+                            $contactHtml = '<div style="font-size:11px;color:#cbd5e1;font-weight:500;display:flex;align-items:center;gap:5px;margin-top:2px;">'
+                                . ($phone ? '<span>' . e($phone) . '</span>' : '')
                                 . ($phone && $email ? '<span>•</span>' : '')
-                                . ($email ? '<span style="color:#94a3b8;">✉️ ' . e($email) . '</span>' : '')
+                                . ($email ? '<span style="color:#94a3b8;">' . e($email) . '</span>' : '')
                                 . '</div>';
                         }
 
                         $sourceInfo = $record->source_info;
                         $sourceHtml = '<div style="margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
-                            . '<span title="' . e($sourceInfo['detail']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;background:' . $sourceInfo['bg_color'] . ';color:' . $sourceInfo['color'] . ';border:1px solid ' . $sourceInfo['border_color'] . ';">'
-                            . '<span>' . $sourceInfo['icon'] . '</span>'
+                            . '<span title="' . e($sourceInfo['detail']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.05);color:#cbd5e1;border:1px solid rgba(255,255,255,0.08);">'
                             . '<span>' . e($sourceInfo['name']) . '</span>'
                             . '</span>'
-                            . (!empty($record->utm_campaign) ? '<span title="Kampanya: ' . e($record->utm_campaign) . '" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(255,255,255,0.06);color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);">🎯 ' . e($record->utm_campaign) . '</span>' : '')
+                            . (!empty($record->utm_campaign) ? '<span title="Kampanya: ' . e($record->utm_campaign) . '" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:500;background:rgba(255,255,255,0.04);color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">' . e($record->utm_campaign) . '</span>' : '')
                             . '</div>';
 
                         $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record);
                         $freqHtml = '<div style="margin-top:4px;">'
-                            . '<span title="' . e($freqSignal['label']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:800;background:' . $freqSignal['bg'] . ';color:' . $freqSignal['color'] . ';border:1px solid ' . $freqSignal['border'] . ';">'
-                            . '<span>' . $freqSignal['icon'] . '</span>'
+                            . '<span title="' . e($freqSignal['label']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:600;background:rgba(255,255,255,0.04);color:#94a3b8;border:1px solid rgba(255,255,255,0.07);">'
                             . '<span>' . $freqSignal['badge'] . '</span>'
-                            . '<span style="opacity:0.85;font-weight:600;">(' . e($freqSignal['label']) . ')</span>'
                             . '</span>'
                             . '</div>';
 
                         return new HtmlString('
                             <div style="display:flex;align-items:flex-start;gap:12px;min-width:220px;">
-                                <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff4e00,#b45309);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(255,78,0,0.35);">
-                                    ' . $initial . '
+                                <div style="position:relative;width:38px;height:38px;border-radius:50%;background:rgba(30,41,59,0.9);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;color:#f1f5f9;font-size:14px;flex-shrink:0;">
+                                    ' . ($record->is_blocked ? '!' : $initial) . '
                                 </div>
                                 <div style="flex:1;">
                                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
-                                        <span style="font-weight:800;color:#f8fafc;font-size:13px;">' . $name . '</span>
+                                        <span style="font-weight:700;color:#f8fafc;font-size:13px;">' . $name . '</span>
                                         ' . $starsHtml . '
                                         ' . $badgeHtml . '
                                         ' . $idBadge . '
@@ -453,14 +450,14 @@ class ActiveVisitors extends Page implements HasTable
                                     </div>
                                     ' . $contactHtml . '
                                     <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
-                                        <span>' . $deviceIcon . ' ' . e($record->browser ?? 'Tarayıcı') . '</span>
+                                        <span>' . $deviceLabel . ' • ' . e($record->browser ?? 'Tarayıcı') . '</span>
                                         <span>•</span>
                                         <span style="font-family:monospace;color:#64748b;">' . e($record->ip_address) . '</span>
                                         <span>•</span>
-                                        <span title="Kalıcı Misafir ID" style="font-family:monospace;color:#38bdf8;font-size:10px;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);padding:0.5px 5px;border-radius:4px;">ID: #' . $guestId . '</span>
+                                        <span title="Kalıcı Misafir ID" style="font-family:monospace;color:#94a3b8;font-size:10px;">ID: #' . $guestId . '</span>
                                     </div>
                                     <div style="font-size:10px;color:#64748b;margin-top:2px;">
-                                        ⏱️ ' . $duration . ' (' . $pageCount . '. sayfa)
+                                        ' . $duration . ' (' . $pageCount . '. sayfa)
                                     </div>
                                     ' . $sourceHtml . '
                                     ' . $freqHtml . '
@@ -490,31 +487,29 @@ class ActiveVisitors extends Page implements HasTable
                             }
                         }
 
-                        $color = $pageInfo['color'] ?? '#94a3b8';
-                        $bgColor = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
-                        $borderColor = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
-                        $icon = $pageInfo['icon'] ?? '📄';
+                        $bgColor = 'rgba(15, 23, 42, 0.55)';
+                        $borderColor = 'rgba(255, 255, 255, 0.06)';
 
                         $interestedHtml = '';
                         if ($interestedProduct) {
                             $prodImgHtml = !empty($interestedProduct['image'])
-                                ? '<img src="' . e($interestedProduct['image']) . '" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid rgba(249,115,22,0.4);flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.35);" />'
-                                : '<div style="width:36px;height:36px;border-radius:8px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.35);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👟</div>';
+                                ? '<img src="' . e($interestedProduct['image']) . '" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;" />'
+                                : '<div style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8;flex-shrink:0;">Model</div>';
 
                             $interestedHtml = '
-                                <div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.1);display:flex;align-items:center;gap:8px;">
+                                <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;">
                                     ' . $prodImgHtml . '
                                     <div style="overflow:hidden;flex:1;">
                                         <div style="display:flex;align-items:center;gap:4px;margin-bottom:1px;">
-                                            <span style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:800;text-transform:uppercase;background:rgba(249,115,22,0.15);color:' . ($interestedProduct['badge_color'] ?? '#ff7849') . ';border:1px solid rgba(249,115,22,0.35);">
-                                                🎯 ' . e($interestedProduct['badge'] ?? 'İlgilendiği Ürün') . '
+                                            <span style="display:inline-flex;align-items:center;padding:1px 5px;border-radius:4px;font-size:8.5px;font-weight:700;text-transform:uppercase;background:rgba(255,78,0,0.1);color:#ff7849;border:1px solid rgba(255,78,0,0.25);">
+                                                ' . e($interestedProduct['badge'] ?? 'İlgilendiği Ürün') . '
                                             </span>
-                                            ' . (!empty($interestedProduct['price']) ? '<span style="font-weight:800;color:#10b981;font-size:10.5px;">' . number_format($interestedProduct['price'], 2) . ' ₺</span>' : '') . '
+                                            ' . (!empty($interestedProduct['price']) ? '<span style="font-weight:700;color:#f8fafc;font-size:11px;">' . number_format($interestedProduct['price'], 2) . ' ₺</span>' : '') . '
                                         </div>
-                                        <a href="' . e($interestedProduct['url'] ?? '#') . '" target="_blank" style="font-weight:700;color:#f8fafc;font-size:11px;line-height:1.25;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        <a href="' . e($interestedProduct['url'] ?? '#') . '" target="_blank" style="font-weight:700;color:#f1f5f9;font-size:11.5px;line-height:1.25;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                             ' . e($interestedProduct['name']) . ' ↗
                                         </a>
-                                        ' . ($recentDetail ? '<div style="font-size:9.5px;color:#fbbf24;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎯 ' . e($recentDetail) . '</div>' : '') . '
+                                        ' . ($recentDetail ? '<div style="font-size:9.5px;color:#94a3b8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' . e($recentDetail) . '</div>' : '') . '
                                     </div>
                                 </div>
                             ';
@@ -522,17 +517,14 @@ class ActiveVisitors extends Page implements HasTable
 
                         return new HtmlString('
                             <div style="max-width:290px;">
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:38px;height:38px;border-radius:10px;background:' . $bgColor . ';border:1px solid ' . $borderColor . ';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                                        ' . $icon . '
-                                    </div>
+                                <div style="display:flex;align-items:center;gap:10px;background:' . $bgColor . ';border:1px solid ' . $borderColor . ';padding:8px 10px;border-radius:8px;">
                                     <div style="overflow:hidden;flex:1;">
                                         <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
-                                            <span style="display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:4px;font-size:8.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;background:' . $bgColor . ';color:' . $color . ';border:1px solid ' . $borderColor . ';">
-                                                ' . $icon . ' ' . e($pageInfo['badge'] ?? 'Sayfa') . '
+                                            <span style="display:inline-flex;align-items:center;padding:1px 5px;border-radius:4px;font-size:8.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);">
+                                                ' . e($pageInfo['badge'] ?? 'Sayfa') . '
                                             </span>
                                         </div>
-                                        <a href="' . e($url) . '" target="_blank" style="font-weight:800;color:#f8fafc;font-size:12px;line-height:1.35;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                        <a href="' . e($url) . '" target="_blank" style="font-weight:700;color:#f8fafc;font-size:12px;line-height:1.35;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                             ' . e($title) . ' ↗
                                         </a>
                                         <div style="font-size:9.5px;color:#64748b;margin-top:1px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -552,38 +544,28 @@ class ActiveVisitors extends Page implements HasTable
                         $score = $record->intent_score ?? 15;
                         $insight = $record->behavior_insight ?? 'Sitede genel keşif yapıyor.';
 
-                        $color = match (true) {
-                            $score >= 80 => '#10b981',
-                            $score >= 60 => '#f59e0b',
-                            $score >= 40 => '#38bdf8',
-                            default => '#94a3b8',
-                        };
-
-                        $gradient = match (true) {
-                            $score >= 80 => 'linear-gradient(90deg, #10b981, #059669)',
-                            $score >= 60 => 'linear-gradient(90deg, #f59e0b, #d97706)',
-                            $score >= 40 => 'linear-gradient(90deg, #38bdf8, #0284c7)',
-                            default => 'linear-gradient(90deg, #64748b, #475569)',
-                        };
+                        $badgeColor = $score >= 80 ? '#34d399' : ($score >= 60 ? '#ff7849' : '#94a3b8');
+                        $badgeBg = $score >= 80 ? 'rgba(16, 185, 129, 0.1)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)');
+                        $badgeBorder = $score >= 80 ? 'rgba(16, 185, 129, 0.25)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)');
 
                         $label = match (true) {
-                            $score >= 80 => '🔥 ÇOK SICAK (%' . $score . ')',
-                            $score >= 60 => '⚡ TEREDDÜTTE (%' . $score . ')',
-                            $score >= 40 => '👀 İLGİLİ (%' . $score . ')',
-                            default => '🔍 KEŞİF (%' . $score . ')',
+                            $score >= 80 => 'YÜKSEK NİYET (%' . $score . ')',
+                            $score >= 60 => 'TEREDDÜTTE (%' . $score . ')',
+                            $score >= 40 => 'İLGİLİ (%' . $score . ')',
+                            default => 'KEŞİF (%' . $score . ')',
                         };
 
                         return new HtmlString('
                             <div style="min-width:210px;max-width:260px;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
-                                    <span style="font-size:10px;font-weight:900;color:' . $color . ';letter-spacing:0.04em;">
+                                    <span style="font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;background:' . $badgeBg . ';color:' . $badgeColor . ';border:1px solid ' . $badgeBorder . ';">
                                         ' . $label . '
                                     </span>
                                 </div>
-                                <div style="background:rgba(255,255,255,0.08);border-radius:999px;height:5px;width:100%;overflow:hidden;margin-bottom:6px;">
-                                    <div style="background:' . $gradient . ';width:' . $score . '%;height:100%;border-radius:999px;"></div>
+                                <div style="background:rgba(255,255,255,0.06);border-radius:999px;height:4px;width:100%;overflow:hidden;margin-bottom:6px;">
+                                    <div style="background:#ff4e00;width:' . $score . '%;height:100%;border-radius:999px;"></div>
                                 </div>
-                                <div style="font-size:11px;color:#cbd5e1;background:#182234;border-left:3px solid ' . $color . ';padding:5px 8px;border-radius:4px;line-height:1.35;">
+                                <div style="font-size:11px;color:#94a3b8;background:rgba(15,23,42,0.5);border:1px solid rgba(255,255,255,0.05);padding:5px 8px;border-radius:5px;line-height:1.35;">
                                     ' . e($insight) . '
                                 </div>
                             </div>
@@ -600,15 +582,15 @@ class ActiveVisitors extends Page implements HasTable
                             $cartThumbName = !empty($thumbs[0]['name']) ? $thumbs[0]['name'] : null;
 
                             $imgHtml = $cartThumb
-                                ? '<img src="' . e($cartThumb) . '" style="width:34px;height:34px;border-radius:7px;object-fit:cover;border:1px solid rgba(16,185,129,0.4);flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.35);" />'
-                                : '<div style="width:34px;height:34px;border-radius:7px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🛒</div>';
+                                ? '<img src="' . e($cartThumb) . '" style="width:34px;height:34px;border-radius:7px;object-fit:cover;border:1px solid rgba(255,255,255,0.1);flex-shrink:0;" />'
+                                : '<div style="width:34px;height:34px;border-radius:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8;flex-shrink:0;">Sepet</div>';
 
                             return new HtmlString('
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     ' . $imgHtml . '
                                     <div style="min-width:0;">
-                                        <div style="font-weight:800;color:#10b981;font-size:12.5px;display:flex;align-items:center;gap:4px;">
-                                            🛒 ' . number_format($record->cart_total, 2) . ' ₺
+                                        <div style="font-weight:700;color:#f8fafc;font-size:12.5px;">
+                                            ' . number_format($record->cart_total, 2) . ' ₺
                                         </div>
                                         <div style="font-size:9.5px;color:#94a3b8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;" title="' . e($cartThumbName ?? '') . '">
                                             ' . $record->cart_items_count . ' ürün' . ($cartThumbName ? ' • ' . e($cartThumbName) : '') . '
@@ -633,12 +615,12 @@ class ActiveVisitors extends Page implements HasTable
                     ->label('Filtrele & Durum')
                     ->options([
                         'all' => 'Tüm Ziyaretçiler',
-                        'blocked' => '🚫 Engellenenler (Banlılar)',
-                        'online' => '🟢 Sadece Canlı Olanlar',
-                        'high_intent' => '🔥 Sıcak Adaylar (Niyet >= 60)',
-                        'hesitating' => '⚡ Tereddütte Olanlar',
-                        'with_cart' => '🛒 Sepetinde Ürün Olanlar',
-                        'members' => '👤 Kayıtlı Üyeler / Müşteriler',
+                        'blocked' => 'Engellenenler (Kara Liste)',
+                        'online' => 'Sadece Canlı Olanlar',
+                        'high_intent' => 'Sıcak Adaylar (Niyet >= 60)',
+                        'hesitating' => 'Tereddütte Olanlar',
+                        'with_cart' => 'Sepetinde Ürün Olanlar',
+                        'members' => 'Kayıtlı Üyeler / Müşteriler',
                     ])
                     ->query(function (Builder $query, array $data) {
                         $val = $data['value'] ?? null;
@@ -705,7 +687,7 @@ class ActiveVisitors extends Page implements HasTable
             ->recordActions([
                 // ─── 1. Önerilen Stratejiyi 1-Tıkla Uygula ───
                 Action::make('apply_strategy')
-                    ->label('Strateji')
+                    ->label('Strateji Uygula')
                     ->button()
                     ->size('sm')
                     ->color('primary')
