@@ -223,6 +223,76 @@
             height: 100%;
         }
 
+        /* Aylık Sayfa Gösterimi Grafik Paneli */
+        .traffic-chart-panel {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 78, 0, 0.25);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+        }
+        .traffic-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 10px;
+        }
+        .chart-ctrl-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chart-ctrl-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+        }
+        .chart-ctrl-btn.active {
+            background: #ff4e00;
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .chart-ribbon-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 900px) {
+            .chart-ribbon-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        .chart-stat-chip {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .traffic-kpi-card.has-chart-active {
+            border-color: rgba(255, 78, 0, 0.55) !important;
+            box-shadow: 0 0 14px rgba(255, 78, 0, 0.25) !important;
+        }
+
         /* Ziyaretçi Sinyal Tablosu Hızlı Komuta Kısayolları */
         .visitor-shortcuts-panel {
             background: rgba(15, 23, 42, 0.7);
@@ -988,7 +1058,7 @@
                 </div>
 
                 {{-- Periyot Geçiş Butonları --}}
-                <div style="display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.8); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                <div style="display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.8); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.06); flex-wrap: wrap;">
                     <button type="button" wire:click="setTrafficPeriod('daily')" class="traffic-period-btn {{ ($trafficPeriod ?? 'daily') === 'daily' ? 'active' : '' }}">
                         Günlük
                     </button>
@@ -997,6 +1067,17 @@
                     </button>
                     <button type="button" wire:click="setTrafficPeriod('monthly')" class="traffic-period-btn {{ ($trafficPeriod ?? 'daily') === 'monthly' ? 'active' : '' }}">
                         Aylık (Son 30 Gün)
+                    </button>
+                    <button type="button" 
+                            wire:click="togglePageViewsChart" 
+                            class="traffic-period-btn {{ !empty($showPageViewsChart) ? 'active' : '' }}" 
+                            title="Aylık Sayfa Gösterimi Trend Grafiğini Aç/Kapat" 
+                            style="display: inline-flex; align-items: center; gap: 5px;">
+                        <x-filament::icon icon="heroicon-m-chart-bar" class="w-3.5 h-3.5" />
+                        <span>Aylık Grafik</span>
+                        @if(!empty($showPageViewsChart))
+                            <span style="width: 5px; height: 5px; border-radius: 50%; background: #ffffff; display: inline-block;"></span>
+                        @endif
                     </button>
                 </div>
             </div>
@@ -1017,17 +1098,36 @@
                     </div>
                 </div>
 
-                {{-- Metrik 2: Sayfa Görüntüleme --}}
-                <div class="traffic-kpi-card">
+                {{-- Metrik 2: Sayfa Görüntüleme & Grafik Etkileşimi --}}
+                <div class="traffic-kpi-card {{ !empty($showPageViewsChart) ? 'has-chart-active' : '' }}" 
+                     wire:click="togglePageViewsChart" 
+                     style="cursor: pointer; transition: all 0.2s ease; position: relative;" 
+                     title="Aylık Sayfa Gösterimi Grafiğini Görüntüle / Kapat">
                     <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
-                        <span>Sayfa Gösterimi</span>
-                        <x-filament::icon icon="heroicon-m-eye" class="w-4 h-4 text-slate-400" />
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            <span>Sayfa Gösterimi</span>
+                            <x-filament::icon icon="heroicon-m-eye" class="w-3.5 h-3.5 text-slate-400" />
+                        </span>
+                        <span style="font-size: 9px; font-weight: 700; padding: 1.5px 6px; border-radius: 999px; display: inline-flex; align-items: center; gap: 3.5px; {{ !empty($showPageViewsChart) ? 'background: #ff4e00; color: #ffffff;' : 'background: rgba(255, 78, 0, 0.12); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);' }}">
+                            <x-filament::icon icon="heroicon-m-chart-bar" class="w-3 h-3" />
+                            <span>{{ !empty($showPageViewsChart) ? 'Grafik Açık' : 'Aylık Grafik' }}</span>
+                        </span>
                     </div>
-                    <div style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 4px 0;">
-                        {{ number_format($cur['page_views'] ?? 0) }}
+                    <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0;">
+                        <div style="font-size: 20px; font-weight: 800; color: #ffffff;">
+                            {{ number_format($cur['page_views'] ?? 0) }}
+                        </div>
+                        @if(!empty($monthlyChart['sparkline_points']))
+                            <div style="width: 72px; height: 20px; display: flex; align-items: center;" title="Son 30 Gün Gösterim Trendi">
+                                <svg viewBox="0 0 100 24" style="width: 100%; height: 100%; overflow: visible;">
+                                    <polyline fill="none" stroke="#ff4e00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="{{ $monthlyChart['sparkline_points'] }}" />
+                                </svg>
+                            </div>
+                        @endif
                     </div>
-                    <div style="font-size: 11px; color: #64748b;">
-                        Ort. Süre: <strong style="color: #cbd5e1;">{{ $cur['avg_duration_formatted'] ?? '1 dk 30 sn' }}</strong>
+                    <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; justify-content: space-between;">
+                        <div>Ort. Süre: <strong style="color: #cbd5e1;">{{ $cur['avg_duration_formatted'] ?? '1 dk 30 sn' }}</strong></div>
+                        <div style="font-size: 10px; color: #ff7849; font-weight: 600;">{{ !empty($showPageViewsChart) ? 'Grafik ▾' : 'Grafik Gör ▸' }}</div>
                     </div>
                 </div>
 
@@ -1077,6 +1177,144 @@
                     </div>
                 </div>
             </div>
+
+            @if(!empty($showPageViewsChart) && !empty($monthlyChart))
+                {{-- AYLIK SAYFA GÖSTERİMİ TREND VE DAĞILIM GRAFİK PANELİ --}}
+                <div class="traffic-chart-panel" id="page-views-monthly-chart-section">
+                    <div class="traffic-chart-header">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.3); display: flex; align-items: center; justify-content: center; color: #ff4e00;">
+                                <x-filament::icon icon="heroicon-m-chart-bar" class="w-5 h-5 text-primary-500" />
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 13.5px; font-weight: 700; color: #f8fafc;">
+                                        Aylık Sayfa Gösterimi Trend & Dağılım Grafiği
+                                    </span>
+                                    <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: rgba(255, 78, 0, 0.15); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.3);">
+                                        Son 30 Gün
+                                    </span>
+                                </div>
+                                <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">
+                                    Günlük sayfa gezinmeleri, pik günleri ve ziyaretçi etkileşim derinliği.
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Grafik Kontrolleri --}}
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            {{-- Çizgi / Sütun Geçişi --}}
+                            <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2px; border-radius: 6px;">
+                                <button type="button" 
+                                        wire:click="setChartType('line')" 
+                                        class="chart-ctrl-btn {{ ($chartType ?? 'line') === 'line' ? 'active' : '' }}" 
+                                        title="Çizgi Grafik Görünümü">
+                                    <x-filament::icon icon="heroicon-m-chart-bar-square" class="w-3.5 h-3.5" />
+                                    <span>Çizgi</span>
+                                </button>
+                                <button type="button" 
+                                        wire:click="setChartType('bar')" 
+                                        class="chart-ctrl-btn {{ ($chartType ?? 'line') === 'bar' ? 'active' : '' }}" 
+                                        title="Sütun Grafik Görünümü">
+                                    <x-filament::icon icon="heroicon-m-bars-3-bottom-left" class="w-3.5 h-3.5" />
+                                    <span>Sütun</span>
+                                </button>
+                            </div>
+
+                            {{-- Tekil Ziyaretçi ile Karşılaştır Butonu --}}
+                            <button type="button" 
+                                    wire:click="toggleChartCompareVisitors" 
+                                    class="chart-ctrl-btn {{ !empty($chartCompareVisitors) ? 'active' : '' }}" 
+                                    title="Tekil ziyaretçi sayısını da grafiğe ekle">
+                                <x-filament::icon icon="heroicon-m-users" class="w-3.5 h-3.5" />
+                                <span>Ziyaretçi Karşılaştır</span>
+                            </button>
+
+                            {{-- Kapat Butonu --}}
+                            <button type="button" 
+                                    wire:click="togglePageViewsChart" 
+                                    class="chart-ctrl-btn" 
+                                    style="color: #94a3b8;" 
+                                    title="Grafik Panelini Kapat">
+                                <span>✕</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- 4'lü Özet İstatistik Şeridi --}}
+                    <div class="chart-ribbon-grid">
+                        <div class="chart-stat-chip">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Toplam Aylık Gösterim</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #f8fafc;">
+                                {{ number_format($monthlyChart['summary']['total_views'] ?? ($monthlyTraffic['page_views'] ?? 0)) }}
+                            </div>
+                            <span style="font-size: 10px; color: #64748b;">Son 30 günün toplamı</span>
+                        </div>
+                        <div class="chart-stat-chip">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Günlük Ortalama Gösterim</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #ff7849;">
+                                {{ number_format($monthlyChart['summary']['avg_daily_views'] ?? 0, 1) }}
+                            </div>
+                            <span style="font-size: 10px; color: #64748b;">Gün başına ortalama sayfa</span>
+                        </div>
+                        <div class="chart-stat-chip">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">En Yoğun Gün (Zirve)</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #f8fafc; display: flex; align-items: baseline; gap: 6px;">
+                                <span>{{ number_format($monthlyChart['summary']['peak_views'] ?? 0) }}</span>
+                                <span style="font-size: 11px; font-weight: 600; color: #ff7849;">({{ $monthlyChart['summary']['peak_label'] ?? '-' }})</span>
+                            </div>
+                            <span style="font-size: 10px; color: #64748b;">30 günün en yüksek günü</span>
+                        </div>
+                        <div class="chart-stat-chip">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Ziyaretçi Başına Sayfa</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #38bdf8;">
+                                {{ $monthlyChart['summary']['pages_per_visitor'] ?? 0 }}
+                            </div>
+                            <span style="font-size: 10px; color: #64748b;">Oturum derinliği ve ilgi</span>
+                        </div>
+                    </div>
+
+                    {{-- Grafik Çizim Alanı --}}
+                    <div style="position: relative; width: 100%; height: 260px; min-height: 260px;">
+                        <canvas id="monthlyPageViewsCanvas" style="width: 100%; height: 100%;"></canvas>
+                    </div>
+
+                    {{-- Günlük Mini Çubuk Dağılım Şeridi (Hızlı Görsel Zaman Çizelgesi) --}}
+                    @if(!empty($monthlyChart['daily_records']))
+                        @php
+                            $maxDaily = max(1, $monthlyChart['summary']['peak_views'] ?? 1);
+                        @endphp
+                        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">
+                                    30 Günlük Zaman Çizelgesi
+                                </span>
+                                <span style="font-size: 10px; color: #64748b;">
+                                    Hafta sonu ortalama: <strong style="color: #cbd5e1;">{{ $monthlyChart['summary']['weekend_avg'] ?? 0 }}</strong> • Hafta içi ortalama: <strong style="color: #cbd5e1;">{{ $monthlyChart['summary']['weekday_avg'] ?? 0 }}</strong>
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 3px; height: 44px; background: rgba(0, 0, 0, 0.25); padding: 5px 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.04);">
+                                @foreach($monthlyChart['daily_records'] as $rec)
+                                    @php
+                                        $barHeight = max(5, (int) round(($rec['page_views'] / $maxDaily) * 32));
+                                        $isPeak = ($rec['page_views'] >= $maxDaily);
+                                    @endphp
+                                    <div style="flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;" 
+                                         title="{{ $rec['full_label'] }}: {{ number_format($rec['page_views']) }} Gösterim ({{ number_format($rec['visitors']) }} Ziyaretçi)">
+                                        <div style="width: 100%; max-width: 14px; height: {{ $barHeight }}px; border-radius: 2px 2px 0 0; transition: all 0.15s ease; {{ $isPeak ? 'background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.6);' : ($rec['is_weekend'] ? 'background: #f97316;' : 'background: rgba(255, 255, 255, 0.2);') }}"
+                                             onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; font-size: 9.5px; color: #64748b; font-family: monospace;">
+                                <span>{{ $monthlyChart['labels'][0] ?? '' }}</span>
+                                <span>{{ $monthlyChart['labels'][(int)(count($monthlyChart['labels'])/2)] ?? '' }}</span>
+                                <span>{{ $monthlyChart['labels'][count($monthlyChart['labels']) - 1] ?? '' }} (Bugün)</span>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             {{-- 3 Kolonlu Detay & AI Analiz Şebekesi --}}
             <div class="traffic-intel-details-grid">
@@ -1342,6 +1580,181 @@
             });
             setTimeout(ensureViewTogglePosition, 200);
             setTimeout(ensureViewTogglePosition, 800);
+        })();
+    </script>
+
+    {{-- Chart.js Kütüphanesi & Aylık Sayfa Gösterimi Trend Grafiği Motoru --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        (function() {
+            let pageViewsChartInstance = null;
+
+            window.initMonthlyPageViewsChart = function() {
+                const canvas = document.getElementById('monthlyPageViewsCanvas');
+                if (!canvas || typeof Chart === 'undefined') return;
+
+                const labels = @json($monthlyChart['labels'] ?? []);
+                const pageViews = @json($monthlyChart['page_views'] ?? []);
+                const visitors = @json($monthlyChart['visitors'] ?? []);
+                const chartType = @json($chartType ?? 'line');
+                const compareVisitors = @json(!empty($chartCompareVisitors));
+
+                if (!labels || labels.length === 0) return;
+
+                if (pageViewsChartInstance) {
+                    try {
+                        pageViewsChartInstance.destroy();
+                    } catch (e) {}
+                    pageViewsChartInstance = null;
+                }
+
+                const ctx = canvas.getContext('2d');
+
+                // Gradient Dolgular (Patenli Turuncu & Gökyüzü Mavisi)
+                const gradientOrange = ctx.createLinearGradient(0, 0, 0, 240);
+                gradientOrange.addColorStop(0, 'rgba(255, 78, 0, 0.35)');
+                gradientOrange.addColorStop(1, 'rgba(255, 78, 0, 0.00)');
+
+                const gradientBlue = ctx.createLinearGradient(0, 0, 0, 240);
+                gradientBlue.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+                gradientBlue.addColorStop(1, 'rgba(56, 189, 248, 0.00)');
+
+                const datasets = [
+                    {
+                        label: 'Sayfa Gösterimi',
+                        data: pageViews,
+                        borderColor: '#ff4e00',
+                        backgroundColor: chartType === 'line' ? gradientOrange : 'rgba(255, 78, 0, 0.8)',
+                        borderWidth: 2.5,
+                        fill: chartType === 'line',
+                        tension: 0.35,
+                        pointBackgroundColor: '#ff4e00',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        borderRadius: chartType === 'bar' ? 4 : 0,
+                        order: 1,
+                    }
+                ];
+
+                if (compareVisitors) {
+                    datasets.push({
+                        label: 'Tekil Ziyaretçi',
+                        data: visitors,
+                        borderColor: '#38bdf8',
+                        backgroundColor: chartType === 'line' ? gradientBlue : 'rgba(56, 189, 248, 0.65)',
+                        borderWidth: 2,
+                        fill: chartType === 'line',
+                        tension: 0.35,
+                        pointBackgroundColor: '#38bdf8',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 1.5,
+                        pointRadius: 2.5,
+                        pointHoverRadius: 5,
+                        borderRadius: chartType === 'bar' ? 4 : 0,
+                        order: 2,
+                    });
+                }
+
+                try {
+                    pageViewsChartInstance = new Chart(ctx, {
+                        type: chartType,
+                        data: {
+                            labels: labels,
+                            datasets: datasets,
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                intersect: false,
+                                mode: 'index',
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end',
+                                    labels: {
+                                        color: '#cbd5e1',
+                                        font: { size: 11, weight: '600' },
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        usePointStyle: true,
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                    borderColor: 'rgba(255, 78, 0, 0.35)',
+                                    borderWidth: 1,
+                                    titleColor: '#f8fafc',
+                                    titleFont: { size: 12, weight: 'bold' },
+                                    bodyColor: '#e2e8f0',
+                                    bodyFont: { size: 11.5 },
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ' ' + context.dataset.label + ': ' + Number(context.parsed.y).toLocaleString('tr-TR');
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false,
+                                        drawBorder: false,
+                                    },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 10 },
+                                        maxRotation: 0,
+                                        autoSkip: true,
+                                        maxTicksLimit: 15,
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.05)',
+                                        drawBorder: false,
+                                    },
+                                    ticks: {
+                                        color: '#94a3b8',
+                                        font: { size: 10.5 },
+                                        callback: function(val) {
+                                            return Number(val).toLocaleString('tr-TR');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.warn('MonthlyPageViewsChart error:', err);
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(window.initMonthlyPageViewsChart, 150);
+            });
+
+            document.addEventListener('livewire:navigated', function() {
+                setTimeout(window.initMonthlyPageViewsChart, 150);
+            });
+
+            document.addEventListener('livewire:initialized', function() {
+                if (window.Livewire && Livewire.hook) {
+                    Livewire.hook('morph.updated', function() {
+                        setTimeout(window.initMonthlyPageViewsChart, 100);
+                    });
+                }
+            });
+
+            setTimeout(window.initMonthlyPageViewsChart, 300);
+            setTimeout(window.initMonthlyPageViewsChart, 800);
         })();
     </script>
 

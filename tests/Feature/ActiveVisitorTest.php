@@ -939,6 +939,31 @@ class ActiveVisitorTest extends TestCase
             ->assertSee('Son 30 Gün (Aylık Sinyal)', false);
     }
 
+    public function test_active_visitors_page_renders_monthly_page_views_chart_and_toggles_chart(): void
+    {
+        $admin = \App\Models\User::factory()->create([
+            'email' => 'chart_admin_' . uniqid() . '@patenliayakkabilar.com',
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSee('Aylık Grafik', false)
+            ->assertSee('Aylık Sayfa Gösterimi Trend & Dağılım Grafiği', false)
+            ->assertSee('monthlyPageViewsCanvas', false)
+            ->assertSet('showPageViewsChart', true)
+            ->call('togglePageViewsChart')
+            ->assertSet('showPageViewsChart', false)
+            ->call('togglePageViewsChart')
+            ->assertSet('showPageViewsChart', true)
+            ->call('setChartType', 'bar')
+            ->assertSet('chartType', 'bar')
+            ->call('setChartType', 'line')
+            ->assertSet('chartType', 'line')
+            ->call('toggleChartCompareVisitors')
+            ->assertSet('chartCompareVisitors', true);
+    }
+
     public function test_active_visitor_save_resiliently_handles_missing_columns(): void
     {
         $visitor = new ActiveVisitor();
