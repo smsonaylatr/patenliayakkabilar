@@ -109,6 +109,174 @@ class ActiveVisitor extends Model
         return "{$minutes} dk {$remainingSeconds} sn";
     }
 
+    /**
+     * Ziyaretçinin geldiği kaynağı (Referrer, UTM, Arama motoru, Sosyal Medya veya Direkt)
+     * detaylı rozet, etiket, ikon ve renk bilgisiyle çözer.
+     */
+    public function getSourceInfoAttribute(): array
+    {
+        $referrer = $this->referrer;
+        $referrerHost = strtolower($this->referrer_host ?: ($referrer ? (parse_url($referrer, PHP_URL_HOST) ?? '') : ''));
+        $utmSource = strtolower(trim($this->utm_source ?? ''));
+        $utmCampaign = trim($this->utm_campaign ?? '');
+        $ownHost = parse_url(config('app.url', 'patenliayakkabilar.com'), PHP_URL_HOST) ?: 'patenliayakkabilar.com';
+
+        // 1. Google Ads / Reklam (cpc / gclid / utm_source=google_ads vs.)
+        if (str_contains($utmSource, 'cpc') || str_contains($utmSource, 'adwords') || str_contains($utmSource, 'google_ads') || (!empty($referrer) && str_contains($referrer, 'gclid='))) {
+            return [
+                'type' => 'ad',
+                'name' => 'Google Ads',
+                'detail' => $utmCampaign ? "Google Reklamı ({$utmCampaign})" : 'Google Ads Tıklaması',
+                'badge' => 'Google Ads',
+                'icon' => '🎯',
+                'color' => '#fbbf24',
+                'bg_color' => 'rgba(245, 158, 11, 0.15)',
+                'border_color' => 'rgba(245, 158, 11, 0.35)',
+            ];
+        }
+
+        // 2. Instagram (UTM veya Referrer)
+        if (str_contains($utmSource, 'instagram') || str_contains($referrerHost, 'instagram.com')) {
+            $isAd = str_contains($utmSource, 'ad') || !empty($utmCampaign);
+            return [
+                'type' => 'social',
+                'name' => 'Instagram',
+                'detail' => $utmCampaign ? "Instagram ({$utmCampaign})" : ($isAd ? 'Instagram Reklamı' : 'Instagram Profili / DM'),
+                'badge' => 'Instagram',
+                'icon' => '📸',
+                'color' => '#f472b6',
+                'bg_color' => 'rgba(236, 72, 153, 0.15)',
+                'border_color' => 'rgba(236, 72, 153, 0.35)',
+            ];
+        }
+
+        // 3. TikTok (UTM veya Referrer)
+        if (str_contains($utmSource, 'tiktok') || str_contains($referrerHost, 'tiktok.com')) {
+            return [
+                'type' => 'social',
+                'name' => 'TikTok',
+                'detail' => $utmCampaign ? "TikTok ({$utmCampaign})" : 'TikTok Paylaşımı / Reklamı',
+                'badge' => 'TikTok',
+                'icon' => '🎵',
+                'color' => '#06b6d4',
+                'bg_color' => 'rgba(6, 182, 212, 0.15)',
+                'border_color' => 'rgba(6, 182, 212, 0.35)',
+            ];
+        }
+
+        // 4. Facebook / Meta
+        if (str_contains($utmSource, 'facebook') || str_contains($utmSource, 'meta') || str_contains($referrerHost, 'facebook.com') || str_contains($referrerHost, 'fb.com')) {
+            return [
+                'type' => 'social',
+                'name' => 'Facebook',
+                'detail' => $utmCampaign ? "Facebook ({$utmCampaign})" : 'Meta / Facebook',
+                'badge' => 'Facebook',
+                'icon' => '📘',
+                'color' => '#38bdf8',
+                'bg_color' => 'rgba(56, 189, 248, 0.15)',
+                'border_color' => 'rgba(56, 189, 248, 0.35)',
+            ];
+        }
+
+        // 5. YouTube
+        if (str_contains($utmSource, 'youtube') || str_contains($referrerHost, 'youtube.com') || str_contains($referrerHost, 'youtu.be')) {
+            return [
+                'type' => 'social',
+                'name' => 'YouTube',
+                'detail' => $utmCampaign ? "YouTube ({$utmCampaign})" : 'YouTube Kanalı',
+                'badge' => 'YouTube',
+                'icon' => '▶️',
+                'color' => '#ef4444',
+                'bg_color' => 'rgba(239, 68, 68, 0.15)',
+                'border_color' => 'rgba(239, 68, 68, 0.35)',
+            ];
+        }
+
+        // 6. X (Twitter)
+        if (str_contains($utmSource, 'twitter') || str_contains($referrerHost, 'twitter.com') || str_contains($referrerHost, 'x.com') || str_contains($referrerHost, 't.co')) {
+            return [
+                'type' => 'social',
+                'name' => 'X (Twitter)',
+                'detail' => $utmCampaign ? "X ({$utmCampaign})" : 'X (Twitter) Paylaşımı',
+                'badge' => 'X',
+                'icon' => '🐦',
+                'color' => '#cbd5e1',
+                'bg_color' => 'rgba(255, 255, 255, 0.12)',
+                'border_color' => 'rgba(255, 255, 255, 0.25)',
+            ];
+        }
+
+        // 7. Google Arama (Organik SEO)
+        if (str_contains($referrerHost, 'google.') || $utmSource === 'google') {
+            return [
+                'type' => 'search',
+                'name' => 'Google Arama',
+                'detail' => 'Google Organik Arama (SEO)',
+                'badge' => 'Google',
+                'icon' => '🌐',
+                'color' => '#38bdf8',
+                'bg_color' => 'rgba(56, 189, 248, 0.15)',
+                'border_color' => 'rgba(56, 189, 248, 0.35)',
+            ];
+        }
+
+        // 8. Yandex Arama
+        if (str_contains($referrerHost, 'yandex.')) {
+            return [
+                'type' => 'search',
+                'name' => 'Yandex',
+                'detail' => 'Yandex Arama',
+                'badge' => 'Yandex',
+                'icon' => '🔴',
+                'color' => '#ef4444',
+                'bg_color' => 'rgba(239, 68, 68, 0.15)',
+                'border_color' => 'rgba(239, 68, 68, 0.35)',
+            ];
+        }
+
+        // 9. Özel UTM Kaynağı Varsa
+        if (!empty($utmSource)) {
+            $campaignDetail = !empty($utmCampaign) ? " ({$utmCampaign})" : '';
+            return [
+                'type' => 'campaign',
+                'name' => ucfirst($utmSource) . $campaignDetail,
+                'detail' => $utmCampaign ? "Kampanya: {$utmCampaign}" : "Kaynak: {$utmSource}",
+                'badge' => ucfirst($utmSource),
+                'icon' => '🎯',
+                'color' => '#c084fc',
+                'bg_color' => 'rgba(192, 132, 252, 0.15)',
+                'border_color' => 'rgba(192, 132, 252, 0.35)',
+            ];
+        }
+
+        // 10. Başka bir siteden yönlendirme (Dış Backlink / Referans)
+        if (!empty($referrerHost) && !str_contains($referrerHost, $ownHost)) {
+            $cleanHost = preg_replace('/^www\./', '', $referrerHost);
+            return [
+                'type' => 'referral',
+                'name' => $cleanHost,
+                'detail' => $referrer ?: $cleanHost,
+                'badge' => $cleanHost,
+                'icon' => '🔗',
+                'color' => '#2dd4bf',
+                'bg_color' => 'rgba(45, 212, 191, 0.15)',
+                'border_color' => 'rgba(45, 212, 191, 0.35)',
+            ];
+        }
+
+        // 11. Doğrudan Giriş (Direkt / Yer İmleri)
+        return [
+            'type' => 'direct',
+            'name' => 'Doğrudan Giriş',
+            'detail' => 'Tarayıcıya doğrudan URL yazdı veya yer imlerinden girdi',
+            'badge' => 'Direkt',
+            'icon' => '⚡',
+            'color' => '#94a3b8',
+            'bg_color' => 'rgba(148, 163, 184, 0.12)',
+            'border_color' => 'rgba(148, 163, 184, 0.25)',
+        ];
+    }
+
     protected static array $productCache = [];
     protected static array $pageInfoCache = [];
 

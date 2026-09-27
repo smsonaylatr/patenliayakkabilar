@@ -56,6 +56,7 @@ class TrafficSourceDetector
         return [
             'traffic_source' => $trafficSource,
             'device_type'    => $deviceType,
+            'landing_url'    => substr($request->fullUrl(), 0, 1000),
             'utm_source'     => $utmSource ? substr($utmSource, 0, 100) : null,
             'utm_medium'     => $utmMedium ? substr($utmMedium, 0, 100) : null,
             'utm_campaign'   => $utmCampaign ? substr($utmCampaign, 0, 150) : null,

@@ -514,6 +514,106 @@ td.fi-ta-actions-cell {
     color: #cbd5e1;
     border-color: rgba(148, 163, 184, 0.25);
 }
+
+/* Geldiği Kaynak Linki Stilleri */
+.traffic-link-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 4px;
+}
+
+.traffic-link-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.traffic-link-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dark .traffic-link-title {
+    color: #94a3b8;
+}
+
+.traffic-link-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.74rem;
+    color: #1e293b;
+    transition: all 0.15s ease;
+}
+
+.dark .traffic-link-box {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+.traffic-link-text {
+    flex: 1;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+}
+
+.traffic-link-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.traffic-btn-mini {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: #ff4e00;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.traffic-btn-mini:hover {
+    background: rgba(255, 78, 0, 0.12);
+}
+
+.traffic-btn-mini.gray {
+    color: #64748b;
+}
+
+.dark .traffic-btn-mini.gray {
+    color: #94a3b8;
+}
+
+.traffic-btn-mini.gray:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
 </style>
 
 <div 
@@ -948,6 +1048,50 @@ td.fi-ta-actions-cell {
           </div>
         @endif
 
+        <!-- Geldiği Kaynak / Giriş Linki -->
+        @php
+            $sourceUrl = $order->source_url;
+        @endphp
+        <div class="traffic-link-section">
+          <div class="traffic-link-head">
+            <span class="traffic-link-title">
+              <span>🔗</span> Geldiği Kaynak Linki:
+            </span>
+            <div class="traffic-link-actions">
+              <button 
+                type="button"
+                @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
+                class="traffic-btn-mini"
+                title="Kaynak Linkini Panoya Kopyala"
+              >
+                <svg style="width:13px; height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Kopyala</span>
+              </button>
+              <a 
+                href="{{ $sourceUrl }}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="traffic-btn-mini gray"
+                title="Linki Yeni Sekmede Aç"
+              >
+                <svg style="width:13px; height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span>Aç</span>
+              </a>
+            </div>
+          </div>
+          <div class="traffic-link-box">
+            <a 
+              href="{{ $sourceUrl }}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="traffic-link-text"
+              title="{{ $sourceUrl }}"
+            >
+              {{ $sourceUrl }}
+            </a>
+          </div>
+        </div>
+
         <!-- Ağ & Referrer (IP ve Yönlendiren) -->
         <div class="traffic-network-row">
           @if($order->ip_address)
@@ -957,7 +1101,12 @@ td.fi-ta-actions-cell {
             @php
                 $refHost = parse_url($order->referrer, PHP_URL_HOST) ?: $order->referrer;
             @endphp
-            <span title="Önceki Sayfa (Referrer)">🔗 Yönlendiren: <strong>{{ \Illuminate\Support\Str::limit($refHost, 28) }}</strong></span>
+            <span title="Önceki Sayfa (Referrer)">
+              🔗 Yönlendiren: 
+              <a href="{{ $order->referrer }}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">
+                <strong>{{ \Illuminate\Support\Str::limit($refHost, 28) }}</strong>
+              </a>
+            </span>
           @endif
         </div>
       </div>

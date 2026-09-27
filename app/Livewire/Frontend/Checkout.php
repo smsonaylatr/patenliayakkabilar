@@ -374,6 +374,7 @@ class Checkout extends Component
         $utmTerm = $attribution['utm_term'] ?? session('utm_term');
         $utmContent = $attribution['utm_content'] ?? session('utm_content');
         $referrer = $attribution['referrer'] ?? session('traffic_referrer');
+        $landingUrl = $attribution['landing_url'] ?? session('traffic_landing_url');
         $gclid = session('gclid') ?? ($attribution['gclid'] ?? request()->cookie('gclid'));
 
         $order = Order::create([
@@ -384,6 +385,7 @@ class Checkout extends Component
             'payment_method' => $this->payment_method,
             'traffic_source' => $trafficSource,
             'device_type' => $deviceType,
+            'landing_url' => $landingUrl,
             'utm_source' => $utmSource,
             'utm_medium' => $utmMedium,
             'utm_campaign' => $utmCampaign,

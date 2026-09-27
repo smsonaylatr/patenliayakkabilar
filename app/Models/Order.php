@@ -82,4 +82,61 @@ class Order extends Model
 
         return false;
     }
+
+    /**
+     * Siparişin geldiği tam kaynak / giriş bağlantısını döndürür.
+     */
+    public function getSourceUrlAttribute(): string
+    {
+        if (!empty($this->landing_url)) {
+            return $this->landing_url;
+        }
+
+        $baseUrl = rtrim(config('app.url', 'https://patenliayakkabilar.com'), '/');
+
+        $params = array_filter([
+            'utm_source'   => $this->utm_source,
+            'utm_medium'   => $this->utm_medium,
+            'utm_campaign' => $this->utm_campaign,
+            'utm_term'     => $this->utm_term,
+            'utm_content'  => $this->utm_content,
+            'gclid'        => $this->gclid,
+        ]);
+
+        if (!empty($params)) {
+            return $baseUrl . '/?' . http_build_query($params);
+        }
+
+        $sourceLower = strtolower($this->traffic_source ?? '');
+
+        if (str_contains($sourceLower, 'instagram')) {
+            return $this->referrer ?: ($baseUrl . '/?utm_source=instagram&utm_medium=bio');
+        }
+
+        if (str_contains($sourceLower, 'google ads')) {
+            return $this->referrer ?: ($this->gclid ? ($baseUrl . '/?gclid=' . $this->gclid) : ($baseUrl . '/?utm_source=google&utm_medium=cpc'));
+        }
+
+        if (str_contains($sourceLower, 'google')) {
+            return $this->referrer ?: 'https://www.google.com/search?q=patenliayakkabilar.com';
+        }
+
+        if (str_contains($sourceLower, 'tiktok')) {
+            return $this->referrer ?: ($baseUrl . '/?utm_source=tiktok&utm_medium=bio');
+        }
+
+        if (str_contains($sourceLower, 'whatsapp')) {
+            return $this->referrer ?: ($baseUrl . '/?utm_source=whatsapp&utm_medium=chat');
+        }
+
+        if (str_contains($sourceLower, 'admin')) {
+            return $baseUrl . '/admin/orders';
+        }
+
+        if (!empty($this->referrer)) {
+            return $this->referrer;
+        }
+
+        return $baseUrl . '/';
+    }
 }

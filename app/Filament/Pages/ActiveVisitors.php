@@ -156,7 +156,7 @@ class ActiveVisitors extends Page implements HasTable
                 // 1. Ziyaretçi Kimliği & Canlı Sinyal
                 TextColumn::make('visitor_identity')
                     ->label('Ziyaretçi & Sinyal')
-                    ->searchable(['ip_address', 'guest_name', 'guest_email', 'guest_phone', 'user.name', 'user.email'])
+                    ->searchable(['ip_address', 'guest_name', 'guest_email', 'guest_phone', 'referrer_host', 'utm_source', 'utm_campaign', 'user.name', 'user.email'])
                     ->getStateUsing(function (ActiveVisitor $record) {
                         $isOnline = $record->is_currently_online;
                         $diff = $record->last_heartbeat_at ? $record->last_heartbeat_at->diffForHumans(null, true) : 'şimdi';
@@ -196,6 +196,15 @@ class ActiveVisitors extends Page implements HasTable
                                 . '</div>';
                         }
 
+                        $sourceInfo = $record->source_info;
+                        $sourceHtml = '<div style="margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
+                            . '<span title="' . e($sourceInfo['detail']) . '" style="display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;background:' . $sourceInfo['bg_color'] . ';color:' . $sourceInfo['color'] . ';border:1px solid ' . $sourceInfo['border_color'] . ';">'
+                            . '<span>' . $sourceInfo['icon'] . '</span>'
+                            . '<span>' . e($sourceInfo['name']) . '</span>'
+                            . '</span>'
+                            . (!empty($record->utm_campaign) ? '<span title="Kampanya: ' . e($record->utm_campaign) . '" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(255,255,255,0.06);color:#cbd5e1;border:1px solid rgba(255,255,255,0.1);">🎯 ' . e($record->utm_campaign) . '</span>' : '')
+                            . '</div>';
+
                         return new HtmlString('
                             <div style="display:flex;align-items:flex-start;gap:12px;min-width:220px;">
                                 <div style="position:relative;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff4e00,#b45309);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;box-shadow:0 0 12px rgba(255,78,0,0.35);">
@@ -218,6 +227,7 @@ class ActiveVisitors extends Page implements HasTable
                                     <div style="font-size:10px;color:#64748b;margin-top:2px;">
                                         ⏱️ ' . $duration . ' (' . $pageCount . '. sayfa)
                                     </div>
+                                    ' . $sourceHtml . '
                                 </div>
                             </div>
                         ');
@@ -420,6 +430,49 @@ class ActiveVisitors extends Page implements HasTable
                         } elseif ($val === 'members') {
                             $query->where(function ($q) {
                                 $q->whereNotNull('user_id')->orWhere('is_identified', true);
+                            });
+                        }
+                    }),
+
+                SelectFilter::make('traffic_source')
+                    ->label('Geliş Kaynağı')
+                    ->options([
+                        'google' => '🌐 Google (Arama / Ads)',
+                        'instagram' => '📸 Instagram',
+                        'facebook' => '📘 Facebook / Meta',
+                        'tiktok' => '🎵 TikTok',
+                        'direct' => '⚡ Doğrudan (Direkt)',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $val = $data['value'] ?? null;
+                        if ($val === 'google') {
+                            $query->where(function ($q) {
+                                $q->where('referrer_host', 'like', '%google%')
+                                  ->orWhere('utm_source', 'like', '%google%')
+                                  ->orWhere('utm_source', 'like', '%cpc%');
+                            });
+                        } elseif ($val === 'instagram') {
+                            $query->where(function ($q) {
+                                $q->where('referrer_host', 'like', '%instagram%')
+                                  ->orWhere('utm_source', 'like', '%instagram%');
+                            });
+                        } elseif ($val === 'facebook') {
+                            $query->where(function ($q) {
+                                $q->where('referrer_host', 'like', '%facebook%')
+                                  ->orWhere('referrer_host', 'like', '%fb.%')
+                                  ->orWhere('utm_source', 'like', '%facebook%')
+                                  ->orWhere('utm_source', 'like', '%meta%');
+                            });
+                        } elseif ($val === 'tiktok') {
+                            $query->where(function ($q) {
+                                $q->where('referrer_host', 'like', '%tiktok%')
+                                  ->orWhere('utm_source', 'like', '%tiktok%');
+                            });
+                        } elseif ($val === 'direct') {
+                            $query->where(function ($q) {
+                                $q->whereNull('referrer')->orWhere('referrer', '');
+                            })->where(function ($q) {
+                                $q->whereNull('utm_source')->orWhere('utm_source', '');
                             });
                         }
                     }),

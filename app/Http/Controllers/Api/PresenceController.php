@@ -70,13 +70,20 @@ class PresenceController extends Controller
         $visitor->current_title = (!empty($cleanTitle) && strcasecmp($cleanTitle, 'Patenli Ayakkabılar') !== 0)
             ? $cleanTitle
             : $pageInfo['title'];
-        if ($referrer && empty($visitor->referrer)) {
-            $visitor->referrer = $referrer;
-            $visitor->referrer_host = parse_url($referrer, PHP_URL_HOST);
+        if ($referrer) {
+            $refHost = parse_url($referrer, PHP_URL_HOST);
+            $ownHost = $request->getHost();
+            $isExternal = $refHost && !str_contains(strtolower($refHost), strtolower($ownHost));
+            $currentIsInternal = !empty($visitor->referrer_host) && str_contains(strtolower($visitor->referrer_host), strtolower($ownHost));
+
+            if (empty($visitor->referrer) || ($currentIsInternal && $isExternal)) {
+                $visitor->referrer = $referrer;
+                $visitor->referrer_host = $refHost;
+            }
         }
 
         // UTM Parametreleri
-        if ($request->has('utm_source') && empty($visitor->utm_source)) {
+        if ($request->filled('utm_source') && empty($visitor->utm_source)) {
             $visitor->utm_source = $request->input('utm_source');
             $visitor->utm_campaign = $request->input('utm_campaign');
         }

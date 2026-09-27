@@ -50,6 +50,7 @@ class CaptureTrafficSource
                 $attribution = [
                     'traffic_source' => $data['traffic_source'],
                     'device_type'    => $data['device_type'],
+                    'landing_url'    => $data['landing_url'] ?? $request->fullUrl(),
                     'utm_source'     => $data['utm_source'],
                     'utm_medium'     => $data['utm_medium'],
                     'utm_campaign'   => $data['utm_campaign'],
@@ -96,6 +97,7 @@ class CaptureTrafficSource
                         $attribution = [
                             'traffic_source' => 'Doğrudan',
                             'device_type'    => $data['device_type'],
+                            'landing_url'    => $data['landing_url'] ?? $request->fullUrl(),
                             'utm_source'     => null,
                             'utm_medium'     => null,
                             'utm_campaign'   => null,

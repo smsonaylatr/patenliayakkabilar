@@ -418,6 +418,43 @@
         } catch(e) {}
     }
 
+    // 1.1 İlk Giriş Kaynağı ve Kampanya Belleği (First-touch Attribution)
+    var initialReferrer = '';
+    var initialUtmSource = '';
+    var initialUtmCampaign = '';
+    try {
+        var ownHost = window.location.hostname;
+        var currentRef = document.referrer || '';
+        var isExternalRef = false;
+        if (currentRef) {
+            try {
+                var refHost = new URL(currentRef).hostname;
+                if (refHost && refHost !== ownHost) {
+                    isExternalRef = true;
+                }
+            } catch(e) {}
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentUtmSource = urlParams.get('utm_source') || '';
+        var currentUtmCampaign = urlParams.get('utm_campaign') || '';
+
+        // Harici referrer ilk girişte kalıcı saklansın
+        if (isExternalRef && !localStorage.getItem('pa_initial_referrer')) {
+            localStorage.setItem('pa_initial_referrer', currentRef);
+        }
+        if (currentUtmSource && !localStorage.getItem('pa_initial_utm_source')) {
+            localStorage.setItem('pa_initial_utm_source', currentUtmSource);
+        }
+        if (currentUtmCampaign && !localStorage.getItem('pa_initial_utm_campaign')) {
+            localStorage.setItem('pa_initial_utm_campaign', currentUtmCampaign);
+        }
+
+        initialReferrer = localStorage.getItem('pa_initial_referrer') || (isExternalRef ? currentRef : '');
+        initialUtmSource = localStorage.getItem('pa_initial_utm_source') || currentUtmSource || '';
+        initialUtmCampaign = localStorage.getItem('pa_initial_utm_campaign') || currentUtmCampaign || '';
+    } catch(e) {}
+
     var heartbeatInterval = null;
     var normalDelay = 7000; // 7 saniye
     var backgroundDelay = 30000; // Sekme arka plandayken 30 saniye
@@ -562,7 +599,7 @@
             url: window.location.href,
             path: window.location.pathname,
             title: document.title || 'Patenli Ayakkabılar',
-            referrer: document.referrer || '',
+            referrer: (initialReferrer || document.referrer || ''),
             screen: window.innerWidth + 'x' + window.innerHeight,
             action: actionType || 'heartbeat',
             action_detail: actionDetail || null
@@ -570,8 +607,10 @@
 
         try {
             var urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('utm_source')) payload.utm_source = urlParams.get('utm_source');
-            if (urlParams.has('utm_campaign')) payload.utm_campaign = urlParams.get('utm_campaign');
+            var utmSrc = urlParams.get('utm_source') || initialUtmSource;
+            var utmCmp = urlParams.get('utm_campaign') || initialUtmCampaign;
+            if (utmSrc) payload.utm_source = utmSrc;
+            if (utmCmp) payload.utm_campaign = utmCmp;
         } catch(e) {}
 
         fetch('/api/presence/heartbeat', {

@@ -242,6 +242,20 @@
                                 <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
                                     ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
                                 </div>
+
+                                {{-- Geldiği Kaynak (Traffic Source) --}}
+                                @php $sourceInfo = $record->source_info; @endphp
+                                <div style="margin-top: 6px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                    <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 4.5px; padding: 2.5px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.02em; background: {{ $sourceInfo['bg_color'] }}; color: {{ $sourceInfo['color'] }}; border: 1px solid {{ $sourceInfo['border_color'] }}; box-shadow: 0 1px 4px rgba(0,0,0,0.2);">
+                                        <span>{{ $sourceInfo['icon'] }}</span>
+                                        <span>{{ $sourceInfo['name'] }}</span>
+                                    </span>
+                                    @if(!empty($record->utm_campaign))
+                                        <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                            🎯 {{ $record->utm_campaign }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

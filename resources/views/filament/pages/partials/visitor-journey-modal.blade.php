@@ -13,7 +13,13 @@
                     {{ $phone ? '📱 ' . $phone : '' }} {{ $phone && $email ? '• ' : '' }} {{ $email ? '✉️ ' . $email : '' }}
                 </div>
             @endif
-            <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 2px;">{{ $record->ip_address }}</div>
+            @php $modalSource = $record->source_info; @endphp
+            <div style="margin-top: 5px;">
+                <span title="{{ $modalSource['detail'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; background: {{ $modalSource['bg_color'] }}; color: {{ $modalSource['color'] }}; border: 1px solid {{ $modalSource['border_color'] }};">
+                    {{ $modalSource['icon'] }} {{ $modalSource['name'] }}
+                </span>
+            </div>
+            <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-top: 4px;">{{ $record->ip_address }}</div>
         </div>
         <div>
             <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Satın Alma Niyeti</div>
@@ -261,15 +267,24 @@
         @endif
     </div>
 
-    {{-- Kaynak ve UTM Bilgileri --}}
-    @if($record->referrer || $record->utm_source)
-        <div style="padding: 12px 16px; background: #1e293b; border-radius: 12px; font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; gap: 4px;">
-            @if($record->referrer)
-                <div><strong style="color: #cbd5e1;">Geldiği Kaynak:</strong> {{ $record->referrer }}</div>
-            @endif
-            @if($record->utm_source)
-                <div><strong style="color: #cbd5e1;">Kampanya Kaynağı:</strong> {{ $record->utm_source }} ({{ $record->utm_campaign ?? '-' }})</div>
-            @endif
+    {{-- Trafik Kaynağı ve Kampanya Bilgileri --}}
+    @php $modalBottomSource = $record->source_info; @endphp
+    <div style="padding: 14px 16px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; font-size: 11px; color: #94a3b8; display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #cbd5e1; letter-spacing: 0.04em;">🌐 Trafik Kaynağı</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; background: {{ $modalBottomSource['bg_color'] }}; color: {{ $modalBottomSource['color'] }}; border: 1px solid {{ $modalBottomSource['border_color'] }};">
+                <span>{{ $modalBottomSource['icon'] }}</span>
+                <span>{{ $modalBottomSource['name'] }}</span>
+            </span>
         </div>
-    @endif
+        @if($record->referrer)
+            <div><strong style="color: #cbd5e1;">Yönlendiren URL:</strong> <span style="font-family: monospace; color: #94a3b8; word-break: break-all;">{{ $record->referrer }}</span></div>
+        @endif
+        @if($record->utm_source)
+            <div><strong style="color: #cbd5e1;">UTM Kampanyası:</strong> <span style="font-family: monospace; color: #38bdf8;">{{ $record->utm_source }} {{ $record->utm_campaign ? '• ' . $record->utm_campaign : '' }}</span></div>
+        @endif
+        @if(!$record->referrer && !$record->utm_source)
+            <div style="color: #64748b;">Doğrudan ziyaret (Doğrudan adres çubuğuna yazarak veya yer imlerinden siteye girdi).</div>
+        @endif
+    </div>
 </div>
