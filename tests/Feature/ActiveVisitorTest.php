@@ -357,6 +357,44 @@ class ActiveVisitorTest extends TestCase
         }
         $visitor->delete();
     }
+
+    public function test_active_visitors_admin_page_renders_successfully(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin_' . uniqid() . '@patenli.com',
+            'role' => 'admin',
+        ]);
+
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_admin_render_test',
+            'ip_address' => '85.105.12.34',
+            'device_type' => 'desktop',
+            'browser' => 'Chrome',
+            'first_seen_at' => now()->subMinutes(10),
+            'last_heartbeat_at' => now(),
+            'current_url' => 'https://patenliayakkabilar.com/patenli-ayakkabilar',
+            'current_path' => '/patenli-ayakkabilar',
+            'current_title' => 'Kick Speed Sky Roll Işıklı Patenli Spor Ayakkabı',
+            'intent_score' => 85,
+            'intent_level' => 'hot',
+            'behavior_insight' => 'Ödeme adımına hazırlanıyor.',
+            'cart_items_count' => 1,
+            'cart_total' => 1890,
+            'recommended_strategy' => [
+                'title' => 'Sepet İndirimi',
+                'action_type' => 'offer',
+                'suggested_message' => 'Hemen tamamla %10 kazan',
+                'suggested_coupon' => 'SEPET10',
+            ],
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Pages\ActiveVisitors::class)
+            ->assertSuccessful()
+            ->assertSee('85.105.12.34')
+            ->assertSee('Sepet İndirimi')
+            ->assertSee('SEPET10');
+    }
 }
 
 

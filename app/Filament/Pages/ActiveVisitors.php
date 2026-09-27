@@ -378,22 +378,8 @@ class ActiveVisitors extends Page implements HasTable
 
                         return new HtmlString('<span style="color:#64748b;font-size:11px;">Sepet Boş</span>');
                     }),
-
-                // 5. Önerilen Strateji
-                TextColumn::make('recommended_strategy')
-                    ->label('Önerilen Strateji')
-                    ->getStateUsing(function (ActiveVisitor $record) {
-                        $strategy = $record->recommended_strategy;
-                        if (!$strategy) return '-';
-
-                        $title = $strategy['title'] ?? 'Strateji';
-                        return new HtmlString('
-                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:700;background:rgba(255,78,0,0.15);color:#ff7849;border:1px solid rgba(255,78,0,0.35);">
-                                ⚡ ' . e($title) . '
-                            </span>
-                        ');
-                    }),
             ])
+            ->content(fn (Table $table) => view('filament.pages.partials.active-visitors-table', ['table' => $table]))
             ->filters([
                 SelectFilter::make('intent_filter')
                     ->label('Satış Niyeti')

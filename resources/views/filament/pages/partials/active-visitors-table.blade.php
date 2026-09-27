@@ -20,10 +20,13 @@
                     default => '💻',
                 };
                 $name = $record->user_id && $record->user ? $record->user->name : $record->display_name;
-                $isMember = $record->user_id && $record->user;
+                $isMember = ($record->user_id && $record->user) || $record->is_identified;
+                $hasCustomName = !empty($record->guest_name);
                 $initial = mb_substr($name, 0, 1);
                 $duration = $record->duration_formatted;
                 $pageCount = $record->page_views_count ?: 1;
+                $phone = $record->user?->phone ?? $record->guest_phone;
+                $email = $record->user?->email ?? $record->guest_email;
 
                 // 2. Bulunduğu Sayfa & Model Verileri
                 $pageInfo = $record->page_info ?? [];
@@ -105,9 +108,18 @@
                                 <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                                     <span class="font-extrabold text-slate-100 text-sm truncate">{{ $name }}</span>
                                     @if ($isMember)
-                                        <span class="bg-orange-500/25 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded text-[9px] font-extrabold">ÜYE</span>
+                                        <span class="bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.5 rounded text-[9px] font-extrabold">MÜŞTERİ</span>
+                                    @elseif ($hasCustomName)
+                                        <span class="bg-sky-500/20 text-sky-400 border border-sky-500/40 px-1.5 py-0.5 rounded text-[9px] font-extrabold">MİSAFİR</span>
                                     @endif
                                 </div>
+                                @if($phone || $email)
+                                    <div class="text-[11px] text-sky-400 font-bold flex items-center gap-1.5 mb-1 flex-wrap">
+                                        @if($phone) <span>📱 {{ $phone }}</span> @endif
+                                        @if($phone && $email) <span>•</span> @endif
+                                        @if($email) <span class="text-slate-400">✉️ {{ $email }}</span> @endif
+                                    </div>
+                                @endif
                                 <div class="mb-1.5">
                                     @if ($isOnline)
                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40">
