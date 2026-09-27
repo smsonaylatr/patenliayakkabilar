@@ -668,18 +668,18 @@ class ActiveVisitors extends Page implements HasTable
             ->recordActions([
                 // ─── 1. Önerilen Stratejiyi 1-Tıkla Uygula ───
                 Action::make('apply_strategy')
-                    ->label('⚡ Strateji Uygula')
+                    ->label('Strateji')
                     ->button()
                     ->size('sm')
-                    ->color('success')
+                    ->color('primary')
                     ->icon('heroicon-o-bolt')
                     ->modalWidth(Width::TwoExtraLarge)
                     ->stickyModalHeader()
                     ->stickyModalFooter()
                     ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                    ->modalHeading(fn (ActiveVisitor $record) => '⚡ Satış Stratejisini Uygula: ' . ($record->recommended_strategy['title'] ?? 'Özel Teklif'))
+                    ->modalHeading(fn (ActiveVisitor $record) => 'Satış Stratejisini Uygula: ' . ($record->recommended_strategy['title'] ?? 'Özel Teklif'))
                     ->modalDescription(fn (ActiveVisitor $record) => 'Davranış Teşhisi: ' . ($record->behavior_insight ?? ''))
-                    ->modalSubmitActionLabel('🚀 Ziyaretçiye Hemen Gönder')
+                    ->modalSubmitActionLabel('Ziyaretçiye Gönder')
                     ->form(function (ActiveVisitor $record) {
                         $strategy = $record->recommended_strategy ?? [];
                         $isRedirect = ($strategy['action_type'] ?? '') === 'redirect';
@@ -769,18 +769,18 @@ class ActiveVisitors extends Page implements HasTable
 
                 // ─── 2. Hızlı Yönlendir ───
                 Action::make('force_redirect')
-                    ->label('🚀 Yönlendir')
+                    ->label('Yönlendir')
                     ->button()
                     ->size('sm')
-                    ->color('primary')
+                    ->color('gray')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->modalWidth(Width::ThreeExtraLarge)
                     ->stickyModalHeader()
                     ->stickyModalFooter()
                     ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                    ->modalHeading('🚀 Ziyaretçiyi Sayfaya Yönlendir')
+                    ->modalHeading('Ziyaretçiyi Sayfaya Yönlendir')
                     ->modalDescription('Ziyaretçiyi istediğiniz adrese aktarın. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
-                    ->modalSubmitActionLabel('🚀 Şimdi Yönlendir')
+                    ->modalSubmitActionLabel('Şimdi Yönlendir')
                     ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
                     ->extraModalFooterActions(fn (Action $action): array => [
                         $action->makeModalSubmitAction('force_redirect_and_close', ['close' => true])
@@ -816,7 +816,7 @@ class ActiveVisitors extends Page implements HasTable
 
                 // ─── 3. Gezinme Yolculuğunu İncele ───
                 Action::make('inspect_journey')
-                    ->label('🔍 İncele')
+                    ->label('İncele')
                     ->button()
                     ->size('sm')
                     ->color('gray')
@@ -832,18 +832,18 @@ class ActiveVisitors extends Page implements HasTable
 
                 // ─── 4. Sesli İleti / Anons Gönder ───
                 Action::make('send_voice')
-                    ->label('🎙️ Sesli İleti')
+                    ->label('Sesli İleti')
                     ->button()
                     ->size('sm')
-                    ->color('warning')
+                    ->color('gray')
                     ->icon('heroicon-o-speaker-wave')
                     ->modalWidth(Width::TwoExtraLarge)
                     ->stickyModalHeader()
                     ->stickyModalFooter()
                     ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                    ->modalHeading(fn (ActiveVisitor $record) => '🎙️ Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
+                    ->modalHeading(fn (ActiveVisitor $record) => 'Ziyaretçiye Sesli İleti & Anons Gönder (' . $record->display_name . ')')
                     ->modalDescription('Ziyaretçinin ekranında ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
-                    ->modalSubmitActionLabel('🚀 Sesli İletiyi Fırlat')
+                    ->modalSubmitActionLabel('Sesli İletiyi Gönder')
                     ->form([
                         Select::make('voice_source')
                             ->label('Seslendirme & Şablon Kaynağı')
@@ -1033,16 +1033,16 @@ class ActiveVisitors extends Page implements HasTable
         return [
             // Toplu Yönlendirme
             Action::make('bulk_redirect')
-                ->label('📢 Tüm Canlıları Toplu Yönlendir')
+                ->label('Toplu Yönlendir')
                 ->color('primary')
                 ->icon('heroicon-o-paper-airplane')
                 ->modalWidth(Width::ThreeExtraLarge)
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                ->modalHeading('📢 Sitedeki Tüm Aktif Ziyaretçileri Toplu Yönlendir')
+                ->modalHeading('Aktif Ziyaretçileri Toplu Yönlendir')
                 ->modalDescription('Sitedeki tüm aktif kullanıcılara tek tıkla yönlendirme emri gönderir. "Şimdi Yönlendir" ile pencere açık kalır; "Şimdi Yönlendir ve Çık" ile işlem tamamlanıp pencere kapanır.')
-                ->modalSubmitActionLabel('🚀 Şimdi Yönlendir')
+                ->modalSubmitActionLabel('Şimdi Yönlendir')
                 ->modalSubmitAction(fn (Action $action) => $action->icon('heroicon-o-paper-airplane'))
                 ->extraModalFooterActions(fn (Action $action): array => [
                     $action->makeModalSubmitAction('bulk_redirect_and_close', ['close' => true])
@@ -1081,18 +1081,18 @@ class ActiveVisitors extends Page implements HasTable
 
             // Toplu Duyuru / Kupon
             Action::make('broadcast_offer')
-                ->label('💬 Herkese Canlı Fırsat / Kupon Gönder')
-                ->color('success')
+                ->label('Kupon / Fırsat Gönder')
+                ->color('gray')
                 ->icon('heroicon-o-gift')
                 ->modalWidth(Width::TwoExtraLarge)
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                ->modalHeading('💬 Herkese Canlı Fırsat / Kupon Gönder')
+                ->modalHeading('Tüm Ziyaretçilere Kupon / Fırsat Gönder')
                 ->form([
                     TextInput::make('title')
                         ->label('Başlık')
-                        ->default('🎉 Size Özel Günün Sürpriz Fırsatı!')
+                        ->default('Size Özel Günün Sürpriz Fırsatı!')
                         ->required(),
 
                     Textarea::make('message')
@@ -1133,32 +1133,32 @@ class ActiveVisitors extends Page implements HasTable
 
             // Hazır Ses Kayıtları Yönetimi
             Action::make('manage_voice_records')
-                ->label('🎙️ Hazır Ses Kayıtları')
-                ->color('warning')
+                ->label('Hazır Ses Kayıtları')
+                ->color('gray')
                 ->icon('heroicon-o-microphone')
                 ->url(fn () => CannedVoiceMessageResource::getUrl('index'))
                 ->tooltip('Hazır anons şablonlarını yönetin, ses dosyası yükleyin ve dinleyin'),
 
             // Toplu Sesli Anons (Tüm Canlı Ziyaretçilere)
             Action::make('broadcast_voice')
-                ->label('🎙️ Herkese Canlı Sesli Anons')
-                ->color('warning')
+                ->label('Canlı Sesli Anons')
+                ->color('gray')
                 ->icon('heroicon-o-speaker-wave')
                 ->modalWidth(Width::TwoExtraLarge)
                 ->stickyModalHeader()
                 ->stickyModalFooter()
                 ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
-                ->modalHeading('🎙️ Sitedeki Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
+                ->modalHeading('Tüm Aktif Ziyaretçilere Canlı Sesli Anons')
                 ->modalDescription('Şu an sitede olan tüm aktif kullanıcılara aynı anda ses kaydınız oynatılır (isteğe bağlı görsel bildirim kartı eklenebilir).')
-                ->modalSubmitActionLabel('🚀 Herkese Sesli Anons Fırlat')
+                ->modalSubmitActionLabel('Sesli Anonsu Gönder')
                 ->form([
                     Select::make('voice_source')
                         ->label('Seslendirme & Şablon Kaynağı')
                         ->native(false)
                         ->options([
-                            'canned' => '🎙️ Hazır Ses Kayıtlı Şablondan Seç',
-                            'custom_upload' => '📤 Şimdi Yeni Ses Kaydı Yükle (.mp3, .wav, .m4a)',
-                            'browser_tts' => '🔔 Sadece Mağaza Zili & Bildirim (Ses Dosyasız)',
+                            'canned' => 'Hazır Ses Kayıtlı Şablondan Seç',
+                            'custom_upload' => 'Yeni Ses Kaydı Yükle (.mp3, .wav, .m4a)',
+                            'browser_tts' => 'Sadece Mağaza Zili & Bildirim (Ses Dosyasız)',
                         ])
                         ->default('canned')
                         ->live(),
@@ -1168,7 +1168,7 @@ class ActiveVisitors extends Page implements HasTable
                         ->native(false)
                         ->options(function () {
                             return CannedVoiceMessage::active()->ordered()->get()->mapWithKeys(function ($item) {
-                                $badge = $item->hasAudio() ? ' [🎵 Ses Kaydı Yüklü]' : ' [⚠️ Ses Kaydı Yok]';
+                                $badge = $item->hasAudio() ? ' [Ses Kaydı Yüklü]' : ' [Ses Kaydı Yok]';
                                 return [$item->id => $item->title . $badge];
                             })->toArray();
                         })
@@ -1208,9 +1208,9 @@ class ActiveVisitors extends Page implements HasTable
                         ->label('Ses & Bildirim Modu')
                         ->native(false)
                         ->options([
-                            'speech_only' => '🎵 Sadece Sesi Oynat (Bildirim Kartsız / Otomatik Çal)',
-                            'speech_with_card' => '💬 Sesi Oynat + Görsel Bildirim Kartı Göster',
-                            'chime_with_card' => '🔔 Mağaza Zili + Sesi Oynat + Görsel Kart Göster',
+                            'speech_only' => 'Sadece Sesi Oynat (Bildirim Kartsız)',
+                            'speech_with_card' => 'Sesi Oynat + Görsel Bildirim Kartı Göster',
+                            'chime_with_card' => 'Mağaza Zili + Sesi Oynat + Görsel Kart Göster',
                         ])
                         ->default('speech_only')
                         ->required()
@@ -1218,7 +1218,7 @@ class ActiveVisitors extends Page implements HasTable
 
                     TextInput::make('title')
                         ->label('Anons Başlığı')
-                        ->default('🎙️ Patenli Ayakkabılar Mağaza Anonsu')
+                        ->default('Patenli Ayakkabılar Mağaza Anonsu')
                         ->visible(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card']))
                         ->required(fn ($get) => in_array($get('sound_type'), ['speech_with_card', 'chime_with_card'])),
 
@@ -1261,7 +1261,7 @@ class ActiveVisitors extends Page implements HasTable
                     foreach ($visitors as $v) {
                         $v->queueVoiceMessage(
                             $data['message'] ?? '',
-                            $data['title'] ?? '🎙️ Patenli Ayakkabılar Mağaza Anonsu',
+                            $data['title'] ?? 'Patenli Ayakkabılar Mağaza Anonsu',
                             $chime,
                             $showCard ? ($data['coupon_code'] ?? null) : null,
                             $showCard ? ($data['action_button'] ?? null) : null,
@@ -1272,7 +1272,7 @@ class ActiveVisitors extends Page implements HasTable
                     }
 
                     Notification::make()
-                        ->title('Toplu Sesli Anons İletildi! 🎙️')
+                        ->title('Toplu Sesli Anons İletildi')
                         ->body($visitors->count() . ' aktif ziyaretçinin ekranında ' . ($showCard ? 'ses ve görsel kart açılacak.' : 'kart olmadan yalnızca ses otomatik çalacak.'))
                         ->success()
                         ->send();
@@ -1282,11 +1282,11 @@ class ActiveVisitors extends Page implements HasTable
             Action::make('manage_blocked')
                 ->label(function () {
                     $count = ActiveVisitor::where('is_blocked', true)->count();
-                    return $count > 0 ? "🚫 Engellenenler ({$count})" : '🚫 Engellenenler (Kara Liste)';
+                    return $count > 0 ? "Engellenenler ({$count})" : 'Engellenenler';
                 })
-                ->color(fn () => ActiveVisitor::where('is_blocked', true)->exists() ? 'danger' : 'gray')
+                ->color('gray')
                 ->icon('heroicon-o-no-symbol')
-                ->modalHeading('🚫 Engellenen Ziyaretçiler & Kara Liste')
+                ->modalHeading('Engellenen Ziyaretçiler & Kara Liste')
                 ->modalDescription('Burada erişimi engellenmiş tüm IP adreslerini ve ziyaretçileri görebilir, tek tıkla engellerini kaldırabilirsiniz.')
                 ->modalWidth('4xl')
                 ->stickyModalHeader()
@@ -1300,7 +1300,7 @@ class ActiveVisitors extends Page implements HasTable
 
             // Eski Kayıtları Temizle
             Action::make('clear_old')
-                ->label('🧹 Eski Kayıtları Temizle')
+                ->label('Eski Kayıtları Temizle')
                 ->color('gray')
                 ->icon('heroicon-o-trash')
                 ->requiresConfirmation()
