@@ -272,6 +272,61 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+
+        /* ─── FİLAMENT MODAL & DİNAMİK DROPDOWN UZAMA STİLLERİ ─── */
+        /* Modal penceresi taban boyutu ve akıcı geçiş animasyonu */
+        .fi-modal-window {
+            min-height: 540px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            transition: min-height 0.28s cubic-bezier(0.4, 0, 0.2, 1), height 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .fi-modal-window .fi-modal-content {
+            flex: 1 1 auto !important;
+            overflow-y: visible !important;
+            padding-bottom: 35px !important;
+        }
+
+        /* DROPDOWN AÇILDIĞINDA POP-UP'IN UZAMASI (CSS :has & JS fallback) */
+        .fi-modal-window:has(.choices.is-open),
+        .fi-modal-window:has(.choices.is-flipped),
+        .fi-modal-window:has([aria-expanded="true"]),
+        .fi-modal-window:has(.fi-dropdown-panel),
+        .fi-modal-window:has(.fi-select-input-options-list),
+        .fi-modal-window.dropdown-expanded {
+            min-height: 740px !important;
+        }
+
+        /* Choices.js ve Filament Select Dropdown Liste Paneli */
+        .choices__list--dropdown,
+        .fi-select-input-options-list,
+        [role="listbox"],
+        .fi-dropdown-panel {
+            max-height: 400px !important;
+            min-height: 220px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            z-index: 999999 !important;
+            overflow-y: auto !important;
+        }
+
+        .choices__list--dropdown .choices__item,
+        .fi-select-input-options-list [role="option"] {
+            padding: 10px 14px !important;
+            font-size: 13.5px !important;
+            line-height: 1.4 !important;
+        }
+
+        .choices__list--dropdown .choices__group .choices__heading {
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            letter-spacing: 0.05em !important;
+            color: #f97316 !important;
+            padding: 8px 12px 4px 12px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+            background: rgba(0, 0, 0, 0.25) !important;
+        }
     </style>
 
     <div wire:poll.5s class="space-y-4">
@@ -767,6 +822,56 @@
             });
             setTimeout(ensureViewTogglePosition, 200);
             setTimeout(ensureViewTogglePosition, 800);
+        })();
+    </script>
+
+    {{-- Dropdown Açıldığında Pop-up Penceresini Uzatan Dinamik Gözlemci --}}
+    <script>
+        (function() {
+            function updateModalDropdownExpansion() {
+                const modals = document.querySelectorAll('.fi-modal-window');
+                modals.forEach(function(modal) {
+                    const isOpen = modal.querySelector('.choices.is-open, [aria-expanded="true"], .fi-select-input-options-list:not([hidden])');
+                    if (isOpen) {
+                        modal.classList.add('dropdown-expanded');
+                    } else {
+                        modal.classList.remove('dropdown-expanded');
+                    }
+                });
+            }
+
+            // Tıklama, focus ve tuş olaylarını anında yakala
+            document.addEventListener('click', function() {
+                setTimeout(updateModalDropdownExpansion, 40);
+                setTimeout(updateModalDropdownExpansion, 150);
+            }, true);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    setTimeout(updateModalDropdownExpansion, 50);
+                }
+            });
+
+            // Choices.js ve DOM değişimlerini MutationObserver ile anlık yakala
+            const modalObserver = new MutationObserver(function() {
+                updateModalDropdownExpansion();
+            });
+
+            modalObserver.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class', 'aria-expanded', 'style'],
+                subtree: true
+            });
+
+            document.addEventListener('DOMContentLoaded', updateModalDropdownExpansion);
+            document.addEventListener('livewire:navigated', updateModalDropdownExpansion);
+            document.addEventListener('livewire:initialized', function() {
+                if (window.Livewire && Livewire.hook) {
+                    Livewire.hook('morph.updated', function() {
+                        setTimeout(updateModalDropdownExpansion, 50);
+                    });
+                }
+            });
         })();
     </script>
 </x-filament-panels::page>
