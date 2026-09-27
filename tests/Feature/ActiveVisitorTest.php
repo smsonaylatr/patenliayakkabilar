@@ -1530,7 +1530,71 @@ class ActiveVisitorTest extends TestCase
         $this->assertStringContainsString('sepete ekle', $modalHtml);
         $this->assertStringContainsString('7 işlem', $modalHtml);
     }
+
+    public function test_view_mode_defaults_to_list_and_can_be_switched_to_grid(): void
+    {
+        $page = new \App\Filament\Pages\ActiveVisitors();
+        $page->mount();
+
+        $this->assertEquals('list', $page->viewMode);
+
+        $page->setViewMode('grid');
+        $this->assertEquals('grid', $page->viewMode);
+        $this->assertEquals('grid', session('av_view_mode'));
+
+        $page->setViewMode('list');
+        $this->assertEquals('list', $page->viewMode);
+        $this->assertEquals('list', session('av_view_mode'));
+    }
+
+    public function test_active_visitors_table_renders_both_list_and_grid_views(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_view_mode_' . uniqid(),
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'current_title' => 'Ana Sayfa',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+            'guest_name' => 'Görünüm Test Kullanıcısı',
+        ]);
+
+        $records = collect([$visitor]);
+
+        // 1. Liste Görünümü
+        $listView = view('filament.pages.partials.active-visitors-table', [
+            'records' => $records,
+            'viewMode' => 'list',
+        ])->render();
+
+        $this->assertStringContainsString('av-table-header', $listView);
+        $this->assertStringContainsString('av-card', $listView);
+        $this->assertStringContainsString('Görünüm Test Kullanıcısı', $listView);
+
+        // 2. Izgara (Grid) Görünümü
+        $gridView = view('filament.pages.partials.active-visitors-table', [
+            'records' => $records,
+            'viewMode' => 'grid',
+        ])->render();
+
+        $this->assertStringContainsString('av-grid-container', $gridView);
+        $this->assertStringContainsString('av-grid-card', $gridView);
+        $this->assertStringContainsString('Görünüm Test Kullanıcısı', $gridView);
+    }
+
+    public function test_visitor_view_toggle_component_renders_buttons(): void
+    {
+        $toggleHtml = view('filament.pages.partials.visitor-view-toggle', [
+            'viewMode' => 'list',
+        ])->render();
+
+        $this->assertStringContainsString('av-view-toggle-group', $toggleHtml);
+        $this->assertStringContainsString('Liste', $toggleHtml);
+        $this->assertStringContainsString('Izgara', $toggleHtml);
+        $this->assertStringContainsString('is-active', $toggleHtml);
+    }
 }
+
 
 
 

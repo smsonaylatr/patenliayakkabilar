@@ -759,61 +759,9 @@ class ActiveVisitors extends Page implements HasTable
                             ->color('gray')
                             ->icon('heroicon-o-arrow-right-on-rectangle'),
                     ])
-                    ->form([
-                        Select::make('quick_target')
-                            ->label('Hedef Sayfa veya Site Dışı Link')
-                            ->native(false)
-                            ->options(self::getTargetUrlOptions())
-                            ->default('/checkout')
-                            ->live(),
-
-                        TextInput::make('external_url')
-                            ->label('🌐 Site Dışı Harici Link / Web Adresi')
-                            ->placeholder('https://instagram.com/..., https://wa.me/... veya https://trendyol.com/...')
-                            ->helperText('💡 Ziyaretçi doğrudan siteniz dışındaki bu adrese aktarılır (WhatsApp, Instagram, Pazaryeri vb.). https:// yazmasanız da sistem otomatik tamamlar.')
-                            ->visible(fn ($get) => $get('quick_target') === 'custom_external')
-                            ->required(fn ($get) => $get('quick_target') === 'custom_external'),
-
-                        TextInput::make('custom_url')
-                            ->label('🔗 Özel Site İçi Sayfa Linki')
-                            ->placeholder('/urun/ornek-paten veya sayfa adresi')
-                            ->helperText('Siteniz içerisindeki herhangi bir sayfa yolu.')
-                            ->visible(fn ($get) => $get('quick_target') === 'custom')
-                            ->required(fn ($get) => $get('quick_target') === 'custom'),
-
-                        Select::make('redirect_mode')
-                            ->label('Yönlendirme Şekli')
-                            ->native(false)
-                            ->options([
-                                'silent' => '⚡ Bildirim Göstermeden Doğrudan Yönlendir (Sessiz / Anında)',
-                                'notify' => '💬 Bilgilendirme Pop-up\'ı Göster (Geri Sayım & Mesaj ile)',
-                            ])
-                            ->default('silent')
-                            ->live()
-                            ->helperText('Bildirim göstermeden seçeneğinde ziyaretçiye herhangi bir uyarı veya pencere gösterilmez; anında hedef sayfaya / harici adrese yönlendirilir.'),
-
-                        TextInput::make('redirect_message')
-                            ->label('Kullanıcıya Gösterilecek Mesaj (Opsiyonel)')
-                            ->placeholder('Örn: Sizi WhatsApp destek hattımıza aktarıyoruz...')
-                            ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
-
-                        Select::make('countdown')
-                            ->label('Geri Sayım')
-                            ->native(false)
-                            ->options([
-                                '0' => 'Anında Yönlendir (0 sn)',
-                                '3' => '3 Saniye Geri Sayım',
-                                '5' => '5 Saniye Geri Sayım',
-                            ])
-                            ->default('3')
-                            ->visible(fn ($get) => $get('redirect_mode') === 'notify'),
-                    ])
+                    ->form(self::getRedirectFormSchema())
                     ->action(function (ActiveVisitor $record, array $data, array $arguments, Action $action) {
-                        $target = match($data['quick_target'] ?? 'custom') {
-                            'custom_external' => self::normalizeUrl($data['external_url'] ?? ''),
-                            'custom' => self::normalizeUrl($data['custom_url'] ?? '/'),
-                            default => self::normalizeUrl($data['quick_target'] ?? '/checkout'),
-                        };
+                        $target = self::resolveRedirectUrl($data);
                         $isSilent = ($data['redirect_mode'] ?? 'silent') === 'silent';
                         $showNotice = !$isSilent;
                         $shouldClose = (bool) ($arguments['close'] ?? false);
@@ -827,7 +775,7 @@ class ActiveVisitors extends Page implements HasTable
 
                         Notification::make()
                             ->title('Yönlendirme Başlatıldı')
-                            ->body('Ziyaretçi ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' adresine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
+                            ->body('Ziyaretçi ' . ($isSilent ? 'sessizce (bildirimsiz) ' : '') . $target . ' hedefine yönlendiriliyor.' . ($shouldClose ? '' : ' (Pop-up açık tutuldu)'))
                             ->success()
                             ->send();
 
