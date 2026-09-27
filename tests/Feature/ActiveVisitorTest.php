@@ -889,6 +889,25 @@ class ActiveVisitorTest extends TestCase
             ->assertSet('trafficPeriod', 'monthly')
             ->assertSee('Son 30 Gün (Aylık Sinyal)', false);
     }
+
+    public function test_active_visitor_save_resiliently_handles_missing_columns(): void
+    {
+        $visitor = new ActiveVisitor();
+        $visitor->visitor_token = 'pa_vt_resilient_' . uniqid();
+        $visitor->current_url = 'https://patenliayakkabilar.com/';
+        $visitor->current_path = '/';
+        $visitor->first_seen_at = now();
+        $visitor->last_heartbeat_at = now();
+
+        // Olmayan bir kolon ekleyip save çağıralım
+        $visitor->non_existent_column_for_test = 'some_value';
+
+        $saved = $visitor->save();
+        $this->assertTrue($saved);
+        $this->assertDatabaseHas('active_visitors', [
+            'visitor_token' => $visitor->visitor_token,
+        ]);
+    }
 }
 
 

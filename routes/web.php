@@ -173,6 +173,12 @@ Route::get('/run-migrations', function () {
                 }
             });
         }
+        
+        if (\Illuminate\Support\Facades\Schema::hasTable('orders') && !\Illuminate\Support\Facades\Schema::hasColumn('orders', 'landing_url')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('landing_url')->nullable();
+            });
+        }
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         \Illuminate\Support\Facades\Artisan::call('db:seed', [
@@ -600,6 +606,13 @@ Route::get('/run-migrate', function (\Illuminate\Http\Request $request) {
                 }
             });
             $output .= "\n✅ 'active_visitors' tablosuna eksik misafir kolonları (guest_name vs.) eklendi.";
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('orders') && !\Illuminate\Support\Facades\Schema::hasColumn('orders', 'landing_url')) {
+            \Illuminate\Support\Facades\Schema::table('orders', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('landing_url')->nullable();
+            });
+            $output .= "\n✅ 'orders' tablosuna 'landing_url' sütunu eklendi.";
         }
 
         return response()->json([
