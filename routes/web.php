@@ -341,7 +341,7 @@ Route::redirect('/sayfa/kullanim-kosullari', '/mesafeli-satis-sozlesmesi', 301);
 Route::redirect('/sayfa/{slug}', '/{slug}', 301);
 Route::redirect('/kosullar', '/mesafeli-satis-sozlesmesi', 301);
 
-// Tüm ürünler
+// Tüm ürünler ve arama
 Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
     if ($request->has('category') && !empty($request->category)) {
         return redirect()->route('category.show', ['slug' => $request->category], 301);
@@ -349,6 +349,22 @@ Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) 
     $category = null;
     return view('products.index', compact('category'));
 })->name('products.index');
+
+Route::get('/arama', function (\Illuminate\Http\Request $request) {
+    $q = trim((string) ($request->query('q') ?? $request->query('search') ?? ''));
+    if (!empty($q)) {
+        return redirect()->to('/patenli-ayakkabilar?search=' . urlencode($q), 301);
+    }
+    return redirect()->route('products.index', [], 301);
+})->name('search');
+
+Route::get('/ara', function (\Illuminate\Http\Request $request) {
+    $q = trim((string) ($request->query('q') ?? $request->query('search') ?? ''));
+    if (!empty($q)) {
+        return redirect()->to('/patenli-ayakkabilar?search=' . urlencode($q), 301);
+    }
+    return redirect()->route('products.index', [], 301);
+});
 
 // Kategori sayfası (SEO-friendly URL ve Akıllı Yönlendirme Koruması)
 Route::get('/kategori/{slug}', function (string $slug) {

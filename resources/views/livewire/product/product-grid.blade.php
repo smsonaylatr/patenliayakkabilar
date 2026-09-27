@@ -214,9 +214,17 @@
         </div>
     @empty
         <div class="col-span-full flex flex-col items-center justify-center py-20 text-center">
-            <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-            <p class="text-lg font-medium text-gray-900">Henüz ürün eklenmemiş.</p>
-            <p class="text-gray-500 mt-1">Çok yakında yeni modellerimizle buradayız.</p>
+            <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+            @if(!empty($search))
+                <p class="text-xl font-bold text-gray-900">"{{ $search }}" ile eşleşen ürün bulunamadı</p>
+                <p class="text-gray-500 mt-2 max-w-md text-sm">Farklı bir kelime (örn: ışıklı, tekerlekli, pembe, numara) ile tekrar arayabilir veya tüm modellerimize göz atabilirsiniz.</p>
+                <a href="{{ route('products.index') }}" wire:navigate class="mt-5 inline-flex items-center px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:scale-105 active:scale-95">
+                    Tüm Modelleri Gör
+                </a>
+            @else
+                <p class="text-lg font-medium text-gray-900">Henüz ürün eklenmemiş.</p>
+                <p class="text-gray-500 mt-1">Çok yakında yeni modellerimizle buradayız.</p>
+            @endif
         </div>
     @endforelse
 </div>
