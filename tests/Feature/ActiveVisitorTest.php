@@ -619,6 +619,104 @@ class ActiveVisitorTest extends TestCase
         $this->assertEquals($url, $url2);
         \Illuminate\Support\Facades\Http::assertSentCount(1);
     }
+
+    public function test_active_visitor_source_info_detects_google_ads_instagram_direct_and_referral(): void
+    {
+        // 1. Google Ads (cpc)
+        $vAds = new ActiveVisitor([
+            'referrer' => 'https://www.google.com/',
+            'referrer_host' => 'www.google.com',
+            'utm_source' => 'google',
+            'utm_campaign' => 'cpc_kampanyasi',
+        ]);
+        $this->assertEquals('Google Ads', $vAds->source_info['name']);
+        $this->assertEquals('paid', $vAds->source_info['type']);
+
+        // 2. Instagram
+        $vInsta = new ActiveVisitor([
+            'referrer' => 'https://l.instagram.com/',
+            'referrer_host' => 'l.instagram.com',
+        ]);
+        $this->assertEquals('Instagram', $vInsta->source_info['name']);
+        $this->assertEquals('social', $vInsta->source_info['type']);
+
+        // 3. Google Organik
+        $vGoogle = new ActiveVisitor([
+            'referrer' => 'https://www.google.com.tr/',
+            'referrer_host' => 'www.google.com.tr',
+        ]);
+        $this->assertEquals('Google Arama', $vGoogle->source_info['name']);
+        $this->assertEquals('search', $vGoogle->source_info['type']);
+
+        // 4. Doğrudan Giriş
+        $vDirect = new ActiveVisitor([
+            'referrer' => null,
+            'referrer_host' => null,
+            'utm_source' => null,
+        ]);
+        $this->assertEquals('Doğrudan Giriş', $vDirect->source_info['name']);
+        $this->assertEquals('direct', $vDirect->source_info['type']);
+    }
+
+    public function test_presence_identify_endpoint_updates_guest_details(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_ident_test_' . uniqid(),
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+            'current_url' => 'https://patenliayakkabilar.com/odeme',
+            'current_path' => '/odeme',
+        ]);
+
+        $response = $this->postJson('/api/presence/identify', [
+            'visitor_token' => $visitor->visitor_token,
+            'guest_name' => 'Ahmet Yılmaz',
+            'guest_email' => 'ahmet@example.com',
+            'guest_phone' => '05551234567',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'ok',
+                'display_name' => 'Ahmet Yılmaz',
+                'is_identified' => true,
+            ]);
+
+        $visitor->refresh();
+        $this->assertEquals('Ahmet Yılmaz', $visitor->guest_name);
+        $this->assertEquals('ahmet@example.com', $visitor->guest_email);
+        $this->assertEquals('05551234567', $visitor->guest_phone);
+        $this->assertTrue((bool)$visitor->is_identified);
+    }
+
+    public function test_active_visitors_table_and_journey_modal_render_traffic_source_badge(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_source_ui_' . uniqid(),
+            'current_url' => 'https://patenliayakkabilar.com/odeme',
+            'current_path' => '/odeme',
+            'current_title' => 'Ödeme Sayfası',
+            'referrer' => 'https://l.instagram.com/',
+            'referrer_host' => 'l.instagram.com',
+            'utm_source' => 'instagram',
+            'utm_campaign' => 'hikaye_indirimi',
+            'first_seen_at' => now(),
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $viewModal = view('filament.pages.partials.visitor-journey-modal', ['record' => $visitor])->render();
+        $this->assertStringContainsString('Instagram', $viewModal);
+        $this->assertStringContainsString('hikaye_indirimi', $viewModal);
+
+        $viewCard = view('filament.pages.partials.active-visitors-table', [
+            'records' => [$visitor],
+            'selectedVisitorId' => null,
+            'presetCoupons' => [],
+            'quickUrls' => [],
+        ])->render();
+        $this->assertStringContainsString('Instagram', $viewCard);
+        $this->assertStringContainsString('hikaye_indirimi', $viewCard);
+    }
 }
 
 

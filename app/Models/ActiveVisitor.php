@@ -121,10 +121,20 @@ class ActiveVisitor extends Model
         $utmCampaign = trim($this->utm_campaign ?? '');
         $ownHost = parse_url(config('app.url', 'patenliayakkabilar.com'), PHP_URL_HOST) ?: 'patenliayakkabilar.com';
 
-        // 1. Google Ads / Reklam (cpc / gclid / utm_source=google_ads vs.)
-        if (str_contains($utmSource, 'cpc') || str_contains($utmSource, 'adwords') || str_contains($utmSource, 'google_ads') || (!empty($referrer) && str_contains($referrer, 'gclid='))) {
+        // 1. Google Ads / Ücretli Reklam (cpc / gclid / utm_source=google_ads / cpc kampanya)
+        $utmCampaignLower = strtolower($utmCampaign);
+        if (
+            str_contains($utmSource, 'cpc') ||
+            str_contains($utmCampaignLower, 'cpc') ||
+            str_contains($utmSource, 'adwords') ||
+            str_contains($utmSource, 'google_ads') ||
+            str_contains($utmSource, 'googleads') ||
+            (!empty($referrer) && str_contains($referrer, 'gclid=')) ||
+            (!empty($this->current_url) && str_contains($this->current_url, 'gclid=')) ||
+            ($utmSource === 'google' && (str_contains($utmCampaignLower, 'cpc') || str_contains($utmCampaignLower, 'ads')))
+        ) {
             return [
-                'type' => 'ad',
+                'type' => 'paid',
                 'name' => 'Google Ads',
                 'detail' => $utmCampaign ? "Google Reklamı ({$utmCampaign})" : 'Google Ads Tıklaması',
                 'badge' => 'Google Ads',
