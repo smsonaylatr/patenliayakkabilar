@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\ActiveVisitor;
 use App\Models\Cart;
 use App\Services\VisitorBehaviorAnalyzer;
+use App\Services\TrafficAnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PresenceController extends Controller
 {
     public function __construct(
-        protected VisitorBehaviorAnalyzer $behaviorAnalyzer
+        protected VisitorBehaviorAnalyzer $behaviorAnalyzer,
+        protected TrafficAnalyticsService $trafficAnalytics
     ) {}
 
     public function heartbeat(Request $request): JsonResponse
@@ -147,6 +149,16 @@ class PresenceController extends Controller
         $visitor->is_online = true;
         $visitor->last_heartbeat_at = now();
         $visitor->save();
+
+        // Günlük/Haftalık/Aylık Trafik Analizine Kaydet
+        $this->trafficAnalytics->recordHit($visitor, [
+            'previous_path' => $previousPath,
+            'path' => $path,
+            'title' => $title,
+            'action' => $action,
+            'action_detail' => $actionDetail,
+            'cart_added' => $action === 'cart_add',
+        ]);
 
         // 6. Engelleme Kontrolü
         if ($visitor->is_blocked) {

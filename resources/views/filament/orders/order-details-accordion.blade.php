@@ -1153,38 +1153,38 @@ td.fi-ta-actions-cell {
               <svg style="width:13px; height:13px; color:#38bdf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
               <span>GELDİĞİ KAYNAK LİNKİ:</span>
             </span>
-          </div>
-          <div class="traffic-url-actions">
-            <button 
-              type="button"
-              @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
-              class="traffic-action-btn"
-              :class="{ 'is-copied': linkCopied }"
-              title="Kaynak Linkini Panoya Kopyala"
-            >
-              <template x-if="!linkCopied">
-                <span style="display:inline-flex; align-items:center; gap:3px;">
-                  <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                  <span>Kopyala</span>
-                </span>
-              </template>
-              <template x-if="linkCopied">
-                <span style="display:inline-flex; align-items:center; gap:3px;">
-                  <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                  <span>Kopyalandı!</span>
-                </span>
-              </template>
-            </button>
-            <a 
-              href="{{ $sourceUrl }}" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              class="traffic-action-btn open-link"
-              title="Linki Yeni Sekmede Aç"
-            >
-              <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-              <span>Aç</span>
-            </a>
+            <div class="traffic-url-actions">
+              <button 
+                type="button"
+                @click.stop="navigator.clipboard.writeText('{{ e($sourceUrl) }}'); linkCopied = true; setTimeout(() => linkCopied = false, 1800); $dispatch('copy-toast', 'Kaynak Linki Kopyalandı!')"
+                class="traffic-action-btn"
+                :class="{ 'is-copied': linkCopied }"
+                title="Kaynak Linkini Panoya Kopyala"
+              >
+                <template x-if="!linkCopied">
+                  <span style="display:inline-flex; align-items:center; gap:3px;">
+                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span>Kopyala</span>
+                  </span>
+                </template>
+                <template x-if="linkCopied">
+                  <span style="display:inline-flex; align-items:center; gap:3px;">
+                    <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span>Kopyalandı!</span>
+                  </span>
+                </template>
+              </button>
+              <a 
+                href="{{ $sourceUrl }}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="traffic-action-btn open-link"
+                title="Linki Yeni Sekmede Aç"
+              >
+                <svg style="width:12px; height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                <span>Aç</span>
+              </a>
+            </div>
           </div>
           <div 
             class="traffic-url-box"
