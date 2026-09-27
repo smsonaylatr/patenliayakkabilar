@@ -3,9 +3,11 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Coupon;
+use App\Models\CustomerEvent;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
+use App\Services\TrafficSourceDetector;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Illuminate\Support\Str;
@@ -351,13 +353,44 @@ class Checkout extends Component
             $formattedAddress = $rawAddress;
         }
 
+        // Trafik Kaynağı ve Atıf Bilgilerini Topla
+        $attribution = session('traffic_attribution', []);
+        if (empty($attribution) && request()->hasCookie('traffic_attribution')) {
+            $cookieVal = request()->cookie('traffic_attribution');
+            if ($cookieVal) {
+                $parsed = json_decode($cookieVal, true);
+                if (is_array($parsed)) {
+                    $attribution = $parsed;
+                }
+            }
+        }
+
+        $detector = app(TrafficSourceDetector::class);
+        $deviceType = $attribution['device_type'] ?? session('traffic_device') ?? $detector->detectDeviceType(request()->userAgent() ?? '');
+        $trafficSource = $attribution['traffic_source'] ?? session('traffic_source') ?? 'Doğrudan';
+        $utmSource = $attribution['utm_source'] ?? session('utm_source');
+        $utmMedium = $attribution['utm_medium'] ?? session('utm_medium');
+        $utmCampaign = $attribution['utm_campaign'] ?? session('utm_campaign');
+        $utmTerm = $attribution['utm_term'] ?? session('utm_term');
+        $utmContent = $attribution['utm_content'] ?? session('utm_content');
+        $referrer = $attribution['referrer'] ?? session('traffic_referrer');
+        $gclid = session('gclid') ?? ($attribution['gclid'] ?? request()->cookie('gclid'));
+
         $order = Order::create([
             'user_id' => auth()->id(),
             'order_number' => $orderNumber,
             'status' => 'pending',
             'payment_status' => 'pending',
             'payment_method' => $this->payment_method,
-            'gclid' => session('gclid'),
+            'traffic_source' => $trafficSource,
+            'device_type' => $deviceType,
+            'utm_source' => $utmSource,
+            'utm_medium' => $utmMedium,
+            'utm_campaign' => $utmCampaign,
+            'utm_term' => $utmTerm,
+            'utm_content' => $utmContent,
+            'referrer' => $referrer,
+            'gclid' => $gclid,
             'subtotal' => $subtotal,
             'shipping_price' => $shippingPrice,
             'discount_total' => $couponDiscount,
@@ -388,6 +421,30 @@ class Checkout extends Component
 
             'ip_address' => request()->ip(),
         ]);
+
+        // Satın alma olayını (purchase) kaydet (Dönüşüm & Kaynak Raporlaması İçin)
+        try {
+            CustomerEvent::create([
+                'user_id' => auth()->id(),
+                'session_id' => request()->hasSession() ? request()->session()->getId() : null,
+                'event_type' => 'purchase',
+                'event_data' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'grand_total' => $order->grand_total,
+                    'traffic_source' => $trafficSource,
+                ],
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'url' => request()->fullUrl(),
+                'referrer' => $referrer,
+                'utm_source' => $utmSource,
+                'utm_medium' => $utmMedium,
+                'utm_campaign' => $utmCampaign,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // Kupon kullanım sayısını artır + müşteri bilgisini kaydet
         if ($this->applied_coupon) {

@@ -43,6 +43,11 @@ class Order extends Model
         return $this->belongsTo(Coupon::class, 'coupon_code', 'code');
     }
 
+    public function scopeSource($query, string $source)
+    {
+        return $query->where('traffic_source', $source);
+    }
+
     /**
      * Siparişin Kick Speed marka ürün içerip içermediğini kontrol eder.
      */

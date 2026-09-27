@@ -46,6 +46,11 @@ class LatestOrders extends BaseWidget
                         'cancelled' => 'İptal',
                         default => $state,
                     }),
+                Tables\Columns\TextColumn::make('traffic_source')
+                    ->label('Kaynak')
+                    ->badge()
+                    ->color(fn (?string $state) => \App\Services\TrafficSourceDetector::getBadgeColor($state))
+                    ->placeholder('Doğrudan'),
                 Tables\Columns\TextColumn::make('grand_total')
                     ->label('Tutar')
                     ->getStateUsing(fn ($record) => number_format($record->grand_total, 2) . ' ₺')

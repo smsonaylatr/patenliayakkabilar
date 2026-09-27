@@ -16,6 +16,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use App\Models\Order;
+use App\Services\TrafficSourceDetector;
 use Illuminate\Database\Eloquent\Collection;
 
 class OrdersTable
@@ -74,6 +75,25 @@ class OrdersTable
                         'cash_on_delivery' => 'Kapıda Ödeme',
                         default => $state ?: '-',
                     }),
+
+                TextColumn::make('traffic_source')
+                    ->label('KAYNAK')
+                    ->badge()
+                    ->color(fn (?string $state) => TrafficSourceDetector::getBadgeColor($state))
+                    ->icon(fn (?string $state) => match (true) {
+                        str_contains(strtolower($state ?? ''), 'google ads') => 'heroicon-m-arrow-trending-up',
+                        str_contains(strtolower($state ?? ''), 'google') => 'heroicon-m-magnifying-glass',
+                        str_contains(strtolower($state ?? ''), 'instagram') => 'heroicon-m-camera',
+                        str_contains(strtolower($state ?? ''), 'facebook') || str_contains(strtolower($state ?? ''), 'meta') => 'heroicon-m-globe-alt',
+                        str_contains(strtolower($state ?? ''), 'tiktok') => 'heroicon-m-video-camera',
+                        str_contains(strtolower($state ?? ''), 'whatsapp') => 'heroicon-m-chat-bubble-oval-left',
+                        str_contains(strtolower($state ?? ''), 'admin') => 'heroicon-m-cog-6-tooth',
+                        str_contains(strtolower($state ?? ''), 'doğrudan') => 'heroicon-m-cursor-arrow-rays',
+                        default => 'heroicon-m-link',
+                    })
+                    ->description(fn (Order $record) => $record->utm_campaign ? ('Kampanya: ' . $record->utm_campaign) : ($record->device_type ? ($record->device_type === 'Mobil' ? '📱 Mobil' : ($record->device_type === 'Tablet' ? '📟 Tablet' : '💻 Masaüstü')) : null))
+                    ->sortable()
+                    ->searchable(),
 
                 TextColumn::make('created_at')
                     ->label('TARİH')
@@ -343,6 +363,32 @@ class OrdersTable
                     ->options([
                         'individual' => 'Bireysel',
                         'corporate' => 'Kurumsal',
+                    ])
+                    ->native(false),
+                SelectFilter::make('traffic_source')
+                    ->label('Sipariş Kaynağı')
+                    ->options([
+                        'Google Ads' => 'Google Ads',
+                        'Google Organik' => 'Google Organik',
+                        'Instagram' => 'Instagram',
+                        'Instagram Ads' => 'Instagram Ads',
+                        'Facebook' => 'Facebook',
+                        'Meta Ads' => 'Meta Ads',
+                        'TikTok' => 'TikTok',
+                        'TikTok Ads' => 'TikTok Ads',
+                        'WhatsApp' => 'WhatsApp',
+                        'SMS Kampanyası' => 'SMS Kampanyası',
+                        'E-Posta' => 'E-Posta',
+                        'Doğrudan' => 'Doğrudan',
+                        'Admin Paneli' => 'Admin Paneli',
+                    ])
+                    ->native(false),
+                SelectFilter::make('device_type')
+                    ->label('Cihaz')
+                    ->options([
+                        'Mobil' => 'Mobil',
+                        'Masaüstü' => 'Masaüstü',
+                        'Tablet' => 'Tablet',
                     ])
                     ->native(false),
             ])

@@ -575,6 +575,137 @@ td.fi-ta-actions-cell {
         </div>
       </div>
     </div>
+
+    <!-- Sipariş Kaynağı & Pazarlama -->
+    <div class="detail-section" style="flex:1">
+      <div class="detail-title">Sipariş Kaynağı & Cihaz</div>
+      <div class="detail-addr">
+        @php
+            $src = $order->traffic_source ?: 'Doğrudan';
+            $srcLower = strtolower($src);
+            $badgeBg = '#f1f5f9';
+            $badgeColor = '#334155';
+            $badgeBorder = '#cbd5e1';
+
+            if (str_contains($srcLower, 'google ads')) {
+                $badgeBg = '#eff6ff';
+                $badgeColor = '#1d4ed8';
+                $badgeBorder = '#bfdbfe';
+            } elseif (str_contains($srcLower, 'google')) {
+                $badgeBg = '#f0fdf4';
+                $badgeColor = '#15803d';
+                $badgeBorder = '#bbf7d0';
+            } elseif (str_contains($srcLower, 'instagram')) {
+                $badgeBg = '#fdf2f8';
+                $badgeColor = '#be185d';
+                $badgeBorder = '#fbcfe8';
+            } elseif (str_contains($srcLower, 'facebook') || str_contains($srcLower, 'meta')) {
+                $badgeBg = '#eef2ff';
+                $badgeColor = '#4338ca';
+                $badgeBorder = '#c7d2fe';
+            } elseif (str_contains($srcLower, 'tiktok')) {
+                $badgeBg = '#f8fafc';
+                $badgeColor = '#0f172a';
+                $badgeBorder = '#94a3b8';
+            } elseif (str_contains($srcLower, 'whatsapp')) {
+                $badgeBg = '#ecfdf5';
+                $badgeColor = '#047857';
+                $badgeBorder = '#a7f3d0';
+            } elseif (str_contains($srcLower, 'admin')) {
+                $badgeBg = '#faf5ff';
+                $badgeColor = '#7e22ce';
+                $badgeBorder = '#e9d5ff';
+            }
+
+            $device = $order->device_type ?: 'Bilinmiyor';
+            $deviceIcon = match($device) {
+                'Mobil' => '📱 Mobil',
+                'Tablet' => '📟 Tablet',
+                'Masaüstü' => '💻 Masaüstü',
+                default => '🌐 ' . $device
+            };
+        @endphp
+
+        <!-- Kaynak ve Cihaz Rozetleri -->
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+          <span style="display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
+            @if(str_contains($srcLower, 'google ads'))
+              🎯 {{ $src }}
+            @elseif(str_contains($srcLower, 'google'))
+              🔍 {{ $src }}
+            @elseif(str_contains($srcLower, 'instagram'))
+              📸 {{ $src }}
+            @elseif(str_contains($srcLower, 'facebook') || str_contains($srcLower, 'meta'))
+              👥 {{ $src }}
+            @elseif(str_contains($srcLower, 'tiktok'))
+              🎵 {{ $src }}
+            @elseif(str_contains($srcLower, 'whatsapp'))
+              💬 {{ $src }}
+            @elseif(str_contains($srcLower, 'admin'))
+              ⚙️ {{ $src }}
+            @elseif(str_contains($srcLower, 'yönlendirme'))
+              🔗 {{ $src }}
+            @else
+              ⚡ {{ $src }}
+            @endif
+          </span>
+
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: rgba(0,0,0,0.05); color: #475569;">
+            {{ $deviceIcon }}
+          </span>
+        </div>
+
+        <!-- Kampanya & UTM Detayları -->
+        @if($order->utm_campaign || $order->utm_source || $order->utm_medium)
+          <div style="margin-top: 6px; padding: 6px 10px; background: rgba(0,0,0,0.02); border-radius: 6px; border: 1px dashed rgba(0,0,0,0.12); font-size: 0.75rem;">
+            @if($order->utm_campaign)
+              <div><strong style="color: #64748b;">Kampanya:</strong> <span class="td-bold">{{ $order->utm_campaign }}</span></div>
+            @endif
+            @if($order->utm_medium)
+              <div style="margin-top:2px;"><strong style="color: #64748b;">Mecra (Medium):</strong> {{ $order->utm_medium }}</div>
+            @endif
+            @if($order->utm_source && $order->utm_source !== $order->traffic_source)
+              <div style="margin-top:2px;"><strong style="color: #64748b;">UTM Kaynak:</strong> {{ $order->utm_source }}</div>
+            @endif
+            @if($order->utm_term)
+              <div style="margin-top:2px;"><strong style="color: #64748b;">Anahtar Kelime:</strong> {{ $order->utm_term }}</div>
+            @endif
+          </div>
+        @endif
+
+        <!-- GCLID (Google Ads Tıklama Kimliği) -->
+        @if($order->gclid)
+          <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; font-size: 0.74rem;">
+            <span style="color: #64748b; font-weight: 600;">GCLID:</span>
+            <span 
+              x-data="{ copied: false }" 
+              @click.stop="navigator.clipboard.writeText('{{ e($order->gclid) }}'); copied = true; setTimeout(() => copied = false, 1500); $dispatch('copy-toast', 'GCLID Kopyalandı!')"
+              style="font-family: monospace; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
+              title="Kopyalamak için tıklayın"
+            >
+              {{ \Illuminate\Support\Str::limit($order->gclid, 14, '...') }}
+              <svg style="width:12px; height:12px; opacity:0.7;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </span>
+          </div>
+        @endif
+
+        <!-- Referrer & IP -->
+        @if($order->referrer)
+          @php
+              $refHost = parse_url($order->referrer, PHP_URL_HOST) ?: $order->referrer;
+          @endphp
+          <div class="td-muted" style="margin-top: 2px; font-size: 0.74rem; word-break: break-all;">
+            <strong style="color: #64748b;">Yönlendiren:</strong> {{ \Illuminate\Support\Str::limit($refHost, 30) }}
+          </div>
+        @endif
+
+        @if($order->ip_address)
+          <div class="td-muted" style="margin-top: 2px; font-size: 0.74rem;">
+            <strong style="color: #64748b;">IP:</strong> {{ $order->ip_address }}
+          </div>
+        @endif
+      </div>
+    </div>
   </div>
 </div>
 @endif

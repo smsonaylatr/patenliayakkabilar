@@ -26,6 +26,16 @@ class OrderInfolist
                         default => $state ?? '-',
                     })
                     ->placeholder('-'),
+                TextEntry::make('traffic_source')
+                    ->label('Sipariş Kaynağı')
+                    ->badge()
+                    ->placeholder('-'),
+                TextEntry::make('device_type')
+                    ->label('Cihaz Türü')
+                    ->placeholder('-'),
+                TextEntry::make('utm_campaign')
+                    ->label('Kampanya')
+                    ->placeholder('-'),
                 TextEntry::make('ip_address')
                     ->label('IP Adresi')
                     ->placeholder('-'),

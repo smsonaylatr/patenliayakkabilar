@@ -75,6 +75,43 @@ class OrderForm
                             ->formatStateUsing(fn ($state) => $state == 1 || !$state ? 'Tek Çekim' : $state . ' Taksit'),
                     ]),
 
+                Section::make('Trafik & Pazarlama Kaynağı')
+                    ->icon('heroicon-o-globe-alt')
+                    ->columns(2)
+                    ->collapsible()
+                    ->schema([
+                        TextInput::make('traffic_source')
+                            ->label('Sipariş Kaynağı')
+                            ->disabled()
+                            ->default('Admin Paneli'),
+
+                        TextInput::make('device_type')
+                            ->label('Cihaz Türü')
+                            ->disabled()
+                            ->default('Masaüstü'),
+
+                        TextInput::make('utm_source')
+                            ->label('UTM Kaynak')
+                            ->disabled(),
+
+                        TextInput::make('utm_medium')
+                            ->label('UTM Mecra (Medium)')
+                            ->disabled(),
+
+                        TextInput::make('utm_campaign')
+                            ->label('UTM Kampanya')
+                            ->disabled(),
+
+                        TextInput::make('gclid')
+                            ->label('Google Ads GCLID')
+                            ->disabled(),
+
+                        TextInput::make('referrer')
+                            ->label('Yönlendiren Adres (Referrer)')
+                            ->disabled()
+                            ->columnSpanFull(),
+                    ]),
+
                 Section::make('Kargo Bilgileri')
                     ->icon('heroicon-o-truck')
                     ->columns(2)

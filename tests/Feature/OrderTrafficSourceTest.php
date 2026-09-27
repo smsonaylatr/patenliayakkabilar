@@ -1,0 +1,125 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Http\Middleware\CaptureTrafficSource;
+use App\Models\Order;
+use App\Services\TrafficSourceDetector;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Tests\TestCase;
+
+class OrderTrafficSourceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /**
+     * TrafficSourceDetector doğru kaynakları ve cihazları çözümler mi?
+     */
+    public function test_detector_identifies_google_ads_via_gclid(): void
+    {
+        $detector = app(TrafficSourceDetector::class);
+
+        $request = Request::create('https://patenliayakkabilar.com/?gclid=test_gclid_123', 'GET');
+        $data = $detector->detect($request);
+
+        $this->assertEquals('Google Ads', $data['traffic_source']);
+        $this->assertEquals('test_gclid_123', $data['gclid']);
+    }
+
+    public function test_detector_identifies_meta_ads_and_instagram(): void
+    {
+        $detector = app(TrafficSourceDetector::class);
+
+        // Instagram CPC
+        $request = Request::create('https://patenliayakkabilar.com/?utm_source=instagram&utm_medium=cpc&utm_campaign=yaz2026', 'GET');
+        $data = $detector->detect($request);
+
+        $this->assertEquals('Instagram Ads', $data['traffic_source']);
+        $this->assertEquals('yaz2026', $data['utm_campaign']);
+
+        // Instagram Organik referer
+        $requestOrganic = Request::create('https://patenliayakkabilar.com/', 'GET', [], [], [], [
+            'HTTP_REFERER' => 'https://l.instagram.com/',
+        ]);
+        $dataOrganic = $detector->detect($requestOrganic);
+
+        $this->assertEquals('Instagram', $dataOrganic['traffic_source']);
+    }
+
+    public function test_detector_identifies_google_organic_referer(): void
+    {
+        $detector = app(TrafficSourceDetector::class);
+
+        $request = Request::create('https://patenliayakkabilar.com/', 'GET', [], [], [], [
+            'HTTP_REFERER' => 'https://www.google.com.tr/',
+        ]);
+        $data = $detector->detect($request);
+
+        $this->assertEquals('Google Organik', $data['traffic_source']);
+    }
+
+    public function test_detector_identifies_direct_traffic_and_mobile_device(): void
+    {
+        $detector = app(TrafficSourceDetector::class);
+
+        $request = Request::create('https://patenliayakkabilar.com/', 'GET', [], [], [], [
+            'HTTP_USER_AGENT' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1',
+        ]);
+        $data = $detector->detect($request);
+
+        $this->assertEquals('Doğrudan', $data['traffic_source']);
+        $this->assertEquals('Mobil', $data['device_type']);
+    }
+
+    public function test_middleware_captures_traffic_source_in_session(): void
+    {
+        $middleware = new CaptureTrafficSource(app(TrafficSourceDetector::class));
+
+        $request = Request::create('https://patenliayakkabilar.com/iletisim?utm_source=tiktok&utm_medium=cpc&utm_campaign=kesfet', 'GET');
+        $request->setLaravelSession(session()->driver());
+
+        $response = $middleware->handle($request, function ($req) {
+            return response('ok');
+        });
+
+        $this->assertEquals('TikTok Ads', session('traffic_source'));
+        $this->assertEquals('kesfet', session('traffic_attribution.utm_campaign'));
+    }
+
+    public function test_order_creation_stores_traffic_source_and_attribution(): void
+    {
+        $order = Order::create([
+            'order_number' => 'TEST-' . uniqid(),
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'payment_method' => 'credit_card',
+            'traffic_source' => 'Google Ads',
+            'device_type' => 'Mobil',
+            'utm_source' => 'google',
+            'utm_medium' => 'cpc',
+            'utm_campaign' => 'paten_kelimeleri',
+            'gclid' => 'google_click_id_999',
+            'subtotal' => 1000,
+            'shipping_price' => 0,
+            'grand_total' => 1000,
+            'customer_name' => 'Ahmet Yılmaz',
+            'customer_email' => 'ahmet@example.com',
+            'customer_phone' => '05551234567',
+        ]);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'traffic_source' => 'Google Ads',
+            'device_type' => 'Mobil',
+            'utm_campaign' => 'paten_kelimeleri',
+            'gclid' => 'google_click_id_999',
+        ]);
+
+        // scopeSource çalışıyor mu?
+        $count = Order::source('Google Ads')->where('id', $order->id)->count();
+        $this->assertEquals(1, $count);
+
+        $order->delete();
+    }
+}
