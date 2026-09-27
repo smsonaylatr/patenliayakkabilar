@@ -365,8 +365,8 @@
                                                 <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> CANLI
                                             </span>
                                         @else
-                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
-                                                Ayrıldı ({{ $diff }})
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                                AYRILDI ({{ $diff }})
                                             </span>
                                         @endif
                                     </div>
@@ -727,8 +727,8 @@
                                         <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> CANLI
                                     </span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
-                                        Ayrıldı ({{ $diff }})
+                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25);">
+                                        AYRILDI ({{ $diff }})
                                     </span>
                                 @endif
                             </div>

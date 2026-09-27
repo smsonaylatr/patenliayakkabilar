@@ -794,7 +794,6 @@
         <div class="war-room-grid">
             {{-- Kart 1: Ziyaretçi & Canlı Sinyal --}}
             <div wire:click="setCardFilter('online')" class="war-card {{ ($activeCardFilter ?? 'all') === 'online' ? 'is-active-filter' : '' }}" title="Canlı yayındaki ziyaretçileri filtrelemek için tıklayın">
-                <div class="war-card-top-bar" style="background: linear-gradient(90deg, #10b981, #059669);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Ziyaretçi & Sinyal</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
@@ -807,64 +806,61 @@
                 <div class="war-value">
                     <span>{{ ($activeTab ?? 'live') === 'recent' ? ($recentCount ?? ($recentLeftCount ?? 0)) : ($onlineCount ?? 0) }}</span>
                     @if(($activeTab ?? 'live') === 'recent')
-                        <span style="font-size: 13px; color: #f59e0b; font-weight: 700;">Ayrılan Misafir</span>
+                        <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Ayrılan Misafir</span>
                     @elseif(($onlineCount ?? 0) > 0)
-                        <span style="font-size: 13px; color: #10b981; font-weight: 700;">Canlı Yayında</span>
+                        <span style="font-size: 12px; color: #34d399; font-weight: 600;">Canlı Yayında</span>
                     @else
-                        <span style="font-size: 13px; color: #94a3b8; font-weight: 700;">Radar Dinlemede</span>
+                        <span style="font-size: 12px; color: #64748b; font-weight: 600;">Dinlemede</span>
                     @endif
                 </div>
                 <div class="war-subtext" style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 5px;">
                         @if(($activeTab ?? 'live') === 'recent')
-                            <span style="color: #f59e0b;">●</span>
                             <span>Son 24 saat içinde sitede gezinenler</span>
                         @else
-                            <span style="color: {{ ($onlineCount ?? 0) > 0 ? '#10b981' : '#64748b' }};">●</span>
                             <span>{{ ($onlineCount ?? 0) > 0 ? 'Anlık canlı sinyal verenler' : 'Canlı sinyal bekleniyor' }}</span>
                         @endif
                     </div>
-                    <div style="font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%;">
-                        <span title="Bugünkü Tekil Ziyaretçi">Bugün: <strong style="color: #38bdf8;">{{ number_format($todayVisitorsCount ?? ($dailyTraffic['unique_visitors'] ?? 0)) }}</strong></span>
-                        <span style="color: #475569;">|</span>
-                        <span title="Son 7 Günlük Tekil Ziyaretçi">7G: <strong style="color: #a78bfa;">{{ number_format($weeklyTraffic['unique_visitors'] ?? 0) }}</strong></span>
-                        <span style="color: #475569;">|</span>
-                        <span title="Son 30 Günlük Tekil Ziyaretçi">30G: <strong style="color: #34d399;">{{ number_format($monthlyTraffic['unique_visitors'] ?? 0) }}</strong></span>
+                    <div style="font-size: 10px; color: #64748b; display: flex; align-items: center; gap: 6px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%;">
+                        <span title="Bugünkü Tekil Ziyaretçi">Bugün: <strong style="color: #cbd5e1;">{{ number_format($todayVisitorsCount ?? ($dailyTraffic['unique_visitors'] ?? 0)) }}</strong></span>
+                        <span>|</span>
+                        <span title="Son 7 Günlük Tekil Ziyaretçi">7G: <strong style="color: #cbd5e1;">{{ number_format($weeklyTraffic['unique_visitors'] ?? 0) }}</strong></span>
+                        <span>|</span>
+                        <span title="Son 30 Günlük Tekil Ziyaretçi">30G: <strong style="color: #cbd5e1;">{{ number_format($monthlyTraffic['unique_visitors'] ?? 0) }}</strong></span>
                     </div>
                 </div>
             </div>
 
             {{-- Kart 2: Canlı Sepetler & Potansiyel Ciro --}}
             <div wire:click="setCardFilter('cart')" class="war-card {{ ($activeCardFilter ?? 'all') === 'cart' ? 'is-active-filter' : '' }}" title="Sepetinde ürün olanları filtrelemek için tıklayın">
-                <div class="war-card-top-bar" style="background: linear-gradient(90deg, #06b6d4, #0284c7);"></div>
                 <div class="war-header-row">
                     <span class="war-label">{{ ($activeTab ?? 'live') === 'recent' ? 'Terk Edilen Sepetler' : 'Bekleyen Sepetler' }}</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         @if(($activeCardFilter ?? 'all') === 'cart')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 16px;">🛒</span>
+                        <span style="font-size: 15px;">🛒</span>
                     </div>
                 </div>
-                <div class="war-value" style="color: #38bdf8;">
+                <div class="war-value">
                     <span>{{ number_format($cartTotal ?? 0, 2) }} ₺</span>
                 </div>
                 <div class="war-subtext">
                     @if(($activeTab ?? 'live') === 'recent')
                         @if(($recentCartCount ?? 0) > 0)
-                            <strong style="color: #38bdf8;">{{ $recentCartCount }} sepette</strong> ürün terk edildi
+                            <strong style="color: #cbd5e1;">{{ $recentCartCount }} sepette</strong> ürün terk edildi
                         @elseif(($cartCount ?? 0) > 0)
-                            <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                            <strong style="color: #cbd5e1;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
                         @else
                             <span>Sepette bekleyen ürün bulunmuyor</span>
                         @endif
                     @else
                         @if(($liveCartCount ?? 0) > 0)
-                            <strong style="color: #38bdf8;">{{ $liveCartCount }} canlı sepette</strong> ödeme bekleniyor
+                            <strong style="color: #cbd5e1;">{{ $liveCartCount }} canlı sepette</strong> ödeme bekleniyor
                         @elseif(($recentCartCount ?? 0) > 0)
-                            <strong style="color: #38bdf8;">{{ $recentCartCount }} sepette (24s)</strong> {{ number_format($recentCartTotal ?? $cartTotal, 2) }} ₺ bekliyor
+                            <strong style="color: #cbd5e1;">{{ $recentCartCount }} sepette (24s)</strong> {{ number_format($recentCartTotal ?? $cartTotal, 2) }} ₺ bekliyor
                         @elseif(($cartCount ?? 0) > 0)
-                            <strong style="color: #f1f5f9;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
+                            <strong style="color: #cbd5e1;">{{ $cartCount }} sepette</strong> ürün ödeme bekliyor
                         @else
                             <span>Sepette bekleyen ürün bulunmuyor</span>
                         @endif
@@ -874,19 +870,18 @@
 
             {{-- Kart 3: Sıcak Satın Alma Adayları --}}
             <div wire:click="setCardFilter('high_intent')" class="war-card {{ ($activeCardFilter ?? 'all') === 'high_intent' ? 'is-active-filter' : '' }}" title="Sıcak satın alma adaylarını filtrelemek için tıklayın">
-                <div class="war-card-top-bar" style="background: linear-gradient(90deg, #ff4e00, #ea580c);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Sıcak Adaylar</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         @if(($activeCardFilter ?? 'all') === 'high_intent')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 16px;">🔥</span>
+                        <span style="font-size: 15px;">🔥</span>
                     </div>
                 </div>
-                <div class="war-value" style="color: #ffedd5;">
+                <div class="war-value">
                     <span>{{ $highIntentCount ?? 0 }}</span>
-                    <span style="font-size: 12px; color: #fb923c; font-weight: 700;">
+                    <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">
                         @if(($activeTab ?? 'live') === 'recent')
                             {{ ($highIntentCount ?? 0) > 0 ? '24s Adayı' : 'Müşteri' }}
                         @else
@@ -896,32 +891,31 @@
                 </div>
                 <div class="war-subtext">
                     @if(($activeTab ?? 'live') === 'recent')
-                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> (Son 24s)
+                        Satın alma niyeti <strong style="color: #cbd5e1;">%60 ve üzeri</strong> (Son 24s)
                     @elseif(($liveHighIntentCount ?? 0) > 0)
-                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> (Canlı)
+                        Satın alma niyeti <strong style="color: #cbd5e1;">%60 ve üzeri</strong> (Canlı)
                     @elseif(($recentHighIntentCount ?? 0) > 0)
-                        Son 24 saatte <strong style="color: #fb923c;">{{ $recentHighIntentCount }} sıcak aday</strong> tespit edildi
+                        Son 24 saatte <strong style="color: #cbd5e1;">{{ $recentHighIntentCount }} sıcak aday</strong> tespit edildi
                     @else
-                        Satın alma niyeti <strong style="color: #fb923c;">%60 ve üzeri</strong> adaylar
+                        Satın alma niyeti <strong style="color: #cbd5e1;">%60 ve üzeri</strong> adaylar
                     @endif
                 </div>
             </div>
 
             {{-- Kart 4: Tereddütte Olanlar --}}
             <div wire:click="setCardFilter('hesitating')" class="war-card {{ ($activeCardFilter ?? 'all') === 'hesitating' ? 'is-active-filter' : '' }}" title="Tereddüt yaşayanları filtrelemek için tıklayın">
-                <div class="war-card-top-bar" style="background: linear-gradient(90deg, #f59e0b, #d97706);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Tereddütte Olanlar</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         @if(($activeCardFilter ?? 'all') === 'hesitating')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 16px;">🤔</span>
+                        <span style="font-size: 15px;">🤔</span>
                     </div>
                 </div>
-                <div class="war-value" style="color: #fde68a;">
+                <div class="war-value">
                     <span>{{ $hesitatingCount ?? 0 }}</span>
-                    <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">
+                    <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">
                         @if(($activeTab ?? 'live') === 'recent')
                             {{ ($hesitatingCount ?? 0) > 0 ? '24s Tespit' : 'Tespit Edildi' }}
                         @else
@@ -931,11 +925,11 @@
                 </div>
                 <div class="war-subtext">
                     @if(($activeTab ?? 'live') === 'recent')
-                        <strong style="color: #f59e0b;">Beden veya kargo bariyeri</strong> yaşayan son ziyaretçiler
+                        Beden veya kargo bariyeri yaşayan son ziyaretçiler
                     @elseif(($liveHesitatingCount ?? 0) > 0)
-                        <strong style="color: #f59e0b;">Beden/kargo bariyeri</strong> (Hızlı indirim önerilir)
+                        Beden veya kargo bariyeri (Hızlı indirim önerilir)
                     @elseif(($recentHesitatingCount ?? 0) > 0)
-                        Son 24 saatte <strong style="color: #f59e0b;">{{ $recentHesitatingCount }} tereddüt</strong> tespit edildi
+                        Son 24 saatte <strong style="color: #cbd5e1;">{{ $recentHesitatingCount }} tereddüt</strong> tespit edildi
                     @else
                         <span>Beden veya kargo bariyeri algılandı</span>
                     @endif
@@ -944,23 +938,22 @@
 
             {{-- Kart 5: Üye / Misafir Oranı --}}
             <div wire:click="setCardFilter('members')" class="war-card {{ ($activeCardFilter ?? 'all') === 'members' ? 'is-active-filter' : '' }}" title="Üye girişli kullanıcıları filtrelemek için tıklayın">
-                <div class="war-card-top-bar" style="background: linear-gradient(90deg, #8b5cf6, #6366f1);"></div>
                 <div class="war-header-row">
                     <span class="war-label">Kullanıcı Segmenti</span>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         @if(($activeCardFilter ?? 'all') === 'members')
                             <span class="war-card-active-pill">FİLTRE</span>
                         @endif
-                        <span style="font-size: 16px;">👤</span>
+                        <span style="font-size: 15px;">👤</span>
                     </div>
                 </div>
-                <div class="war-value" style="font-size: 20px;">
-                    <span style="color: #c4b5fd;">{{ $membersCount ?? 0 }} Üye</span>
+                <div class="war-value" style="font-size: 19px;">
+                    <span>{{ $membersCount ?? 0 }} Üye</span>
                     <span style="font-size: 13px; color: #64748b;">/</span>
-                    <span style="color: #94a3b8; font-size: 18px;">{{ $guestsCount ?? 0 }} Misafir</span>
+                    <span style="color: #94a3b8; font-size: 17px;">{{ $guestsCount ?? 0 }} Misafir</span>
                 </div>
                 <div class="war-subtext">
-                    Giriş oranı: <strong style="color: #a78bfa;">%{{ $loginRate ?? 0 }}</strong> {{ (($activeTab ?? 'live') === 'live' && ($onlineCount ?? 0) > 0) ? '(Canlı)' : '(24s / Genel)' }}
+                    Giriş oranı: <strong style="color: #cbd5e1;">%{{ $loginRate ?? 0 }}</strong> {{ (($activeTab ?? 'live') === 'live' && ($onlineCount ?? 0) > 0) ? '(Canlı)' : '(24s / Genel)' }}
                 </div>
             </div>
         </div>
