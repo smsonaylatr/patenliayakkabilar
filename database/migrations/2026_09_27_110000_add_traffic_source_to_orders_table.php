@@ -13,21 +13,41 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('traffic_source', 100)->nullable()->after('status')->index();
-            $table->string('device_type', 50)->nullable()->after('traffic_source');
-            $table->string('utm_source', 100)->nullable()->after('traffic_source');
-            $table->string('utm_medium', 100)->nullable()->after('utm_source');
-            $table->string('utm_campaign', 150)->nullable()->after('utm_medium');
-            $table->string('utm_term', 150)->nullable()->after('utm_campaign');
-            $table->string('utm_content', 150)->nullable()->after('utm_term');
-            $table->text('referrer')->nullable()->after('utm_content');
+            if (!Schema::hasColumn('orders', 'traffic_source')) {
+                $table->string('traffic_source', 100)->nullable()->after('status')->index();
+            }
+            if (!Schema::hasColumn('orders', 'device_type')) {
+                $table->string('device_type', 50)->nullable()->after('traffic_source');
+            }
+            if (!Schema::hasColumn('orders', 'utm_source')) {
+                $table->string('utm_source', 100)->nullable()->after('traffic_source');
+            }
+            if (!Schema::hasColumn('orders', 'utm_medium')) {
+                $table->string('utm_medium', 100)->nullable()->after('utm_source');
+            }
+            if (!Schema::hasColumn('orders', 'utm_campaign')) {
+                $table->string('utm_campaign', 150)->nullable()->after('utm_medium');
+            }
+            if (!Schema::hasColumn('orders', 'utm_term')) {
+                $table->string('utm_term', 150)->nullable()->after('utm_campaign');
+            }
+            if (!Schema::hasColumn('orders', 'utm_content')) {
+                $table->string('utm_content', 150)->nullable()->after('utm_term');
+            }
+            if (!Schema::hasColumn('orders', 'referrer')) {
+                $table->text('referrer')->nullable()->after('utm_content');
+            }
         });
 
         // Mevcut siparişler için varsayılan kaynak belirle
-        DB::table('orders')->whereNull('traffic_source')->update([
-            'traffic_source' => DB::raw("CASE WHEN gclid IS NOT NULL AND gclid != '' THEN 'Google Ads' ELSE 'Doğrudan' END"),
-            'device_type' => 'Mobil',
-        ]);
+        try {
+            if (Schema::hasColumn('orders', 'traffic_source')) {
+                DB::table('orders')->whereNull('traffic_source')->update([
+                    'traffic_source' => DB::raw("CASE WHEN gclid IS NOT NULL AND gclid != '' THEN 'Google Ads' ELSE 'Doğrudan' END"),
+                    'device_type' => 'Mobil',
+                ]);
+            }
+        } catch (\Throwable $e) {}
     }
 
     /**
