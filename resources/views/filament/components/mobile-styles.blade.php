@@ -235,12 +235,28 @@ html, body {
         border-radius: 16px !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
         max-height: 90vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .fi-modal-header {
+        flex-shrink: 0 !important;
     }
 
     .fi-modal-content,
     .fi-modal-body {
-        max-height: calc(85vh - 130px) !important;
+        max-height: calc(88vh - 130px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
         scrollbar-width: thin !important;
+        flex: 1 1 auto !important;
+    }
+
+    .fi-modal-footer {
+        flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 10 !important;
     }
 
     /* Masaüstü Sol Navbar: İdeal 13.5rem (216px) Genişlik & Scrollbar Yok */

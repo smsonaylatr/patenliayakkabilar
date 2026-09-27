@@ -1,6 +1,6 @@
-<div style="font-family: inherit; color: #f8fafc; display: flex; flex-direction: column; gap: 20px;">
+<div style="font-family: inherit; color: #f8fafc; display: flex; flex-direction: column; gap: 20px; padding-bottom: 24px;">
     {{-- Müşteri Özet Kartı --}}
-    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 16px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; padding: 16px; background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
         <div>
             <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Ziyaretçi Kimliği</div>
             <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-top: 2px;">{{ $record->display_name }}</div>

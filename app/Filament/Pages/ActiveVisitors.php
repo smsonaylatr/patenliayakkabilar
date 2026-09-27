@@ -581,8 +581,12 @@ class ActiveVisitors extends Page implements HasTable
                     ->color('gray')
                     ->icon('heroicon-o-eye')
                     ->modalHeading(fn (ActiveVisitor $record) => 'Müşteri Yolculuğu & Sepet Özeti - ' . $record->display_name)
+                    ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                    ->stickyModalHeader()
+                    ->stickyModalFooter()
+                    ->modalFooterActionsAlignment(\Filament\Support\Enums\Alignment::End)
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Kapat')
+                    ->modalCancelAction(fn (\Filament\Actions\StaticAction $action) => $action->label('Kapat')->color('gray'))
                     ->modalContent(fn (ActiveVisitor $record) => view('filament.pages.partials.visitor-journey-modal', ['record' => $record])),
 
                 // ─── 4. Diğer Aksiyonlar ───
