@@ -919,8 +919,9 @@ class ActiveVisitor extends Model
         }
 
         // 3. Sepetinde ürün var mı? (cart_summary dizisi)
-        if (!empty($this->cart_summary) && is_array($this->cart_summary)) {
-            $firstCartItem = reset($this->cart_summary);
+        $summary = $this->cart_summary;
+        if (!empty($summary) && is_array($summary)) {
+            $firstCartItem = $summary[array_key_first($summary)] ?? null;
             if ($firstCartItem && is_array($firstCartItem)) {
                 $cartImg = $firstCartItem['product_image'] ?? null;
                 $cartName = $firstCartItem['product_name'] ?? null;

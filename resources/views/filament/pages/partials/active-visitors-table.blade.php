@@ -3,41 +3,38 @@
     .av-view-toggle-group {
         display: inline-flex;
         align-items: center;
-        background: #0f172a;
         background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 9px;
-        padding: 2.5px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 3px;
         gap: 3px;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
     .av-view-toggle-btn {
         display: inline-flex;
         align-items: center;
-        gap: 5.5px;
-        padding: 4px 11px;
-        border-radius: 7px;
-        font-size: 11.5px;
-        font-weight: 700;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
         color: #94a3b8;
         background: transparent;
         border: 1px solid transparent;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
         line-height: 1.2;
         user-select: none;
     }
     .av-view-toggle-btn:hover {
-        color: #f8fafc;
-        background: rgba(255, 255, 255, 0.06);
+        color: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
     }
     .av-view-toggle-btn.is-active {
-        background: #ff4e00;
-        background: linear-gradient(135deg, #ff4e00 0%, #ea580c 100%);
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(255, 78, 0, 0.4);
-        border-color: rgba(255, 120, 73, 0.4);
+        background: #1e293b;
+        color: #f8fafc;
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     .av-view-toggle-btn svg {
         width: 14px;
@@ -58,57 +55,54 @@
         display: grid;
         grid-template-columns: 28% 26% 32% 14%;
         gap: 16px;
-        padding: 12px 20px;
+        padding: 10px 18px;
         font-size: 11px;
-        font-weight: 800;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #94a3b8;
-        background: #0f172a;
-        background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
         margin-bottom: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
     .av-card {
-        background: #111827;
-        background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
+        background: #131d2f;
+        background: linear-gradient(180deg, #182234 0%, #0f172a 100%);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 14px;
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
-        transition: all 0.2s ease;
+        margin-bottom: 12px;
+        transition: all 0.15s ease;
     }
     .av-card:hover {
-        border-color: rgba(255, 255, 255, 0.18);
-        box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
     .av-body {
         display: grid;
         grid-template-columns: 28% 26% 32% 14%;
         gap: 16px;
-        padding: 18px 20px;
+        padding: 14px 18px;
         align-items: center;
     }
     .av-footer {
-        background: rgba(10, 15, 26, 0.96);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 12px 20px;
+        background: rgba(10, 15, 26, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 10px 18px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 14px;
+        gap: 12px;
         flex-wrap: wrap;
     }
     .av-strategy-area {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
         flex: 1;
-        min-width: 260px;
+        min-width: 240px;
     }
     .av-actions-area {
         display: flex;
@@ -126,57 +120,54 @@
     .av-grid-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
-        gap: 18px;
+        gap: 16px;
     }
     @media (max-width: 768px) {
         .av-grid-container {
             grid-template-columns: 1fr;
-            gap: 14px;
+            gap: 12px;
         }
     }
     .av-grid-card {
-        background: #111827;
-        background: linear-gradient(145deg, #182234 0%, #0d1522 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
+        background: #131d2f;
+        background: linear-gradient(180deg, #182234 0%, #0f172a 100%);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
-        transition: all 0.25s ease;
+        transition: all 0.15s ease;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         position: relative;
     }
     .av-grid-card:hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.55);
-        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
     .av-grid-header {
-        padding: 16px 18px 14px;
+        padding: 14px 16px 12px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(255, 255, 255, 0.015);
     }
     .av-grid-body {
-        padding: 16px 18px;
+        padding: 14px 16px;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 12px;
         flex: 1;
     }
     .av-grid-section-box {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 23, 42, 0.55);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 11px 13px;
+        border-radius: 10px;
+        padding: 10px 12px;
     }
     .av-grid-footer {
-        background: rgba(10, 15, 26, 0.96);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 11px 13px;
+        background: rgba(10, 15, 26, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 10px 12px;
         display: flex;
         flex-direction: column;
-        gap: 9px;
+        gap: 8px;
     }
     .av-grid-actions-area {
         display: flex !important;
@@ -189,29 +180,12 @@
     .av-grid-actions-area .fi-btn {
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        padding-left: 5px !important;
-        padding-right: 5px !important;
-        padding-top: 6px !important;
-        padding-bottom: 6px !important;
+        padding: 5px 8px !important;
         font-size: 11px !important;
-        font-weight: 700 !important;
+        font-weight: 600 !important;
         white-space: nowrap !important;
         justify-content: center !important;
-        border-radius: 8px !important;
-        gap: 2px !important;
-    }
-    .av-grid-actions-area .fi-btn .fi-btn-label {
-        font-size: 10.5px !important;
-        letter-spacing: -0.02em !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        line-height: 1.2 !important;
-    }
-    /* Grid kartlarında buton metinlerindeki emojiler yeterli olduğundan SVG ikonları gizleyip butonların tek satıra tam sığmasını sağlıyoruz */
-    .av-grid-actions-area .fi-btn svg,
-    .av-grid-actions-area .fi-btn .fi-btn-icon {
-        display: none !important;
+        border-radius: 6px !important;
     }
     .av-grid-actions-area .fi-action-group,
     .av-grid-actions-area .fi-dropdown {
@@ -221,30 +195,12 @@
         width: 28px !important;
         height: 28px !important;
         min-width: 28px !important;
-        padding: 4px !important;
-        border-radius: 7px !important;
+        border-radius: 6px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        background: rgba(255, 255, 255, 0.06) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    .av-grid-actions-area .fi-icon-btn svg {
-        display: block !important;
-        width: 15px !important;
-        height: 15px !important;
-    }
-    @media (max-width: 1400px) {
-        .av-grid-actions-area {
-            gap: 3px !important;
-        }
-        .av-grid-actions-area .fi-btn {
-            padding-left: 4px !important;
-            padding-right: 4px !important;
-        }
-        .av-grid-actions-area .fi-btn .fi-btn-label {
-            font-size: 10px !important;
-        }
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
     @media (max-width: 1024px) {
@@ -253,14 +209,14 @@
         }
         .av-body {
             grid-template-columns: 1fr !important;
-            gap: 16px !important;
-            padding: 16px !important;
+            gap: 14px !important;
+            padding: 14px !important;
         }
         .av-footer {
             flex-direction: column !important;
             align-items: stretch !important;
-            gap: 14px !important;
-            padding: 14px 16px !important;
+            gap: 12px !important;
+            padding: 12px 14px !important;
         }
         .av-actions-area {
             justify-content: flex-start !important;
@@ -289,7 +245,7 @@
         </div>
 
         {{-- Ziyaretçi Kayıtları Listesi --}}
-        <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
             @forelse ($records as $record)
                 @php
                     // 1. Ziyaretçi Verileri
@@ -313,8 +269,6 @@
                     $pageInfo = $record->page_info ?? [];
                     $product = $record->current_product;
                     $productImage = $record->current_product_image;
-                    $interestedProduct = $record->interested_product_info;
-                    $cartThumbnails = $record->cart_thumbnails;
                     $title = $pageInfo['title'] ?? ($product ? $product->name : ($record->current_title ?: $record->current_path));
                     $url = $record->current_url ?: $record->current_path;
                     $isCheckout = ($pageInfo['type'] ?? '') === 'checkout' || str_contains($record->current_path, 'checkout');
@@ -332,24 +286,15 @@
                     // 3. Davranış Teşhisi Verileri
                     $score = $record->intent_score ?? 15;
                     $insight = $record->behavior_insight ?? 'Sitede genel keşif yapıyor.';
-                    $color = match (true) {
-                        $score >= 80 => '#10b981',
-                        $score >= 60 => '#f59e0b',
-                        $score >= 40 => '#38bdf8',
-                        default => '#94a3b8',
-                    };
-                    $gradient = match (true) {
-                        $score >= 80 => 'linear-gradient(90deg, #10b981, #059669)',
-                        $score >= 60 => 'linear-gradient(90deg, #f59e0b, #d97706)',
-                        $score >= 40 => 'linear-gradient(90deg, #38bdf8, #0284c7)',
-                        default => 'linear-gradient(90deg, #64748b, #475569)',
-                    };
                     $intentLabel = match (true) {
-                        $score >= 80 => '🔥 ÇOK SICAK (%' . $score . ')',
-                        $score >= 60 => '⚡ TEREDDÜTTE (%' . $score . ')',
-                        $score >= 40 => '👀 İLGİLİ (%' . $score . ')',
-                        default => '🔍 KEŞİF (%' . $score . ')',
+                        $score >= 80 => 'Yüksek Niyet (%' . $score . ')',
+                        $score >= 60 => 'Tereddütte (%' . $score . ')',
+                        $score >= 40 => 'İlgili (%' . $score . ')',
+                        default => 'Keşif (%' . $score . ')',
                     };
+                    $intentBadgeColor = $score >= 80 ? '#34d399' : ($score >= 60 ? '#ff7849' : '#94a3b8');
+                    $intentBadgeBg = $score >= 80 ? 'rgba(16, 185, 129, 0.1)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)');
+                    $intentBadgeBorder = $score >= 80 ? 'rgba(16, 185, 129, 0.25)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)');
 
                     // 4. Strateji
                     $strategy = $record->recommended_strategy;
@@ -357,7 +302,7 @@
                         $strategy = json_decode($strategy, true);
                     }
 
-                    // 5. Kayıt Aksiyonları (Hızlı Butonlar)
+                    // 5. Kayıt Aksiyonları
                     $activeTable = $table ?? (isset($this) && method_exists($this, 'getTable') ? $this->getTable() : null);
                     $defaultRecordActions = $activeTable ? $activeTable->getRecordActions() : [];
                     $recordActions = array_reduce(
@@ -375,37 +320,40 @@
                         },
                         initial: [],
                     );
+                    $sourceInfo = $record->source_info;
+                    $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record);
                 @endphp
 
-                <div wire:key="visitor-log-{{ $record->id }}" class="av-card" style="{{ $record->is_blocked ? 'border-color: rgba(239, 68, 68, 0.45); box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);' : '' }}">
+                <div wire:key="visitor-log-{{ $record->id }}" class="av-card" style="{{ $record->is_blocked ? 'border-color: rgba(239, 68, 68, 0.35);' : '' }}">
                     {{-- ÜST KISIM: 4 Sütunlu Canlı Bilgiler --}}
                     <div class="av-body">
                         
                         {{-- 1. Ziyaretçi & Sinyal --}}
                         <div>
                             <div style="display: flex; align-items: flex-start; gap: 12px;">
-                                <div style="width: 42px; height: 42px; min-width: 42px; max-width: 42px; border-radius: 50%; background: {{ $record->is_blocked ? 'linear-gradient(135deg, #ef4444, #991b1b)' : 'linear-gradient(135deg, #ff4e00, #b45309)' }}; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 16px; flex-shrink: 0; box-shadow: 0 0 14px {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 78, 0, 0.4)' }};">
+                                {{-- Avatar (Admin Panel Slate Uyumlu) --}}
+                                <div style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.15)' : 'rgba(30, 41, 59, 0.9)' }}; border: 1px solid {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.1)' }}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: {{ $record->is_blocked ? '#f87171' : '#f1f5f9' }}; font-size: 14px; flex-shrink: 0;">
                                     {{ $record->is_blocked ? '⛔' : $initial }}
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
-                                        <span style="font-weight: 800; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">
+                                        <span style="font-weight: 700; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px;">
                                             {{ $name }}
                                         </span>
                                         {!! $record->stars_html !!}
                                         @if ($record->is_blocked)
-                                            <span style="background: rgba(239, 68, 68, 0.25); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
-                                                🚫 ENGELLENDİ
+                                            <span style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 700;">
+                                                ENGELLENDİ
                                             </span>
                                         @elseif ($isMember)
-                                            <span style="background: rgba(16, 185, 129, 0.25); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
+                                            <span style="background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 700;">
                                                 MÜŞTERİ
                                             </span>
                                         @elseif ($hasCustomName)
-                                            <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 800;">
+                                            <span style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08); padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 600;">
                                                 MİSAFİR
                                             </span>
-                                            <span title="Kalıcı Misafir ID: #{{ $record->guest_id }}" style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-family: monospace; font-weight: 700;">
+                                            <span title="Kalıcı Misafir ID: #{{ $record->guest_id }}" style="color: #64748b; font-family: monospace; font-size: 9.5px;">
                                                 #{{ $record->guest_id }}
                                             </span>
                                         @endif
@@ -413,121 +361,127 @@
 
                                     <div style="margin-bottom: 4px;">
                                         @if ($isOnline)
-                                            <span style="display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
-                                                <span class="live-radar-dot" style="width: 7px; height: 7px;"></span> CANLI
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">
+                                                <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span> CANLI
                                             </span>
                                         @else
-                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
-                                                AYRILDI ({{ $diff }})
+                                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                Ayrıldı ({{ $diff }})
                                             </span>
                                         @endif
                                     </div>
 
                                     @if($phone || $email)
-                                        <div style="font-size: 11px; color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
+                                        <div style="font-size: 11px; color: #cbd5e1; font-weight: 500; display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;">
                                             @if($phone) <span>📱 {{ $phone }}</span> @endif
-                                            @if($phone && $email) <span style="color: #64748b;">•</span> @endif
+                                            @if($phone && $email) <span style="color: #475569;">•</span> @endif
                                             @if($email) <span style="color: #94a3b8;">✉️ {{ $email }}</span> @endif
                                         </div>
                                     @endif
 
-                                    <div style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                                         <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
-                                        <span style="color: #64748b;">•</span>
-                                        <span style="font-family: monospace; color: #64748b;">{{ $record->ip_address }}</span>
-                                        <span style="color: #64748b;">•</span>
-                                        <span title="Kalıcı Misafir ID" style="font-family: monospace; color: #38bdf8; font-size: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 0.5px 5px; border-radius: 4px;">ID: #{{ $record->guest_id }}</span>
+                                        <span>•</span>
+                                        <span style="font-family: monospace;">{{ $record->ip_address }}</span>
+                                        <span>•</span>
+                                        <span title="Kalıcı Misafir ID" style="font-family: monospace; font-size: 10px;">ID: #{{ $record->guest_id }}</span>
                                     </div>
                                     <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
                                         ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
                                     </div>
 
-                                    {{-- Geldiği Kaynak (Traffic Source) --}}
-                                    @php $sourceInfo = $record->source_info; @endphp
+                                    {{-- Geldiği Kaynak & Ziyaret Sıklığı (Slate Rozetler) --}}
                                     <div style="margin-top: 6px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                                        <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 4.5px; padding: 2.5px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.02em; background: {{ $sourceInfo['bg_color'] }}; color: {{ $sourceInfo['color'] }}; border: 1px solid {{ $sourceInfo['border_color'] }}; box-shadow: 0 1px 4px rgba(0,0,0,0.2);">
+                                        <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
                                             <span>{{ $sourceInfo['icon'] }}</span>
                                             <span>{{ $sourceInfo['name'] }}</span>
                                         </span>
                                         @if(!empty($record->utm_campaign))
-                                            <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                            <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 500; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
                                                 🎯 {{ $record->utm_campaign }}
                                             </span>
                                         @endif
-                                    </div>
-
-                                    {{-- Ziyaret Sıklığı & Sinyal Geçmişi --}}
-                                    @php $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record); @endphp
-                                    <div style="margin-top: 5px;">
-                                        <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; font-size: 9.5px; font-weight: 800; background: {{ $freqSignal['bg'] }}; color: {{ $freqSignal['color'] }}; border: 1px solid {{ $freqSignal['border'] }};">
-                                            <span>{{ $freqSignal['icon'] }}</span>
+                                        <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
                                             <span>{{ $freqSignal['badge'] }}</span>
-                                            <span style="opacity: 0.85; font-weight: 600;">({{ $freqSignal['label'] }})</span>
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- 2. Bulunduğu Sayfa & İlgilendiği Model --}}
+                        {{-- 2. Bulunduğu Sayfa & Model --}}
                         <div>
-                            @php
-                                $badgeColor = $pageInfo['color'] ?? '#94a3b8';
-                                $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
-                                $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
-                                $badgeIcon = $pageInfo['icon'] ?? '📄';
-                            @endphp
-
-                            {{-- 1. Satır: Mevcut Bulunduğu Sayfa --}}
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);">
-                                    {{ $badgeIcon }}
-                                </div>
-                                <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
-                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 4px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
-                                            {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
-                                        </span>
-                                    </div>
-                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#f8fafc'">
-                                        {{ $title }} ↗
-                                    </a>
-                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {{ $record->current_path }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- 2. Satır: İlgilendiği Ürün (Mevcut bulunduğu sayfanın altındaki satırda) --}}
-                            @if ($interestedProduct)
-                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 10px;">
-                                    @if (!empty($interestedProduct['image']))
-                                        <img src="{{ $interestedProduct['image'] }}" alt="{{ $interestedProduct['name'] }}" style="width: 38px; height: 38px; min-width: 38px; max-width: 38px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(249, 115, 22, 0.4); flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);" />
+                            @if ($product)
+                                @php $price = $product->discount_price ?: $product->price; @endphp
+                                <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 12px;">
+                                    @if ($productImage)
+                                        <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;" />
                                     @else
-                                        <div style="width: 38px; height: 38px; min-width: 38px; max-width: 38px; border-radius: 8px; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.35); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👟</div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
                                         <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; background: rgba(249, 115, 22, 0.15); color: {{ $interestedProduct['badge_color'] ?? '#ff7849' }}; border: 1px solid rgba(249, 115, 22, 0.35);">
-                                                🎯 {{ $interestedProduct['badge'] ?? 'İlgilendiği Ürün' }}
+                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);">
+                                                Model
                                             </span>
-                                            @if (!empty($interestedProduct['price']))
-                                                <span style="font-weight: 800; color: #10b981; font-size: 11px;">
-                                                    {{ number_format($interestedProduct['price'], 2) }} ₺
-                                                </span>
-                                            @endif
                                         </div>
-                                        @if (!empty($interestedProduct['url']))
-                                            <a href="{{ $interestedProduct['url'] }}" target="_blank" style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#f8fafc'">
-                                                {{ $interestedProduct['name'] }} ↗
-                                            </a>
-                                        @else
-                                            <span style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                {{ $interestedProduct['name'] }}
-                                            </span>
-                                        @endif
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f1f5f9'">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                            <span style="font-weight: 700; color: #f8fafc; font-size: 12px;">{{ number_format($price, 2) }} ₺</span>
+                                            <span style="font-size: 9.5px; color: #94a3b8;">İnceliyor</span>
+                                        </div>
                                         @if ($recentDetail)
-                                            <div style="font-size: 9.5px; color: #fcd34d; font-weight: 700; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                🎯 {{ $recentDetail }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @elseif ($isCheckout)
+                                <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 12px;">
+                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                                        🛒
+                                    </div>
+                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                Ödeme Ekranı
+                                            </span>
+                                        </div>
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f1f5f9'">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="font-size: 11px; color: #f8fafc; font-weight: 700; margin-top: 2px;">
+                                            Sepet Tutarı: {{ number_format($record->cart_total, 2) }} ₺ {{ $record->cart_items_count > 0 ? "({$record->cart_items_count} ürün)" : '' }}
+                                        </div>
+                                        @if ($recentDetail)
+                                            <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                🎯 {{ $recentDetail }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="display: flex; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 10px 12px;">
+                                    <div style="width: 44px; height: 44px; min-width: 44px; max-width: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                        {{ $pageInfo['icon'] ?? '📄' }}
+                                    </div>
+                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                {{ $pageInfo['badge'] ?? 'Sayfa' }}
+                                            </span>
+                                        </div>
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.35; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f1f5f9'">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="font-size: 10.5px; color: #64748b; font-family: monospace; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ $record->current_path }}
+                                        </div>
+                                        @if ($recentDetail)
+                                            <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 🎯 {{ $recentDetail }}
                                             </div>
                                         @endif
@@ -539,14 +493,17 @@
                         {{-- 3. Davranış Teşhisi & Niyet --}}
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                                <span style="font-size: 10.5px; font-weight: 900; letter-spacing: 0.05em; color: {{ $color }};">
+                                <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b;">
+                                    Davranış &amp; Niyet
+                                </span>
+                                <span style="font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: {{ $intentBadgeBg }}; color: {{ $intentBadgeColor }}; border: 1px solid {{ $intentBadgeBorder }};">
                                     {{ $intentLabel }}
                                 </span>
                             </div>
-                            <div style="background: rgba(255, 255, 255, 0.08); border-radius: 999px; height: 6px; width: 100%; overflow: hidden; margin-bottom: 6px;">
-                                <div style="background: {{ $gradient }}; width: {{ min(100, max(5, $score)) }}%; height: 100%; border-radius: 999px; transition: width 0.5s ease;"></div>
+                            <div style="background: rgba(255, 255, 255, 0.06); border-radius: 999px; height: 4px; width: 100%; overflow: hidden; margin-bottom: 6px;">
+                                <div style="background: #ff4e00; width: {{ min(100, max(5, $score)) }}%; height: 100%; border-radius: 999px; transition: width 0.3s ease;"></div>
                             </div>
-                            <div style="font-size: 11px; color: #cbd5e1; background: rgba(0, 0, 0, 0.45); border-left: 3px solid {{ $color }}; padding: 6px 10px; border-radius: 6px; line-height: 1.4;">
+                            <div style="font-size: 11px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); padding: 6px 9px; border-radius: 6px; line-height: 1.4;">
                                 {{ $insight }}
                             </div>
                         </div>
@@ -554,26 +511,12 @@
                         {{-- 4. Sepet --}}
                         <div>
                             @if ($record->cart_items_count > 0)
-                                @php
-                                    $firstCartThumb = !empty($cartThumbnails) ? reset($cartThumbnails) : null;
-                                    $cartThumbImg = $firstCartThumb['image'] ?? $record->first_cart_thumbnail_image;
-                                    $cartThumbName = $firstCartThumb['name'] ?? null;
-                                @endphp
-                                <div style="display: flex; align-items: center; gap: 9px;">
-                                    @if ($cartThumbImg)
-                                        <img src="{{ $cartThumbImg }}" alt="Sepetteki Ürün" title="{{ $cartThumbName ?? 'Sepetteki Ürün' }}" style="width: 36px; height: 36px; min-width: 36px; max-width: 36px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); flex-shrink: 0;" />
-                                    @else
-                                        <div style="width: 36px; height: 36px; min-width: 36px; max-width: 36px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">
-                                            🛒
-                                        </div>
-                                    @endif
-                                    <div style="min-width: 0;">
-                                        <div style="font-weight: 800; color: #10b981; font-size: 13.5px; display: flex; align-items: center; gap: 4px;">
-                                            🛒 {{ number_format($record->cart_total, 2) }} ₺
-                                        </div>
-                                        <div style="font-size: 10px; color: #94a3b8; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $cartThumbName }}">
-                                            {{ $record->cart_items_count }} ürün {{ $cartThumbName ? '• ' . $cartThumbName : '' }}
-                                        </div>
+                                <div>
+                                    <div style="font-weight: 700; color: #f8fafc; font-size: 13.5px; display: flex; align-items: center; gap: 5px;">
+                                        🛒 {{ number_format($record->cart_total, 2) }} ₺
+                                    </div>
+                                    <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
+                                        {{ $record->cart_items_count }} ürün sepette
                                     </div>
                                 </div>
                             @else
@@ -585,32 +528,32 @@
                     </div>
 
                     {{-- ALT SATIR: Önerilen Strateji ve Hızlı Butonlar --}}
-                    <div class="av-footer visitor-log-footer">
+                    <div class="av-footer">
                         
                         {{-- SOL: Önerilen Strateji Bilgisi --}}
                         <div class="av-strategy-area">
-                            <span style="font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                                <span style="color: #fbbf24;">⚡</span> Önerilen Strateji:
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                                Öneri:
                             </span>
 
                             @if ($strategy)
-                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; background: rgba(255, 78, 0, 0.16); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.38); flex-shrink: 0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
-                                    ⚡ {{ $strategy['title'] ?? 'Strateji' }}
+                                <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 10.5px; font-weight: 700; background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25); flex-shrink: 0;">
+                                    {{ $strategy['title'] ?? 'Strateji' }}
                                 </span>
 
                                 @if (!empty($strategy['suggested_coupon']))
-                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; font-weight: 700; background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); flex-shrink: 0;">
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 10.5px; font-family: monospace; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.09); flex-shrink: 0;">
                                         🎟️ {{ $strategy['suggested_coupon'] }}
                                     </span>
                                 @endif
 
                                 @if (!empty($strategy['suggested_message']))
-                                    <span style="font-size: 12px; color: #cbd5e1; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px;" title="{{ $strategy['suggested_message'] }}">
+                                    <span style="font-size: 11.5px; color: #94a3b8; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px;" title="{{ $strategy['suggested_message'] }}">
                                         "{{ $strategy['suggested_message'] }}"
                                     </span>
                                 @endif
                             @else
-                                <span style="font-size: 11.5px; color: #64748b; font-style: italic;">
+                                <span style="font-size: 11px; color: #64748b; font-style: italic;">
                                     Sitede gezinmeye devam ediyor, henüz tetikleyici oluşmadı.
                                 </span>
                             @endif
@@ -622,12 +565,10 @@
                                 <button 
                                     type="button" 
                                     wire:click="unblockVisitorById({{ $record->id }})" 
-                                    style="background: #10b981; color: #ffffff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); transition: all 0.2s ease;"
-                                    onmouseover="this.style.background='#059669'"
-                                    onmouseout="this.style.background='#10b981'"
+                                    style="background: #1e293b; color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;"
                                     title="Bu kullanıcının engelini kaldır"
                                 >
-                                    <span>✅</span> Engeli Kaldır
+                                    Engeli Kaldır
                                 </button>
                             @endif
 
@@ -638,19 +579,19 @@
                     </div>
                 </div>
             @empty
-                <div style="padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+                <div style="padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
                     @if (($activeTab ?? 'live') === 'recent')
-                        <div style="font-size: 36px; margin-bottom: 10px;">⏱️</div>
-                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">⏱️</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
                         </div>
                     @else
-                        <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
-                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📡</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 
-                            <button type="button" wire:click="setActiveTab('recent')" style="color: #38bdf8; font-weight: 800; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
+                            <button type="button" wire:click="setActiveTab('recent')" style="color: #ff7849; font-weight: 700; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
                             sekmesine tıklayabilirsiniz.
                         </div>
                     @endif
@@ -686,8 +627,6 @@
                     $pageInfo = $record->page_info ?? [];
                     $product = $record->current_product;
                     $productImage = $record->current_product_image;
-                    $interestedProduct = $record->interested_product_info;
-                    $cartThumbnails = $record->cart_thumbnails;
                     $title = $pageInfo['title'] ?? ($product ? $product->name : ($record->current_title ?: $record->current_path));
                     $url = $record->current_url ?: $record->current_path;
                     $isCheckout = ($pageInfo['type'] ?? '') === 'checkout' || str_contains($record->current_path, 'checkout');
@@ -705,24 +644,15 @@
                     // 3. Davranış Teşhisi Verileri
                     $score = $record->intent_score ?? 15;
                     $insight = $record->behavior_insight ?? 'Sitede genel keşif yapıyor.';
-                    $color = match (true) {
-                        $score >= 80 => '#10b981',
-                        $score >= 60 => '#f59e0b',
-                        $score >= 40 => '#38bdf8',
-                        default => '#94a3b8',
-                    };
-                    $gradient = match (true) {
-                        $score >= 80 => 'linear-gradient(90deg, #10b981, #059669)',
-                        $score >= 60 => 'linear-gradient(90deg, #f59e0b, #d97706)',
-                        $score >= 40 => 'linear-gradient(90deg, #38bdf8, #0284c7)',
-                        default => 'linear-gradient(90deg, #64748b, #475569)',
-                    };
                     $intentLabel = match (true) {
-                        $score >= 80 => '🔥 ÇOK SICAK (%' . $score . ')',
-                        $score >= 60 => '⚡ TEREDDÜTTE (%' . $score . ')',
-                        $score >= 40 => '👀 İLGİLİ (%' . $score . ')',
-                        default => '🔍 KEŞİF (%' . $score . ')',
+                        $score >= 80 => 'Yüksek Niyet (%' . $score . ')',
+                        $score >= 60 => 'Tereddütte (%' . $score . ')',
+                        $score >= 40 => 'İlgili (%' . $score . ')',
+                        default => 'Keşif (%' . $score . ')',
                     };
+                    $intentBadgeColor = $score >= 80 ? '#34d399' : ($score >= 60 ? '#ff7849' : '#94a3b8');
+                    $intentBadgeBg = $score >= 80 ? 'rgba(16, 185, 129, 0.1)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)');
+                    $intentBadgeBorder = $score >= 80 ? 'rgba(16, 185, 129, 0.25)' : ($score >= 60 ? 'rgba(255, 78, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)');
 
                     // 4. Strateji
                     $strategy = $record->recommended_strategy;
@@ -730,7 +660,7 @@
                         $strategy = json_decode($strategy, true);
                     }
 
-                    // 5. Kayıt Aksiyonları (Hızlı Butonlar)
+                    // 5. Kayıt Aksiyonları
                     $activeTable = $table ?? (isset($this) && method_exists($this, 'getTable') ? $this->getTable() : null);
                     $defaultRecordActions = $activeTable ? $activeTable->getRecordActions() : [];
                     $recordActions = array_reduce(
@@ -752,37 +682,37 @@
                     $freqSignal = app(\App\Services\TrafficAnalyticsService::class)->getVisitorFrequencySignal($record);
                 @endphp
 
-                <div wire:key="visitor-grid-{{ $record->id }}" class="av-grid-card" style="{{ $record->is_blocked ? 'border-color: rgba(239, 68, 68, 0.45); box-shadow: 0 0 16px rgba(239, 68, 68, 0.2);' : '' }}">
+                <div wire:key="visitor-grid-{{ $record->id }}" class="av-grid-card" style="{{ $record->is_blocked ? 'border-color: rgba(239, 68, 68, 0.35);' : '' }}">
                     
                     {{-- 1. Kart Başlığı (Avatar, İsim, Durum, Cihaz) --}}
                     <div class="av-grid-header">
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
                             {{-- Avatar + İsim + Rozetler --}}
                             <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                                <div style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: {{ $record->is_blocked ? 'linear-gradient(135deg, #ef4444, #991b1b)' : 'linear-gradient(135deg, #ff4e00, #b45309)' }}; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 15px; flex-shrink: 0; box-shadow: 0 0 12px {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 78, 0, 0.35)' }};">
+                                <div style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.15)' : 'rgba(30, 41, 59, 0.9)' }}; border: 1px solid {{ $record->is_blocked ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.1)' }}; display: flex; align-items: center; justify-content: center; font-weight: 700; color: {{ $record->is_blocked ? '#f87171' : '#f1f5f9' }}; font-size: 14px; flex-shrink: 0;">
                                     {{ $record->is_blocked ? '⛔' : $initial }}
                                 </div>
                                 <div style="min-width: 0; flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                                        <span style="font-weight: 800; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">
+                                        <span style="font-weight: 700; color: #f8fafc; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">
                                             {{ $name }}
                                         </span>
                                         {!! $record->stars_html !!}
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 5px; margin-top: 2px; flex-wrap: wrap;">
                                         @if ($record->is_blocked)
-                                            <span style="background: rgba(239, 68, 68, 0.25); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); padding: 0.5px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800;">
-                                                🚫 ENGELLENDİ
+                                            <span style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.25); padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 700;">
+                                                ENGELLENDİ
                                             </span>
                                         @elseif ($isMember)
-                                            <span style="background: rgba(16, 185, 129, 0.25); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.5px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800;">
+                                            <span style="background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25); padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 700;">
                                                 MÜŞTERİ
                                             </span>
                                         @elseif ($hasCustomName)
-                                            <span style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.5px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800;">
+                                            <span style="background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08); padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 600;">
                                                 MİSAFİR
                                             </span>
-                                            <span title="Kalıcı Misafir ID: #{{ $record->guest_id }}" style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.5px 4px; border-radius: 3px; font-size: 9px; font-family: monospace; font-weight: 700;">
+                                            <span title="Kalıcı Misafir ID: #{{ $record->guest_id }}" style="color: #64748b; font-family: monospace; font-size: 9px;">
                                                 #{{ $record->guest_id }}
                                             </span>
                                         @endif
@@ -793,12 +723,12 @@
                             {{-- Sağ: Canlı / Ayrıldı Rozeti --}}
                             <div>
                                 @if ($isOnline)
-                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);">
-                                        <span class="live-radar-dot" style="width: 6px; height: 6px;"></span> CANLI
+                                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">
+                                        <span style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span> CANLI
                                     </span>
                                 @else
-                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
-                                        AYRILDI ({{ $diff }})
+                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                        Ayrıldı ({{ $diff }})
                                     </span>
                                 @endif
                             </div>
@@ -806,37 +736,36 @@
 
                         {{-- İletişim & Cihaz & Ziyaret Bilgisi --}}
                         @if($phone || $email)
-                            <div style="font-size: 10.5px; color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; flex-wrap: wrap;">
+                            <div style="font-size: 10.5px; color: #cbd5e1; font-weight: 500; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; flex-wrap: wrap;">
                                 @if($phone) <span>📱 {{ $phone }}</span> @endif
-                                @if($phone && $email) <span style="color: #64748b;">•</span> @endif
+                                @if($phone && $email) <span style="color: #475569;">•</span> @endif
                                 @if($email) <span style="color: #94a3b8;">✉️ {{ $email }}</span> @endif
                             </div>
                         @endif
 
-                        <div style="font-size: 10.5px; color: #94a3b8; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
+                        <div style="font-size: 10.5px; color: #64748b; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <span>{{ $deviceIcon }} {{ $record->browser ?? 'Tarayıcı' }}</span>
-                                <span style="color: #64748b;">•</span>
-                                <span style="font-family: monospace; color: #64748b;">{{ $record->ip_address }}</span>
+                                <span>•</span>
+                                <span style="font-family: monospace;">{{ $record->ip_address }}</span>
                             </div>
-                            <div style="color: #64748b; font-size: 10px;">
+                            <div style="font-size: 10px;">
                                 ⏱️ {{ $duration }} ({{ $pageCount }}. sayfa)
                             </div>
                         </div>
 
-                        {{-- Kaynak & Frekans Rozetleri --}}
+                        {{-- Kaynak & Frekans Rozetleri (Muted Slate) --}}
                         <div style="margin-top: 6px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                            <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 3.5px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; background: {{ $sourceInfo['bg_color'] }}; color: {{ $sourceInfo['color'] }}; border: 1px solid {{ $sourceInfo['border_color'] }};">
+                            <span title="{{ $sourceInfo['detail'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9.5px; font-weight: 600; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
                                 <span>{{ $sourceInfo['icon'] }}</span>
                                 <span>{{ $sourceInfo['name'] }}</span>
                             </span>
                             @if(!empty($record->utm_campaign))
-                                <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 5px; font-size: 9px; font-weight: 700; background: rgba(255, 255, 255, 0.06); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                <span title="Kampanya: {{ $record->utm_campaign }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 500; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
                                     🎯 {{ $record->utm_campaign }}
                                 </span>
                             @endif
-                            <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; background: {{ $freqSignal['bg'] }}; color: {{ $freqSignal['color'] }}; border: 1px solid {{ $freqSignal['border'] }};">
-                                <span>{{ $freqSignal['icon'] }}</span>
+                            <span title="{{ $freqSignal['label'] }}" style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 600; background: rgba(255, 255, 255, 0.04); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.07);">
                                 <span>{{ $freqSignal['badge'] }}</span>
                             </span>
                         </div>
@@ -845,68 +774,77 @@
                     {{-- 2. Kart Gövdesi (Bulunduğu Sayfa, Niyet, Sepet) --}}
                     <div class="av-grid-body">
                         
-                        {{-- Bulunduğu Sayfa & İlgilendiği Ürün Kutusu --}}
+                        {{-- Bulunduğu Sayfa & Model Kutusu --}}
                         <div class="av-grid-section-box">
-                            @php
-                                $badgeColor = $pageInfo['color'] ?? '#94a3b8';
-                                $badgeBg = $pageInfo['bg_color'] ?? 'rgba(255, 255, 255, 0.05)';
-                                $badgeBorder = $pageInfo['border_color'] ?? 'rgba(255, 255, 255, 0.1)';
-                                $badgeIcon = $pageInfo['icon'] ?? '📄';
-                            @endphp
-
-                            {{-- 1. Satır: Mevcut Bulunduğu Sayfa --}}
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; background: {{ $badgeBg }}; border: 1px solid {{ $badgeBorder }}; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);">
-                                    {{ $badgeIcon }}
-                                </div>
-                                <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                    <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                        <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 800; text-transform: uppercase; background: {{ $badgeBg }}; color: {{ $badgeColor }}; border: 1px solid {{ $badgeBorder }};">
-                                            {{ $badgeIcon }} {{ $pageInfo['badge'] ?? 'Sayfa' }}
-                                        </span>
-                                    </div>
-                                    <a href="{{ $url }}" target="_blank" style="font-weight: 800; color: #f8fafc; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#f8fafc'">
-                                        {{ $title }} ↗
-                                    </a>
-                                    <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {{ $record->current_path }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- 2. Satır: İlgilendiği Ürün (Mevcut bulunduğu sayfanın altındaki satırda) --}}
-                            @if ($interestedProduct)
-                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 10px;">
-                                    @if (!empty($interestedProduct['image']))
-                                        <img src="{{ $interestedProduct['image'] }}" alt="{{ $interestedProduct['name'] }}" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 9px; object-fit: cover; border: 1px solid rgba(249, 115, 22, 0.4); flex-shrink: 0; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);" />
+                            @if ($product)
+                                @php $price = $product->discount_price ?: $product->price; @endphp
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    @if ($productImage)
+                                        <img src="{{ $productImage }}" alt="{{ $title }}" style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;" />
                                     @else
-                                        <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 9px; background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.35); display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">👟</div>
+                                        <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">👟</div>
                                     @endif
                                     <div style="overflow: hidden; flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 2px;">
-                                            <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; background: rgba(249, 115, 22, 0.15); color: {{ $interestedProduct['badge_color'] ?? '#ff7849' }}; border: 1px solid rgba(249, 115, 22, 0.35);">
-                                                🎯 {{ $interestedProduct['badge'] ?? 'İlgilendiği Ürün' }}
+                                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);">
+                                                Model
                                             </span>
-                                            @if (!empty($interestedProduct['price']))
-                                                <span style="font-weight: 800; color: #10b981; font-size: 11px;">
-                                                    {{ number_format($interestedProduct['price'], 2) }} ₺
-                                                </span>
-                                            @endif
                                         </div>
-                                        @if (!empty($interestedProduct['url']))
-                                            <a href="{{ $interestedProduct['url'] }}" target="_blank" style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#f97316'" onmouseout="this.style.color='#f8fafc'">
-                                                {{ $interestedProduct['name'] }} ↗
-                                            </a>
-                                        @else
-                                            <span style="font-weight: 700; color: #f8fafc; font-size: 11.5px; line-height: 1.25; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                {{ $interestedProduct['name'] }}
-                                            </span>
-                                        @endif
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f1f5f9'">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                            <span style="font-weight: 700; color: #f8fafc; font-size: 11.5px;">{{ number_format($price, 2) }} ₺</span>
+                                            <span style="font-size: 9.5px; color: #94a3b8;">İnceliyor</span>
+                                        </div>
                                         @if ($recentDetail)
-                                            <div style="font-size: 9.5px; color: #fcd34d; font-weight: 700; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            <div style="font-size: 10px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 🎯 {{ $recentDetail }}
                                             </div>
                                         @endif
+                                    </div>
+                                </div>
+                            @elseif ($isCheckout)
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                                        🛒
+                                    </div>
+                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                Ödeme Ekranı
+                                            </span>
+                                        </div>
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;" onmouseover="this.style.color='#ff7849'" onmouseout="this.style.color='#f1f5f9'">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="font-size: 11px; color: #f8fafc; font-weight: 700; margin-top: 2px;">
+                                            Sepet Tutarı: {{ number_format($record->cart_total, 2) }} ₺
+                                        </div>
+                                        @if ($recentDetail)
+                                            <div style="font-size: 10px; color: #94a3b8; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                🎯 {{ $recentDetail }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 40px; height: 40px; min-width: 40px; max-width: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                        {{ $pageInfo['icon'] ?? '📄' }}
+                                    </div>
+                                    <div style="overflow: hidden; flex: 1; min-width: 0;">
+                                        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                                            <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1px 5px; border-radius: 4px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                {{ $pageInfo['badge'] ?? 'Sayfa' }}
+                                            </span>
+                                        </div>
+                                        <a href="{{ $url }}" target="_blank" style="font-weight: 700; color: #f1f5f9; font-size: 12px; line-height: 1.3; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none;">
+                                            {{ $title }} ↗
+                                        </a>
+                                        <div style="font-size: 10px; color: #64748b; font-family: monospace; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ $record->current_path }}
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -915,57 +853,30 @@
                         {{-- Davranış Teşhisi & Niyet Çubuğu --}}
                         <div>
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="font-size: 10px; font-weight: 900; letter-spacing: 0.04em; color: {{ $color }};">
+                                <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b;">
+                                    Davranış &amp; Niyet
+                                </span>
+                                <span style="font-size: 9.5px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: {{ $intentBadgeBg }}; color: {{ $intentBadgeColor }}; border: 1px solid {{ $intentBadgeBorder }};">
                                     {{ $intentLabel }}
                                 </span>
                             </div>
-                            <div style="background: rgba(255, 255, 255, 0.08); border-radius: 999px; height: 5px; width: 100%; overflow: hidden; margin-bottom: 6px;">
-                                <div style="background: {{ $gradient }}; width: {{ min(100, max(5, $score)) }}%; height: 100%; border-radius: 999px; transition: width 0.5s ease;"></div>
+                            <div style="background: rgba(255, 255, 255, 0.06); border-radius: 999px; height: 4px; width: 100%; overflow: hidden; margin-bottom: 5px;">
+                                <div style="background: #ff4e00; width: {{ min(100, max(5, $score)) }}%; height: 100%; border-radius: 999px; transition: width 0.3s ease;"></div>
                             </div>
-                            <div style="font-size: 10.5px; color: #cbd5e1; background: rgba(0, 0, 0, 0.45); border-left: 3px solid {{ $color }}; padding: 5px 8px; border-radius: 4px; line-height: 1.35;">
+                            <div style="font-size: 10.5px; color: #94a3b8; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); padding: 5px 8px; border-radius: 5px; line-height: 1.35;">
                                 {{ $insight }}
                             </div>
                         </div>
 
                         {{-- Sepet Bilgisi --}}
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.06); gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1;">
-                                @if ($record->cart_items_count > 0)
-                                    @php
-                                        $firstCartThumb = !empty($cartThumbnails) ? reset($cartThumbnails) : null;
-                                        $cartThumbImg = $firstCartThumb['image'] ?? $record->first_cart_thumbnail_image;
-                                        $cartThumbName = $firstCartThumb['name'] ?? null;
-                                    @endphp
-                                    @if ($cartThumbImg)
-                                        <img src="{{ $cartThumbImg }}" alt="Sepetteki Ürün" title="{{ $cartThumbName ?? 'Sepetteki Ürün' }}" style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); flex-shrink: 0;" />
-                                    @else
-                                        <div style="width: 28px; height: 28px; min-width: 28px; max-width: 28px; border-radius: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;">
-                                            🛒
-                                        </div>
-                                    @endif
-                                    <div style="min-width: 0; overflow: hidden;">
-                                        <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.03em;">Sepet Durumu</div>
-                                        @if ($cartThumbName)
-                                            <div style="font-size: 10px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;" title="{{ $cartThumbName }}">
-                                                {{ $cartThumbName }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                @else
-                                    <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">Sepet Durumu:</span>
-                                    <span style="font-size: 10.5px; color: #64748b;">Sepet Boş</span>
-                                @endif
-                            </div>
-
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Sepet:</span>
                             @if ($record->cart_items_count > 0)
-                                <div style="text-align: right; flex-shrink: 0;">
-                                    <div style="font-weight: 800; color: #10b981; font-size: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 3px;">
-                                        🛒 {{ number_format($record->cart_total, 2) }} ₺
-                                    </div>
-                                    <div style="font-size: 9px; color: #94a3b8; font-weight: 600;">
-                                        ({{ $record->cart_items_count }} ürün)
-                                    </div>
+                                <div style="font-weight: 700; color: #f8fafc; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                    🛒 {{ number_format($record->cart_total, 2) }} ₺ <span style="font-size: 9.5px; color: #94a3b8; font-weight: 500;">({{ $record->cart_items_count }} ürün)</span>
                                 </div>
+                            @else
+                                <span style="font-size: 10.5px; color: #64748b;">Sepet Boş</span>
                             @endif
                         </div>
                     </div>
@@ -973,26 +884,26 @@
                     {{-- 3. Kart Altı (Strateji + Aksiyon Butonları) --}}
                     <div class="av-grid-footer">
                         {{-- Strateji Bilgisi --}}
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                <span style="font-size: 9.5px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">
-                                    <span style="color: #fbbf24;">⚡</span> Öneri:
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                <span style="font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">
+                                    Öneri:
                                 </span>
                                 @if ($strategy)
-                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; background: rgba(255, 78, 0, 0.16); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.38);">
+                                    <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1.5px 6px; border-radius: 4px; font-size: 9.5px; font-weight: 700; background: rgba(255, 78, 0, 0.1); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);">
                                         {{ $strategy['title'] ?? 'Strateji' }}
                                     </span>
                                     @if (!empty($strategy['suggested_coupon']))
-                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1.5px 6px; border-radius: 5px; font-size: 9.5px; font-family: monospace; font-weight: 700; background: rgba(16, 185, 129, 0.16); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                        <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 4px; font-size: 9.5px; font-family: monospace; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.08);">
                                             🎟️ {{ $strategy['suggested_coupon'] }}
                                         </span>
                                     @endif
                                 @else
-                                    <span style="font-size: 10.5px; color: #64748b; font-style: italic;">Henüz tetikleyici yok</span>
+                                    <span style="font-size: 10px; color: #64748b; font-style: italic;">Henüz tetikleyici yok</span>
                                 @endif
                             </div>
                             @if (!empty($strategy['suggested_message']))
-                                <div style="font-size: 10.5px; color: #94a3b8; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $strategy['suggested_message'] }}">
+                                <div style="font-size: 10px; color: #94a3b8; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $strategy['suggested_message'] }}">
                                     "{{ $strategy['suggested_message'] }}"
                                 </div>
                             @endif
@@ -1004,10 +915,10 @@
                                 <button 
                                     type="button" 
                                     wire:click="unblockVisitorById({{ $record->id }})" 
-                                    style="background: #10b981; color: #ffffff; border: none; border-radius: 7px; padding: 5px 8px; font-size: 10.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; white-space: nowrap;"
+                                    style="background: #1e293b; color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; padding: 5px 8px; font-size: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; white-space: nowrap;"
                                     title="Bu kullanıcının engelini kaldır"
                                 >
-                                    <span>✅</span> Engeli Aç
+                                    Engeli Aç
                                 </button>
                             @endif
 
@@ -1018,19 +929,19 @@
                     </div>
                 </div>
             @empty
-                <div style="grid-column: 1 / -1; padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+                <div style="grid-column: 1 / -1; padding: 40px 20px; text-align: center; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px;">
                     @if (($activeTab ?? 'live') === 'recent')
-                        <div style="font-size: 36px; margin-bottom: 10px;">⏱️</div>
-                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">⏱️</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Son Ziyaret Eden Kaydı Bulunmuyor</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Siteden ayrılan geçmiş ziyaretçilerin oturum ve sepet sinyalleri burada listelenir.
                         </div>
                     @else
-                        <div style="font-size: 36px; margin-bottom: 10px;">📡</div>
-                        <div style="font-size: 16px; font-weight: 800; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.45;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📡</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Şu An Sitede Canlı Ziyaretçi Yok</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 4px; max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.45;">
                             Kullanıcılar siteye girdiğinde canlı sinyaller anında burada listelenir. Geçmişte ayrılan ziyaretçileri incelemek için 
-                            <button type="button" wire:click="setActiveTab('recent')" style="color: #38bdf8; font-weight: 800; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
+                            <button type="button" wire:click="setActiveTab('recent')" style="color: #ff7849; font-weight: 700; text-decoration: underline; background: none; border: none; cursor: pointer; padding: 0;">Son Ziyaret Edenler</button> 
                             sekmesine tıklayabilirsiniz.
                         </div>
                     @endif
