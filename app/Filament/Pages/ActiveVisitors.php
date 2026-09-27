@@ -1406,6 +1406,18 @@ class ActiveVisitors extends Page implements HasTable
      */
     public static function resolveRedirectUrl(array $data): string
     {
+        if (!empty($data['quick_target'])) {
+            return self::normalizeUrl($data['quick_target']);
+        }
+
+        if (!empty($data['bulk_target'])) {
+            return self::normalizeUrl($data['bulk_target']);
+        }
+
+        if (!empty($data['target_url'])) {
+            return self::normalizeUrl($data['target_url']);
+        }
+
         $channel = $data['channel'] ?? 'whatsapp';
 
         switch ($channel) {

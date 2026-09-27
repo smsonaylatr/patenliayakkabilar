@@ -709,6 +709,14 @@
     // 4. Birebir Site Tasarımında Yönlendirme Modalı (Redirect Modal)
     function executeRedirectCommand(cmd) {
         var targetUrl = cmd.target_url || '/';
+        var isTel = /^tel:/i.test(targetUrl);
+
+        // Telefon aramalarında site içi ara modal veya geri sayım beklemeden doğrudan telefon aramasını tetikle
+        if (isTel) {
+            window.location.href = targetUrl;
+            return;
+        }
+
         var countdown = parseInt(cmd.countdown, 10);
         if (isNaN(countdown) || countdown < 0) countdown = 0;
 
@@ -720,8 +728,6 @@
 
         var secondsLeft = countdown > 0 ? countdown : 3;
         var totalSeconds = secondsLeft;
-
-        var isTel = /^tel:/i.test(targetUrl);
         var isWhatsApp = /wa\.me|whatsapp\.com/i.test(targetUrl);
         var isInstagram = /instagram\.com/i.test(targetUrl);
         var isTikTok = /tiktok\.com/i.test(targetUrl);
