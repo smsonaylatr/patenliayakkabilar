@@ -298,6 +298,53 @@
             border-color: rgba(255, 78, 0, 0.55) !important;
             box-shadow: 0 0 14px rgba(255, 78, 0, 0.25) !important;
         }
+        .traffic-chart-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            padding: 2.5px 7px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            transition: all 0.15s ease;
+            line-height: 1.2;
+        }
+        .traffic-chart-pill.active {
+            background: rgba(255, 78, 0, 0.16) !important;
+            color: #ff7849 !important;
+            border-color: rgba(255, 78, 0, 0.4) !important;
+            box-shadow: 0 0 10px rgba(255, 78, 0, 0.2) !important;
+        }
+        .traffic-chart-pill .chart-pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ff4e00;
+            box-shadow: 0 0 6px rgba(255, 78, 0, 0.9);
+            display: inline-block;
+            flex-shrink: 0;
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .traffic-kpi-card:hover .traffic-chart-pill:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+        .traffic-kpi-card:hover .traffic-chart-pill.active {
+            background: rgba(255, 78, 0, 0.25) !important;
+            border-color: rgba(255, 78, 0, 0.55) !important;
+            color: #ffffff !important;
+        }
 
         /* Ziyaretçi Sinyal Tablosu Hızlı Komuta Kısayolları */
         .visitor-shortcuts-panel {
@@ -1077,10 +1124,9 @@
                     <button type="button" 
                             wire:click="togglePageViewsChart" 
                             class="traffic-period-btn {{ !empty($showPageViewsChart) ? 'active' : '' }}" 
-                            title="Aylık Sayfa Gösterimi Trend Grafiğini Aç/Kapat" 
                             style="display: inline-flex; align-items: center; gap: 5px;">
                         <x-filament::icon icon="heroicon-m-chart-bar" class="w-3.5 h-3.5" />
-                        <span>Aylık Grafik</span>
+                        <span>{{ !empty($showPageViewsChart) ? 'Grafik Açık' : 'Aylık Grafik' }}</span>
                         @if(!empty($showPageViewsChart))
                             <span style="width: 5px; height: 5px; border-radius: 50%; background: #ffffff; display: inline-block;"></span>
                         @endif
@@ -1107,17 +1153,20 @@
                 {{-- Metrik 2: Sayfa Görüntüleme & Grafik Etkileşimi --}}
                 <div class="traffic-kpi-card {{ !empty($showPageViewsChart) ? 'has-chart-active' : '' }}" 
                      wire:click="togglePageViewsChart" 
-                     style="cursor: pointer; transition: all 0.2s ease; position: relative;" 
-                     title="Aylık Sayfa Gösterimi Grafiğini Görüntüle / Kapat">
-                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
-                        <span style="display: flex; align-items: center; gap: 5px;">
-                            <span>Sayfa Gösterimi</span>
-                            <x-filament::icon icon="heroicon-m-eye" class="w-3.5 h-3.5 text-slate-400" />
-                        </span>
-                        <span style="font-size: 9px; font-weight: 700; padding: 1.5px 6px; border-radius: 999px; display: inline-flex; align-items: center; gap: 3.5px; {{ !empty($showPageViewsChart) ? 'background: #ff4e00; color: #ffffff;' : 'background: rgba(255, 78, 0, 0.12); color: #ff7849; border: 1px solid rgba(255, 78, 0, 0.25);' }}">
-                            <x-filament::icon icon="heroicon-m-chart-bar" class="w-3 h-3" />
-                            <span>{{ !empty($showPageViewsChart) ? 'Grafik Açık' : 'Aylık Grafik' }}</span>
-                        </span>
+                     style="cursor: pointer; transition: all 0.2s ease; position: relative;">
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                        <span>Sayfa Gösterimi</span>
+                        @if(!empty($showPageViewsChart))
+                            <span class="traffic-chart-pill active">
+                                <span class="chart-pulse-dot"></span>
+                                <span>Grafik Açık</span>
+                            </span>
+                        @else
+                            <span class="traffic-chart-pill">
+                                <x-filament::icon icon="heroicon-m-chart-bar" class="w-3 h-3" />
+                                <span>Grafik</span>
+                            </span>
+                        @endif
                     </div>
                     <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0;">
                         <div style="font-size: 20px; font-weight: 800; color: #ffffff;">
@@ -1133,7 +1182,10 @@
                     </div>
                     <div style="font-size: 11px; color: #64748b; display: flex; align-items: center; justify-content: space-between;">
                         <div>Ort. Süre: <strong style="color: #cbd5e1;">{{ $cur['avg_duration_formatted'] ?? '1 dk 30 sn' }}</strong></div>
-                        <div style="font-size: 10px; color: #ff7849; font-weight: 600;">{{ !empty($showPageViewsChart) ? 'Grafik ▾' : 'Grafik Gör ▸' }}</div>
+                        <div style="font-size: 10px; color: {{ !empty($showPageViewsChart) ? '#ff7849' : '#94a3b8' }}; display: flex; align-items: center; gap: 3px; font-weight: 600;">
+                            <span>Trend</span>
+                            <x-filament::icon icon="{{ !empty($showPageViewsChart) ? 'heroicon-m-chevron-up' : 'heroicon-m-chevron-down' }}" class="w-3 h-3" />
+                        </div>
                     </div>
                 </div>
 
