@@ -997,9 +997,9 @@ class ActiveVisitorTest extends TestCase
         \Livewire\Livewire::actingAs($admin)
             ->test(\App\Filament\Pages\ActiveVisitors::class)
             ->assertSuccessful()
-            ->assertSee('Aylık Grafik', false)
+            ->assertSee('Grafik Açık', false)
             ->assertSee('Aylık Sayfa Gösterimi Trend & Dağılım Grafiği', false)
-            ->assertSee('monthlyPageViewsCanvas', false)
+            ->assertSee('traffic-svg-chart-container', false)
             ->assertSet('showPageViewsChart', true)
             ->call('togglePageViewsChart')
             ->assertSet('showPageViewsChart', false)
@@ -1781,6 +1781,61 @@ class ActiveVisitorTest extends TestCase
 
         $this->assertEquals('1', \App\Filament\Pages\ActiveVisitors::getNavigationBadge());
         $this->assertEquals('1', \App\Filament\Pages\RecentVisitors::getNavigationBadge());
+    }
+
+    public function test_active_visitor_phone_accessors_and_whatsapp_smart_url_generation(): void
+    {
+        $visitor = ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_wa_' . uniqid(),
+            'guest_name' => 'Burak Yılmaz',
+            'guest_phone' => '0532 555 12 34',
+            'current_url' => 'https://patenliayakkabilar.com/urun/alessio-roller',
+            'current_path' => '/urun/alessio-roller',
+            'visit_count' => 3,
+            'cart_items_count' => 2,
+            'cart_total' => 1490.00,
+            'last_heartbeat_at' => now(),
+        ]);
+
+        $this->assertEquals('0532 555 12 34', $visitor->contact_phone);
+        $this->assertEquals('0532 555 12 34', $visitor->formatted_phone);
+        $this->assertEquals('905325551234', $visitor->clean_whatsapp_phone);
+
+        $msg = $visitor->getSmartWhatsappMarketingMessage();
+        $this->assertStringContainsString('Burak Yılmaz', $msg);
+        $this->assertStringContainsString('SADIK10', $msg);
+
+        $url = $visitor->getSmartWhatsappUrl();
+        $this->assertNotNull($url);
+        $this->assertStringStartsWith('https://wa.me/905325551234?text=', $url);
+    }
+
+    public function test_customer_segments_page_renders_whatsapp_ready_tab_and_campaign_action(): void
+    {
+        $admin = \App\Models\User::factory()->create([
+            'email' => 'seg_wa_admin_' . uniqid() . '@patenliayakkabilar.com',
+        ]);
+
+        ActiveVisitor::create([
+            'visitor_token' => 'pa_vt_seg_wa_' . uniqid(),
+            'guest_name' => 'Elif Demir',
+            'guest_phone' => '0544 111 22 33',
+            'current_url' => 'https://patenliayakkabilar.com/',
+            'current_path' => '/',
+            'visit_count' => 3,
+            'cart_items_count' => 1,
+            'cart_total' => 899.00,
+            'last_heartbeat_at' => now(),
+        ]);
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\Segments\Pages\ListSegments::class)
+            ->assertSuccessful()
+            ->assertSee('WhatsApp İletişim')
+            ->assertSee('WhatsApp Pazarlama Kampanyası')
+            ->assertSee('Elif Demir')
+            ->assertSee('0544 111 22 33')
+            ->assertSee('https://wa.me/905441112233', false);
     }
 }
 

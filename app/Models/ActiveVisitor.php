@@ -170,6 +170,102 @@ class ActiveVisitor extends Model
         return "Misafir #{$this->guest_id}";
     }
 
+    /**
+     * Ziyaretçinin iletişim telefonunu döndürür (User veya misafir).
+     */
+    public function getContactPhoneAttribute(): ?string
+    {
+        return $this->user?->phone ?: $this->guest_phone;
+    }
+
+    /**
+     * Telefonu okunabilir formatta döndürür (Örn: 0532 123 45 67)
+     */
+    public function getFormattedPhoneAttribute(): ?string
+    {
+        $phone = $this->contact_phone;
+        if (!$phone) {
+            return null;
+        }
+
+        $digits = preg_replace('/[^0-9]/', '', (string) $phone);
+        if (str_starts_with($digits, '90') && strlen($digits) === 12) {
+            $digits = '0' . substr($digits, 2);
+        } elseif (strlen($digits) === 10 && str_starts_with($digits, '5')) {
+            $digits = '0' . $digits;
+        }
+
+        if (strlen($digits) === 11) {
+            return substr($digits, 0, 4) . ' ' . substr($digits, 4, 3) . ' ' . substr($digits, 7, 2) . ' ' . substr($digits, 9, 2);
+        }
+
+        return $phone;
+    }
+
+    /**
+     * WhatsApp için temiz uluslararası telefon formatı (905xxxxxxxxx)
+     */
+    public function getCleanWhatsappPhoneAttribute(): ?string
+    {
+        $phone = $this->contact_phone;
+        if (!$phone) {
+            return null;
+        }
+
+        $digits = preg_replace('/[^0-9]/', '', (string) $phone);
+        if (str_starts_with($digits, '0')) {
+            return '90' . substr($digits, 1);
+        }
+        if (!str_starts_with($digits, '90')) {
+            return '90' . $digits;
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Ziyaretçinin durumuna göre kişiselleştirilmiş akıllı WhatsApp pazarlama mesajı üretir.
+     */
+    public function getSmartWhatsappMarketingMessage(string $template = 'auto', ?string $customCoupon = 'SADIK10'): string
+    {
+        $name = $this->user_id && $this->user ? $this->user->name : ($this->guest_name ?: 'Değerli Müşterimiz');
+        $siteUrl = rtrim(config('app.url', 'https://patenliayakkabilar.com'), '/');
+        $coupon = $customCoupon ?: 'SADIK10';
+        $cartCount = (int) ($this->cart_items_count ?? 0);
+        $interested = $this->interested_product_info;
+        $productName = $interested['name'] ?? null;
+        $visitCount = (int) ($this->visit_count ?: 1);
+
+        if ($template === 'cart' || ($template === 'auto' && $cartCount > 0)) {
+            $prodStr = $productName ? " ({$productName})" : "";
+            return "Merhaba {$name}, Patenli Ayakkabılar sepetinizde bekleyen {$cartCount} ürününüz{$prodStr} için size özel %10 indirim kuponunuz tanımlandı: *{$coupon}*\n\nSiparişinizi buradan tek tıkla tamamlayabilirsiniz: {$siteUrl}/sepet?utm_source=whatsapp&utm_medium=chat&utm_campaign=sepet_firsat\n\nBeden veya ürün detaylarıyla ilgili yardımcı olabileceğimiz bir konu var mı? ⛸️";
+        }
+
+        if ($template === 'product' || ($template === 'auto' && $productName)) {
+            return "Merhaba {$name}, Patenli Ayakkabılar mağazamızda incelediğiniz *{$productName}* modelimiz hakkında yardımcı olmak isteriz! ⛸️\n\nDoğru numara seçimi, tekerlek mekanizması veya aynı gün kargo avantajlarımız hakkında merak ettiğiniz bir detay var mı? Size özel *{$coupon}* koduyla %10 indirim tanımlayabiliriz.";
+        }
+
+        if ($template === 'vip' || ($template === 'auto' && $visitCount >= 2)) {
+            return "Merhaba {$name}, Patenli Ayakkabılar mağazamızı tekrar ziyaret ettiğiniz için teşekkür ederiz! ⭐\n\nSizi aramızda görmekten çok mutluyuz. Ziyaretinize özel *VIP15* kupon koduyla tüm patenli ayakkabılarda anında %15 indirim kazandınız!\n\nModelleri incelemek ve sipariş vermek için: {$siteUrl}/?utm_source=whatsapp&utm_medium=chat&utm_campaign=vip_ziyaretci";
+        }
+
+        return "Merhaba {$name}, Patenli Ayakkabılar destek ekibinden yazıyoruz. Beğendiğiniz patenli ayakkabı modelleri, ayak numarası seçimi ve sipariş süreciyle ilgili size yardımcı olmaktan memnuniyet duyarız. Aklınıza takılan bir konu var mı? ⛸️";
+    }
+
+    /**
+     * Akıllı WhatsApp bağlantı URL'sini üretir.
+     */
+    public function getSmartWhatsappUrl(string $template = 'auto', ?string $customCoupon = 'SADIK10'): ?string
+    {
+        $phone = $this->clean_whatsapp_phone;
+        if (!$phone) {
+            return null;
+        }
+
+        $message = $this->getSmartWhatsappMarketingMessage($template, $customCoupon);
+        return 'https://wa.me/' . $phone . '?text=' . urlencode($message);
+    }
+
     public function getDurationFormattedAttribute(): string
     {
         $seconds = abs((int) ($this->time_spent_seconds ?: 0));

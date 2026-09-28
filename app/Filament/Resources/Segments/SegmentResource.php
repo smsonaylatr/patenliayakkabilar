@@ -5,11 +5,13 @@ namespace App\Filament\Resources\Segments;
 use App\Filament\Resources\Segments\Pages\ListSegments;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\ActiveVisitor;
+use App\Models\Coupon;
 use App\Services\TrafficAnalyticsService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -66,7 +68,9 @@ class SegmentResource extends Resource
                         $guestId = e($record->guest_id);
                         $visitCount = (int) ($record->visit_count ?: 1);
 
-                        $phone = $record->user?->phone ?? $record->guest_phone;
+                        $formattedPhone = $record->formatted_phone ?: ($record->user?->phone ?? $record->guest_phone);
+                        $cleanWaPhone = $record->clean_whatsapp_phone;
+                        $waUrl = $cleanWaPhone ? $record->getSmartWhatsappUrl() : null;
                         $email = $record->user?->email ?? $record->guest_email;
 
                         $badgeHtml = '';
@@ -78,11 +82,17 @@ class SegmentResource extends Resource
 
                         $visitBadge = '<span style="display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;' . ($visitCount >= 3 ? 'background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);' : 'background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);') . '">' . $visitCount . '. Gelişi</span>';
 
+                        $waButtonHtml = '';
+                        if ($waUrl) {
+                            $waButtonHtml = '<a href="' . e($waUrl) . '" target="_blank" title="WhatsApp ile hemen sohbet başlat" style="display:inline-flex;align-items:center;gap:3px;background:#22c55e;color:#ffffff;padding:1.5px 6px;border-radius:4px;font-size:9.5px;font-weight:700;text-decoration:none;box-shadow:0 1px 3px rgba(34,197,94,0.35);transition:all 0.15s ease;" onmouseover="this.style.background=\'#16a34a\'" onmouseout="this.style.background=\'#22c55e\'"><svg style="width:10px;height:10px;fill:currentColor;" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg><span>WhatsApp</span></a>';
+                        }
+
                         $contactHtml = '';
-                        if ($phone || $email) {
-                            $contactHtml = '<div style="font-size:11px;color:#cbd5e1;font-weight:500;display:flex;align-items:center;gap:6px;margin-top:3px;">'
-                                . ($phone ? '<span style="color:#38bdf8;font-weight:600;">📱 ' . e($phone) . '</span>' : '')
-                                . ($phone && $email ? '<span>•</span>' : '')
+                        if ($formattedPhone || $email) {
+                            $contactHtml = '<div style="font-size:11px;color:#cbd5e1;font-weight:500;display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">'
+                                . ($formattedPhone ? '<span style="color:#38bdf8;font-weight:600;">📱 ' . e($formattedPhone) . '</span>' : '')
+                                . $waButtonHtml
+                                . ($formattedPhone && $email ? '<span>•</span>' : '')
                                 . ($email ? '<span style="color:#94a3b8;">' . e($email) . '</span>' : '')
                                 . '</div>';
                         }
@@ -303,27 +313,124 @@ class SegmentResource extends Resource
                             $query->where('intent_score', '<', 40);
                         }
                     }),
+
+                SelectFilter::make('has_phone')
+                    ->label('💬 WhatsApp / Telefon')
+                    ->options([
+                        'with_phone' => '✅ Telefonu Olanlar (WhatsApp Hazır)',
+                        'no_phone' => '❌ Telefonu Olmayanlar',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $val = $data['value'] ?? null;
+                        if ($val === 'with_phone') {
+                            $query->where(function ($q) {
+                                $q->where(function ($sq) {
+                                    $sq->whereNotNull('guest_phone')->where('guest_phone', '!=', '');
+                                })->orWhereHas('user', function ($uq) {
+                                    $uq->whereNotNull('phone')->where('phone', '!=', '');
+                                });
+                            });
+                        } elseif ($val === 'no_phone') {
+                            $query->where(function ($q) {
+                                $q->where(function ($sq) {
+                                    $sq->whereNull('guest_phone')->orWhere('guest_phone', '');
+                                })->whereDoesntHave('user', function ($uq) {
+                                    $uq->whereNotNull('phone')->where('phone', '!=', '');
+                                });
+                            });
+                        }
+                    }),
             ])
             ->recordActions([
-                // 1. WhatsApp İletişim (Telefonu varsa tek tıkla mesaj aç)
+                // 1. WhatsApp İletişim & Pazarlama Asistanı
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->button()
                     ->size('sm')
                     ->color('success')
                     ->icon('heroicon-o-chat-bubble-left-right')
-                    ->visible(fn (ActiveVisitor $record) => !empty($record->user?->phone ?? $record->guest_phone))
-                    ->url(function (ActiveVisitor $record) {
-                        $phone = preg_replace('/[^0-9]/', '', (string) ($record->user?->phone ?? $record->guest_phone));
-                        if (str_starts_with($phone, '0')) {
-                            $phone = '90' . substr($phone, 1);
-                        } elseif (!str_starts_with($phone, '90')) {
-                            $phone = '90' . $phone;
+                    ->visible(fn (ActiveVisitor $record) => !empty($record->clean_whatsapp_phone))
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->modalHeading(fn (ActiveVisitor $record) => '🟢 WhatsApp Pazarlama: ' . $record->display_name)
+                    ->modalDescription(fn (ActiveVisitor $record) => 'Telefon: ' . ($record->formatted_phone ?: $record->contact_phone) . ' • ' . ($record->visit_count ?: 1) . '. Gelişi • ' . $record->stars_string)
+                    ->modalSubmitActionLabel('💬 WhatsApp Sohbetini Aç ↗')
+                    ->form(function (ActiveVisitor $record) {
+                        $hasCart = ($record->cart_items_count ?? 0) > 0;
+                        $hasProduct = !empty($record->interested_product_info['name']);
+                        $defaultTemplate = $hasCart ? 'cart' : ($hasProduct ? 'product' : 'vip');
+                        $defaultCoupon = $defaultTemplate === 'vip' ? 'VIP15' : 'SADIK10';
+                        $defaultMessage = $record->getSmartWhatsappMarketingMessage($defaultTemplate, $defaultCoupon);
+
+                        return [
+                            \Filament\Forms\Components\Select::make('template')
+                                ->label('Pazarlama Şablonu')
+                                ->native(false)
+                                ->options([
+                                    'cart' => '🛒 Sepet Hatırlatma & %10 Kupon (SADIK10)',
+                                    'product' => '👟 İncelenen Ürün & Beden Danışmanlığı',
+                                    'vip' => '⭐ 2-3 Yıldızlı Sadık Ziyaretçi Sürprizi (%15 VIP)',
+                                    'shipping' => '🚀 Aynı Gün Hızlı Kargo Fırsatı',
+                                    'custom' => '✍️ Serbest Mesaj',
+                                ])
+                                ->default($defaultTemplate)
+                                ->live()
+                                ->afterStateUpdated(function ($state, Set $set, ActiveVisitor $record) {
+                                    $coupon = $state === 'vip' ? 'VIP15' : 'SADIK10';
+                                    $set('coupon_code', $coupon);
+                                    $set('message', $record->getSmartWhatsappMarketingMessage($state, $coupon));
+                                }),
+
+                            \Filament\Forms\Components\TextInput::make('coupon_code')
+                                ->label('Tanımlanacak Kupon Kodu')
+                                ->default($defaultCoupon)
+                                ->required(),
+
+                            \Filament\Forms\Components\Textarea::make('message')
+                                ->label('WhatsApp Mesaj Taslağı')
+                                ->rows(4)
+                                ->default($defaultMessage)
+                                ->helperText('Mesajı dilediğiniz gibi düzenleyebilirsiniz. Butona tıkladığınızda bu metinle WhatsApp açılır.')
+                                ->required(),
+
+                            \Filament\Forms\Components\Toggle::make('create_coupon')
+                                ->label('Kupon sitede otomatik aktif edilsin')
+                                ->default(true)
+                                ->helperText('İşaretliyse, müşterinin sepet sayfasında bu kuponu hemen kullanabilmesi sağlanır.'),
+                        ];
+                    })
+                    ->action(function (ActiveVisitor $record, array $data, $livewire) {
+                        if (!empty($data['create_coupon']) && !empty($data['coupon_code'])) {
+                            Coupon::firstOrCreate(
+                                ['code' => strtoupper(trim($data['coupon_code']))],
+                                [
+                                    'type' => 'percentage',
+                                    'value' => str_contains($data['coupon_code'], '15') ? 15 : 10,
+                                    'status' => true,
+                                    'expires_at' => now()->addDays(7),
+                                    'usage_limit' => 50,
+                                ]
+                            );
                         }
-                        $name = $record->user_id && $record->user ? $record->user->name : ($record->guest_name ?: 'Değerli Müşterimiz');
-                        $msg = urlencode("Merhaba {$name}, Patenli Ayakkabılar mağazamızı tekrar ziyaret ettiğiniz için teşekkür ederiz! Beğendiğiniz modeller için size özel yardımcı olabileceğimiz bir konu var mı?");
-                        return "https://wa.me/{$phone}?text={$msg}";
-                    }, shouldOpenInNewTab: true),
+
+                        $phone = $record->clean_whatsapp_phone;
+                        if (!$phone) {
+                            Notification::make()->title('Geçerli bir telefon numarası bulunamadı!')->danger()->send();
+                            return;
+                        }
+
+                        $message = urlencode($data['message'] ?? '');
+                        $url = "https://wa.me/{$phone}?text={$message}";
+
+                        if (method_exists($livewire, 'js')) {
+                            $livewire->js("window.open('{$url}', '_blank');");
+                        }
+
+                        Notification::make()
+                            ->title("WhatsApp Sohbeti Başlatıldı: {$record->display_name}")
+                            ->body(($record->formatted_phone ?: $phone) . ' numarası için WhatsApp açıldı.')
+                            ->success()
+                            ->send();
+                    }),
 
                 // 2. Özel Satış Teklifi / Strateji Uygula
                 Action::make('apply_strategy')

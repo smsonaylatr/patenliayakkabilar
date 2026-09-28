@@ -25,6 +25,14 @@ class CustomerSegmentStatsWidget extends BaseWidget
 
             $highIntentCount = (clone $baseQuery)->where('intent_score', '>=', 60)->count();
 
+            $reachableCount = (clone $baseQuery)->where(function ($q) {
+                $q->where(function ($sq) {
+                    $sq->whereNotNull('guest_phone')->where('guest_phone', '!=', '');
+                })->orWhereHas('user', function ($uq) {
+                    $uq->whereNotNull('phone')->where('phone', '!=', '');
+                });
+            })->count();
+
             return [
                 Stat::make('⭐ 2-3 Yıldızlı Müşteriler', number_format($totalRepeat))
                     ->description('Siteye 2+ kez gelen sadık kitle')
@@ -50,6 +58,11 @@ class CustomerSegmentStatsWidget extends BaseWidget
                     ->description('Niyet skoru %60 ve üzeri')
                     ->descriptionIcon('heroicon-m-fire')
                     ->color('primary'),
+
+                Stat::make('💬 WhatsApp İletişim', number_format($reachableCount) . ' Müşteri')
+                    ->description('Telefonu kayıtlı, hemen mesaj atılabilir')
+                    ->descriptionIcon('heroicon-m-chat-bubble-left-right')
+                    ->color('success'),
             ];
         } catch (\Throwable $e) {
             return [];
