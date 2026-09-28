@@ -287,6 +287,12 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
+            transition: all 0.15s ease;
+        }
+        .chart-stat-chip.active-inspect {
+            border-color: rgba(255, 78, 0, 0.5) !important;
+            background: rgba(255, 78, 0, 0.08) !important;
+            box-shadow: 0 0 12px rgba(255, 78, 0, 0.15) !important;
         }
         .traffic-kpi-card.has-chart-active {
             border-color: rgba(255, 78, 0, 0.55) !important;
@@ -1254,36 +1260,52 @@
                         </div>
                     </div>
 
-                    {{-- 4'lü Özet İstatistik Şeridi --}}
+                    {{-- 4'lü Dinamik İstatistik Şeridi (Fare ile Gezinirken Anlık Güncellenir, Asla Altta Karışıklık Yaratmaz) --}}
                     <div class="chart-ribbon-grid">
-                        <div class="chart-stat-chip">
-                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Toplam Aylık Gösterim</span>
-                            <div style="font-size: 17px; font-weight: 800; color: #f8fafc;">
+                        <div class="chart-stat-chip" :class="activePoint ? 'active-inspect' : ''">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;"
+                                      x-text="activePoint ? 'Seçilen Tarih' : 'Toplam Aylık Gösterim'">Toplam Aylık Gösterim</span>
+                                <span x-show="activePoint && activePoint.is_peak" style="font-size: 8px; font-weight: 800; background: #ff4e00; color: #fff; padding: 1px 5px; border-radius: 4px;">AYIN ZİRVESİ</span>
+                            </div>
+                            <div style="font-size: 17px; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                 x-text="activePoint ? activePoint.full_label : '{{ number_format($monthlyChart['summary']['total_views'] ?? ($monthlyTraffic['page_views'] ?? 0)) }}'">
                                 {{ number_format($monthlyChart['summary']['total_views'] ?? ($monthlyTraffic['page_views'] ?? 0)) }}
                             </div>
-                            <span style="font-size: 10px; color: #64748b;">Son 30 günün toplamı</span>
+                            <span style="font-size: 10px; color: #64748b;"
+                                  x-text="activePoint ? (activePoint.is_weekend ? '🏖️ Hafta Sonu Trafiği' : '💼 Hafta İçi Akışı') : 'Son 30 günün toplamı'">Son 30 günün toplamı</span>
                         </div>
-                        <div class="chart-stat-chip">
-                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Günlük Ortalama Gösterim</span>
-                            <div style="font-size: 17px; font-weight: 800; color: #ff7849;">
+
+                        <div class="chart-stat-chip" :class="activePoint ? 'active-inspect' : ''">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;"
+                                  x-text="activePoint ? 'O Günün Gösterimi' : 'Günlük Ortalama Gösterim'">Günlük Ortalama Gösterim</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #ff7849;"
+                                 x-text="activePoint ? activePoint.views_formatted : '{{ number_format($monthlyChart['summary']['avg_daily_views'] ?? 0, 1) }}'">
                                 {{ number_format($monthlyChart['summary']['avg_daily_views'] ?? 0, 1) }}
                             </div>
-                            <span style="font-size: 10px; color: #64748b;">Gün başına ortalama sayfa</span>
+                            <span style="font-size: 10px; color: #64748b;"
+                                  x-text="activePoint ? 'Bu günkü sayfa gezinmesi' : 'Gün başına ortalama sayfa'">Gün başına ortalama sayfa</span>
                         </div>
-                        <div class="chart-stat-chip">
-                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">En Yoğun Gün (Zirve)</span>
-                            <div style="font-size: 17px; font-weight: 800; color: #f8fafc; display: flex; align-items: baseline; gap: 6px;">
-                                <span>{{ number_format($monthlyChart['summary']['peak_views'] ?? 0) }}</span>
-                                <span style="font-size: 11px; font-weight: 600; color: #ff7849;">({{ $monthlyChart['summary']['peak_label'] ?? '-' }})</span>
+
+                        <div class="chart-stat-chip" :class="activePoint ? 'active-inspect' : ''">
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;"
+                                  x-text="activePoint ? 'Tekil Ziyaretçi' : 'En Yoğun Gün (Zirve)'">En Yoğun Gün (Zirve)</span>
+                            <div style="font-size: 17px; font-weight: 800; color: #38bdf8;"
+                                 x-text="activePoint ? (activePoint.visitors_formatted + ' Kişi') : '{{ number_format($monthlyChart['summary']['peak_views'] ?? 0) }} ({{ $monthlyChart['summary']['peak_label'] ?? '-' }})'">
+                                {{ number_format($monthlyChart['summary']['peak_views'] ?? 0) }} <span style="font-size: 11px; font-weight: 600; color: #ff7849;">({{ $monthlyChart['summary']['peak_label'] ?? '-' }})</span>
                             </div>
-                            <span style="font-size: 10px; color: #64748b;">30 günün en yüksek günü</span>
+                            <span style="font-size: 10px; color: #64748b;"
+                                  x-text="activePoint ? 'Siteye giren tekil ziyaretçi' : '30 günün en yüksek günü'">30 günün en yüksek günü</span>
                         </div>
-                        <div class="chart-stat-chip">
+
+                        <div class="chart-stat-chip" :class="activePoint ? 'active-inspect' : ''">
                             <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.04em;">Ziyaretçi Başına Sayfa</span>
-                            <div style="font-size: 17px; font-weight: 800; color: #38bdf8;">
+                            <div style="font-size: 17px; font-weight: 800; color: #a78bfa;"
+                                 x-text="activePoint ? (activePoint.ratio + ' Sayfa') : '{{ $monthlyChart['summary']['pages_per_visitor'] ?? 0 }}'">
                                 {{ $monthlyChart['summary']['pages_per_visitor'] ?? 0 }}
                             </div>
-                            <span style="font-size: 10px; color: #64748b;">Oturum derinliği ve ilgi</span>
+                            <span style="font-size: 10px; color: #64748b;"
+                                  x-text="activePoint ? 'Kişi başına ortalama derinlik' : 'Oturum derinliği ve ilgi'">Oturum derinliği ve ilgi</span>
                         </div>
                     </div>
 
@@ -1293,12 +1315,12 @@
                     @endphp
 
                     @if(!empty($svgChart) && !empty($svgChart['line_path']))
-                        <div style="position: relative; width: 100%; height: 260px; min-height: 260px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.03); padding: 4px;" 
+                        <div style="position: relative; width: 100%; height: 270px; min-height: 270px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.03); padding: 6px;" 
                              class="traffic-svg-chart-container"
                              @mouseleave="hoveredIdx = null; activePoint = null">
 
                             {{-- Grafik Üstü Legend / Açıklama Şeridi --}}
-                            <div style="position: absolute; top: 6px; right: 14px; display: flex; align-items: center; gap: 14px; font-size: 11px; z-index: 10;">
+                            <div style="position: absolute; top: 8px; right: 14px; display: flex; align-items: center; gap: 14px; font-size: 11px; z-index: 10;">
                                 <div style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
                                     <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.8); display: inline-block;"></span>
                                     <span>Sayfa Gösterimi</span>
@@ -1345,9 +1367,9 @@
 
                                 <!-- Yatay Grid Çizgileri ve Sol Y-Ekseni Sayıları -->
                                 @foreach($svgChart['grid_lines'] as $grid)
-                                    <line x1="55" y1="{{ $grid['y'] }}" x2="945" y2="{{ $grid['y'] }}" 
+                                    <line x1="68" y1="{{ $grid['y'] }}" x2="945" y2="{{ $grid['y'] }}" 
                                           stroke="rgba(255, 255, 255, 0.07)" stroke-width="1" stroke-dasharray="3,3" />
-                                    <text x="50" y="{{ $grid['y'] + 3.5 }}" text-anchor="end" 
+                                    <text x="60" y="{{ $grid['y'] + 3.5 }}" text-anchor="end" 
                                           fill="#94a3b8" font-size="9.5" font-family="ui-monospace, monospace" font-weight="600">
                                         {{ $grid['val_formatted'] }}
                                     </text>
@@ -1414,14 +1436,25 @@
                                     @endforeach
                                 </g>
 
-                                <!-- AKTİF HOVER REHBER ÇİZGİSİ VE NOKTALAR -->
+                                <!-- AKTİF HOVER REHBER ÇİZGİSİ, DEĞER ETİKETİ VE NOKTALAR -->
                                 @foreach($svgChart['points'] as $pt)
                                     <g x-show="hoveredIdx === {{ $pt['index'] }}">
+                                        <!-- Dikey Kılavuz Çizgisi -->
                                         <line x1="{{ $pt['x'] }}" y1="20" x2="{{ $pt['x'] }}" y2="{{ $svgChart['base_y'] }}"
                                               stroke="rgba(255, 78, 0, 0.45)" stroke-width="1.2" stroke-dasharray="3,3" />
 
+                                        <!-- Nokta Üstü Kompakt Değer Baloncuğu (SVG İçi, Asla Altta Yer Kaplamaz) -->
+                                        <rect x="{{ $pt['x'] - 32 }}" y="{{ max(8, $pt['y_views'] - 24) }}" width="64" height="18" rx="4"
+                                              fill="rgba(15, 23, 42, 0.95)" stroke="#ff4e00" stroke-width="1" />
+                                        <text x="{{ $pt['x'] }}" y="{{ max(8, $pt['y_views'] - 24) + 12.5 }}" text-anchor="middle"
+                                              fill="#ff7849" font-size="9.5" font-family="ui-monospace, monospace" font-weight="700">
+                                            {{ $pt['views_formatted'] }}
+                                        </text>
+
+                                        <!-- Gösterim Noktası Vurgusu -->
                                         <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_views'] }}" r="6" fill="#ff4e00" stroke="#ffffff" stroke-width="2.5" />
 
+                                        <!-- Ziyaretçi Karşılaştırma Noktası -->
                                         <g x-show="compareVisitors">
                                             <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_visitors'] }}" r="5" fill="#38bdf8" stroke="#ffffff" stroke-width="2" />
                                         </g>
@@ -1450,78 +1483,10 @@
                                           @mouseenter="hoveredIdx = {{ $pt['index'] }}; activePoint = {{ json_encode($pt) }}" />
                                 @endforeach
                             </svg>
-
-                            <!-- ETKİLEŞİMLİ HOVER TOOLTIP KARTI -->
-                            <template x-if="activePoint">
-                                <div style="position: absolute; top: 12px; pointer-events: none; z-index: 25; transition: left 0.08s ease-out;"
-                                     :style="'left: ' + Math.min(Math.max((activePoint.x / 960) * 100 - 10, 2), 76) + '%;'">
-                                    <div style="background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255, 78, 0, 0.45); border-radius: 9px; padding: 8px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); min-width: 170px;">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 4px;">
-                                            <span style="font-size: 11px; font-weight: 700; color: #f8fafc;" x-text="activePoint.full_label"></span>
-                                            <span x-show="activePoint.is_peak" style="font-size: 8.5px; font-weight: 800; background: #ff4e00; color: #fff; padding: 1px 5px; border-radius: 4px;">ZİRVE</span>
-                                        </div>
-                                        <div style="display: flex; flex-direction: column; gap: 3.5px; font-size: 11px;">
-                                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                                <span style="color: #94a3b8; display: flex; align-items: center; gap: 4px;">
-                                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #ff4e00; display: inline-block;"></span>
-                                                    Gösterim:
-                                                </span>
-                                                <strong style="color: #ff7849; font-weight: 800;" x-text="activePoint.views_formatted"></strong>
-                                            </div>
-                                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                                <span style="color: #94a3b8; display: flex; align-items: center; gap: 4px;">
-                                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
-                                                    Ziyaretçi:
-                                                </span>
-                                                <strong style="color: #38bdf8; font-weight: 800;" x-text="activePoint.visitors_formatted"></strong>
-                                            </div>
-                                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 3px; border-top: 1px dashed rgba(255, 255, 255, 0.06); font-size: 10px; color: #64748b;">
-                                                <span>Kişi Başı:</span>
-                                                <span style="color: #cbd5e1; font-weight: 600;" x-text="activePoint.ratio + ' sayfa'"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
                         </div>
                     @else
-                        <div style="height: 260px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <div style="height: 270px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
                             <span>Aylık trafik trend verisi yükleniyor...</span>
-                        </div>
-                    @endif
-
-                    {{-- Günlük Mini Çubuk Dağılım Şeridi (Hızlı Görsel Zaman Çizelgesi) --}}
-                    @if(!empty($monthlyChart['daily_records']))
-                        @php
-                            $maxDaily = max(1, $monthlyChart['summary']['peak_views'] ?? 1);
-                        @endphp
-                        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em;">
-                                    30 Günlük Zaman Çizelgesi
-                                </span>
-                                <span style="font-size: 10px; color: #64748b;">
-                                    Hafta sonu ortalama: <strong style="color: #cbd5e1;">{{ number_format($monthlyChart['summary']['weekend_avg'] ?? 0) }}</strong> • Hafta içi ortalama: <strong style="color: #cbd5e1;">{{ number_format($monthlyChart['summary']['weekday_avg'] ?? 0) }}</strong>
-                                </span>
-                            </div>
-                            <div style="display: flex; align-items: flex-end; gap: 3px; height: 44px; background: rgba(0, 0, 0, 0.25); padding: 5px 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.04);">
-                                @foreach($monthlyChart['daily_records'] as $rec)
-                                    @php
-                                        $barHeight = max(6, (int) round(($rec['page_views'] / $maxDaily) * 32));
-                                        $isPeak = ($rec['page_views'] >= $maxDaily);
-                                    @endphp
-                                    <div style="flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;" 
-                                         title="{{ $rec['full_label'] }}: {{ number_format($rec['page_views']) }} Gösterim ({{ number_format($rec['visitors']) }} Ziyaretçi)">
-                                        <div style="width: 100%; max-width: 14px; height: {{ $barHeight }}px; border-radius: 2px 2px 0 0; transition: all 0.15s ease; {{ $isPeak ? 'background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.6);' : ($rec['is_weekend'] ? 'background: #f97316;' : 'background: rgba(255, 255, 255, 0.28);') }}"
-                                             onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; font-size: 9.5px; color: #64748b; font-family: monospace;">
-                                <span>{{ $monthlyChart['labels'][0] ?? '' }}</span>
-                                <span>{{ $monthlyChart['labels'][(int)(count($monthlyChart['labels'])/2)] ?? '' }}</span>
-                                <span>{{ $monthlyChart['labels'][count($monthlyChart['labels']) - 1] ?? '' }} (Bugün)</span>
-                            </div>
                         </div>
                     @endif
                 </div>

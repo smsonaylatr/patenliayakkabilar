@@ -681,7 +681,7 @@ class TrafficAnalyticsService
 
         $width = 960;
         $height = 240;
-        $padLeft = 62;
+        $padLeft = 70;
         $padRight = 24;
         $padTop = 26;
         $padBottom = 32;
