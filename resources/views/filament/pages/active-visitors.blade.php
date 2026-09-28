@@ -1180,7 +1180,14 @@
 
             @if(!empty($showPageViewsChart) && !empty($monthlyChart))
                 {{-- AYLIK SAYFA GÖSTERİMİ TREND VE DAĞILIM GRAFİK PANELİ --}}
-                <div class="traffic-chart-panel" id="page-views-monthly-chart-section">
+                <div class="traffic-chart-panel" 
+                     id="page-views-monthly-chart-section"
+                     x-data="{
+                         chartMode: '{{ $chartType ?? 'line' }}',
+                         compareVisitors: {{ !empty($chartCompareVisitors) ? 'true' : 'false' }},
+                         hoveredIdx: null,
+                         activePoint: null
+                     }">
                     <div class="traffic-chart-header">
                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 78, 0, 0.15); border: 1px solid rgba(255, 78, 0, 0.3); display: flex; align-items: center; justify-content: center; color: #ff4e00;">
@@ -1206,14 +1213,18 @@
                             {{-- Çizgi / Sütun Geçişi --}}
                             <div style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); padding: 2px; border-radius: 6px;">
                                 <button type="button" 
+                                        @click="chartMode = 'line'"
                                         wire:click="setChartType('line')" 
+                                        :class="chartMode === 'line' ? 'active' : ''"
                                         class="chart-ctrl-btn {{ ($chartType ?? 'line') === 'line' ? 'active' : '' }}" 
                                         title="Çizgi Grafik Görünümü">
                                     <x-filament::icon icon="heroicon-m-chart-bar-square" class="w-3.5 h-3.5" />
                                     <span>Çizgi</span>
                                 </button>
                                 <button type="button" 
+                                        @click="chartMode = 'bar'"
                                         wire:click="setChartType('bar')" 
+                                        :class="chartMode === 'bar' ? 'active' : ''"
                                         class="chart-ctrl-btn {{ ($chartType ?? 'line') === 'bar' ? 'active' : '' }}" 
                                         title="Sütun Grafik Görünümü">
                                     <x-filament::icon icon="heroicon-m-bars-3-bottom-left" class="w-3.5 h-3.5" />
@@ -1223,7 +1234,9 @@
 
                             {{-- Tekil Ziyaretçi ile Karşılaştır Butonu --}}
                             <button type="button" 
+                                    @click="compareVisitors = !compareVisitors"
                                     wire:click="toggleChartCompareVisitors" 
+                                    :class="compareVisitors ? 'active' : ''"
                                     class="chart-ctrl-btn {{ !empty($chartCompareVisitors) ? 'active' : '' }}" 
                                     title="Tekil ziyaretçi sayısını da grafiğe ekle">
                                 <x-filament::icon icon="heroicon-m-users" class="w-3.5 h-3.5" />
@@ -1274,10 +1287,208 @@
                         </div>
                     </div>
 
-                    {{-- Grafik Çizim Alanı --}}
-                    <div style="position: relative; width: 100%; height: 260px; min-height: 260px;">
-                        <canvas id="monthlyPageViewsCanvas" style="width: 100%; height: 100%;"></canvas>
-                    </div>
+                    {{-- Grafik Çizim Alanı (Native Interactive SVG + Alpine Motoru) --}}
+                    @php
+                        $svgChart = $monthlyChart['svg'] ?? null;
+                    @endphp
+
+                    @if(!empty($svgChart) && !empty($svgChart['line_path']))
+                        <div style="position: relative; width: 100%; height: 260px; min-height: 260px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.03); padding: 4px;" 
+                             class="traffic-svg-chart-container"
+                             @mouseleave="hoveredIdx = null; activePoint = null">
+
+                            {{-- Grafik Üstü Legend / Açıklama Şeridi --}}
+                            <div style="position: absolute; top: 6px; right: 14px; display: flex; align-items: center; gap: 14px; font-size: 11px; z-index: 10;">
+                                <div style="display: flex; align-items: center; gap: 5px; color: #cbd5e1; font-weight: 600;">
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.8); display: inline-block;"></span>
+                                    <span>Sayfa Gösterimi</span>
+                                </div>
+                                <div x-show="compareVisitors" style="display: flex; align-items: center; gap: 5px; color: #38bdf8; font-weight: 600;">
+                                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 6px rgba(56,189,248,0.8); display: inline-block;"></span>
+                                    <span>Tekil Ziyaretçi</span>
+                                </div>
+                            </div>
+
+                            <svg viewBox="0 0 {{ $svgChart['width'] }} {{ $svgChart['height'] }}" 
+                                 preserveAspectRatio="none"
+                                 style="width: 100%; height: 100%; overflow: visible; display: block;">
+                                <defs>
+                                    <linearGradient id="viewsAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#ff4e00" stop-opacity="0.36"/>
+                                        <stop offset="65%" stop-color="#ff4e00" stop-opacity="0.08"/>
+                                        <stop offset="100%" stop-color="#ff4e00" stop-opacity="0.00"/>
+                                    </linearGradient>
+
+                                    <linearGradient id="visitorsAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.32"/>
+                                        <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.05"/>
+                                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.00"/>
+                                    </linearGradient>
+
+                                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#ff6a2b"/>
+                                        <stop offset="100%" stop-color="#ea4400"/>
+                                    </linearGradient>
+
+                                    <linearGradient id="barVisitorGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#38bdf8"/>
+                                        <stop offset="100%" stop-color="#0284c7"/>
+                                    </linearGradient>
+
+                                    <filter id="glowOrange" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#ff4e00" flood-opacity="0.5"/>
+                                    </filter>
+                                    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+                                        <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#38bdf8" flood-opacity="0.5"/>
+                                    </filter>
+                                </defs>
+
+                                <!-- Yatay Grid Çizgileri ve Sol Y-Ekseni Sayıları -->
+                                @foreach($svgChart['grid_lines'] as $grid)
+                                    <line x1="55" y1="{{ $grid['y'] }}" x2="945" y2="{{ $grid['y'] }}" 
+                                          stroke="rgba(255, 255, 255, 0.07)" stroke-width="1" stroke-dasharray="3,3" />
+                                    <text x="50" y="{{ $grid['y'] + 3.5 }}" text-anchor="end" 
+                                          fill="#94a3b8" font-size="9.5" font-family="ui-monospace, monospace" font-weight="600">
+                                        {{ $grid['val_formatted'] }}
+                                    </text>
+                                @endforeach
+
+                                <!-- Ziyaretçi Karşılaştırma Açıkken Sağ Y-Ekseni Sayıları -->
+                                <g x-show="compareVisitors">
+                                    @foreach($svgChart['grid_lines'] as $grid)
+                                        <text x="948" y="{{ $grid['y'] + 3.5 }}" text-anchor="start" 
+                                              fill="#38bdf8" font-size="9" font-family="ui-monospace, monospace" font-weight="600">
+                                            {{ $grid['vis_formatted'] }}
+                                        </text>
+                                    @endforeach
+                                </g>
+
+                                <!-- ÇİZGİ GRAFİK MODU -->
+                                <g x-show="chartMode === 'line'">
+                                    <!-- Karşılaştırma: Tekil Ziyaretçi Alanı & Çizgisi -->
+                                    <g x-show="compareVisitors">
+                                        <path d="{{ $svgChart['visitor_area_path'] }}" fill="url(#visitorsAreaGradient)" />
+                                        <path d="{{ $svgChart['visitor_line_path'] }}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowBlue)" />
+                                    </g>
+
+                                    <!-- Ana Veri: Sayfa Gösterimi Alanı & Çizgisi -->
+                                    <path d="{{ $svgChart['area_path'] }}" fill="url(#viewsAreaGradient)" />
+                                    <path d="{{ $svgChart['line_path'] }}" fill="none" stroke="#ff4e00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowOrange)" />
+
+                                    <!-- Çizgi Noktaları -->
+                                    @foreach($svgChart['points'] as $pt)
+                                        @if($pt['is_peak'])
+                                            <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_views'] }}" r="5" fill="#ff4e00" stroke="#ffffff" stroke-width="2" />
+                                            <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_views'] }}" r="8" fill="none" stroke="#ff4e00" stroke-width="1.5" opacity="0.6">
+                                                <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/>
+                                                <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2s" repeatCount="indefinite"/>
+                                            </circle>
+                                        @elseif($pt['index'] === count($svgChart['points']) - 1)
+                                            <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_views'] }}" r="4.5" fill="#ff4e00" stroke="#ffffff" stroke-width="1.5" />
+                                        @endif
+                                    @endforeach
+                                </g>
+
+                                <!-- SÜTUN GRAFİK MODU -->
+                                <g x-show="chartMode === 'bar'">
+                                    @foreach($svgChart['points'] as $pt)
+                                        <rect x="{{ $pt['bar_x'] }}" y="{{ $pt['bar_y'] }}" width="{{ $pt['bar_w'] }}" height="{{ $pt['bar_h'] }}"
+                                              rx="3.5" ry="3.5"
+                                              fill="{{ $pt['is_peak'] ? '#ff4e00' : 'url(#barGradient)' }}"
+                                              opacity="{{ $pt['is_peak'] ? '1' : ($pt['is_weekend'] ? '0.9' : '0.8') }}"
+                                              :opacity="hoveredIdx === {{ $pt['index'] }} ? '1' : ''"
+                                              style="transition: all 0.15s ease;" />
+
+                                        <g x-show="compareVisitors">
+                                            @php
+                                                $visBarH = max(3, round(($svgChart['base_y'] - $pt['y_visitors']), 1));
+                                                $visBarY = round($svgChart['base_y'] - $visBarH, 1);
+                                                $visBarW = max(3, round($pt['bar_w'] * 0.45, 1));
+                                                $visBarX = round($pt['x'] - ($visBarW / 2), 1);
+                                            @endphp
+                                            <rect x="{{ $visBarX }}" y="{{ $visBarY }}" width="{{ $visBarW }}" height="{{ $visBarH }}"
+                                                  rx="2" ry="2"
+                                                  fill="url(#barVisitorGradient)"
+                                                  opacity="0.95" />
+                                        </g>
+                                    @endforeach
+                                </g>
+
+                                <!-- AKTİF HOVER REHBER ÇİZGİSİ VE NOKTALAR -->
+                                @foreach($svgChart['points'] as $pt)
+                                    <g x-show="hoveredIdx === {{ $pt['index'] }}">
+                                        <line x1="{{ $pt['x'] }}" y1="20" x2="{{ $pt['x'] }}" y2="{{ $svgChart['base_y'] }}"
+                                              stroke="rgba(255, 78, 0, 0.45)" stroke-width="1.2" stroke-dasharray="3,3" />
+
+                                        <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_views'] }}" r="6" fill="#ff4e00" stroke="#ffffff" stroke-width="2.5" />
+
+                                        <g x-show="compareVisitors">
+                                            <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y_visitors'] }}" r="5" fill="#38bdf8" stroke="#ffffff" stroke-width="2" />
+                                        </g>
+                                    </g>
+                                @endforeach
+
+                                <!-- X-EKSENİ TARİH ETİKETLERİ -->
+                                @foreach($svgChart['x_labels'] as $xLbl)
+                                    <text x="{{ $xLbl['x'] }}" y="{{ $svgChart['base_y'] + 17 }}" text-anchor="middle" 
+                                          fill="{{ $xLbl['is_today'] ? '#ff7849' : '#94a3b8' }}" 
+                                          font-size="9.5" font-family="ui-monospace, monospace" 
+                                          font-weight="{{ $xLbl['is_today'] ? '700' : '500' }}">
+                                        {{ $xLbl['label'] }}{{ $xLbl['is_today'] ? ' (Bugün)' : '' }}
+                                    </text>
+                                @endforeach
+
+                                <!-- ŞEFFAF ETKİLEŞİM / HOVER ALANLARI -->
+                                @foreach($svgChart['points'] as $pt)
+                                    @php
+                                        $hitW = $svgChart['width'] / count($svgChart['points']);
+                                        $hitX = max(0, $pt['x'] - ($hitW / 2));
+                                    @endphp
+                                    <rect x="{{ $hitX }}" y="15" width="{{ $hitW }}" height="{{ $svgChart['base_y'] }}"
+                                          fill="transparent"
+                                          style="cursor: crosshair; pointer-events: all;"
+                                          @mouseenter="hoveredIdx = {{ $pt['index'] }}; activePoint = {{ json_encode($pt) }}" />
+                                @endforeach
+                            </svg>
+
+                            <!-- ETKİLEŞİMLİ HOVER TOOLTIP KARTI -->
+                            <template x-if="activePoint">
+                                <div style="position: absolute; top: 12px; pointer-events: none; z-index: 25; transition: left 0.08s ease-out;"
+                                     :style="'left: ' + Math.min(Math.max((activePoint.x / 960) * 100 - 10, 2), 76) + '%;'">
+                                    <div style="background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255, 78, 0, 0.45); border-radius: 9px; padding: 8px 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); min-width: 170px;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 4px;">
+                                            <span style="font-size: 11px; font-weight: 700; color: #f8fafc;" x-text="activePoint.full_label"></span>
+                                            <span x-show="activePoint.is_peak" style="font-size: 8.5px; font-weight: 800; background: #ff4e00; color: #fff; padding: 1px 5px; border-radius: 4px;">ZİRVE</span>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 3.5px; font-size: 11px;">
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #ff4e00; display: inline-block;"></span>
+                                                    Gösterim:
+                                                </span>
+                                                <strong style="color: #ff7849; font-weight: 800;" x-text="activePoint.views_formatted"></strong>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <span style="color: #94a3b8; display: flex; align-items: center; gap: 4px;">
+                                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span>
+                                                    Ziyaretçi:
+                                                </span>
+                                                <strong style="color: #38bdf8; font-weight: 800;" x-text="activePoint.visitors_formatted"></strong>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 3px; border-top: 1px dashed rgba(255, 255, 255, 0.06); font-size: 10px; color: #64748b;">
+                                                <span>Kişi Başı:</span>
+                                                <span style="color: #cbd5e1; font-weight: 600;" x-text="activePoint.ratio + ' sayfa'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    @else
+                        <div style="height: 260px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <span>Aylık trafik trend verisi yükleniyor...</span>
+                        </div>
+                    @endif
 
                     {{-- Günlük Mini Çubuk Dağılım Şeridi (Hızlı Görsel Zaman Çizelgesi) --}}
                     @if(!empty($monthlyChart['daily_records']))
@@ -1290,18 +1501,18 @@
                                     30 Günlük Zaman Çizelgesi
                                 </span>
                                 <span style="font-size: 10px; color: #64748b;">
-                                    Hafta sonu ortalama: <strong style="color: #cbd5e1;">{{ $monthlyChart['summary']['weekend_avg'] ?? 0 }}</strong> • Hafta içi ortalama: <strong style="color: #cbd5e1;">{{ $monthlyChart['summary']['weekday_avg'] ?? 0 }}</strong>
+                                    Hafta sonu ortalama: <strong style="color: #cbd5e1;">{{ number_format($monthlyChart['summary']['weekend_avg'] ?? 0) }}</strong> • Hafta içi ortalama: <strong style="color: #cbd5e1;">{{ number_format($monthlyChart['summary']['weekday_avg'] ?? 0) }}</strong>
                                 </span>
                             </div>
                             <div style="display: flex; align-items: flex-end; gap: 3px; height: 44px; background: rgba(0, 0, 0, 0.25); padding: 5px 8px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.04);">
                                 @foreach($monthlyChart['daily_records'] as $rec)
                                     @php
-                                        $barHeight = max(5, (int) round(($rec['page_views'] / $maxDaily) * 32));
+                                        $barHeight = max(6, (int) round(($rec['page_views'] / $maxDaily) * 32));
                                         $isPeak = ($rec['page_views'] >= $maxDaily);
                                     @endphp
                                     <div style="flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;" 
                                          title="{{ $rec['full_label'] }}: {{ number_format($rec['page_views']) }} Gösterim ({{ number_format($rec['visitors']) }} Ziyaretçi)">
-                                        <div style="width: 100%; max-width: 14px; height: {{ $barHeight }}px; border-radius: 2px 2px 0 0; transition: all 0.15s ease; {{ $isPeak ? 'background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.6);' : ($rec['is_weekend'] ? 'background: #f97316;' : 'background: rgba(255, 255, 255, 0.2);') }}"
+                                        <div style="width: 100%; max-width: 14px; height: {{ $barHeight }}px; border-radius: 2px 2px 0 0; transition: all 0.15s ease; {{ $isPeak ? 'background: #ff4e00; box-shadow: 0 0 6px rgba(255,78,0,0.6);' : ($rec['is_weekend'] ? 'background: #f97316;' : 'background: rgba(255, 255, 255, 0.28);') }}"
                                              onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'"></div>
                                     </div>
                                 @endforeach
@@ -1580,181 +1791,6 @@
             });
             setTimeout(ensureViewTogglePosition, 200);
             setTimeout(ensureViewTogglePosition, 800);
-        })();
-    </script>
-
-    {{-- Chart.js Kütüphanesi & Aylık Sayfa Gösterimi Trend Grafiği Motoru --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script>
-        (function() {
-            let pageViewsChartInstance = null;
-
-            window.initMonthlyPageViewsChart = function() {
-                const canvas = document.getElementById('monthlyPageViewsCanvas');
-                if (!canvas || typeof Chart === 'undefined') return;
-
-                const labels = @json($monthlyChart['labels'] ?? []);
-                const pageViews = @json($monthlyChart['page_views'] ?? []);
-                const visitors = @json($monthlyChart['visitors'] ?? []);
-                const chartType = @json($chartType ?? 'line');
-                const compareVisitors = @json(!empty($chartCompareVisitors));
-
-                if (!labels || labels.length === 0) return;
-
-                if (pageViewsChartInstance) {
-                    try {
-                        pageViewsChartInstance.destroy();
-                    } catch (e) {}
-                    pageViewsChartInstance = null;
-                }
-
-                const ctx = canvas.getContext('2d');
-
-                // Gradient Dolgular (Patenli Turuncu & Gökyüzü Mavisi)
-                const gradientOrange = ctx.createLinearGradient(0, 0, 0, 240);
-                gradientOrange.addColorStop(0, 'rgba(255, 78, 0, 0.35)');
-                gradientOrange.addColorStop(1, 'rgba(255, 78, 0, 0.00)');
-
-                const gradientBlue = ctx.createLinearGradient(0, 0, 0, 240);
-                gradientBlue.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
-                gradientBlue.addColorStop(1, 'rgba(56, 189, 248, 0.00)');
-
-                const datasets = [
-                    {
-                        label: 'Sayfa Gösterimi',
-                        data: pageViews,
-                        borderColor: '#ff4e00',
-                        backgroundColor: chartType === 'line' ? gradientOrange : 'rgba(255, 78, 0, 0.8)',
-                        borderWidth: 2.5,
-                        fill: chartType === 'line',
-                        tension: 0.35,
-                        pointBackgroundColor: '#ff4e00',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5,
-                        pointRadius: 3,
-                        pointHoverRadius: 6,
-                        borderRadius: chartType === 'bar' ? 4 : 0,
-                        order: 1,
-                    }
-                ];
-
-                if (compareVisitors) {
-                    datasets.push({
-                        label: 'Tekil Ziyaretçi',
-                        data: visitors,
-                        borderColor: '#38bdf8',
-                        backgroundColor: chartType === 'line' ? gradientBlue : 'rgba(56, 189, 248, 0.65)',
-                        borderWidth: 2,
-                        fill: chartType === 'line',
-                        tension: 0.35,
-                        pointBackgroundColor: '#38bdf8',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 1.5,
-                        pointRadius: 2.5,
-                        pointHoverRadius: 5,
-                        borderRadius: chartType === 'bar' ? 4 : 0,
-                        order: 2,
-                    });
-                }
-
-                try {
-                    pageViewsChartInstance = new Chart(ctx, {
-                        type: chartType,
-                        data: {
-                            labels: labels,
-                            datasets: datasets,
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                intersect: false,
-                                mode: 'index',
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                    align: 'end',
-                                    labels: {
-                                        color: '#cbd5e1',
-                                        font: { size: 11, weight: '600' },
-                                        boxWidth: 12,
-                                        boxHeight: 12,
-                                        usePointStyle: true,
-                                    }
-                                },
-                                tooltip: {
-                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                                    borderColor: 'rgba(255, 78, 0, 0.35)',
-                                    borderWidth: 1,
-                                    titleColor: '#f8fafc',
-                                    titleFont: { size: 12, weight: 'bold' },
-                                    bodyColor: '#e2e8f0',
-                                    bodyFont: { size: 11.5 },
-                                    padding: 10,
-                                    cornerRadius: 8,
-                                    callbacks: {
-                                        label: function(context) {
-                                            return ' ' + context.dataset.label + ': ' + Number(context.parsed.y).toLocaleString('tr-TR');
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false,
-                                        drawBorder: false,
-                                    },
-                                    ticks: {
-                                        color: '#94a3b8',
-                                        font: { size: 10 },
-                                        maxRotation: 0,
-                                        autoSkip: true,
-                                        maxTicksLimit: 15,
-                                    }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        color: 'rgba(255, 255, 255, 0.05)',
-                                        drawBorder: false,
-                                    },
-                                    ticks: {
-                                        color: '#94a3b8',
-                                        font: { size: 10.5 },
-                                        callback: function(val) {
-                                            return Number(val).toLocaleString('tr-TR');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                } catch (err) {
-                    console.warn('MonthlyPageViewsChart error:', err);
-                }
-            };
-
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(window.initMonthlyPageViewsChart, 150);
-            });
-
-            document.addEventListener('livewire:navigated', function() {
-                setTimeout(window.initMonthlyPageViewsChart, 150);
-            });
-
-            document.addEventListener('livewire:initialized', function() {
-                if (window.Livewire && Livewire.hook) {
-                    Livewire.hook('morph.updated', function() {
-                        setTimeout(window.initMonthlyPageViewsChart, 100);
-                    });
-                }
-            });
-
-            setTimeout(window.initMonthlyPageViewsChart, 300);
-            setTimeout(window.initMonthlyPageViewsChart, 800);
         })();
     </script>
 
