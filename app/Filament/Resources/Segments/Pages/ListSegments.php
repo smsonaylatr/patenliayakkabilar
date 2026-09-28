@@ -79,7 +79,7 @@ class ListSegments extends ListRecords
                     ->modifyQueryUsing(fn (Builder $query) => $query->where('visit_count', '>=', 2)->where('intent_score', '>=', 60)),
 
                 'members' => Tab::make('👑 Kayıtlı Üyeler')
-                    ->icon('heroicon-m-user-check')
+                    ->icon('heroicon-m-user')
                     ->badge($memberCount)
                     ->badgeColor('info')
                     ->modifyQueryUsing(fn (Builder $query) => $query->where('visit_count', '>=', 2)->whereNotNull('user_id')),
