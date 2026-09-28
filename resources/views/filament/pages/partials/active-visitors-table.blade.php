@@ -107,13 +107,37 @@
     .av-actions-area {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
         flex-shrink: 0;
         justify-content: flex-end;
     }
     .av-actions-area .fi-btn {
         white-space: nowrap !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        padding: 5px 10px !important;
+        border-radius: 6px !important;
+        gap: 5px !important;
+    }
+    .av-actions-area .fi-btn-label {
+        white-space: nowrap !important;
+    }
+    .av-actions-area .fi-btn svg,
+    .av-actions-area .fi-btn .fi-btn-icon {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
+    }
+    .av-actions-area .fi-icon-btn {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        border-radius: 6px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
     }
 
     /* ─── Izgara (Grid) Görünümü Stilleri ─── */
@@ -167,30 +191,100 @@
         padding: 10px 12px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 7px;
     }
+
+    /* ─── Grid Görünümü Birincil Aksiyon (Strateji Uygula) ─── */
+    .av-grid-primary-action {
+        width: 100%;
+    }
+    .av-grid-primary-action .fi-btn {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 6.5px 12px !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        border-radius: 7px !important;
+        background: linear-gradient(135deg, #ff5722 0%, #ff3d00 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 2px 8px rgba(255, 78, 0, 0.35) !important;
+        transition: all 0.15s ease !important;
+        cursor: pointer !important;
+    }
+    .av-grid-primary-action .fi-btn:hover {
+        background: linear-gradient(135deg, #ff6e40 0%, #ff5722 100%) !important;
+        box-shadow: 0 4px 14px rgba(255, 78, 0, 0.5) !important;
+        transform: translateY(-1px);
+    }
+    .av-grid-primary-action .fi-btn-label {
+        font-weight: 700 !important;
+        letter-spacing: 0.02em !important;
+        white-space: nowrap !important;
+    }
+    .av-grid-primary-action .fi-btn svg,
+    .av-grid-primary-action .fi-btn .fi-btn-icon {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* ─── Grid Görünümü İkincil Aksiyonlar (Yönlendir, İncele, Sesli İleti, Menü) ─── */
+    .av-grid-secondary-actions,
     .av-grid-actions-area {
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
-        flex-wrap: nowrap !important;
+        gap: 5px !important;
         width: 100% !important;
         justify-content: space-between !important;
     }
+    .av-grid-secondary-actions .fi-btn,
     .av-grid-actions-area .fi-btn {
-        flex: 1 1 0 !important;
+        flex: 1 1 auto !important;
         min-width: 0 !important;
-        padding: 5px 8px !important;
+        padding: 5px 6px !important;
         font-size: 11px !important;
         font-weight: 600 !important;
         white-space: nowrap !important;
         justify-content: center !important;
         border-radius: 6px !important;
+        gap: 4px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #e2e8f0 !important;
+        transition: all 0.15s ease !important;
     }
+    .av-grid-secondary-actions .fi-btn:hover,
+    .av-grid-actions-area .fi-btn:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+    }
+    .av-grid-secondary-actions .fi-btn-label,
+    .av-grid-actions-area .fi-btn-label {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .av-grid-secondary-actions .fi-btn svg,
+    .av-grid-secondary-actions .fi-btn .fi-btn-icon,
+    .av-grid-actions-area .fi-btn svg,
+    .av-grid-actions-area .fi-btn .fi-btn-icon {
+        width: 13px !important;
+        height: 13px !important;
+        flex-shrink: 0 !important;
+    }
+    .av-grid-secondary-actions .fi-action-group,
+    .av-grid-secondary-actions .fi-dropdown,
     .av-grid-actions-area .fi-action-group,
     .av-grid-actions-area .fi-dropdown {
         flex: 0 0 auto !important;
     }
+    .av-grid-secondary-actions .fi-icon-btn,
     .av-grid-actions-area .fi-icon-btn {
         width: 28px !important;
         height: 28px !important;
@@ -201,6 +295,44 @@
         justify-content: center !important;
         background: rgba(255, 255, 255, 0.04) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        flex-shrink: 0 !important;
+        color: #94a3b8 !important;
+    }
+    .av-grid-secondary-actions .fi-icon-btn:hover,
+    .av-grid-actions-area .fi-icon-btn:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #f8fafc !important;
+    }
+
+    .av-unblock-btn {
+        background: #1e293b;
+        color: #f1f5f9;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        padding: 5px 7px;
+        font-size: 10.5px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+    }
+    .av-unblock-btn:hover {
+        background: #334155;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    @media (max-width: 480px) {
+        .av-grid-secondary-actions {
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+        }
+        .av-grid-secondary-actions .fi-btn {
+            flex: 1 1 calc(50% - 6px) !important;
+        }
     }
 
     @media (max-width: 1024px) {
@@ -930,21 +1062,39 @@
                             @endif
                         </div>
 
-                        {{-- Hızlı Butonlar --}}
-                        <div class="av-grid-actions-area">
+                        {{-- Hızlı Butonlar: Birincil Strateji CTA + İkincil Araçlar --}}
+                        @php
+                            $primaryAction = null;
+                            $secondaryActions = [];
+                            foreach ($recordActions as $actionItem) {
+                                if (method_exists($actionItem, 'getName') && $actionItem->getName() === 'apply_strategy') {
+                                    $primaryAction = $actionItem;
+                                } else {
+                                    $secondaryActions[] = $actionItem;
+                                }
+                            }
+                        @endphp
+
+                        @if ($primaryAction)
+                            <div class="av-grid-primary-action">
+                                {{ $primaryAction }}
+                            </div>
+                        @endif
+
+                        <div class="av-grid-secondary-actions">
                             @if ($record->is_blocked)
                                 <button 
                                     type="button" 
                                     wire:click="unblockVisitorById({{ $record->id }})" 
-                                    style="background: #1e293b; color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; padding: 5px 8px; font-size: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; white-space: nowrap;"
+                                    class="av-unblock-btn"
                                     title="Bu kullanıcının engelini kaldır"
                                 >
                                     Engeli Aç
                                 </button>
                             @endif
 
-                            @foreach ($recordActions as $action)
-                                {{ $action }}
+                            @foreach ($secondaryActions as $actionItem)
+                                {{ $actionItem }}
                             @endforeach
                         </div>
                     </div>
