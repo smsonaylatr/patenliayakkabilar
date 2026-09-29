@@ -29,8 +29,8 @@
             <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
                 Stok Bildirimi
             </td>
-            <td align="right" style="font-size: 14px; font-weight: 700; color: #16a34a;">
-                Stoklar Yenilendi 🎉
+            <td align="right" style="font-size: 13px; font-weight: 600; color: #16a34a; white-space: nowrap;">
+                ✓ Stoklar Güncellendi
             </td>
         </tr>
     </table>
@@ -42,16 +42,16 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #16a34a; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #16a34a;">
-                                📦
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #16a34a; border-radius: 50%; text-align: center; line-height: 34px; font-size: 16px; color: #16a34a; font-weight: 700;">
+                                ✓
                             </div>
                         </td>
                         <td valign="middle">
-                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
+                            <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
                                 Patenli Ayakkabılar® Stok Uyarısı
                             </p>
                             <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
-                                Beklediğiniz Ürün Stokta!
+                                Beklediğiniz Ürün Tekrar Stokta
                             </h1>
                         </td>
                     </tr>

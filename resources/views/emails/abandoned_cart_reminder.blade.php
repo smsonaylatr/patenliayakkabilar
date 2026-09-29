@@ -4,8 +4,8 @@
 
 @section('content')
 @php
-    $userName = $cart->user?->name ?? 'Değerli Müşterimiz';
-    $firstName = explode(' ', trim($userName))[0];
+    $rawName = trim($cart->user?->name ?? '');
+    $displayName = (empty($rawName) || strtolower($rawName) === 'admin') ? 'Değerli Müşterimiz' : ucwords(strtolower($rawName));
 
     $totalAmount = 0;
     foreach ($cart->items as $it) {
@@ -22,7 +22,7 @@
             <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
                 Sepet özeti
             </td>
-            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a; white-space: nowrap;">
                 {{ number_format($totalAmount, 2, ',', '.') }} ₺
             </td>
         </tr>
@@ -35,27 +35,27 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #ff4e00; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #ff4e00;">
-                                🛒
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 16px; color: #2563eb; font-weight: 700;">
+                                ✓
                             </div>
                         </td>
                         <td valign="middle">
-                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
-                                Patenli Ayakkabılar® Sepet Bildirimi
+                            <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
+                                Patenli Ayakkabılar® Hatırlatma
                             </p>
                             <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
-                                Sepetinizde Ürünler Sizi Bekliyor, {{ $firstName }}
+                                Sepetinizde Ürünler Sizi Bekliyor
                             </h1>
                         </td>
                     </tr>
                 </table>
 
                 <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
-                    <h3 style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #0f172a;">
-                        Alışverişinizi tamamlamayı unuttunuz
+                    <h3 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        Sayın {{ $displayName }},
                     </h3>
-                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
-                        Patenli Ayakkabılar mağazamızda beğendiğiniz ürünler sepetinizde ayrılmış olarak beklemektedir. Stoklar tükenmeden siparişinizi kolayca tamamlayabilirsiniz.
+                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.6;">
+                        Patenli Ayakkabılar mağazamızda beğendiğiniz ürünler sepetinizde sizin için ayrılmış olarak beklemektedir. Stoklar tükenmeden siparişinizi kolayca tamamlayabilirsiniz.
                     </p>
                 </div>
             </td>

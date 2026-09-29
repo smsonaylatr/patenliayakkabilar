@@ -4,7 +4,10 @@
 
 @section('content')
 @php
-    $firstName = explode(' ', trim($order->customer_name))[0];
+    $rawName = trim($order->customer_name ?? '');
+    $isGeneric = (empty($rawName) || strtolower($rawName) === 'admin');
+    $displayName = $isGeneric ? 'Değerli Müşterimiz' : ucwords(strtolower($rawName));
+    $firstName = $isGeneric ? '' : (' ' . explode(' ', $displayName)[0]);
     
     $cargoName = $order->cargo_company;
     if (empty($cargoName) || stripos($cargoName, 'porego') !== false) {
@@ -50,7 +53,7 @@
                                 {{ $order->order_number }} numaralı onaylama
                             </p>
                             <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
-                                Teşekkür ederiz {{ $firstName }}
+                                Teşekkür ederiz{{ $firstName }}
                             </h1>
                         </td>
                     </tr>

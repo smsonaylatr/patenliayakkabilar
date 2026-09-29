@@ -4,7 +4,8 @@
 
 @section('content')
 @php
-    $firstName = explode(' ', trim($order->customer_name))[0];
+    $rawName = trim($order->customer_name ?? '');
+    $displayName = (empty($rawName) || strtolower($rawName) === 'admin') ? 'Değerli Müşterimiz' : ucwords(strtolower($rawName));
     $total = $order->grand_total ?? $order->total_amount ?? 0;
 @endphp
 
@@ -16,7 +17,7 @@
             <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
                 Fatura Bildirimi
             </td>
-            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a; white-space: nowrap;">
                 {{ number_format($total, 2, ',', '.') }} ₺
             </td>
         </tr>
@@ -29,26 +30,26 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #2563eb;">
-                                📄
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 16px; color: #2563eb; font-weight: 700;">
+                                ✓
                             </div>
                         </td>
                         <td valign="middle">
-                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
+                            <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
                                 #{{ $order->order_number }} Numaralı Sipariş
                             </p>
                             <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
-                                Faturanız Hazırlandı, {{ $firstName }}
+                                Faturanız Hazırlandı
                             </h1>
                         </td>
                     </tr>
                 </table>
 
                 <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
-                    <h3 style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #0f172a;">
-                        E-Fatura / E-Arşiv belgeniz oluşturuldu
+                    <h3 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        Sayın {{ $displayName }},
                     </h3>
-                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
+                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.6;">
                         Patenli Ayakkabılar mağazamızdan vermiş olduğunuz siparişinize ait e-fatura belgeniz hazırlanmıştır. Faturanızı bu e-postanın ekinde bulabilir veya aşağıdaki bağlantı üzerinden görüntüleyebilirsiniz.
                     </p>
                 </div>

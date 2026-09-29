@@ -4,7 +4,8 @@
 
 @section('content')
 @php
-    $firstName = explode(' ', trim($customerName))[0];
+    $rawName = trim($customerName ?? '');
+    $displayName = (empty($rawName) || strtolower($rawName) === 'admin') ? 'Değerli Müşterimiz' : ucwords(strtolower($rawName));
 
     $totalAmount = 0;
     foreach ($cart->items as $it) {
@@ -23,7 +24,7 @@
             <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
                 Sepet özeti
             </td>
-            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a; white-space: nowrap;">
                 <span style="font-size: 13px; text-decoration: line-through; color: #94a3b8; font-weight: 400; margin-right: 6px;">{{ number_format($totalAmount, 2, ',', '.') }} ₺</span>
                 {{ number_format($finalAmount, 2, ',', '.') }} ₺
             </td>
@@ -37,24 +38,27 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #ff4e00; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #ff4e00;">
-                                🎁
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 16px; color: #2563eb; font-weight: 700;">
+                                %
                             </div>
                         </td>
                         <td valign="middle">
-                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
+                            <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
                                 Patenli Ayakkabılar® Özel Teklif
                             </p>
                             <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
-                                Sana Özel %10 İndirim Kuponu, {{ $firstName }}
+                                Size Özel %10 İndirim Fırsatı
                             </h1>
                         </td>
                     </tr>
                 </table>
 
                 <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
-                    <p style="margin: 0 0 16px; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
-                        Sepetine eklediğin ürünleri tamamlaman için sana özel tek kullanımlık <strong>%10 indirim kuponu</strong> tanımladık.
+                    <h3 style="margin: 0 0 4px; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        Sayın {{ $displayName }},
+                    </h3>
+                    <p style="margin: 0 0 16px; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.6;">
+                        Sepetinize eklediğiniz modelleri tamamlamanız için hesabınıza özel tek kullanımlık <strong>%10 indirim kuponu</strong> tanımlanmıştır.
                     </p>
 
                     <!-- KUPON KUTUSU -->
