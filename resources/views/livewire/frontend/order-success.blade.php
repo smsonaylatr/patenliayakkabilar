@@ -1,232 +1,221 @@
 <div x-data="{ showToast: false, toastMessage: '' }">
 <div class="min-h-screen bg-gray-50">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-4">
 
         {{-- ÜST: Sipariş Özeti Bar --}}
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between px-1">
             <span class="text-sm font-semibold text-gray-500">Sipariş özeti</span>
             <span class="text-lg font-black text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
         </div>
 
-        {{-- MASAÜSTÜ: 2 Kolon / MOBİL: Tek Kolon --}}
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-            {{-- SOL KOLON: Onay + Harita + Bilgiler --}}
-            <div class="lg:col-span-3 space-y-4">
-
-                {{-- ONAY BAŞLIĞI + HARİTA --}}
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                    <div class="flex items-start gap-4 mb-5">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid #3b82f6;">
-                            <i class="fa-solid fa-check" style="color: #3b82f6; font-size: 1.1rem;"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
-                            <h1 class="text-xl font-black text-gray-900 mt-0.5">
-                                Teşekkür ederiz {{ explode(' ', $order->customer_name)[0] }}
-                            </h1>
-                        </div>
-                    </div>
-
-                    @php
-                        // Adresteki daire/blok/no gibi detayları temizle (geocoding'i bozuyorlar)
-                        $cleanAddress = $order->shipping_address;
-                        $cleanAddress = preg_replace('/\b(no|no\.|no:)\s*\d+\w*/iu', '', $cleanAddress);
-                        $cleanAddress = preg_replace('/\b(blok|daire|kat|apt|apartman|rezidans|site)\s*\w*/iu', '', $cleanAddress);
-                        $cleanAddress = preg_replace('/\bK\d+\b/i', '', $cleanAddress);
-                        $cleanAddress = preg_replace('/\s+/', ' ', trim($cleanAddress));
-                        $cleanAddress = rtrim($cleanAddress, ', .');
-
-                        $mapQuery = urlencode($cleanAddress . ', ' . $order->shipping_district . ', ' . $order->shipping_city);
-                    @endphp
-                    <div class="rounded-xl overflow-hidden border border-gray-200 mb-5 relative">
-                        <iframe
-                            src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
-                            width="100%"
-                            style="border: 0; width: 100%;"
-                            class="w-full order-success-map"
-                            allowfullscreen=""
-                            loading="lazy"
-                        ></iframe>
-                        <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md border border-gray-100 text-center">
-                            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
-                            <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
-                        </div>
-                    </div>
-                    <style>
-                        .order-success-map { height: 180px !important; }
-                        @media (min-width: 1024px) { .order-success-map { height: 300px !important; } }
-                    </style>
-
-                    <div class="border-t border-gray-100 pt-4">
-                        <h3 class="text-base font-bold text-gray-900">Siparişiniz doğrulandı</h3>
-                        <p class="text-sm text-gray-500 mt-1">Kısa süre içinde onay e-postası alacaksınız</p>
-                    </div>
+        {{-- 1. KART: ONAY BAŞLIĞI + HARİTA --}}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
+            <div class="flex items-start gap-4 mb-5">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid #3b82f6;">
+                    <i class="fa-solid fa-check" style="color: #3b82f6; font-size: 1.1rem;"></i>
                 </div>
-
-                {{-- SİPARİŞ BİLGİLERİ --}}
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                    <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Bilgileri</h3>
-
-                    {{-- İletişim + Kargo yöntemi --}}
-                    <div class="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1">İletişim bilgileri</h4>
-                            <p class="text-sm text-gray-500">{{ $order->customer_email }}</p>
-                            @if($order->customer_phone)
-                                <p class="text-sm text-gray-500">{{ $order->customer_phone }}</p>
-                            @endif
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo yöntemi</h4>
-                            <p class="text-sm text-gray-500">Standart</p>
-                        </div>
-                    </div>
-
-                    {{-- Ödeme yöntemi + Kargo firması (+ Kupon) --}}
-                    <div class="grid grid-cols-2 gap-4 py-4 border-b border-gray-100">
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1">Ödeme yöntemi</h4>
-                            <p class="text-sm text-gray-500">
-                                @if($order->payment_method === 'credit_card')
-                                    Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
-                                @elseif($order->payment_method === 'cash_on_delivery')
-                                    Kapıda Ödeme · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
-                                @elseif($order->payment_method === 'wire_transfer')
-                                    Havale / EFT · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
-                                @else
-                                    {{ $order->payment_method }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
-                                @endif
-                            </p>
-                            @if($order->coupon_code)
-                                <div class="flex items-center gap-1.5 mt-2">
-                                    <i class="fa-solid fa-ticket text-xs" style="color: #16a34a;"></i>
-                                    <span class="text-xs text-gray-500">
-                                        Kupon: <span class="font-medium text-gray-700">{{ $order->coupon_code }}</span>
-                                        @if($order->discount_total > 0)
-                                            (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
-                                        @endif
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo firması</h4>
-                            <p class="text-sm text-gray-500">
-                                @php
-                                    $cargoName = $order->cargo_company;
-                                    if (empty($cargoName) || stripos($cargoName, 'porego') !== false) {
-                                        $cargoName = 'DHL eCommerce';
-                                    }
-                                @endphp
-                                {{ $cargoName }}
-                            </p>
-                        </div>
-                    </div>
-
-                    {{-- Kargo adresi + Fatura adresi --}}
-                    <div class="grid grid-cols-2 gap-4 pt-4">
-                        <div>
-                            <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo adresi</h4>
-                            <div class="text-sm text-gray-500 leading-relaxed">
-                                <p>{{ $order->customer_name }}</p>
-                                <p>{{ $order->shipping_address }}</p>
-                                <p>{{ $order->shipping_district }} / {{ $order->shipping_city }}</p>
-                                <p>Türkiye</p>
-                                @if($order->customer_phone)
-                                    <p>{{ $order->customer_phone }}</p>
-                                @endif
-                            </div>
-                        </div>
-                        @if($order->billing_address)
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-700 mb-1">Fatura adresi</h4>
-                                <div class="text-sm text-gray-500 leading-relaxed">
-                                    <p>{{ $order->customer_name }}</p>
-                                    <p>{{ $order->billing_address }}</p>
-                                    <p>{{ $order->billing_district }} / {{ $order->billing_city }}</p>
-                                    <p>Türkiye</p>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
+                <div>
+                    <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
+                    <h1 class="text-xl font-black text-gray-900 mt-0.5">
+                        Teşekkür ederiz {{ explode(' ', $order->customer_name)[0] }}
+                    </h1>
                 </div>
             </div>
 
-            {{-- SAĞ KOLON: Sipariş Detayları + Butonlar --}}
-            <div class="lg:col-span-2 space-y-4">
+            @php
+                // Adresteki daire/blok/no gibi detayları temizle (geocoding'i bozuyorlar)
+                $cleanAddress = $order->shipping_address;
+                $cleanAddress = preg_replace('/\b(no|no\.|no:)\s*\d+\w*/iu', '', $cleanAddress);
+                $cleanAddress = preg_replace('/\b(blok|daire|kat|apt|apartman|rezidans|site)\s*\w*/iu', '', $cleanAddress);
+                $cleanAddress = preg_replace('/\bK\d+\b/i', '', $cleanAddress);
+                $cleanAddress = preg_replace('/\s+/', ' ', trim($cleanAddress));
+                $cleanAddress = rtrim($cleanAddress, ', .');
 
-                {{-- Sipariş Detayları --}}
-                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-                    <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Detayları</h3>
+                $mapQuery = urlencode($cleanAddress . ', ' . $order->shipping_district . ', ' . $order->shipping_city);
+            @endphp
+            <div class="rounded-xl overflow-hidden border border-gray-200 mb-5 relative">
+                <iframe
+                    src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
+                    width="100%"
+                    style="border: 0; width: 100%;"
+                    class="w-full order-success-map"
+                    allowfullscreen=""
+                    loading="lazy"
+                ></iframe>
+                <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md border border-gray-100 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
+                    <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
+                </div>
+            </div>
+            <style>
+                .order-success-map { height: 180px !important; }
+                @media (min-width: 1024px) { .order-success-map { height: 300px !important; } }
+            </style>
 
-                    <div class="space-y-3">
-                        @foreach($order->items as $item)
-                            <div class="flex items-center gap-3">
-                                @if($item->product && $item->product->images->count() > 0)
-                                    <div class="relative flex-shrink-0">
-                                        <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="rounded-xl object-cover border border-gray-200" style="width:100px;height:100px;">
-                                        <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
-                                    </div>
-                                @else
-                                    <div class="relative flex-shrink-0">
-                                        <div class="rounded-xl bg-gray-100 flex items-center justify-center text-gray-300" style="width:100px;height:100px;">
-                                            <i class="fa-solid fa-shoe-prints text-sm"></i>
-                                        </div>
-                                        <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
-                                    </div>
-                                @endif
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 truncate">{{ $item->product_name }}</p>
-                                    @if($item->variant_info)
-                                        <p class="text-xs text-gray-400">{{ $item->variant_info }}</p>
-                                    @endif
-                                </div>
-                                <p class="text-sm font-bold text-gray-900 flex-shrink-0">{{ number_format($item->total_price, 2, ',', '.') }} ₺</p>
-                            </div>
-                        @endforeach
-                    </div>
+            <div class="border-t border-gray-100 pt-4">
+                <h3 class="text-base font-bold text-gray-900">Siparişiniz doğrulandı</h3>
+                <p class="text-sm text-gray-500 mt-1">Kısa süre içinde onay e-postası alacaksınız</p>
+            </div>
+        </div>
 
-                    {{-- Toplam --}}
-                    <div class="border-t border-gray-100 mt-4 pt-4 space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Ara toplam</span>
-                            <span class="text-gray-700">{{ number_format($order->subtotal, 2, ',', '.') }} ₺</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-500">Kargo</span>
-                            <span class="text-gray-700">{{ $order->shipping_price > 0 ? number_format($order->shipping_price, 2, ',', '.') . ' ₺' : 'Ücretsiz' }}</span>
-                        </div>
-                        @if($order->discount_total > 0)
-                            <div class="flex justify-between text-sm">
-                                <span class="text-green-600">İndirim</span>
-                                <span class="text-green-600 font-medium">-{{ number_format($order->discount_total, 2, ',', '.') }} ₺</span>
-                            </div>
+        {{-- 2. KART: SİPARİŞ BİLGİLERİ --}}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
+            <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Bilgileri</h3>
+
+            {{-- İletişim + Kargo yöntemi --}}
+            <div class="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 mb-1">İletişim bilgileri</h4>
+                    <p class="text-sm text-gray-500">{{ $order->customer_email }}</p>
+                    @if($order->customer_phone)
+                        <p class="text-sm text-gray-500">{{ $order->customer_phone }}</p>
+                    @endif
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo yöntemi</h4>
+                    <p class="text-sm text-gray-500">Standart</p>
+                </div>
+            </div>
+
+            {{-- Ödeme yöntemi + Kargo firması (+ Kupon) --}}
+            <div class="grid grid-cols-2 gap-4 py-4 border-b border-gray-100">
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 mb-1">Ödeme yöntemi</h4>
+                    <p class="text-sm text-gray-500">
+                        @if($order->payment_method === 'credit_card')
+                            Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
+                        @elseif($order->payment_method === 'cash_on_delivery')
+                            Kapıda Ödeme · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
+                        @elseif($order->payment_method === 'wire_transfer')
+                            Havale / EFT · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
+                        @else
+                            {{ $order->payment_method }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                         @endif
-                        <div class="flex justify-between text-base font-black pt-2 border-t border-gray-100">
-                            <span class="text-gray-900">Toplam</span>
-                            <span class="text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+                    </p>
+                    @if($order->coupon_code)
+                        <div class="flex items-center gap-1.5 mt-2">
+                            <i class="fa-solid fa-ticket text-xs" style="color: #16a34a;"></i>
+                            <span class="text-xs text-gray-500">
+                                Kupon: <span class="font-medium text-gray-700">{{ $order->coupon_code }}</span>
+                                @if($order->discount_total > 0)
+                                    (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
+                                @endif
+                            </span>
                         </div>
+                    @endif
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo firması</h4>
+                    <p class="text-sm text-gray-500">
+                        @php
+                            $cargoName = $order->cargo_company;
+                            if (empty($cargoName) || stripos($cargoName, 'porego') !== false) {
+                                $cargoName = 'DHL eCommerce';
+                            }
+                        @endphp
+                        {{ $cargoName }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Kargo adresi + Fatura adresi --}}
+            <div class="grid grid-cols-2 gap-4 pt-4">
+                <div>
+                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo adresi</h4>
+                    <div class="text-sm text-gray-500 leading-relaxed">
+                        <p>{{ $order->customer_name }}</p>
+                        <p>{{ $order->shipping_address }}</p>
+                        <p>{{ $order->shipping_district }} / {{ $order->shipping_city }}</p>
+                        <p>Türkiye</p>
+                        @if($order->customer_phone)
+                            <p>{{ $order->customer_phone }}</p>
+                        @endif
                     </div>
                 </div>
+                @if($order->billing_address)
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-700 mb-1">Fatura adresi</h4>
+                        <div class="text-sm text-gray-500 leading-relaxed">
+                            <p>{{ $order->customer_name }}</p>
+                            <p>{{ $order->billing_address }}</p>
+                            <p>{{ $order->billing_district }} / {{ $order->billing_city }}</p>
+                            <p>Türkiye</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
 
-                {{-- Butonlar --}}
-                <div class="space-y-3">
-                    <a href="{{ route('home') }}" class="block w-full bg-black hover:bg-gray-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] text-center text-sm">
-                        Alışverişe Devam Et
-                    </a>
-                    @if(auth()->check())
-                        <a href="{{ route('account.orders') }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
-                            Siparişimi Görüntüle
-                        </a>
-                    @else
-                        <a href="{{ route('order.tracking', ['order_number' => $order_number]) }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
-                            Siparişimi Takip Et
-                        </a>
-                    @endif
+        {{-- 3. KART: SİPARİŞ DETAYLARI --}}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
+            <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Detayları</h3>
+
+            <div class="space-y-3">
+                @foreach($order->items as $item)
+                    <div class="flex items-center gap-3">
+                        @if($item->product && $item->product->images->count() > 0)
+                            <div class="relative flex-shrink-0">
+                                <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="rounded-xl object-cover border border-gray-200" style="width:100px;height:100px;">
+                                <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
+                            </div>
+                        @else
+                            <div class="relative flex-shrink-0">
+                                <div class="rounded-xl bg-gray-100 flex items-center justify-center text-gray-300" style="width:100px;height:100px;">
+                                    <i class="fa-solid fa-shoe-prints text-sm"></i>
+                                </div>
+                                <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
+                            </div>
+                        @endif
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ $item->product_name }}</p>
+                            @if($item->variant_info)
+                                <p class="text-xs text-gray-400">{{ $item->variant_info }}</p>
+                            @endif
+                        </div>
+                        <p class="text-sm font-bold text-gray-900 flex-shrink-0">{{ number_format($item->total_price, 2, ',', '.') }} ₺</p>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Toplam --}}
+            <div class="border-t border-gray-100 mt-4 pt-4 space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Ara toplam</span>
+                    <span class="text-gray-700">{{ number_format($order->subtotal, 2, ',', '.') }} ₺</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Kargo</span>
+                    <span class="text-gray-700">{{ $order->shipping_price > 0 ? number_format($order->shipping_price, 2, ',', '.') . ' ₺' : 'Ücretsiz' }}</span>
+                </div>
+                @if($order->discount_total > 0)
+                    <div class="flex justify-between text-sm">
+                        <span class="text-green-600">İndirim</span>
+                        <span class="text-green-600 font-medium">-{{ number_format($order->discount_total, 2, ',', '.') }} ₺</span>
+                    </div>
+                @endif
+                <div class="flex justify-between text-base font-black pt-2 border-t border-gray-100">
+                    <span class="text-gray-900">Toplam</span>
+                    <span class="text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
                 </div>
             </div>
         </div>
+
+        {{-- 4. BUTONLAR --}}
+        <div class="space-y-3 pt-2">
+            <a href="{{ route('home') }}" class="block w-full bg-black hover:bg-gray-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] text-center text-sm">
+                Alışverişe Devam Et
+            </a>
+            @if(auth()->check())
+                <a href="{{ route('account.orders') }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
+                    Siparişimi Görüntüle
+                </a>
+            @else
+                <a href="{{ route('order.tracking', ['order_number' => $order_number]) }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
+                    Siparişimi Takip Et
+                </a>
+            @endif
+        </div>
+
     </div>
 </div>
 

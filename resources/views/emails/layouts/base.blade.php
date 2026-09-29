@@ -5,18 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>@yield('title', 'Patenli Ayakkabılar®')</title>
-    <!-- Google Web Font: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!--[if mso]>
     <style>
         * { font-family: 'Segoe UI', Arial, sans-serif !important; }
     </style>
     <![endif]-->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
-        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        body, table, td, p, a, span { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
         img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; display: block; }
         @media only screen and (max-width: 820px) {
@@ -27,33 +22,33 @@
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0f172a;">
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #0f172a;">
 
     <!-- ANA GÖVDE SARMALAYICI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; padding: 40px 12px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f1f5f9; padding: 40px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
         <tr>
             <td align="center">
-                <table class="email-container" width="800" cellpadding="0" cellspacing="0" border="0" style="max-width: 800px; width: 100%; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06); border: 1px solid #e2e8f0;">
+                <table class="email-container" width="800" cellpadding="0" cellspacing="0" border="0" style="max-width: 800px; width: 100%; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08); border: 1px solid #e2e8f0;">
                     
                     <!-- 1. HEADER: SADECE ORİJİNAL LOGO (Bembeyaz Zemin, Ferah ve İnce Ayrım) -->
                     <tr>
                         <td align="center" style="background-color: #ffffff; padding: 36px 30px; border-bottom: 1px solid #f1f5f9;">
                             <a href="https://patenliayakkabilar.com" target="_blank" style="text-decoration: none; display: inline-block;">
-                                <span style="font-size: 29px; font-weight: 900; color: #0f172a; letter-spacing: -1px; text-transform: uppercase; font-family: 'Plus Jakarta Sans', 'Arial Black', sans-serif;">PATENLİ</span><span style="font-size: 29px; font-weight: 300; color: #0f172a; letter-spacing: -1px; text-transform: uppercase; font-family: 'Plus Jakarta Sans', sans-serif;">AYAKKABILAR<sup style="font-size: 13px; font-weight: 400; vertical-align: super; color: #64748b;">®</sup></span>
+                                <span style="font-size: 29px; font-weight: 900; color: #0f172a; letter-spacing: -1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">PATENLİ</span><span style="font-size: 29px; font-weight: 300; color: #0f172a; letter-spacing: -1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">AYAKKABILAR<sup style="font-size: 13px; font-weight: 400; vertical-align: super; color: #64748b;">®</sup></span>
                             </a>
                         </td>
                     </tr>
 
                     <!-- 2. İÇERİK ALANI -->
                     <tr>
-                        <td class="mobile-padding" style="padding: 48px 56px 40px; background-color: #ffffff; color: #334155; font-size: 15px; line-height: 1.7;">
+                        <td class="mobile-padding" style="padding: 48px 56px 40px; background-color: #ffffff; color: #1e293b; font-size: 15px; line-height: 1.7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                             @yield('content')
                         </td>
                     </tr>
 
                     <!-- 3. FOOTER: SİTEYLE BİREBİR MAT LÜKS SİYAH (#0e0f11) -->
                     <tr>
-                        <td class="mobile-padding" style="background-color: #0e0f11; padding: 44px 52px 30px; color: #94a3b8; font-size: 12px; line-height: 1.65;">
+                        <td class="mobile-padding" style="background-color: #0e0f11; padding: 44px 52px 30px; color: #94a3b8; font-size: 12px; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                             
                             <!-- 2 Sütunlu Grid: Sol (Logo, Açıklama, Sosyal İkonlar, ETBİS), Sağ (Hızlı Menü, Kurumsal) -->
                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -133,7 +128,7 @@
                                 </tr>
                             </table>
 
-                            <!-- Alt Kısım: Ödeme Logoları (Kesilmeden net görünür) -->
+                            <!-- Alt Kısım: Ödeme Logoları -->
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #1e2229; margin-top: 26px; padding-top: 20px;">
                                 <tr>
                                     <td align="center">
@@ -160,7 +155,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 5px; padding: 4px 8px; font-weight: 700; font-size: 9px; color: #475569; display: inline-block;">
+                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 4px 8px; font-weight: 700; font-size: 9px; color: #475569; display: inline-block;">
                                                         Havale / EFT
                                                     </div>
                                                 </td>
