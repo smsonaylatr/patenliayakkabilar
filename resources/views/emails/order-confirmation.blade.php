@@ -19,48 +19,48 @@
     };
 @endphp
 
-<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a;">
+<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #1e293b;">
 
     <!-- ÜST: SİPARİŞ ÖZETİ BARI -->
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
         <tr>
-            <td align="left" style="font-size: 13px; font-weight: 600; color: #64748b;">
+            <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
                 Sipariş özeti
             </td>
-            <td align="right" style="font-size: 18px; font-weight: 900; color: #0f172a;">
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
                 {{ number_format($order->grand_total, 2, ',', '.') }} ₺
             </td>
         </tr>
     </table>
 
     <!-- 1. KART: ONAY BAŞLIĞI KARTI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
         <tr>
-            <td style="padding: 24px;">
+            <td style="padding: 22px;">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                        <td width="48" valign="top" style="padding-right: 16px;">
-                            <!-- Mavi Onay Dairesi -->
-                            <div style="width: 44px; height: 44px; border: 2px solid #3b82f6; border-radius: 50%; text-align: center; line-height: 42px; font-size: 20px; color: #3b82f6; font-weight: 900;">
+                        <td width="42" valign="middle" style="padding-right: 14px;">
+                            <!-- Mavi Onay Dairesi (Zarif İnce Çizgili) -->
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 17px; color: #2563eb; font-weight: 700;">
                                 ✓
                             </div>
                         </td>
                         <td valign="middle">
-                            <p style="margin: 0 0 4px; font-size: 13px; color: #94a3b8; font-weight: 500;">
+                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
                                 {{ $order->order_number }} numaralı onaylama
                             </p>
-                            <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; letter-spacing: -0.5px;">
+                            <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
                                 Teşekkür ederiz {{ $firstName }}
                             </h1>
                         </td>
                     </tr>
                 </table>
 
-                <div style="border-top: 1px solid #f1f5f9; margin-top: 20px; padding-top: 16px;">
-                    <h3 style="margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #0f172a;">
+                <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
+                    <h3 style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #0f172a;">
                         Siparişiniz doğrulandı
                     </h3>
-                    <p style="margin: 0; font-size: 13px; color: #64748b;">
+                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
                         Siparişiniz hazırlanma aşamasına alınmıştır. Kargonuz çıktığında takip bilgisi iletilecektir.
                     </p>
                 </div>
@@ -69,47 +69,47 @@
     </table>
 
     <!-- 2. KART: SİPARİŞ BİLGİLERİ KARTI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
         <tr>
-            <td style="padding: 24px;">
-                <h3 style="margin: 0 0 18px; font-size: 17px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px;">
+            <td style="padding: 22px;">
+                <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">
                     Sipariş Bilgileri
                 </h3>
 
                 <!-- Satır 1: İletişim Bilgileri & Kargo Yöntemi -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 14px;">
                     <tr>
                         <td width="50%" valign="top" style="padding-right: 12px;">
-                            <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #334155;">İletişim bilgileri</p>
-                            <p style="margin: 0 0 2px; font-size: 13px; color: #64748b;">{{ $order->customer_email }}</p>
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">İletişim bilgileri</p>
+                            <p style="margin: 0 0 2px; font-size: 13px; color: #64748b; font-weight: 400;">{{ $order->customer_email }}</p>
                             @if($order->customer_phone)
-                                <p style="margin: 0; font-size: 13px; color: #64748b;">{{ $order->customer_phone }}</p>
+                                <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">{{ $order->customer_phone }}</p>
                             @endif
                         </td>
                         <td width="50%" valign="top">
-                            <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #334155;">Kargo yöntemi</p>
-                            <p style="margin: 0; font-size: 13px; color: #64748b;">Standart Teslimat</p>
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Kargo yöntemi</p>
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">Standart Teslimat</p>
                         </td>
                     </tr>
                 </table>
 
                 <!-- Satır 2: Ödeme Yöntemi & Kargo Firması -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 14px;">
                     <tr>
                         <td width="50%" valign="top" style="padding-right: 12px;">
-                            <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #334155;">Ödeme yöntemi</p>
-                            <p style="margin: 0; font-size: 13px; color: #64748b;">
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Ödeme yöntemi</p>
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">
                                 {{ $paymentMethodText }} · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                             </p>
                             @if($order->coupon_code)
-                                <p style="margin: 4px 0 0; font-size: 12px; color: #16a34a; font-weight: 600;">
-                                    🎟️ Kupon: {{ $order->coupon_code }} (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
+                                <p style="margin: 3px 0 0; font-size: 12px; color: #16a34a; font-weight: 500;">
+                                    Kupon: {{ $order->coupon_code }} (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
                                 </p>
                             @endif
                         </td>
                         <td width="50%" valign="top">
-                            <p style="margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #334155;">Kargo firması</p>
-                            <p style="margin: 0; font-size: 13px; color: #64748b;">{{ $cargoName }}</p>
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Kargo firması</p>
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">{{ $cargoName }}</p>
                         </td>
                     </tr>
                 </table>
@@ -118,9 +118,9 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="50%" valign="top" style="padding-right: 12px;">
-                            <p style="margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #334155;">Kargo adresi</p>
-                            <div style="font-size: 13px; color: #64748b; line-height: 1.55;">
-                                <p style="margin: 0; font-weight: 700; color: #1e293b;">{{ $order->customer_name }}</p>
+                            <p style="margin: 0 0 5px; font-size: 12px; font-weight: 600; color: #334155;">Kargo adresi</p>
+                            <div style="font-size: 13px; color: #64748b; line-height: 1.5; font-weight: 400;">
+                                <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ $order->customer_name }}</p>
                                 <p style="margin: 2px 0;">{{ $order->shipping_address }}</p>
                                 <p style="margin: 2px 0;">{{ $order->shipping_district }} / {{ $order->shipping_city }}</p>
                                 <p style="margin: 2px 0;">Türkiye</p>
@@ -130,9 +130,9 @@
                             </div>
                         </td>
                         <td width="50%" valign="top">
-                            <p style="margin: 0 0 6px; font-size: 13px; font-weight: 700; color: #334155;">Fatura adresi</p>
-                            <div style="font-size: 13px; color: #64748b; line-height: 1.55;">
-                                <p style="margin: 0; font-weight: 700; color: #1e293b;">{{ $order->customer_name }}</p>
+                            <p style="margin: 0 0 5px; font-size: 12px; font-weight: 600; color: #334155;">Fatura adresi</p>
+                            <div style="font-size: 13px; color: #64748b; line-height: 1.5; font-weight: 400;">
+                                <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ $order->customer_name }}</p>
                                 <p style="margin: 2px 0;">{{ $order->billing_address ?: $order->shipping_address }}</p>
                                 <p style="margin: 2px 0;">{{ $order->billing_district ?: $order->shipping_district }} / {{ $order->billing_city ?: $order->shipping_city }}</p>
                                 <p style="margin: 2px 0;">Türkiye</p>
@@ -146,10 +146,10 @@
     </table>
 
     <!-- 3. KART: SİPARİŞ DETAYLARI KARTI (ÜRÜNLER & ARA TOPLAMLAR) -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px;">
         <tr>
-            <td style="padding: 24px;">
-                <h3 style="margin: 0 0 20px; font-size: 17px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px;">
+            <td style="padding: 22px;">
+                <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">
                     Sipariş Detayları
                 </h3>
 
@@ -157,12 +157,10 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
                     @foreach($order->items as $item)
                     @php
-                        // Fiyat hesabı: total_price veya unit_price * quantity
                         $itemTotal = $item->total_price ?? ($item->unit_price ? ($item->unit_price * $item->quantity) : ($item->price ?? 0));
                         $itemName = $item->product_name ?? $item->name ?? 'Ürün';
                         $variantInfo = $item->variant_info ?? $item->variant_name ?? null;
 
-                        // Görsel URL
                         $imageUrl = null;
                         if ($item->product && $item->product->images && $item->product->images->count() > 0) {
                             $imageUrl = Storage::url($item->product->images->first()->image_path);
@@ -173,37 +171,37 @@
                     @endphp
                     <tr>
                         <!-- Ürün Görseli & Adet Rozeti -->
-                        <td width="72" valign="middle" style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
-                            <div style="position: relative; width: 60px; height: 60px; display: inline-block;">
+                        <td width="64" valign="middle" style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div style="position: relative; width: 54px; height: 54px; display: inline-block;">
                                 @if($imageUrl)
-                                    <img src="{{ $imageUrl }}" alt="{{ $itemName }}" width="60" height="60" style="width: 60px; height: 60px; object-fit: cover; border-radius: 12px; border: 1px solid #e2e8f0; display: block;">
+                                    <img src="{{ $imageUrl }}" alt="{{ $itemName }}" width="54" height="54" style="width: 54px; height: 54px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; display: block;">
                                 @else
-                                    <div style="width: 60px; height: 60px; background-color: #f1f5f9; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; line-height: 60px; font-size: 20px; color: #94a3b8;">
+                                    <div style="width: 54px; height: 54px; background-color: #f1f5f9; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; line-height: 54px; font-size: 18px; color: #94a3b8;">
                                         👟
                                     </div>
                                 @endif
-                                <!-- Adet Rozeti (Sağ Üst Köşede) -->
-                                <div style="position: absolute; top: -6px; right: -6px; background-color: #475569; color: #ffffff; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; text-align: center; line-height: 18px; border: 2px solid #ffffff;">
+                                <!-- Adet Rozeti -->
+                                <div style="position: absolute; top: -5px; right: -5px; background-color: #475569; color: #ffffff; font-size: 10px; font-weight: 700; width: 17px; height: 17px; border-radius: 50%; text-align: center; line-height: 17px; border: 2px solid #ffffff;">
                                     {{ $item->quantity }}
                                 </div>
                             </div>
                         </td>
 
                         <!-- Ürün Adı & Varyant -->
-                        <td valign="middle" style="padding: 12px 16px; border-bottom: 1px solid #f1f5f9;">
-                            <p style="margin: 0; font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.4;">
+                        <td valign="middle" style="padding: 12px 14px; border-bottom: 1px solid #f1f5f9;">
+                            <p style="margin: 0; font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.4;">
                                 {{ $itemName }}
                             </p>
                             @if($variantInfo)
-                                <p style="margin: 4px 0 0; font-size: 12px; color: #94a3b8; font-weight: 500;">
+                                <p style="margin: 3px 0 0; font-size: 12px; color: #94a3b8; font-weight: 400;">
                                     {{ $variantInfo }}
                                 </p>
                             @endif
                         </td>
 
-                        <!-- Fiyat (Hatasız Hesaplanan Tutar) -->
+                        <!-- Fiyat -->
                         <td valign="middle" align="right" style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; white-space: nowrap;">
-                            <span style="font-size: 15px; font-weight: 900; color: #0f172a;">
+                            <span style="font-size: 14px; font-weight: 700; color: #0f172a;">
                                 {{ number_format($itemTotal, 2, ',', '.') }} ₺
                             </span>
                         </td>
@@ -211,31 +209,31 @@
                     @endforeach
                 </table>
 
-                <!-- Alt Toplamlar (Ara Toplam, Kargo, İndirim, Toplam) -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 18px;">
+                <!-- Alt Toplamlar -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 14px;">
                     <tr>
-                        <td style="padding: 5px 0; font-size: 13px; color: #64748b;">Ara toplam</td>
-                        <td align="right" style="padding: 5px 0; font-size: 13px; font-weight: 600; color: #334155;">
+                        <td style="padding: 4px 0; font-size: 13px; color: #64748b; font-weight: 400;">Ara toplam</td>
+                        <td align="right" style="padding: 4px 0; font-size: 13px; font-weight: 500; color: #334155;">
                             {{ number_format($order->subtotal, 2, ',', '.') }} ₺
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding: 5px 0; font-size: 13px; color: #64748b;">Kargo</td>
-                        <td align="right" style="padding: 5px 0; font-size: 13px; font-weight: 600; color: #334155;">
+                        <td style="padding: 4px 0; font-size: 13px; color: #64748b; font-weight: 400;">Kargo</td>
+                        <td align="right" style="padding: 4px 0; font-size: 13px; font-weight: 500; color: #334155;">
                             {{ $order->shipping_price > 0 ? number_format($order->shipping_price, 2, ',', '.') . ' ₺' : 'Ücretsiz' }}
                         </td>
                     </tr>
                     @if($order->discount_total > 0)
                     <tr>
-                        <td style="padding: 5px 0; font-size: 13px; color: #16a34a; font-weight: 600;">İndirim</td>
-                        <td align="right" style="padding: 5px 0; font-size: 13px; font-weight: 700; color: #16a34a;">
+                        <td style="padding: 4px 0; font-size: 13px; color: #16a34a; font-weight: 500;">İndirim</td>
+                        <td align="right" style="padding: 4px 0; font-size: 13px; font-weight: 600; color: #16a34a;">
                             -{{ number_format($order->discount_total, 2, ',', '.') }} ₺
                         </td>
                     </tr>
                     @endif
                     <tr>
-                        <td style="padding: 14px 0 0; font-size: 16px; font-weight: 900; color: #0f172a; border-top: 1px solid #f1f5f9;">Toplam</td>
-                        <td align="right" style="padding: 14px 0 0; font-size: 17px; font-weight: 900; color: #0f172a; border-top: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 0 0; font-size: 15px; font-weight: 700; color: #0f172a; border-top: 1px solid #f1f5f9;">Toplam</td>
+                        <td align="right" style="padding: 12px 0 0; font-size: 16px; font-weight: 700; color: #0f172a; border-top: 1px solid #f1f5f9;">
                             {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                         </td>
                     </tr>
@@ -245,15 +243,13 @@
         </tr>
     </table>
 
-    <!-- 4. BUTONLAR: SİTEDEKİ ALISVERISE DEVAM ET & SIPARISIMI TAKIP ET -->
-    <div style="margin-top: 28px; text-align: center;">
-        <!-- Siyah Buton: Alışverişe Devam Et -->
-        <a href="https://patenliayakkabilar.com" target="_blank" style="display: block; background-color: #000000; color: #ffffff; text-decoration: none; padding: 15px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <!-- 4. BUTONLAR: ZARİF KURUMSAL BUTONLAR -->
+    <div style="margin-top: 24px; text-align: center;">
+        <a href="https://patenliayakkabilar.com" target="_blank" style="display: block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; margin-bottom: 10px;">
             Alışverişe Devam Et
         </a>
 
-        <!-- Beyaz Buton: Siparişimi Takip Et -->
-        <a href="https://patenliayakkabilar.com/siparis-takip?order={{ $order->order_number }}" target="_blank" style="display: block; background-color: #ffffff; color: #374151; text-decoration: none; padding: 14px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; border: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+        <a href="https://patenliayakkabilar.com/siparis-takip?order={{ $order->order_number }}" target="_blank" style="display: block; background-color: #ffffff; color: #334155; text-decoration: none; padding: 13px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #cbd5e1;">
             Siparişimi Takip Et
         </a>
     </div>
