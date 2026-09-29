@@ -3,8 +3,12 @@
 namespace App\Filament\Resources\Products\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
+use App\Models\Product;
+use App\Services\ProductAiExportService;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\HtmlString;
 
@@ -15,6 +19,55 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('aiExportCatalog')
+                ->label('AI Katalog İndir (Tüm Ürünler)')
+                ->icon('heroicon-o-sparkles')
+                ->color('success')
+                ->modalHeading('Tüm Kataloğu Yapay Zeka İçin Dışa Aktar')
+                ->modalDescription('Katalogdaki tüm aktif veya filtrelenmiş ürünleri ChatGPT, Claude, Gemini veya e-tablo analizlerinde kullanmak üzere tek tıkla Excel, CSV veya PDF olarak indirebilirsiniz.')
+                ->modalSubmitActionLabel('Kataloğu İndir')
+                ->form([
+                    Select::make('format')
+                        ->label('Dışa Aktarma Formatı')
+                        ->options([
+                            'xlsx' => '📊 Excel Çalışma Kitabı (.xlsx) — Çoklu Sayfa (Katalog + Bedenler + AI Rehberi)',
+                            'csv'  => '📄 CSV Dosyası (.csv) — Saf Metin Tablo (ChatGPT / Claude Uyumlu)',
+                            'pdf'  => '📑 PDF Dokümanı (.pdf) — Yapay Zeka Katalog Raporu',
+                        ])
+                        ->default('xlsx')
+                        ->required()
+                        ->native(false),
+                    Select::make('status_filter')
+                        ->label('Hangi Ürünler Aktarılsın?')
+                        ->options([
+                            'active' => 'Yalnızca Aktif Satışta Olan Ürünler',
+                            'all'    => 'Tüm Ürünler (Aktif ve Pasif)',
+                        ])
+                        ->default('active')
+                        ->native(false),
+                    Toggle::make('include_descriptions')
+                        ->label('Detaylı ürün açıklamalarını dahil et')
+                        ->default(true)
+                        ->helperText('HTML etiketlerinden arındırılmış temiz metin olarak aktarılır.'),
+                    Toggle::make('only_in_stock')
+                        ->label('Yalnızca stokta olan varyantları dahil et')
+                        ->default(false)
+                        ->helperText('Aktif edilirse tükenmiş beden varyantları listeye eklenmez.'),
+                ])
+                ->action(function (array $data) {
+                    $query = Product::query();
+                    if (($data['status_filter'] ?? 'active') === 'active') {
+                        $query->where('status', true);
+                    }
+
+                    $format = $data['format'] ?? 'xlsx';
+                    $service = app(ProductAiExportService::class);
+
+                    return $service->export($query, $format, [
+                        'include_descriptions' => (bool) ($data['include_descriptions'] ?? true),
+                        'only_in_stock' => (bool) ($data['only_in_stock'] ?? false),
+                    ]);
+                }),
             Action::make('syncPoregoStock')
                 ->label('Porego Stok Entegrasyonu')
                 ->icon('heroicon-o-arrow-path')

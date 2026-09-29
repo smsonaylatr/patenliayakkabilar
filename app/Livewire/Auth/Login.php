@@ -28,7 +28,13 @@ class Login extends Component
 
         if (Auth::attempt(['email' => strtolower(trim($this->email)), 'password' => $this->password], $this->remember)) {
             session()->regenerate();
-            return redirect()->intended('/hesabim');
+
+            if (Auth::user()->isAdmin()) {
+                Auth::guard('admin')->login(Auth::user(), $this->remember);
+                return $this->redirectIntended(default: '/admin', navigate: false);
+            }
+
+            return $this->redirectIntended(default: '/hesabim', navigate: true);
         }
 
         $this->addError('email', 'Verilen bilgiler kayıtlarımızla eşleşmiyor.');

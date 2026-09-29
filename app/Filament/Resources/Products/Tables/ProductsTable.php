@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\Products\Tables;
 
 use App\Models\Product;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -168,6 +171,86 @@ class ProductsTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('aiExport')
+                        ->label('Yapay Zeka İçin Dışa Aktar (AI Export)')
+                        ->icon('heroicon-o-sparkles')
+                        ->color('success')
+                        ->modalHeading('Seçili Ürünleri Yapay Zeka İçin Dışa Aktar')
+                        ->modalDescription('Seçtiğiniz ürünleri ChatGPT, Claude, Gemini veya e-tablo analizlerinde kullanmak üzere optimize edilmiş formatta indirebilirsiniz.')
+                        ->modalSubmitActionLabel('Dışa Aktar ve İndir')
+                        ->form([
+                            Select::make('format')
+                                ->label('Dışa Aktarma Formatı')
+                                ->options([
+                                    'xlsx' => '📊 Excel Çalışma Kitabı (.xlsx) — Çoklu Sayfa (Katalog + Beden Varyantları + AI Rehberi)',
+                                    'csv'  => '📄 CSV Dosyası (.csv) — Saf Metin Tablo (ChatGPT / Claude / Python Pandas)',
+                                    'pdf'  => '📑 PDF Dokümanı (.pdf) — Yapay Zeka & Yönetici Katalog Raporu',
+                                ])
+                                ->default('xlsx')
+                                ->required()
+                                ->native(false),
+                            Toggle::make('include_descriptions')
+                                ->label('Detaylı ürün açıklamalarını dahil et')
+                                ->default(true)
+                                ->helperText('HTML etiketlerinden arındırılmış temiz metin olarak aktarılır.'),
+                            Toggle::make('only_in_stock')
+                                ->label('Yalnızca stokta olan beden varyantlarını dahil et')
+                                ->default(false)
+                                ->helperText('Aktif edilirse tükenmiş varyantlar dışa aktarmaya dahil edilmez.'),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            if ($records->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Seçili ürün bulunamadı.')
+                                    ->warning()
+                                    ->send();
+                                return null;
+                            }
+
+                            $format = $data['format'] ?? 'xlsx';
+                            $service = app(\App\Services\ProductAiExportService::class);
+
+                            return $service->export($records, $format, [
+                                'include_descriptions' => (bool) ($data['include_descriptions'] ?? true),
+                                'only_in_stock' => (bool) ($data['only_in_stock'] ?? false),
+                            ]);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('aiExportExcelDirect')
+                        ->label('AI İçin Excel İndir (.xlsx)')
+                        ->icon('heroicon-o-table-cells')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            if ($records->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Seçili ürün bulunamadı.')
+                                    ->warning()
+                                    ->send();
+                                return null;
+                            }
+
+                            return app(\App\Services\ProductAiExportService::class)->exportToExcel($records);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('aiExportPdfDirect')
+                        ->label('AI İçin PDF İndir (.pdf)')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('primary')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            if ($records->isEmpty()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Seçili ürün bulunamadı.')
+                                    ->warning()
+                                    ->send();
+                                return null;
+                            }
+
+                            return app(\App\Services\ProductAiExportService::class)->exportToPdf($records);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     \Filament\Actions\BulkAction::make('replicate')
                         ->label('Çoğalt')
                         ->icon('heroicon-o-document-duplicate')
