@@ -1,5 +1,5 @@
 <div x-data="{ showToast: false, toastMessage: '' }">
-<div class="min-h-screen bg-gray-50 pb-28 sm:pb-12">
+<div class="bg-gray-50">
     <div class="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-3.5 sm:space-y-5">
 
         {{-- ÜST: Sipariş Özeti Bar --}}
