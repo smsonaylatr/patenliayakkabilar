@@ -14,10 +14,10 @@
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
         img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; display: block; }
-        @media only screen and (max-width: 680px) {
+        @media only screen and (max-width: 820px) {
             .email-container { width: 100% !important; }
             .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
-            .footer-stack { display: block !important; width: 100% !important; margin-bottom: 20px !important; }
+            .footer-stack { display: block !important; width: 100% !important; margin-bottom: 24px !important; }
             .footer-links-wrap { width: 100% !important; }
         }
     </style>
@@ -25,30 +25,30 @@
 <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #18181b;">
 
     <!-- ANA GÖVDE SARMALAYICI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f5; padding: 32px 10px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f5; padding: 36px 12px;">
         <tr>
             <td align="center">
-                <table class="email-container" width="680" cellpadding="0" cellspacing="0" border="0" style="max-width: 680px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07); border: 1px solid #e4e4e7;">
+                <table class="email-container" width="800" cellpadding="0" cellspacing="0" border="0" style="max-width: 800px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07); border: 1px solid #e4e4e7;">
                     
                     <!-- 2. HEADER: BEYAZ ZEMİN, SADECE RESMİ LOGO -->
                     <tr>
-                        <td align="center" style="background-color: #ffffff; padding: 28px 24px; border-bottom: 1px solid #e4e4e7;">
+                        <td align="center" style="background-color: #ffffff; padding: 32px 24px; border-bottom: 1px solid #e4e4e7;">
                             <a href="https://patenliayakkabilar.com" target="_blank" style="text-decoration: none; display: inline-block;">
-                                <span style="font-size: 26px; font-weight: 900; color: #111827; letter-spacing: -1px; text-transform: uppercase; font-family: 'Arial Black', -apple-system, sans-serif;">PATENLİ</span><span style="font-size: 26px; font-weight: 300; color: #111827; letter-spacing: -1px; text-transform: uppercase; font-family: -apple-system, sans-serif;">AYAKKABILAR<sup style="font-size: 12px; font-weight: 400; vertical-align: super;">®</sup></span>
+                                <span style="font-size: 28px; font-weight: 900; color: #111827; letter-spacing: -1px; text-transform: uppercase; font-family: 'Arial Black', -apple-system, sans-serif;">PATENLİ</span><span style="font-size: 28px; font-weight: 300; color: #111827; letter-spacing: -1px; text-transform: uppercase; font-family: -apple-system, sans-serif;">AYAKKABILAR<sup style="font-size: 13px; font-weight: 400; vertical-align: super;">®</sup></span>
                             </a>
                         </td>
                     </tr>
 
                     <!-- 3. İÇERİK ALANI -->
                     <tr>
-                        <td class="mobile-padding" style="padding: 36px 36px 32px; background-color: #ffffff; color: #18181b; font-size: 15px; line-height: 1.65;">
+                        <td class="mobile-padding" style="padding: 44px 48px 36px; background-color: #ffffff; color: #18181b; font-size: 15px; line-height: 1.65;">
                             @yield('content')
                         </td>
                     </tr>
 
                     <!-- 4. FOOTER: SİTEYLE BİREBİR MAT SİYAH (#121212) KURUMSAL FOOTER -->
                     <tr>
-                        <td class="mobile-padding" style="background-color: #121212; padding: 36px 32px 24px; color: #9ca3af; font-size: 12px; line-height: 1.6;">
+                        <td class="mobile-padding" style="background-color: #121212; padding: 42px 48px 28px; color: #9ca3af; font-size: 12px; line-height: 1.6;">
                             
                             <!-- Üst Kısım: 2 Sütunlu Grid -->
                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
