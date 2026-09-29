@@ -1,14 +1,4 @@
-<div class="min-h-0 lg:min-h-screen bg-brand-light py-6 lg:py-24 flex justify-center lg:items-center mobile-auth-spacing">
-    <style>
-        @media (max-width: 1023px) {
-            .mobile-auth-spacing {
-                min-height: unset !important;
-                padding-top: 24px !important;
-                padding-bottom: 24px !important;
-                align-items: flex-start !important;
-            }
-        }
-    </style>
+<div class="min-h-0 lg:min-h-screen bg-brand-light py-6 lg:py-24 flex justify-center items-start lg:items-center">
     <div class="container mx-auto px-3 sm:px-4 max-w-md w-full">
         
         <div class="bg-white/90 backdrop-blur-2xl border border-white/60 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-[0_15px_35px_rgba(0,0,0,0.06)] sm:shadow-[0_30px_60px_rgba(0,0,0,0.08)] relative overflow-hidden">
@@ -30,13 +20,13 @@
                 <!-- Email -->
                 <div class="space-y-1">
                     <label for="email" class="text-xs font-bold text-gray-700 ml-1">E-posta Adresiniz</label>
-                    <input wire:model="email" type="email" id="email" class="w-full text-base sm:text-sm bg-gray-50 border @error('email') border-red-300 ring-1 ring-red-300 @else border-gray-200 @enderror rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="ornek@email.com">
+                    <input wire:model="email" name="email" autocomplete="email" type="email" id="email" class="w-full text-base sm:text-sm bg-gray-50 border @error('email') border-red-300 ring-1 ring-red-300 @else border-gray-200 @enderror rounded-xl px-3.5 py-2.5 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white transition-all text-gray-700" placeholder="ornek@email.com">
                     @error('email') <span class="text-red-500 text-[11px] sm:text-xs font-bold ml-1">{{ $message }}</span> @enderror
                 </div>
 
                 <!-- Submit Button -->
                 <div class="pt-1.5">
-                    <button type="submit" class="w-full bg-brand-dark text-white font-bold text-sm sm:text-base rounded-xl py-2.5 sm:py-3 shadow-[0_8px_25px_rgba(31,41,55,0.3)] hover:shadow-[0_12px_35px_rgba(31,41,55,0.4)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
+                    <button type="submit" wire:loading.attr="disabled" class="w-full bg-brand-dark text-white font-bold text-sm sm:text-base rounded-xl py-2.5 sm:py-3 shadow-[0_8px_25px_rgba(31,41,55,0.3)] hover:shadow-[0_12px_35px_rgba(31,41,55,0.4)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center group relative overflow-hidden disabled:opacity-75 disabled:cursor-not-allowed">
                         <span wire:loading.remove wire:target="sendResetLink" class="relative z-10 flex items-center justify-center">
                             Sıfırlama Bağlantısı Gönder
                         </span>
