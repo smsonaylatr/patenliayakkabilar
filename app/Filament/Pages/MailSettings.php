@@ -244,7 +244,7 @@ class MailSettings extends Page implements HasForms
                     $message->from($fromAddress, $fromName);
                 }
                 $message->to($recipient)
-                    ->subject('Patenli Ayakkabılar® — E-Posta Sistemi Doğrulama Bildirimi 🎉');
+                    ->subject('Patenli Ayakkabılar® — E-Posta Sistemi Doğrulama Bildirimi (' . now()->timezone('Europe/Istanbul')->format('H:i') . ')');
             });
 
             Notification::make()
