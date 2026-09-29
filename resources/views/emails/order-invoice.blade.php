@@ -1,21 +1,73 @@
 @extends('emails.layouts.base')
 
-@section('title', 'E-Faturanız Oluşturuldu')
+@section('title', 'Siparişinizin Faturası — #' . $order->order_number . ' — Patenli Ayakkabılar®')
 
 @section('content')
-<div style="text-align: center; margin-bottom: 30px;">
-    <h2 style="margin-top: 0;">Merhaba {{ $order->customer_name }},</h2>
-</div>
+@php
+    $firstName = explode(' ', trim($order->customer_name))[0];
+    $total = $order->grand_total ?? $order->total_amount ?? 0;
+@endphp
 
-<p style="font-size: 15px; line-height: 1.6;"><strong>{{ $order->order_number }}</strong> numaralı siparişinize ait e-faturanız/e-arşiv belgeniz başarıyla oluşturulmuştur.</p>
+<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #1e293b;">
 
-<p style="font-size: 15px; line-height: 1.6;">Faturanızı bu e-postanın ekinde PDF formatında bulabilirsiniz.</p>
+    <!-- ÜST: FATURA BARI -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
+        <tr>
+            <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
+                Fatura Bildirimi
+            </td>
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
+                {{ number_format($total, 2, ',', '.') }} ₺
+            </td>
+        </tr>
+    </table>
 
-@if(!empty($pdfUrl))
-    <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
-        <a href="{{ $pdfUrl }}" style="display: inline-block; padding: 14px 28px; background-color: #ff4e00; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">Faturayı Tarayıcıda Görüntüle</a>
+    <!-- 1. KART: FATURA BAŞLIĞI KARTI -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 22px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td width="42" valign="middle" style="padding-right: 14px;">
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #2563eb;">
+                                📄
+                            </div>
+                        </td>
+                        <td valign="middle">
+                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
+                                #{{ $order->order_number }} Numaralı Sipariş
+                            </p>
+                            <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
+                                Faturanız Hazırlandı, {{ $firstName }}
+                            </h1>
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
+                    <h3 style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        E-Fatura / E-Arşiv belgeniz oluşturuldu
+                    </h3>
+                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
+                        Patenli Ayakkabılar mağazamızdan vermiş olduğunuz siparişinize ait e-fatura belgeniz hazırlanmıştır. Faturanızı bu e-postanın ekinde bulabilir veya aşağıdaki bağlantı üzerinden görüntüleyebilirsiniz.
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 2. BUTONLAR: ZARİF KURUMSAL BUTONLAR -->
+    <div style="margin-top: 24px; text-align: center;">
+        @if(!empty($pdfUrl))
+        <a href="{{ $pdfUrl }}" target="_blank" style="display: block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; margin-bottom: 10px;">
+            📄 Faturayı Görüntüle ve İndir
+        </a>
+        @endif
+
+        <a href="https://patenliayakkabilar.com/siparis-takip?order={{ $order->order_number }}" target="_blank" style="display: block; background-color: #ffffff; color: #334155; text-decoration: none; padding: 13px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #cbd5e1;">
+            Siparişimi Takip Et
+        </a>
     </div>
-@endif
 
-<p style="font-size: 15px; line-height: 1.6;">Bizi tercih ettiğiniz için teşekkür ederiz.</p>
+</div>
 @endsection

@@ -1,40 +1,112 @@
 @extends('emails.layouts.base')
 
-@section('title', 'E-Arşiv Faturanız')
+@section('title', 'Siparişinizin E-Arşiv Faturası — #' . $order->order_number . ' — Patenli Ayakkabılar®')
 
 @section('content')
-<div style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">Sayın {{ $order->customer_name }},</div>
+@php
+    $firstName = explode(' ', trim($order->customer_name))[0];
+    $orderDate = $order->created_at ? $order->created_at->format('d.m.Y H:i') : date('d.m.Y');
+    $invoiceDate = $order->gib_invoice_date ? $order->gib_invoice_date->format('d.m.Y H:i') : date('d.m.Y');
+    $total = $order->grand_total ?? $order->total_amount ?? 0;
+@endphp
 
-<p style="font-size: 15px; line-height: 1.6; margin-bottom: 25px;">
-    Patenli Ayakkabılar mağazamızdan vermiş olduğunuz <strong>#{{ $order->order_number }}</strong> numaralı siparişinize ait resmi GİB E-Arşiv faturanız başarıyla oluşturulmuştur. Faturanız bu e-postanın ekinde ve aşağıdaki bağlantıda yer almaktadır.
-</p>
+<div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #1e293b;">
 
-<div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-    <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+    <!-- ÜST: FATURA BARI -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
         <tr>
-            <td style="font-size: 14px; color: #475569;">Sipariş Numarası:</td>
-            <td style="font-size: 14px; text-align: right; font-weight: 600; color: #0f172a;">#{{ $order->order_number }}</td>
-        </tr>
-        <tr>
-            <td style="font-size: 14px; color: #475569;">Sipariş Tarihi:</td>
-            <td style="font-size: 14px; text-align: right; font-weight: 600; color: #0f172a;">{{ $order->created_at ? $order->created_at->format('d.m.Y H:i') : date('d.m.Y') }}</td>
-        </tr>
-        <tr>
-            <td style="font-size: 14px; color: #475569;">Fatura Tarihi:</td>
-            <td style="font-size: 14px; text-align: right; font-weight: 600; color: #0f172a;">{{ $order->gib_invoice_date ? $order->gib_invoice_date->format('d.m.Y H:i') : date('d.m.Y') }}</td>
-        </tr>
-        <tr>
-            <td style="font-size: 14px; color: #475569;">Toplam Tutar:</td>
-            <td style="text-align: right; font-weight: 600; color: #ff4e00; font-size: 16px;">₺{{ number_format($order->grand_total ?? $order->total_amount ?? 0, 2, ',', '.') }}</td>
+            <td align="left" style="font-size: 13px; font-weight: 500; color: #64748b;">
+                E-Arşiv Fatura Bildirimi
+            </td>
+            <td align="right" style="font-size: 16px; font-weight: 700; color: #0f172a;">
+                {{ number_format($total, 2, ',', '.') }} ₺
+            </td>
         </tr>
     </table>
-</div>
 
-<div style="text-align: center; margin: 30px 0 15px;">
-    <a href="{{ $invoiceUrl }}" target="_blank" style="display: inline-block; background-color: #ff4e00; color: #ffffff; font-weight: 600; font-size: 15px; text-decoration: none; padding: 14px 32px; border-radius: 8px;">📄 Faturayı Görüntüle ve Yazdır</a>
-</div>
+    <!-- 1. KART: FATURA BAŞLIĞI KARTI -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 22px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td width="42" valign="middle" style="padding-right: 14px;">
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px; color: #2563eb;">
+                                🧾
+                            </div>
+                        </td>
+                        <td valign="middle">
+                            <p style="margin: 0 0 2px; font-size: 12px; color: #94a3b8; font-weight: 400;">
+                                #{{ $order->order_number }} Numaralı Sipariş
+                            </p>
+                            <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
+                                E-Arşiv Faturanız Hazırlandı, {{ $firstName }}
+                            </h1>
+                        </td>
+                    </tr>
+                </table>
 
-<p style="font-size: 13px; color: #64748b; text-align: center; margin-top: 15px;">
-    Faturanızı dilediğiniz zaman bilgisayarınıza indirebilir veya yazdırabilirsiniz.
-</p>
+                <div style="border-top: 1px solid #f1f5f9; margin-top: 18px; padding-top: 14px;">
+                    <h3 style="margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #0f172a;">
+                        Resmi fatura belgeniz oluşturuldu
+                    </h3>
+                    <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400; line-height: 1.5;">
+                        Patenli Ayakkabılar mağazamızdan vermiş olduğunuz siparişinize ait resmi GİB E-Arşiv faturanız oluşturulmuştur. Faturanızı aşağıdaki bağlantı üzerinden görüntüleyebilir veya indirebilirsiniz.
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 2. KART: FATURA BİLGİLERİ KARTI -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 22px;">
+                <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">
+                    Fatura Bilgileri
+                </h3>
+
+                <!-- Satır 1: Sipariş No & Sipariş Tarihi -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 14px;">
+                    <tr>
+                        <td width="50%" valign="top" style="padding-right: 12px;">
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Sipariş Numarası</p>
+                            <p style="margin: 0; font-size: 13px; color: #0f172a; font-weight: 600;">#{{ $order->order_number }}</p>
+                        </td>
+                        <td width="50%" valign="top">
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Sipariş Tarihi</p>
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">{{ $orderDate }}</p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Satır 2: Fatura Tarihi & Fatura Tutarı -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td width="50%" valign="top" style="padding-right: 12px;">
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Fatura Düzenleme Tarihi</p>
+                            <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 400;">{{ $invoiceDate }}</p>
+                        </td>
+                        <td width="50%" valign="top">
+                            <p style="margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #334155;">Fatura Toplam Tutarı</p>
+                            <p style="margin: 0; font-size: 15px; color: #0f172a; font-weight: 700;">{{ number_format($total, 2, ',', '.') }} ₺</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 3. BUTONLAR: ZARİF KURUMSAL BUTONLAR -->
+    <div style="margin-top: 24px; text-align: center;">
+        <a href="{{ $invoiceUrl }}" target="_blank" style="display: block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; margin-bottom: 10px;">
+            📄 Faturayı Görüntüle ve İndir
+        </a>
+
+        <a href="https://patenliayakkabilar.com/siparis-takip?order={{ $order->order_number }}" target="_blank" style="display: block; background-color: #ffffff; color: #334155; text-decoration: none; padding: 13px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #cbd5e1;">
+            Siparişimi Takip Et
+        </a>
+    </div>
+
+</div>
 @endsection
