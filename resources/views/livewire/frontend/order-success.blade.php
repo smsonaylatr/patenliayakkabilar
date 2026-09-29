@@ -1,6 +1,6 @@
 <div x-data="{ showToast: false, toastMessage: '' }">
 <div class="min-h-screen bg-gray-50">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-4">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-5">
 
         {{-- ÜST: Sipariş Özeti Bar --}}
         <div class="flex items-center justify-between px-1">
