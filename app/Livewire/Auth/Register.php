@@ -16,8 +16,18 @@ class Register extends Component
 
     protected array $rules = [
         'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
+        'email' => 'required|string|email|max:255|unique:users,email',
         'password' => 'required|string|min:8|confirmed',
+    ];
+
+    protected array $messages = [
+        'name.required' => 'Lütfen adınızı ve soyadınızı giriniz.',
+        'email.required' => 'Lütfen e-posta adresinizi giriniz.',
+        'email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
+        'email.unique' => 'Bu e-posta adresi ile zaten kayıtlı bir hesap bulunuyor.',
+        'password.required' => 'Lütfen bir şifre belirleyiniz.',
+        'password.min' => 'Şifreniz en az 8 karakter olmalıdır.',
+        'password.confirmed' => 'Girdiğiniz şifreler birbiriyle eşleşmiyor.',
     ];
 
     public function register()
@@ -25,14 +35,15 @@ class Register extends Component
         $this->validate();
 
         $user = User::create([
-            'name' => $this->name,
-            'email' => $this->email,
+            'name' => trim($this->name),
+            'email' => strtolower(trim($this->email)),
             'password' => Hash::make($this->password),
         ]);
 
         Auth::login($user);
+        session()->regenerate();
 
-        return redirect('/hesabim');
+        return redirect()->intended('/hesabim');
     }
 
     public function render()

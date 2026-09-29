@@ -84,12 +84,13 @@ class ViewCustomer extends ViewRecord
                     ->schema([
                         TextEntry::make('name')->label('Ad Soyad'),
                         TextEntry::make('email')->label('E-posta'),
-                        TextEntry::make('phone')->label('Telefon')->default('-'),
+                        TextEntry::make('phone')->label('Telefon')->placeholder('-'),
                         TextEntry::make('role')->label('Rol')->badge()
-                            ->color(fn (string $state) => $state === 'admin' ? 'danger' : 'info'),
+                            ->color(fn (?string $state) => $state === 'admin' ? 'danger' : 'info')
+                            ->formatStateUsing(fn (?string $state) => $state === 'admin' ? 'Admin' : 'Müşteri'),
                         TextEntry::make('created_at')->label('Kayıt Tarihi')->dateTime('d.m.Y H:i'),
                         TextEntry::make('email_verified_at')->label('E-posta Doğrulama')
-                            ->dateTime('d.m.Y H:i')->default('Doğrulanmadı'),
+                            ->dateTime('d.m.Y H:i')->placeholder('Doğrulanmadı'),
                     ])->columns(2),
 
                 Section::make('Finansal Özet')
