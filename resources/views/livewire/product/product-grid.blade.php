@@ -87,13 +87,17 @@
 
                     
                     <!-- Premium Quick Add Button -->
+                    @php
+                        $stockedVariants = $product->variants->filter(fn($v) => $product->status && $v->stock > 0);
+                        $hasMultipleChoices = $stockedVariants->count() > 1;
+                    @endphp
                     <div class="absolute inset-x-0 bottom-3 sm:bottom-6 flex justify-center z-20 opacity-0 translate-y-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)">
-                        @if($product->variants->count() > 0)
+                        @if($hasMultipleChoices)
                             <button @click.prevent="showSizeModal = true" class="bg-white/90 sm:bg-white/80 backdrop-blur-md text-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md sm:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-black hover:text-white hover:scale-110 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-300 border border-white/50" aria-label="Hızlı Ekle" title="Hızlı Ekle">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                             </button>
                         @else
-                            <button wire:click="addToCart({{ $product->id }})" class="bg-white/90 sm:bg-white/80 backdrop-blur-md text-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md sm:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-black hover:text-white hover:scale-110 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-300 border border-white/50" aria-label="Hızlı Ekle" title="Hızlı Ekle">
+                            <button wire:click="addToCart({{ $product->id }}{{ $stockedVariants->first() ? ', ' . $stockedVariants->first()->id : '' }})" class="bg-white/90 sm:bg-white/80 backdrop-blur-md text-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md sm:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-black hover:text-white hover:scale-110 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-300 border border-white/50" aria-label="Sepete Ekle" title="Sepete Ekle">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                             </button>
                         @endif
@@ -101,7 +105,7 @@
                 </div>
 
                 <!-- ================= SIZE SELECTION MODAL ================= -->
-                @if($product->variants->count() > 0)
+                @if($hasMultipleChoices)
                 <template x-teleport="body">
                     <div x-show="showSizeModal" 
                          x-transition:enter="transition ease-out duration-300"
