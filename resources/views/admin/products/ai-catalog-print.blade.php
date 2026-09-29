@@ -137,7 +137,6 @@
                                             <tr>
                                                 <th class="p-2">Beden / Numara</th>
                                                 <th class="p-2">Renk</th>
-                                                <th class="p-2">Mekanizma</th>
                                                 <th class="p-2">Fiyat</th>
                                                 <th class="p-2">Stok</th>
                                                 <th class="p-2">Varyant SKU</th>
@@ -149,7 +148,6 @@
                                                 <tr class="hover:bg-slate-50">
                                                     <td class="p-2 font-bold">{{ $v['size'] }}</td>
                                                     <td class="p-2">{{ $v['color'] }}</td>
-                                                    <td class="p-2">{{ $v['wheel_type'] }}</td>
                                                     <td class="p-2">{{ $v['price_formatted'] }}</td>
                                                     <td class="p-2 font-bold">{{ $v['stock'] }} adet</td>
                                                     <td class="p-2 font-mono text-slate-500">{{ $v['sku'] }}</td>

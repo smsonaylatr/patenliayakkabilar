@@ -351,7 +351,6 @@
                             <tr>
                                 <th>Beden / Numara</th>
                                 <th>Renk</th>
-                                <th>Tekerlek Mekanizması</th>
                                 <th>Varyant Fiyatı</th>
                                 <th>Stok Miktarı</th>
                                 <th>Varyant SKU</th>
@@ -363,7 +362,6 @@
                                 <tr>
                                     <td><b>{{ $v['size'] }}</b></td>
                                     <td>{{ $v['color'] }}</td>
-                                    <td>{{ $v['wheel_type'] }}</td>
                                     <td>{{ $v['price_formatted'] }}</td>
                                     <td><b>{{ $v['stock'] }} adet</b></td>
                                     <td style="color: #64748b;">{{ $v['sku'] }}</td>
