@@ -1,29 +1,29 @@
 <x-account-layout>
     <div class="max-w-4xl">
-        <h1 class="text-3xl font-black text-gray-900 mb-8">Siparişlerim</h1>
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-4 sm:mb-8 tracking-tight">Siparişlerim</h1>
         
         @if($orders->count() > 0)
-            <div class="space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 @foreach($orders as $order)
-                    <div class="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                        <div class="bg-gray-50/80 px-8 py-5 flex flex-wrap items-center justify-between border-b border-gray-200 gap-4">
-                            <div class="flex items-center space-x-6">
+                    <div class="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs sm:shadow-sm hover:shadow-md transition-shadow">
+                        <div class="bg-gray-50/80 px-3.5 py-3 sm:px-8 sm:py-5 flex flex-wrap items-center justify-between border-b border-gray-200 gap-2 sm:gap-4">
+                            <div class="flex items-center space-x-4 sm:space-x-6">
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Sipariş Tarihi</p>
-                                    <p class="text-sm font-medium text-gray-900">{{ $order->created_at->format('d M Y') }}</p>
+                                    <p class="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-bold mb-0.5 sm:mb-1">Sipariş Tarihi</p>
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900">{{ $order->created_at->format('d M Y') }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Toplam Tutar</p>
-                                    <p class="text-sm font-black text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</p>
+                                    <p class="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-bold mb-0.5 sm:mb-1">Toplam Tutar</p>
+                                    <p class="text-xs sm:text-sm font-black text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</p>
                                 </div>
                             </div>
                             <div class="text-right flex-1 sm:flex-none">
-                                <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Sipariş No</p>
-                                <p class="text-sm font-black text-gray-900">#{{ $order->order_number }}</p>
+                                <p class="text-[10px] sm:text-xs text-gray-500 uppercase tracking-widest font-bold mb-0.5 sm:mb-1">Sipariş No</p>
+                                <p class="text-xs sm:text-sm font-black text-gray-900">#{{ $order->order_number }}</p>
                             </div>
                         </div>
 
-                        <div class="p-8">
+                        <div class="p-3.5 sm:p-6 md:p-8">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                                 <div class="flex items-center space-x-4">
                                     @if($order->status === 'pending')
