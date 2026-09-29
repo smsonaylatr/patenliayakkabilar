@@ -25,7 +25,7 @@
         </tr>
         <tr>
             <td style="font-size: 14px; color: #475569;">Toplam Tutar:</td>
-            <td style="text-align: right; font-weight: 600; color: #ff4e00; font-size: 16px;">₺{{ number_format($order->grand_total, 2, ',', '.') }}</td>
+            <td style="text-align: right; font-weight: 600; color: #ff4e00; font-size: 16px;">₺{{ number_format($order->grand_total ?? $order->total_amount ?? 0, 2, ',', '.') }}</td>
         </tr>
     </table>
 </div>

@@ -8,6 +8,8 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use Illuminate\Mail\Mailables\Address;
+
 class AbandonedCartCouponMail extends Mailable
 {
     use Queueable, SerializesModels;
@@ -31,6 +33,7 @@ class AbandonedCartCouponMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
             subject: 'Sana Özel %10 İndirim! Sepetindeki Ürünleri Kaçırma 🎁',
         );
     }

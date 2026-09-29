@@ -3,6 +3,17 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\User;
+use App\Models\Product;
+use App\Models\Cart;
+use App\Mail\OrderConfirmationMail;
+use App\Mail\ShippingUpdateMail;
+use App\Mail\WelcomeMail;
+use App\Mail\AbandonedCartReminderMail;
+use App\Mail\StockBackMail;
+use App\Mail\GibInvoiceMail;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -192,72 +203,210 @@ class MailSettings extends Page implements HasForms
             ->send();
     }
 
-    public function sendTestMail(): void
+    protected function prepareSmtpAndRecipient(): array
     {
-        try {
-            // Önce form state'ini uygula
-            $data = $this->form->getState();
+        $data = $this->form->getState();
 
-            // SMTP ayarlarını geçici olarak config'e yaz
-            if (!empty($data['smtp_host'])) {
-                $port = (int)($data['smtp_port'] ?? 465);
-                $encryption = $data['smtp_encryption'] ?? ($port === 465 ? 'ssl' : 'tls');
+        if (!empty($data['smtp_host'])) {
+            $port = (int)($data['smtp_port'] ?? 465);
+            $encryption = $data['smtp_encryption'] ?? ($port === 465 ? 'ssl' : 'tls');
 
+            config([
+                'mail.mailers.smtp.host' => $data['smtp_host'],
+                'mail.mailers.smtp.port' => $port,
+                'mail.mailers.smtp.username' => $data['smtp_username'] ?? null,
+                'mail.mailers.smtp.password' => $data['smtp_password'] ?? null,
+            ]);
+
+            if (!empty($data['smtp_from_address'])) {
                 config([
-                    'mail.mailers.smtp.host' => $data['smtp_host'],
-                    'mail.mailers.smtp.port' => $port,
-                    'mail.mailers.smtp.username' => $data['smtp_username'] ?? null,
-                    'mail.mailers.smtp.password' => $data['smtp_password'] ?? null,
+                    'mail.from.address' => $data['smtp_from_address'],
+                    'mail.from.name' => $data['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar®'),
                 ]);
-
-                if (!empty($data['smtp_from_address'])) {
-                    config([
-                        'mail.from.address' => $data['smtp_from_address'],
-                        'mail.from.name' => $data['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar'),
-                    ]);
-                }
-
-                // 465 portu doğrudan SSL bağlantısı (smtps) gerektirir.
-                // 587 portu ise STARTTLS (smtp) protokolü kullanır, asla smtps/ssl:// bağlanamaz!
-                if ($port === 465 || ($encryption === 'ssl' && $port !== 587)) {
-                    config(['mail.mailers.smtp.scheme' => 'smtps']);
-                } else {
-                    config(['mail.mailers.smtp.scheme' => 'smtp']);
-                }
-
-                // Transport'u yeniden oluştur
-                app('mail.manager')->purge('smtp');
             }
 
-            $recipient = !empty($data['test_recipient_email'])
-                ? trim($data['test_recipient_email'])
-                : (auth()->user()?->email ?: ($data['smtp_username'] ?? 'info@patenliayakkabilar.com'));
+            if ($port === 465 || ($encryption === 'ssl' && $port !== 587)) {
+                config(['mail.mailers.smtp.scheme' => 'smtps']);
+            } else {
+                config(['mail.mailers.smtp.scheme' => 'smtp']);
+            }
 
-            $fromAddress = $data['smtp_from_address'] ?: ($data['smtp_username'] ?: config('mail.from.address'));
-            $fromName = $data['smtp_from_name'] ?: config('mail.from.name', 'Patenli Ayakkabılar');
+            app('mail.manager')->purge('smtp');
+        }
 
-            Mail::send('emails.test-mail', [
-                'fromAddress' => $fromAddress,
-                'recipient' => $recipient,
-            ], function ($message) use ($recipient, $fromAddress, $fromName) {
-                if (!empty($fromAddress)) {
-                    $message->from($fromAddress, $fromName);
-                }
-                $message->to($recipient)
-                    ->subject('Patenli Ayakkabılar® — E-Posta Sistemi Doğrulama Bildirimi (' . now()->timezone('Europe/Istanbul')->format('H:i') . ')');
-            });
+        $recipient = !empty($data['test_recipient_email'])
+            ? trim($data['test_recipient_email'])
+            : (auth()->user()?->email ?: ($data['smtp_username'] ?? 'info@patenliayakkabilar.com'));
+
+        $fromAddress = $data['smtp_from_address'] ?: ($data['smtp_username'] ?: config('mail.from.address'));
+        $fromName = $data['smtp_from_name'] ?: config('mail.from.name', 'Patenli Ayakkabılar®');
+
+        return [$recipient, $fromAddress, $fromName];
+    }
+
+    public function sendTestMail(): void
+    {
+        $this->sendNotificationTest('system');
+    }
+
+    public function sendNotificationTest(string $type): void
+    {
+        try {
+            [$recipient, $fromAddress, $fromName] = $this->prepareSmtpAndRecipient();
+
+            switch ($type) {
+                case 'system':
+                    Mail::send('emails.test-mail', [
+                        'fromAddress' => $fromAddress,
+                        'recipient' => $recipient,
+                    ], function ($message) use ($recipient, $fromAddress, $fromName) {
+                        if (!empty($fromAddress)) {
+                            $message->from($fromAddress, $fromName);
+                        }
+                        $message->to($recipient)
+                            ->subject('Patenli Ayakkabılar® — E-Posta Sistemi Doğrulama Bildirimi (' . now()->timezone('Europe/Istanbul')->format('H:i') . ')');
+                    });
+                    $title = 'Genel Sistem Test Maili Gönderildi ✅';
+                    break;
+
+                case 'order_confirmation':
+                    $order = $this->getSampleOrder($recipient);
+                    Mail::to($recipient)->send(new OrderConfirmationMail($order));
+                    $title = 'Sipariş Onay Test Maili Gönderildi ✅';
+                    break;
+
+                case 'shipping_update':
+                    $order = $this->getSampleOrder($recipient);
+                    $order->status = 'shipped';
+                    $order->shipping_company = $order->shipping_company ?: 'Yurtiçi Kargo';
+                    $order->cargo_tracking_code = $order->cargo_tracking_code ?: 'YK' . rand(1000000000, 9999999999);
+                    Mail::to($recipient)->send(new ShippingUpdateMail($order));
+                    $title = 'Kargo Güncelleme Test Maili Gönderildi ✅';
+                    break;
+
+                case 'welcome':
+                    $user = auth()->user() ?? User::first();
+                    if (!$user) {
+                        $user = new User([
+                            'name' => 'Değerli Müşterimiz',
+                            'email' => $recipient,
+                        ]);
+                    }
+                    Mail::to($recipient)->send(new WelcomeMail($user));
+                    $title = 'Hoşgeldin Test Maili Gönderildi ✅';
+                    break;
+
+                case 'abandoned_cart':
+                    $cart = $this->getSampleCart();
+                    Mail::to($recipient)->send(new AbandonedCartReminderMail($cart));
+                    $title = 'Terk Edilen Sepet Test Maili Gönderildi ✅';
+                    break;
+
+                case 'stock':
+                    $product = Product::with('variants')->first();
+                    if (!$product) {
+                        $product = new Product(['name' => 'Flash 4 Tekerlekli Işıklı Paten']);
+                    }
+                    $variant = $product->variants?->first();
+                    Mail::to($recipient)->send(new StockBackMail($product, $variant));
+                    $title = 'Stok Bildirim Test Maili Gönderildi ✅';
+                    break;
+
+                case 'invoice':
+                    $order = $this->getSampleOrder($recipient);
+                    Mail::to($recipient)->send(new GibInvoiceMail($order));
+                    $title = 'E-Arşiv Fatura Test Maili Gönderildi ✅';
+                    break;
+
+                default:
+                    throw new \InvalidArgumentException('Geçersiz bildirim türü.');
+            }
 
             Notification::make()
-                ->title('Test Maili Gönderildi ✅')
-                ->body($recipient . ' adresine başarıyla gönderildi.')
+                ->title($title)
+                ->body($recipient . ' adresine başarıyla iletildi.')
                 ->success()
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Test Maili Başarısız')
+                ->title('Test Maili Gönderilemedi ❌')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
+    }
+
+    protected function getSampleOrder(string $recipient): Order
+    {
+        $order = Order::with('items')->latest()->first();
+
+        if ($order) {
+            $cloned = clone $order;
+            $cloned->customer_email = $recipient;
+            return $cloned;
+        }
+
+        $dummy = new Order();
+        $dummy->id = 1;
+        $dummy->order_number = 'ORD-' . date('Y') . '-' . rand(1000, 9999);
+        $dummy->customer_name = auth()->user()?->name ?? 'Ahmet Yılmaz';
+        $dummy->customer_email = $recipient;
+        $dummy->customer_phone = '0555 123 45 67';
+        $dummy->shipping_address = 'Bağdat Caddesi No: 120 D: 5';
+        $dummy->shipping_district = 'Kadıköy';
+        $dummy->shipping_city = 'İstanbul';
+        $dummy->payment_method = 'credit_card';
+        $dummy->shipping_method = 'yurtici';
+        $dummy->shipping_company = 'Yurtiçi Kargo';
+        $dummy->cargo_tracking_code = 'YK9876543210';
+        $dummy->subtotal = 1899.90;
+        $dummy->shipping_cost = 0.00;
+        $dummy->discount_amount = 0.00;
+        $dummy->total_amount = 1899.90;
+        $dummy->status = 'processing';
+        $dummy->created_at = now();
+
+        $item = new OrderItem();
+        $item->product_name = 'Flash 4 Tekerlekli Işıklı Patenli Ayakkabı';
+        $item->variant_info = 'Siyah-Kırmızı / 36 Numara';
+        $item->quantity = 1;
+        $item->unit_price = 1899.90;
+        $item->total_price = 1899.90;
+
+        $dummy->setRelation('items', collect([$item]));
+
+        return $dummy;
+    }
+
+    protected function getSampleCart(): object
+    {
+        $cart = Cart::with(['items.product.images', 'items.variant'])->latest()->first();
+
+        if ($cart && $cart->items->isNotEmpty()) {
+            return $cart;
+        }
+
+        $product = Product::with('images')->first();
+
+        return (object)[
+            'user' => (object)[
+                'name' => auth()->user()?->name ?? 'Değerli Müşterimiz',
+            ],
+            'items' => collect([
+                (object)[
+                    'product' => $product ?: (object)[
+                        'name' => 'Flash 4 Tekerlekli Işıklı Patenli Ayakkabı',
+                        'price' => 1899.90,
+                        'discount_price' => 1699.90,
+                        'images' => collect([]),
+                    ],
+                    'variant' => (object)[
+                        'color' => 'Siyah / Kırmızı',
+                        'size' => '36',
+                    ],
+                    'quantity' => 1,
+                ]
+            ]),
+        ];
     }
 }

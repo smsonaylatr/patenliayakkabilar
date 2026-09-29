@@ -28,12 +28,12 @@ class OrderInvoiceMail extends Mailable
     public function envelope(): Envelope
     {
         $settings = Setting::whereIn('key', ['smtp_from_address', 'smtp_from_name'])->pluck('value', 'key')->toArray();
-        $fromAddress = $settings['smtp_from_address'] ?? config('mail.from.address');
-        $fromName = $settings['smtp_from_name'] ?? config('mail.from.name');
+        $fromAddress = $settings['smtp_from_address'] ?? config('mail.from.address', 'fatura@patenliayakkabilar.com');
+        $fromName = $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar®');
 
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "Siparişinizin Faturası - {$this->order->order_number}",
+            subject: "Siparişinizin Faturası - {$this->order->order_number} — Patenli Ayakkabılar®",
         );
     }
 

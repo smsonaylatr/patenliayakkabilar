@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -27,6 +28,7 @@ class StockBackMail extends Mailable
     {
         $sizeText = $this->variant ? " ({$this->variant->size} Beden)" : '';
         return new Envelope(
+            from: new Address('info@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
             subject: "🎉 Müjde! Beklediğiniz {$this->product->name}{$sizeText} Stokta!",
         );
     }
