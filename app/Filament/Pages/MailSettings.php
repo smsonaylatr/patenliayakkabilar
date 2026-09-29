@@ -235,53 +235,16 @@ class MailSettings extends Page implements HasForms
 
             $fromAddress = $data['smtp_from_address'] ?: ($data['smtp_username'] ?: config('mail.from.address'));
             $fromName = $data['smtp_from_name'] ?: config('mail.from.name', 'Patenli Ayakkabılar');
-            $htmlBody = <<<HTML
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patenli Ayakkabılar Sistem Bildirimi</title>
-</head>
-<body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; color: #1f2937;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div style="background-color: #2563eb; padding: 24px; text-align: center; color: #ffffff;">
-            <h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">Patenli Ayakkabılar®</h1>
-            <p style="margin: 4px 0 0; font-size: 13px; opacity: 0.9;">Resmi E-Posta İletişim Sistemi</p>
-        </div>
-        <div style="padding: 32px 24px;">
-            <h2 style="font-size: 18px; color: #111827; margin-top: 0;">E-Posta Sunucusu Doğrulama Testi</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #4b5563;">
-                Sayın Yetkili,
-            </p>
-            <p style="font-size: 14px; line-height: 1.6; color: #4b5563;">
-                Bu e-posta, <strong>patenliayakkabilar.com</strong> yönetim paneli üzerinden e-posta teslimat güvenliğini ve sunucu ayarlarını doğrulamak amacıyla gönderilmiştir.
-            </p>
-            <div style="background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 14px; margin: 20px 0; border-radius: 4px;">
-                <p style="margin: 0; font-size: 14px; color: #065f46; font-weight: 600;">
-                    ✓ SMTP Bağlantısı ve Güvenlik Protokolleri Başarıyla Doğrulandı.
-                </p>
-            </div>
-            <p style="font-size: 13px; line-height: 1.6; color: #6b7280;">
-                Bu testi siz talep etmediyseniz veya bir yanlışlık olduğunu düşünüyorsanız, lütfen bu iletiyi dikkate almayınız.
-            </p>
-        </div>
-        <div style="background-color: #f9fafb; padding: 20px 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; line-height: 1.5;">
-            <p style="margin: 0 0 6px;"><strong>Patenli Ayakkabılar San. ve Tic.</strong></p>
-            <p style="margin: 0 0 6px;">Web: <a href="https://patenliayakkabilar.com" style="color: #2563eb; text-decoration: none;">patenliayakkabilar.com</a> | E-Posta: <a href="mailto:info@patenliayakkabilar.com" style="color: #2563eb; text-decoration: none;">info@patenliayakkabilar.com</a></p>
-            <p style="margin: 0;">Bu ileti ticari olmayan teknik sistem testi amacıyla otomatik olarak oluşturulmuştur.</p>
-        </div>
-    </div>
-</body>
-</html>
-HTML;
 
-            Mail::html($htmlBody, function ($message) use ($recipient, $fromAddress, $fromName) {
+            Mail::send('emails.test-mail', [
+                'fromAddress' => $fromAddress,
+                'recipient' => $recipient,
+            ], function ($message) use ($recipient, $fromAddress, $fromName) {
                 if (!empty($fromAddress)) {
                     $message->from($fromAddress, $fromName);
                 }
                 $message->to($recipient)
-                    ->subject('Patenli Ayakkabılar — E-Posta Sunucusu Doğrulama Bildirimi');
+                    ->subject('Patenli Ayakkabılar® — E-Posta Sistemi Doğrulama Bildirimi 🎉');
             });
 
             Notification::make()
