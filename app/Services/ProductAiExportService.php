@@ -412,20 +412,22 @@ class ProductAiExportService
     public function exportToPdf(Collection|Builder|array $products, array $options = []): StreamedResponse
     {
         $data = $this->prepareData($products, $options);
-
-        /** @var \Barryvdh\DomPDF\PDF $pdf */
-        $pdf = app('dompdf.wrapper')->loadView('pdf.product-ai-catalog', $data);
-        $pdf->setPaper('A4', 'portrait');
-        $pdf->setOption([
-            'isRemoteEnabled' => true,
-            'isHtml5ParserEnabled' => true,
-            'defaultFont' => 'DejaVu Sans',
-        ]);
-
         $fileName = 'patenli-ayakkabilar-ai-katalog-' . now()->format('Y-m-d-His') . '.pdf';
 
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
+        return response()->streamDownload(function () use ($data) {
+            $html = view('pdf.product-ai-catalog', $data)->render();
+
+            $pdfOptions = new \Dompdf\Options();
+            $pdfOptions->set('isRemoteEnabled', true);
+            $pdfOptions->set('isHtml5ParserEnabled', true);
+            $pdfOptions->set('defaultFont', 'DejaVu Sans');
+
+            $dompdf = new \Dompdf\Dompdf($pdfOptions);
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            echo $dompdf->output();
         }, $fileName, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
