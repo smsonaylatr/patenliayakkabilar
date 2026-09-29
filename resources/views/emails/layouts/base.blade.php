@@ -119,43 +119,10 @@
                                 </tr>
                             </table>
 
-                            <!-- Alt Kısım: Ödeme Logoları -->
+                            <!-- Alt Kısım: Telif Hakkı -->
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #1e2229; margin-top: 24px; padding-top: 18px;">
                                 <tr>
                                     <td align="center">
-                                        <table align="center" cellpadding="0" cellspacing="0" border="0">
-                                            <tr>
-                                                <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 3px 7px; font-weight: 700; font-size: 10px; color: #0b2545; display: inline-block;">
-                                                        Pay<span style="color: #00a8e1;">TR</span>
-                                                    </div>
-                                                </td>
-                                                <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 3px 7px; font-weight: 700; font-size: 10px; color: #00a8e1; display: inline-block;">
-                                                        TROY
-                                                    </div>
-                                                </td>
-                                                <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 3px 7px; font-weight: 700; font-size: 10px; color: #1a1f71; display: inline-block;">
-                                                        VISA
-                                                    </div>
-                                                </td>
-                                                <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 3px 7px; font-weight: 700; font-size: 10px; color: #eb001b; display: inline-block;">
-                                                        Mastercard
-                                                    </div>
-                                                </td>
-                                                <td style="padding: 0 4px;">
-                                                    <div style="background-color: #ffffff; border-radius: 4px; padding: 3px 7px; font-weight: 600; font-size: 9px; color: #475569; display: inline-block;">
-                                                        Havale / EFT
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="center" style="padding-top: 14px;">
                                         <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: 400;">
                                             &copy; {{ date('Y') }} Patenli Ayakkabılar®. Tüm hakları saklıdır.
                                         </p>
