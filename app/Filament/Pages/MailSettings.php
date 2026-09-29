@@ -234,6 +234,7 @@ class MailSettings extends Page implements HasForms
                 : (auth()->user()?->email ?: ($data['smtp_username'] ?? 'info@patenliayakkabilar.com'));
 
             $fromAddress = $data['smtp_from_address'] ?: ($data['smtp_username'] ?: config('mail.from.address'));
+            $fromName = $data['smtp_from_name'] ?: config('mail.from.name', 'Patenli Ayakkabılar');
             $htmlBody = <<<HTML
 <!DOCTYPE html>
 <html lang="tr">
