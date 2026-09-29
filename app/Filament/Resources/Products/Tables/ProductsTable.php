@@ -221,35 +221,15 @@ class ProductsTable
                         ->label('AI İçin Excel İndir (.xlsx)')
                         ->icon('heroicon-o-table-cells')
                         ->color('success')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            if ($records->isEmpty()) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Seçili ürün bulunamadı.')
-                                    ->warning()
-                                    ->send();
-                                return null;
-                            }
-
-                            return app(\App\Services\ProductAiExportService::class)->exportToExcel($records);
-                        })
-                        ->deselectRecordsAfterCompletion(),
+                        ->url(fn (\Illuminate\Database\Eloquent\Collection $records) => route('admin.products.ai-catalog.excel', ['ids' => $records->pluck('id')->implode(',')]))
+                        ->openUrlInNewTab(),
 
                     BulkAction::make('aiExportPdfDirect')
-                        ->label('AI İçin PDF İndir (.pdf)')
+                        ->label('AI İçin PDF İndir / Yazdır')
                         ->icon('heroicon-o-document-arrow-down')
                         ->color('primary')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            if ($records->isEmpty()) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Seçili ürün bulunamadı.')
-                                    ->warning()
-                                    ->send();
-                                return null;
-                            }
-
-                            return app(\App\Services\ProductAiExportService::class)->exportToPdf($records);
-                        })
-                        ->deselectRecordsAfterCompletion(),
+                        ->url(fn (\Illuminate\Database\Eloquent\Collection $records) => route('admin.products.ai-catalog.download', ['ids' => $records->pluck('id')->implode(',')]))
+                        ->openUrlInNewTab(),
 
                     \Filament\Actions\BulkAction::make('replicate')
                         ->label('Çoğalt')

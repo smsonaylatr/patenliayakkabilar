@@ -74,6 +74,19 @@ Route::get('/admin/orders/supplier-waybill/download', [\App\Http\Controllers\Adm
 Route::get('/admin/orders/supplier-waybill/print', [\App\Http\Controllers\Admin\SupplierWaybillController::class, 'printView'])
     ->name('admin.orders.supplier-waybill.print');
 
+// ========================
+// YAPAY ZEKA ÜRÜN KATALOĞU (PDF, EXCEL, CSV & YAZDIR)
+// ========================
+Route::get('/admin/products/ai-catalog/download', [\App\Http\Controllers\Admin\ProductAiExportController::class, 'downloadPdf'])
+    ->name('admin.products.ai-catalog.download');
+Route::get('/admin/products/ai-catalog/print', [\App\Http\Controllers\Admin\ProductAiExportController::class, 'printView'])
+    ->name('admin.products.ai-catalog.print');
+Route::get('/admin/products/ai-catalog/excel', [\App\Http\Controllers\Admin\ProductAiExportController::class, 'downloadExcel'])
+    ->name('admin.products.ai-catalog.excel');
+Route::get('/admin/products/ai-catalog/csv', [\App\Http\Controllers\Admin\ProductAiExportController::class, 'downloadCsv'])
+    ->name('admin.products.ai-catalog.csv');
+
+
 Route::get('/run-migrations', function () {
     try {
         if (!\Illuminate\Support\Facades\Schema::hasTable('backlinks')) {

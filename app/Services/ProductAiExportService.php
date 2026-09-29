@@ -14,7 +14,7 @@ class ProductAiExportService
     /**
      * Dışa aktarma formatına göre yönlendirir.
      */
-    public function export(Collection|Builder|array $products, string $format = 'xlsx', array $options = []): StreamedResponse
+    public function export(Collection|Builder|array $products, string $format = 'xlsx', array $options = []): StreamedResponse|\Illuminate\Http\RedirectResponse
     {
         return match (strtolower($format)) {
             'pdf' => $this->exportToPdf($products, $options),
@@ -197,8 +197,13 @@ class ProductAiExportService
      */
     public function exportToExcel(Collection|Builder|array $products, array $options = []): StreamedResponse
     {
-        if (!class_exists(\Shuchkin\SimpleXLSXGen::class)) {
-            require_once base_path('vendor/shuchkin/simplexlsxgen/src/SimpleXLSXGen.php');
+        if (class_exists(\App\Support\SimpleXLSXGen::class)) {
+            $xlsxClass = \App\Support\SimpleXLSXGen::class;
+        } elseif (class_exists(\Shuchkin\SimpleXLSXGen::class)) {
+            $xlsxClass = \Shuchkin\SimpleXLSXGen::class;
+        } else {
+            require_once app_path('Support/SimpleXLSXGen.php');
+            $xlsxClass = \App\Support\SimpleXLSXGen::class;
         }
 
         $data = $this->prepareData($products, $options);
@@ -317,7 +322,7 @@ class ProductAiExportService
             ['4. Stok & Satış Analizi:', 'Kritik stokta olan veya tükenen modelleri listele. Hangi bedenlerin en çok talep gördüğünü varyant tablosundan çıkar.'],
         ];
 
-        $xlsx = \Shuchkin\SimpleXLSXGen::fromArray($sheetProducts, 'Katalog');
+        $xlsx = $xlsxClass::fromArray($sheetProducts, 'Katalog');
         $xlsx->addSheet($sheetVariants, 'Varyantlar');
         $xlsx->addSheet($sheetAiGuide, 'AI Prompt Rehberi');
 
@@ -409,29 +414,39 @@ class ProductAiExportService
     /**
      * Yapay zeka ve insan okumasına uygun optimize edilmiş PDF raporu üretir.
      */
-    public function exportToPdf(Collection|Builder|array $products, array $options = []): StreamedResponse
+    public function exportToPdf(Collection|Builder|array $products, array $options = []): StreamedResponse|\Illuminate\Http\RedirectResponse
     {
         $data = $this->prepareData($products, $options);
         $fileName = 'patenli-ayakkabilar-ai-katalog-' . now()->format('Y-m-d-His') . '.pdf';
 
-        return response()->streamDownload(function () use ($data) {
-            $html = view('pdf.product-ai-catalog', $data)->render();
+        if (class_exists(\Dompdf\Dompdf::class)) {
+            try {
+                return response()->streamDownload(function () use ($data) {
+                    $html = view('pdf.product-ai-catalog', $data)->render();
 
-            $pdfOptions = new \Dompdf\Options();
-            $pdfOptions->set('isRemoteEnabled', true);
-            $pdfOptions->set('isHtml5ParserEnabled', true);
-            $pdfOptions->set('defaultFont', 'DejaVu Sans');
+                    $pdfOptions = new \Dompdf\Options();
+                    $pdfOptions->set('isRemoteEnabled', true);
+                    $pdfOptions->set('isHtml5ParserEnabled', true);
+                    $pdfOptions->set('defaultFont', 'DejaVu Sans');
 
-            $dompdf = new \Dompdf\Dompdf($pdfOptions);
-            $dompdf->loadHtml($html, 'UTF-8');
-            $dompdf->setPaper('A4', 'portrait');
-            $dompdf->render();
+                    $dompdf = new \Dompdf\Dompdf($pdfOptions);
+                    $dompdf->loadHtml($html, 'UTF-8');
+                    $dompdf->setPaper('A4', 'portrait');
+                    $dompdf->render();
 
-            echo $dompdf->output();
-        }, $fileName, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-        ]);
+                    echo $dompdf->output();
+                }, $fileName, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                ]);
+            } catch (\Throwable $e) {
+                // Hata oluşursa yazdırma görünümüne yönlendir
+            }
+        }
+
+        // Dompdf sunucuda yüklü değilse doğrudan tarayıcı yazdırma/PDF kaydetme ekranına yönlendir
+        $ids = collect($data['products'])->pluck('id')->implode(',');
+        return redirect()->route('admin.products.ai-catalog.print', ['ids' => $ids, 'auto_print' => 1]);
     }
 
     /**
