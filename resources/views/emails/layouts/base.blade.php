@@ -30,18 +30,9 @@
             <td align="center">
                 <table class="email-container" width="800" cellpadding="0" cellspacing="0" border="0" style="max-width: 800px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
                     
-                    <!-- 1. HEADER: ZARİF KURUMSAL LOGO -->
+                    <!-- İÇERİK ALANI -->
                     <tr>
-                        <td align="center" style="background-color: #ffffff; padding: 32px 24px; border-bottom: 1px solid #f1f5f9;">
-                            <a href="https://patenliayakkabilar.com" target="_blank" style="text-decoration: none; display: inline-block;">
-                                <span style="font-size: 24px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; text-transform: uppercase;">PATENLİ</span><span style="font-size: 24px; font-weight: 300; color: #334155; letter-spacing: -0.5px; text-transform: uppercase;">AYAKKABILAR<sup style="font-size: 11px; font-weight: 400; vertical-align: super; color: #64748b;">®</sup></span>
-                            </a>
-                        </td>
-                    </tr>
-
-                    <!-- 2. İÇERİK ALANI -->
-                    <tr>
-                        <td class="mobile-padding" style="padding: 40px 48px 36px; background-color: #ffffff; color: #334155; font-size: 14px; line-height: 1.65;">
+                        <td class="mobile-padding" style="padding: 44px 48px 36px; background-color: #ffffff; color: #334155; font-size: 14px; line-height: 1.65;">
                             @yield('content')
                         </td>
                     </tr>
