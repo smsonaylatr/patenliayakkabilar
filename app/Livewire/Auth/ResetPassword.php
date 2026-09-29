@@ -33,6 +33,13 @@ class ResetPassword extends Component
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
+        ], [
+            'token.required' => 'Şifre sıfırlama kodu geçersiz.',
+            'email.required' => 'Lütfen e-posta adresinizi giriniz.',
+            'email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
+            'password.required' => 'Lütfen yeni bir şifre belirleyiniz.',
+            'password.min' => 'Şifreniz en az 8 karakter olmalıdır.',
+            'password.confirmed' => 'Girdiğiniz şifreler birbiriyle eşleşmiyor.',
         ]);
 
         $status = Password::broker()->reset(
