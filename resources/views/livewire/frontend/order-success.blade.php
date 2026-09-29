@@ -1,22 +1,22 @@
 <div x-data="{ showToast: false, toastMessage: '' }">
-<div class="min-h-screen bg-gray-50">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-5">
+<div class="min-h-screen bg-gray-50 pb-28 sm:pb-12">
+    <div class="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-3.5 sm:space-y-5">
 
         {{-- ÜST: Sipariş Özeti Bar --}}
         <div class="flex items-center justify-between px-1">
-            <span class="text-sm font-semibold text-gray-500">Sipariş özeti</span>
-            <span class="text-lg font-black text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
+            <span class="text-xs sm:text-sm font-semibold text-gray-500">Sipariş özeti</span>
+            <span class="text-base sm:text-lg font-black text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
         </div>
 
         {{-- 1. KART: ONAY BAŞLIĞI + HARİTA --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
-            <div class="flex items-start gap-4 mb-5">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid #3b82f6;">
-                    <i class="fa-solid fa-check" style="color: #3b82f6; font-size: 1.1rem;"></i>
+        <div class="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-5 md:p-6 shadow-xs sm:shadow-sm">
+            <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid #3b82f6;">
+                    <i class="fa-solid fa-check" style="color: #3b82f6; font-size: 1rem;"></i>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-400">{{ $order->order_number }} numaralı onaylama</p>
-                    <h1 class="text-xl font-black text-gray-900 mt-0.5">
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs sm:text-sm text-gray-400 truncate">{{ $order->order_number }} numaralı onaylama</p>
+                    <h1 class="text-lg sm:text-xl font-black text-gray-900 mt-0.5 truncate">
                         Teşekkür ederiz {{ explode(' ', $order->customer_name)[0] }}
                     </h1>
                 </div>
@@ -33,7 +33,7 @@
 
                 $mapQuery = urlencode($cleanAddress . ', ' . $order->shipping_district . ', ' . $order->shipping_city);
             @endphp
-            <div class="rounded-xl overflow-hidden border border-gray-200 mb-5 relative">
+            <div class="rounded-xl overflow-hidden border border-gray-200 mb-4 sm:mb-5 relative">
                 <iframe
                     src="https://www.google.com/maps?q={{ $mapQuery }}&z=16&output=embed&hl=tr"
                     width="100%"
@@ -42,46 +42,47 @@
                     allowfullscreen=""
                     loading="lazy"
                 ></iframe>
-                <div class="absolute top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md border border-gray-100 text-center">
-                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
-                    <p class="text-sm font-bold text-gray-900">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
+                <div class="absolute top-2.5 sm:top-3 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 shadow-sm sm:shadow-md border border-gray-100 text-center max-w-[90%] truncate">
+                    <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Kargo adresi</p>
+                    <p class="text-xs sm:text-sm font-bold text-gray-900 truncate">{{ $order->shipping_district }}, {{ $order->shipping_city }}</p>
                 </div>
             </div>
             <style>
-                .order-success-map { height: 180px !important; }
-                @media (min-width: 1024px) { .order-success-map { height: 300px !important; } }
+                .order-success-map { height: 140px !important; }
+                @media (min-width: 640px) { .order-success-map { height: 200px !important; } }
+                @media (min-width: 1024px) { .order-success-map { height: 280px !important; } }
             </style>
 
-            <div class="border-t border-gray-100 pt-4">
-                <h3 class="text-base font-bold text-gray-900">Siparişiniz doğrulandı</h3>
-                <p class="text-sm text-gray-500 mt-1">Kısa süre içinde onay e-postası alacaksınız</p>
+            <div class="border-t border-gray-100 pt-3 sm:pt-4">
+                <h3 class="text-sm sm:text-base font-bold text-gray-900">Siparişiniz doğrulandı</h3>
+                <p class="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Kısa süre içinde onay e-postası alacaksınız</p>
             </div>
         </div>
 
         {{-- 2. KART: SİPARİŞ BİLGİLERİ --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
-            <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Bilgileri</h3>
+        <div class="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-5 md:p-6 shadow-xs sm:shadow-sm">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-3 sm:mb-4">Sipariş Bilgileri</h3>
 
             {{-- İletişim + Kargo yöntemi --}}
-            <div class="grid grid-cols-2 gap-4 pb-4 border-b border-gray-100">
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-1">İletişim bilgileri</h4>
-                    <p class="text-sm text-gray-500">{{ $order->customer_email }}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100">
+                <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">İletişim bilgileri</h4>
+                    <p class="text-xs sm:text-sm text-gray-500 break-all">{{ $order->customer_email }}</p>
                     @if($order->customer_phone)
-                        <p class="text-sm text-gray-500">{{ $order->customer_phone }}</p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-0.5">{{ $order->customer_phone }}</p>
                     @endif
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo yöntemi</h4>
-                    <p class="text-sm text-gray-500">Standart</p>
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">Kargo yöntemi</h4>
+                    <p class="text-xs sm:text-sm text-gray-500">Standart Teslimat</p>
                 </div>
             </div>
 
             {{-- Ödeme yöntemi + Kargo firması (+ Kupon) --}}
-            <div class="grid grid-cols-2 gap-4 py-4 border-b border-gray-100">
-                <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-1">Ödeme yöntemi</h4>
-                    <p class="text-sm text-gray-500">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 py-3 sm:py-4 border-b border-gray-100">
+                <div class="min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">Ödeme yöntemi</h4>
+                    <p class="text-xs sm:text-sm text-gray-500">
                         @if($order->payment_method === 'credit_card')
                             Kredi Kartı · {{ number_format($order->grand_total, 2, ',', '.') }} ₺
                         @elseif($order->payment_method === 'cash_on_delivery')
@@ -93,9 +94,9 @@
                         @endif
                     </p>
                     @if($order->coupon_code)
-                        <div class="flex items-center gap-1.5 mt-2">
+                        <div class="flex items-center gap-1.5 mt-1.5">
                             <i class="fa-solid fa-ticket text-xs" style="color: #16a34a;"></i>
-                            <span class="text-xs text-gray-500">
+                            <span class="text-xs text-gray-500 truncate">
                                 Kupon: <span class="font-medium text-gray-700">{{ $order->coupon_code }}</span>
                                 @if($order->discount_total > 0)
                                     (-{{ number_format($order->discount_total, 2, ',', '.') }} ₺)
@@ -105,8 +106,8 @@
                     @endif
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo firması</h4>
-                    <p class="text-sm text-gray-500">
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">Kargo firması</h4>
+                    <p class="text-xs sm:text-sm text-gray-500">
                         @php
                             $cargoName = $order->cargo_company;
                             if (empty($cargoName) || stripos($cargoName, 'porego') !== false) {
@@ -119,12 +120,12 @@
             </div>
 
             {{-- Kargo adresi + Fatura adresi --}}
-            <div class="grid grid-cols-2 gap-4 pt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-3 sm:pt-4">
                 <div>
-                    <h4 class="text-sm font-bold text-gray-700 mb-1">Kargo adresi</h4>
-                    <div class="text-sm text-gray-500 leading-relaxed">
-                        <p>{{ $order->customer_name }}</p>
-                        <p>{{ $order->shipping_address }}</p>
+                    <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">Kargo adresi</h4>
+                    <div class="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                        <p class="font-medium text-gray-800">{{ $order->customer_name }}</p>
+                        <p class="break-words">{{ $order->shipping_address }}</p>
                         <p>{{ $order->shipping_district }} / {{ $order->shipping_city }}</p>
                         <p>Türkiye</p>
                         @if($order->customer_phone)
@@ -134,10 +135,10 @@
                 </div>
                 @if($order->billing_address)
                     <div>
-                        <h4 class="text-sm font-bold text-gray-700 mb-1">Fatura adresi</h4>
-                        <div class="text-sm text-gray-500 leading-relaxed">
-                            <p>{{ $order->customer_name }}</p>
-                            <p>{{ $order->billing_address }}</p>
+                        <h4 class="text-xs sm:text-sm font-bold text-gray-700 mb-0.5 sm:mb-1">Fatura adresi</h4>
+                        <div class="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                            <p class="font-medium text-gray-800">{{ $order->customer_name }}</p>
+                            <p class="break-words">{{ $order->billing_address }}</p>
                             <p>{{ $order->billing_district }} / {{ $order->billing_city }}</p>
                             <p>Türkiye</p>
                         </div>
@@ -147,53 +148,53 @@
         </div>
 
         {{-- 3. KART: SİPARİŞ DETAYLARI --}}
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
-            <h3 class="text-lg font-black text-gray-900 mb-4">Sipariş Detayları</h3>
+        <div class="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-5 md:p-6 shadow-xs sm:shadow-sm">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 mb-3 sm:mb-4">Sipariş Detayları</h3>
 
             <div class="space-y-3">
                 @foreach($order->items as $item)
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5">
                         @if($item->product && $item->product->images->count() > 0)
                             <div class="relative flex-shrink-0">
-                                <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="rounded-xl object-cover border border-gray-200" style="width:100px;height:100px;">
-                                <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
+                                <img src="{{ Storage::url($item->product->images->first()->image_path) }}" class="rounded-xl object-cover border border-gray-200 w-16 h-16 sm:w-20 sm:h-20">
+                                <span class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-gray-600 text-white text-[9px] sm:text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
                             </div>
                         @else
                             <div class="relative flex-shrink-0">
-                                <div class="rounded-xl bg-gray-100 flex items-center justify-center text-gray-300" style="width:100px;height:100px;">
+                                <div class="rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 w-16 h-16 sm:w-20 sm:h-20">
                                     <i class="fa-solid fa-shoe-prints text-sm"></i>
                                 </div>
-                                <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
+                                <span class="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-gray-600 text-white text-[9px] sm:text-[10px] font-bold rounded-full flex items-center justify-center">{{ $item->quantity }}</span>
                             </div>
                         @endif
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ $item->product_name }}</p>
+                            <p class="text-xs sm:text-sm font-semibold text-gray-900 truncate leading-snug">{{ $item->product_name }}</p>
                             @if($item->variant_info)
-                                <p class="text-xs text-gray-400">{{ $item->variant_info }}</p>
+                                <p class="text-[11px] sm:text-xs text-gray-400 mt-0.5 truncate">{{ $item->variant_info }}</p>
                             @endif
                         </div>
-                        <p class="text-sm font-bold text-gray-900 flex-shrink-0">{{ number_format($item->total_price, 2, ',', '.') }} ₺</p>
+                        <p class="text-xs sm:text-sm font-black text-gray-900 flex-shrink-0">{{ number_format($item->total_price, 2, ',', '.') }} ₺</p>
                     </div>
                 @endforeach
             </div>
 
             {{-- Toplam --}}
-            <div class="border-t border-gray-100 mt-4 pt-4 space-y-2">
-                <div class="flex justify-between text-sm">
+            <div class="border-t border-gray-100 mt-3.5 sm:mt-4 pt-3.5 sm:pt-4 space-y-1.5 sm:space-y-2">
+                <div class="flex justify-between text-xs sm:text-sm">
                     <span class="text-gray-500">Ara toplam</span>
-                    <span class="text-gray-700">{{ number_format($order->subtotal, 2, ',', '.') }} ₺</span>
+                    <span class="text-gray-700 font-medium">{{ number_format($order->subtotal, 2, ',', '.') }} ₺</span>
                 </div>
-                <div class="flex justify-between text-sm">
+                <div class="flex justify-between text-xs sm:text-sm">
                     <span class="text-gray-500">Kargo</span>
-                    <span class="text-gray-700">{{ $order->shipping_price > 0 ? number_format($order->shipping_price, 2, ',', '.') . ' ₺' : 'Ücretsiz' }}</span>
+                    <span class="text-gray-700 font-medium">{{ $order->shipping_price > 0 ? number_format($order->shipping_price, 2, ',', '.') . ' ₺' : 'Ücretsiz' }}</span>
                 </div>
                 @if($order->discount_total > 0)
-                    <div class="flex justify-between text-sm">
-                        <span class="text-green-600">İndirim</span>
-                        <span class="text-green-600 font-medium">-{{ number_format($order->discount_total, 2, ',', '.') }} ₺</span>
+                    <div class="flex justify-between text-xs sm:text-sm">
+                        <span class="text-green-600 font-medium">İndirim</span>
+                        <span class="text-green-600 font-semibold">-{{ number_format($order->discount_total, 2, ',', '.') }} ₺</span>
                     </div>
                 @endif
-                <div class="flex justify-between text-base font-black pt-2 border-t border-gray-100">
+                <div class="flex justify-between text-sm sm:text-base font-black pt-2 border-t border-gray-100">
                     <span class="text-gray-900">Toplam</span>
                     <span class="text-gray-900">{{ number_format($order->grand_total, 2, ',', '.') }} ₺</span>
                 </div>
@@ -201,16 +202,16 @@
         </div>
 
         {{-- 4. BUTONLAR --}}
-        <div class="space-y-3 pt-2">
-            <a href="{{ route('home') }}" class="block w-full bg-black hover:bg-gray-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-[0.98] text-center text-sm">
+        <div class="space-y-2.5 sm:space-y-3 pt-1">
+            <a href="{{ route('home') }}" class="block w-full bg-black hover:bg-gray-800 text-white font-bold py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl shadow-md transition-all active:scale-[0.98] text-center text-xs sm:text-sm">
                 Alışverişe Devam Et
             </a>
             @if(auth()->check())
-                <a href="{{ route('account.orders') }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
+                <a href="{{ route('account.orders') }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl transition-all border border-gray-200 text-center text-xs sm:text-sm shadow-2xs">
                     Siparişimi Görüntüle
                 </a>
             @else
-                <a href="{{ route('order.tracking', ['order_number' => $order_number]) }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl transition-all border border-gray-200 text-center text-sm">
+                <a href="{{ route('order.tracking', ['order_number' => $order_number]) }}" class="block w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl transition-all border border-gray-200 text-center text-xs sm:text-sm shadow-2xs">
                     Siparişimi Takip Et
                 </a>
             @endif
@@ -237,7 +238,7 @@
         class="fixed inset-0 bg-black/60 backdrop-blur-lg"
     ></div>
 
-    <div class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div class="fixed inset-0 flex items-center justify-center p-2.5 sm:p-6 overflow-y-auto">
         <div
             x-show="open"
             x-transition:enter="ease-out duration-300"
@@ -246,48 +247,48 @@
             x-transition:leave="ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="relative w-full max-w-md sm:max-w-lg bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col max-h-[90vh] z-10"
+            class="relative w-full max-w-md sm:max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col max-h-[90vh] z-10"
         >
             <div class="h-1.5 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 flex-shrink-0"></div>
 
-            <div class="px-5 sm:px-8 py-4 sm:py-5 border-b border-gray-100 flex-shrink-0">
-                <h3 class="text-lg sm:text-xl font-black text-gray-900 text-left">Ürünü Değerlendir</h3>
+            <div class="px-4 sm:px-8 py-3.5 sm:py-5 border-b border-gray-100 flex-shrink-0">
+                <h3 class="text-base sm:text-xl font-black text-gray-900 text-left">Ürünü Değerlendir</h3>
             </div>
 
-            <div class="overflow-y-auto flex-1 px-4 sm:px-8 py-4 sm:py-6">
+            <div class="overflow-y-auto flex-1 px-3.5 sm:px-8 py-3.5 sm:py-6">
                 @foreach($order->items as $item)
                     @if($item->product)
                         <div
                             x-data="{ hoverStar: 0 }"
-                            class="{{ !$loop->last ? 'pb-6 mb-6 border-b border-gray-100' : '' }}"
+                            class="{{ !$loop->last ? 'pb-4 sm:pb-6 mb-4 sm:mb-6 border-b border-gray-100' : '' }}"
                         >
                             {{-- Ürün bilgisi (Görsel Solda, Bilgiler Sağda) --}}
-                            <div class="flex items-start text-left gap-3.5 sm:gap-4 mb-4">
+                            <div class="flex items-start text-left gap-2.5 sm:gap-4 mb-3 sm:mb-4">
                                 @if($item->product->images->count() > 0)
                                     <img
                                         src="{{ Storage::url($item->product->images->first()->image_path) }}"
                                         alt="{{ $item->product_name }}"
-                                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-sm"
+                                        class="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl object-cover border border-gray-200 flex-shrink-0 shadow-xs"
                                     >
                                 @else
-                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0 shadow-sm">
-                                        <i class="fa-solid fa-shoe-prints text-2xl"></i>
+                                    <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0 shadow-xs">
+                                        <i class="fa-solid fa-shoe-prints text-xl"></i>
                                     </div>
                                 @endif
                                 <div class="flex-1 min-w-0 pt-0.5">
-                                    <h4 class="text-sm sm:text-base font-bold text-gray-900 leading-snug">{{ $item->product_name }}</h4>
+                                    <h4 class="text-xs sm:text-base font-bold text-gray-900 leading-snug line-clamp-2">{{ $item->product_name }}</h4>
                                     @if($item->variant_info)
-                                        <p class="text-xs text-gray-400 mt-1">{{ $item->variant_info }}</p>
+                                        <p class="text-[11px] sm:text-xs text-gray-400 mt-0.5 truncate">{{ $item->variant_info }}</p>
                                     @endif
                                 </div>
                             </div>
 
                             {{-- Açıklama --}}
-                            <p class="text-xs sm:text-sm text-gray-400 mb-2 text-center">Ürünü aşağıdan puanlayabilir ve yorum yazabilirsiniz</p>
+                            <p class="text-[11px] sm:text-sm text-gray-400 mb-1.5 sm:mb-2 text-center">Ürünü puanlayabilir ve yorum yazabilirsiniz</p>
 
                             {{-- ⭐ YILDIZLAR - BÜYÜK ve CANLI SARI (Trendyol Stili) --}}
                             <div
-                                class="flex items-center justify-center gap-1.5 sm:gap-3 py-3 mb-3"
+                                class="flex items-center justify-center gap-1 sm:gap-2.5 py-2 sm:py-3 mb-2 sm:mb-3"
                                 @mouseleave="hoverStar = 0"
                             >
                                 @for($i = 1; $i <= 5; $i++)
@@ -299,7 +300,7 @@
                                         class="focus:outline-none transition-all duration-150 p-0.5 sm:p-1 cursor-pointer active:scale-90"
                                     >
                                         <svg
-                                            class="w-10 h-10 sm:w-13 sm:h-13 transition-all duration-150"
+                                            class="w-8 h-8 sm:w-11 sm:h-11 md:w-12 md:h-12 transition-all duration-150"
                                             :class="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? 'scale-110 drop-shadow-[0_4px_8px_rgba(255,184,0,0.4)]' : 'scale-100'"
                                             viewBox="0 0 24 24"
                                             :fill="(hoverStar >= {{ $i }} || (hoverStar === 0 && {{ ($ratings[$item->product_id] ?? 5) }} >= {{ $i }})) ? '#ffb800' : '#e5e7eb'"
@@ -313,15 +314,15 @@
 
                             {{-- Yorum alanı --}}
                             <div>
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label class="text-xs sm:text-sm font-bold text-gray-700">Yorumunu Yaz</label>
-                                    <span class="text-[11px] sm:text-xs text-gray-400">(İsteğe bağlı)</span>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[11px] sm:text-sm font-bold text-gray-700">Yorumunu Yaz</label>
+                                    <span class="text-[10px] sm:text-xs text-gray-400">(İsteğe bağlı)</span>
                                 </div>
                                 <textarea
                                     wire:model="comments.{{ $item->product_id }}"
                                     rows="2"
                                     maxlength="2000"
-                                    class="w-full rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-xs sm:text-sm px-3.5 py-3 placeholder:text-gray-300 transition-all resize-none"
+                                    class="w-full rounded-xl sm:rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 text-base sm:text-sm px-3 py-2 sm:px-3.5 sm:py-2.5 placeholder:text-gray-300 transition-all resize-none"
                                     placeholder="Ürün hakkındaki deneyiminizi paylaşın..."
                                 ></textarea>
                             </div>
@@ -331,14 +332,14 @@
             </div>
 
             {{-- Gönder butonu - SİYAH --}}
-            <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-gray-100 bg-white flex-shrink-0">
+            <div class="px-4 sm:px-8 py-3 sm:py-5 border-t border-gray-100 bg-white flex-shrink-0">
                 <button
                     type="button"
                     wire:click="submitRatings"
                     wire:loading.attr="disabled"
                     x-on:click="setTimeout(() => { if ($wire.ratingsSubmitted) { open = false; $dispatch('show-toast', { message: 'Puanlamanız kaydedildi. Teşekkür ederiz! ⭐' }); } }, 600)"
                     style="background-color: #000000 !important; color: #ffffff !important;"
-                    class="w-full py-3.5 sm:py-4 rounded-2xl bg-black hover:bg-gray-800 text-white text-sm sm:text-base font-extrabold shadow-xl shadow-black/20 transition-all hover:brightness-125 active:scale-[0.97] disabled:opacity-50 tracking-wide cursor-pointer flex items-center justify-center gap-2"
+                    class="w-full py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-black hover:bg-gray-800 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-black/20 transition-all hover:brightness-125 active:scale-[0.97] disabled:opacity-50 tracking-wide cursor-pointer flex items-center justify-center gap-2"
                 >
                     <span wire:loading.remove wire:target="submitRatings" class="flex items-center justify-center gap-2">
                         <i class="fa-solid fa-paper-plane text-xs sm:text-sm"></i>
