@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Products\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\Product;
-use App\Services\ProductAiExportService;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
@@ -60,13 +59,24 @@ class ListProducts extends ListRecords
                         $query->where('status', true);
                     }
 
+                    $ids = $query->pluck('id')->implode(',');
                     $format = $data['format'] ?? 'xlsx';
-                    $service = app(ProductAiExportService::class);
 
-                    return $service->export($query, $format, [
-                        'include_descriptions' => (bool) ($data['include_descriptions'] ?? true),
-                        'only_in_stock' => (bool) ($data['only_in_stock'] ?? false),
-                    ]);
+                    $params = ['ids' => $ids];
+                    if (!($data['include_descriptions'] ?? true)) {
+                        $params['no_desc'] = 1;
+                    }
+                    if ($data['only_in_stock'] ?? false) {
+                        $params['in_stock'] = 1;
+                    }
+
+                    $route = match ($format) {
+                        'pdf' => route('admin.products.ai-catalog.download', $params),
+                        'csv' => route('admin.products.ai-catalog.csv', $params),
+                        default => route('admin.products.ai-catalog.excel', $params),
+                    };
+
+                    $this->js("window.open('{$route}', '_blank')");
                 }),
             Action::make('syncPoregoStock')
                 ->label('Porego Stok Entegrasyonu')

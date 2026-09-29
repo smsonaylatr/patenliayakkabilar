@@ -37,11 +37,23 @@ class ProductAiExportController extends Controller
     }
 
     /**
+     * İstekten gelen dışa aktarma seçeneklerini çözer.
+     */
+    protected function resolveOptions(Request $request): array
+    {
+        return [
+            'include_descriptions' => !$request->boolean('no_desc', false),
+            'only_in_stock' => $request->boolean('in_stock', false),
+        ];
+    }
+
+    /**
      * PDF İndirir veya Dompdf yoksa yazdırma/PDF kaydetme sayfasına yönlendirir.
      */
     public function downloadPdf(Request $request)
     {
         $products = $this->resolveProducts($request);
+        $options = $this->resolveOptions($request);
 
         if ($products->isEmpty()) {
             return redirect()->back()->with('error', 'Dışa aktarılacak ürün bulunamadı.');
@@ -50,7 +62,7 @@ class ProductAiExportController extends Controller
         // Eğer Dompdf yüklüyse doğrudan PDF indir
         if (class_exists(\Dompdf\Dompdf::class)) {
             try {
-                return $this->exportService->exportToPdf($products);
+                return $this->exportService->exportToPdf($products, $options);
             } catch (\Throwable $e) {
                 // Hata durumunda güvenli şekilde yazdırma ekranına geç
             }
@@ -83,12 +95,13 @@ class ProductAiExportController extends Controller
     public function downloadExcel(Request $request)
     {
         $products = $this->resolveProducts($request);
+        $options = $this->resolveOptions($request);
 
         if ($products->isEmpty()) {
             return redirect()->back()->with('error', 'Dışa aktarılacak ürün bulunamadı.');
         }
 
-        return $this->exportService->exportToExcel($products);
+        return $this->exportService->exportToExcel($products, $options);
     }
 
     /**
@@ -97,11 +110,12 @@ class ProductAiExportController extends Controller
     public function downloadCsv(Request $request)
     {
         $products = $this->resolveProducts($request);
+        $options = $this->resolveOptions($request);
 
         if ($products->isEmpty()) {
             return redirect()->back()->with('error', 'Dışa aktarılacak ürün bulunamadı.');
         }
 
-        return $this->exportService->exportToCsv($products);
+        return $this->exportService->exportToCsv($products, $options);
     }
 }

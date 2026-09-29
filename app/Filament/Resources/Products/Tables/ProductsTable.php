@@ -207,13 +207,24 @@ class ProductsTable
                                 return null;
                             }
 
+                            $ids = $records->pluck('id')->implode(',');
                             $format = $data['format'] ?? 'xlsx';
-                            $service = app(\App\Services\ProductAiExportService::class);
 
-                            return $service->export($records, $format, [
-                                'include_descriptions' => (bool) ($data['include_descriptions'] ?? true),
-                                'only_in_stock' => (bool) ($data['only_in_stock'] ?? false),
-                            ]);
+                            $params = ['ids' => $ids];
+                            if (!($data['include_descriptions'] ?? true)) {
+                                $params['no_desc'] = 1;
+                            }
+                            if ($data['only_in_stock'] ?? false) {
+                                $params['in_stock'] = 1;
+                            }
+
+                            $route = match ($format) {
+                                'pdf' => route('admin.products.ai-catalog.download', $params),
+                                'csv' => route('admin.products.ai-catalog.csv', $params),
+                                default => route('admin.products.ai-catalog.excel', $params),
+                            };
+
+                            $this->js("window.open('{$route}', '_blank')");
                         })
                         ->deselectRecordsAfterCompletion(),
 
