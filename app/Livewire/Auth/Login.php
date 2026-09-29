@@ -16,11 +16,17 @@ class Login extends Component
         'password' => 'required',
     ];
 
+    protected array $messages = [
+        'email.required' => 'Lütfen e-posta adresinizi giriniz.',
+        'email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
+        'password.required' => 'Lütfen şifrenizi giriniz.',
+    ];
+
     public function login()
     {
         $this->validate();
 
-        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (Auth::attempt(['email' => strtolower(trim($this->email)), 'password' => $this->password], $this->remember)) {
             session()->regenerate();
             return redirect()->intended('/hesabim');
         }

@@ -17,12 +17,17 @@ class ForgotPassword extends Component
         'email' => 'required|email',
     ];
 
+    protected array $messages = [
+        'email.required' => 'Lütfen e-posta adresinizi giriniz.',
+        'email.email' => 'Lütfen geçerli bir e-posta adresi giriniz.',
+    ];
+
     public function sendResetLink()
     {
         $this->validate();
 
         $status = Password::broker()->sendResetLink(
-            ['email' => $this->email]
+            ['email' => strtolower(trim($this->email))]
         );
 
         if ($status === Password::RESET_LINK_SENT) {
