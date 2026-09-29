@@ -14,9 +14,9 @@
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
         img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; display: block; }
-        @media only screen and (max-width: 620px) {
+        @media only screen and (max-width: 680px) {
             .email-container { width: 100% !important; }
-            .mobile-padding { padding-left: 18px !important; padding-right: 18px !important; }
+            .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
             .footer-stack { display: block !important; width: 100% !important; margin-bottom: 20px !important; }
             .footer-links-wrap { width: 100% !important; }
         }
@@ -24,22 +24,11 @@
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #18181b;">
 
-    <!-- 1. EN ÜST MARQUEE DUYURU BANDI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #6b6b6b;">
-        <tr>
-            <td align="center" style="padding: 10px 16px;">
-                <p style="margin: 0; font-size: 11px; font-weight: 700; color: #ffffff; letter-spacing: 2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-                    HIZLI TESLİMAT &nbsp;&nbsp;&bull;&nbsp;&nbsp; KAPIDA ÖDEME FIRSATI &nbsp;&nbsp;&bull;&nbsp;&nbsp; %100 İADE GARANTİSİ &nbsp;&nbsp;&bull;&nbsp;&nbsp; VADESİZ 3 TAKSİT
-                </p>
-            </td>
-        </tr>
-    </table>
-
     <!-- ANA GÖVDE SARMALAYICI -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f5; padding: 20px 8px;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f5; padding: 32px 10px;">
         <tr>
             <td align="center">
-                <table class="email-container" width="620" cellpadding="0" cellspacing="0" border="0" style="max-width: 620px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border: 1px solid #e4e4e7;">
+                <table class="email-container" width="680" cellpadding="0" cellspacing="0" border="0" style="max-width: 680px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07); border: 1px solid #e4e4e7;">
                     
                     <!-- 2. HEADER: BEYAZ ZEMİN, SADECE RESMİ LOGO -->
                     <tr>
