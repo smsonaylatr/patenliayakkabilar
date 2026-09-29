@@ -33,11 +33,11 @@ class GibInvoiceMail extends Mailable
     {
         $settings = Setting::whereIn('key', ['smtp_from_address', 'smtp_from_name'])->pluck('value', 'key')->toArray();
         $fromAddress = $settings['smtp_from_address'] ?? config('mail.from.address', 'destek@patenliayakkabilar.com');
-        $fromName = $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar');
+        $fromName = $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar®');
 
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "Siparişinizin E-Arşiv Faturası (#{$this->order->order_number}) - Patenli Ayakkabılar",
+            subject: "Siparişinizin E-Arşiv Faturası (#{$this->order->order_number}) - Patenli Ayakkabılar®",
         );
     }
 

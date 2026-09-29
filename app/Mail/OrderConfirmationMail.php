@@ -25,7 +25,7 @@ class OrderConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar'),
+            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
             subject: "Siparişiniz Alındı! 🎉 #{$this->order->order_number}",
         );
     }

@@ -24,8 +24,8 @@ class WelcomeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('info@patenliayakkabilar.com', 'Patenli Ayakkabılar'),
-            subject: 'Patenli Ayakkabılar Ailesine Hoşgeldiniz! 🎉',
+            from: new Address('info@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
+            subject: 'Patenli Ayakkabılar® Ailesine Hoşgeldiniz! 🎉',
         );
     }
 

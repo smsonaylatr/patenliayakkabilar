@@ -37,7 +37,7 @@ class ShippingUpdateMail extends Mailable
             default => '📦',
         };
         return new Envelope(
-            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar'),
+            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
             subject: "{$emoji} Siparişiniz {$this->statusText} - #{$this->order->order_number}",
         );
     }

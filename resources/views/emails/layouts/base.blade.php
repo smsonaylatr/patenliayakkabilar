@@ -157,7 +157,7 @@
                                 <tr>
                                     <td align="center" style="padding-top: 14px;">
                                         <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: 400;">
-                                            &copy; {{ date('Y') }} Patenli Ayakkabılar. Tüm hakları saklıdır.
+                                            &copy; {{ date('Y') }} Patenli Ayakkabılar®. Tüm hakları saklıdır.
                                         </p>
                                     </td>
                                 </tr>
