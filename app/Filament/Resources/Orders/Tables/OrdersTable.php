@@ -537,7 +537,7 @@ class OrdersTable
                                             ->send();
                                     }
                                 })
-                                ->hidden(fn (Order $record) => $record->gib_invoice_status !== 'signed'),
+                                ->visible(fn (Order $record) => $record->gib_invoice_status === 'signed' || !empty($record->gib_invoice_html)),
                             \Filament\Actions\Action::make('openPdfInvoice')
                                 ->label('📄 PDF Olarak Aç / İndir')
                                 ->icon('heroicon-o-arrow-down-tray')
@@ -556,6 +556,11 @@ class OrdersTable
                             ->hidden(fn ($get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
                     ->mountUsing(function (\Filament\Schemas\Schema $form, Order $record) {
+                        // İmzalı faturalarda GİB API'sine bağlanmadan direkt modal'ı aç
+                        if ($record->gib_invoice_status === 'signed' && !empty($record->gib_invoice_html)) {
+                            return;
+                        }
+
                         try {
                             $service = app(\App\Services\GibEArsivService::class);
 
@@ -605,9 +610,14 @@ class OrdersTable
                             }
                         } catch (\Exception $e) {
                             if (!($e instanceof \Filament\Support\Exceptions\Halt)) {
+                                $errorMsg = $e->getMessage();
+                                // GİB bağlantı hatalarını daha açıklayıcı göster
+                                if (str_contains($errorMsg, 'İstek başarısız') || str_contains($errorMsg, 'cURL error') || str_contains($errorMsg, 'doğrulanamadı')) {
+                                    $errorMsg = 'GİB E-Arşiv Portalına bağlanılamadı. Lütfen internet bağlantınızı ve GİB kullanıcı bilgilerinizi kontrol edin. (' . $errorMsg . ')';
+                                }
                                 \Filament\Notifications\Notification::make()
-                                    ->title('Sistem Hatası')
-                                    ->body($e->getMessage())
+                                    ->title('GİB Bağlantı Hatası')
+                                    ->body($errorMsg)
                                     ->danger()
                                     ->send();
                             }
