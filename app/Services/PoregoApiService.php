@@ -969,6 +969,25 @@ class PoregoApiService
             // Eğer gerçek kargo takip linki varsa (carrierTrackingUrl), Porego'nun linkini ez
             $trackingUrl = $poregoOrder['carrierTrackingUrl'] ?? ($poregoOrder['trackingUrl'] ?? null);
             $status = $poregoOrder['status'] ?? null;
+            
+            // Porego'nun kargo mesajı alanı — bazen status hâlâ SHIPPED iken cargoMessage "Teslim Edildi" olabiliyor
+            $cargoMessage = $poregoOrder['cargoMessage'] ?? ($poregoOrder['cargo_message'] ?? ($poregoOrder['statusMessage'] ?? ($poregoOrder['message'] ?? null)));
+            // deliveryDate alanı — eğer teslim tarihi varsa sipariş teslim edilmiştir
+            $deliveryDate = $poregoOrder['deliveryDate'] ?? ($poregoOrder['delivery_date'] ?? ($poregoOrder['deliveredAt'] ?? ($poregoOrder['delivered_at'] ?? null)));
+            // delivered flag kontrolü
+            $isDeliveredFlag = ($poregoOrder['delivered'] ?? ($poregoOrder['isDelivered'] ?? false));
+
+            // === DEBUG LOG: Porego'dan gelen ham veriyi logla ===
+            Log::info("Porego fetchAndSave HAM VERİ: Sipariş #{$order->order_number}", [
+                'porego_status' => $status,
+                'cargoMessage' => $cargoMessage,
+                'deliveryDate' => $deliveryDate,
+                'isDeliveredFlag' => $isDeliveredFlag,
+                'current_db_status' => $order->status,
+                'trackingNumber' => $trackingNumber,
+                'carrierTrackingNumber' => $poregoOrder['carrierTrackingNumber'] ?? null,
+                'all_keys' => array_keys($poregoOrder),
+            ]);
 
             $cleanTrackingNumber = trim((string)$trackingNumber);
             $cleanOrderNumber = trim((string)$order->order_number);
@@ -994,14 +1013,24 @@ class PoregoApiService
             if ($status) {
                 $upperStatus = strtoupper((string)$status);
                 $newStatus = match ($upperStatus) {
-                    'SHIPPED', 'IN_TRANSIT', 'TRANSFER_STAGE', 'ON_THE_WAY', 'CARGO' => 'shipped',
-                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
+                    'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO' => 'shipped',
+                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER',
+                    'TRANSFER_STAGE' => $this->isPoregoDelivered($poregoOrder, $cargoMessage, $deliveryDate, $isDeliveredFlag)
+                        ? 'delivered'
+                        : ($upperStatus === 'TRANSFER_STAGE' ? 'shipped' : 'delivered'),
                     'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
                     'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
                     'FAILED' => 'cancelled',
                     'READY' => 'processing',
                     default => null
                 };
+                
+                // Status eşleşmedi veya shipped döndü ama Porego gerçekte teslim edilmiş olabilir
+                // cargoMessage, deliveryDate veya delivered flag üzerinden teslim kontrolü yap
+                if (($newStatus === null || $newStatus === 'shipped') && $this->isPoregoDelivered($poregoOrder, $cargoMessage, $deliveryDate, $isDeliveredFlag)) {
+                    Log::info("Porego teslim tespiti (yan kanal): Sipariş #{$order->order_number}, status={$status}, cargoMessage={$cargoMessage}, deliveryDate={$deliveryDate}");
+                    $newStatus = 'delivered';
+                }
 
                 if ($newStatus && $order->status !== $newStatus) {
                     // Admin panelden porego_sync_locked=true yapılmışsa → Porego statü değişikliğini TAMAMEN ENGELLE
@@ -1092,6 +1121,70 @@ class PoregoApiService
         }
 
         return null;
+    }
+
+    /**
+     * Porego API yanıtındaki yan kanal verilerini kullanarak siparişin teslim edilip edilmediğini tespit eder.
+     * 
+     * Porego bazen status alanında hâlâ SHIPPED/TRANSFER_STAGE gösterirken,
+     * aslında teslim edilmiş olabiliyor. Bu metot cargoMessage, deliveryDate,
+     * delivered flag ve teslim bilgileri alanlarını kontrol eder.
+     */
+    protected function isPoregoDelivered(?array $poregoOrder, ?string $cargoMessage, ?string $deliveryDate, mixed $isDeliveredFlag): bool
+    {
+        // 1. Delivered flag kontrolü
+        if (filter_var($isDeliveredFlag, FILTER_VALIDATE_BOOLEAN)) {
+            return true;
+        }
+
+        // 2. Delivery date varsa teslim edilmiştir
+        if (!empty($deliveryDate)) {
+            return true;
+        }
+
+        // 3. Cargo message kontrolü — Türkçe ve İngilizce teslim ifadeleri
+        if (!empty($cargoMessage)) {
+            $upperMsg = mb_strtoupper(trim((string)$cargoMessage), 'UTF-8');
+            $deliveryPhrases = [
+                'TESLİM EDİLDİ', 'TESLIM EDILDI', 'TESLİM', 'TESLIM EDİLMİŞTİR',
+                'DELIVERED', 'DELIVERED_TO_RECEIVER', 'COMPLETED',
+                'ALICIYA TESLİM', 'ALICISINA TESLİM', 'ALICIYA ULAŞTI',
+                'TESLİMAT YAPILDI', 'TESLİMAT TAMAMLANDI',
+                'DAĞITILDI', 'TESLİM ALINDI',
+            ];
+            foreach ($deliveryPhrases as $phrase) {
+                if (str_contains($upperMsg, $phrase)) {
+                    return true;
+                }
+            }
+        }
+
+        // 4. Porego order response'undaki ek alanlar
+        if ($poregoOrder) {
+            // deliveryInfo, deliveredDate, completedAt gibi alanlar
+            $extraDeliveryFields = [
+                'deliveryInfo', 'deliveredDate', 'completedAt', 'completed_at',
+                'deliveryTimestamp', 'delivery_timestamp',
+            ];
+            foreach ($extraDeliveryFields as $field) {
+                if (!empty($poregoOrder[$field])) {
+                    return true;
+                }
+            }
+
+            // statusText veya statusLabel Türkçe "Teslim Edildi" içeriyorsa
+            $statusText = mb_strtoupper(trim((string)($poregoOrder['statusText'] ?? ($poregoOrder['statusLabel'] ?? ($poregoOrder['statusDescription'] ?? '')))), 'UTF-8');
+            if (!empty($statusText)) {
+                $teslimWords = ['TESLİM', 'TESLIM', 'DELIVERED', 'COMPLETED'];
+                foreach ($teslimWords as $tw) {
+                    if (str_contains($statusText, $tw)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
