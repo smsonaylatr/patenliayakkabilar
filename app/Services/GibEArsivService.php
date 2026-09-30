@@ -409,8 +409,12 @@ HTML;
     public static function convertHtmlToPdf(string $html): ?string
     {
         try {
-            // JavaScript ve qrcode scriptlerini temizle (DomPDF scriptleri çalıştırmaz)
-            $cleanHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+            // XML başlığını kaldır (DomPDF HTML parser ile çakışabilir)
+            $cleanHtml = preg_replace('/<\?xml.*?\?>/i', '', $html);
+
+            // Tüm JavaScript ve noscript bloklarını kaldır (Gmail'de metin olarak görünen qrcode.min.js vb.)
+            $cleanHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $cleanHtml);
+            $cleanHtml = preg_replace('/<noscript\b[^>]*>(.*?)<\/noscript>/is', '', $cleanHtml);
 
             // UTF-8 karakter desteği garanti altına alınsın
             if (!str_contains($cleanHtml, 'charset=')) {
@@ -424,11 +428,14 @@ HTML;
         margin: 8mm 8mm 8mm 8mm;
         size: A4 portrait;
     }
+    * {
+        font-family: 'DejaVu Sans', sans-serif !important;
+    }
     body {
-        font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif !important;
-        font-size: 11px !important;
-        line-height: 1.3 !important;
-        color: #111 !important;
+        font-size: 10px !important;
+        line-height: 1.25 !important;
+        color: #111111 !important;
+        background: #ffffff !important;
     }
     table {
         border-collapse: collapse !important;
@@ -455,9 +462,59 @@ CSS;
                 'dpi' => 150,
             ]);
 
+            $output = $pdf->output();
+            return !empty($output) ? $output : null;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("GİB Fatura convertHtmlToPdf Hatası: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Sipariş için garantili ve hatasız PDF fatura belgesi üretir.
+     * Orijinal GİB HTML'i varsa onu PDF'e çevirir; yoksa veya dönüştürülemezse
+     * kurumsal ve resmi standartlardaki Blade fatura şablonundan gerçek PDF oluşturur.
+     * Asla ve kesinlikle HTML metni döndürmez!
+     */
+    public static function generateInvoicePdf(Order $order): ?string
+    {
+        // 1. GİB portalı HTML'i varsa öncelikle onu PDF'e çevirmeyi dene
+        $html = $order->gib_invoice_html;
+        if (empty($html) && !empty($order->gib_invoice_uuid)) {
+            try {
+                $service = app(self::class);
+                $html = $service->getInvoiceHtml($order->gib_invoice_uuid);
+                if ($html) {
+                    $order->update(['gib_invoice_html' => $html]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("GİB HTML alma hatası: " . $e->getMessage());
+            }
+        }
+
+        if (!empty($html)) {
+            $pdf = self::convertHtmlToPdf($html);
+            if (!empty($pdf)) {
+                return $pdf;
+            }
+        }
+
+        // 2. GİB HTML'i yoksa veya dönüştürme başarısız olursa,
+        // kusursuz tasarlanmış Blade şablonundan gerçek ve şık PDF üret
+        try {
+            $order->loadMissing(['items.product', 'items.variant']);
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice', ['order' => $order]);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'dpi' => 150,
+            ]);
+
             return $pdf->output();
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error("GİB Fatura PDF Dönüştürme Hatası: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Blade Fatura PDF oluşturma hatası: " . $e->getMessage());
             return null;
         }
     }

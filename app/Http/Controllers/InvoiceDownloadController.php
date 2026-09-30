@@ -48,7 +48,7 @@ class InvoiceDownloadController extends Controller
         }
 
         // Standart ve varsayılan: Yüksek Kaliteli PDF Oluştur ve Göster / İndir
-        $pdfContent = GibEArsivService::convertHtmlToPdf($html);
+        $pdfContent = GibEArsivService::generateInvoicePdf($order);
         $fileName = 'fatura_' . ($order->gib_invoice_number ?: $order->order_number) . '.pdf';
 
         if ($pdfContent) {

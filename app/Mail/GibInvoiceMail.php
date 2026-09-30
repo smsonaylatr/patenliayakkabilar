@@ -77,29 +77,12 @@ class GibInvoiceMail extends Mailable
     {
         $attachments = [];
 
-        $html = $this->order->gib_invoice_html;
+        $pdfContent = GibEArsivService::generateInvoicePdf($this->order);
 
-        // HTML veritabanında henüz yoksa GİB servisinden çekmeyi dene
-        if (empty($html) && !empty($this->order->gib_invoice_uuid)) {
-            $service = app(GibEArsivService::class);
-            $html = $service->getInvoiceHtml($this->order->gib_invoice_uuid);
-            if ($html) {
-                $this->order->update(['gib_invoice_html' => $html]);
-            }
-        }
-
-        if (!empty($html)) {
-            $pdfContent = GibEArsivService::convertHtmlToPdf($html);
-
-            if ($pdfContent) {
-                $fileName = "E-Arsiv-Fatura-{$this->order->order_number}.pdf";
-                $attachments[] = Attachment::fromData(fn () => $pdfContent, $fileName)
-                    ->withMime('application/pdf');
-            } else {
-                $fileName = "E-Arsiv-Fatura-{$this->order->order_number}.html";
-                $attachments[] = Attachment::fromData(fn () => $html, $fileName)
-                    ->withMime('text/html');
-            }
+        if (!empty($pdfContent)) {
+            $fileName = "E-Arsiv-Fatura-{$this->order->order_number}.pdf";
+            $attachments[] = Attachment::fromData(fn () => $pdfContent, $fileName)
+                ->withMime('application/pdf');
         }
 
         return $attachments;
