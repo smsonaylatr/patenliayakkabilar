@@ -582,82 +582,110 @@ CSS;
 
     /**
      * SMS Doğrulamayı Başlatır (GİB'den telefona SMS gönderir)
+     * Timeout hatalarında otomatik retry yapar
      */
     public function startSmsVerification(): array
     {
-        $gib = null;
-        try {
-            $gib = $this->getGibClient();
-            $operationId = $gib->startSmsVerification();
-            
-            return [
-                'success' => true,
-                'operation_id' => $operationId,
-            ];
-        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
-            $error = $e->getMessage();
-            if ($e->hasResponse()) {
-                $error .= " - Response: " . print_r($e->getResponse(), true);
-            }
-            return [
-                'success' => false,
-                'message' => 'GİB API Hatası: ' . $error,
-            ];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'message' => 'SMS doğrulama başlatılamadı: ' . $e->getMessage(),
-            ];
-        } finally {
-            if ($gib) {
-                try {
-                    $gib->logout();
-                } catch (\Throwable $t) {
-                    // Ignore logout errors
+        $maxRetries = 3;
+        $lastError = null;
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            $gib = null;
+            try {
+                $gib = $this->getGibClient();
+                $operationId = $gib->startSmsVerification();
+                
+                return [
+                    'success' => true,
+                    'operation_id' => $operationId,
+                ];
+            } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+                $error = $e->getMessage();
+                if ($e->hasResponse()) {
+                    $error .= " - Response: " . print_r($e->getResponse(), true);
+                }
+                $lastError = 'GİB API Hatası: ' . $error;
+                break; // API hataları retry'a tabi değil
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
+                Log::warning("GİB SMS Doğrulama - Deneme {$attempt}/{$maxRetries} başarısız: " . $lastError);
+                
+                // Timeout veya bağlantı hatası ise retry yap
+                if ($attempt < $maxRetries && (str_contains($lastError, 'cURL error') || str_contains($lastError, 'timed out') || str_contains($lastError, 'Connection'))) {
+                    sleep(2); // 2 saniye bekle ve tekrar dene
+                    continue;
+                }
+                break;
+            } finally {
+                if ($gib) {
+                    try {
+                        $gib->logout();
+                    } catch (\Throwable $t) {
+                        // Ignore logout errors
+                    }
                 }
             }
         }
+
+        return [
+            'success' => false,
+            'message' => 'SMS doğrulama başlatılamadı: ' . $lastError,
+        ];
     }
 
     /**
      * SMS Kodunu GİB'e göndererek belgeleri imzalar
+     * Timeout hatalarında otomatik retry yapar
      */
     public function completeSmsVerification(string $smsCode, string $operationId, array $uuids): array
     {
         $smsCode = strtoupper(trim($smsCode));
-        $gib = null;
-        try {
-            $gib = $this->getGibClient();
-            $result = $gib->completeSmsVerification($smsCode, $operationId, $uuids);
-            $count = $gib->rowCount();
-            
-            return [
-                'success' => $result,
-                'count' => $count,
-                'message' => $result ? "{$count} adet belge başarıyla imzalandı." : "İmzalama başarısız oldu.",
-            ];
-        } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
-            $error = $e->getMessage();
-            if ($e->hasResponse()) {
-                $error .= " - Response: " . print_r($e->getResponse(), true);
-            }
-            return [
-                'success' => false,
-                'message' => 'GİB API Hatası: ' . $error,
-            ];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'message' => 'SMS onaylama hatası: ' . $e->getMessage(),
-            ];
-        } finally {
-            if ($gib) {
-                try {
-                    $gib->logout();
-                } catch (\Throwable $t) {
-                    // Ignore logout errors
+        $maxRetries = 3;
+        $lastError = null;
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            $gib = null;
+            try {
+                $gib = $this->getGibClient();
+                $result = $gib->completeSmsVerification($smsCode, $operationId, $uuids);
+                $count = $gib->rowCount();
+                
+                return [
+                    'success' => $result,
+                    'count' => $count,
+                    'message' => $result ? "{$count} adet belge başarıyla imzalandı." : "İmzalama başarısız oldu.",
+                ];
+            } catch (\Mlevent\Fatura\Exceptions\ApiException $e) {
+                $error = $e->getMessage();
+                if ($e->hasResponse()) {
+                    $error .= " - Response: " . print_r($e->getResponse(), true);
+                }
+                $lastError = 'GİB API Hatası: ' . $error;
+                break; // API hataları retry'a tabi değil
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
+                Log::warning("GİB SMS Onaylama - Deneme {$attempt}/{$maxRetries} başarısız: " . $lastError);
+                
+                // Timeout veya bağlantı hatası ise retry yap
+                if ($attempt < $maxRetries && (str_contains($lastError, 'cURL error') || str_contains($lastError, 'timed out') || str_contains($lastError, 'Connection'))) {
+                    sleep(2); // 2 saniye bekle ve tekrar dene
+                    continue;
+                }
+                break;
+            } finally {
+                if ($gib) {
+                    try {
+                        $gib->logout();
+                    } catch (\Throwable $t) {
+                        // Ignore logout errors
+                    }
                 }
             }
         }
+
+        return [
+            'success' => false,
+            'message' => 'SMS onaylama hatası: ' . $lastError,
+        ];
     }
 }
