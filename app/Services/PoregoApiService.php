@@ -1450,14 +1450,10 @@ class PoregoApiService
         }
 
         try {
-            $activeOrders = Order::whereNotIn('status', ['cancelled', 'returned', 'return_started'])
-                ->where(function($q) {
-                    $q->whereNotIn('status', ['delivered'])
-                      ->orWhere(function($subQ) {
-                          $subQ->where('payment_method', 'cash_on_delivery')
-                               ->where('payment_status', '!=', 'paid');
-                      });
-                })
+            $activeOrders = Order::whereNotIn('status', ['cancelled', 'returned', 'return_started', 'delivered'])
+                // Ödeme iade edilmiş siparişleri kesinlikle hariç tut
+                // Bu siparişler iade/iptal edilmiş ama status alanı güncellenmemiş olabilir
+                ->where('payment_status', '!=', 'refunded')
                 // Admin tarafından porego_sync_locked=true yapılmış siparişleri hariç tut
                 ->where(function($q) {
                     $q->whereNull('porego_sync_locked')
