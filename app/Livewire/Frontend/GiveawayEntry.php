@@ -21,7 +21,7 @@ class GiveawayEntry extends Component
     
     public bool $followed_instagram = false;
     public bool $kvkk_consent = false;
-    public bool $sms_consent = true;
+    public bool $sms_consent = false;
 
     // Sunucu tarafında yönetilen veriler
     #[Locked]

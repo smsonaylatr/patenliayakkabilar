@@ -60,6 +60,18 @@ class OrderInfolist
                 TextEntry::make('customer_note')
                     ->placeholder('-')
                     ->columnSpanFull(),
+                TextEntry::make('sms_consent')
+                    ->label('SMS İzni')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state) => $state ? 'Evet' : 'Hayır')
+                    ->color(fn (bool $state) => $state ? 'success' : 'gray')
+                    ->icon(fn (bool $state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
+                TextEntry::make('email_consent')
+                    ->label('E-posta İzni')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state) => $state ? 'Evet' : 'Hayır')
+                    ->color(fn (bool $state) => $state ? 'success' : 'gray')
+                    ->icon(fn (bool $state) => $state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
                 TextEntry::make('shipping_city')
                     ->placeholder('-'),
                 TextEntry::make('shipping_district')

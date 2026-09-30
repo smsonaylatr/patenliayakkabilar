@@ -36,6 +36,7 @@ class Checkout extends Component
 
     public string $payment_method = 'credit_card';
     public bool $sms_consent = false;
+    public bool $email_consent = false;
     public bool $terms_consent = false;
 
     // Sunucu tarafında yönetilen veriler
@@ -352,10 +353,12 @@ class Checkout extends Component
                 'guest_email' => $this->customer_email,
                 'guest_phone' => $this->customer_phone,
                 'sms_consent' => $this->sms_consent,
+                'email_consent' => $this->email_consent,
             ]);
         } else {
             $cart->update([
                 'sms_consent' => $this->sms_consent,
+                'email_consent' => $this->email_consent,
             ]);
         }
 
@@ -420,6 +423,7 @@ class Checkout extends Component
             'customer_phone' => $this->customer_phone,
             'customer_note' => $this->customer_note,
             'sms_consent' => $this->sms_consent,
+            'email_consent' => $this->email_consent,
             
             'shipping_city' => $this->shipping_city,
             'shipping_district' => $this->shipping_district,

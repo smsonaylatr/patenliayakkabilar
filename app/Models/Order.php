@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $casts = [
         'sms_consent' => 'boolean',
+        'email_consent' => 'boolean',
         'is_invoiced' => 'boolean',
         'gib_invoice_date' => 'datetime',
         'porego_sync_locked' => 'boolean',
