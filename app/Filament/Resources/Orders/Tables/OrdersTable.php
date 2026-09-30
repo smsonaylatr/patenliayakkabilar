@@ -487,7 +487,10 @@ class OrdersTable
                                 ->label(fn ($get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
                                 ->icon('heroicon-o-paper-airplane')
                                 ->color('warning')
-                                ->action(function ($set) {
+                                ->extraAttributes([
+                                    'x-on:click' => "setTimeout(() => { const target = document.getElementById('gib_sms_code_wrapper') || document.getElementById('gib_sms_code_input'); if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 100);",
+                                ])
+                                ->action(function ($set, Action $action) {
                                     try {
                                         $service = app(\App\Services\GibEArsivService::class);
                                         $smsResult = $service->startSmsVerification();
@@ -498,6 +501,24 @@ class OrdersTable
                                                 ->body('Telefonunuza gelen SMS şifresini aşağıdaki alana girin.')
                                                 ->success()
                                                 ->send();
+
+                                            $livewire = $action->getLivewire();
+                                            if ($livewire) {
+                                                if (method_exists($livewire, 'dispatch')) {
+                                                    $livewire->dispatch('focus-gib-sms-code');
+                                                }
+                                                if (method_exists($livewire, 'js')) {
+                                                    $livewire->js("
+                                                        setTimeout(() => {
+                                                            const el = document.getElementById('gib_sms_code_input') || document.querySelector('input[name*=\"sms_code\"]');
+                                                            if (el) {
+                                                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                setTimeout(() => el.focus(), 150);
+                                                            }
+                                                        }, 150);
+                                                    ");
+                                                }
+                                            }
                                         } else {
                                             \Filament\Notifications\Notification::make()
                                                 ->title('SMS Gönderilemedi')
@@ -556,7 +577,35 @@ class OrdersTable
                             ->label('SMS Şifresi')
                             ->required(fn ($get) => (bool)$get('operation_id'))
                             ->placeholder('Telefonunuza gelen SMS şifresini girin')
-                            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                            ->extraInputAttributes([
+                                'id' => 'gib_sms_code_input',
+                                'style' => 'text-transform: uppercase',
+                                'autocomplete' => 'one-time-code',
+                            ])
+                            ->extraAttributes([
+                                'id' => 'gib_sms_code_wrapper',
+                                'x-data' => '{
+                                    focusSmsInput() {
+                                        this.$nextTick(() => {
+                                            const input = this.$el.querySelector("input") || document.getElementById("gib_sms_code_input");
+                                            if (input) {
+                                                input.scrollIntoView({ behavior: "smooth", block: "center" });
+                                                setTimeout(() => {
+                                                    input.focus({ preventScroll: false });
+                                                }, 150);
+                                                setTimeout(() => {
+                                                    if (document.activeElement !== input) {
+                                                        input.focus({ preventScroll: false });
+                                                    }
+                                                }, 350);
+                                            }
+                                        });
+                                    }
+                                }',
+                                'x-init' => 'focusSmsInput()',
+                                '@focus-gib-sms-code.window' => 'focusSmsInput()',
+                            ])
+                            ->autofocus()
                             ->dehydrateStateUsing(fn ($state) => strtoupper(trim((string) $state)))
                             ->hidden(fn ($get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
@@ -1247,7 +1296,8 @@ class OrdersTable
                                 ->label('SMS Şifresi')
                                 ->required()
                                 ->placeholder('Gelen şifreyi girin')
-                                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                ->autofocus()
+                                ->extraInputAttributes(['style' => 'text-transform: uppercase', 'autocomplete' => 'one-time-code'])
                                 ->dehydrateStateUsing(fn ($state) => strtoupper(trim((string) $state))),
                         ])
                         ->mountUsing(function (\Filament\Schemas\Schema $form, Collection $records) {
