@@ -31,14 +31,8 @@
             <td style="padding: 22px;">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                        <td width="42" valign="middle" style="padding-right: 14px;">
-                            <table cellpadding="0" cellspacing="0" border="0" width="36" height="36" style="width: 36px; height: 36px; background-color: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 50%;">
-                                <tr>
-                                    <td align="center" valign="middle" style="text-align: center; vertical-align: middle; padding: 0;">
-                                        <img src="https://img.icons8.com/color/96/pdf-2.png" alt="PDF" width="20" height="20" style="display: block; margin: 0 auto; width: 20px; height: 20px; border: 0;">
-                                    </td>
-                                </tr>
-                            </table>
+                        <td width="40" valign="middle" style="padding-right: 14px; vertical-align: middle;">
+                            <img src="https://img.icons8.com/color/96/pdf-2.png" alt="PDF" width="36" height="36" style="display: block; width: 36px; height: 36px; border: 0;">
                         </td>
                         <td valign="middle">
                             <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
