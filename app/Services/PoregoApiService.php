@@ -913,41 +913,168 @@ class PoregoApiService
         }
 
         try {
-            // Porego API: /orders endpoint'i paginated 'content' array döndürür.
-            // platformOrderNumber filtresi çalışmadığı için tüm sayfaları tarayıp
-            // platformOrderNumber eşleşmesi yapıyoruz.
+            // ====================================================================
+            // STRATEJİ: Porego'dan siparişi bul
+            // 
+            // Sorun: Paginated GET /orders endpoint'i COMPLETED/DELIVERED durumundaki
+            // siparişleri default listede döndürmez. Bu yüzden teslim edilen
+            // siparişler asla bulunamaz ve durumları güncellenemez.
+            //
+            // Çözüm: Çoklu arama stratejisi kullan:
+            // 1. Doğrudan GET /orders/{orderNumber} (tek sipariş — her durumda döner)
+            // 2. Dashboard API ile JWT token lookup
+            // 3. Paginated liste araması (sadece fallback)
+            // ====================================================================
             $poregoOrder = null;
-            $page = 0;
 
-            while ($page < 30) {
-                $response = Http::withHeaders([
+            // === Strateji 1: Doğrudan Merchant API — GET /orders/{orderNumber} ===
+            try {
+                $directResp = Http::withHeaders([
                     'X-Api-Key' => $apiKey,
                     'X-Api-Secret' => $apiSecret,
                     'Accept' => 'application/json',
-                ])->timeout(10)->get("{$apiUrl}/orders", ['page' => $page, 'size' => 50]);
+                ])->timeout(10)->get("{$apiUrl}/orders/{$order->order_number}");
 
-                if (!$response->successful()) {
-                    Log::warning("Porego sipariş listesi alınamadı. Status: " . $response->status());
-                    break;
+                if ($directResp->successful()) {
+                    $directData = $directResp->json();
+                    if (!empty($directData['id']) || !empty($directData['status'])) {
+                        $poregoOrder = $directData;
+                        Log::info("Porego sipariş bulundu (doğrudan endpoint): #{$order->order_number}, Status: " . ($directData['status'] ?? 'N/A'));
+                    }
+                } else {
+                    Log::info("Porego doğrudan endpoint: Status {$directResp->status()} (Sipariş: #{$order->order_number})");
                 }
+            } catch (\Throwable $e) {
+                Log::info("Porego doğrudan endpoint hatası: " . $e->getMessage());
+            }
 
-                $body = $response->json();
-                $content = $body['content'] ?? [];
+            // === Strateji 2: Dashboard API — JWT token ile arama ===
+            if (!$poregoOrder) {
+                $dashboardUrl = \App\Models\Setting::where('key', 'porego_dashboard_api_url')->value('value') ?: $this->dashboardApiUrl;
+                $sessionCookie = \App\Models\Setting::where('key', 'porego_session_cookie')->value('value') ?: $this->sessionCookie;
 
-                foreach ($content as $item) {
-                    if (($item['platformOrderNumber'] ?? '') === $order->order_number) {
-                        $poregoOrder = $item;
-                        break 2; // Her iki döngüden de çık
+                if (!empty($sessionCookie)) {
+                    $jwtToken = $sessionCookie;
+                    if (preg_match('/app_token=([^;]+)/', $sessionCookie, $m)) {
+                        $jwtToken = trim($m[1]);
+                    }
+
+                    $dashHeaders = [
+                        'Accept' => 'application/json',
+                        'Authorization' => "Bearer {$jwtToken}",
+                    ];
+
+                    // 2a. Dashboard API: Doğrudan sipariş numarası ile arama
+                    try {
+                        // Porego platformOrderNumber ile arama — ?search= veya ?platformOrderNumber= dene
+                        $searchUrls = [
+                            "{$dashboardUrl}/orders?platformOrderNumber={$order->order_number}&size=5",
+                            "{$dashboardUrl}/orders?search={$order->order_number}&size=10",
+                        ];
+
+                        foreach ($searchUrls as $searchUrl) {
+                            $searchResp = Http::withHeaders($dashHeaders)
+                                ->withOptions(['verify' => false])
+                                ->timeout(10)
+                                ->get($searchUrl);
+
+                            if ($searchResp->successful()) {
+                                $searchBody = $searchResp->json();
+                                $searchList = $searchBody['content'] ?? ($searchBody['data'] ?? (is_array($searchBody) ? $searchBody : []));
+                                foreach ($searchList as $item) {
+                                    $pNo = (string)($item['platformOrderNumber'] ?? '');
+                                    $pId = (string)($item['platformOrderId'] ?? '');
+                                    $oNo = (string)($item['orderNumber'] ?? '');
+
+                                    if (
+                                        $pNo === (string)$order->order_number
+                                        || $pId === (string)$order->id
+                                        || $oNo === (string)$order->order_number
+                                    ) {
+                                        $poregoOrder = $item;
+                                        Log::info("Porego sipariş bulundu (Dashboard API search): #{$order->order_number}, Status: " . ($item['status'] ?? 'N/A'));
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        Log::info("Porego Dashboard API arama hatası: " . $e->getMessage());
+                    }
+
+                    // 2b. Dashboard API: Paginated liste (tüm durumlar dahil)
+                    if (!$poregoOrder) {
+                        try {
+                            // completed/delivered dahil tüm siparişleri getirmeyi dene
+                            $statusFilters = ['', '&status=COMPLETED', '&status=DELIVERED'];
+                            foreach ($statusFilters as $statusFilter) {
+                                $dashPage = 0;
+                                while ($dashPage < 10) {
+                                    $dashResp = Http::withHeaders($dashHeaders)
+                                        ->withOptions(['verify' => false])
+                                        ->timeout(10)
+                                        ->get("{$dashboardUrl}/orders?page={$dashPage}&size=50{$statusFilter}");
+
+                                    if (!$dashResp->successful()) break;
+
+                                    $dashBody = $dashResp->json();
+                                    $dashList = $dashBody['content'] ?? ($dashBody['data'] ?? []);
+
+                                    foreach ($dashList as $item) {
+                                        $pNo = (string)($item['platformOrderNumber'] ?? '');
+                                        $pId = (string)($item['platformOrderId'] ?? '');
+
+                                        if ($pNo === (string)$order->order_number || $pId === (string)$order->id) {
+                                            $poregoOrder = $item;
+                                            Log::info("Porego sipariş bulundu (Dashboard API paginated): #{$order->order_number}, Status: " . ($item['status'] ?? 'N/A'));
+                                            break 3; // Tüm döngülerden çık
+                                        }
+                                    }
+
+                                    if ($dashBody['last'] ?? true) break;
+                                    $dashPage++;
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            Log::info("Porego Dashboard API paginated hatası: " . $e->getMessage());
+                        }
                     }
                 }
+            }
 
-                // Son sayfa mı?
-                if ($body['last'] ?? true) break;
-                $page++;
+            // === Strateji 3: Merchant API paginated (orijinal yöntem — fallback) ===
+            if (!$poregoOrder) {
+                $page = 0;
+                while ($page < 30) {
+                    $response = Http::withHeaders([
+                        'X-Api-Key' => $apiKey,
+                        'X-Api-Secret' => $apiSecret,
+                        'Accept' => 'application/json',
+                    ])->timeout(10)->get("{$apiUrl}/orders", ['page' => $page, 'size' => 50]);
+
+                    if (!$response->successful()) {
+                        Log::warning("Porego sipariş listesi alınamadı. Status: " . $response->status());
+                        break;
+                    }
+
+                    $body = $response->json();
+                    $content = $body['content'] ?? [];
+
+                    foreach ($content as $item) {
+                        if (($item['platformOrderNumber'] ?? '') === $order->order_number) {
+                            $poregoOrder = $item;
+                            Log::info("Porego sipariş bulundu (Merchant paginated): #{$order->order_number}, Status: " . ($item['status'] ?? 'N/A'));
+                            break 2;
+                        }
+                    }
+
+                    if ($body['last'] ?? true) break;
+                    $page++;
+                }
             }
 
             if (!$poregoOrder) {
-                Log::info("Porego'da sipariş bulunamadı: #{$order->order_number}");
+                Log::info("Porego'da sipariş bulunamadı (3 strateji denendi): #{$order->order_number}");
                 return null;
             }
 
@@ -1101,8 +1228,69 @@ class PoregoApiService
             }
 
             if ($changed) {
-                $order->save();
-                Log::info("Porego Senkronizasyonu: Sipariş #{$order->order_number} güncellendi. Status: {$order->status}, Kargo: {$order->cargo_tracking_code}");
+                $oldStatus = $order->getOriginal('status');
+                $statusChanged = ($oldStatus !== $order->status);
+                
+                // saveQuietly() kullan — Observer'ın tetiklenmesini engelle
+                // Observer çift tetiklenirse OrderStatusHistory mükerrer kayıt oluşur
+                // ve potansiyel yan etkiler (çift fatura, çift SMS) oluşabilir
+                $order->saveQuietly();
+                
+                Log::info("Porego Senkronizasyonu: Sipariş #{$order->order_number} güncellendi. Status: {$order->status}, Kargo: {$order->cargo_tracking_code}" .
+                    ($statusChanged ? " (eski: {$oldStatus})" : ''));
+                
+                // Durum değiştiyse OrderStatusHistory kaydı oluştur (Observer devre dışı olduğu için manuel)
+                if ($statusChanged) {
+                    try {
+                        \App\Models\OrderStatusHistory::create([
+                            'order_id' => $order->id,
+                            'old_status' => $oldStatus,
+                            'new_status' => $order->status,
+                            'changed_by' => null, // Cron/Porego senkronizasyonu
+                            'note' => "Porego senkronizasyonu ile durum güncellendi: {$order->status}",
+                            'created_at' => now(),
+                        ]);
+                    } catch (\Throwable $historyEx) {
+                        Log::warning("OrderStatusHistory kayıt hatası: " . $historyEx->getMessage());
+                    }
+                    
+                    // Delivered durumuna geçtiyse iş mantığını tetikle
+                    // (Observer saveQuietly() ile devre dışı olduğu için burada yapıyoruz)
+                    if ($order->status === 'delivered') {
+                        try {
+                            // GİB E-Arşiv fatura oluştur
+                            app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
+                        } catch (\Throwable $gibEx) {
+                            Log::error("Porego sync GİB E-Arşiv hatası: " . $gibEx->getMessage());
+                        }
+
+                        try {
+                            // Muhasebe satış kaydı
+                            $existingSale = \App\Models\AccountingEntry::where('order_id', $order->id)
+                                ->where('type', \App\Models\AccountingEntry::TYPE_SALE)
+                                ->first();
+                            if (!$existingSale) {
+                                \App\Models\AccountingEntry::recordSale($order);
+                            }
+                        } catch (\Throwable $accEx) {
+                            Log::error("Porego sync muhasebe kaydı hatası: " . $accEx->getMessage());
+                        }
+
+                        try {
+                            // Teslim edildi e-postası
+                            if (!empty($order->customer_email)) {
+                                \Illuminate\Support\Facades\Mail::to($order->customer_email)
+                                    ->send(new \App\Mail\ShippingUpdateMail($order));
+                            }
+                        } catch (\Throwable $mailEx) {
+                            Log::error("Porego sync teslim maili hatası: " . $mailEx->getMessage());
+                        }
+                    }
+                    
+                    // Cache'leri temizle
+                    \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
+                    \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
+                }
             }
 
             // Frontend için canlı veri döndür
@@ -1213,15 +1401,15 @@ class PoregoApiService
                     $q->whereNull('porego_sync_locked')
                       ->orWhere('porego_sync_locked', false);
                 })
-                // Admin tarafından son 48 saatte statüsü değiştirilmiş siparişleri hariç tut
-                // Böylece gereksiz API çağrıları yapılmaz ve admin override'lar korunur
-                ->whereNotIn('id', function($subQuery) {
-                    $subQuery->select('order_id')
-                        ->from('order_status_histories')
-                        ->whereNotNull('changed_by')
-                        ->where('created_at', '>=', now()->subHours(48));
-                })
+                // NOT: 48 saatlik admin değişikliği kontrolü fetchAndSaveOrderTracking() içinde yapılıyor.
+                // Buradan kaldırıldı çünkü ileri yönlü geçişleri (shipped→delivered) yanlışlıkla engelliyordu.
                 ->get();
+            
+            Log::info("Porego syncOrderStatuses: {$activeOrders->count()} adet sipariş senkronize edilecek.", [
+                'order_numbers' => $activeOrders->pluck('order_number')->toArray(),
+                'statuses' => $activeOrders->pluck('status', 'order_number')->toArray(),
+            ]);
+            
             $updatedCount = 0;
 
             foreach ($activeOrders as $order) {
