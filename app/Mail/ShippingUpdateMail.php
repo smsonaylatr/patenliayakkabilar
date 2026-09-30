@@ -36,8 +36,11 @@ class ShippingUpdateMail extends Mailable
             'delivered' => '✅',
             default => '📦',
         };
+
+        [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('shipping', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
+
         return new Envelope(
-            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
+            from: new Address($fromAddress, $fromName),
             subject: "{$emoji} Siparişiniz {$this->statusText} - #{$this->order->order_number}",
         );
     }

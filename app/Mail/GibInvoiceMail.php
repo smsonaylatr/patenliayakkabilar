@@ -31,9 +31,7 @@ class GibInvoiceMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $settings = Setting::whereIn('key', ['smtp_from_address', 'smtp_from_name'])->pluck('value', 'key')->toArray();
-        $fromAddress = $settings['smtp_from_address'] ?? config('mail.from.address', 'destek@patenliayakkabilar.com');
-        $fromName = $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar®');
+        [$fromAddress, $fromName] = Setting::getMailSender('invoice', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
         return new Envelope(
             from: new Address($fromAddress, $fromName),

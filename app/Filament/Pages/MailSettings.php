@@ -62,7 +62,13 @@ class MailSettings extends Page implements HasForms
             'smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username',
             'smtp_password', 'smtp_from_address', 'smtp_from_name',
             'mail_order_confirmation', 'mail_shipping_update', 'mail_welcome',
-            'mail_abandoned_cart', 'mail_stock_notification', 'mail_invoice'
+            'mail_abandoned_cart', 'mail_stock_notification', 'mail_invoice',
+            'mail_order_from_name', 'mail_order_from_address',
+            'mail_shipping_from_name', 'mail_shipping_from_address',
+            'mail_welcome_from_name', 'mail_welcome_from_address',
+            'mail_abandoned_from_name', 'mail_abandoned_from_address',
+            'mail_stock_from_name', 'mail_stock_from_address',
+            'mail_invoice_from_name', 'mail_invoice_from_address',
         ])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
@@ -72,13 +78,27 @@ class MailSettings extends Page implements HasForms
             'smtp_username' => $settings['smtp_username'] ?? config('mail.mailers.smtp.username', ''),
             'smtp_password' => $settings['smtp_password'] ?? '',
             'smtp_from_address' => $settings['smtp_from_address'] ?? config('mail.from.address', ''),
-            'smtp_from_name' => $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar'),
+            'smtp_from_name' => $settings['smtp_from_name'] ?? config('mail.from.name', 'Patenli Ayakkabılar®'),
             'mail_order_confirmation' => filter_var($settings['mail_order_confirmation'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_shipping_update' => filter_var($settings['mail_shipping_update'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_welcome' => filter_var($settings['mail_welcome'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_abandoned_cart' => filter_var($settings['mail_abandoned_cart'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_stock_notification' => filter_var($settings['mail_stock_notification'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'mail_invoice' => filter_var($settings['mail_invoice'] ?? true, FILTER_VALIDATE_BOOLEAN),
+
+            // Her Mail Türüne Özel Gönderici (Mail Adı) Ayarları
+            'mail_order_from_name' => $settings['mail_order_from_name'] ?? 'Patenli Ayakkabılar®',
+            'mail_order_from_address' => $settings['mail_order_from_address'] ?? 'siparis@patenliayakkabilar.com',
+            'mail_shipping_from_name' => $settings['mail_shipping_from_name'] ?? 'Patenli Ayakkabılar® - Kargo',
+            'mail_shipping_from_address' => $settings['mail_shipping_from_address'] ?? 'siparis@patenliayakkabilar.com',
+            'mail_welcome_from_name' => $settings['mail_welcome_from_name'] ?? 'Patenli Ayakkabılar®',
+            'mail_welcome_from_address' => $settings['mail_welcome_from_address'] ?? 'siparis@patenliayakkabilar.com',
+            'mail_abandoned_from_name' => $settings['mail_abandoned_from_name'] ?? 'Patenli Ayakkabılar®',
+            'mail_abandoned_from_address' => $settings['mail_abandoned_from_address'] ?? 'siparis@patenliayakkabilar.com',
+            'mail_stock_from_name' => $settings['mail_stock_from_name'] ?? 'Patenli Ayakkabılar® - Stok Alarmı',
+            'mail_stock_from_address' => $settings['mail_stock_from_address'] ?? 'info@patenliayakkabilar.com',
+            'mail_invoice_from_name' => $settings['mail_invoice_from_name'] ?? 'Patenli Ayakkabılar® - E-Fatura',
+            'mail_invoice_from_address' => $settings['mail_invoice_from_address'] ?? 'siparis@patenliayakkabilar.com',
         ]);
     }
 
@@ -119,7 +139,8 @@ class MailSettings extends Page implements HasForms
                                 } elseif ($state === 'tls') {
                                     $set('smtp_port', 587);
                                 }
-                            }),
+                            })
+                            ->helperText('Port 465 için SSL, Port 587 için TLS seçiniz.'),
                         TextInput::make('smtp_username')
                             ->label('Kullanıcı Adı (E-Posta)')
                             ->email(),
@@ -131,7 +152,7 @@ class MailSettings extends Page implements HasForms
                             ->label('Varsayılan Gönderici Adresi')
                             ->email(),
                         TextInput::make('smtp_from_name')
-                            ->label('Gönderici Adı'),
+                            ->label('Varsayılan Gönderici Adı'),
                         TextInput::make('test_recipient_email')
                             ->label('Test Maili Alıcı Adresi')
                             ->placeholder('info@patenliayakkabilar.com veya kişisel e-postanız (örn. Gmail)')
@@ -140,24 +161,77 @@ class MailSettings extends Page implements HasForms
                             ->columnSpan(2),
                     ])->columns(2),
 
-                Section::make('E-Posta Hesapları')
-                    ->description('Sistemde kullanılan varsayılan e-posta adresleri (Bilgi Amaçlıdır)')
+                Section::make('Bildirim Türüne Özel Gönderici (Mail Adı) Ayarları')
+                    ->description('Her e-posta türü için alıcının gelen kutusunda görünecek Gönderici Adı (Örn: Patenli Ayakkabılar® - Sipariş) ve Gönderici E-Posta adresini buradan özelleştirebilirsiniz.')
                     ->schema([
-                        Placeholder::make('info')
-                            ->label('Genel Bilgilendirme')
-                            ->content('info@patenliayakkabilar.com'),
-                        Placeholder::make('siparis')
-                            ->label('Sipariş Bildirimleri')
-                            ->content('siparis@patenliayakkabilar.com'),
-                        Placeholder::make('destek')
-                            ->label('Müşteri Destek')
-                            ->content('destek@patenliayakkabilar.com'),
-                        Placeholder::make('isbirligi')
-                            ->label('İş Birliği & Pazarlama')
-                            ->content('isbirligi@patenliayakkabilar.com'),
+                        Section::make('🛍️ Sipariş Onay Maili')
+                            ->schema([
+                                TextInput::make('mail_order_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar®'),
+                                TextInput::make('mail_order_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('siparis@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
+
+                        Section::make('🚚 Kargo Güncelleme Maili')
+                            ->schema([
+                                TextInput::make('mail_shipping_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar® - Kargo'),
+                                TextInput::make('mail_shipping_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('siparis@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
+
+                        Section::make('👋 Hoşgeldin Maili')
+                            ->schema([
+                                TextInput::make('mail_welcome_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar®'),
+                                TextInput::make('mail_welcome_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('siparis@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
+
+                        Section::make('🛒 Terk Edilen Sepet Maili')
+                            ->schema([
+                                TextInput::make('mail_abandoned_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar® - Fırsatlar'),
+                                TextInput::make('mail_abandoned_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('siparis@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
+
+                        Section::make('📦 Stok Bildirim Maili')
+                            ->schema([
+                                TextInput::make('mail_stock_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar® - Stok Alarmı'),
+                                TextInput::make('mail_stock_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('info@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
+
+                        Section::make('📄 E-Arşiv Fatura Maili')
+                            ->schema([
+                                TextInput::make('mail_invoice_from_name')
+                                    ->label('Gönderen Adı (Mail Adı)')
+                                    ->placeholder('Örn: Patenli Ayakkabılar® - E-Fatura'),
+                                TextInput::make('mail_invoice_from_address')
+                                    ->label('Gönderen E-Posta Adresi')
+                                    ->placeholder('siparis@patenliayakkabilar.com')
+                                    ->email(),
+                            ])->columns(2),
                     ])->columns(2),
 
-                Section::make('E-Posta Bildirim Ayarları')
+                Section::make('E-Posta Bildirim Açma / Kapatma')
                     ->schema([
                         Toggle::make('mail_order_confirmation')
                             ->label('Sipariş Onay Maili')

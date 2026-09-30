@@ -11,6 +11,8 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 
+use App\Models\Setting;
+
 class OrderConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
@@ -24,8 +26,10 @@ class OrderConfirmationMail extends Mailable
 
     public function envelope(): Envelope
     {
+        [$fromAddress, $fromName] = Setting::getMailSender('order', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
+
         return new Envelope(
-            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
+            from: new Address($fromAddress, $fromName),
             subject: "Siparişiniz Alındı! 🎉 #{$this->order->order_number}",
         );
     }

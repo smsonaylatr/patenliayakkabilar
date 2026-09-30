@@ -32,8 +32,10 @@ class AbandonedCartCouponMail extends Mailable
 
     public function envelope(): Envelope
     {
+        [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('abandoned', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
+
         return new Envelope(
-            from: new Address('siparis@patenliayakkabilar.com', 'Patenli Ayakkabılar®'),
+            from: new Address($fromAddress, $fromName),
             subject: 'Sana Özel %10 İndirim! Sepetindeki Ürünleri Kaçırma 🎁',
         );
     }
