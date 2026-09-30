@@ -903,6 +903,21 @@ class PoregoApiService
      */
     public function fetchAndSaveOrderTracking(Order $order): ?array
     {
+        // ═══════════════════════════════════════════════════════════════════
+        // ÇELİK KORUMA: İade/İptal edilmiş siparişlerin statüsü DEĞİŞTİRİLEMEZ
+        // Bu kontrol, hangi kaynaktan çağrılırsa çağrılsın (cron, web, webhook)
+        // iade/iptal siparişlerinin teslim edildi olarak değişmesini ENGELLER.
+        // ═══════════════════════════════════════════════════════════════════
+        $protectedStatuses = ['returned', 'cancelled', 'return_started'];
+        if (in_array($order->status, $protectedStatuses)) {
+            Log::info("Porego fetchAndSave: Korumalı statü, atlanıyor. Sipariş #{$order->order_number}, Status: {$order->status}");
+            return null;
+        }
+        if ($order->payment_status === 'refunded') {
+            Log::info("Porego fetchAndSave: Ödeme iade edilmiş, atlanıyor. Sipariş #{$order->order_number}, PaymentStatus: {$order->payment_status}");
+            return null;
+        }
+
         $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
         $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
         $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
