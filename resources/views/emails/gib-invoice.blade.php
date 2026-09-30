@@ -1,6 +1,6 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Siparişinizin E-Arşiv Faturası — #' . $order->order_number . ' — Patenli Ayakkabılar®')
+@section('title', $mailSubject ?? ('Siparişinizin E-Arşiv Faturası — #' . $order->order_number . ' — Patenli Ayakkabılar®'))
 
 @section('content')
 @php

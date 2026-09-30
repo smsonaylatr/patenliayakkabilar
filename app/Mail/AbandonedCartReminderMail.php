@@ -33,9 +33,17 @@ class AbandonedCartReminderMail extends Mailable
     {
         [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('abandoned', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
+        $userName = $this->cart->user?->name ?? 'Değerli Müşterimiz';
+        $defaultSubject = 'Sepetinizde Harika Ürünler Unuttunuz! 🎁';
+        $subject = \App\Models\Setting::getMailSubject('abandoned', $defaultSubject, [
+            '{musteri_adi}' => $userName,
+            '{name}' => $userName,
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: 'Sepetinizde Harika Ürünler Unuttunuz! 🎁',
+            subject: $subject,
         );
     }
 

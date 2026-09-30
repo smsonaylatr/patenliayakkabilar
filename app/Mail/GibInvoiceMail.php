@@ -33,20 +33,41 @@ class GibInvoiceMail extends Mailable
     {
         [$fromAddress, $fromName] = Setting::getMailSender('invoice', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
+        $defaultSubject = "Siparişinizin E-Arşiv Faturası (#{$this->order->order_number}) - Patenli Ayakkabılar®";
+        $subject = Setting::getMailSubject('invoice', $defaultSubject, [
+            '{siparis_no}' => $this->order->order_number,
+            '{order_number}' => $this->order->order_number,
+            '{order_no}' => $this->order->order_number,
+            '{musteri_adi}' => $this->order->customer_name ?: 'Değerli Müşterimiz',
+            '{toplam_tutar}' => number_format($this->order->grand_total ?? $this->order->total_amount ?? 0, 2, ',', '.') . ' ₺',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "Siparişinizin E-Arşiv Faturası (#{$this->order->order_number}) - Patenli Ayakkabılar®",
+            subject: $subject,
         );
     }
 
     public function content(): Content
     {
+        $defaultSubject = "Siparişinizin E-Arşiv Faturası (#{$this->order->order_number}) - Patenli Ayakkabılar®";
+        $subject = Setting::getMailSubject('invoice', $defaultSubject, [
+            '{siparis_no}' => $this->order->order_number,
+            '{order_number}' => $this->order->order_number,
+            '{order_no}' => $this->order->order_number,
+            '{musteri_adi}' => $this->order->customer_name ?: 'Değerli Müşterimiz',
+            '{toplam_tutar}' => number_format($this->order->grand_total ?? $this->order->total_amount ?? 0, 2, ',', '.') . ' ₺',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Content(
             view: 'emails.gib-invoice',
             with: [
                 'order' => $this->order,
                 'invoiceUrl' => $this->invoiceUrl,
                 'logoUrl' => $this->logoUrl,
+                'mailSubject' => $subject,
             ],
         );
     }

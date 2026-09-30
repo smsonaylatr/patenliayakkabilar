@@ -28,9 +28,19 @@ class OrderConfirmationMail extends Mailable
     {
         [$fromAddress, $fromName] = Setting::getMailSender('order', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
+        $defaultSubject = "Siparişiniz Alındı! 🎉 #{$this->order->order_number}";
+        $subject = Setting::getMailSubject('order', $defaultSubject, [
+            '{siparis_no}' => $this->order->order_number,
+            '{order_number}' => $this->order->order_number,
+            '{order_no}' => $this->order->order_number,
+            '{musteri_adi}' => $this->order->customer_name ?: 'Değerli Müşterimiz',
+            '{toplam_tutar}' => number_format($this->order->grand_total ?? $this->order->total_amount ?? 0, 2, ',', '.') . ' ₺',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "Siparişiniz Alındı! 🎉 #{$this->order->order_number}",
+            subject: $subject,
         );
     }
 

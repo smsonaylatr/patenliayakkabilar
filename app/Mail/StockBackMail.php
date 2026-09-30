@@ -29,9 +29,17 @@ class StockBackMail extends Mailable
         $sizeText = $this->variant ? " ({$this->variant->size} Beden)" : '';
         [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('stock', 'Patenli Ayakkabılar®', 'info@patenliayakkabilar.com');
 
+        $defaultSubject = "🎉 Müjde! Beklediğiniz {$this->product->name}{$sizeText} Stokta!";
+        $subject = \App\Models\Setting::getMailSubject('stock', $defaultSubject, [
+            '{urun_adi}' => $this->product->name,
+            '{product_name}' => $this->product->name,
+            '{beden}' => $this->variant ? "({$this->variant->size} Beden)" : '',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "🎉 Müjde! Beklediğiniz {$this->product->name}{$sizeText} Stokta!",
+            subject: $subject,
         );
     }
 

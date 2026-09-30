@@ -39,9 +39,21 @@ class ShippingUpdateMail extends Mailable
 
         [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('shipping', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
+        $defaultSubject = "{$emoji} Siparişiniz {$this->statusText} - #{$this->order->order_number}";
+        $subject = \App\Models\Setting::getMailSubject('shipping', $defaultSubject, [
+            '{siparis_no}' => $this->order->order_number,
+            '{order_number}' => $this->order->order_number,
+            '{kargo_durumu}' => $this->statusText,
+            '{durum}' => $this->statusText,
+            '{kargo_firmasi}' => $this->order->shipping_company ?: 'Kargo',
+            '{takip_kodu}' => $this->order->cargo_tracking_code ?: '',
+            '{musteri_adi}' => $this->order->customer_name ?: 'Değerli Müşterimiz',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: "{$emoji} Siparişiniz {$this->statusText} - #{$this->order->order_number}",
+            subject: $subject,
         );
     }
 

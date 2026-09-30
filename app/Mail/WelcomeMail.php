@@ -25,9 +25,16 @@ class WelcomeMail extends Mailable
     {
         [$fromAddress, $fromName] = \App\Models\Setting::getMailSender('welcome', 'Patenli Ayakkabılar®', 'siparis@patenliayakkabilar.com');
 
+        $defaultSubject = 'Patenli Ayakkabılar® — Aramıza Hoş Geldiniz';
+        $subject = \App\Models\Setting::getMailSubject('welcome', $defaultSubject, [
+            '{musteri_adi}' => $this->user->name ?: 'Değerli Müşterimiz',
+            '{name}' => $this->user->name ?: 'Değerli Müşterimiz',
+            '{magaza_adi}' => 'Patenli Ayakkabılar®',
+        ]);
+
         return new Envelope(
             from: new Address($fromAddress, $fromName),
-            subject: 'Patenli Ayakkabılar® — Aramıza Hoş Geldiniz',
+            subject: $subject,
         );
     }
 

@@ -28,17 +28,37 @@ class Setting extends Model
                 'smtp_from_address'
             ])->pluck('value', 'key')->toArray();
 
-            $fromName = !empty($settings["mail_{$type}_from_name"])
-                ? $settings["mail_{$type}_from_name"]
-                : (!empty($settings['smtp_from_name']) ? $settings['smtp_from_name'] : $defaultName);
+            $fromName = (!empty($settings["mail_{$type}_from_name"]) && trim($settings["mail_{$type}_from_name"]) !== '')
+                ? trim($settings["mail_{$type}_from_name"])
+                : (!empty($settings['smtp_from_name']) ? trim($settings['smtp_from_name']) : $defaultName);
 
-            $fromAddress = !empty($settings["mail_{$type}_from_address"])
-                ? $settings["mail_{$type}_from_address"]
-                : (!empty($settings['smtp_from_address']) ? $settings['smtp_from_address'] : $defaultAddress);
+            $fromAddress = (!empty($settings["mail_{$type}_from_address"]) && trim($settings["mail_{$type}_from_address"]) !== '')
+                ? trim($settings["mail_{$type}_from_address"])
+                : (!empty($settings['smtp_from_address']) ? trim($settings['smtp_from_address']) : $defaultAddress);
 
             return [$fromAddress, $fromName];
         } catch (\Throwable) {
             return [$defaultAddress, $defaultName];
+        }
+    }
+
+    public static function getMailSubject(string $type, string $defaultSubject, array $replacements = []): string
+    {
+        try {
+            $customSubject = static::where('key', "mail_{$type}_subject")->value('value');
+            $subject = (!empty($customSubject) && trim($customSubject) !== '') ? trim($customSubject) : $defaultSubject;
+
+            foreach ($replacements as $placeholder => $value) {
+                $subject = str_ireplace($placeholder, (string)$value, $subject);
+            }
+
+            return $subject;
+        } catch (\Throwable) {
+            $subject = $defaultSubject;
+            foreach ($replacements as $placeholder => $value) {
+                $subject = str_ireplace($placeholder, (string)$value, $subject);
+            }
+            return $subject;
         }
     }
 }
