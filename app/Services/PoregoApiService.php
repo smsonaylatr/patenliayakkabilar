@@ -905,16 +905,26 @@ class PoregoApiService
     {
         // ═══════════════════════════════════════════════════════════════════
         // ÇELİK KORUMA: İade/İptal edilmiş siparişlerin statüsü DEĞİŞTİRİLEMEZ
-        // Bu kontrol, hangi kaynaktan çağrılırsa çağrılsın (cron, web, webhook)
-        // iade/iptal siparişlerinin teslim edildi olarak değişmesini ENGELLER.
+        // Kullanıcı kuralı: "iade olarak statü değişti an değiştirilemez olsun"
         // ═══════════════════════════════════════════════════════════════════
         $protectedStatuses = ['returned', 'cancelled', 'return_started'];
         if (in_array($order->status, $protectedStatuses)) {
-            Log::info("Porego fetchAndSave: Korumalı statü, atlanıyor. Sipariş #{$order->order_number}, Status: {$order->status}");
+            Log::info("Porego fetchAndSave: Korumalı statü ({$order->status}), atlanıyor. Sipariş #{$order->order_number}");
             return null;
         }
         if ($order->payment_status === 'refunded') {
-            Log::info("Porego fetchAndSave: Ödeme iade edilmiş, atlanıyor. Sipariş #{$order->order_number}, PaymentStatus: {$order->payment_status}");
+            Log::info("Porego fetchAndSave: Ödeme iade edilmiş, atlanıyor. Sipariş #{$order->order_number}");
+            return null;
+        }
+
+        // Eğer sipariş geçmişinde yetkili/admin tarafından yapılmış bir iade veya iptal kaydı varsa DOKUNMA
+        $hasAdminTerminalHistory = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+            ->whereNotNull('changed_by')
+            ->whereIn('new_status', $protectedStatuses)
+            ->exists();
+
+        if ($hasAdminTerminalHistory) {
+            Log::info("Porego fetchAndSave: Sipariş geçmişinde admin iade/iptal kararı var, statü kilitli. Sipariş #{$order->order_number}");
             return null;
         }
 
@@ -1155,11 +1165,8 @@ class PoregoApiService
             if ($status) {
                 $upperStatus = strtoupper((string)$status);
                 $newStatus = match ($upperStatus) {
-                    'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO' => 'shipped',
-                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER',
-                    'TRANSFER_STAGE' => $this->isPoregoDelivered($poregoOrder, $cargoMessage, $deliveryDate, $isDeliveredFlag)
-                        ? 'delivered'
-                        : ($upperStatus === 'TRANSFER_STAGE' ? 'shipped' : 'delivered'),
+                    'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE' => 'shipped',
+                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
                     'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
                     'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
                     'FAILED' => 'cancelled',
@@ -1167,23 +1174,31 @@ class PoregoApiService
                     default => null
                 };
                 
-                // Status eşleşmedi veya shipped döndü ama Porego gerçekte teslim edilmiş olabilir
-                // cargoMessage, deliveryDate veya delivered flag üzerinden teslim kontrolü yap
+                // Yan kanal kontrolü (sadece kesin ve açık teslim durumlarında)
                 if (($newStatus === null || $newStatus === 'shipped') && $this->isPoregoDelivered($poregoOrder, $cargoMessage, $deliveryDate, $isDeliveredFlag)) {
                     Log::info("Porego teslim tespiti (yan kanal): Sipariş #{$order->order_number}, status={$status}, cargoMessage={$cargoMessage}, deliveryDate={$deliveryDate}");
                     $newStatus = 'delivered';
                 }
                 
-                // === DHL eCommerce Tracking Kontrolü ===
-                // Porego API siparişi hâlâ SHIPPED olarak döndürüyor ama DHL teslim etmiş olabilir.
-                // DHL tracking sayfasını kontrol ederek gerçek teslim durumunu tespit et.
+                // === DHL eCommerce Gerçek Kargo Durumu Kontrolü ===
+                // Porego API siparişi SHIPPED döndürüyor ama DHL son adımında teslim veya iade etmiş olabilir.
+                // DHL tracking stepper'ını analiz ederek son aktif adımı tespit et.
                 if ($newStatus === 'shipped' && $order->status === 'shipped') {
                     $dhlTrackingNumber = $poregoOrder['carrierTrackingNumber'] ?? null;
                     if (!empty($dhlTrackingNumber)) {
-                        $dhlDelivered = $this->checkDhlDeliveryStatus($dhlTrackingNumber);
-                        if ($dhlDelivered) {
-                            Log::info("DHL teslim tespiti: Sipariş #{$order->order_number}, DHL Takip: {$dhlTrackingNumber} — Teslim Edildi");
-                            $newStatus = 'delivered';
+                        $dhlStatus = $this->getDhlTrackingStatus($dhlTrackingNumber);
+                        if ($dhlStatus) {
+                            if ($dhlStatus['is_delivered']) {
+                                Log::info("DHL teslim tespiti: Sipariş #{$order->order_number}, DHL Takip: {$dhlTrackingNumber} — Teslim Edildi ({$dhlStatus['title']})");
+                                $newStatus = 'delivered';
+                            } elseif ($dhlStatus['is_returned']) {
+                                Log::info("DHL iade/başarısız tespiti: Sipariş #{$order->order_number}, DHL Takip: {$dhlTrackingNumber} — İade/Teslim Edilemedi ({$dhlStatus['title']})");
+                                $newStatus = 'returned';
+                            } else {
+                                // Transfer Aşamasında, Teslim Biriminde, Gönderi Dağıtımda vb. -> KESİNLİKLE shipped kalır!
+                                Log::info("DHL kargoda (Transfer/Yolda): Sipariş #{$order->order_number}, DHL Takip: {$dhlTrackingNumber} — {$dhlStatus['title']}");
+                                $newStatus = 'shipped';
+                            }
                         }
                     }
                 }
@@ -1341,13 +1356,18 @@ class PoregoApiService
     }
 
     /**
-     * DHL eCommerce tracking sayfasını POST ile çağırarak kargonun teslim edilip edilmediğini kontrol eder.
+     * DHL eCommerce tracking sayfasını POST ile sorgulayarak kargonun gerçek durumunu analiz eder.
      * 
-     * DHL eCommerce Türkiye tracking sayfası: https://kargotakip.dhlecommerce.com.tr
-     * POST /gonderi-takip-detay endpoint'i captcha'sız çalışıyor ve HTML'de
-     * teslim durumu class="active" ile işaretleniyor.
+     * DHL Stepper Yapısı:
+     * 1. Gönderi Hazırlanıyor
+     * 2. Transfer Aşamasında
+     * 3. Teslim Biriminde
+     * 4. Gönderi Dağıtımda
+     * 5. Sonuç Adımı: Teslim Edildi (succes) | İade Edildi (returned) | Teslim Edilemedi (returned)
+     * 
+     * Son "active" olan adım kargonun GÜNCEL durumudur.
      */
-    protected function checkDhlDeliveryStatus(string $trackingNumber): bool
+    protected function getDhlTrackingStatus(string $trackingNumber): ?array
     {
         try {
             $response = Http::asForm()
@@ -1358,90 +1378,112 @@ class PoregoApiService
 
             if (!$response->successful()) {
                 Log::info("DHL tracking kontrol başarısız: Status {$response->status()}, Takip: {$trackingNumber}");
-                return false;
+                return null;
             }
 
             $html = $response->body();
-            
-            // DHL tracking sayfasında teslim durumu tespiti
-            // HTML'de "TeslimEdildi" class'lı element "active" class'ı ile işaretleniyor
-            // Yöntem 1: "TeslimEdildi" class'ı ve active birlikte
-            if (preg_match('/class="[^"]*active[^"]*"[\s\S]*?TeslimEdildi/i', $html)) {
-                return true;
-            }
-            
-            // Yöntem 2: "Teslim Edildi" text'i active step içinde
-            if (preg_match('/class="[^"]*active[^"]*"[\s\S]{0,500}Teslim\s+Edildi/i', $html)) {
-                return true;
-            }
-            
-            // Yöntem 3: "canvasAnimationTeslimEdildi" class'ı
-            if (str_contains($html, 'canvasAnimationTeslimEdildi') && preg_match('/active[\s\S]*?canvasAnimationTeslimEdildi/i', $html)) {
-                return true;
+
+            if (preg_match('/<div class="wherePostBox">\s*<ul>(.*?)<\/ul>/s', $html, $ulMatch)) {
+                $ulContent = $ulMatch[1];
+                if (preg_match_all('/<li\s+class="([^"]*)"[^>]*>.*?<div\s+class="title"[^>]*>([^<]+)<\/div>/s', $ulContent, $liMatches, PREG_SET_ORDER)) {
+                    $lastActiveTitle = null;
+                    $lastActiveClass = null;
+
+                    foreach ($liMatches as $li) {
+                        $class = $li[1];
+                        $title = html_entity_decode(trim($li[2]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        if (preg_match('/\bactive\b/', $class)) {
+                            $lastActiveTitle = $title;
+                            $lastActiveClass = $class;
+                        }
+                    }
+
+                    if ($lastActiveTitle !== null) {
+                        $upperTitle = mb_strtoupper($lastActiveTitle, 'UTF-8');
+
+                        $isDelivered = str_contains($lastActiveClass, 'succes')
+                            || (str_contains($upperTitle, 'TESLİM EDİLDİ') && !str_contains($upperTitle, 'EDİLEMEDİ') && !str_contains($upperTitle, 'EDILMEDI'));
+
+                        $isReturned = str_contains($lastActiveClass, 'returned')
+                            || str_contains($upperTitle, 'İADE')
+                            || str_contains($upperTitle, 'IADE')
+                            || str_contains($upperTitle, 'TESLİM EDİLEMEDİ')
+                            || str_contains($upperTitle, 'TESLIM EDILEMEDI');
+
+                        $isInTransit = str_contains($upperTitle, 'TRANSFER')
+                            || str_contains($upperTitle, 'YOLDA')
+                            || str_contains($upperTitle, 'BİRİMİNDE')
+                            || str_contains($upperTitle, 'BIRIMINDE')
+                            || str_contains($upperTitle, 'DAĞITIMDA')
+                            || str_contains($upperTitle, 'DAGITIMDA')
+                            || str_contains($upperTitle, 'HAZIRLANIYOR');
+
+                        return [
+                            'title' => $lastActiveTitle,
+                            'class' => $lastActiveClass,
+                            'is_delivered' => $isDelivered && !$isReturned,
+                            'is_returned' => $isReturned,
+                            'is_in_transit' => $isInTransit && !$isDelivered && !$isReturned,
+                        ];
+                    }
+                }
             }
 
-            return false;
+            return null;
 
         } catch (\Throwable $e) {
-            Log::info("DHL tracking kontrol hatası ({$trackingNumber}): " . $e->getMessage());
-            return false;
+            Log::info("DHL tracking parse hatası ({$trackingNumber}): " . $e->getMessage());
+            return null;
         }
     }
 
     /**
      * Porego API yanıtındaki yan kanal verilerini kullanarak siparişin teslim edilip edilmediğini tespit eder.
-     * 
-     * Porego bazen status alanında hâlâ SHIPPED/TRANSFER_STAGE gösterirken,
-     * aslında teslim edilmiş olabiliyor. Bu metot cargoMessage, deliveryDate,
-     * delivered flag ve teslim bilgileri alanlarını kontrol eder.
+     * Negatif durumlar (İade, Transfer, Dağıtımda, Teslim Edilemedi) KESİNLİKLE teslim kabul edilmez.
      */
     protected function isPoregoDelivered(?array $poregoOrder, ?string $cargoMessage, ?string $deliveryDate, mixed $isDeliveredFlag): bool
     {
-        // 1. Delivered flag kontrolü
-        if (filter_var($isDeliveredFlag, FILTER_VALIDATE_BOOLEAN)) {
+        // 1. Delivered flag kontrolü (kesin boolean true veya 1)
+        if ($isDeliveredFlag === true || $isDeliveredFlag === 1 || $isDeliveredFlag === '1') {
             return true;
         }
 
-        // 2. Delivery date varsa teslim edilmiştir
-        if (!empty($deliveryDate)) {
-            return true;
-        }
-
-        // 3. Cargo message kontrolü — Türkçe ve İngilizce teslim ifadeleri
+        // 2. Cargo message kontrolü — SADECE kesin teslim ifadeleri (EDİLEMEDİ, İADE, TRANSFER içermeyen)
         if (!empty($cargoMessage)) {
             $upperMsg = mb_strtoupper(trim((string)$cargoMessage), 'UTF-8');
-            $deliveryPhrases = [
-                'TESLİM EDİLDİ', 'TESLIM EDILDI', 'TESLİM', 'TESLIM EDİLMİŞTİR',
-                'DELIVERED', 'DELIVERED_TO_RECEIVER', 'COMPLETED',
-                'ALICIYA TESLİM', 'ALICISINA TESLİM', 'ALICIYA ULAŞTI',
-                'TESLİMAT YAPILDI', 'TESLİMAT TAMAMLANDI',
-                'DAĞITILDI', 'TESLİM ALINDI',
+
+            $negativeWords = ['EDİLEMEDİ', 'EDILMEDI', 'İADE', 'IADE', 'TRANSFER', 'AŞAMASINDA', 'ASAMASINDA', 'YOLDA', 'BİRİMİNDE', 'BIRIMINDE', 'DAĞITIMDA', 'DAGITIMDA', 'BAŞARISIZ', 'BASARISIZ'];
+            foreach ($negativeWords as $neg) {
+                if (str_contains($upperMsg, $neg)) {
+                    return false;
+                }
+            }
+
+            $exactDeliveryPhrases = [
+                'TESLİM EDİLDİ', 'TESLIM EDILDI', 'TESLİM EDİLMİŞTİR', 'TESLIM EDILMISTIR',
+                'DELIVERED_TO_RECEIVER', 'DELIVERED', 'COMPLETED',
+                'ALICIYA TESLİM EDİLDİ', 'ALICISINA TESLİM EDİLDİ',
             ];
-            foreach ($deliveryPhrases as $phrase) {
+            foreach ($exactDeliveryPhrases as $phrase) {
                 if (str_contains($upperMsg, $phrase)) {
                     return true;
                 }
             }
         }
 
-        // 4. Porego order response'undaki ek alanlar
+        // 3. Status text kontrolü (EDİLEMEDİ, İADE, TRANSFER içermeyen)
         if ($poregoOrder) {
-            // deliveryInfo, deliveredDate, completedAt gibi alanlar
-            $extraDeliveryFields = [
-                'deliveryInfo', 'deliveredDate', 'completedAt', 'completed_at',
-                'deliveryTimestamp', 'delivery_timestamp',
-            ];
-            foreach ($extraDeliveryFields as $field) {
-                if (!empty($poregoOrder[$field])) {
-                    return true;
-                }
-            }
-
-            // statusText veya statusLabel Türkçe "Teslim Edildi" içeriyorsa
             $statusText = mb_strtoupper(trim((string)($poregoOrder['statusText'] ?? ($poregoOrder['statusLabel'] ?? ($poregoOrder['statusDescription'] ?? '')))), 'UTF-8');
             if (!empty($statusText)) {
-                $teslimWords = ['TESLİM', 'TESLIM', 'DELIVERED', 'COMPLETED'];
-                foreach ($teslimWords as $tw) {
+                $negativeWords = ['EDİLEMEDİ', 'EDILMEDI', 'İADE', 'IADE', 'TRANSFER', 'AŞAMASINDA', 'YOLDA', 'BİRİMİNDE', 'DAĞITIMDA', 'BAŞARISIZ'];
+                foreach ($negativeWords as $neg) {
+                    if (str_contains($statusText, $neg)) {
+                        return false;
+                    }
+                }
+
+                $exactDeliveryPhrases = ['TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED', 'COMPLETED'];
+                foreach ($exactDeliveryPhrases as $tw) {
                     if (str_contains($statusText, $tw)) {
                         return true;
                     }
@@ -1450,6 +1492,138 @@ class PoregoApiService
         }
 
         return false;
+    }
+
+    /**
+     * Yanlışlıkla 'delivered' (Teslim Edildi) olarak işaretlenen siparişleri tespit edip
+     * gerçek durumlarına (Kargoda / İade Edildi) geri döndürür.
+     */
+    public function autoRepairErroneousDeliveries(): int
+    {
+        $repairedCount = 0;
+
+        try {
+            // 1. Durumu 'delivered' olan AMA geçmişinde admin tarafından 'returned', 'cancelled', 'return_started' yapılmış veya payment_status='refunded' olan siparişler
+            $falselyDeliveredReturns = Order::where('status', 'delivered')
+                ->where(function($q) {
+                    $q->where('payment_status', 'refunded')
+                      ->orWhereHas('statusHistory', function($sub) {
+                          $sub->whereIn('new_status', ['returned', 'cancelled', 'return_started'])
+                              ->whereNotNull('changed_by');
+                      });
+                })
+                ->get();
+
+            foreach ($falselyDeliveredReturns as $order) {
+                // Admin'in son kararına göre iade veya iptal statüsünü geri yükle
+                $lastAdminChange = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                    ->whereNotNull('changed_by')
+                    ->whereIn('new_status', ['returned', 'cancelled', 'return_started'])
+                    ->latest('created_at')
+                    ->first();
+
+                $targetStatus = $lastAdminChange ? $lastAdminChange->new_status : 'returned';
+
+                $oldStatus = $order->status;
+                $order->status = $targetStatus;
+                $order->saveQuietly();
+
+                \App\Models\OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => $targetStatus,
+                    'changed_by' => null,
+                    'note' => "Otomatik onarım: Yanlışlıkla Teslim Edildi olan iade/iptal siparişi admin kararına ({$targetStatus}) geri döndürüldü.",
+                    'created_at' => now(),
+                ]);
+
+                Log::info("Otomatik onarım: #{$order->order_number} {$oldStatus} → {$targetStatus} yapıldı (İade/İptal koruması).");
+                $repairedCount++;
+            }
+
+            // 2. Durumu 'delivered' olan ve son 48 saatte Porego/sistem tarafından 'delivered' yapılmış siparişler
+            // Eğer DHL kargo takibinde kargo 'Transfer Aşamasında' / 'Yolda' ise -> 'shipped' (Kargoda) olarak düzelt
+            $recentDelivered = Order::where('status', 'delivered')
+                ->whereHas('statusHistory', function($q) {
+                    $q->where('new_status', 'delivered')
+                      ->whereNull('changed_by')
+                      ->where('created_at', '>=', now()->subHours(48));
+                })
+                ->whereNotNull('cargo_tracking_code')
+                ->get();
+
+            foreach ($recentDelivered as $order) {
+                $dhlCode = $order->cargo_tracking_code;
+
+                // Eğer Porego takip kodu (330 ile başlayan) ise, carrierTrackingNumber'ı bulmaya çalış
+                if (str_starts_with($dhlCode, '330') || str_starts_with($dhlCode, '331')) {
+                    $poregoData = $this->findPoregoOrderData($order);
+                    if (!empty($poregoData['carrierTrackingNumber'])) {
+                        $dhlCode = $poregoData['carrierTrackingNumber'];
+                    }
+                }
+
+                if (!empty($dhlCode) && !str_starts_with($dhlCode, '330') && !str_starts_with($dhlCode, '331')) {
+                    $dhlStatus = $this->getDhlTrackingStatus($dhlCode);
+                    if ($dhlStatus) {
+                        if ($dhlStatus['is_in_transit']) {
+                            // Kargo henüz yolda / transfer aşamasında! Teslim edilmedi!
+                            $oldStatus = $order->status;
+                            $order->status = 'shipped';
+
+                            // Kapıda ödeme ise ödeme durumunu 'pending'e geri al
+                            if ($order->payment_method === 'cash_on_delivery' && $order->payment_status === 'paid') {
+                                $order->payment_status = 'pending';
+                            }
+
+                            $order->saveQuietly();
+
+                            \App\Models\OrderStatusHistory::create([
+                                'order_id' => $order->id,
+                                'old_status' => $oldStatus,
+                                'new_status' => 'shipped',
+                                'changed_by' => null,
+                                'note' => "Otomatik onarım: DHL takibinde son adım '{$dhlStatus['title']}' olduğu için durum 'Kargoda' (shipped) olarak düzeltildi.",
+                                'created_at' => now(),
+                            ]);
+
+                            Log::info("Otomatik onarım: #{$order->order_number} delivered → shipped yapıldı (DHL: {$dhlStatus['title']}).");
+                            $repairedCount++;
+                        } elseif ($dhlStatus['is_returned']) {
+                            // Kargo iade edilmiş veya teslim edilememiş!
+                            $oldStatus = $order->status;
+                            $order->status = 'returned';
+                            if ($order->payment_status === 'paid') {
+                                $order->payment_status = 'refunded';
+                            }
+                            $order->saveQuietly();
+
+                            \App\Models\OrderStatusHistory::create([
+                                'order_id' => $order->id,
+                                'old_status' => $oldStatus,
+                                'new_status' => 'returned',
+                                'changed_by' => null,
+                                'note' => "Otomatik onarım: DHL takibinde son adım '{$dhlStatus['title']}' olduğu için durum 'İade Edildi' olarak düzeltildi.",
+                                'created_at' => now(),
+                            ]);
+
+                            Log::info("Otomatik onarım: #{$order->order_number} delivered → returned yapıldı (DHL: {$dhlStatus['title']}).");
+                            $repairedCount++;
+                        }
+                    }
+                }
+            }
+
+            if ($repairedCount > 0) {
+                \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
+                \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
+            }
+
+        } catch (\Throwable $e) {
+            Log::error("autoRepairErroneousDeliveries hatası: " . $e->getMessage());
+        }
+
+        return $repairedCount;
     }
 
     /**
@@ -1465,6 +1639,14 @@ class PoregoApiService
         }
 
         try {
+            // ─── 0. Otomatik Onarım: Yanlışlıkla delivered yapılmış transfer aşamasındaki ve iade siparişlerini düzelt ───
+            $repairedCount = $this->autoRepairErroneousDeliveries();
+            if ($repairedCount > 0) {
+                Log::info("Porego sync: {$repairedCount} adet yanlış statüdeki sipariş otomatik onarıldı.");
+            }
+
+            // ─── 1. Aktif Siparişleri Çek ───
+            // cancelled, returned, return_started ve delivered siparişler kesinlikle taranmaz
             $activeOrders = Order::whereNotIn('status', ['cancelled', 'returned', 'return_started', 'delivered'])
                 // Ödeme iade edilmiş siparişleri kesinlikle hariç tut
                 // Bu siparişler iade/iptal edilmiş ama status alanı güncellenmemiş olabilir
@@ -1474,8 +1656,6 @@ class PoregoApiService
                     $q->whereNull('porego_sync_locked')
                       ->orWhere('porego_sync_locked', false);
                 })
-                // NOT: 48 saatlik admin değişikliği kontrolü fetchAndSaveOrderTracking() içinde yapılıyor.
-                // Buradan kaldırıldı çünkü ileri yönlü geçişleri (shipped→delivered) yanlışlıkla engelliyordu.
                 ->get();
             
             Log::info("Porego syncOrderStatuses: {$activeOrders->count()} adet sipariş senkronize edilecek.", [
@@ -1492,9 +1672,14 @@ class PoregoApiService
                 }
             }
 
+            $msg = "{$updatedCount} adet sipariş güncellendi.";
+            if ($repairedCount > 0) {
+                $msg .= " ({$repairedCount} adet hatalı sipariş otomatik düzeltildi)";
+            }
+
             return [
                 'success' => true,
-                'message' => "{$updatedCount} adet siparişin Porego kargo/ödeme durumu güncellendi.",
+                'message' => $msg,
                 'updated_count' => $updatedCount
             ];
         } catch (\Throwable $e) {

@@ -55,6 +55,30 @@ class PoregoWebhookController extends Controller
                 }
 
                 if ($order) {
+                    // ═══════════════════════════════════════════════════════════════════
+                    // ÇELİK KORUMA: İade/İptal edilmiş siparişlerin statüsü DEĞİŞTİRİLEMEZ
+                    // Kullanıcı kuralı: "iade olarak statü değişti an değiştirilemez olsun"
+                    // ═══════════════════════════════════════════════════════════════════
+                    $protectedStatuses = ['returned', 'cancelled', 'return_started'];
+                    if (in_array($order->status, $protectedStatuses) || $order->payment_status === 'refunded') {
+                        Log::info("Porego Webhook: Korumalı terminal statü ({$order->status}), statü değişikliği KİLİTLİ. Sipariş: #{$order->order_number}");
+                        if ($trackingCode && empty($order->cargo_tracking_code)) {
+                            $order->cargo_tracking_code = $trackingCode;
+                            $order->saveQuietly();
+                        }
+                        return response()->json(['status' => 'success', 'message' => 'Terminal status protected'], 200);
+                    }
+
+                    $hasAdminTerminalHistory = \App\Models\OrderStatusHistory::where('order_id', $order->id)
+                        ->whereNotNull('changed_by')
+                        ->whereIn('new_status', $protectedStatuses)
+                        ->exists();
+
+                    if ($hasAdminTerminalHistory) {
+                        Log::info("Porego Webhook: Sipariş geçmişinde admin iade/iptal kararı var, statü kilitli. Sipariş: #{$order->order_number}");
+                        return response()->json(['status' => 'success', 'message' => 'Admin terminal status protected'], 200);
+                    }
+
                     $upperStatus = strtoupper((string)$status);
                     
                     // Porego'nun kargo mesajı ve teslim bilgisi alanları
@@ -63,16 +87,15 @@ class PoregoWebhookController extends Controller
                     $isDeliveredFlag = ($orderData['delivered'] ?? ($orderData['isDelivered'] ?? false));
 
                     $newStatus = match ($upperStatus) {
-                        'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO' => 'shipped',
+                        'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE' => 'shipped',
                         'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
-                        'TRANSFER_STAGE' => $this->isPoregoDeliveredFromData($orderData, $cargoMessage, $deliveryDate, $isDeliveredFlag) ? 'delivered' : 'shipped',
                         'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
                         'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
                         'FAILED' => 'cancelled',
                         default => null
                     };
                     
-                    // Status eşleşmedi veya shipped döndü ama cargoMessage/deliveryDate/flag "teslim" gösteriyorsa
+                    // Status eşleşmedi veya shipped döndü ama cargoMessage/deliveryDate/flag kesin "teslim" gösteriyorsa
                     if (($newStatus === null || $newStatus === 'shipped') && $this->isPoregoDeliveredFromData($orderData, $cargoMessage, $deliveryDate, $isDeliveredFlag)) {
                         Log::info("Porego Webhook teslim tespiti (yan kanal): Sipariş #{$order->order_number}, status={$status}, cargoMessage={$cargoMessage}");
                         $newStatus = 'delivered';
@@ -304,44 +327,47 @@ class PoregoWebhookController extends Controller
      */
     protected function isPoregoDeliveredFromData(?array $data, ?string $cargoMessage, ?string $deliveryDate, mixed $isDeliveredFlag): bool
     {
-        // 1. Delivered flag
-        if (filter_var($isDeliveredFlag, FILTER_VALIDATE_BOOLEAN)) {
+        // 1. Delivered flag (kesin boolean true veya 1)
+        if ($isDeliveredFlag === true || $isDeliveredFlag === 1 || $isDeliveredFlag === '1') {
             return true;
         }
 
-        // 2. Delivery date
-        if (!empty($deliveryDate)) {
-            return true;
-        }
-
-        // 3. Cargo message — Türkçe/İngilizce teslim ifadeleri
+        // 2. Cargo message — Kesin teslim ifadeleri (EDİLEMEDİ, İADE, TRANSFER içermeyen)
         if (!empty($cargoMessage)) {
             $upperMsg = mb_strtoupper(trim((string)$cargoMessage), 'UTF-8');
-            $phrases = [
-                'TESLİM EDİLDİ', 'TESLIM EDILDI', 'TESLİM', 'TESLIM EDİLMİŞTİR',
-                'DELIVERED', 'DELIVERED_TO_RECEIVER', 'COMPLETED',
-                'ALICIYA TESLİM', 'ALICISINA TESLİM', 'ALICIYA ULAŞTI',
-                'TESLİMAT YAPILDI', 'TESLİMAT TAMAMLANDI',
-                'DAĞITILDI', 'TESLİM ALINDI',
+
+            $negativeWords = ['EDİLEMEDİ', 'EDILMEDI', 'İADE', 'IADE', 'TRANSFER', 'AŞAMASINDA', 'ASAMASINDA', 'YOLDA', 'BİRİMİNDE', 'BIRIMINDE', 'DAĞITIMDA', 'DAGITIMDA', 'BAŞARISIZ', 'BASARISIZ'];
+            foreach ($negativeWords as $neg) {
+                if (str_contains($upperMsg, $neg)) {
+                    return false;
+                }
+            }
+
+            $exactDeliveryPhrases = [
+                'TESLİM EDİLDİ', 'TESLIM EDILDI', 'TESLİM EDİLMİŞTİR', 'TESLIM EDILMISTIR',
+                'DELIVERED_TO_RECEIVER', 'DELIVERED', 'COMPLETED',
+                'ALICIYA TESLİM EDİLDİ', 'ALICISINA TESLİM EDİLDİ',
             ];
-            foreach ($phrases as $p) {
+            foreach ($exactDeliveryPhrases as $p) {
                 if (str_contains($upperMsg, $p)) {
                     return true;
                 }
             }
         }
 
-        // 4. Ek alanlar
+        // 3. Status text kontrolü (EDİLEMEDİ, İADE, TRANSFER içermeyen)
         if ($data) {
-            foreach (['deliveryInfo', 'deliveredDate', 'completedAt', 'completed_at', 'deliveryTimestamp'] as $field) {
-                if (!empty($data[$field])) {
-                    return true;
-                }
-            }
-
             $statusText = mb_strtoupper(trim((string)($data['statusText'] ?? ($data['statusLabel'] ?? ($data['statusDescription'] ?? '')))), 'UTF-8');
             if (!empty($statusText)) {
-                foreach (['TESLİM', 'TESLIM', 'DELIVERED', 'COMPLETED'] as $tw) {
+                $negativeWords = ['EDİLEMEDİ', 'EDILMEDI', 'İADE', 'IADE', 'TRANSFER', 'AŞAMASINDA', 'YOLDA', 'BİRİMİNDE', 'DAĞITIMDA', 'BAŞARISIZ'];
+                foreach ($negativeWords as $neg) {
+                    if (str_contains($statusText, $neg)) {
+                        return false;
+                    }
+                }
+
+                $exactDeliveryPhrases = ['TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED', 'COMPLETED'];
+                foreach ($exactDeliveryPhrases as $tw) {
                     if (str_contains($statusText, $tw)) {
                         return true;
                     }
