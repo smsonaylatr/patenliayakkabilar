@@ -509,6 +509,35 @@ class OrdersTable
                                     }
                                 })
                                 ->hidden(fn (Order $record) => $record->gib_invoice_status === 'signed'),
+                            \Filament\Actions\Action::make('sendInvoiceEmail')
+                                ->label('📧 Faturayı E-Posta Gönder')
+                                ->icon('heroicon-o-envelope')
+                                ->color('info')
+                                ->form([
+                                    \Filament\Forms\Components\TextInput::make('invoice_recipient_email')
+                                        ->label('Alıcı E-Posta Adresi')
+                                        ->default(fn (Order $record) => $record->customer_email)
+                                        ->email()
+                                        ->required(),
+                                ])
+                                ->action(function (Order $record, array $data): void {
+                                    $email = trim($data['invoice_recipient_email']);
+                                    try {
+                                        Mail::to($email)->send(new \App\Mail\GibInvoiceMail($record));
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Fatura E-Postası Gönderildi ✅')
+                                            ->body("{$email} adresine GİB E-Arşiv Faturası başarıyla gönderildi.")
+                                            ->success()
+                                            ->send();
+                                    } catch (\Throwable $e) {
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('E-Posta Gönderilemedi ❌')
+                                            ->body($e->getMessage())
+                                            ->danger()
+                                            ->send();
+                                    }
+                                })
+                                ->hidden(fn (Order $record) => $record->gib_invoice_status !== 'signed'),
                         ])->alignCenter(),
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')
