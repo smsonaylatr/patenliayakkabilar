@@ -113,7 +113,7 @@ class Checkout extends Component
     public function mount(CartService $cartService)
     {
         // Genel site ayarından kapıda ödeme kapalıysa direkt devre dışı
-        if (!Setting::getValue('cod_enabled', true)) {
+        if (!filter_var(Setting::get('cod_enabled', '1'), FILTER_VALIDATE_BOOLEAN)) {
             $this->isCodAllowed = false;
         } else {
             // Ürün bazlı kapıda ödeme kontrolü
@@ -330,7 +330,7 @@ class Checkout extends Component
 
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
-        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::getValue('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::get('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
         
         // Kupon indirimi genel toplam üzerinden hesapla (kargo dahil)
         $couponDiscount = 0;
@@ -882,7 +882,7 @@ class Checkout extends Component
 
         $cart = $cartService->getCart();
         $totalItems = $cart ? $cart->items->sum('quantity') : 0;
-        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::getValue('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::get('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
         $totalBeforeDiscount = $subtotal + $shippingPrice;
 
         if ($coupon->type === 'percentage') {
@@ -939,7 +939,7 @@ class Checkout extends Component
         }
 
         // Kapıda ödeme uygunluğunu yeniden kontrol et
-        if (!Setting::getValue('cod_enabled', true)) {
+        if (!filter_var(Setting::get('cod_enabled', '1'), FILTER_VALIDATE_BOOLEAN)) {
             $this->isCodAllowed = false;
         } else {
             $this->isCodAllowed = true;
@@ -1040,7 +1040,7 @@ class Checkout extends Component
         $cart = $cartService->getCart();
         $subtotal = $cartService->getTotal();
         $totalItems = $cart->items->sum('quantity');
-        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::getValue('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
+        $shippingPrice = $this->payment_method === 'cash_on_delivery' ? ((int) Setting::get('cod_extra_fee', 200) + (1 * $totalItems)) : (1 * $totalItems);
         
         // Kupon indirimi genel toplam üzerinden hesapla (kargo dahil)
         $couponDiscount = 0;

@@ -49,10 +49,10 @@ class PaymentSettings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'cod_enabled' => Setting::getValue('cod_enabled', true),
-            'cod_extra_fee' => Setting::getValue('cod_extra_fee', '200'),
-            'wire_transfer_enabled' => Setting::getValue('wire_transfer_enabled', true),
-            'credit_card_enabled' => Setting::getValue('credit_card_enabled', true),
+            'cod_enabled' => filter_var(Setting::get('cod_enabled', '1'), FILTER_VALIDATE_BOOLEAN),
+            'cod_extra_fee' => Setting::get('cod_extra_fee', '200'),
+            'wire_transfer_enabled' => filter_var(Setting::get('wire_transfer_enabled', '1'), FILTER_VALIDATE_BOOLEAN),
+            'credit_card_enabled' => filter_var(Setting::get('credit_card_enabled', '1'), FILTER_VALIDATE_BOOLEAN),
         ]);
     }
 
@@ -136,10 +136,10 @@ class PaymentSettings extends Page implements HasForms
             return;
         }
 
-        Setting::setValue('cod_enabled', $data['cod_enabled'] ? '1' : '0', 'boolean', 'payment');
-        Setting::setValue('cod_extra_fee', $data['cod_extra_fee'] ?? '200', 'string', 'payment');
-        Setting::setValue('wire_transfer_enabled', $data['wire_transfer_enabled'] ? '1' : '0', 'boolean', 'payment');
-        Setting::setValue('credit_card_enabled', $data['credit_card_enabled'] ? '1' : '0', 'boolean', 'payment');
+        Setting::updateOrCreate(['key' => 'cod_enabled'], ['value' => $data['cod_enabled'] ? '1' : '0']);
+        Setting::updateOrCreate(['key' => 'cod_extra_fee'], ['value' => $data['cod_extra_fee'] ?? '200']);
+        Setting::updateOrCreate(['key' => 'wire_transfer_enabled'], ['value' => $data['wire_transfer_enabled'] ? '1' : '0']);
+        Setting::updateOrCreate(['key' => 'credit_card_enabled'], ['value' => $data['credit_card_enabled'] ? '1' : '0']);
 
         Notification::make()
             ->title('Ödeme ayarları kaydedildi')
