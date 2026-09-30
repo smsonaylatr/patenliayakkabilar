@@ -460,6 +460,10 @@ class OrdersTable
                     })
                     ->modalHeading('GİB E-Arşiv Faturası')
                     ->modalWidth('4xl')
+                    ->modalAutofocus(false)
+                    ->extraModalWindowAttributes([
+                        'x-init' => 'window.scrollGibModal && window.scrollGibModal($el)',
+                    ])
                     ->modalCancelAction(false)
                     ->modalSubmitActionLabel(fn (Order $record) => $record->gib_invoice_status === 'signed' ? 'Kapat' : 'İmzala')
                     ->form([
@@ -477,53 +481,10 @@ class OrdersTable
                                 return new \Illuminate\Support\HtmlString('
                                     <div style="display: flex; justify-content: center; align-items: flex-start; width: 100%; background: transparent;">
                                         <div style="width: 100%; max-width: 820px; aspect-ratio: 820 / 1150; background: #fff; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 0.25rem; overflow: hidden; position: relative; container-type: inline-size;">
-                                            <iframe srcdoc="' . $html . '" onload="window.__gibScrollBottom && window.__gibScrollBottom()" style="position: absolute; top: 0; left: 0; width: 820px; height: 1150px; border: none; transform: scale(calc(100cqw / 820px)); transform-origin: top left;"></iframe>
+                                            <iframe srcdoc="' . $html . '" onload="window.scrollGibModal && window.scrollGibModal(this)" style="position: absolute; top: 0; left: 0; width: 820px; height: 1150px; border: none; transform: scale(calc(100cqw / 820px)); transform-origin: top left;"></iframe>
                                         </div>
                                     </div>
-                                    <div id="gib_modal_bottom_anchor" x-data x-init="$nextTick(() => { window.__gibScrollBottom && window.__gibScrollBottom(); })" style="height: 1px; width: 100%;"></div>
-                                    <script>
-                                        (function() {
-                                            window.__gibScrollBottom = function() {
-                                                [30, 100, 250, 450, 750, 1200].forEach(function(delay) {
-                                                    setTimeout(function() {
-                                                        const anchor = document.getElementById("gib_modal_bottom_anchor");
-                                                        if (anchor) {
-                                                            anchor.scrollIntoView({ behavior: "instant", block: "end" });
-                                                        }
-                                                        let el = anchor;
-                                                        while (el && el !== document.body) {
-                                                            const overflowY = window.getComputedStyle(el).overflowY;
-                                                            if (el.scrollHeight > el.clientHeight && (overflowY === "auto" || overflowY === "scroll")) {
-                                                                el.scrollTop = el.scrollHeight;
-                                                            }
-                                                            el = el.parentElement;
-                                                        }
-                                                    }, delay);
-                                                });
-                                            };
-
-                                            function scrollToSmsInput() {
-                                                let count = 0;
-                                                const timer = setInterval(function() {
-                                                    count++;
-                                                    const input = document.getElementById("gib_sms_code_input") || document.querySelector("input[name*=\'sms_code\']");
-                                                    if (input) {
-                                                        clearInterval(timer);
-                                                        input.scrollIntoView({ behavior: "smooth", block: "center" });
-                                                        input.focus();
-                                                        setTimeout(function() { input.focus(); }, 150);
-                                                    }
-                                                    if (count > 30) clearInterval(timer);
-                                                }, 100);
-                                            }
-
-                                            window.removeEventListener("focus-gib-sms-code", scrollToSmsInput);
-                                            window.addEventListener("focus-gib-sms-code", scrollToSmsInput);
-
-                                            // Modal ilk yüklendiğinde en alta kaydır
-                                            window.__gibScrollBottom();
-                                        })();
-                                    </script>
+                                    <div x-data x-init="window.scrollGibModal && window.scrollGibModal($el)" style="height: 1px; width: 100%;"></div>
                                 ');
                             }),
                         \Filament\Schemas\Components\Actions::make([

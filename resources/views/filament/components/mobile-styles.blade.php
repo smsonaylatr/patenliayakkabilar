@@ -1193,8 +1193,91 @@ html, body {
     }
 }
 
-@keyframes fi-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
 </style>
+
+<script>
+    (function() {
+        window.scrollGibModal = function(el) {
+            function getModalContent() {
+                if (el) {
+                    if (el.classList?.contains('fi-modal-content')) return el;
+                    const inside = el.querySelector('.fi-modal-content');
+                    if (inside) return inside;
+                    const closest = el.closest('.fi-modal-content');
+                    if (closest) return closest;
+                }
+                return document.querySelector('.fi-modal-window .fi-modal-content') || document.querySelector('.fi-modal-content');
+            }
+
+            let userInteracted = false;
+            const mc = getModalContent();
+
+            function scrollToBottom() {
+                const target = getModalContent();
+                if (target && !userInteracted) {
+                    target.scrollTop = target.scrollHeight;
+                }
+            }
+
+            // Kademeli scroll
+            [10, 50, 120, 250, 450, 750, 1100, 1600, 2200].forEach(function(delay) {
+                setTimeout(scrollToBottom, delay);
+            });
+
+            if (mc) {
+                mc.addEventListener('wheel', function(e) {
+                    if (e.deltaY < 0) userInteracted = true;
+                }, { passive: true });
+                mc.addEventListener('touchmove', function() {
+                    userInteracted = true;
+                }, { passive: true });
+
+                if (window.ResizeObserver) {
+                    const ro = new ResizeObserver(function() {
+                        scrollToBottom();
+                    });
+                    ro.observe(mc);
+                    setTimeout(function() { ro.disconnect(); }, 3500);
+                }
+            }
+        };
+
+        const observer = new MutationObserver(function(mutations) {
+            for (let mutation of mutations) {
+                for (let node of mutation.addedNodes) {
+                    if (node.nodeType === 1) {
+                        const heading = node.querySelector?.('.fi-modal-heading') || (node.classList?.contains('fi-modal-heading') ? node : null);
+                        if (heading && heading.textContent.includes('GİB E-Arşiv Faturası')) {
+                            window.scrollGibModal(node);
+                        } else if (node.querySelector?.('#gib_sms_code_input') || node.id === 'gib_sms_code_input') {
+                            window.scrollGibModal(node);
+                        }
+                    }
+                }
+            }
+        });
+
+        if (document.body) {
+            observer.observe(document.body, { childList: true, subtree: true });
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        }
+
+        window.addEventListener('focus-gib-sms-code', function() {
+            let count = 0;
+            const timer = setInterval(function() {
+                count++;
+                const input = document.getElementById('gib_sms_code_input') || document.querySelector('input[name*="sms_code"]');
+                if (input) {
+                    clearInterval(timer);
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    input.focus();
+                    setTimeout(function() { input.focus(); }, 150);
+                }
+                if (count > 30) clearInterval(timer);
+            }, 100);
+        });
+    })();
+</script>
