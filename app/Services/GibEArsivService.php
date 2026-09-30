@@ -478,31 +478,14 @@ CSS;
      */
     public static function generateInvoicePdf(Order $order): ?string
     {
-        // 1. GİB portalı HTML'i varsa öncelikle onu PDF'e çevirmeyi dene
-        $html = $order->gib_invoice_html;
-        if (empty($html) && !empty($order->gib_invoice_uuid)) {
-            try {
-                $service = app(self::class);
-                $html = $service->getInvoiceHtml($order->gib_invoice_uuid);
-                if ($html) {
-                    $order->update(['gib_invoice_html' => $html]);
-                }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("GİB HTML alma hatası: " . $e->getMessage());
-            }
-        }
-
-        if (!empty($html)) {
-            $pdf = self::convertHtmlToPdf($html);
-            if (!empty($pdf)) {
-                return $pdf;
-            }
-        }
-
-        // 2. GİB HTML'i yoksa veya dönüştürme başarısız olursa,
-        // kusursuz tasarlanmış Blade şablonundan gerçek ve şık PDF üret
+        // 1. Kusursuz ve resmi standartlardaki kurumsal Blade şablonundan gerçek ve şık PDF üret
         try {
-            $order->loadMissing(['items.product', 'items.variant']);
+            if ($order->exists && !$order->relationLoaded('items')) {
+                try {
+                    $order->load(['items.product', 'items.variant']);
+                } catch (\Throwable $e) {}
+            }
+
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice', ['order' => $order]);
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption([
@@ -512,11 +495,23 @@ CSS;
                 'dpi' => 150,
             ]);
 
-            return $pdf->output();
+            $output = $pdf->output();
+            if (!empty($output)) {
+                return $output;
+            }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Blade Fatura PDF oluşturma hatası: " . $e->getMessage());
-            return null;
         }
+
+        // 2. İkincil alternatif: Orijinal GİB HTML'i varsa onu çevirmeyi dene
+        if (!empty($order->gib_invoice_html)) {
+            $converted = self::convertHtmlToPdf($order->gib_invoice_html);
+            if (!empty($converted)) {
+                return $converted;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -19,11 +19,15 @@ class OrderInvoiceMail extends Mailable
 
     public Order $order;
     public string $pdfUrl;
+    public ?string $pdfData = null;
 
     public function __construct(Order $order, string $pdfUrl)
     {
         $this->order = $order;
         $this->pdfUrl = $pdfUrl;
+
+        // PDF belgesini derhal hafızada üret
+        $this->pdfData = GibEArsivService::generateInvoicePdf($this->order);
     }
 
     public function envelope(): Envelope
@@ -53,11 +57,31 @@ class OrderInvoiceMail extends Mailable
         );
     }
 
+    /**
+     * Klasik Laravel mailable derleme metodu
+     */
+    public function build()
+    {
+        $pdfContent = $this->pdfData ?: GibEArsivService::generateInvoicePdf($this->order);
+
+        if (!empty($pdfContent)) {
+            $fileName = "Fatura-{$this->order->order_number}.pdf";
+            $this->attachData($pdfContent, $fileName, [
+                'mime' => 'application/pdf',
+            ]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Laravel 10/11/12 attachments metodu
+     */
     public function attachments(): array
     {
         $attachments = [];
 
-        $pdfContent = GibEArsivService::generateInvoicePdf($this->order);
+        $pdfContent = $this->pdfData ?: GibEArsivService::generateInvoicePdf($this->order);
 
         if (!empty($pdfContent)) {
             $attachments[] = Attachment::fromData(fn () => $pdfContent, "Fatura-{$this->order->order_number}.pdf")
