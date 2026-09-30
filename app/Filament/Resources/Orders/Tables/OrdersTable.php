@@ -262,21 +262,26 @@ class OrdersTable
                                 // Admin panelden statü değiştirildiğinde Porego senkronizasyonunu kilitle
                                 $lockStatuses = ['returned', 'return_started', 'cancelled', 'pending', 'processing'];
                                 $shouldLock = in_array($data['status'], $lockStatuses);
+
+                                // E-posta kilit yönetimi: Observer ile mükerrer gönderimi engelle
+                                if (!empty($data['email_send']) && !empty($record->customer_email) && in_array($data['status'], ['shipped', 'delivered'])) {
+                                    $statusLock = "mail_sent_{$data['status']}_order_{$record->id}";
+                                    if (\Illuminate\Support\Facades\Cache::add($statusLock, now()->toIso8601String(), now()->addDays(7))) {
+                                        try {
+                                            Mail::to($record->customer_email)->send(new \App\Mail\ShippingUpdateMail($record));
+                                        } catch (\Throwable $e) {
+                                            Log::error('updateStatus e-posta gönderme hatası: ' . $e->getMessage());
+                                        }
+                                    }
+                                } elseif (empty($data['email_send']) && in_array($data['status'], ['shipped', 'delivered'])) {
+                                    // Admin e-posta gönderimini kapattıysa Observer'ın mükerrer/otomatik göndermesini kilitle
+                                    \Illuminate\Support\Facades\Cache::put("mail_sent_{$data['status']}_order_{$record->id}", 'admin_opted_out', now()->addDays(7));
+                                }
+
                                 $record->update([
                                     'status' => $data['status'],
                                     'porego_sync_locked' => $shouldLock,
                                 ]);
-
-                                // E-posta gönder (admin onayladıysa)
-                                if (!empty($data['email_send']) && !empty($record->customer_email)) {
-                                    try {
-                                        if (in_array($data['status'], ['shipped', 'delivered'])) {
-                                            Mail::to($record->customer_email)->send(new \App\Mail\ShippingUpdateMail($record));
-                                        }
-                                    } catch (\Throwable $e) {
-                                        Log::error('updateStatus e-posta gönderme hatası: ' . $e->getMessage());
-                                    }
-                                }
 
                                 // SMS gönder (admin onayladıysa)
                                 if (!empty($data['sms_send']) && !empty($data['sms_draft']) && !empty($record->customer_phone)) {

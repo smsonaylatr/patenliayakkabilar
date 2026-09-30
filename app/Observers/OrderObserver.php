@@ -368,9 +368,10 @@ class OrderObserver
             if ($order->status === 'shipped') {
                 // SMS artık admin panelden taslak önizleme ile gönderiliyor (OrdersTable updateStatus)
 
-                // Müşteriye kargo güncelleme e-postası gönder
+                // Müşteriye kargo güncelleme e-postası gönder (Mükerrerlik korumalı)
                 try {
-                    if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                    $shippedLock = "mail_sent_shipped_order_{$order->id}";
+                    if (!empty($order->customer_email) && \Illuminate\Support\Facades\Cache::add($shippedLock, now()->toIso8601String(), now()->addDays(7)) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
                         \Illuminate\Support\Facades\Mail::to($order->customer_email)
                             ->send(new \App\Mail\ShippingUpdateMail($order));
                     }
@@ -381,15 +382,7 @@ class OrderObserver
                 app()->terminating(function () use ($order) {
                     $order->refresh();
                     
-                    // SMS artık admin panelden taslak önizleme ile gönderiliyor (OrdersTable updateStatus)
-                    // Teslim Edildi SMS'i gönder
-                    // try {
-                    //     $this->sendCustomerSms($order, 'delivered');
-                    // } catch (\Throwable $e) {
-                    //     \Illuminate\Support\Facades\Log::error('SMS notification error on delivered: ' . $e->getMessage());
-                    // }
-                    
-                    // GİB E-Arşiv fatura oluştur
+                    // GİB E-Arşiv fatura oluştur (otomatik fatura kesilir, mükerrerlik korumalı)
                     try {
                         app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
                     } catch (\Throwable $e) {
@@ -409,9 +402,10 @@ class OrderObserver
                         \Illuminate\Support\Facades\Log::error('Muhasebe satış kaydı hatası: ' . $e->getMessage());
                     }
 
-                    // Müşteriye teslim edildi bildirimi gönder
+                    // Müşteriye teslim edildi bildirimi gönder (Mükerrerlik korumalı)
                     try {
-                        if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+                        $deliveredLock = "mail_sent_delivered_order_{$order->id}";
+                        if (!empty($order->customer_email) && \Illuminate\Support\Facades\Cache::add($deliveredLock, now()->toIso8601String(), now()->addDays(7)) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
                             \Illuminate\Support\Facades\Mail::to($order->customer_email)
                                 ->send(new \App\Mail\ShippingUpdateMail($order));
                         }

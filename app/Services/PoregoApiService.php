@@ -1268,9 +1268,8 @@ class PoregoApiService
                         Log::warning("OrderStatusHistory kayıt hatası: " . $historyEx->getMessage());
                     }
                     
-                    // Delivered durumuna geçtiyse iş mantığını tetikle
-                    // (Observer saveQuietly() ile devre dışı olduğu için burada yapıyoruz)
-                    if ($order->status === 'delivered') {
+                    // SADECE ve SADECE durum İLK KEZ delivered'a geçtiyse iş mantığını tetikle
+                    if ($order->status === 'delivered' && $oldStatus !== 'delivered') {
                         try {
                             // GİB E-Arşiv fatura oluştur
                             app(\App\Services\GibEArsivService::class)->autoInvoiceAndSendMail($order);
@@ -1291,8 +1290,9 @@ class PoregoApiService
                         }
 
                         try {
-                            // Teslim edildi e-postası
-                            if (!empty($order->customer_email)) {
+                            // Teslim edildi e-postası (Mükerrer gönderim korumalı)
+                            $deliveredMailLock = "mail_sent_delivered_order_{$order->id}";
+                            if (!empty($order->customer_email) && \Illuminate\Support\Facades\Cache::add($deliveredMailLock, now()->toIso8601String(), now()->addDays(7))) {
                                 \Illuminate\Support\Facades\Mail::to($order->customer_email)
                                     ->send(new \App\Mail\ShippingUpdateMail($order));
                             }

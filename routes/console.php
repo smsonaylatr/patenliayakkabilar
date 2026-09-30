@@ -58,8 +58,8 @@ Artisan::command('segments:sync', function () {
 })->purpose('Sync customers into dynamic segments');
 
 
-// ─── WaMessage SMS: Sepeti Terk Edenlere SMS Gönder (Her saat başı) ───────────
-Schedule::command('app:send-abandoned-cart-sms')->hourly();
+// ─── WaMessage SMS: Kuponlu sepet terk SMS'i admin panelden manuel gönderilir ───
+// Schedule::command('app:send-abandoned-cart-sms')->hourly(); // DEVRE DIŞI — Manuel mod
 
 // ─── Porego: Sipariş & Kargo Durumlarını Otomatik Senkronize Et (Her 5 dk) ───
 Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping();

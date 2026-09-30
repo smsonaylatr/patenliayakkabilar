@@ -142,11 +142,8 @@ class GibEArsivService
         }
 
         if ($order->is_invoiced) {
-            // Zaten fatura kesilmişse maili tekrar göndermeyi dene
-            if (!empty($order->customer_email)) {
-                $this->sendInvoiceMail($order);
-            }
-            return ['success' => true, 'message' => 'Sipariş zaten faturalandırılmış. Mail iletildi.'];
+            // Zaten faturalandırılmışsa mükerrer işlem yapma
+            return ['success' => true, 'message' => 'Sipariş zaten faturalandırılmış.'];
         }
 
         // Siparişin items ilişkisini yükle
@@ -517,11 +514,20 @@ CSS;
     /**
      * Faturayı Müşteriye E-Posta Olarak Gönderir
      */
-    public function sendInvoiceMail(Order $order): bool
+    public function sendInvoiceMail(Order $order, bool $force = false): bool
     {
         try {
             if (empty($order->customer_email)) {
                 return false;
+            }
+
+            // Mükerrer gönderim engelleme (Manuel admin zorlaması hariç)
+            if (!$force) {
+                $lockKey = "mail_sent_invoice_order_{$order->id}";
+                if (!\Illuminate\Support\Facades\Cache::add($lockKey, now()->toIso8601String(), now()->addDays(7))) {
+                    Log::info("Mükerrer fatura maili engellendi (#{$order->order_number} -> {$order->customer_email})");
+                    return true;
+                }
             }
 
             Mail::to($order->customer_email)->send(new GibInvoiceMail($order));
