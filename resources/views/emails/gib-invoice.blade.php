@@ -32,8 +32,8 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; border-radius: 50%; text-align: center; line-height: 34px; font-size: 16px; color: #2563eb; font-weight: 700;">
-                                ✓
+                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; background-color: #eff6ff; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px;">
+                                📄
                             </div>
                         </td>
                         <td valign="middle">
