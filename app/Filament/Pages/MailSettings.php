@@ -461,6 +461,8 @@ class MailSettings extends Page implements HasForms
         if ($order) {
             $cloned = clone $order;
             $cloned->customer_email = $recipient;
+            // Her test gönderiminde farklı sipariş no üreterek Gmail'in mailleri tek dizide katlayıp footer'ı gizlemesini engelliyoruz
+            $cloned->order_number = 'TR' . rand(100000, 999999);
             return $cloned;
         }
 

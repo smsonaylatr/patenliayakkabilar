@@ -1,3 +1,21 @@
+@php
+    $footerSocials = [];
+    try {
+        if (class_exists(\App\Models\Setting::class)) {
+            $footerSocials = \App\Models\Setting::whereIn('key', [
+                'footer_whatsapp', 'footer_instagram', 'footer_tiktok',
+                'footer_facebook', 'footer_twitter', 'footer_youtube'
+            ])->pluck('value', 'key')->toArray();
+        }
+    } catch (\Throwable $e) {}
+
+    $cleanWa = preg_replace('/[^0-9]/', '', $footerSocials['footer_whatsapp'] ?? '905441828800');
+    $waUrl = !empty($cleanWa) ? "https://wa.me/{$cleanWa}" : "https://wa.me/905441828800";
+    $igUrl = !empty($footerSocials['footer_instagram']) ? $footerSocials['footer_instagram'] : 'https://www.instagram.com/patenliayakkabilar';
+    $tiktokUrl = !empty($footerSocials['footer_tiktok']) ? $footerSocials['footer_tiktok'] : 'https://www.tiktok.com/@patenliayakkabilar';
+    $ytUrl = !empty($footerSocials['footer_youtube']) ? $footerSocials['footer_youtube'] : 'https://www.youtube.com/@patenliayakkabilar';
+    $fbUrl = !empty($footerSocials['footer_facebook']) ? $footerSocials['footer_facebook'] : 'https://www.facebook.com/patenliayakkabilar';
+@endphp
 <!DOCTYPE html>
 <html lang="tr" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -38,11 +56,11 @@
                     </tr>
 
                     <!-- 3. FOOTER: MAT LÜKS SİYAH (#121316) -->
-                    <tr>
-                        <td class="mobile-padding" style="background-color: #121316; padding: 24px 32px 16px; color: #94a3b8; font-size: 11px; line-height: 1.5;">
+                    <tr bgcolor="#121316">
+                        <td class="mobile-padding" bgcolor="#121316" style="background-color: #121316; padding: 24px 32px 18px; color: #94a3b8; font-size: 11px; line-height: 1.5;">
                             
                             <!-- 2 Sütunlu Grid: Sol (Logo, Açıklama, Sosyal İkonlar, ETBİS), Sağ (Hızlı Menü, Kurumsal) -->
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#121316" style="background-color: #121316;">
                                 <tr>
                                     <!-- Sol Kolon -->
                                     <td class="footer-stack" width="55%" valign="top" style="padding-right: 20px;">
@@ -56,22 +74,8 @@
                                             Çocukların eğlenirken güvende olması için ürün seçimini, kargo sürecini ve satış sonrası desteği kolaylaştırıyoruz.
                                         </p>
 
-@php
-    $footerSocials = \App\Models\Setting::whereIn('key', [
-        'footer_whatsapp', 'footer_instagram', 'footer_tiktok',
-        'footer_facebook', 'footer_twitter', 'footer_youtube'
-    ])->pluck('value', 'key')->toArray();
-
-    $cleanWa = preg_replace('/[^0-9]/', '', $footerSocials['footer_whatsapp'] ?? '905441828800');
-    $waUrl = !empty($cleanWa) ? "https://wa.me/{$cleanWa}" : "https://wa.me/905441828800";
-    $igUrl = !empty($footerSocials['footer_instagram']) ? $footerSocials['footer_instagram'] : 'https://www.instagram.com/patenliayakkabilar';
-    $tiktokUrl = !empty($footerSocials['footer_tiktok']) ? $footerSocials['footer_tiktok'] : 'https://www.tiktok.com/@patenliayakkabilar';
-    $ytUrl = !empty($footerSocials['footer_youtube']) ? $footerSocials['footer_youtube'] : 'https://www.youtube.com/@patenliayakkabilar';
-    $fbUrl = !empty($footerSocials['footer_facebook']) ? $footerSocials['footer_facebook'] : 'https://www.facebook.com/patenliayakkabilar';
-@endphp
-
                                         <!-- Sosyal Medya İkonları ve ETBİS Yan Yana (Aktif) -->
-                                        <table cellpadding="0" cellspacing="0" border="0">
+                                        <table cellpadding="0" cellspacing="0" border="0" bgcolor="#121316" style="background-color: #121316;">
                                             <tr>
                                                 <td style="padding-right: 10px;">
                                                     <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" title="WhatsApp Destek Hattı" style="display: block; opacity: 0.9;">
@@ -136,20 +140,18 @@
                             </table>
 
                             <!-- Alt Kısım: Telif Hakkı -->
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #1e2229; margin-top: 14px; padding-top: 10px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#121316" style="background-color: #121316; border-top: 1px solid #1e2229; margin-top: 14px; padding-top: 10px;">
                                 <tr>
-                                    <td align="center">
-                                        <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: 400;">
+                                    <td align="center" style="color: #64748b; font-size: 11px;">
+                                        <p style="margin: 0; color: #64748b; font-size: 11px; font-weight: 400; line-height: 1.4;">
                                             &copy; {{ date('Y') }} Patenli Ayakkabılar®. Tüm hakları saklıdır.
+                                        </p>
+                                        <p style="margin: 3px 0 0; color: #475569; font-size: 10px; font-family: monospace;">
+                                            İleti Ref: #{{ date('ymd-His') }}-{{ rand(100, 999) }}
                                         </p>
                                     </td>
                                 </tr>
                             </table>
-
-                            <!-- Gmail'in ... katlamasını engelleyen dinamik tekil imza -->
-                            <div style="display: none; font-size: 1px; color: #121316; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-                                Ref: {{ date('YmdHis') }}-{{ rand(1000, 9999) }}
-                            </div>
 
                         </td>
                     </tr>
