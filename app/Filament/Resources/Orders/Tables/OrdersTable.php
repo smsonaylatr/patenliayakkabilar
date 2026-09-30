@@ -480,6 +480,26 @@ class OrdersTable
                                             <iframe srcdoc="' . $html . '" style="position: absolute; top: 0; left: 0; width: 820px; height: 1150px; border: none; transform: scale(calc(100cqw / 820px)); transform-origin: top left;"></iframe>
                                         </div>
                                     </div>
+                                    <script>
+                                        (function() {
+                                            function scrollToSmsInput() {
+                                                let count = 0;
+                                                const timer = setInterval(function() {
+                                                    count++;
+                                                    const input = document.getElementById("gib_sms_code_input") || document.querySelector("input[name*=\'sms_code\']");
+                                                    if (input) {
+                                                        clearInterval(timer);
+                                                        input.scrollIntoView({ behavior: "smooth", block: "center" });
+                                                        input.focus();
+                                                        setTimeout(function() { input.focus(); }, 150);
+                                                    }
+                                                    if (count > 30) clearInterval(timer);
+                                                }, 100);
+                                            }
+                                            window.removeEventListener("focus-gib-sms-code", scrollToSmsInput);
+                                            window.addEventListener("focus-gib-sms-code", scrollToSmsInput);
+                                        })();
+                                    </script>
                                 ');
                             }),
                         \Filament\Schemas\Components\Actions::make([
@@ -487,9 +507,6 @@ class OrdersTable
                                 ->label(fn ($get) => $get('operation_id') ? 'Şifreyi Tekrar Gönder' : 'SMS Şifresi Gönder')
                                 ->icon('heroicon-o-paper-airplane')
                                 ->color('warning')
-                                ->extraAttributes([
-                                    'x-on:click' => "setTimeout(() => { const target = document.getElementById('gib_sms_code_wrapper') || document.getElementById('gib_sms_code_input'); if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }, 100);",
-                                ])
                                 ->action(function ($set, Action $action) {
                                     try {
                                         $service = app(\App\Services\GibEArsivService::class);
@@ -503,21 +520,8 @@ class OrdersTable
                                                 ->send();
 
                                             $livewire = $action->getLivewire();
-                                            if ($livewire) {
-                                                if (method_exists($livewire, 'dispatch')) {
-                                                    $livewire->dispatch('focus-gib-sms-code');
-                                                }
-                                                if (method_exists($livewire, 'js')) {
-                                                    $livewire->js("
-                                                        setTimeout(() => {
-                                                            const el = document.getElementById('gib_sms_code_input') || document.querySelector('input[name*=\"sms_code\"]');
-                                                            if (el) {
-                                                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                                                setTimeout(() => el.focus(), 150);
-                                                            }
-                                                        }, 150);
-                                                    ");
-                                                }
+                                            if ($livewire && method_exists($livewire, 'dispatch')) {
+                                                $livewire->dispatch('focus-gib-sms-code');
                                             }
                                         } else {
                                             \Filament\Notifications\Notification::make()
@@ -577,35 +581,12 @@ class OrdersTable
                             ->label('SMS Şifresi')
                             ->required(fn ($get) => (bool)$get('operation_id'))
                             ->placeholder('Telefonunuza gelen SMS şifresini girin')
+                            ->autofocus()
                             ->extraInputAttributes([
                                 'id' => 'gib_sms_code_input',
                                 'style' => 'text-transform: uppercase',
                                 'autocomplete' => 'one-time-code',
                             ])
-                            ->extraAttributes([
-                                'id' => 'gib_sms_code_wrapper',
-                                'x-data' => '{
-                                    focusSmsInput() {
-                                        this.$nextTick(() => {
-                                            const input = this.$el.querySelector("input") || document.getElementById("gib_sms_code_input");
-                                            if (input) {
-                                                input.scrollIntoView({ behavior: "smooth", block: "center" });
-                                                setTimeout(() => {
-                                                    input.focus({ preventScroll: false });
-                                                }, 150);
-                                                setTimeout(() => {
-                                                    if (document.activeElement !== input) {
-                                                        input.focus({ preventScroll: false });
-                                                    }
-                                                }, 350);
-                                            }
-                                        });
-                                    }
-                                }',
-                                'x-init' => 'focusSmsInput()',
-                                '@focus-gib-sms-code.window' => 'focusSmsInput()',
-                            ])
-                            ->autofocus()
                             ->dehydrateStateUsing(fn ($state) => strtoupper(trim((string) $state)))
                             ->hidden(fn ($get, Order $record) => $record->gib_invoice_status === 'signed' || !$get('operation_id')),
                     ])
