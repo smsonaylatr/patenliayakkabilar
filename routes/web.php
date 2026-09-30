@@ -353,6 +353,7 @@ Route::redirect('/sayfa/kosullar', '/mesafeli-satis-sozlesmesi', 301);
 Route::redirect('/sayfa/kullanim-kosullari', '/mesafeli-satis-sozlesmesi', 301);
 Route::redirect('/sayfa/{slug}', '/{slug}', 301);
 Route::redirect('/kosullar', '/mesafeli-satis-sozlesmesi', 301);
+Route::redirect('/katalog', '/patenli-ayakkabilar', 301);
 
 // Tüm ürünler ve arama
 Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) {
