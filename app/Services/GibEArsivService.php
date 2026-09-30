@@ -404,6 +404,65 @@ HTML;
     }
 
     /**
+     * GİB Fatura HTML belgesini yüksek kaliteli PDF çıktısına dönüştürür
+     */
+    public static function convertHtmlToPdf(string $html): ?string
+    {
+        try {
+            // JavaScript ve qrcode scriptlerini temizle (DomPDF scriptleri çalıştırmaz)
+            $cleanHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+
+            // UTF-8 karakter desteği garanti altına alınsın
+            if (!str_contains($cleanHtml, 'charset=')) {
+                $cleanHtml = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' . $cleanHtml;
+            }
+
+            // PDF çıktısı için sayfa ve font optimizasyonları
+            $customCss = <<<CSS
+<style>
+    @page {
+        margin: 8mm 8mm 8mm 8mm;
+        size: A4 portrait;
+    }
+    body {
+        font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif !important;
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        color: #111 !important;
+    }
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+</style>
+CSS;
+            if (stripos($cleanHtml, '</head>') !== false) {
+                $cleanHtml = str_ireplace('</head>', $customCss . '</head>', $cleanHtml);
+            } else {
+                $cleanHtml = $customCss . $cleanHtml;
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($cleanHtml);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+                'dpi' => 150,
+            ]);
+
+            return $pdf->output();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("GİB Fatura PDF Dönüştürme Hatası: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Faturayı Müşteriye E-Posta Olarak Gönderir
      */
     public function sendInvoiceMail(Order $order): bool

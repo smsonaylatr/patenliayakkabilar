@@ -538,6 +538,13 @@ class OrdersTable
                                     }
                                 })
                                 ->hidden(fn (Order $record) => $record->gib_invoice_status !== 'signed'),
+                            \Filament\Actions\Action::make('openPdfInvoice')
+                                ->label('📄 PDF Olarak Aç / İndir')
+                                ->icon('heroicon-o-arrow-down-tray')
+                                ->color('primary')
+                                ->url(fn (Order $record) => route('orders.gib-invoice', $record))
+                                ->openUrlInNewTab()
+                                ->visible(fn (Order $record) => $record->gib_invoice_status === 'signed' || !empty($record->gib_invoice_html)),
                         ])->alignCenter(),
                         \Filament\Forms\Components\Hidden::make('operation_id'),
                         \Filament\Forms\Components\TextInput::make('sms_code')

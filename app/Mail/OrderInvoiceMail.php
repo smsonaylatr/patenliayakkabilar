@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Order;
 use App\Models\Setting;
+use App\Services\GibEArsivService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -56,11 +57,32 @@ class OrderInvoiceMail extends Mailable
     {
         $attachments = [];
 
+        $html = $this->order->gib_invoice_html;
+        if (empty($html) && !empty($this->order->gib_invoice_uuid)) {
+            $service = app(GibEArsivService::class);
+            $html = $service->getInvoiceHtml($this->order->gib_invoice_uuid);
+            if ($html) {
+                $this->order->update(['gib_invoice_html' => $html]);
+            }
+        }
+
+        if (!empty($html)) {
+            $pdfContent = GibEArsivService::convertHtmlToPdf($html);
+            if ($pdfContent) {
+                $attachments[] = Attachment::fromData(fn () => $pdfContent, "Fatura-{$this->order->order_number}.pdf")
+                    ->withMime('application/pdf');
+                return $attachments;
+            }
+        }
+
         if (!empty($this->pdfUrl)) {
-            // Attach PDF from URL
-            $attachments[] = Attachment::fromUrl($this->pdfUrl)
-                ->as("Fatura-{$this->order->order_number}.pdf")
-                ->withMime('application/pdf');
+            try {
+                $attachments[] = Attachment::fromUrl($this->pdfUrl)
+                    ->as("Fatura-{$this->order->order_number}.pdf")
+                    ->withMime('application/pdf');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("OrderInvoiceMail attachment fromUrl failed: " . $e->getMessage());
+            }
         }
 
         return $attachments;
