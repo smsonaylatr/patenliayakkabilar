@@ -32,9 +32,13 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td width="42" valign="middle" style="padding-right: 14px;">
-                            <div style="width: 36px; height: 36px; border: 1.5px solid #2563eb; background-color: #eff6ff; border-radius: 50%; text-align: center; line-height: 34px; font-size: 18px;">
-                                📄
-                            </div>
+                            <table cellpadding="0" cellspacing="0" border="0" width="36" height="36" style="width: 36px; height: 36px; background-color: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 50%;">
+                                <tr>
+                                    <td align="center" valign="middle" style="text-align: center; vertical-align: middle; padding: 0;">
+                                        <img src="https://img.icons8.com/color/96/pdf-2.png" alt="PDF" width="20" height="20" style="display: block; margin: 0 auto; width: 20px; height: 20px; border: 0;">
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                         <td valign="middle">
                             <p style="margin: 0 0 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
@@ -101,7 +105,7 @@
     <!-- 3. BUTONLAR: ZARİF KURUMSAL BUTONLAR -->
     <div style="margin-top: 24px; text-align: center;">
         <a href="{{ $invoiceUrl }}" target="_blank" style="display: block; background-color: #0f172a; color: #ffffff; text-decoration: none; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; margin-bottom: 10px;">
-            📄 Faturayı Görüntüle ve İndir
+            📄 Faturayı Görüntüle ve İndir (PDF)
         </a>
 
         <a href="https://patenliayakkabilar.com/siparis-takip?order={{ $order->order_number }}" target="_blank" style="display: block; background-color: #ffffff; color: #334155; text-decoration: none; padding: 13px 22px; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; border: 1px solid #cbd5e1;">
