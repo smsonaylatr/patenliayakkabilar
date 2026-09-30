@@ -111,7 +111,17 @@ class MerchantFeedController extends Controller
         // Ürün adı (SEO Odaklı: Marka + Ad + Hedef Kitle + Beden)
         $brand = $product->brand ?: 'Patenli Ayakkabılar';
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
-        $seoTitle = trim($brand . ' ' . $product->name . ' ' . $target);
+        
+        // Marka adı ürün adında zaten geçiyorsa tekrar ekleme
+        $title = trim($product->name);
+        if (!empty($brand) && mb_stripos($title, $brand) === false) {
+            $title = $brand . ' ' . $title;
+        }
+        // Hedef kitle başlıkta yoksa ekle
+        if (!empty($target) && mb_stripos($title, $target) === false) {
+            $title .= ' ' . $target;
+        }
+        $seoTitle = trim($title);
         if ($size) {
             $seoTitle .= ' (' . $size . ' Numara)';
         }

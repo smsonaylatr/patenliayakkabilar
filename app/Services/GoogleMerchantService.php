@@ -176,12 +176,12 @@ class GoogleMerchantService
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
 
         // Eğer ürün adında marka ismi zaten geçmiyorsa ve marka ismi varsa en başa ekle
-        if (!empty($brand) && stripos($title, $brand) === false) {
+        if (!empty($brand) && mb_stripos($title, $brand) === false) {
             $title = $brand . ' ' . $title;
         }
 
         // Hedef kitle (Kız Çocuk, Erkek Çocuk vb.) başlıkta yoksa ekle
-        if (!empty($target) && stripos($title, $target) === false) {
+        if (!empty($target) && mb_stripos($title, $target) === false) {
             $title .= ' ' . $target;
         }
 
