@@ -1158,6 +1158,20 @@ class PoregoApiService
                     Log::info("Porego teslim tespiti (yan kanal): Sipariş #{$order->order_number}, status={$status}, cargoMessage={$cargoMessage}, deliveryDate={$deliveryDate}");
                     $newStatus = 'delivered';
                 }
+                
+                // === DHL eCommerce Tracking Kontrolü ===
+                // Porego API siparişi hâlâ SHIPPED olarak döndürüyor ama DHL teslim etmiş olabilir.
+                // DHL tracking sayfasını kontrol ederek gerçek teslim durumunu tespit et.
+                if ($newStatus === 'shipped' && $order->status === 'shipped') {
+                    $dhlTrackingNumber = $poregoOrder['carrierTrackingNumber'] ?? null;
+                    if (!empty($dhlTrackingNumber)) {
+                        $dhlDelivered = $this->checkDhlDeliveryStatus($dhlTrackingNumber);
+                        if ($dhlDelivered) {
+                            Log::info("DHL teslim tespiti: Sipariş #{$order->order_number}, DHL Takip: {$dhlTrackingNumber} — Teslim Edildi");
+                            $newStatus = 'delivered';
+                        }
+                    }
+                }
 
                 if ($newStatus && $order->status !== $newStatus) {
                     // Admin panelden porego_sync_locked=true yapılmışsa → Porego statü değişikliğini TAMAMEN ENGELLE
@@ -1309,6 +1323,54 @@ class PoregoApiService
         }
 
         return null;
+    }
+
+    /**
+     * DHL eCommerce tracking sayfasını POST ile çağırarak kargonun teslim edilip edilmediğini kontrol eder.
+     * 
+     * DHL eCommerce Türkiye tracking sayfası: https://kargotakip.dhlecommerce.com.tr
+     * POST /gonderi-takip-detay endpoint'i captcha'sız çalışıyor ve HTML'de
+     * teslim durumu class="active" ile işaretleniyor.
+     */
+    protected function checkDhlDeliveryStatus(string $trackingNumber): bool
+    {
+        try {
+            $response = Http::asForm()
+                ->timeout(10)
+                ->post('https://kargotakip.dhlecommerce.com.tr/gonderi-takip-detay', [
+                    'takipNo' => $trackingNumber,
+                ]);
+
+            if (!$response->successful()) {
+                Log::info("DHL tracking kontrol başarısız: Status {$response->status()}, Takip: {$trackingNumber}");
+                return false;
+            }
+
+            $html = $response->body();
+            
+            // DHL tracking sayfasında teslim durumu tespiti
+            // HTML'de "TeslimEdildi" class'lı element "active" class'ı ile işaretleniyor
+            // Yöntem 1: "TeslimEdildi" class'ı ve active birlikte
+            if (preg_match('/class="[^"]*active[^"]*"[\s\S]*?TeslimEdildi/i', $html)) {
+                return true;
+            }
+            
+            // Yöntem 2: "Teslim Edildi" text'i active step içinde
+            if (preg_match('/class="[^"]*active[^"]*"[\s\S]{0,500}Teslim\s+Edildi/i', $html)) {
+                return true;
+            }
+            
+            // Yöntem 3: "canvasAnimationTeslimEdildi" class'ı
+            if (str_contains($html, 'canvasAnimationTeslimEdildi') && preg_match('/active[\s\S]*?canvasAnimationTeslimEdildi/i', $html)) {
+                return true;
+            }
+
+            return false;
+
+        } catch (\Throwable $e) {
+            Log::info("DHL tracking kontrol hatası ({$trackingNumber}): " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
