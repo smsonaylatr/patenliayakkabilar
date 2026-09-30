@@ -22,7 +22,14 @@
 /storage/framework/sessions/*
 /storage/framework/testing/*
 /storage/framework/views/*
-/vendor
+/vendor/*
+!/vendor/mlevent/
+/vendor/mlevent/*
+!/vendor/mlevent/fatura/
+/vendor/mlevent/fatura/*
+!/vendor/mlevent/fatura/src/
+/vendor/mlevent/fatura/src/*
+!/vendor/mlevent/fatura/src/Client.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
