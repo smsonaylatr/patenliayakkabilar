@@ -27,7 +27,7 @@ class StockNotificationService
 
             // 1. E-Posta Bildirimi
             if (!empty($notification->email)) {
-                Mail::to($notification->email)->queue(new StockBackMail($product, $variant));
+                Mail::to($notification->email)->send(new StockBackMail($product, $variant));
             }
 
             // 2. SMS Bildirimi (Telefon girilmişse)

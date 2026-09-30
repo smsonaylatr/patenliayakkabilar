@@ -58,7 +58,7 @@ class User extends Authenticatable implements FilamentUser
                     try {
                         if (filter_var(\App\Models\Setting::where('key', 'mail_welcome')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
                             \Illuminate\Support\Facades\Mail::to($user->email)
-                                ->queue(new \App\Mail\WelcomeMail($user));
+                                ->send(new \App\Mail\WelcomeMail($user));
                         }
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('Hoşgeldin maili hatası: ' . $e->getMessage());

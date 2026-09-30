@@ -311,6 +311,7 @@ class MailSettings extends Page implements HasForms
 
         // SMTP config cache'ini temizle
         Cache::forget('mail_smtp_settings');
+        app('mail.manager')->purge('smtp');
 
         Notification::make()
             ->title('Ayarlar kaydedildi')

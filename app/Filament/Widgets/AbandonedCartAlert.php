@@ -48,10 +48,37 @@ class AbandonedCartAlert extends BaseWidget
                 \Filament\Actions\Action::make('sendReminder')
                     ->label('Hatırlat')
                     ->icon('heroicon-o-paper-airplane')
+                    ->color('primary')
                     ->action(function (Cart $record) {
-                        // Faz 4'te Mail gönderilecek
+                        $email = $record->user?->email;
+                        if (!empty($email)) {
+                            try {
+                                \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\AbandonedCartReminderMail($record));
+                                $record->update(['reminder_mail_sent_at' => now()]);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Sepet Hatırlatma E-Postası İletildi ✅')
+                                    ->body("{$email} adresine sepet hatırlatma maili başarıyla gönderildi.")
+                                    ->success()
+                                    ->send();
+                            } catch (\Throwable $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('E-Posta Gönderilemedi ❌')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('E-Posta Bulunamadı ⚠️')
+                                ->body('Sepet sahibi kullanıcının kayıtlı bir e-posta adresi bulunmuyor.')
+                                ->warning()
+                                ->send();
+                        }
                     })
-                    ->requiresConfirmation(),
+                    ->requiresConfirmation()
+                    ->modalHeading('Terk Edilen Sepet Hatırlatması Gönder')
+                    ->modalDescription(fn (Cart $record) => ($record->user?->email ?: 'E-posta yok') . ' adresine sepetindeki ürünleri hatırlatan kurumsal e-posta gönderilecek. Onaylıyor musunuz?')
+                    ->modalSubmitActionLabel('Evet, Gönder'),
             ]);
     }
 }

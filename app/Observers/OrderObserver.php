@@ -413,7 +413,7 @@ class OrderObserver
                     try {
                         if (!empty($order->customer_email) && filter_var(\App\Models\Setting::where('key', 'mail_shipping_update')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN)) {
                             \Illuminate\Support\Facades\Mail::to($order->customer_email)
-                                ->queue(new \App\Mail\ShippingUpdateMail($order));
+                                ->send(new \App\Mail\ShippingUpdateMail($order));
                         }
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::error('Teslim edildi maili hatası: ' . $e->getMessage());

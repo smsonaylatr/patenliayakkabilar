@@ -19,6 +19,8 @@ use Filament\Tables\Table;
 use App\Models\Order;
 use App\Services\TrafficSourceDetector;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OrdersTable
 {
@@ -244,6 +246,17 @@ class OrdersTable
                                     ])
                                     ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => in_array($get('status'), ['shipped', 'delivered', 'return_started', 'returned', 'cancelled']))
                                     ->collapsed(false),
+
+                                \Filament\Schemas\Components\Section::make('✉️ E-Posta Bildirimi')
+                                    ->description(fn (Order $record) => $record->customer_email ? '📧 ' . $record->customer_email : 'Müşteriye ait e-posta adresi kayıtlı değil.')
+                                    ->schema([
+                                        \Filament\Forms\Components\Toggle::make('email_send')
+                                            ->label('Müşteriye E-Posta Gönder')
+                                            ->helperText('Durum değişikliğini e-posta ile müşteriye bildirin.')
+                                            ->default(fn (Order $record) => !empty($record->customer_email)),
+                                    ])
+                                    ->visible(fn (Order $record) => !empty($record->customer_email))
+                                    ->collapsed(false),
                             ])
                             ->action(function (Order $record, array $data): void {
                                 // Admin panelden statü değiştirildiğinde Porego senkronizasyonunu kilitle
@@ -253,6 +266,17 @@ class OrdersTable
                                     'status' => $data['status'],
                                     'porego_sync_locked' => $shouldLock,
                                 ]);
+
+                                // E-posta gönder (admin onayladıysa)
+                                if (!empty($data['email_send']) && !empty($record->customer_email)) {
+                                    try {
+                                        if (in_array($data['status'], ['shipped', 'delivered'])) {
+                                            Mail::to($record->customer_email)->send(new \App\Mail\ShippingUpdateMail($record));
+                                        }
+                                    } catch (\Throwable $e) {
+                                        Log::error('updateStatus e-posta gönderme hatası: ' . $e->getMessage());
+                                    }
+                                }
 
                                 // SMS gönder (admin onayladıysa)
                                 if (!empty($data['sms_send']) && !empty($data['sms_draft']) && !empty($record->customer_phone)) {
@@ -611,6 +635,70 @@ class OrdersTable
                                     ->send();
                             }
                             throw new \Filament\Support\Exceptions\Halt();
+                        }
+                    }),
+
+                Action::make('sendCustomerMail')
+                    ->iconButton()
+                    ->icon('heroicon-o-envelope')
+                    ->size('lg')
+                    ->color('info')
+                    ->tooltip('Müşteriye E-Posta Gönder')
+                    ->modalHeading('Müşteriye E-Posta Gönder')
+                    ->modalWidth('lg')
+                    ->form([
+                        TextInput::make('recipient_email')
+                            ->label('Alıcı E-Posta Adresi')
+                            ->default(fn (Order $record) => $record->customer_email)
+                            ->email()
+                            ->required(),
+                        Select::make('mail_type')
+                            ->label('E-Posta Şablonu')
+                            ->options(fn (Order $record) => [
+                                'order_confirmation' => '🛍️ Sipariş Onay E-Postası (OrderConfirmationMail)',
+                                'shipping_update' => '🚚 Kargo & Durum Bilgilendirme (ShippingUpdateMail)',
+                                'invoice' => $record->gib_invoice_status === 'signed' ? '📄 Resmi GİB E-Arşiv Fatura (GibInvoiceMail)' : '📄 Standart Sipariş Faturası (OrderInvoiceMail)',
+                            ])
+                            ->default('shipping_update')
+                            ->native(false)
+                            ->required(),
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        $email = trim($data['recipient_email']);
+                        try {
+                            switch ($data['mail_type']) {
+                                case 'order_confirmation':
+                                    Mail::to($email)->send(new \App\Mail\OrderConfirmationMail($record));
+                                    $title = 'Sipariş Onay E-Postası';
+                                    break;
+                                case 'shipping_update':
+                                    Mail::to($email)->send(new \App\Mail\ShippingUpdateMail($record));
+                                    $title = 'Kargo & Durum E-Postası';
+                                    break;
+                                case 'invoice':
+                                    if ($record->gib_invoice_status === 'signed') {
+                                        Mail::to($email)->send(new \App\Mail\GibInvoiceMail($record));
+                                        $title = 'GİB E-Arşiv Fatura E-Postası';
+                                    } else {
+                                        $invoiceUrl = route('orders.gib-invoice', $record);
+                                        Mail::to($email)->send(new \App\Mail\OrderInvoiceMail($record, $invoiceUrl));
+                                        $title = 'Fatura E-Postası';
+                                    }
+                                    break;
+                                default:
+                                    throw new \Exception('Geçersiz şablon seçimi.');
+                            }
+                            \Filament\Notifications\Notification::make()
+                                ->title("{$title} Gönderildi ✅")
+                                ->body("{$email} adresine e-posta başarıyla ulaştırıldı.")
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('E-Posta Gönderilemedi ❌')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
                         }
                     }),
 
