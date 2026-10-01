@@ -1,8 +1,38 @@
 <x-filament-panels::page>
-    {{-- Dashboard Üst Bölüm: İstatistik Kartları --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <style>
+        .report-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .report-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1200px) {
+            .report-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 1024px) {
+            .report-summary-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        @media (max-width: 640px) {
+            .report-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+
+    {{-- Dashboard Üst Bölüm: İstatistik Kartları (4'lü Grid) --}}
+    <div class="report-stats-grid">
         {{-- Toplam Satılan Adet --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <span style="font-size:24px;">📦</span>
                 <span style="font-size:12px;color:#9ca3af;font-weight:600;">Teslim Edilen</span>
@@ -12,7 +42,7 @@
         </div>
 
         {{-- Toplam Ciro --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <span style="font-size:24px;">💰</span>
                 <span style="font-size:12px;color:#9ca3af;font-weight:600;">Toplam Ciro</span>
@@ -22,7 +52,7 @@
         </div>
 
         {{-- İade Edilen --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <span style="font-size:24px;">🔄</span>
                 <span style="font-size:12px;color:#9ca3af;font-weight:600;">İade Edilen</span>
@@ -32,7 +62,7 @@
         </div>
 
         {{-- İade Oranı --}}
-        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <span style="font-size:24px;">📊</span>
                 <span style="font-size:12px;color:#9ca3af;font-weight:600;">İade Oranı</span>
@@ -42,8 +72,8 @@
         </div>
     </div>
 
-    {{-- Orta Bölüm: Ürün Özeti, İade Özeti ve Beden Dağılımı --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    {{-- Orta Bölüm: Ürün Özeti, İade Özeti ve Beden Dağılımı (3'lü Grid) --}}
+    <div class="report-summary-grid">
 
         {{-- SOL: Ürün Bazlı Satış Özeti --}}
         <div style="background:#111827;border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.08);">
