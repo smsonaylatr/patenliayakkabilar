@@ -12,11 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->boolean('email_consent')->default(false)->after('sms_consent')->comment('E-posta ticari ileti onayı');
+            if (!Schema::hasColumn('orders', 'email_consent')) {
+                $table->boolean('email_consent')->default(false)->after('sms_consent')->comment('E-posta ticari ileti onayı');
+            }
         });
 
         Schema::table('carts', function (Blueprint $table) {
-            $table->boolean('email_consent')->default(false)->after('sms_consent')->comment('E-posta ticari ileti onayı');
+            if (!Schema::hasColumn('carts', 'email_consent')) {
+                $table->boolean('email_consent')->default(false)->after('sms_consent')->comment('E-posta ticari ileti onayı');
+            }
         });
     }
 

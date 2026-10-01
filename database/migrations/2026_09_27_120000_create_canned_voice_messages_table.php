@@ -9,21 +9,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('canned_voice_messages', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('message');
-            $table->string('audio_path')->nullable();
-            $table->string('coupon_code', 50)->nullable();
-            $table->string('action_button')->nullable();
-            $table->string('action_url')->nullable();
-            $table->boolean('is_active')->default(true)->index();
-            $table->integer('sort_order')->default(0)->index();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('canned_voice_messages')) {
+            Schema::create('canned_voice_messages', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->text('message');
+                $table->string('audio_path')->nullable();
+                $table->string('coupon_code', 50)->nullable();
+                $table->string('action_button')->nullable();
+                $table->string('action_url')->nullable();
+                $table->boolean('is_active')->default(true)->index();
+                $table->integer('sort_order')->default(0)->index();
+                $table->timestamps();
+            });
+        }
 
-        // Seed default templates
-        DB::table('canned_voice_messages')->insert([
+        // Seed default templates if empty
+        if (DB::table('canned_voice_messages')->count() === 0) {
+            DB::table('canned_voice_messages')->insert([
             [
                 'title' => '👋 Hoş Geldiniz & İndirim Fırsatı',
                 'message' => "Patenli Ayakkabılar'a hoş geldiniz! Beğendiğiniz modellerde bugün geçerli özel fırsatları kaçırmayın, keyifli alışverişler dileriz!",
@@ -85,6 +88,7 @@ return new class extends Migration
                 'updated_at' => now(),
             ],
         ]);
+        }
     }
 
     public function down(): void
