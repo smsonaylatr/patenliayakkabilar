@@ -723,7 +723,7 @@ class Checkout extends Component
         $merchant_key   = config('services.paytr.merchant_key');
         $merchant_salt  = config('services.paytr.merchant_salt');
 
-        $email = $order->customer_email;
+        $email = 'info@patenliayakkabilar.com';
         $payment_amount = $order->grand_total * 100; // kuruş cinsinden
         $merchant_oid = $order->order_number;
         $user_name = $order->customer_name;
