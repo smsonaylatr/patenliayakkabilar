@@ -37,6 +37,7 @@ class Checkout extends Component
     public string $payment_method = 'credit_card';
     public bool $sms_consent = false;
     public bool $email_consent = false;
+    public bool $communication_consent = false;
     public bool $terms_consent = false;
 
     // Sunucu tarafında yönetilen veriler
@@ -259,6 +260,12 @@ class Checkout extends Component
         }
     }
 
+    public function updatedCommunicationConsent($value): void
+    {
+        $this->sms_consent = (bool) $value;
+        $this->email_consent = (bool) $value;
+    }
+
     public function loadNeighborhoods($district)
     {
         if (empty($district)) {
@@ -317,6 +324,11 @@ class Checkout extends Component
     {
         if ($this->paytr_token || $this->created_order_number) {
             return;
+        }
+
+        if ($this->communication_consent) {
+            $this->sms_consent = true;
+            $this->email_consent = true;
         }
 
         $this->validate();
