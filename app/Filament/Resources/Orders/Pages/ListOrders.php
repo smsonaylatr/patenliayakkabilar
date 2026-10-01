@@ -55,7 +55,7 @@ class ListOrders extends ListRecords
 
     public function getTabs(): array
     {
-        // Tab badge count'larını 60 saniye cache'le — her sayfa açılışında 3 COUNT sorgusu çalışmasın
+        // Tab badge count'larını 60 saniye cache'le — her sayfa açılışında 4 COUNT sorgusu çalışmasın
         $counts = Cache::remember('orders_tab_counts', 60, function () {
             return [
                 'valid' => Order::where(function ($q) {
@@ -67,16 +67,21 @@ class ListOrders extends ListRecords
                 ->count(),
 
                 'abandoned' => Order::where(function ($q) {
-                    $q->where('payment_status', '!=', 'paid')
-                      ->where('payment_method', '!=', 'cash_on_delivery');
-                })
-                ->whereNotIn('status', ['cancelled', 'return_started', 'returned'])
-                ->where('payment_status', '!=', 'refunded')
-                ->count(),
+                    $q->where('status', 'cancelled')
+                      ->orWhere(function ($sub) {
+                          $sub->where('payment_status', '!=', 'paid')
+                              ->where('payment_method', '!=', 'cash_on_delivery')
+                              ->whereNotIn('status', ['return_started', 'returned'])
+                              ->where('payment_status', '!=', 'refunded');
+                      });
+                })->count(),
 
-                'cancelled_returned' => Order::where(function ($q) {
-                    $q->whereIn('status', ['cancelled', 'return_started', 'returned'])
-                      ->orWhere('payment_status', 'refunded');
+                'returned' => Order::where(function ($q) {
+                    $q->whereIn('status', ['return_started', 'returned'])
+                      ->orWhere(function ($sub) {
+                          $sub->where('payment_status', 'refunded')
+                              ->where('status', '!=', 'cancelled');
+                      });
                 })->count(),
 
                 'all' => Order::count(),
@@ -94,31 +99,39 @@ class ListOrders extends ListRecords
                     ->whereNotIn('status', ['cancelled', 'return_started', 'returned'])
                     ->where('payment_status', '!=', 'refunded')
                 )
-                ->badge($counts['valid']),
+                ->badge($counts['valid'] ?? 0),
             
             'abandoned' => Tab::make('Yarım Kalan / Başarısız')
                 ->icon('heroicon-m-x-circle')
                 ->modifyQueryUsing(fn (Builder $query) => $query
                     ->where(function ($q) {
-                        $q->where('payment_status', '!=', 'paid')
-                          ->where('payment_method', '!=', 'cash_on_delivery');
+                        $q->where('status', 'cancelled')
+                          ->orWhere(function ($sub) {
+                              $sub->where('payment_status', '!=', 'paid')
+                                  ->where('payment_method', '!=', 'cash_on_delivery')
+                                  ->whereNotIn('status', ['return_started', 'returned'])
+                                  ->where('payment_status', '!=', 'refunded');
+                          });
                     })
-                    ->whereNotIn('status', ['cancelled', 'return_started', 'returned'])
-                    ->where('payment_status', '!=', 'refunded')
                 )
-                ->badge($counts['abandoned']),
+                ->badge($counts['abandoned'] ?? 0),
 
-            'cancelled_returned' => Tab::make('İptal / İade')
+            'returned' => Tab::make('İade')
                 ->icon('heroicon-m-arrow-uturn-left')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where(function ($q) {
-                    $q->whereIn('status', ['cancelled', 'return_started', 'returned'])
-                      ->orWhere('payment_status', 'refunded');
-                }))
-                ->badge($counts['cancelled_returned']),
+                ->modifyQueryUsing(fn (Builder $query) => $query
+                    ->where(function ($q) {
+                        $q->whereIn('status', ['return_started', 'returned'])
+                          ->orWhere(function ($sub) {
+                              $sub->where('payment_status', 'refunded')
+                                  ->where('status', '!=', 'cancelled');
+                          });
+                    })
+                )
+                ->badge($counts['returned'] ?? 0),
                 
             'all' => Tab::make('Tüm Kayıtlar')
                 ->icon('heroicon-m-list-bullet')
-                ->badge($counts['all']),
+                ->badge($counts['all'] ?? 0),
         ];
     }
 }
