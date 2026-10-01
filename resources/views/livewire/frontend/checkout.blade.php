@@ -328,14 +328,14 @@
 
                     <!-- Mobil İçin Buton (Sadece Mobilde Görünür) -->
                     <div class="mt-6">
-                        <!-- İletişim İzni (SMS & E-posta) -->
+                        <!-- İletişim İzni (sms & e-posta) -->
                         <div class="mb-3">
                             <label class="flex items-start cursor-pointer group">
                                 <div class="flex items-center h-5 mt-0.5">
                                     <input wire:model="communication_consent" type="checkbox" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
                                 </div>
-                                <div class="ml-3 text-xs text-gray-500 leading-relaxed group-hover:text-gray-700 transition-colors">
-                                    <i class="fa-solid fa-comment-sms text-gray-400 mr-0.5"></i> Kampanya ve duyurulardan <strong>SMS ve e-posta</strong> ile haberdar olmak istiyorum.
+                                <div class="ml-3 text-xs text-black leading-relaxed">
+                                    Kampanya ve duyurulardan <strong>sms ve e-posta</strong> ile haberdar olmak istiyorum.
                                 </div>
                             </label>
                         </div>
