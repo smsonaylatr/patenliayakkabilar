@@ -346,21 +346,31 @@ class Checkout extends Component
         $grandTotal = max(0, $subtotal + $shippingPrice - $couponDiscount);
         $orderNumber = 'TR' . mt_rand(100000, 999999);
 
-        // Sepet üzerinde misafir bilgilerini her ihtimale karşı güncelle
-        if (!$cart->user_id) {
-            $cart->update([
-                'guest_name' => $this->customer_name,
-                'guest_email' => $this->customer_email,
-                'guest_phone' => $this->customer_phone,
+        // Sepet üzerinde misafir bilgilerini her ihtimale karşı güncelle (eksik kolon veya DB hatasında siparişi kırmasın)
+        rescue(function () use ($cart) {
+            $cartUpdateData = [
                 'sms_consent' => $this->sms_consent,
                 'email_consent' => $this->email_consent,
-            ]);
-        } else {
-            $cart->update([
-                'sms_consent' => $this->sms_consent,
-                'email_consent' => $this->email_consent,
-            ]);
-        }
+            ];
+
+            if (!$cart->user_id) {
+                $cartUpdateData['guest_name'] = $this->customer_name;
+                $cartUpdateData['guest_email'] = $this->customer_email;
+                $cartUpdateData['guest_phone'] = $this->customer_phone;
+            }
+
+            // Sadece veritabanında var olan sütunları güncelle
+            try {
+                $columns = \Illuminate\Support\Facades\Schema::getColumnListing('carts');
+                $cartUpdateData = array_intersect_key($cartUpdateData, array_flip($columns));
+            } catch (\Throwable $colEx) {
+                // Kolon listesi alınamazsa devam et
+            }
+
+            $cart->update($cartUpdateData);
+        }, function ($e) {
+            \Illuminate\Support\Facades\Log::warning('Sepet misafir bilgileri güncellenirken hata yakalandı (sipariş sürecine devam edildi): ' . $e->getMessage());
+        }, report: false);
 
         // Create Order
         $neighborhood = trim($this->shipping_neighborhood ?: '');
