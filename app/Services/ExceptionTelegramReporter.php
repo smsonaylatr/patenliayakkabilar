@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Throwable;
 use Carbon\Carbon;
 
@@ -31,6 +32,7 @@ class ExceptionTelegramReporter
             NotFoundHttpException::class,
             TokenMismatchException::class,
             ThrottleRequestsException::class,
+            CannotUpdateLockedPropertyException::class,
         ];
 
         foreach ($ignoredExceptions as $ignoredClass) {

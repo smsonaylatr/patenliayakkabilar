@@ -5,20 +5,38 @@ namespace App\Livewire\Frontend;
 use Livewire\Component;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\Locked;
 
 class SitePopup extends Component
 {
-    #[Locked]
     public bool $isActive = false;
-
-    #[Locked]
     public ?string $imageUrl = null;
-
-    #[Locked]
     public ?string $linkUrl = null;
 
     public function mount()
+    {
+        $this->loadSettings();
+    }
+
+    public function render()
+    {
+        // Her render'da DB'deki güncel ayarları yükle, client manipulation'ı engelle
+        $this->loadSettings();
+
+        return view('livewire.frontend.site-popup', [
+            'link' => is_string($this->linkUrl) ? $this->linkUrl : null,
+            'image' => is_string($this->imageUrl) ? $this->imageUrl : null,
+        ]);
+    }
+
+    /**
+     * İstemciden gelebilecek kural dışı güncellemeleri sessizce yoksay
+     */
+    public function updating($property, $value)
+    {
+        // SitePopup durumları yalnızca sunucu tarafı ayarlarından okunur
+    }
+
+    protected function loadSettings(): void
     {
         $settings = Setting::whereIn('key', ['popup_active', 'popup_image', 'popup_link'])
             ->pluck('value', 'key')
@@ -40,19 +58,9 @@ class SitePopup extends Component
             $this->imageUrl = Storage::disk('public')->url($rawImage);
             $this->linkUrl = is_string($rawLink) ? $rawLink : (is_scalar($rawLink) ? (string)$rawLink : null);
         } else {
-            $this->isActive = false; // Disable if no image is present
+            $this->isActive = false;
+            $this->imageUrl = null;
+            $this->linkUrl = null;
         }
-    }
-
-    public function render()
-    {
-        // Normalize before rendering to ensure views always get strings
-        $normalizedLink = is_array($this->linkUrl) ? reset($this->linkUrl) : $this->linkUrl;
-        $normalizedImage = is_array($this->imageUrl) ? reset($this->imageUrl) : $this->imageUrl;
-
-        return view('livewire.frontend.site-popup', [
-            'link' => is_string($normalizedLink) ? $normalizedLink : null,
-            'image' => is_string($normalizedImage) ? $normalizedImage : null,
-        ]);
     }
 }
