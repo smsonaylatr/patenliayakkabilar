@@ -45,6 +45,15 @@ class OrderResource extends Resource
         return ['order_number', 'customer_name', 'customer_phone', 'customer_email'];
     }
 
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Müşteri' => $record->customer_name ?: '-',
+            'Telefon' => $record->customer_phone ?: '-',
+            'Tutar' => '₺' . number_format((float) $record->grand_total, 2, ',', '.'),
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return OrderForm::configure($schema);

@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use App\Models\Order;
 use App\Services\TrafficSourceDetector;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -27,6 +28,8 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Sipariş no, müşteri adı, telefon veya e-posta ara...')
+            ->searchUsing(fn (Builder $query, string $search): Builder => static::applyOrderSearch($query, $search))
             ->columns([
                 ViewColumn::make('product_image')
                     ->label('')
@@ -46,7 +49,7 @@ class OrdersTable
 
                 TextColumn::make('customer_name')
                     ->label('MÜŞTERİ')
-                    ->searchable()
+                    ->searchable(query: fn (Builder $query, string $search): Builder => static::applyOrderSearch($query, $search))
                     ->sortable()
                     ->weight('bold')
                     ->icon(fn (Order $record) => match (true) {
@@ -80,7 +83,20 @@ class OrdersTable
                         str_contains(strtolower($record->traffic_source ?? ''), 'admin') => '⚙️ Admin Manuel Sipariş',
                         default => '⚡ Doğrudan Giriş (' . ($record->device_type ?: 'Mobil') . ')',
                     })
-                    ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
+                    ->description(function (Order $record) {
+                        $parts = [];
+                        if (!empty($record->order_number)) {
+                            $parts[] = '#' . $record->order_number;
+                        }
+                        if (!empty($record->customer_phone)) {
+                            $parts[] = $record->customer_phone;
+                        }
+                        $email = $record->customer_email ?: ($record->user?->email ?: null);
+                        if (!empty($email) && $email !== '-') {
+                            $parts[] = $email;
+                        }
+                        return !empty($parts) ? implode(' • ', $parts) : '-';
+                    })
                     ->limit(30),
 
                 TextColumn::make('shipping_city')
@@ -1444,5 +1460,97 @@ class OrdersTable
             ->recordAction('viewDetails')
             ->recordUrl(null)
             ->striped();
+    }
+
+    /**
+     * Sipariş numarası, telefon numarası, müşteri adı, e-posta veya kargo takip koduna göre kapsamlı arama yapar.
+     */
+    public static function applyOrderSearch(Builder $query, string $search): Builder
+    {
+        $cleanSearch = trim($search);
+
+        if ($cleanSearch === '') {
+            return $query;
+        }
+
+        $trimmedHash = ltrim($cleanSearch, '#');
+        $digits = preg_replace('/[^0-9]/', '', $cleanSearch);
+
+        // Türkiye telefon standardı (+90 / 90 / 0) normalizasyonu
+        $digitsWithoutCountry = $digits;
+        if (str_starts_with($digits, '90') && strlen($digits) >= 12) {
+            $digitsWithoutCountry = substr($digits, 2);
+        }
+
+        $phone10 = null;
+        $phone11 = null;
+        if (!empty($digitsWithoutCountry)) {
+            if (str_starts_with($digitsWithoutCountry, '0')) {
+                $phone11 = $digitsWithoutCountry;
+                $phone10 = substr($digitsWithoutCountry, 1);
+            } else {
+                $phone10 = $digitsWithoutCountry;
+                $phone11 = '0' . $digitsWithoutCountry;
+            }
+        }
+
+        $words = array_values(array_filter(explode(' ', $cleanSearch), fn ($w) => filled($w)));
+
+        return $query->where(function (Builder $q) use ($cleanSearch, $trimmedHash, $digits, $phone10, $phone11, $words) {
+            // 1. Sipariş Numarası (TR105505, 105505, #TR105505 vb.)
+            $q->where('order_number', 'like', "%{$cleanSearch}%")
+                ->orWhere('order_number', 'like', "%{$trimmedHash}%");
+
+            if (!empty($trimmedHash) && is_numeric($trimmedHash)) {
+                $q->orWhere('order_number', 'like', "%TR{$trimmedHash}%");
+            }
+
+            // 2. Müşteri Adı (tekil veya çoklu kelime)
+            $q->orWhere('customer_name', 'like', "%{$cleanSearch}%");
+            if (count($words) > 1) {
+                $q->orWhere(function (Builder $nameQuery) use ($words) {
+                    foreach ($words as $word) {
+                        $nameQuery->where('customer_name', 'like', "%{$word}%");
+                    }
+                });
+            }
+
+            // 3. Telefon Numarası (05..., 5..., boşluklu, parantezli veya tireli)
+            if (!empty($digits) && strlen($digits) >= 3) {
+                $q->orWhere('customer_phone', 'like', "%{$cleanSearch}%")
+                    ->orWhere('customer_phone', 'like', "%{$digits}%");
+
+                if (!empty($phone10)) {
+                    $q->orWhere('customer_phone', 'like', "%{$phone10}%");
+                }
+                if (!empty($phone11)) {
+                    $q->orWhere('customer_phone', 'like', "%{$phone11}%");
+                }
+
+                $cleanedPhoneSql = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(customer_phone, ''), ' ', ''), '(', ''), ')', ''), '-', ''), '+', ''), '.', '')";
+                if (!empty($phone10) && strlen($phone10) >= 3) {
+                    $q->orWhereRaw("{$cleanedPhoneSql} LIKE ?", ["%{$phone10}%"]);
+                }
+                if (strlen($digits) >= 3) {
+                    $q->orWhereRaw("{$cleanedPhoneSql} LIKE ?", ["%{$digits}%"]);
+                }
+            } else {
+                $q->orWhere('customer_phone', 'like', "%{$cleanSearch}%");
+            }
+
+            // 4. E-Posta
+            $q->orWhere('customer_email', 'like', "%{$cleanSearch}%")
+                ->orWhereHas('user', fn ($uq) => $uq->where('email', 'like', "%{$cleanSearch}%"));
+
+            // 5. Kargo Takip Kodu
+            $q->orWhere('cargo_tracking_code', 'like', "%{$cleanSearch}%");
+            if (!empty($digits) && strlen($digits) >= 4) {
+                $q->orWhere('cargo_tracking_code', 'like', "%{$digits}%");
+            }
+
+            // 6. Şehir / İlçe
+            $q->orWhere('shipping_city', 'like', "%{$cleanSearch}%")
+                ->orWhere('shipping_district', 'like', "%{$cleanSearch}%");
+        });
     }
 }
