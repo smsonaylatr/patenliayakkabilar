@@ -83,20 +83,7 @@ class OrdersTable
                         str_contains(strtolower($record->traffic_source ?? ''), 'admin') => '⚙️ Admin Manuel Sipariş',
                         default => '⚡ Doğrudan Giriş (' . ($record->device_type ?: 'Mobil') . ')',
                     })
-                    ->description(function (Order $record) {
-                        $parts = [];
-                        if (!empty($record->order_number)) {
-                            $parts[] = '#' . $record->order_number;
-                        }
-                        if (!empty($record->customer_phone)) {
-                            $parts[] = $record->customer_phone;
-                        }
-                        $email = $record->customer_email ?: ($record->user?->email ?: null);
-                        if (!empty($email) && $email !== '-') {
-                            $parts[] = $email;
-                        }
-                        return !empty($parts) ? implode(' • ', $parts) : '-';
-                    })
+                    ->description(fn (Order $record) => $record->customer_email ?: ($record->user?->email ?: '-'))
                     ->limit(30),
 
                 TextColumn::make('shipping_city')
