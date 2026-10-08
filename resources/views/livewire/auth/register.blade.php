@@ -83,7 +83,7 @@
             <div class="mt-5 sm:mt-7 text-center relative z-10">
                 <p class="text-xs sm:text-sm text-gray-500">
                     Zaten bir hesabınız var mı? 
-                    <a href="{{ route('login') }}" class="font-bold text-brand-dark hover:text-brand-blue transition-colors ml-1">Giriş Yapın</a>
+                    <a href="{{ route('login') }}" rel="nofollow" class="font-bold text-brand-dark hover:text-brand-blue transition-colors ml-1">Giriş Yapın</a>
                 </p>
             </div>
 

@@ -27,10 +27,25 @@ Route::get('/api/cart-count', function () {
 // ========================
 // LIVE VISITOR PRESENCE & HEARTBEAT API
 // ========================
-Route::post('/api/presence/heartbeat', [\App\Http\Controllers\Api\PresenceController::class, 'heartbeat'])
-    ->name('api.presence.heartbeat');
-Route::post('/api/presence/identify', [\App\Http\Controllers\Api\PresenceController::class, 'identify'])
-    ->name('api.presence.identify');
+Route::match(['GET', 'POST'], '/api/presence/heartbeat', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('GET')) {
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Heartbeat endpoint active.',
+        ], 200)->header('X-Robots-Tag', 'noindex, nofollow');
+    }
+    return app(\App\Http\Controllers\Api\PresenceController::class)->heartbeat($request);
+})->name('api.presence.heartbeat');
+
+Route::match(['GET', 'POST'], '/api/presence/identify', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('GET')) {
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Identify endpoint active.',
+        ], 200)->header('X-Robots-Tag', 'noindex, nofollow');
+    }
+    return app(\App\Http\Controllers\Api\PresenceController::class)->identify($request);
+})->name('api.presence.identify');
 Route::get('/api/presence/visitor/{id}/journey-partial', [\App\Http\Controllers\Api\PresenceController::class, 'journeyPartial'])
     ->name('api.presence.journey-partial');
 
@@ -279,7 +294,14 @@ Route::any('/order/fail/{order_number?}', function () {
 Route::get('/iletisim', App\Livewire\Frontend\Contact::class)->name('contact');
 
 // Kupon Uygulama & Oturum API (Modal ve Canlı Takipçi Desteği)
-Route::post('/api/coupon/apply', function (\Illuminate\Http\Request $request) {
+Route::match(['GET', 'POST'], '/api/coupon/apply', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('GET')) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kupon servisi aktiftir. Kupon uygulamak için POST isteği gönderiniz.',
+        ], 200)->header('X-Robots-Tag', 'noindex, nofollow');
+    }
+
     $code = strtoupper(trim($request->input('code') ?? $request->input('coupon_code', '')));
     if (empty($code)) {
         return response()->json(['success' => false, 'message' => 'Lütfen bir kupon kodu giriniz.'], 422);
@@ -330,7 +352,13 @@ Route::post('/api/coupon/apply', function (\Illuminate\Http\Request $request) {
     ]);
 })->name('api.coupon.apply');
 
-Route::post('/api/coupon/remove', function () {
+Route::match(['GET', 'POST'], '/api/coupon/remove', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('GET')) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Kupon kaldırma servisi aktiftir.',
+        ], 200)->header('X-Robots-Tag', 'noindex, nofollow');
+    }
     session()->forget('applied_coupon_code');
     return response()->json(['success' => true, 'message' => 'Kupon kaldırıldı.']);
 })->name('api.coupon.remove');
