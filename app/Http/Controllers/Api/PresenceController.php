@@ -20,22 +20,22 @@ class PresenceController extends Controller
 
     public function heartbeat(Request $request): JsonResponse
     {
-        $token = $request->input('visitor_token');
+        $token = \Illuminate\Support\Str::limit(trim((string) $request->input('visitor_token')), 100, '');
         if (empty($token)) {
             return response()->json(['status' => 'ignored', 'message' => 'Token missing'], 400);
         }
 
         $this->ensureTableExists();
 
-        $url = $request->input('url', '/');
-        $path = $request->input('path', '/');
-        $title = $request->input('title', 'Patenli Ayakkabılar');
-        $referrer = $request->input('referrer');
-        $screen = $request->input('screen');
-        $action = $request->input('action', 'heartbeat');
-        $actionDetail = $request->input('action_detail');
-        $userAgent = $request->userAgent() ?? '';
-        $ip = $request->ip();
+        $url = \Illuminate\Support\Str::limit(trim((string) $request->input('url', '/')), 500, '');
+        $path = \Illuminate\Support\Str::limit(trim((string) $request->input('path', '/')), 255, '');
+        $title = \Illuminate\Support\Str::limit(trim((string) $request->input('title', 'Patenli Ayakkabılar')), 255, '');
+        $referrer = $request->filled('referrer') ? \Illuminate\Support\Str::limit(trim((string) $request->input('referrer')), 500, '') : null;
+        $screen = $request->filled('screen') ? \Illuminate\Support\Str::limit(trim((string) $request->input('screen')), 50, '') : null;
+        $action = \Illuminate\Support\Str::limit(trim((string) $request->input('action', 'heartbeat')), 50, '');
+        $actionDetail = $request->filled('action_detail') ? \Illuminate\Support\Str::limit(trim((string) $request->input('action_detail')), 255, '') : null;
+        $userAgent = \Illuminate\Support\Str::limit((string) ($request->userAgent() ?? ''), 500, '');
+        $ip = \Illuminate\Support\Str::limit((string) $request->ip(), 50, '');
 
         // 1. Cihaz, Tarayıcı ve İşletim Sistemi Tespiti
         $deviceInfo = $this->parseUserAgent($userAgent);
@@ -301,7 +301,7 @@ class PresenceController extends Controller
      */
     public function identify(Request $request): JsonResponse
     {
-        $token = $request->input('visitor_token');
+        $token = \Illuminate\Support\Str::limit(trim((string) $request->input('visitor_token')), 100, '');
         if (empty($token)) {
             return response()->json(['status' => 'ignored', 'message' => 'Token missing'], 400);
         }
@@ -320,10 +320,10 @@ class PresenceController extends Controller
         $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
         if (!$visitor->exists) {
             $visitor->first_seen_at = $profile->first_seen_at ?? now();
-            $visitor->current_url = $request->input('url', url('/checkout'));
-            $visitor->current_path = $request->input('path', '/checkout');
-            $visitor->current_title = 'Ödeme Sayfası (Checkout)';
-            $visitor->ip_address = $request->ip();
+            $visitor->current_url = \Illuminate\Support\Str::limit(trim((string) $request->input('url', url('/checkout'))), 500, '');
+            $visitor->current_path = \Illuminate\Support\Str::limit(trim((string) $request->input('path', '/checkout')), 255, '');
+            $visitor->current_title = \Illuminate\Support\Str::limit(trim((string) $request->input('title', 'Ödeme Sayfası (Checkout)')), 255, '');
+            $visitor->ip_address = \Illuminate\Support\Str::limit((string) $request->ip(), 50, '');
         }
 
         $visitor->guest_profile_id = $profile->id;
@@ -370,24 +370,64 @@ class PresenceController extends Controller
     {
         $hasChanges = false;
 
-        $guestName = $guestName !== null ? trim($guestName) : null;
-        $guestEmail = $guestEmail !== null ? strtolower(trim($guestEmail)) : null;
-        $guestPhone = $guestPhone !== null ? trim($guestPhone) : null;
+        // 0. Temel Girdi Temizliği & String Truncation Koruması
+        if ($guestName !== null) {
+            $guestName = trim(strip_tags((string) $guestName));
+            $guestName = mb_substr($guestName, 0, 100);
+            if ($guestName === '') $guestName = null;
+        }
+
+        if ($guestEmail !== null) {
+            $guestEmail = strtolower(trim((string) $guestEmail));
+            $guestEmail = mb_substr($guestEmail, 0, 100);
+            if ($guestEmail === '') $guestEmail = null;
+        }
+
+        if ($guestPhone !== null) {
+            $guestPhone = trim((string) $guestPhone);
+            $cleanDigits = preg_replace('/[^0-9]/', '', $guestPhone);
+
+            // Aşırı uzun veri girilmişse (bot, bozuk autofill veya saçma payload)
+            if (strlen($cleanDigits) > 20) {
+                // İçinde geçerli bir Türkiye cep telefonu (05xx veya 5xx) arayalım
+                if (preg_match('/(0?5[0-9]{9})/', $cleanDigits, $m)) {
+                    $guestPhone = str_starts_with($m[1], '0') ? $m[1] : ('0' . $m[1]);
+                } else {
+                    $guestPhone = null; // Çöp veriyi veritabanına sokma
+                }
+            } elseif (strlen($cleanDigits) >= 10) {
+                // Standart 10-15 haneli telefon
+                if (strlen($cleanDigits) === 10) {
+                    $guestPhone = '0' . $cleanDigits;
+                } elseif (strlen($cleanDigits) === 11 && str_starts_with($cleanDigits, '90')) {
+                    $guestPhone = '0' . substr($cleanDigits, 2);
+                } elseif (strlen($cleanDigits) === 12 && str_starts_with($cleanDigits, '90')) {
+                    $guestPhone = '+' . $cleanDigits;
+                } else {
+                    $guestPhone = substr($cleanDigits, 0, 20);
+                }
+            } else {
+                // Henüz tamamlanmamış telefon girişi (örn: 0532)
+                $safeChars = preg_replace('/[^0-9+\s()-]/', '', $guestPhone);
+                $guestPhone = substr($safeChars, 0, 20);
+                if ($guestPhone === '') $guestPhone = null;
+            }
+        }
 
         // 1. Canlı İsim Güncellemesi (Ad Soyad yazılırken)
-        if ($guestName !== null && $guestName !== '' && $visitor->guest_name !== $guestName) {
+        if ($guestName !== null && $visitor->guest_name !== $guestName) {
             $visitor->guest_name = $guestName;
             $hasChanges = true;
         }
 
         // 2. Canlı E-posta Güncellemesi
-        if ($guestEmail !== null && $guestEmail !== '' && $visitor->guest_email !== $guestEmail) {
+        if ($guestEmail !== null && $visitor->guest_email !== $guestEmail) {
             $visitor->guest_email = $guestEmail;
             $hasChanges = true;
         }
 
         // 3. Canlı Telefon Güncellemesi
-        if ($guestPhone !== null && $guestPhone !== '' && $visitor->guest_phone !== $guestPhone) {
+        if ($guestPhone !== null && $visitor->guest_phone !== $guestPhone) {
             $visitor->guest_phone = $guestPhone;
             $hasChanges = true;
         }
@@ -423,18 +463,18 @@ class PresenceController extends Controller
                 $visitor->user_id = $matchedUser->id;
                 $visitor->is_identified = true;
                 if (empty($visitor->guest_name)) {
-                    $visitor->guest_name = $matchedUser->name;
+                    $visitor->guest_name = mb_substr($matchedUser->name, 0, 100);
                 }
                 $hasChanges = true;
             } elseif ($validEmail && $last10Phone) {
                 // B) Sistemde kayıtlı değilse numara ve mail bilgileri girilince müşteri tanımla
                 try {
-                    $customerName = !empty($effectiveName) ? $effectiveName : 'Müşteri';
+                    $customerName = !empty($effectiveName) ? mb_substr($effectiveName, 0, 100) : 'Müşteri';
                     $newUser = \App\Models\User::withoutEvents(function () use ($customerName, $validEmail, $effectivePhone) {
                         return \App\Models\User::create([
                             'name' => $customerName,
                             'email' => $validEmail,
-                            'phone' => $effectivePhone,
+                            'phone' => $effectivePhone ? mb_substr((string) $effectivePhone, 0, 25) : null,
                             'role' => 'customer',
                             'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
                         ]);
@@ -460,21 +500,25 @@ class PresenceController extends Controller
         }
 
         if ($cart) {
-            $cartUpdates = [];
-            if (!empty($visitor->guest_name) && $cart->guest_name !== $visitor->guest_name) {
-                $cartUpdates['guest_name'] = $visitor->guest_name;
-            }
-            if (!empty($visitor->guest_email) && $cart->guest_email !== $visitor->guest_email) {
-                $cartUpdates['guest_email'] = $visitor->guest_email;
-            }
-            if (!empty($visitor->guest_phone) && $cart->guest_phone !== $visitor->guest_phone) {
-                $cartUpdates['guest_phone'] = $visitor->guest_phone;
-            }
-            if ($visitor->user_id && !$cart->user_id) {
-                $cartUpdates['user_id'] = $visitor->user_id;
-            }
-            if (!empty($cartUpdates)) {
-                $cart->update($cartUpdates);
+            try {
+                $cartUpdates = [];
+                if (!empty($visitor->guest_name) && $cart->guest_name !== $visitor->guest_name) {
+                    $cartUpdates['guest_name'] = mb_substr($visitor->guest_name, 0, 100);
+                }
+                if (!empty($visitor->guest_email) && $cart->guest_email !== $visitor->guest_email) {
+                    $cartUpdates['guest_email'] = mb_substr($visitor->guest_email, 0, 100);
+                }
+                if (!empty($visitor->guest_phone) && $cart->guest_phone !== $visitor->guest_phone) {
+                    $cartUpdates['guest_phone'] = mb_substr($visitor->guest_phone, 0, 30);
+                }
+                if ($visitor->user_id && !$cart->user_id) {
+                    $cartUpdates['user_id'] = $visitor->user_id;
+                }
+                if (!empty($cartUpdates)) {
+                    $cart->update($cartUpdates);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Cart guest info update error: ' . $e->getMessage());
             }
         }
 
@@ -486,13 +530,13 @@ class PresenceController extends Controller
                     if ($p) {
                         $pUpdates = [];
                         if (!empty($visitor->guest_name) && $p->guest_name !== $visitor->guest_name) {
-                            $pUpdates['guest_name'] = $visitor->guest_name;
+                            $pUpdates['guest_name'] = mb_substr($visitor->guest_name, 0, 100);
                         }
                         if (!empty($visitor->guest_email) && $p->guest_email !== $visitor->guest_email) {
-                            $pUpdates['guest_email'] = $visitor->guest_email;
+                            $pUpdates['guest_email'] = mb_substr($visitor->guest_email, 0, 100);
                         }
                         if (!empty($visitor->guest_phone) && $p->guest_phone !== $visitor->guest_phone) {
-                            $pUpdates['guest_phone'] = $visitor->guest_phone;
+                            $pUpdates['guest_phone'] = mb_substr($visitor->guest_phone, 0, 30);
                         }
                         if ($visitor->user_id && !$p->user_id) {
                             $pUpdates['user_id'] = $visitor->user_id;
@@ -501,7 +545,9 @@ class PresenceController extends Controller
                             $p->update($pUpdates);
                         }
                     }
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('GuestProfile identity update error: ' . $e->getMessage());
+                }
             }
 
             try {

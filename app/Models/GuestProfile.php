@@ -76,4 +76,19 @@ class GuestProfile extends Model
         $clean = strtoupper(substr(str_replace(['pa_vt_', '-', '_'], '', $token), 0, 6));
         return !empty($clean) ? $clean : strtoupper(\Illuminate\Support\Str::random(6));
     }
+
+    public function setGuestPhoneAttribute($value): void
+    {
+        $this->attributes['guest_phone'] = $value !== null ? substr(trim((string) $value), 0, 30) : null;
+    }
+
+    public function setGuestNameAttribute($value): void
+    {
+        $this->attributes['guest_name'] = $value !== null ? mb_substr(trim((string) $value), 0, 100) : null;
+    }
+
+    public function setGuestEmailAttribute($value): void
+    {
+        $this->attributes['guest_email'] = $value !== null ? mb_substr(trim((string) $value), 0, 100) : null;
+    }
 }

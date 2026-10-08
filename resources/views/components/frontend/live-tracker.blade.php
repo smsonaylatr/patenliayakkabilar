@@ -528,23 +528,36 @@
     window.paIdentifyVisitor = function(name, email, phone) {
         var changed = false;
         if (typeof name !== 'undefined' && name !== null) {
-            var trimmedName = name.trim();
-            if (trimmedName !== lastKnownIdentity.guest_name) {
+            var trimmedName = String(name).trim().substring(0, 100);
+            if (trimmedName && trimmedName !== lastKnownIdentity.guest_name) {
                 lastKnownIdentity.guest_name = trimmedName;
                 changed = true;
             }
         }
         if (typeof email !== 'undefined' && email !== null) {
-            var trimmedEmail = email.trim();
-            if (trimmedEmail !== lastKnownIdentity.guest_email) {
+            var trimmedEmail = String(email).trim().substring(0, 100);
+            if (trimmedEmail && trimmedEmail !== lastKnownIdentity.guest_email) {
                 lastKnownIdentity.guest_email = trimmedEmail;
                 changed = true;
             }
         }
         if (typeof phone !== 'undefined' && phone !== null) {
-            var trimmedPhone = phone.trim();
-            if (trimmedPhone !== lastKnownIdentity.guest_phone) {
-                lastKnownIdentity.guest_phone = trimmedPhone;
+            var rawPhone = String(phone).trim();
+            var digitsOnly = rawPhone.replace(/[^0-9]/g, '');
+            var sanitizedPhone = null;
+
+            if (digitsOnly.length > 20) {
+                // Aşırı uzun veri girilmişse (bot, bozuk autofill vb.)
+                var phoneMatch = digitsOnly.match(/(0?5[0-9]{9})/);
+                if (phoneMatch) {
+                    sanitizedPhone = phoneMatch[1].charAt(0) === '0' ? phoneMatch[1] : ('0' + phoneMatch[1]);
+                }
+            } else if (rawPhone.length > 0) {
+                sanitizedPhone = rawPhone.substring(0, 25);
+            }
+
+            if (sanitizedPhone && sanitizedPhone !== lastKnownIdentity.guest_phone) {
+                lastKnownIdentity.guest_phone = sanitizedPhone;
                 changed = true;
             }
         }
@@ -1915,11 +1928,11 @@
 
             // 1. Ziyaretçi Kimliğini Canlı Olarak Güncelle
             if (isName && val.length >= 2) {
-                window.paIdentifyVisitor(val, null, null);
+                window.paIdentifyVisitor(val.substring(0, 100), null, null);
             } else if (isEmail && val.length >= 4) {
-                window.paIdentifyVisitor(null, val, null);
+                window.paIdentifyVisitor(null, val.substring(0, 100), null);
             } else if (isPhone && val.length >= 6) {
-                window.paIdentifyVisitor(null, null, val);
+                window.paIdentifyVisitor(null, null, val.substring(0, 30));
             }
 
             // 2. Harf ve Metin Yazımını Debounce ile Mikro Detay Olarak Kaydet (1 karakterden itibaren!)
@@ -1960,11 +1973,11 @@
             }
 
             if (autocomplete === 'name' || wireModel.indexOf('name') !== -1 || nameAttr.indexOf('name') !== -1) {
-                window.paIdentifyVisitor(val, null, null);
+                window.paIdentifyVisitor(val.substring(0, 100), null, null);
             } else if (target.type === 'email' || autocomplete === 'email' || wireModel.indexOf('email') !== -1) {
-                window.paIdentifyVisitor(null, val, null);
+                window.paIdentifyVisitor(null, val.substring(0, 100), null);
             } else if (target.type === 'tel' || autocomplete === 'tel' || wireModel.indexOf('phone') !== -1) {
-                window.paIdentifyVisitor(null, null, val);
+                window.paIdentifyVisitor(null, null, val.substring(0, 30));
             }
         }, { passive: true });
     }

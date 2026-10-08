@@ -25,4 +25,19 @@ class Cart extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+    public function setGuestPhoneAttribute($value): void
+    {
+        $this->attributes['guest_phone'] = $value !== null ? substr(trim((string) $value), 0, 30) : null;
+    }
+
+    public function setGuestNameAttribute($value): void
+    {
+        $this->attributes['guest_name'] = $value !== null ? mb_substr(trim((string) $value), 0, 100) : null;
+    }
+
+    public function setGuestEmailAttribute($value): void
+    {
+        $this->attributes['guest_email'] = $value !== null ? mb_substr(trim((string) $value), 0, 100) : null;
+    }
 }

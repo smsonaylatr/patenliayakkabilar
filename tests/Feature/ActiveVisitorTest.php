@@ -1837,6 +1837,32 @@ class ActiveVisitorTest extends TestCase
             ->assertSee('0544 111 22 33')
             ->assertSee('https://wa.me/905441112233', false);
     }
+
+    public function test_identify_handles_excessively_long_phone_and_inputs_safely(): void
+    {
+        $token = 'pa_vt_test_long_' . uniqid();
+        $cart = \App\Models\Cart::create([
+            'session_id' => 'sess_' . uniqid(),
+            'guest_phone' => null,
+        ]);
+
+        $longGarbagePhone = str_repeat('81081014740784847818804810140444', 10); // 320 chars
+
+        $response = $this->postJson('/api/presence/identify', [
+            'visitor_token' => $token,
+            'guest_name' => str_repeat('Çok Uzun Ad Soyad ', 20),
+            'guest_email' => 'valid_user_' . uniqid() . '@example.com',
+            'guest_phone' => $longGarbagePhone,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['status' => 'ok']);
+
+        $visitor = ActiveVisitor::where('visitor_token', $token)->first();
+        $this->assertNotNull($visitor);
+        // Phone must not exceed 30 chars and must not cause SQL truncation errors
+        $this->assertTrue($visitor->guest_phone === null || strlen($visitor->guest_phone) <= 30);
+    }
 }
 
 
