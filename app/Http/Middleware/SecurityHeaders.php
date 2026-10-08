@@ -24,6 +24,10 @@ class SecurityHeaders
             $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
             $response->header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
             $response->header('Content-Security-Policy', "upgrade-insecure-requests; frame-ancestors 'self';");
+
+            if ($request->is('api/*')) {
+                $response->header('X-Robots-Tag', 'noindex, nofollow, noarchive');
+            }
         }
 
         return $response;

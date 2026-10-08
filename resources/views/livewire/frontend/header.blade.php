@@ -92,7 +92,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </button>
-                    <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" aria-label="Hesabım" class="text-gray-900 hover:text-gray-500 transition-colors hidden sm:flex items-center justify-center p-2 min-w-[44px] min-h-[44px]" title="Hesabım" wire:navigate>
+                    <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" rel="nofollow" aria-label="Hesabım" class="text-gray-900 hover:text-gray-500 transition-colors hidden sm:flex items-center justify-center p-2 min-w-[44px] min-h-[44px]" title="Hesabım" wire:navigate>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -142,7 +142,7 @@
 
                 <a href="{{ route('order.tracking') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Sipariş Takip</a>
                 <a href="{{ route('contact') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>İletişim</a>
-                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Hesabım</a>
+                <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" rel="nofollow" @click="mobileMenuOpen = false" class="block px-3 py-3 rounded-md text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 uppercase tracking-wide" wire:navigate>Hesabım</a>
             </div>
         </div>
     </header>

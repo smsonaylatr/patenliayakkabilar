@@ -392,7 +392,7 @@
                     </button>
 
                     {{-- 6. Hesabım — Halikoy account icon --}}
-                    <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" wire:navigate class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
+                    <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" rel="nofollow" wire:navigate class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors">
                         <svg class="w-[22px] h-[22px]" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg">
                             <rect x="5.5" y="1.3335" width="9" height="9" rx="4.5"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10 12.917C11.25 12.917 13.3333 13.1948 13.75 13.3337C14.1667 13.4725 16.8333 14.0003 17.5 15.0003C18.3333 16.2503 18.3333 16.667 18.3333 18.3337"/>

@@ -18,6 +18,8 @@ Allow: /build/
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /opensearch.xml
+Disallow: /api/
+Disallow: /api/*
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /checkout
@@ -151,6 +153,8 @@ Allow: /img/
 Allow: /css/
 Allow: /js/
 Allow: /build/
+Disallow: /api/
+Disallow: /api/*
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /checkout
