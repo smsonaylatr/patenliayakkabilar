@@ -1,6 +1,7 @@
 <x-layouts.app>
     <x-slot:title>{{ $page->meta_title ?? $page->title . ' | Patenli Ayakkabılar' }}</x-slot:title>
     <x-slot:description>{{ $page->meta_description ?? Str::limit(strip_tags($page->content), 155) }}</x-slot:description>
+    <x-slot:canonical>{{ url('/' . $page->slug) }}</x-slot:canonical>
     @if(isset($page->is_indexable) && !$page->is_indexable)
         <x-slot:robots>noindex, follow</x-slot:robots>
     @endif
