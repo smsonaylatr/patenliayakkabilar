@@ -16,10 +16,28 @@ class PoregoWebhookController extends Controller
             // İmza doğrulama kontrolü (Secret varsa doğrula, yoksa uyar ve devam et)
             if ($secret && $signature) {
                 $payload = $request->getContent();
-                $expectedSignature = 'sha256=' . base64_encode(hash_hmac('sha256', $payload, $secret, true));
-                $expectedHex = hash_hmac('sha256', $payload, $secret);
+                $secretsToTry = [$secret];
+                if (str_starts_with($secret, 'ENC::')) {
+                    $secretsToTry[] = substr($secret, 5);
+                }
 
-                if (!hash_equals($expectedSignature, $signature) && !hash_equals($expectedHex, $signature) && !hash_equals('sha256=' . $expectedHex, $signature)) {
+                $matched = false;
+                foreach ($secretsToTry as $candidateSecret) {
+                    $expectedBase64 = base64_encode(hash_hmac('sha256', $payload, $candidateSecret, true));
+                    $expectedHex = hash_hmac('sha256', $payload, $candidateSecret);
+
+                    if (
+                        hash_equals($expectedBase64, $signature) ||
+                        hash_equals('sha256=' . $expectedBase64, $signature) ||
+                        hash_equals($expectedHex, $signature) ||
+                        hash_equals('sha256=' . $expectedHex, $signature)
+                    ) {
+                        $matched = true;
+                        break;
+                    }
+                }
+
+                if (!$matched) {
                     Log::warning('Porego Webhook Imza Doğrulama Uyarısı: Imzalar eşleşmedi.', [
                         'signature' => $signature,
                     ]);

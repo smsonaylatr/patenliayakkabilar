@@ -56,4 +56,11 @@ return [
         'api_key' => env('GOOGLE_PLACES_API_KEY'),
     ],
 
+    'porego' => [
+        'api_key' => env('POREGO_API_KEY'),
+        'api_secret' => env('POREGO_API_SECRET'),
+        'api_url' => env('POREGO_API_URL', 'https://back.porego.com/depokargo/api/v1/merchant-api/v1'),
+        'webhook_secret' => env('POREGO_WEBHOOK_SECRET'),
+    ],
+
 ];
