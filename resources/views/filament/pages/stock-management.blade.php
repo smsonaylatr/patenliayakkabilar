@@ -243,7 +243,7 @@
                     @foreach($matrix as $rowIndex => $row)
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                             {{-- Ürün --}}
-                            <td style="padding:6px 8px;vertical-align:middle;font-size:12px;font-weight:600;" title="{{ $row['name'] }}">
+                            <td style="padding:6px 8px;vertical-align:middle;font-size:12px;font-weight:600;" @if(!empty($row['sku'])) title="SKU: {{ $row['sku'] }}" @endif>
                                 <div style="display:flex;align-items:center;gap:12px;">
                                     @if($row['image'])
                                         <a href="{{ asset('storage/' . $row['image']) }}" target="_blank" title="Görseli büyüt">
@@ -252,7 +252,7 @@
                                     @else
                                         <span style="width:80px;height:80px;border-radius:8px;background:#374151;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:26px;">👟</span>
                                     @endif
-                                    <span class="text-gray-900 dark:text-white" style="line-height:1.4;word-break:break-word;">{{ $row['name'] }}</span>
+                                    <span class="text-gray-900 dark:text-white" style="line-height:1.4;word-break:break-word;" @if(!empty($row['sku'])) title="SKU: {{ $row['sku'] }}" @endif>{{ $row['name'] }}</span>
                                 </div>
                             </td>
 
@@ -262,6 +262,7 @@
                                     $sizeData = $row['sizes'][$size];
                                     $stock = $sizeData['stock'];
                                     $variantId = $sizeData['variant_id'];
+                                    $cellSku = $sizeData['sku'] ?? null;
                                     
                                     if ($stock !== null) {
                                         if ($stock <= 0) { $bg = '#ef4444'; $fg = '#fff'; }
@@ -272,7 +273,7 @@
                                         $bg = '#374151'; $fg = '#6b7280';
                                     }
                                 @endphp
-                                <td style="padding:2px 1px;text-align:center;vertical-align:middle;">
+                                <td style="padding:2px 1px;text-align:center;vertical-align:middle;" @if($cellSku) title="SKU: {{ $cellSku }}" @endif>
                                     @if($stock !== null && $variantId)
                                         <div x-data="{ editing: false, value: {{ $stock }}, original: {{ $stock }} }">
                                             <button
@@ -282,6 +283,7 @@
                                                 style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;justify-content:center;transition:transform 0.15s;background:{{ $bg }};color:{{ $fg }};"
                                                 onmouseover="this.style.transform='scale(1.15)'"
                                                 onmouseout="this.style.transform='scale(1)'"
+                                                @if($cellSku) title="SKU: {{ $cellSku }}" @endif
                                             >{{ $stock }}</button>
 
                                             <input
@@ -293,6 +295,7 @@
                                                 @keydown.enter="if(value!==original&&value>=0){$wire.updateMatrixStock({{ $variantId }},value);original=value}editing=false"
                                                 @keydown.escape="value=original;editing=false"
                                                 @click.outside="if(value!==original&&value>=0){$wire.updateMatrixStock({{ $variantId }},value);original=value}editing=false"
+                                                @if($cellSku) title="SKU: {{ $cellSku }}" @endif
                                                 style="width:38px;height:26px;border-radius:4px;font-size:11px;font-weight:700;text-align:center;border:2px solid #6366f1;outline:none;-moz-appearance:textfield;"
                                             >
                                         </div>

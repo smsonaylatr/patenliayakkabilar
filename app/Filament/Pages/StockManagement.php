@@ -56,9 +56,12 @@ class StockManagement extends Page implements HasTable
         foreach ($activeProducts as $product) {
             if ($product->variants->isEmpty()) continue;
             
+            $productSku = $product->sku ?: ('PATEN-' . $product->id);
+
             $productRow = [
                 'product_id' => $product->id,
                 'name' => $product->name,
+                'sku' => $productSku,
                 'image' => $product->images->first()?->image_path,
                 'sizes' => [],
                 'total' => 0,
@@ -66,9 +69,11 @@ class StockManagement extends Page implements HasTable
             
             foreach ($sizes as $size) {
                 $variant = $product->variants->where('size', (string)$size)->first();
+                $variantSku = $variant ? ($variant->sku ?: ($productSku . '-' . $size)) : null;
                 $productRow['sizes'][$size] = [
                     'stock' => $variant ? (int) $variant->stock : null,
                     'variant_id' => $variant?->id,
+                    'sku' => $variantSku,
                 ];
                 if ($variant) {
                     $productRow['total'] += (int) $variant->stock;
