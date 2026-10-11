@@ -56,12 +56,39 @@ class StockManagement extends Page implements HasTable
         foreach ($activeProducts as $product) {
             if ($product->variants->isEmpty()) continue;
             
-            $productSku = $product->sku ?: ('PATEN-' . $product->id);
+            // Gerçek ürün SKU'sunu varyantlardan veya ürün SKU'sundan belirle
+            $firstVariantWithSku = $product->variants->first(fn($v) => !empty($v->sku));
+            $realProductSku = null;
+
+            if ($firstVariantWithSku) {
+                $vSku = trim((string) $firstVariantWithSku->sku);
+                $vSize = trim((string) $firstVariantWithSku->size);
+                if ($vSize !== '' && preg_match('/[-_\s]+' . preg_quote($vSize, '/') . '$/ui', $vSku)) {
+                    $realProductSku = preg_replace('/[-_\s]+' . preg_quote($vSize, '/') . '$/ui', '', $vSku);
+                } else {
+                    $realProductSku = $vSku;
+                }
+            }
+
+            if (empty($realProductSku) || str_starts_with($realProductSku, 'PATEN-')) {
+                if (!empty($product->sku) && !str_starts_with($product->sku, 'PATEN-')) {
+                    $realProductSku = $product->sku;
+                } elseif ($firstVariantWithSku) {
+                    $realProductSku = $firstVariantWithSku->sku;
+                } else {
+                    $realProductSku = $product->sku ?: ('PATEN-' . $product->id);
+                }
+            }
+
+            // Ürün veritabanında eski PATEN-X placeholder kaldıysa sessizce güncelle
+            if (!empty($realProductSku) && !str_starts_with($realProductSku, 'PATEN-') && $product->sku !== $realProductSku && str_starts_with((string)$product->sku, 'PATEN-')) {
+                $product->updateQuietly(['sku' => $realProductSku]);
+            }
 
             $productRow = [
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'sku' => $productSku,
+                'sku' => $realProductSku,
                 'image' => $product->images->first()?->image_path,
                 'sizes' => [],
                 'total' => 0,
@@ -69,7 +96,11 @@ class StockManagement extends Page implements HasTable
             
             foreach ($sizes as $size) {
                 $variant = $product->variants->where('size', (string)$size)->first();
-                $variantSku = $variant ? ($variant->sku ?: ($productSku . '-' . $size)) : null;
+                $variantSku = $variant?->sku;
+                if (empty($variantSku) && $variant) {
+                    $variantSku = $realProductSku ? ($realProductSku . '-' . $size) : null;
+                }
+
                 $productRow['sizes'][$size] = [
                     'stock' => $variant ? (int) $variant->stock : null,
                     'variant_id' => $variant?->id,

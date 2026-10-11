@@ -252,7 +252,12 @@
                                     @else
                                         <span style="width:80px;height:80px;border-radius:8px;background:#374151;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:26px;">👟</span>
                                     @endif
-                                    <span class="text-gray-900 dark:text-white" style="line-height:1.4;word-break:break-word;" @if(!empty($row['sku'])) title="SKU: {{ $row['sku'] }}" @endif>{{ $row['name'] }}</span>
+                                    <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+                                        <span class="text-gray-900 dark:text-white" style="line-height:1.4;word-break:break-word;" @if(!empty($row['sku'])) title="SKU: {{ $row['sku'] }}" @endif>{{ $row['name'] }}</span>
+                                        @if(!empty($row['sku']))
+                                            <span style="font-size:10px;font-weight:600;color:#94a3b8;font-family:monospace;letter-spacing:0.3px;background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:4px;width:fit-content;" title="SKU: {{ $row['sku'] }}">{{ $row['sku'] }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </td>
 
