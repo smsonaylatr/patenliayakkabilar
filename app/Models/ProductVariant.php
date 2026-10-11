@@ -180,7 +180,10 @@ class ProductVariant extends Model
         );
 
         // Stok geri geldiyse bekleyen "Gelince Haber Ver" bildirimlerini tetikle
-        if ($oldStock <= 0 && $this->stock > 0 && $this->product?->status) {
+        if ($oldStock <= 0 && $this->stock > 0 && $this->product) {
+            if (!$this->product->status) {
+                $this->product->updateQuietly(['status' => true]);
+            }
             try {
                 \App\Services\StockNotificationService::processNotifications($this->product, $this);
             } catch (\Throwable $e) {

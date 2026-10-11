@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\StockNotification;
+use App\Models\Setting;
 use App\Mail\StockBackMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -24,18 +25,35 @@ class StockNotificationService
             }
 
             $variant = $notification->variant;
+            $mailSent = false;
+            $smsSent = false;
 
             // 1. E-Posta Bildirimi
             if (!empty($notification->email)) {
-                Mail::to($notification->email)->send(new StockBackMail($product, $variant));
+                $isMailEnabled = filter_var(Setting::where('key', 'mail_stock_notification')->value('value') ?? true, FILTER_VALIDATE_BOOLEAN);
+                if ($isMailEnabled) {
+                    try {
+                        Mail::to($notification->email)->send(new StockBackMail($product, $variant));
+                        $mailSent = true;
+                    } catch (\Throwable $mEx) {
+                        Log::error("Stok Bildirimi E-Posta Hatası [ID: {$notification->id}]: " . $mEx->getMessage());
+                    }
+                }
             }
 
             // 2. SMS Bildirimi (Telefon girilmişse)
             if (!empty($notification->phone)) {
-                $vatanSms = app(VatanSmsService::class);
-                $sizeText = $variant ? " ({$variant->size} Beden)" : '';
-                $message = "Müjde! Patenli Ayakkabilar'da beklediğiniz {$product->name}{$sizeText} ürünü stoklarımıza girmiştir. İncelemek için: " . url('/urun/' . $product->slug);
-                $vatanSms->send($notification->phone, $message);
+                try {
+                    $vatanSms = app(VatanSmsService::class);
+                    $sizeText = $variant ? " ({$variant->size} Beden)" : '';
+                    $message = "Müjde! Patenli Ayakkabılar'da beklediğiniz {$product->name}{$sizeText} ürünü stoklarımıza girmiştir. İncelemek için: " . url('/urun/' . $product->slug);
+                    $smsResult = $vatanSms->send($notification->phone, $message);
+                    if ($smsResult) {
+                        $smsSent = true;
+                    }
+                } catch (\Throwable $sEx) {
+                    Log::error("Stok Bildirimi SMS Hatası [ID: {$notification->id}]: " . $sEx->getMessage());
+                }
             }
 
             // Kaydı bildirildi olarak güncelle
@@ -43,6 +61,8 @@ class StockNotificationService
                 'is_notified' => true,
                 'notified_at' => now(),
             ]);
+
+            Log::info("Stok bildirimi tamamlandı [ID: {$notification->id}]: {$notification->email}" . ($mailSent ? ' (E-posta iletildi)' : '') . ($smsSent ? ' (SMS iletildi)' : ''));
 
             return true;
         } catch (\Throwable $th) {
@@ -61,8 +81,20 @@ class StockNotificationService
                 return 0;
             }
 
+            // Stok kontrolü: İlgili varyant veya ürün stokta olmalı
+            if ($variant) {
+                if ((int) $variant->stock <= 0) {
+                    return 0;
+                }
+            } else {
+                if ((int) $product->stock <= 0) {
+                    return 0;
+                }
+            }
+
+            // Ürün pasif kalmışsa aktifleştir
             if (!$product->status) {
-                return 0;
+                $product->updateQuietly(['status' => true]);
             }
 
             $query = StockNotification::where('product_id', $product->id)
@@ -87,6 +119,10 @@ class StockNotificationService
                 if (static::notifySingle($notification)) {
                     $notifiedCount++;
                 }
+            }
+
+            if ($notifiedCount > 0) {
+                Log::info("Gelince Haber Ver: {$product->name} için {$notifiedCount} bildirim başarıyla iletildi.");
             }
 
             return $notifiedCount;

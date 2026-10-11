@@ -43,8 +43,11 @@ class ProductObserver
                 ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
         }
 
-        // Stok yenilendiyse bekleyen bildirimleri gönder
-        if ($product->status && $product->stock > 0) {
+        // Stok yenilendiyse: pasif durumdaysa aktife al ve bekleyen bildirimleri gönder
+        if ($product->stock > 0 && ($product->isDirty('stock') || $product->isDirty('status'))) {
+            if (!$product->status && $product->isDirty('stock')) {
+                $product->updateQuietly(['status' => true]);
+            }
             \App\Services\StockNotificationService::processNotifications($product);
         }
     }

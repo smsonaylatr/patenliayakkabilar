@@ -80,7 +80,7 @@
                             <button 
                                 type="button"
                                 @click.stop="$dispatch('open-stock-modal', { productId: {{ $product->id }}, variantId: variant.id }); open = false;"
-                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-brand-orange bg-white hover:bg-orange-50 border border-brand-orange/30 transition-colors shrink-0 cursor-pointer shadow-2xs"
+                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-neutral-900 hover:bg-black border border-neutral-700 transition-colors shrink-0 cursor-pointer shadow-2xs"
                                 title="Gelince Haber Ver"
                             >
                                 <i class="fa-solid fa-bell text-[10px]"></i>

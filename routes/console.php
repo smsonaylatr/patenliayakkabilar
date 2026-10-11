@@ -66,3 +66,7 @@ Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping(
 
 // ─── Site Sağlık Kontrolü (Her 5 dakikada bir) ──────────────────────────
 Schedule::command('site:health-check')->everyFiveMinutes()->withoutOverlapping();
+
+// ─── Gelince Haber Ver: Stoğu Gelen Ürünlerin Bekleyen Bildirimlerini Gönder (Her 15 dk) ───
+Schedule::command('stock:process-notifications')->everyFifteenMinutes()->withoutOverlapping();
+

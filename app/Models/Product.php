@@ -622,8 +622,13 @@ class Product extends Model
             \Illuminate\Support\Facades\Cache::forget('best_seller_carousel_products');
         }
 
-        // Stok yenilendiyse bekleyen bildirimleri gönder
-        if ($this->status && $this->stock > 0 && $oldStock <= 0) {
+        // Stok yenilendiyse bekleyen bildirimleri gönder ve gerekiyorsa ürünü tekrar aktifleştir
+        if ($this->stock > 0 && $oldStock <= 0) {
+            if (!$this->status) {
+                $this->updateQuietly(['status' => true]);
+                \Illuminate\Support\Facades\Cache::forget('home_product_grid');
+                \Illuminate\Support\Facades\Cache::forget('best_seller_carousel_products');
+            }
             \App\Services\StockNotificationService::processNotifications($this);
         }
     }
