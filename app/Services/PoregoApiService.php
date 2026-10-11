@@ -163,6 +163,7 @@ class PoregoApiService
             $cleanMah = trim(preg_replace('/(mah|mahalle|mahallesi|mh\.)/iu', '', $neighborhoodName));
 
             $payload = [
+                'orderNumber'           => $order->order_number,
                 'customerName'          => $name,
                 'customerSurname'       => $surname,
                 'customerPhone'         => $phone,
@@ -1717,6 +1718,7 @@ class PoregoApiService
         $updatePayload = [
             'products' => $productsJson,
             'id' => $poregoOrderId,
+            'orderNumber' => $order->order_number,
         ];
 
         if (empty($sessionCookie)) {
