@@ -16,9 +16,8 @@
         width: 3.25rem;
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
-        backdrop-filter: saturate(180%) blur(20px);
-        -webkit-backdrop-filter: saturate(180%) blur(20px);
-        background-color: rgba(255, 255, 255, 0.88);
+        /* Performans: backdrop-filter kaldırıldı (arkadaki animasyonlar her karede blur hesaplatıyordu) */
+        background-color: rgba(255, 255, 255, 0.96);
         box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08);
         border-radius: 9999px;
         z-index: 30;

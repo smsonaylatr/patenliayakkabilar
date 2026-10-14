@@ -156,10 +156,6 @@ body {
     100% { transform: translate3d(-50%, 0, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .marquee-content { animation-duration: 120s; }
-}
-
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }

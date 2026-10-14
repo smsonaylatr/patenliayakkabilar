@@ -54,12 +54,9 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       pointer-events: none;
     }
 
+    /* Performans: feTurbulence + mix-blend her karede tüm hero'yu yeniden harmanlatıyordu (opacity 0.025 → görünmez) */
     .hero-noise {
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
-      mix-blend-mode: overlay;
+      display: none;
     }
 
     .hero-grid {
@@ -75,6 +72,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 60%);
     }
 
+    /* Performans: blur(50px) + mix-blend-mode kaldırıldı — radial-gradient zaten yumuşak kenarlı */
     .hero-spotlight {
       position: absolute;
       top: -20%;
@@ -84,15 +82,14 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       max-width: 800px;
       max-height: 800px;
       background: radial-gradient(circle at center,
-        rgba(255, 255, 255, 0.45) 0%,
-        rgba(255, 255, 255, 0.15) 40%,
+        rgba(255, 255, 255, 0.35) 0%,
+        rgba(255, 255, 255, 0.1) 40%,
         transparent 70%
       );
-      filter: blur(50px);
       border-radius: 50%;
       pointer-events: none;
-      mix-blend-mode: overlay;
       animation: spotlight-wander 25s ease-in-out infinite;
+      will-change: transform;
       z-index: 1;
     }
 
@@ -104,11 +101,12 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       100% { transform: translate(0, 0) scale(1); }
     }
 
+    /* Performans: 700px'lik blur(120px) filtreleri GPU'yu kilitliyordu → yumuşak radial-gradient ile aynı görünüm */
     .hero-orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(120px);
       opacity: 0.18;
+      will-change: transform;
     }
 
     .orb-1 {
@@ -237,7 +235,6 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       text-decoration: none;
       text-transform: uppercase;
       transition: all 0.4s ease;
-      backdrop-filter: blur(10px);
     }
 
     .btn-hero-primary:hover {
@@ -414,7 +411,6 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       font-size: 0.78rem;
       font-weight: 700;
       padding: 8px 16px;
-      backdrop-filter: blur(12px);
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
       z-index: 10;
       white-space: nowrap;
@@ -650,15 +646,19 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     }
   </style>
 <section class="hero" id="larcivert-hero"
-    x-data="{ mx: 0, my: 0, isMobile: window.innerWidth < 1024 }"
+    x-data="{ mx: 0, my: 0, isMobile: window.innerWidth < 1024, _raf: null }"
     @resize.window="isMobile = window.innerWidth < 1024"
     @mousemove="
-        if (isMobile) return;
-        const rect = $el.getBoundingClientRect();
-        mx = ((($event.clientX - rect.left) / rect.width) - 0.5);
-        my = ((($event.clientY - rect.top) / rect.height) - 0.5);
+        if (isMobile || _raf) return;
+        const cx = $event.clientX, cy = $event.clientY;
+        _raf = requestAnimationFrame(() => {
+            const rect = $el.getBoundingClientRect();
+            mx = Math.round((((cx - rect.left) / rect.width) - 0.5) * 100) / 100 || 0.001;
+            my = Math.round((((cy - rect.top) / rect.height) - 0.5) * 100) / 100;
+            _raf = null;
+        });
     "
-    @mouseleave="mx = 0; my = 0"
+    @mouseleave="if (_raf) { cancelAnimationFrame(_raf); _raf = null; } mx = 0; my = 0"
 >
   <!-- Ambient background layers -->
   <div class="hero-bg">
