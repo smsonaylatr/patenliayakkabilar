@@ -126,16 +126,38 @@ body {
 .marquee-container {
     overflow: hidden;
     white-space: nowrap;
+    contain: layout paint;
 }
 
+/* Kasma önleme:
+   - flex + max-content → genişlik tam içerik kadar, iki yarı birebir eşit (inline-block'taki boşluk farkı yok)
+   - translate3d + will-change → animasyon GPU compositor katmanında, ana thread'den bağımsız */
 .marquee-content {
-    display: inline-block;
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    max-width: none;
     animation: marquee 25s linear infinite;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+.marquee-content > * {
+    flex-shrink: 0;
+}
+
+.marquee-slow {
+    animation-duration: 60s;
 }
 
 @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-content { animation-duration: 120s; }
 }
 
 .hide-scrollbar::-webkit-scrollbar {

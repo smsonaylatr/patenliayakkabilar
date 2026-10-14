@@ -165,7 +165,7 @@
 
             <!-- Bottom Marquee -->
             <div class="bg-white border-y border-gray-200 py-2 sm:py-5 md:py-7 overflow-hidden w-full relative">
-                <div class="marquee-content flex whitespace-nowrap items-center">
+                <div class="marquee-content marquee-slow flex whitespace-nowrap items-center">
                     @for ($i = 0; $i < 24; $i++)
                         <span class="text-black font-black text-xs sm:text-2xl md:text-3xl tracking-[0.15em] sm:tracking-[0.2em] uppercase mx-2.5 sm:mx-6 md:mx-12">HER YERDE KAY</span>
                     @endfor
