@@ -34,6 +34,8 @@ class Login extends Component
                 return $this->redirectIntended(default: '/admin', navigate: false);
             }
 
+            $this->dispatch('gtag-event', name: 'login', params: ['method' => 'email']);
+
             return $this->redirectIntended(default: '/hesabim', navigate: true);
         }
 

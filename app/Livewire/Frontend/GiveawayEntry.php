@@ -134,6 +134,20 @@ class GiveawayEntry extends Component
             'user_agent' => request()->userAgent(),
         ]);
 
+        $userData = \App\Services\GoogleTagService::formatUserData(
+            $this->name,
+            $this->email,
+            $this->phone,
+            $this->city,
+            $this->district,
+            $this->address
+        );
+        $this->dispatch('gtag-event', name: 'generate_lead', params: [
+            'currency' => 'TRY',
+            'value' => 0,
+            'lead_source' => 'instagram_giveaway',
+        ], user_data: $userData);
+
         $this->ticketCode = $ticketCode;
         $this->isSuccess = true;
     }

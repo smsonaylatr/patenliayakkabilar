@@ -43,6 +43,8 @@ class Register extends Component
         Auth::login($user);
         session()->regenerate();
 
+        $this->dispatch('gtag-event', name: 'sign_up', params: ['method' => 'email']);
+
         return redirect()->intended('/hesabim');
     }
 

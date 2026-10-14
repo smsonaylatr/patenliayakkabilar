@@ -76,7 +76,10 @@ class SeoSettings extends FilamentPage implements HasForms
             'seo_default_title_suffix', 'seo_default_description',
             'seo_google_verification', 'seo_yandex_verification',
             'seo_bing_verification',
-            'google_analytics_id', 'gtm_container_id',
+            'google_analytics_id', 'google_tag_id', 'gtm_container_id',
+            'google_ads_id', 'google_ads_conversion_label',
+            'google_ads_add_to_cart_label', 'google_ads_begin_checkout_label',
+            'google_consent_mode_enabled', 'google_enhanced_conversions',
             'gcr_widget_active', 'gcr_merchant_id', 'gcr_badge_position',
             'shipping_info_text', 'return_policy_text',
             'return_policy_days',
@@ -104,8 +107,15 @@ class SeoSettings extends FilamentPage implements HasForms
             'seo_google_verification' => $settings['seo_google_verification'] ?? '',
             'seo_yandex_verification' => $settings['seo_yandex_verification'] ?? '',
             'seo_bing_verification' => $settings['seo_bing_verification'] ?? '',
-            'google_analytics_id' => $settings['google_analytics_id'] ?? '',
-            'gtm_container_id' => $settings['gtm_container_id'] ?? '',
+            'google_analytics_id' => !empty($settings['google_analytics_id']) ? $settings['google_analytics_id'] : 'G-ZMY22BQK1N',
+            'google_tag_id' => $settings['google_tag_id'] ?? '',
+            'gtm_container_id' => !empty($settings['gtm_container_id']) ? $settings['gtm_container_id'] : 'GTM-583KKT3Q',
+            'google_ads_id' => $settings['google_ads_id'] ?? '',
+            'google_ads_conversion_label' => $settings['google_ads_conversion_label'] ?? '',
+            'google_ads_add_to_cart_label' => $settings['google_ads_add_to_cart_label'] ?? '',
+            'google_ads_begin_checkout_label' => $settings['google_ads_begin_checkout_label'] ?? '',
+            'google_consent_mode_enabled' => filter_var($settings['google_consent_mode_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'google_enhanced_conversions' => filter_var($settings['google_enhanced_conversions'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'gcr_widget_active' => filter_var($settings['gcr_widget_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'gcr_merchant_id' => $settings['gcr_merchant_id'] ?? '5828544730',
             'gcr_badge_position' => $settings['gcr_badge_position'] ?? 'BOTTOM_LEFT',
@@ -290,27 +300,90 @@ class SeoSettings extends FilamentPage implements HasForms
                             ]),
 
                         // ==========================================
-                        // TAB 3: ANALİTİK
+                        // TAB 3: ANALİTİK & GOOGLE ETİKET PLATFORMU
                         // ==========================================
                         Tab::make('Analitik & İzleme')
                             ->icon('heroicon-o-chart-bar')
                             ->schema([
-                                Section::make('Google Analytics 4')
-                                    ->description('Ziyaretçi takibi için GA4 ölçüm kimliğini girin. analytics.google.com adresinden oluşturabilirsiniz.')
+                                Section::make('Google Etiket Platformu (gtag.js & GA4 & GTM)')
+                                    ->description('Google Tag Platform (developers.google.com/tag-platform) standartlarına göre tam entegre izleme altyapısı.')
                                     ->schema([
-                                        TextInput::make('google_analytics_id')
-                                            ->label('GA4 Ölçüm Kimliği')
-                                            ->placeholder('G-XXXXXXXXXX')
-                                            ->helperText('Google Analytics → Yönetici → Veri Akışları → Ölçüm kimliği'),
+                                        Grid::make(3)->schema([
+                                            TextInput::make('google_analytics_id')
+                                                ->label('GA4 Ölçüm Kimliği')
+                                                ->placeholder('G-ZMY22BQK1N')
+                                                ->helperText('Google Analytics 4 → Veri Akışları → Ölçüm kimliği (G-XXXXXXXXXX)'),
+
+                                            TextInput::make('google_tag_id')
+                                                ->label('Google Etiket Kimliği (Opsiyonel)')
+                                                ->placeholder('GT-XXXXXXXX')
+                                                ->helperText('Birleştirilmiş Google Etiketi kimliği (GT- ile başlayan etiketiniz varsa)'),
+
+                                            TextInput::make('gtm_container_id')
+                                                ->label('GTM Konteyner Kimliği')
+                                                ->placeholder('GTM-583KKT3Q')
+                                                ->helperText('Google Tag Manager → Konteyner kimliği (GTM-XXXXXXX)'),
+                                        ]),
+
+                                        Grid::make(2)->schema([
+                                            Toggle::make('google_consent_mode_enabled')
+                                                ->label('Google Consent Mode v2 Aktif')
+                                                ->helperText('ad_storage, ad_user_data, ad_personalization, analytics_storage ve url_passthrough sinyallerini otomatik yönetir.')
+                                                ->default(true),
+
+                                            Toggle::make('google_enhanced_conversions')
+                                                ->label('Gelişmiş Dönüşümler (Enhanced Conversions / User Data)')
+                                                ->helperText('Ödeme ve sipariş adımlarında e-posta, E.164 (+90) telefon ve adres verilerini güvenli şekilde Google Etiketi ile eşleştirir.')
+                                                ->default(true),
+                                        ]),
                                     ]),
 
-                                Section::make('Google Tag Manager')
-                                    ->description('Gelişmiş etiket yönetimi için GTM konteyner kimliğini girin. tagmanager.google.com adresinden oluşturabilirsiniz.')
+                                Section::make('Google Ads Dönüşüm & Dinamik Yeniden Pazarlama')
+                                    ->description('Google Ads kampanyalarınızın satın alma, sepete ekleme ve ödeme başlatma dönüşümlerini doğrudan gtag.js ile ölçün.')
                                     ->schema([
-                                        TextInput::make('gtm_container_id')
-                                            ->label('GTM Konteyner Kimliği')
-                                            ->placeholder('GTM-XXXXXXX')
-                                            ->helperText('Tag Manager → Çalışma Alanı → Konteyner kimliği'),
+                                        Grid::make(2)->schema([
+                                            TextInput::make('google_ads_id')
+                                                ->label('Google Ads Dönüşüm Kimliği')
+                                                ->placeholder('AW-XXXXXXXXXX')
+                                                ->helperText('Google Ads → Hedefler → Dönüşümler → AW- ile başlayan kimlik'),
+
+                                            TextInput::make('google_ads_conversion_label')
+                                                ->label('Satın Alma (Purchase) Dönüşüm Etiketi')
+                                                ->placeholder('AbCdEfGhIjKlMnOpQr')
+                                                ->helperText('Sipariş tamamlandığında (order-success) tetiklenen Google Ads Conversion Label'),
+                                        ]),
+
+                                        Grid::make(2)->schema([
+                                            TextInput::make('google_ads_add_to_cart_label')
+                                                ->label('Sepete Ekleme (Add to Cart) Dönüşüm Etiketi (Opsiyonel)')
+                                                ->placeholder('Sepete ekleme dönüşüm etiketi'),
+
+                                            TextInput::make('google_ads_begin_checkout_label')
+                                                ->label('Ödeme Başlatma (Begin Checkout) Dönüşüm Etiketi (Opsiyonel)')
+                                                ->placeholder('Ödeme başlatma dönüşüm etiketi'),
+                                        ]),
+
+                                        \Filament\Forms\Components\Placeholder::make('gtag_events_status')
+                                            ->label('Aktif Google Tag E-Ticaret Olayları (Otomatik Tetiklenenler)')
+                                            ->content(new \Illuminate\Support\HtmlString(
+                                                '<div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-900 dark:text-emerald-200">
+                                                    <div class="font-bold text-sm text-emerald-800 dark:text-emerald-300 mb-2">✅ Google Tag Platform E-Ticaret Hunisi (%100 Entegre)</div>
+                                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                        <div>• <code>view_item_list</code> (Kategori/Liste)</div>
+                                                        <div>• <code>select_item</code> (Ürün Seçimi)</div>
+                                                        <div>• <code>view_item</code> (Ürün Detay + Remarketing)</div>
+                                                        <div>• <code>add_to_cart</code> (Sepete Ekleme)</div>
+                                                        <div>• <code>remove_from_cart</code> (Sepetten Çıkarma)</div>
+                                                        <div>• <code>view_cart</code> (Sepet Çekmecesi)</div>
+                                                        <div>• <code>begin_checkout</code> (Ödeme Başlatma)</div>
+                                                        <div>• <code>add_shipping_info</code> (Kargo/İlçe Seçimi)</div>
+                                                        <div>• <code>add_payment_info</code> (Ödeme Yöntemi)</div>
+                                                        <div>• <code>purchase</code> (Satın Alma + KDV/Kargo)</div>
+                                                        <div>• <code>select_promotion</code> (Kupon Kodu)</div>
+                                                        <div>• <code>search</code> & <code>generate_lead</code> & <code>share</code></div>
+                                                    </div>
+                                                </div>'
+                                            )),
                                     ]),
 
                                 Section::make('Google Müşteri Yorumları (GCR)')
@@ -520,6 +593,7 @@ class SeoSettings extends FilamentPage implements HasForms
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_widget_active');
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_merchant_id');
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_badge_position');
+        \App\Services\GoogleTagService::clearCache();
 
         Notification::make()
             ->title('Başarılı')

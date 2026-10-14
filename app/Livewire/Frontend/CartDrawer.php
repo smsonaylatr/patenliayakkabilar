@@ -27,6 +27,16 @@ class CartDrawer extends Component
 
     public function removeItem(CartService $cartService, int $itemId): void
     {
+        $cartItem = \App\Models\CartItem::with(['product.categories', 'variant'])->find($itemId);
+        if ($cartItem && $cartItem->product) {
+            $gtagItem = \App\Services\GoogleTagService::formatProductItem($cartItem->product, $cartItem->variant, (int) $cartItem->quantity);
+            $this->dispatch('gtag-event', name: 'remove_from_cart', params: [
+                'currency' => 'TRY',
+                'value' => round($gtagItem['price'] * (int) $cartItem->quantity, 2),
+                'items' => [$gtagItem],
+            ]);
+        }
+
         $cartService->removeItem($itemId);
         $this->dispatch('cart-updated');
     }
@@ -34,10 +44,22 @@ class CartDrawer extends Component
     public function updateQuantity(CartService $cartService, int $itemId, int $quantity): void
     {
         $quantity = max(1, $quantity);
+        $cartItem = \App\Models\CartItem::with(['product.categories', 'variant'])->find($itemId);
+        $oldQty = $cartItem ? (int) $cartItem->quantity : $quantity;
+
         $result = $cartService->updateQuantity($itemId, $quantity);
         
         if (!empty($result['error'])) {
             $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+        } elseif ($cartItem && $cartItem->product && $quantity !== $oldQty) {
+            $diff = abs($quantity - $oldQty);
+            $gtagItem = \App\Services\GoogleTagService::formatProductItem($cartItem->product, $cartItem->variant, $diff);
+            $eventName = $quantity > $oldQty ? 'add_to_cart' : 'remove_from_cart';
+            $this->dispatch('gtag-event', name: $eventName, params: [
+                'currency' => 'TRY',
+                'value' => round($gtagItem['price'] * $diff, 2),
+                'items' => [$gtagItem],
+            ]);
         }
         
         $this->dispatch('cart-updated');
@@ -48,8 +70,10 @@ class CartDrawer extends Component
         $product = \App\Models\Product::findOrFail($productId);
         
         $variantId = null;
+        $variantModel = null;
         if ($product->variants()->exists()) {
-            $variantId = $product->variants->first()->id;
+            $variantModel = $product->variants->first();
+            $variantId = $variantModel->id;
         }
         
         $result = $cartService->addItem($productId, $variantId, 1);
@@ -59,6 +83,13 @@ class CartDrawer extends Component
             return;
         }
         
+        $gtagItem = \App\Services\GoogleTagService::formatProductItem($product, $variantModel, 1);
+        $this->dispatch('gtag-event', name: 'add_to_cart', params: [
+            'currency' => 'TRY',
+            'value' => $gtagItem['price'],
+            'items' => [$gtagItem],
+        ]);
+
         $this->dispatch('cart-updated');
         $this->dispatch('show-notification', type: 'success', message: $product->name . ' sepete eklendi!');
     }
@@ -124,6 +155,7 @@ class CartDrawer extends Component
             'total' => $cartService->getTotal(),
             'recommendations' => $recommendations,
             'deliveryEstimate' => $deliveryEstimate,
+            'gtagCartPayload' => \App\Services\GoogleTagService::formatCartPayload($cart),
         ]);
     }
 }

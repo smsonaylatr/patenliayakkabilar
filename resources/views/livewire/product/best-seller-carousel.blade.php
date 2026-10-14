@@ -12,8 +12,11 @@
         <div class="relative group">
             <div id="best-seller-carousel" class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbars gap-6 pb-8 pt-4 px-2 -mx-2">
                 @foreach($products as $product)
+                    @php
+                        $gtagCarouselItem = \App\Services\GoogleTagService::formatProductItem($product, null, 1, $loop->index, 'Haftanın Favorileri', 'best_sellers');
+                    @endphp
                     <div class="snap-start shrink-0 w-[280px] sm:w-[300px] md:w-[320px] transition-transform duration-300 hover:-translate-y-2 relative group/card">
-                        <a href="{{ route('products.show', $product->slug) }}" wire:navigate class="block bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.1)] transition-shadow duration-300 overflow-hidden h-full flex flex-col border border-gray-100/50">
+                        <a href="{{ route('products.show', $product->slug) }}" wire:navigate onclick='if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@json($gtagCarouselItem, JSON_UNESCAPED_UNICODE))' class="block bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.1)] transition-shadow duration-300 overflow-hidden h-full flex flex-col border border-gray-100/50">
                             
                             <!-- Badges -->
                             <div class="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-none">
@@ -143,4 +146,17 @@
             display: none;
         }
     </style>
+
+    @if($products->isNotEmpty())
+        @php
+            $gtagBestSellerPayload = \App\Services\GoogleTagService::formatItemListPayload($products, 'Haftanın Favorileri', 'best_sellers');
+        @endphp
+        <script>
+            (function() {
+                if (window.PaGoogleTag) {
+                    window.PaGoogleTag.track('view_item_list', @json($gtagBestSellerPayload, JSON_UNESCAPED_UNICODE));
+                }
+            })();
+        </script>
+    @endif
 </div>

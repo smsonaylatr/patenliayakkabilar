@@ -51,6 +51,14 @@ class ProductGrid extends Component
             return;
         }
         
+        $variantModel = $variantId ? \App\Models\ProductVariant::find($variantId) : null;
+        $gtagItem = \App\Services\GoogleTagService::formatProductItem($product, $variantModel, 1);
+        $this->dispatch('gtag-event', name: 'add_to_cart', params: [
+            'currency' => 'TRY',
+            'value' => $gtagItem['price'],
+            'items' => [$gtagItem],
+        ]);
+
         $this->dispatch('cart-updated');
         $this->dispatch('open-cart');
     }

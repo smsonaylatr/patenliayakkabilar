@@ -39,6 +39,10 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+        'analytics_id' => env('GOOGLE_ANALYTICS_ID', 'G-ZMY22BQK1N'),
+        'gtm_container_id' => env('GTM_CONTAINER_ID', 'GTM-583KKT3Q'),
+        'tag_id' => env('GOOGLE_TAG_ID', ''),
+        'ads_id' => env('GOOGLE_ADS_ID', ''),
     ],
 
     'paytr' => [

@@ -504,6 +504,15 @@
     @php
         $productImage = $product->images->first()?->image_url ?? '';
         $productPrice = number_format((float)($product->discount_price ?? $product->price), 2, '.', '');
+        $gtagProductItem = \App\Services\GoogleTagService::formatProductItem($product);
+        $gtagViewItemPayload = [
+            'currency' => 'TRY',
+            'value' => $gtagProductItem['price'],
+            'items' => [$gtagProductItem],
+            'ecomm_prodid' => $gtagProductItem['id'],
+            'ecomm_pagetype' => 'product',
+            'ecomm_totalvalue' => $gtagProductItem['price'],
+        ];
     @endphp
     <script>
         (function() {
@@ -521,6 +530,11 @@
                 viewed = viewed.slice(0, 20);
                 localStorage.setItem('recently_viewed', JSON.stringify(viewed));
             } catch(e) { console.error('Recently viewed error:', e); }
+
+            // Google Tag: view_item (Ürün Detay Görüntüleme)
+            if (window.PaGoogleTag) {
+                window.PaGoogleTag.track('view_item', @json($gtagViewItemPayload, JSON_UNESCAPED_UNICODE));
+            }
         })();
     </script>
     @php

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr" class="scroll-smooth">
 <head>
+    <x-analytics />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1">
     <title>{{ $title ?? 'Instagram Çekilişi | Patenli Ayakkabılar®' }}</title>
@@ -26,6 +27,7 @@
     </style>
 </head>
 <body class="antialiased text-gray-900 min-h-screen flex flex-col justify-between bg-slate-50">
+    <x-analytics-noscript />
     
     <!-- Top Announcement Bar -->
     <div class="bg-black text-white text-[10px] sm:text-xs font-semibold tracking-wider uppercase py-1.5 sm:py-2 px-2 text-center border-b border-gray-800 leading-tight">

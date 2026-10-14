@@ -257,7 +257,46 @@ class Checkout extends Component
 
         if ($value) {
             $this->loadNeighborhoods($value);
+
+            try {
+                $cart = app(CartService::class)->getCart();
+                $payload = \App\Services\GoogleTagService::formatCartPayload(
+                    $cart,
+                    $this->applied_coupon?->code,
+                    $this->coupon_discount,
+                    ['shipping_tier' => 'Standart Teslimat']
+                );
+                $userData = \App\Services\GoogleTagService::formatUserData(
+                    $this->customer_name,
+                    $this->customer_email,
+                    $this->customer_phone,
+                    $this->shipping_city,
+                    $value,
+                    $this->shipping_address
+                );
+                $this->dispatch('gtag-event', name: 'add_shipping_info', params: $payload, user_data: $userData);
+            } catch (\Throwable) {}
         }
+    }
+
+    public function updatedPaymentMethod($value): void
+    {
+        try {
+            $cart = app(CartService::class)->getCart();
+            $paymentType = match ($value) {
+                'credit_card' => 'Kredi Kartı',
+                'cash_on_delivery' => 'Kapıda Ödeme',
+                'wire_transfer' => 'Havale / EFT',
+                default => (string) $value,
+            };
+            $payload = \App\Services\GoogleTagService::formatCartPayload(
+                $cart,
+                $this->applied_coupon?->code,
+                $this->coupon_discount,
+                ['payment_type' => $paymentType]
+            );
+            $this->dispatch('gtag-event', name: 'add_payment_info', params: $payload);
+        } catch (\Throwable) {}
     }
 
     public function updatedCommunicationConsent($value): void
@@ -925,6 +964,13 @@ class Checkout extends Component
             'code' => $coupon->code,
             'discount' => $this->coupon_discount,
         ]);
+
+        $this->dispatch('gtag-event', name: 'select_promotion', params: [
+            'promotion_id' => $coupon->code,
+            'promotion_name' => $coupon->code,
+            'currency' => 'TRY',
+            'value' => $this->coupon_discount,
+        ]);
     }
 
     public function removeCoupon()
@@ -952,6 +998,16 @@ class Checkout extends Component
         // Ödeme başladıysa silmeye izin verme
         if ($this->paytr_token) {
             return;
+        }
+
+        $cartItem = \App\Models\CartItem::with(['product.categories', 'variant'])->find($cartItemId);
+        if ($cartItem && $cartItem->product) {
+            $gtagItem = \App\Services\GoogleTagService::formatProductItem($cartItem->product, $cartItem->variant, (int) $cartItem->quantity);
+            $this->dispatch('gtag-event', name: 'remove_from_cart', params: [
+                'currency' => 'TRY',
+                'value' => round($gtagItem['price'] * (int) $cartItem->quantity, 2),
+                'items' => [$gtagItem],
+            ]);
         }
 
         $cartService->removeItem($cartItemId);
@@ -992,10 +1048,22 @@ class Checkout extends Component
         }
 
         $quantity = max(1, $quantity);
+        $cartItem = \App\Models\CartItem::with(['product.categories', 'variant'])->find($cartItemId);
+        $oldQty = $cartItem ? (int) $cartItem->quantity : $quantity;
+
         $result = $cartService->updateQuantity($cartItemId, $quantity);
 
         if (!empty($result['error'])) {
             $this->dispatch('show-notification', type: 'warning', message: $result['error']);
+        } elseif ($cartItem && $cartItem->product && $quantity !== $oldQty) {
+            $diff = abs($quantity - $oldQty);
+            $gtagItem = \App\Services\GoogleTagService::formatProductItem($cartItem->product, $cartItem->variant, $diff);
+            $eventName = $quantity > $oldQty ? 'add_to_cart' : 'remove_from_cart';
+            $this->dispatch('gtag-event', name: $eventName, params: [
+                'currency' => 'TRY',
+                'value' => round($gtagItem['price'] * $diff, 2),
+                'items' => [$gtagItem],
+            ]);
         }
 
         $this->dispatch('cart-updated');
@@ -1087,6 +1155,11 @@ class Checkout extends Component
             'shippingPrice' => $shippingPrice,
             'couponDiscount' => $couponDiscount,
             'grandTotal' => $grandTotal,
+            'gtagCheckoutPayload' => \App\Services\GoogleTagService::formatCartPayload(
+                $cart,
+                $this->applied_coupon?->code,
+                $couponDiscount
+            ),
         ])->layout('components.layouts.app', [
             'title' => 'Ödeme & Güvenli Sipariş | Patenli Ayakkabılar',
             'robots' => 'noindex, nofollow',

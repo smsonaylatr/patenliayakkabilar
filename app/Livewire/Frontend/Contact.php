@@ -36,6 +36,13 @@ class Contact extends Component
 
         $this->isSuccess = true;
         
+        $userData = \App\Services\GoogleTagService::formatUserData($this->name, $this->email);
+        $this->dispatch('gtag-event', name: 'generate_lead', params: [
+            'currency' => 'TRY',
+            'value' => 0,
+            'lead_source' => 'contact_form',
+        ], user_data: $userData);
+
         $this->reset(['name', 'email', 'subject', 'message']);
         
         $this->dispatch('toast-notify', type: 'success', message: 'Mesajınız başarıyla alındı. En kısa sürede dönüş yapacağız!');

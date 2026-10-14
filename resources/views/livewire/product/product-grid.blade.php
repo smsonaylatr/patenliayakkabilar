@@ -67,9 +67,19 @@
                     </div>
                 @endif
 
+                @php
+                    $gtagCardItem = \App\Services\GoogleTagService::formatProductItem(
+                        $product,
+                        null,
+                        1,
+                        $loop->index,
+                        !empty($search) ? 'Arama Sonuçları' : ($category ? 'Kategori: ' . $category : ($isFeaturedOnly ? 'Öne Çıkan Ürünler' : 'Tüm Modeller')),
+                        !empty($search) ? 'search_results' : ($category ?: ($isFeaturedOnly ? 'featured_products' : 'all_products'))
+                    );
+                @endphp
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
 
-                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate tabindex="-1" aria-hidden="true" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
+                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate @click="if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@js($gtagCardItem))" tabindex="-1" aria-hidden="true" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
                             @if($product->images->count() > 1)
                                 <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="lazy" width="400" height="400">
@@ -194,7 +204,7 @@
             
             <div class="mt-2 sm:mt-4 flex flex-col items-center justify-center text-center px-2 w-full overflow-hidden">
                 <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300 w-full truncate">
-                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate title="{{ $product->name }}">
+                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate @click="if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@js($gtagCardItem))" title="{{ $product->name }}">
                         {{ $product->name }}
                     </a>
                 </h3>
@@ -231,4 +241,24 @@
             @endif
         </div>
     @endforelse
+
+    @if($products->isNotEmpty())
+        @php
+            $listTitle = !empty($search) ? 'Arama Sonuçları' : ($category ? 'Kategori: ' . $category : ($isFeaturedOnly ? 'Öne Çıkan Ürünler' : 'Tüm Modeller'));
+            $listIdentifier = !empty($search) ? 'search_results' : ($category ?: ($isFeaturedOnly ? 'featured_products' : 'all_products'));
+            $gtagListPayload = \App\Services\GoogleTagService::formatItemListPayload($products, $listTitle, $listIdentifier);
+        @endphp
+        <script>
+            (function() {
+                if (window.PaGoogleTag) {
+                    window.PaGoogleTag.track('view_item_list', @json($gtagListPayload, JSON_UNESCAPED_UNICODE));
+                    @if(!empty($search))
+                    window.PaGoogleTag.track('search', {
+                        search_term: @json($search)
+                    });
+                    @endif
+                }
+            })();
+        </script>
+    @endif
 </div>

@@ -84,6 +84,14 @@ class AddToCartButton extends Component
             return;
         }
         
+        $variantModel = $this->variantId ? ProductVariant::find($this->variantId) : null;
+        $gtagItem = \App\Services\GoogleTagService::formatProductItem($this->product, $variantModel, $this->quantity);
+        $this->dispatch('gtag-event', name: 'add_to_cart', params: [
+            'currency' => 'TRY',
+            'value' => round($gtagItem['price'] * $this->quantity, 2),
+            'items' => [$gtagItem],
+        ]);
+
         $this->dispatch('cart-updated');
         $this->dispatch('open-cart');
     }

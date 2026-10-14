@@ -377,12 +377,46 @@
     </div>
 </div>
 
-<!-- Google Ads Conversion Data -->
+@php
+    $gtagPurchasePayload = \App\Services\GoogleTagService::formatPurchasePayload($order);
+    $gtagUserData = \App\Services\GoogleTagService::formatUserData(
+        $order->customer_name,
+        $order->customer_email,
+        $order->customer_phone,
+        $order->shipping_city,
+        $order->shipping_district,
+        $order->shipping_address
+    );
+@endphp
+<!-- Google Tag: Purchase (GA4 E-Ticaret + Google Ads Gelişmiş Dönüşüm + GTM DataLayer) -->
 <script>
     window.googleAdsConversionData = {
-        transaction_id: "{{ $order->order_number }}",
-        value: {{ number_format($order->total_amount ?? 0, 2, '.', '') }},
-        currency: "TRY"
+        transaction_id: @json($order->order_number),
+        value: {{ number_format((float) ($order->grand_total ?? $order->subtotal ?? 0), 2, '.', '') }},
+        currency: "TRY",
+        user_data: @json($gtagUserData, JSON_UNESCAPED_UNICODE)
     };
+
+    (function() {
+        var purchasePayload = @json($gtagPurchasePayload, JSON_UNESCAPED_UNICODE);
+        var userData = @json($gtagUserData, JSON_UNESCAPED_UNICODE);
+
+        if (window.PaGoogleTag) {
+            window.PaGoogleTag.trackPurchase(purchasePayload, userData);
+        } else {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            if (userData && Object.keys(userData).length > 0) {
+                gtag('set', 'user_data', userData);
+            }
+            window.dataLayer.push({ ecommerce: null });
+            gtag('event', 'purchase', purchasePayload);
+            window.dataLayer.push({
+                event: 'purchase',
+                ecommerce: purchasePayload,
+                user_data: userData
+            });
+        }
+    })();
 </script>
 </div>
