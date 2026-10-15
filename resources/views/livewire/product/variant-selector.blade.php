@@ -1,4 +1,4 @@
-<div class="mt-4 sm:mt-8" x-data="{ selectedId: @entangle('selectedVariantId').live }">
+<div class="mt-4 sm:mt-8" x-data="{ selectedId: '' }">
     @php
         $allOutOfStock = !$product->inStock() || $product->variants->every(fn($v) => !$product->status || $v->stock <= 0);
         $requiresSize = $product->requires_size !== false;
@@ -9,9 +9,23 @@
         requiresSize: {{ $requiresSize ? 'true' : 'false' }},
         variants: [
             @foreach($product->variants as $variant)
-                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', color: '{{ addslashes(is_array($variant->color) ? implode(" / ", $variant->color) : ($variant->color ?? "")) }}', stock: {{ $product->status ? $variant->stock : 0 }} }{{ !$loop->last ? ',' : '' }}
+                { id: {{ $variant->id }}, size: '{{ addslashes($variant->size) }}', color: '{{ addslashes(is_array($variant->color) ? implode(" / ", $variant->color) : ($variant->color ?? "")) }}', stock: {{ $product->status ? (int) $variant->stock : 0 }} }{{ !$loop->last ? ',' : '' }}
             @endforeach
         ],
+        selectVariant(variant) {
+            this.selectedId = variant.id;
+            this.open = false;
+            window.dispatchEvent(new CustomEvent('client-variant-selected', {
+                detail: {
+                    productId: {{ $product->id }},
+                    variantId: variant.id,
+                    size: variant.size,
+                    color: variant.color,
+                    stock: variant.stock,
+                    label: variant.size ? variant.size : (variant.color || '')
+                }
+            }));
+        },
         get selectedLabel() {
             if (!this.selectedId) {
                 @if($allOutOfStock)
@@ -28,7 +42,7 @@
             }
             return label;
         }
-    }" @click.away="open = false" @open-variant-selector.window="open = true; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'center'}), 100)">
+    }" @click.away="open = false" @open-variant-selector.window="open = true; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'center'}), 50)">
         
         <!-- Dropdown Butonu -->
         <button 
@@ -67,7 +81,7 @@
                     >
                         <button 
                             type="button"
-                            @click="selectedId = variant.id; open = false;"
+                            @click="selectVariant(variant)"
                             class="flex-1 text-left flex items-center gap-2 cursor-pointer py-1"
                         >
                             <span x-text="requiresSize ? variant.size + ' Beden' : variant.color" :class="{ 'line-through text-gray-400': variant.stock <= 0 }"></span>

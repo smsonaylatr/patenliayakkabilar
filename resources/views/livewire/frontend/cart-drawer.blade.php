@@ -5,13 +5,243 @@
         notePanel: false,
         shippingPanel: false,
         discountPanel: false,
+        cartItems: @js($alpineItems ?? []),
+        deliveryEstimate: @js($deliveryEstimate ?? '1-3 iş günü'),
         recentProducts: [],
         addedRecentId: null,
+        qtyTimers: {},
+        activeSync: null,
+        get totalCount() {
+            return this.cartItems.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
+        },
+        get totalAmount() {
+            return this.cartItems.reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 0)), 0);
+        },
+        formatMoney(val) {
+            return Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'TL';
+        },
+        broadcastCount() {
+            window.dispatchEvent(new CustomEvent('cart-count-changed', { detail: { count: this.totalCount } }));
+        },
+        trackSync(promise) {
+            const p = Promise.resolve(promise).catch(() => {});
+            this.activeSync = p;
+            return p;
+        },
+        applyServerState(res) {
+            if (!res) return;
+            if (res.error) {
+                window.dispatchEvent(new CustomEvent('show-notification', {
+                    detail: { type: 'warning', message: res.error }
+                }));
+                if (Array.isArray(res.items)) {
+                    this.cartItems = res.items;
+                }
+            } else if (Array.isArray(res.items)) {
+                const hasPendingTimers = Object.keys(this.qtyTimers).length > 0;
+                if (!hasPendingTimers) {
+                    res.items.forEach(serverItem => {
+                        const local = this.cartItems.find(i => i.key === serverItem.key);
+                        if (local) {
+                            local.id = serverItem.id;
+                            local.max_stock = serverItem.max_stock;
+                            local.quantity = serverItem.quantity;
+                            local.price = serverItem.price;
+                        }
+                    });
+                    if (this.cartItems.length !== res.items.length) {
+                        this.cartItems = res.items;
+                    }
+                }
+            }
+            if (res.deliveryEstimate) {
+                this.deliveryEstimate = res.deliveryEstimate;
+            }
+            this.broadcastCount();
+        },
+        optimisticAdd(d) {
+            if (!d || !d.product_id) return;
+            const key = d.product_id + '_' + (d.variant_id || '0');
+            const addQty = Math.max(1, parseInt(d.quantity || 1, 10));
+            const existing = this.cartItems.find(i => i.key === key);
+
+            if (existing) {
+                const max = d.max_stock ?? existing.max_stock ?? 99;
+                if (existing.quantity >= max) {
+                    window.dispatchEvent(new CustomEvent('show-notification', {
+                        detail: {
+                            type: 'warning',
+                            message: 'Bu üründen stokta sadece ' + max + ' adet var. Sepetinizde zaten ' + existing.quantity + ' adet mevcut.'
+                        }
+                    }));
+                    this.activeTab = 'cart';
+                    this.open = true;
+                    return;
+                }
+                existing.quantity = Math.min(max, existing.quantity + addQty);
+            } else {
+                this.cartItems.push({
+                    id: 'temp_' + Date.now(),
+                    key: key,
+                    product_id: parseInt(d.product_id, 10),
+                    variant_id: d.variant_id ? parseInt(d.variant_id, 10) : null,
+                    name: d.name || 'Patenli Ayakkabı',
+                    slug: d.slug || '',
+                    url: d.url || ('/urun/' + (d.slug || '')),
+                    image: d.image || '/img/placeholder.svg',
+                    price: parseFloat(d.price || 0),
+                    variant_label: d.variant_label || '',
+                    quantity: addQty,
+                    max_stock: d.max_stock ?? 10,
+                    delivery_time: d.delivery_time || '1-3 iş günü',
+                    gtag_item: d.gtag_item || null
+                });
+            }
+
+            this.activeTab = 'cart';
+            this.open = true;
+            this.broadcastCount();
+
+            if (window.PaGoogleTag && d.gtag_item) {
+                const gItem = Object.assign({}, d.gtag_item, { quantity: addQty });
+                if (d.variant_label) gItem.item_variant = d.variant_label;
+                window.PaGoogleTag.track('add_to_cart', {
+                    currency: 'TRY',
+                    value: Math.round((parseFloat(d.price || 0) * addQty) * 100) / 100,
+                    items: [gItem]
+                });
+            }
+
+            const p = this.$wire.syncAddItem(parseInt(d.product_id, 10), d.variant_id || null, addQty)
+                .then(res => this.applyServerState(res));
+            this.trackSync(p);
+        },
+        changeQty(item, delta) {
+            if (!item) return;
+            const newQty = (parseInt(item.quantity, 10) || 1) + delta;
+            if (newQty < 1) return;
+
+            const max = parseInt(item.max_stock ?? 99, 10);
+            if (max > 0 && newQty > max) {
+                window.dispatchEvent(new CustomEvent('show-notification', {
+                    detail: { type: 'warning', message: 'Stokta sadece ' + max + ' adet var.' }
+                }));
+                return;
+            }
+
+            item.quantity = newQty;
+            this.broadcastCount();
+
+            if (window.PaGoogleTag && item.gtag_item) {
+                const gItem = Object.assign({}, item.gtag_item, { quantity: 1 });
+                window.PaGoogleTag.track(delta > 0 ? 'add_to_cart' : 'remove_from_cart', {
+                    currency: 'TRY',
+                    value: Math.round((parseFloat(item.price || 0)) * 100) / 100,
+                    items: [gItem]
+                });
+            }
+
+            if (this.qtyTimers[item.key]) {
+                clearTimeout(this.qtyTimers[item.key]);
+            }
+            this.qtyTimers[item.key] = setTimeout(() => {
+                delete this.qtyTimers[item.key];
+                const p = this.$wire.syncUpdateQuantity(item.id, item.quantity, item.product_id, item.variant_id)
+                    .then(res => this.applyServerState(res));
+                this.trackSync(p);
+            }, 120);
+        },
+        removeItemClient(item) {
+            if (!item) return;
+            const removedQty = parseInt(item.quantity, 10) || 1;
+            if (this.qtyTimers[item.key]) {
+                clearTimeout(this.qtyTimers[item.key]);
+                delete this.qtyTimers[item.key];
+            }
+
+            this.cartItems = this.cartItems.filter(i => i.key !== item.key);
+            this.broadcastCount();
+
+            if (window.PaGoogleTag && item.gtag_item) {
+                const gItem = Object.assign({}, item.gtag_item, { quantity: removedQty });
+                window.PaGoogleTag.track('remove_from_cart', {
+                    currency: 'TRY',
+                    value: Math.round((parseFloat(item.price || 0) * removedQty) * 100) / 100,
+                    items: [gItem]
+                });
+            }
+
+            const p = this.$wire.syncRemoveItem(item.id, item.product_id, item.variant_id)
+                .then(res => this.applyServerState(res));
+            this.trackSync(p);
+        },
+        quickAddClient(rec) {
+            if (!rec || !rec.product_id) return;
+            const key = rec.product_id + '_' + (rec.variant_id || '0');
+            const existing = this.cartItems.find(i => i.key === key);
+
+            if (existing) {
+                const max = rec.max_stock ?? existing.max_stock ?? 99;
+                if (existing.quantity < max) {
+                    existing.quantity += 1;
+                }
+            } else {
+                this.cartItems.push({
+                    id: 'temp_' + Date.now(),
+                    key: key,
+                    product_id: parseInt(rec.product_id, 10),
+                    variant_id: rec.variant_id ? parseInt(rec.variant_id, 10) : null,
+                    name: rec.name,
+                    slug: rec.slug,
+                    url: '/urun/' + rec.slug,
+                    image: rec.image || '/img/placeholder.svg',
+                    price: parseFloat(rec.price || 0),
+                    variant_label: rec.variant_label || '',
+                    quantity: 1,
+                    max_stock: rec.max_stock ?? 10,
+                    delivery_time: '1-3 iş günü',
+                    gtag_item: null
+                });
+            }
+
+            this.broadcastCount();
+            window.dispatchEvent(new CustomEvent('show-notification', {
+                detail: { type: 'success', message: rec.name + ' sepete eklendi!' }
+            }));
+
+            const p = this.$wire.syncQuickAdd(parseInt(rec.product_id, 10))
+                .then(res => this.applyServerState(res));
+            this.trackSync(p);
+        },
         loadRecent() { try { this.recentProducts = JSON.parse(localStorage.getItem('recently_viewed') || '[]'); } catch(e) { this.recentProducts = []; } },
-        addRecentToCart(id) {
-            Livewire.find('{{ $_instance->getId() }}').call('quickAddToCart', id);
-            this.addedRecentId = id;
-            setTimeout(() => { this.addedRecentId = null; }, 2500);
+        addRecentToCart(rp) {
+            if (!rp || !rp.id) return;
+            this.addedRecentId = rp.id;
+            setTimeout(() => { this.addedRecentId = null; }, 2000);
+            this.quickAddClient({
+                product_id: rp.id,
+                variant_id: null,
+                name: rp.name,
+                slug: rp.slug,
+                image: rp.image,
+                price: parseFloat(rp.price || 0),
+                variant_label: '',
+                max_stock: 10
+            });
+        },
+        async proceedToCheckout(url) {
+            this.open = false;
+            if (this.activeSync) {
+                await Promise.race([
+                    this.activeSync,
+                    new Promise(r => setTimeout(r, 250))
+                ]);
+            }
+            if (window.Livewire && typeof window.Livewire.navigate === 'function') {
+                window.Livewire.navigate(url);
+            } else {
+                window.location.href = url;
+            }
         },
         dragY: 0,
         dragging: false,
@@ -41,34 +271,41 @@
             this.dragging = false;
         }
     }" 
+    x-on:cart:optimistic-add.window="optimisticAdd($event.detail)"
     x-on:open-cart.window="open = true"
     x-on:toggle-cart.window="open = !open"
-    x-init="$watch('open', value => {
-        if (value) {
-            document.body.classList.add('overflow-hidden');
-            if (window.PaGoogleTag) {
-                window.PaGoogleTag.track('view_cart', @js($gtagCartPayload ?? ['currency' => 'TRY', 'value' => 0, 'items' => []]));
+    x-init="
+        broadcastCount();
+        $watch('open', value => {
+            if (value) {
+                document.body.classList.add('overflow-hidden');
+                if (window.PaGoogleTag) {
+                    window.PaGoogleTag.track('view_cart', {
+                        currency: 'TRY',
+                        value: Math.round(totalAmount * 100) / 100,
+                        items: cartItems.map(i => i.gtag_item ? Object.assign({}, i.gtag_item, { quantity: i.quantity }) : { item_id: String(i.product_id), item_name: i.name, price: i.price, quantity: i.quantity })
+                    });
+                }
+            } else {
+                document.body.classList.remove('overflow-hidden');
             }
-        } else {
-            document.body.classList.remove('overflow-hidden');
-        }
-    })"
+        });
+    "
     @keydown.escape.window="if(notePanel) notePanel = false; else if(shippingPanel) shippingPanel = false; else if(discountPanel) discountPanel = false; else closeDrawer()"
     x-cloak
     class="relative"
-    style="z-index: 10000;"
+    style="z-index: 10000; display: none;"
     aria-labelledby="cart-drawer-title" 
     role="dialog" 
     aria-modal="true"
     x-show="open"
-    style="display: none;"
 >
     <!-- Backdrop -->
     <div x-show="open" 
-         x-transition:enter="transition-opacity duration-300 ease-out" 
+         x-transition:enter="transition-opacity duration-200 ease-out" 
          x-transition:enter-start="opacity-0" 
          x-transition:enter-end="opacity-100" 
-         x-transition:leave="transition-opacity duration-250 ease-in" 
+         x-transition:leave="transition-opacity duration-150 ease-in" 
          x-transition:leave-start="opacity-100" 
          x-transition:leave-end="opacity-0" 
          class="fixed inset-0 bg-black/60" 
@@ -78,10 +315,10 @@
     <!-- Drawer Container -->
     <div class="fixed inset-x-0 bottom-0 top-[12%] md:top-0 pointer-events-none flex items-end md:items-stretch md:justify-end" style="z-index: 10001;">
         <div x-show="open" 
-             x-transition:enter="transition-transform duration-300 ease-out" 
+             x-transition:enter="transition-transform duration-200 ease-out" 
              x-transition:enter-start="translate-y-full md:translate-y-0 md:translate-x-full" 
              x-transition:enter-end="translate-y-0 md:translate-x-0" 
-             x-transition:leave="transition-transform duration-200 ease-in" 
+             x-transition:leave="transition-transform duration-150 ease-in" 
              x-transition:leave-start="translate-y-0 md:translate-x-0" 
              x-transition:leave-end="translate-y-full md:translate-y-0 md:translate-x-full" 
              class="pointer-events-auto w-full h-full md:max-h-full bg-white rounded-t-2xl md:rounded-none md:rounded-l-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] md:shadow-[-4px_0_24px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden cart-drawer-panel"
@@ -106,10 +343,10 @@
                                 :class="activeTab === 'cart' ? 'opacity-100' : 'opacity-[0.2] hover:opacity-100'"
                                 class="transition-opacity duration-300 relative">
                             <span class="text-2xl lg:text-[1.875rem] font-bold leading-none tracking-tight">Sepet</span>
-                            @if($items->sum('quantity') > 0)
-                                <span class="absolute font-medium text-xs lg:text-sm leading-none"
-                                      style="top: -2px; left: calc(100% + 4px);">{{ $items->sum('quantity') }}</span>
-                            @endif
+                            <span x-show="totalCount > 0"
+                                  x-text="totalCount"
+                                  class="absolute font-medium text-xs lg:text-sm leading-none"
+                                  style="top: -2px; left: calc(100% + 4px); display: none;"></span>
                         </button>
                         <!-- İnceledikleriniz Tab -->
                         <button @click="activeTab = 'recent'; loadRecent()" 
@@ -131,17 +368,18 @@
                     <!-- Cart Panel -->
                     <div x-show="activeTab === 'cart'" class="flex flex-col h-full">
                         
-                        @if(count($items) > 0)
+                        <!-- Dolu Sepet Görünümü -->
+                        <div x-show="cartItems.length > 0" class="flex flex-col h-full">
                             <!-- Scrollable: Products -->
                             <div class="flex-1 overflow-y-auto overscroll-contain px-5 lg:px-12 py-6 lg:py-8" style="scrollbar-width: thin;">
                                 <ul class="flex flex-col">
-                                    @foreach($items as $index => $item)
-                                        <li class="flex gap-4 md:gap-6 {{ $index > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : '' }} pb-4 md:pb-6">
+                                    <template x-for="(item, index) in cartItems" :key="item.key">
+                                        <li class="flex gap-4 md:gap-6 pb-4 md:pb-6" :class="index > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : ''">
                                             <!-- Product Image -->
-                                            <a href="{{ route('products.show', $item->product->slug) }}" wire:navigate 
+                                            <a :href="item.url || ('/urun/' + item.slug)" @click="open = false" wire:navigate 
                                                class="block shrink-0 grow-0 rounded-lg overflow-hidden" style="width:80px;height:80px;">
-                                                <img src="{{ $item->product->images->first() ? $item->product->images->first()->image_url : asset('img/placeholder.svg') }}" 
-                                                     alt="{{ $item->product->name }}" 
+                                                <img :src="item.image" 
+                                                     :alt="item.name" 
                                                      width="80" height="80"
                                                      class="w-full h-full object-cover" 
                                                      loading="lazy">
@@ -149,39 +387,31 @@
 
                                             <!-- Product Details -->
                                             <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                                <a href="{{ route('products.show', $item->product->slug) }}" wire:navigate 
-                                                   class="font-medium text-sm leading-tight line-clamp-2">{{ $item->product->name }}</a>
-                                                @if($item->variant)
-                                                    @php
-                                                        $variantLabel = $item->variant->size;
-                                                        if (!$variantLabel && $item->variant->color) {
-                                                            $variantLabel = is_array($item->variant->color) ? implode(' / ', $item->variant->color) : $item->variant->color;
-                                                        }
-                                                    @endphp
-                                                    @if($variantLabel)
-                                                    <span class="text-xs text-black/40">{{ $variantLabel }}</span>
-                                                    @endif
-                                                @endif
-                                                <span class="text-sm">{{ number_format($item->price, 2) }}TL</span>
+                                                <a :href="item.url || ('/urun/' + item.slug)" @click="open = false" wire:navigate 
+                                                   class="font-medium text-sm leading-tight line-clamp-2" x-text="item.name"></a>
+                                                <template x-if="item.variant_label">
+                                                    <span class="text-xs text-black/40" x-text="item.variant_label"></span>
+                                                </template>
+                                                <span class="text-sm" x-text="formatMoney(item.price)"></span>
                                             </div>
 
                                             <!-- Quantity & Remove -->
                                             <div class="shrink-0 flex flex-col items-end justify-between" style="min-height:80px;">
-                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:80px;height:36px;" wire:key="qty-{{ $item->id }}">
-                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20">
+                                                <div class="flex items-center justify-center border border-black/10 rounded-lg relative" style="width:80px;height:36px;">
+                                                    <button type="button" @click="changeQty(item, -1)" :disabled="item.quantity <= 1" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20 cursor-pointer">
                                                         <svg class="w-3 h-3" viewBox="0 0 12 2" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M1 1h10"/></svg>
                                                     </button>
-                                                    <span class="text-sm text-center flex-1" wire:loading.class="opacity-30" wire:target="updateQuantity">{{ $item->quantity }}</span>
-                                                    <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" wire:loading.attr="disabled" wire:target="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20">
+                                                    <span class="text-sm text-center flex-1 select-none" x-text="item.quantity"></span>
+                                                    <button type="button" @click="changeQty(item, 1)" :disabled="item.max_stock > 0 && item.quantity >= item.max_stock" class="flex justify-center items-center h-full w-8 text-black/30 hover:text-black active:text-black transition-colors disabled:opacity-20 cursor-pointer">
                                                         <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M6 1v10M1 6h10"/></svg>
                                                     </button>
                                                 </div>
-                                                <button wire:click="removeItem({{ $item->id }})" class="p-1.5 text-black/30 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all relative" style="right: 8px;" title="Kaldır" aria-label="Ürünü sepetten kaldır">
+                                                <button type="button" @click="removeItemClient(item)" class="p-1.5 text-black/30 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all relative cursor-pointer" style="right: 8px;" title="Kaldır" aria-label="Ürünü sepetten kaldır">
                                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                 </button>
                                             </div>
                                         </li>
-                                    @endforeach
+                                    </template>
                                 </ul>
 
                                 <!-- Beğenebilirsiniz (Horizontal Carousel) -->
@@ -195,25 +425,43 @@
                                         <div class="flex justify-between items-center mb-3">
                                             <p class="font-medium text-base">Beğenebilirsiniz</p>
                                             <div class="flex items-center gap-1.5">
-                                                <button @click="scrollEl.scrollBy({left: -260, behavior: 'smooth'})" class="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/40 hover:text-black hover:border-black/30 transition-colors">
+                                                <button type="button" @click="scrollEl.scrollBy({left: -260, behavior: 'smooth'})" class="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/40 hover:text-black hover:border-black/30 transition-colors">
                                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
                                                 </button>
-                                                <button @click="scrollEl.scrollBy({left: 260, behavior: 'smooth'})" class="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/40 hover:text-black hover:border-black/30 transition-colors">
+                                                <button type="button" @click="scrollEl.scrollBy({left: 260, behavior: 'smooth'})" class="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/40 hover:text-black hover:border-black/30 transition-colors">
                                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
                                                 </button>
                                             </div>
                                         </div>
                                         <div x-ref="recScroll" class="flex gap-3 overflow-x-auto pb-1 -mx-5 px-5 lg:-mx-12 lg:px-12 snap-x snap-mandatory hide-scrollbar" style="-webkit-overflow-scrolling: touch;">
                                             @foreach($recommendations as $rec)
-                                                <div class="snap-start shrink-0 flex items-center gap-3 rounded-xl border border-black/[0.06] p-2.5 hover:border-black/15 transition-colors" style="width: 260px;">
-                                                    <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:64px;height:64px;">
-                                                        <img src="{{ $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $rec->name }}" width="64" height="64" class="w-full h-full object-cover" loading="lazy">
+                                                @php
+                                                    $recFirstVariant = $rec->variants->first();
+                                                    $recImg = $rec->images->first() ? $rec->images->first()->image_url : asset('img/placeholder.svg');
+                                                    $recPrice = (float) ($rec->discount_price ?? $rec->price);
+                                                    $recVariantLabel = $recFirstVariant ? ($recFirstVariant->size ?: (is_array($recFirstVariant->color) ? implode(' / ', $recFirstVariant->color) : ($recFirstVariant->color ?? ''))) : '';
+                                                    $recMaxStock = $recFirstVariant ? max(0, (int) $recFirstVariant->stock) : max(0, (int) $rec->stock);
+                                                @endphp
+                                                <div x-show="!cartItems.some(i => i.product_id == {{ $rec->id }})"
+                                                     class="snap-start shrink-0 flex items-center gap-3 rounded-xl border border-black/[0.06] p-2.5 hover:border-black/15 transition-colors" style="width: 260px;">
+                                                    <a href="{{ route('products.show', $rec->slug) }}" @click="open = false" wire:navigate class="block shrink-0 rounded-lg overflow-hidden" style="width:64px;height:64px;">
+                                                        <img src="{{ $recImg }}" alt="{{ $rec->name }}" width="64" height="64" class="w-full h-full object-cover" loading="lazy">
                                                     </a>
                                                     <div class="flex-1 min-w-0">
-                                                        <a href="{{ route('products.show', $rec->slug) }}" wire:navigate class="font-medium text-xs leading-tight line-clamp-2 mb-0.5 block">{{ $rec->name }}</a>
-                                                        <span class="text-xs text-black/60 block mb-1.5">{{ number_format($rec->discount_price ?? $rec->price, 2) }}TL</span>
-                                                        <button wire:click="quickAddToCart({{ $rec->id }})" 
-                                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-black text-white text-[11px] font-medium rounded-full hover:bg-black/80 transition-colors">
+                                                        <a href="{{ route('products.show', $rec->slug) }}" @click="open = false" wire:navigate class="font-medium text-xs leading-tight line-clamp-2 mb-0.5 block">{{ $rec->name }}</a>
+                                                        <span class="text-xs text-black/60 block mb-1.5">{{ number_format($recPrice, 2) }}TL</span>
+                                                        <button type="button"
+                                                                @click="quickAddClient({
+                                                                    product_id: {{ $rec->id }},
+                                                                    variant_id: {{ $recFirstVariant ? $recFirstVariant->id : 'null' }},
+                                                                    name: @js($rec->name),
+                                                                    slug: @js($rec->slug),
+                                                                    image: @js($recImg),
+                                                                    price: {{ $recPrice }},
+                                                                    variant_label: @js($recVariantLabel),
+                                                                    max_stock: {{ $recMaxStock }}
+                                                                })" 
+                                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-black text-white text-[11px] font-medium rounded-full hover:bg-black/80 transition-colors cursor-pointer">
                                                             <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 6H6M9.5 6H6M6 6V2.5M6 6V9.5"/></svg>
                                                             Hızlı Ekle
                                                         </button>
@@ -267,35 +515,35 @@
                                         </div>
                                         <div class="text-right place-self-end">
                                             <span class="text-sm block leading-[1.375]">ara toplam</span>
-                                            <span class="text-lg md:text-2xl font-bold leading-none tracking-tight">{{ number_format($total, 2) }}TL</span>
+                                            <span class="text-lg md:text-2xl font-bold leading-none tracking-tight" x-text="formatMoney(totalAmount)"></span>
                                         </div>
                                     </div>
 
                                     <!-- Action Buttons -->
                                     <div class="grid gap-3">
-                                        <a href="{{ route('checkout') }}" rel="nofollow" @click="open = false" wire:navigate
-                                           class="flex items-center justify-center gap-2 w-full py-4 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors">
+                                        <a href="{{ route('checkout') }}" rel="nofollow" @click.prevent="proceedToCheckout('{{ route('checkout') }}')"
+                                           class="flex items-center justify-center gap-2 w-full py-4 bg-black text-white text-sm font-medium rounded-full hover:bg-black/90 transition-colors cursor-pointer">
                                             <svg class="w-4 h-4" viewBox="0 0 20 20" stroke="currentColor" fill="none" stroke-width="1"><path stroke-linecap="round" d="M5.833 6.667V5.833c0-1.086 0-1.628.139-2.069a2.667 2.667 0 011.959-1.959c.44-.138.983-.138 2.069-.138s1.628 0 2.069.138a2.667 2.667 0 011.959 1.959c.138.44.138.983.138 2.069v.834M10 11.667v1.666M8.333 18.333h3.334c1.707 0 2.561 0 3.242-.256a3.333 3.333 0 001.834-1.834c.257-.681.257-1.535.257-3.243 0-1.707 0-2.561-.257-3.242a3.333 3.333 0 00-1.834-1.834c-.681-.257-1.535-.257-3.242-.257H8.333c-1.707 0-2.561 0-3.242.257a3.333 3.333 0 00-1.834 1.834C3 12.105 3 12.959 3 14.667c0 1.707 0 2.561.257 3.242a3.333 3.333 0 001.834 1.834c.681.257 1.535.257 3.242.257z"/></svg>
                                             Siparişi Onayla
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            <!-- Empty Cart -->
-                            <div class="flex-1 overflow-y-auto px-5 lg:px-12">
-                                <div class="flex flex-col items-center justify-center py-20 text-center max-w-[288px] mx-auto">
-                                    <div class="w-24 h-24 bg-black/[0.025] rounded-full flex items-center justify-center mb-6">
-                                        <svg class="w-12 h-12 text-black/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                                    </div>
-                                    <h3 class="text-lg font-medium mb-2">Sepetiniz Boş</h3>
-                                    <p class="text-black/50 text-sm leading-tight mb-6">Alışverişe başlamak için ürünlerimize göz atın.</p>
-                                    <button @click="closeDrawer()" class="text-black font-semibold border-b-2 border-black pb-1 hover:text-black/60 hover:border-black/60 transition-colors">
-                                        Alışverişe Devam Et
-                                    </button>
+                        </div>
+
+                        <!-- Boş Sepet Görünümü -->
+                        <div x-show="cartItems.length === 0" class="flex-1 overflow-y-auto px-5 lg:px-12">
+                            <div class="flex flex-col items-center justify-center py-20 text-center max-w-[288px] mx-auto">
+                                <div class="w-24 h-24 bg-black/[0.025] rounded-full flex items-center justify-center mb-6">
+                                    <svg class="w-12 h-12 text-black/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                 </div>
+                                <h3 class="text-lg font-medium mb-2">Sepetiniz Boş</h3>
+                                <p class="text-black/50 text-sm leading-tight mb-6">Alışverişe başlamak için ürünlerimize göz atın.</p>
+                                <button @click="closeDrawer()" class="text-black font-semibold border-b-2 border-black pb-1 hover:text-black/60 hover:border-black/60 transition-colors">
+                                    Alışverişe Devam Et
+                                </button>
                             </div>
-                        @endif
+                        </div>
                     </div>
 
                     <!-- Recently Viewed Panel -->
@@ -314,17 +562,17 @@
                             <ul>
                                 <template x-for="(rp, idx) in recentProducts" :key="rp.id">
                                     <li class="flex gap-4 md:gap-6 pb-4 md:pb-6" :class="idx > 0 ? 'pt-4 md:pt-6 border-t border-black/[0.06]' : ''">
-                                        <a :href="'/urun/' + rp.slug" class="block shrink-0 grow-0 rounded-lg overflow-hidden" style="width:80px;height:80px;">
+                                        <a :href="'/urun/' + rp.slug" @click="open = false" class="block shrink-0 grow-0 rounded-lg overflow-hidden" style="width:80px;height:80px;">
                                             <img :src="rp.image" :alt="rp.name" width="80" height="80" class="w-full h-full object-cover" loading="lazy">
                                         </a>
                                         <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                            <a :href="'/urun/' + rp.slug" class="font-medium text-sm leading-tight line-clamp-2" x-text="rp.name"></a>
+                                            <a :href="'/urun/' + rp.slug" @click="open = false" class="font-medium text-sm leading-tight line-clamp-2" x-text="rp.name"></a>
                                             <span class="text-sm" x-text="parseFloat(rp.price).toLocaleString('tr-TR', {minimumFractionDigits: 2}) + 'TL'"></span>
                                         </div>
                                         <div class="shrink-0 flex flex-col items-end justify-center" style="min-height:80px;">
-                                            <button @click="addRecentToCart(rp.id)" 
+                                            <button type="button" @click="addRecentToCart(rp)" 
                                                 :class="addedRecentId === rp.id ? 'bg-emerald-600 border-emerald-600' : 'bg-black border-black hover:bg-black/80'"
-                                                class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300"
+                                                class="flex items-center justify-center gap-1 px-4 py-2 text-white text-[11px] font-medium rounded-full border transition-all duration-300 cursor-pointer"
                                                 :disabled="addedRecentId === rp.id">
                                                 <template x-if="addedRecentId !== rp.id">
                                                     <span class="inline-flex items-center gap-1">

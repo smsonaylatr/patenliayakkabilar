@@ -27,8 +27,8 @@ class TrafficAnalyticsService
 
             if ($isNewToday) {
                 Cache::put($cacheKey, true, now()->endOfDay());
-                $metric->increment('unique_visitors_count');
-                $metric->increment('sessions_count');
+                $metric->unique_visitors_count = ($metric->unique_visitors_count ?? 0) + 1;
+                $metric->sessions_count = ($metric->sessions_count ?? 0) + 1;
 
                 // Cihaz Dağılımını Güncelle
                 $deviceStats = $metric->device_stats ?: ['mobile' => 0, 'desktop' => 0, 'tablet' => 0];
@@ -53,7 +53,7 @@ class TrafficAnalyticsService
             // Sayfa Görüntüleme Kontrolü
             $action = $context['action'] ?? 'heartbeat';
             if ($action === 'pageview' || (!empty($context['path']) && $context['path'] !== ($context['previous_path'] ?? null))) {
-                $metric->increment('page_views_count');
+                $metric->page_views_count = ($metric->page_views_count ?? 0) + 1;
 
                 // En çok gezilen sayfalar
                 $path = $context['path'] ?? $visitor->current_path;
@@ -68,12 +68,12 @@ class TrafficAnalyticsService
 
             // Sepet Eylemi
             if ($visitor->cart_items_count > 0 && ($context['cart_added'] ?? false)) {
-                $metric->increment('cart_additions_count');
+                $metric->cart_additions_count = ($metric->cart_additions_count ?? 0) + 1;
             }
 
             // Ödeme Başlatma
             if (str_contains($visitor->current_path, 'checkout') && $isNewToday) {
-                $metric->increment('checkout_starts_count');
+                $metric->checkout_starts_count = ($metric->checkout_starts_count ?? 0) + 1;
             }
 
             // Günlük Ortalama Kalış Süresi
@@ -82,10 +82,16 @@ class TrafficAnalyticsService
                 $metric->avg_duration_seconds = (int) round(($currentAvg * 0.9) + ($visitor->time_spent_seconds * 0.1));
             }
 
-            // Sipariş Durumu
-            $ordersToday = Order::whereDate('created_at', $today)->where('status', '!=', 'cancelled');
-            $metric->orders_count = (clone $ordersToday)->count();
-            $metric->orders_revenue = (clone $ordersToday)->sum('grand_total');
+            // Sipariş Durumu (60sn önbellekli — her tıklamada yeniden sorgu atılmasını önler)
+            $orderStats = Cache::remember("traffic_daily_orders_{$today}", 60, function () use ($today) {
+                $ordersToday = Order::whereDate('created_at', $today)->where('status', '!=', 'cancelled');
+                return [
+                    'count' => (clone $ordersToday)->count(),
+                    'revenue' => (float) (clone $ordersToday)->sum('grand_total'),
+                ];
+            });
+            $metric->orders_count = $orderStats['count'];
+            $metric->orders_revenue = $orderStats['revenue'];
 
             // Akıllı Analiz Notunu Yenile
             $analysisResult = $this->generateAnalysis('daily', [

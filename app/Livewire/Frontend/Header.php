@@ -25,7 +25,9 @@ class Header extends Component
     public function render()
     {
         return view('livewire.frontend.header', [
-            'categories' => Category::whereNull('parent_id')->where('status', true)->get(),
+            'categories' => \Illuminate\Support\Facades\Cache::remember('header_root_categories_v1', 3600, function () {
+                return Category::whereNull('parent_id')->where('status', true)->get();
+            }),
         ]);
     }
 }

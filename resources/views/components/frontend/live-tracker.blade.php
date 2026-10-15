@@ -579,7 +579,9 @@
         lastLoggedActions.push({ text: clean, time: now });
         if (lastLoggedActions.length > 20) lastLoggedActions.shift();
 
-        sendHeartbeat(actionType || 'click', actionDetail);
+        setTimeout(function() {
+            sendHeartbeat(actionType || 'click', actionDetail);
+        }, 150);
     }
 
     window.paLogAction = function(actionType, actionDetail) {

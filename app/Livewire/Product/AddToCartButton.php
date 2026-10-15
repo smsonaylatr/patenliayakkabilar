@@ -49,7 +49,9 @@ class AddToCartButton extends Component
     private function updateMaxStock(): void
     {
         if ($this->variantId) {
-            $variant = ProductVariant::find($this->variantId);
+            $variant = $this->product->relationLoaded('variants')
+                ? $this->product->variants->firstWhere('id', (int) $this->variantId)
+                : ProductVariant::find($this->variantId);
             $this->maxStock = $variant ? max(0, (int) $variant->stock) : 0;
         } else {
             $this->maxStock = max(0, (int) $this->product->stock);
@@ -84,7 +86,7 @@ class AddToCartButton extends Component
             return;
         }
         
-        $variantModel = $this->variantId ? ProductVariant::find($this->variantId) : null;
+        $variantModel = $result['variant'] ?? ($this->variantId ? $this->product->variants->firstWhere('id', (int) $this->variantId) : null);
         $gtagItem = \App\Services\GoogleTagService::formatProductItem($this->product, $variantModel, $this->quantity);
         $this->dispatch('gtag-event', name: 'add_to_cart', params: [
             'currency' => 'TRY',

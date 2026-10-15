@@ -347,19 +347,8 @@
                     </a>
 
                     {{-- 5. Sepetim — Halikoy cart icon --}}
-                    <button x-data="{ 
-                            count: 0,
-                            init() {
-                                this.fetchCount();
-                                Livewire.on('cart-updated', () => this.fetchCount());
-                            },
-                            fetchCount() {
-                                fetch('/api/cart-count')
-                                    .then(r => r.json())
-                                    .then(d => this.count = d.count)
-                                    .catch(() => {});
-                            }
-                        }" 
+                    <button x-data="{ count: 0 }"
+                        @cart-count-changed.window="count = $event.detail.count"
                         @click="$dispatch('toggle-cart')" 
                         class="flex flex-col items-center justify-center gap-[6px] text-gray-800 active:text-black transition-colors relative">
                         <div class="relative">

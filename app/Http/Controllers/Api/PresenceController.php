@@ -87,9 +87,6 @@ class PresenceController extends Controller
 
         // 3. Aktif Ziyaretçi Kaydını Getir veya Oluştur
         $visitor = ActiveVisitor::firstOrNew(['visitor_token' => $token]);
-        if ($visitor->exists) {
-            $visitor->refresh();
-        }
 
         if (!$visitor->exists) {
             $visitor->first_seen_at = $profile?->first_seen_at ?? now();
@@ -196,9 +193,6 @@ class PresenceController extends Controller
         );
 
         // 5. Davranış Analizi ve Strateji Üretimi
-        if ($visitor->exists) {
-            $visitor->refresh();
-        }
 
         $this->behaviorAnalyzer->analyze($visitor, [
             'previous_path' => $previousPath,
@@ -563,8 +557,21 @@ class PresenceController extends Controller
         }
     }
 
+    protected static bool $tablesVerified = false;
+
     protected function ensureTableExists(): void
     {
+        if (self::$tablesVerified) {
+            return;
+        }
+
+        try {
+            if (\Illuminate\Support\Facades\Cache::get('presence_tables_verified_v2')) {
+                self::$tablesVerified = true;
+                return;
+            }
+        } catch (\Throwable $e) {}
+
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('guest_profiles')) {
                 \Illuminate\Support\Facades\Schema::create('guest_profiles', function (\Illuminate\Database\Schema\Blueprint $table) {
@@ -667,6 +674,9 @@ class PresenceController extends Controller
                     }
                 });
             }
+
+            self::$tablesVerified = true;
+            \Illuminate\Support\Facades\Cache::put('presence_tables_verified_v2', true, 86400);
         } catch (\Throwable $e) {}
     }
 
