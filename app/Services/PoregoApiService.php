@@ -47,11 +47,11 @@ class PoregoApiService
 
             // İlişkileri taze bir şekilde yükleyelim (Load cache önlemek için)
             $order->unsetRelation('items');
-            $order->load(['items.product', 'items.variant']);
+            $order->load(['items.product.variants', 'items.variant']);
 
             // Eğer relation boş geldiyse veritabanından doğrudan tekrar sorgulayalım
             if ($order->items->isEmpty()) {
-                $items = \App\Models\OrderItem::with(['product', 'variant'])
+                $items = \App\Models\OrderItem::with(['product.variants', 'variant'])
                     ->where('order_id', $order->id)
                     ->get();
                 $order->setRelation('items', $items);
@@ -60,7 +60,32 @@ class PoregoApiService
             // SKU ve Ürün listesi hazırlama (Strictly net SKU & Porego format)
             $productSummaryList = [];
             $mappedItems = $order->items->map(function ($item) use (&$productSummaryList) {
-                $rawSku = trim($item->variant?->sku ?: ($item->product?->sku ?: ''));
+                $rawSku = trim((string) ($item->variant?->sku ?? ''));
+
+                // Varyant ilişkisi boşsa ancak ürünün varyantları varsa beden üzerinden gerçek varyant SKU'sunu bul
+                if ((empty($rawSku) || str_starts_with($rawSku, 'PATEN-')) && $item->product && $item->product->variants->isNotEmpty()) {
+                    $targetSize = trim((string) ($item->variant?->size ?? ''));
+                    if ($targetSize === '' && !empty($item->variant_info) && preg_match('/(?:Beden|Numara)\s*:\s*([0-9]{2})/iu', (string) $item->variant_info, $sm)) {
+                        $targetSize = $sm[1];
+                    }
+                    if ($targetSize !== '') {
+                        $matchedVariant = $item->product->variants->first(fn($v) => (string) $v->size === $targetSize && !empty($v->sku));
+                        if ($matchedVariant) {
+                            $rawSku = trim((string) $matchedVariant->sku);
+                        }
+                    }
+                    if (empty($rawSku) || str_starts_with($rawSku, 'PATEN-')) {
+                        $firstVarWithSku = $item->product->variants->first(fn($v) => !empty($v->sku) && !str_starts_with((string) $v->sku, 'PATEN-'));
+                        if ($firstVarWithSku) {
+                            $baseVarSku = preg_replace('/[-_\s]+' . preg_quote((string) $firstVarWithSku->size, '/') . '$/ui', '', trim((string) $firstVarWithSku->sku));
+                            $rawSku = $targetSize !== '' ? ($baseVarSku . '-' . $targetSize) : trim((string) $firstVarWithSku->sku);
+                        }
+                    }
+                }
+
+                if (empty($rawSku)) {
+                    $rawSku = trim((string) ($item->product?->sku ?? ''));
+                }
                 if (empty($rawSku) || $rawSku === '-' || $rawSku === 'SKU-') {
                     $rawSku = 'SKU-' . ($item->variant_id ?: $item->product_id);
                 }
@@ -85,21 +110,28 @@ class PoregoApiService
                 }
 
                 $fullName = $variantInfo ? "{$productName} ({$variantInfo})" : $productName;
+                // Porego Kargolar sekmesi, Detay modalı ve Kargo Etiketi yalnızca name/title alanını ekrana basar (sku alanını yok sayar).
+                // Bu nedenle products JSON içerisindeki başlığa SKU kodunu da ekliyoruz.
+                $labelNameWithSku = ($rawSku && !str_contains($fullName, $rawSku))
+                    ? "{$fullName} — SKU: {$rawSku}"
+                    : $fullName;
+
                 $qty = max(1, (int)$item->quantity);
                 $unitPrice = (float)($item->unit_price ?? 0);
                 $totalPrice = (float)($unitPrice * $qty);
 
-                $productSummaryList[] = "{$qty}x {$fullName}";
+                $productSummaryList[] = "{$qty}x {$labelNameWithSku}";
 
                 return [
                     'sku'               => $rawSku,
-                    'name'              => $fullName,
+                    'name'              => $labelNameWithSku,
+                    'cleanName'         => $fullName,
                     'quantity'          => $qty,
                     'price'             => $unitPrice,
                     'id'                => $item->variant_id ?: $item->product_id ?: $item->id,
-                    'title'             => $fullName,
-                    'productTitle'      => $fullName,
-                    'productName'       => $fullName,
+                    'title'             => $labelNameWithSku,
+                    'productTitle'      => $labelNameWithSku,
+                    'productName'       => $labelNameWithSku,
                     'productSku'        => $rawSku,
                     'description'       => $variantInfo ?: $fullName,
                     'totalPrice'        => $totalPrice,
@@ -111,10 +143,11 @@ class PoregoApiService
             $firstProductName = $order->items->first()?->product_name ?: $productSummaryText;
 
             // Porego Merchant API standart OrderItem formatı (OpenAPI spec: sku, name, quantity, price)
+            // Yeni Siparişler sekmesinde Porego productTitle altına productSku'yu ayrı satır olarak yazar.
             $openApiItems = array_map(function ($it) {
                 return [
                     'sku'      => (string)$it['sku'],
-                    'name'     => (string)$it['name'],
+                    'name'     => (string)($it['cleanName'] ?? $it['name']),
                     'quantity' => (int)$it['quantity'],
                     'price'    => (float)$it['price'],
                 ];
