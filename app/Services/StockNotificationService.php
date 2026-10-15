@@ -56,6 +56,11 @@ class StockNotificationService
                 }
             }
 
+            if (!$mailSent && !$smsSent) {
+                Log::warning("Stok bildirimi hiçbir kanaldan iletilemedi [ID: {$notification->id}]: {$notification->email}");
+                return false;
+            }
+
             // Kaydı bildirildi olarak güncelle
             $notification->update([
                 'is_notified' => true,
