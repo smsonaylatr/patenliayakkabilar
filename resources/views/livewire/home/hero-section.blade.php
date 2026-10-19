@@ -7,6 +7,35 @@ $settings = \Illuminate\Support\Facades\Cache::remember('hero_settings', 86400, 
     ])->pluck('value', 'key')->toArray();
 });
 
+$needsHeroRestore = false;
+if (
+    ($settings['banner_title_1'] ?? '') === 'Patenli' &&
+    ($settings['banner_title_2'] ?? '') === 'Ayakkabı' &&
+    ($settings['banner_title_3'] ?? '') === 'Modelleri'
+) {
+    \App\Models\Setting::updateOrCreate(['key' => 'banner_title_1'], ['value' => 'Her Adımda']);
+    \App\Models\Setting::updateOrCreate(['key' => 'banner_title_2'], ['value' => 'Premium']);
+    \App\Models\Setting::updateOrCreate(['key' => 'banner_title_3'], ['value' => 'Bir Deneyim']);
+    $settings['banner_title_1'] = 'Her Adımda';
+    $settings['banner_title_2'] = 'Premium';
+    $settings['banner_title_3'] = 'Bir Deneyim';
+    $needsHeroRestore = true;
+}
+
+if (
+    str_contains((string) ($settings['banner_desc'] ?? ''), 'gizli tekerlek mekanizmalı') ||
+    str_contains((string) ($settings['banner_desc'] ?? ''), 'Tek tuşla spor ayakkabıya dönüşen')
+) {
+    $restoredDesc = "Onlarca model, sınırsız kombinasyon.\nPatenli Ayakkabıların tarzını keşfet.";
+    \App\Models\Setting::updateOrCreate(['key' => 'banner_desc'], ['value' => $restoredDesc]);
+    $settings['banner_desc'] = $restoredDesc;
+    $needsHeroRestore = true;
+}
+
+if ($needsHeroRestore) {
+    \Illuminate\Support\Facades\Cache::forget('hero_settings');
+}
+
 $bgColor1 = $settings['banner_bg_color_1'] ?? '#ffffff';
 $bgColor2 = $settings['banner_bg_color_2'] ?? '#f8fafc';
 
@@ -14,7 +43,7 @@ $pillText = $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon';
 $title1 = $settings['banner_title_1'] ?? 'Her Adımda';
 $title2 = $settings['banner_title_2'] ?? 'Premium';
 $title3 = $settings['banner_title_3'] ?? 'Bir Deneyim';
-$desc = $settings['banner_desc'] ?? "500'den fazla model, sınırsız kombinasyon.\nLarcivert ile tarzını keşfet.";
+$desc = $settings['banner_desc'] ?? "Onlarca model, sınırsız kombinasyon.\nPatenli Ayakkabıların tarzını keşfet.";
 $btn1Text = $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet';
 $btn1Link = $settings['banner_btn1_link'] ?? route('products.index');
 $btn2Text = $settings['banner_btn2_text'] ?? 'İndirimleri Gör';

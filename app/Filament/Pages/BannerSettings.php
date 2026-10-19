@@ -65,12 +65,24 @@ class BannerSettings extends Page implements HasForms
             'best_seller_badge',
         ])->pluck('value', 'key')->toArray();
 
+        $isOct19Title = (
+            ($settings['banner_title_1'] ?? '') === 'Patenli' &&
+            ($settings['banner_title_2'] ?? '') === 'Ayakkabı' &&
+            ($settings['banner_title_3'] ?? '') === 'Modelleri'
+        );
+        $isOct19Desc = (
+            str_contains((string) ($settings['banner_desc'] ?? ''), 'gizli tekerlek mekanizmalı') ||
+            str_contains((string) ($settings['banner_desc'] ?? ''), 'Tek tuşla spor ayakkabıya dönüşen')
+        );
+
         $this->form->fill([
             'banner_pill_text' => $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon',
-            'banner_title_1' => $settings['banner_title_1'] ?? 'Her Adımda',
-            'banner_title_2' => $settings['banner_title_2'] ?? 'Premium',
-            'banner_title_3' => $settings['banner_title_3'] ?? 'Bir Deneyim',
-            'banner_desc' => $settings['banner_desc'] ?? "500'den fazla model, sınırsız kombinasyon.\nLarcivert ile tarzını keşfet.",
+            'banner_title_1' => $isOct19Title ? 'Her Adımda' : ($settings['banner_title_1'] ?? 'Her Adımda'),
+            'banner_title_2' => $isOct19Title ? 'Premium' : ($settings['banner_title_2'] ?? 'Premium'),
+            'banner_title_3' => $isOct19Title ? 'Bir Deneyim' : ($settings['banner_title_3'] ?? 'Bir Deneyim'),
+            'banner_desc' => $isOct19Desc
+                ? "Onlarca model, sınırsız kombinasyon.\nPatenli Ayakkabıların tarzını keşfet."
+                : ($settings['banner_desc'] ?? "Onlarca model, sınırsız kombinasyon.\nPatenli Ayakkabıların tarzını keşfet."),
             'banner_btn1_text' => $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet',
             'banner_btn1_link' => $settings['banner_btn1_link'] ?? '/patenli-ayakkabilar',
             'banner_btn2_text' => $settings['banner_btn2_text'] ?? 'İndirimleri Gör',
