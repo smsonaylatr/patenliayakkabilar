@@ -15,7 +15,7 @@
                     @if($isSuccess)
                         <div class="text-center py-4">
                             <div class="w-16 h-16 bg-emerald-950/80 text-emerald-400 border border-emerald-800/80 rounded-full flex items-center justify-center mx-auto text-2xl mb-4 shadow-lg animate-bounce">
-                                <i class="fa-solid fa-check"></i>
+                                <i class="fa-solid fa-bell-circle-check"></i>
                             </div>
                             <h3 class="text-xl font-bold text-white mb-2">Talebiniz Alındı!</h3>
                             <p class="text-sm text-neutral-300 leading-relaxed mb-6">{{ $message }}</p>
@@ -62,11 +62,8 @@
                                     <select wire:model.live="variantId" class="w-full h-12 rounded-xl border border-neutral-700 px-4 text-sm focus:border-white focus:outline-none focus:ring-1 focus:ring-white bg-neutral-900 text-white appearance-none cursor-pointer pr-10">
                                         <option value="" class="bg-neutral-900 text-white">Tüm Bedenler (Fark Etmez)</option>
                                         @foreach($product->variants as $v)
-                                            @php
-                                                $effectiveStock = $product->status ? (int) $v->stock : 0;
-                                            @endphp
                                             <option value="{{ $v->id }}" class="bg-neutral-900 text-white">
-                                                {{ $v->size }} Beden {{ $effectiveStock <= 0 ? '(Tükendi)' : '(Stokta: '.$effectiveStock.')' }}
+                                                {{ $v->size }} Beden {{ $v->stock <= 0 ? '(Tükendi)' : '(Stokta: '.$v->stock.')' }}
                                             </option>
                                         @endforeach
                                     </select>
