@@ -1,20 +1,44 @@
 <?php
-$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings', 86400, function () {
-    return \App\Models\Setting::whereIn('key', [
+$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v2', 86400, function () {
+    $current = \App\Models\Setting::whereIn('key', [
         'banner_pill_text', 'banner_title_1', 'banner_title_2', 'banner_title_3',
         'banner_desc', 'banner_btn1_text', 'banner_btn1_link', 'banner_btn2_text', 'banner_btn2_link',
         'banner_image_1', 'banner_image_2', 'banner_image_3', 'banner_bg_color_1', 'banner_bg_color_2',
     ])->pluck('value', 'key')->toArray();
+
+    if (
+        isset($current['banner_title_1'], $current['banner_title_2'], $current['banner_title_3']) &&
+        mb_strtolower(trim((string) $current['banner_title_1'])) === 'her adımda' &&
+        mb_strtolower(trim((string) $current['banner_title_2'])) === 'premium' &&
+        mb_strtolower(trim((string) $current['banner_title_3'])) === 'bir deneyim'
+    ) {
+        \App\Models\Setting::updateOrCreate(['key' => 'banner_title_1'], ['value' => 'Patenli']);
+        \App\Models\Setting::updateOrCreate(['key' => 'banner_title_2'], ['value' => 'Ayakkabı']);
+        \App\Models\Setting::updateOrCreate(['key' => 'banner_title_3'], ['value' => 'Modelleri']);
+        $current['banner_title_1'] = 'Patenli';
+        $current['banner_title_2'] = 'Ayakkabı';
+        $current['banner_title_3'] = 'Modelleri';
+    }
+
+    return $current;
 });
 
 $bgColor1 = $settings['banner_bg_color_1'] ?? '#ffffff';
 $bgColor2 = $settings['banner_bg_color_2'] ?? '#f8fafc';
 
 $pillText = $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon';
-$title1 = $settings['banner_title_1'] ?? 'Her Adımda';
-$title2 = $settings['banner_title_2'] ?? 'Premium';
-$title3 = $settings['banner_title_3'] ?? 'Bir Deneyim';
-$desc = $settings['banner_desc'] ?? "500'den fazla model, sınırsız kombinasyon.\nLarcivert ile tarzını keşfet.";
+$rawTitle1 = trim((string) ($settings['banner_title_1'] ?? ''));
+$rawTitle2 = trim((string) ($settings['banner_title_2'] ?? ''));
+$rawTitle3 = trim((string) ($settings['banner_title_3'] ?? ''));
+$isLegacyDefaultTitle = (
+    ($rawTitle1 === '' && $rawTitle2 === '' && $rawTitle3 === '') ||
+    (mb_strtolower($rawTitle1) === 'her adımda' && mb_strtolower($rawTitle2) === 'premium' && mb_strtolower($rawTitle3) === 'bir deneyim')
+);
+
+$title1 = $isLegacyDefaultTitle ? 'Patenli' : $rawTitle1;
+$title2 = $isLegacyDefaultTitle ? 'Ayakkabı' : $rawTitle2;
+$title3 = $isLegacyDefaultTitle ? 'Modelleri' : $rawTitle3;
+$desc = $settings['banner_desc'] ?? "Her adımda premium bir deneyim.\nOnlarca model, sınırsız kombinasyon.";
 $btn1Text = $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet';
 $btn1Link = $settings['banner_btn1_link'] ?? route('products.index');
 $btn2Text = $settings['banner_btn2_text'] ?? 'İndirimleri Gör';

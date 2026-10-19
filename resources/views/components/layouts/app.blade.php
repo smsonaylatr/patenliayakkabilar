@@ -11,10 +11,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1">
         <!-- Tarayıcı ve Ana Ekran (Home Screen) İkonları -->
-        <link rel="icon" type="image/png" href="/favicon.png?v={{ time() }}">
-        <link rel="apple-touch-icon" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v={{ time() }}">
+        <link rel="icon" type="image/png" href="/favicon.png?v=2.1">
+        <link rel="apple-touch-icon" href="/favicon.png?v=2.1">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2.1">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v=2.1">
 
         <!-- PWA (Web Uygulaması) Ayarları -->
         <link rel="manifest" href="/manifest.json">
@@ -22,28 +22,65 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="PatenliAyakkabılar®">
-        <title>{{ $title ?? 'Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri' }}</title>
-        <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
-        <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
+        @php
+            $filterParamKeys = [
+                'search', 'q', 'sort', 'sirala', 'order', 'orderby',
+                'fiyat', 'min_price', 'max_price', 'beden', 'size', 'numara',
+                'renk', 'color', 'indirim', 'teker', 'wheel_type', 'filter', 'category',
+            ];
+            $hasFilterOrSortParams = false;
+            foreach ($filterParamKeys as $paramKey) {
+                if (request()->has($paramKey) && request()->query($paramKey) !== null && request()->query($paramKey) !== '') {
+                    $hasFilterOrSortParams = true;
+                    break;
+                }
+            }
+            $resolvedRobots = $robots ?? ($hasFilterOrSortParams ? 'noindex, follow' : 'index, follow');
+            $resolvedCanonical = isset($canonical) && !empty(trim((string) $canonical))
+                ? trim((string) $canonical)
+                : url()->current();
+            $defaultTitle = 'Patenli Ayakkabılar | Işıklı ve Tekerlekli Çocuk & Genç Paten Ayakkabı Modelleri';
+            $defaultDesc = 'Çocuk ve gençler için gizli tekerlekli, USB şarjlı LED ışıklı patenli ayakkabı modelleri ve fiyatları. Güvenli alışveriş, hızlı kargo ve 14 gün kolay değişim.';
+        @endphp
+        <title>{{ $title ?? $defaultTitle }}</title>
+        <meta name="description" content="{{ $description ?? $defaultDesc }}">
+        <meta name="robots" content="{{ $resolvedRobots }}">
         <meta name="google" content="notranslate">
-        <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+        <link rel="canonical" href="{{ $resolvedCanonical }}">
         <link rel="mcp" href="/mcp.json">
         <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Patenli Ayakkabılar">
         <link rel="help" type="text/markdown" href="/llms.txt" title="LLM Context">
         <link rel="alternate" type="application/json" href="/api/v1/ai/shopping/products" title="AI Shopping Catalog">
 
-        {{-- Arama Motoru Doğrulama --}}
+        {{-- Arama Motoru Doğrulama (Prefix ve HTML etiket sarmalayıcılarını otomatik temizler) --}}
         @php
             $verifications = \App\Models\Setting::whereIn('key', ['seo_google_verification', 'seo_yandex_verification', 'seo_bing_verification'])->pluck('value', 'key');
+            $cleanVerificationToken = function (?string $raw, string $prefix = ''): string {
+                $val = trim((string) $raw);
+                if ($val === '') {
+                    return '';
+                }
+                if (preg_match('/content=["\']([^"\']+)["\']/i', $val, $m)) {
+                    $val = trim($m[1]);
+                }
+                if ($prefix !== '' && stripos($val, $prefix . '=') === 0) {
+                    $val = substr($val, strlen($prefix) + 1);
+                }
+                $val = preg_replace('/^(google-site-verification|yandex-verification|msvalidate\.01)=/i', '', $val);
+                return trim($val, " \"'\t\n\r\0\x0B");
+            };
+            $googleToken = $cleanVerificationToken($verifications->get('seo_google_verification'), 'google-site-verification');
+            $yandexToken = $cleanVerificationToken($verifications->get('seo_yandex_verification'), 'yandex-verification');
+            $bingToken = $cleanVerificationToken($verifications->get('seo_bing_verification'), 'msvalidate.01');
         @endphp
-        @if($verifications->get('seo_google_verification'))
-            <meta name="google-site-verification" content="{{ $verifications->get('seo_google_verification') }}">
+        @if($googleToken !== '')
+            <meta name="google-site-verification" content="{{ $googleToken }}">
         @endif
-        @if($verifications->get('seo_yandex_verification'))
-            <meta name="yandex-verification" content="{{ $verifications->get('seo_yandex_verification') }}">
+        @if($yandexToken !== '')
+            <meta name="yandex-verification" content="{{ $yandexToken }}">
         @endif
-        @if($verifications->get('seo_bing_verification'))
-            <meta name="msvalidate.01" content="{{ $verifications->get('seo_bing_verification') }}">
+        @if($bingToken !== '')
+            <meta name="msvalidate.01" content="{{ $bingToken }}">
         @endif
 
         <!-- Locale -->
@@ -52,24 +89,24 @@
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
-        <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=' . time()) }}">
+        <meta property="og:url" content="{{ $resolvedCanonical }}">
+        <meta property="og:title" content="{{ $title ?? $defaultTitle }}">
+        <meta property="og:description" content="{{ $description ?? $defaultDesc }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=2.1') }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
 
         <!-- Open Graph / WhatsApp (Kare Önizleme) -->
-        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=' . time()) }}">
+        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=2.1') }}">
         <meta property="og:image:width" content="800">
         <meta property="og:image:height" content="800">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:url" content="{{ url()->current() }}">
-        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
-        <meta name="twitter:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta name="twitter:url" content="{{ $resolvedCanonical }}">
+        <meta name="twitter:title" content="{{ $title ?? $defaultTitle }}">
+        <meta name="twitter:description" content="{{ $description ?? $defaultDesc }}">
+        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=2.1') }}">
 
         <!-- Structured Data -->
         @if(isset($schema))
@@ -86,12 +123,14 @@
                 '@type' => 'Organization',
                 'name' => 'Patenli Ayakkabılar',
                 'url' => url('/'),
-                'logo' => asset('favicon.png?v=' . time()),
+                'logo' => asset('favicon.png?v=2.1'),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
             </script>
         @endif
 
-        <!-- Analytics -->
+        <!-- Görsel CDN ve Font Bağlantı Ön-Hazırlığı (LCP İyileştirmesi) -->
+        <link rel="preconnect" href="https://wsrv.nl" crossorigin>
+        <link rel="dns-prefetch" href="https://wsrv.nl">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -269,7 +308,7 @@
                     <div class="flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
                         <!-- Amex -->
                         <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] overflow-hidden">
-                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/amex.svg" alt="Amex" class="w-full h-full object-cover">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/amex.svg" alt="American Express Güvenli Ödeme" width="44" height="28" loading="lazy" decoding="async" class="w-full h-full object-cover">
                         </div>
                         <!-- PayTR -->
                         <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="PayTR">
@@ -283,7 +322,7 @@
                         </div>
                         <!-- Visa -->
                         <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
-                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/visa.svg" alt="Visa" class="w-full h-full object-contain">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/visa.svg" alt="Visa Kredi Kartı ile Ödeme" width="44" height="28" loading="lazy" decoding="async" class="w-full h-full object-contain">
                         </div>
                         <!-- Havale / EFT -->
                         <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 overflow-hidden border border-gray-100" title="Havale / EFT">
@@ -294,7 +333,7 @@
                         </div>
                         <!-- Mastercard -->
                         <div class="bg-white rounded flex items-center justify-center w-[44px] h-[28px] sm:w-[50px] sm:h-[32px] px-1 sm:px-1.5 overflow-hidden">
-                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/mastercard.svg" alt="Mastercard" class="w-full h-full object-contain">
+                            <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@main/logo/mastercard.svg" alt="Mastercard Kredi Kartı ile Ödeme" width="44" height="28" loading="lazy" decoding="async" class="w-full h-full object-contain">
                         </div>
                     </div>
 

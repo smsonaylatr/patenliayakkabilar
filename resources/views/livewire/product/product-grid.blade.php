@@ -77,18 +77,24 @@
                         !empty($search) ? 'search_results' : ($category ?: ($isFeaturedOnly ? 'featured_products' : 'all_products'))
                     );
                 @endphp
+                @php
+                    $isAboveFold = $loop->index < 4;
+                    $imgLoading = $isAboveFold ? 'eager' : 'lazy';
+                    $imgPriority = $isAboveFold ? 'high' : 'auto';
+                    $primaryAlt = $product->images->first()?->alt_text ?: ($product->name . ' - Işıklı Patenli Ayakkabı');
+                @endphp
                 <div class="absolute inset-0 w-full h-full bg-gray-50 rounded-2xl overflow-hidden">
 
-                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate @click="if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@js($gtagCardItem))" tabindex="-1" aria-hidden="true" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
+                    <a href="{{ route('products.show', $product->slug) }}" wire:navigate @click="if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@js($gtagCardItem))" title="{{ $product->name }} - Patenli Ayakkabı" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
                             @if($product->images->count() > 1)
-                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="lazy" width="400" height="400">
-                                <img src="{{ $product->images->skip(1)->first()->image_url }}" alt="{{ $product->name }} - Alternatif Görünüm" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out" loading="lazy" width="400" height="400">
+                                <img src="{{ $product->images->first()->raw_image_url }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" itemprop="image" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="{{ $imgLoading }}" fetchpriority="{{ $imgPriority }}" width="600" height="600">
+                                <img src="{{ $product->images->skip(1)->first()->raw_image_url }}" alt="{{ $product->name }} - Alternatif Görünüm" title="{{ $product->name }} - Görünüm 2" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out" loading="lazy" width="600" height="600">
                             @else
-                                <img src="{{ $product->images->first()->image_url }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
+                                <img src="{{ $product->images->first()->raw_image_url }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" itemprop="image" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="{{ $imgLoading }}" fetchpriority="{{ $imgPriority }}" width="600" height="600">
                             @endif
                         @else
-                            <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $product->name }} - Patenli Ayakkabı" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="400" height="400">
+                            <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="600" height="600">
                         @endif
                         
                         <!-- Dark overlay on hover for better button contrast -->

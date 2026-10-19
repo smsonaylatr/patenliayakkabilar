@@ -1,6 +1,6 @@
 <x-layouts.app>
-    <x-slot:title>Patenli Ayakkabılar | Tekerlekli Ayakkabı Modelleri</x-slot:title>
-    <x-slot:description>Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.</x-slot:description>
+    <x-slot:title>Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar</x-slot:title>
+    <x-slot:description>Çocuk ve yetişkinler için patenli ayakkabı modellerini keşfedin. Işıklı, tekerlekli ve farklı renk seçenekleriyle size uygun modeli bulun.</x-slot:description>
     <x-slot:canonical>{{ url('/') }}</x-slot:canonical>
 
     @php
@@ -29,8 +29,8 @@
         $articleSchema = json_encode([
             '@context'      => 'https://schema.org',
             '@type'         => 'Article',
-            'headline'      => 'Patenli Ayakkabılar - Eğlence ve Güvenlik Bir Arada',
-            'description'   => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'headline'      => 'Patenli Ayakkabı Modelleri',
+            'description'   => 'Çocuk ve yetişkinler için patenli ayakkabı modellerini keşfedin. Işıklı, tekerlekli ve farklı renk seçenekleriyle size uygun modeli bulun.',
             'url'           => url('/'),
             'author'        => [
                 '@type' => 'Person',
