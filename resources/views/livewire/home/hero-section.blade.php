@@ -818,9 +818,7 @@ $isVideo = function($url) {
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
         @if($isVideo($mainImgUrl))
-            <video src="{{ $mainImgUrl }}" poster="{{ $poster1 }}" autoplay loop muted playsinline preload="metadata" width="370" height="290" aria-label="{{ $heroAlt1 }}" style="width:100%; height:100%; object-fit:cover;">
-                <img src="{{ $poster1 }}" alt="{{ $heroAlt1 }}" width="370" height="290" />
-            </video>
+            <video src="{{ $mainImgUrl }}" autoplay loop muted playsinline width="370" height="290" aria-label="{{ $heroAlt1 }}" style="width:100%; height:100%; object-fit:cover;"></video>
         @else
             <img src="{{ $mainImgUrl }}" alt="{{ $heroAlt1 }}" width="370" height="290" fetchpriority="high" decoding="async" />
         @endif
@@ -829,9 +827,7 @@ $isVideo = function($url) {
       <!-- Floating card top-right -->
       <div class="card-3d card-sm card-float-1">
         @if($isVideo($subImgUrl1))
-            <video src="{{ $subImgUrl1 }}" poster="{{ $poster2 }}" autoplay loop muted playsinline preload="metadata" width="175" height="148" aria-label="{{ $heroAlt2 }}" style="width:100%; height:100%; object-fit:cover;">
-                <img src="{{ $poster2 }}" alt="{{ $heroAlt2 }}" width="175" height="148" />
-            </video>
+            <video src="{{ $subImgUrl1 }}" autoplay loop muted playsinline width="175" height="148" aria-label="{{ $heroAlt2 }}" style="width:100%; height:100%; object-fit:cover;"></video>
         @else
             <img src="{{ $subImgUrl1 }}" alt="{{ $heroAlt2 }}" width="175" height="148" loading="lazy" decoding="async" />
         @endif
@@ -840,9 +836,7 @@ $isVideo = function($url) {
       <!-- Floating card bottom-left -->
       <div class="card-3d card-sm card-float-2">
         @if($isVideo($subImgUrl2))
-            <video src="{{ $subImgUrl2 }}" poster="{{ $poster3 }}" autoplay loop muted playsinline preload="metadata" width="175" height="148" aria-label="{{ $heroAlt3 }}" style="width:100%; height:100%; object-fit:cover;">
-                <img src="{{ $poster3 }}" alt="{{ $heroAlt3 }}" width="175" height="148" />
-            </video>
+            <video src="{{ $subImgUrl2 }}" autoplay loop muted playsinline width="175" height="148" aria-label="{{ $heroAlt3 }}" style="width:100%; height:100%; object-fit:cover;"></video>
         @else
             <img src="{{ $subImgUrl2 }}" alt="{{ $heroAlt3 }}" width="175" height="148" loading="lazy" decoding="async" />
         @endif

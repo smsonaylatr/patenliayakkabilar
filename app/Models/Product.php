@@ -222,95 +222,144 @@ class Product extends Model
 
         // ========================================
         // META TITLE (max 70 karakter)
-        // Format: {Ürün Adı} | {Kategori/Hedef} - Patenli Ayakkabılar
+        // Format: {Ürün Adı} Fiyatı ve Özellikleri | Patenli Ayakkabılar
         // ========================================
         if (empty($product->meta_title)) {
-            $suffix = '- Patenli Ayakkabılar';
-            $middle = '';
-
-            // Kategori veya hedef kitle ekle
-            if ($category) {
-                $middle = '| ' . $category . ' ';
-            } elseif ($genderLabel) {
-                $middle = '| ' . $genderLabel . ' Patenli Ayakkabı ';
-            }
-
-            $title = trim($name . ' ' . $middle . $suffix);
-
-            // 70 karakteri aşarsa kısalt
-            if (mb_strlen($title) > 70) {
-                $title = trim($name . ' ' . $suffix);
-            }
-            if (mb_strlen($title) > 70) {
-                $title = mb_substr($name, 0, 45) . ' - Patenli Ayakkabılar';
-            }
-
-            $product->meta_title = $title;
+            $product->meta_title = $product->buildCtrTitle();
         }
 
         // ========================================
         // META DESCRIPTION (max 160 karakter)
-        // Anahtar kelime yoğunluğu yüksek, CTA içeren açıklama
+        // Gerçek ürün teklifi (fiyat, indirim %, numara aralığı, kargo/iade) içeren açıklama
         // ========================================
         if (empty($product->meta_description)) {
-            $parts = [];
-
-            // Ürün adı + hedef kitle
-            $intro = $name;
-            if ($genderLabel && $ageLabel && $genderLabel !== $ageLabel) {
-                $intro .= ' ' . $ageLabel . ' ' . $genderLabel;
-            } elseif ($genderLabel) {
-                $intro .= ' ' . $genderLabel;
-            } elseif ($ageLabel) {
-                $intro .= ' ' . $ageLabel;
-            }
-
-            // Marka varsa ekle
-            if ($brand) {
-                $intro .= ' ' . $brand;
-            }
-
-            $intro .= ' patenli ayakkabı.';
-            $parts[] = $intro;
-
-            // Fiyat bilgisi (indirim varsa vurgula)
-            if ($price && $price > 0) {
-                if ($product->discount_price && $product->price > $product->discount_price) {
-                    $parts[] = 'İndirimli fiyat: ' . number_format($price, 0) . ' ₺.';
-                } else {
-                    $parts[] = 'Fiyat: ' . number_format($price, 0) . ' ₺.';
-                }
-            }
-
-            // Kısa açıklamadan ilk cümle
-            if ($product->short_description) {
-                $firstSentence = Str::before($product->short_description, '.');
-                if (mb_strlen($firstSentence) > 10 && mb_strlen($firstSentence) < 80) {
-                    $parts[] = trim($firstSentence) . '.';
-                }
-            }
-
-            // CTA
-            $parts[] = '✅ Ücretsiz kargo, hızlı teslimat.';
-
-            // 160 karaktere sığdır
-            $description = '';
-            foreach ($parts as $part) {
-                $candidate = $description ? $description . ' ' . $part : $part;
-                if (mb_strlen($candidate) <= 160) {
-                    $description = $candidate;
-                } else {
-                    break;
-                }
-            }
-
-            // Hâlâ boşsa basit versiyon
-            if (empty($description)) {
-                $description = mb_substr($name . ' patenli ayakkabı en uygun fiyatlarla Patenli Ayakkabılar\'da. Ücretsiz kargo, güvenli ödeme.', 0, 160);
-            }
-
-            $product->meta_description = $description;
+            $product->meta_description = $product->buildCtrDescription();
         }
+    }
+
+    /**
+     * Arama sonuçlarında (SERP) tıklama oranını (CTR) artıran, gerçek ürün teklifini yansıtan başlık
+     */
+    public function getSeoTitleAttribute(): string
+    {
+        $raw = trim((string) ($this->meta_title ?? ''));
+
+        // Eski otomatik kırpılmış veya jenerik başlıkları iyileştir
+        if ($raw === '' || preg_match('/\|\s*Patenli(\s+Ayakkab[ıi])?$/u', $raw)) {
+            return $this->buildCtrTitle();
+        }
+
+        // Eğer başlıkta fiyat/teklif vurgusu yoksa ve karakter limiti uygunsa zenginleştir
+        if (!str_contains(mb_strtolower($raw), 'fiyat') && mb_strlen($this->name) <= 38) {
+            return $this->buildCtrTitle();
+        }
+
+        return $raw;
+    }
+
+    /**
+     * Arama sonuçlarında (SERP) gerçek fiyat, indirim, numara ve kargo teklifini gösteren açıklama
+     */
+    public function getSeoDescriptionAttribute(): string
+    {
+        $raw = trim((string) ($this->meta_description ?? ''));
+
+        // Robotik kalıpları ("markalı ... patenli ayakkabı modeli. ... kullanımı için ideal.") veya fiyat içermeyen jenerik açıklamaları gerçek ürün teklifiyle değiştir
+        $isRobotic = $raw === ''
+            || str_contains($raw, 'markalı ')
+            || str_contains($raw, 'kullanımı için ideal')
+            || !str_contains($raw, '₺');
+
+        if ($isRobotic) {
+            return $this->buildCtrDescription();
+        }
+
+        return $raw;
+    }
+
+    /**
+     * CTR odaklı ürün başlığı üretir
+     */
+    public function buildCtrTitle(): string
+    {
+        $name = trim((string) $this->name);
+        $brandSuffix = '| Patenli Ayakkabılar';
+
+        $candidateWithOffer = "{$name} Fiyatı ve Özellikleri {$brandSuffix}";
+        if (mb_strlen($candidateWithOffer) <= 68) {
+            return $candidateWithOffer;
+        }
+
+        $candidateWithPrice = "{$name} Fiyatı {$brandSuffix}";
+        if (mb_strlen($candidateWithPrice) <= 68) {
+            return $candidateWithPrice;
+        }
+
+        $candidateStandard = "{$name} {$brandSuffix}";
+        if (mb_strlen($candidateStandard) <= 70) {
+            return $candidateStandard;
+        }
+
+        return mb_substr($name, 0, 46) . ' ' . $brandSuffix;
+    }
+
+    /**
+     * Gerçek ürün tekliflerini (indirimli fiyat, indirim oranı, beden aralığı, kargo & değişim) içeren CTR açıklaması üretir
+     */
+    public function buildCtrDescription(): string
+    {
+        $name = trim((string) $this->name);
+        $effectivePrice = (float) ($this->discount_price ?: $this->price);
+        $basePrice = (float) $this->price;
+
+        $offerHook = '';
+        if ($effectivePrice > 0) {
+            $formattedPrice = number_format($effectivePrice, 0, ',', '.') . ' ₺';
+            if ($this->discount_price && $basePrice > $effectivePrice) {
+                $discountPct = (int) round((($basePrice - $effectivePrice) / $basePrice) * 100);
+                if ($discountPct >= 5) {
+                    $offerHook = " %{$discountPct} indirimle {$formattedPrice}!";
+                } else {
+                    $offerHook = " {$formattedPrice} özel fiyatıyla!";
+                }
+            } else {
+                $offerHook = " {$formattedPrice} fiyatıyla!";
+            }
+        }
+
+        $sizeText = '';
+        if ($this->requires_size !== false && $this->relationLoaded('variants')) {
+            $sizes = $this->variants->where('stock', '>', 0)->pluck('size')->filter()->sort()->values();
+            if ($sizes->isEmpty()) {
+                $sizes = $this->variants->pluck('size')->filter()->sort()->values();
+            }
+            if ($sizes->count() >= 2) {
+                $sizeText = $sizes->first() . '-' . $sizes->last() . ' numara, ';
+            }
+        }
+
+        $lowerName = mb_strtolower($name);
+        if (str_contains($lowerName, 'ekipman') || str_contains($lowerName, 'koruyucu') || str_contains($lowerName, 'dizlik')) {
+            $featuresCta = "Dizlik, dirseklik ve bileklik koruma seti. Aynı gün ücretsiz kargo ve 14 gün iade garantisi.";
+        } else {
+            $featureHighlight = (str_contains($lowerName, 'ışık') || str_contains($lowerName, 'led'))
+                ? 'USB şarjlı LED ışıklı, gizli tekerlekli tasarım.'
+                : 'Gizli tekerlek mekanizmalı, 2\'si 1 arada tasarım.';
+            $featuresCta = "{$sizeText}{$featureHighlight} Ücretsiz kargo ve 14 gün değişim!";
+        }
+
+        $full = trim("{$name}{$offerHook} {$featuresCta}");
+        if (mb_strlen($full) <= 160) {
+            return $full;
+        }
+
+        // 160 karakter sınırına sığacak şekilde kısaltılmış versiyon
+        $compact = trim("{$name}{$offerHook} Gizli tekerlekli, ışıklı tasarım, ücretsiz kargo ve 14 gün değişim garantisi.");
+        if (mb_strlen($compact) <= 160) {
+            return $compact;
+        }
+
+        return mb_substr($compact, 0, 157) . '...';
     }
 
     public function categories()
