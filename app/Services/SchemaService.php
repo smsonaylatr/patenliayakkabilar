@@ -62,6 +62,7 @@ class SchemaService
             'name'        => $companyName,
             'legalName'   => $companyName . '®',
             'url'         => config('app.url') . '/',
+            'image'       => config('app.url') . '/whatsapp-cover.png',
             'logo'        => [
                 '@type'  => 'ImageObject',
                 'url'    => config('app.url') . '/favicon.png',
@@ -162,6 +163,8 @@ class SchemaService
             '@type'           => 'WebSite',
             'name'            => 'Patenli Ayakkabılar',
             'url'             => config('app.url'),
+            'image'           => config('app.url') . '/whatsapp-cover.png',
+            'thumbnailUrl'    => config('app.url') . '/whatsapp-cover.png',
             'potentialAction' => [
                 '@type'  => 'SearchAction',
                 'target' => [
@@ -468,7 +471,7 @@ class SchemaService
 
         foreach ($products as $p) {
             $price = $p->discount_price && $p->discount_price < $p->price ? $p->discount_price : $p->price;
-            $image = $p->images->first()?->image_url ?? ($appUrl . '/favicon.png');
+            $image = $p->images->first()?->image_url ?? ($appUrl . '/whatsapp-cover.png');
 
             $listItems[] = [
                 '@type'    => 'ListItem',
@@ -584,7 +587,7 @@ class SchemaService
                 'name'  => 'Patenli Ayakkabılar',
                 'logo'  => [
                     '@type' => 'ImageObject',
-                    'url'   => $appUrl . '/images/logo.png',
+                    'url'   => $appUrl . '/whatsapp-cover.png',
                 ],
             ],
         ];

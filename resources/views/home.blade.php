@@ -2,6 +2,7 @@
     <x-slot:title>Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar</x-slot:title>
     <x-slot:description>Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.</x-slot:description>
     <x-slot:canonical>{{ url('/') }}</x-slot:canonical>
+    <x-slot:ogImage>{{ asset('whatsapp-cover.png') }}</x-slot:ogImage>
 
     @php
         $schemaService = app(\App\Services\SchemaService::class);
@@ -26,27 +27,38 @@
             ->get();
         $itemListSchema = $schemaService->homePageItemList($featuredProducts);
 
+        $coverImageUrl = asset('whatsapp-cover.png');
         $articleSchema = json_encode([
-            '@context'      => 'https://schema.org',
-            '@type'         => 'Article',
-            'headline'      => 'Patenli Ayakkabılar - Eğlence ve Güvenlik Bir Arada',
-            'description'   => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
-            'url'           => url('/'),
-            'author'        => [
+            '@context'           => 'https://schema.org',
+            '@type'              => 'Article',
+            'headline'           => 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            'description'        => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'url'                => url('/'),
+            'image'              => [$coverImageUrl],
+            'thumbnailUrl'       => $coverImageUrl,
+            'primaryImageOfPage' => [
+                '@type'  => 'ImageObject',
+                'url'    => $coverImageUrl,
+                'width'  => 1200,
+                'height' => 630,
+            ],
+            'author'             => [
                 '@type' => 'Person',
                 'name'  => 'Patenli Ayakkabılar Uzman Ekibi',
                 'url'   => url('/hakkimizda'),
             ],
-            'publisher' => [
+            'publisher'          => [
                 '@type' => 'Organization',
                 'name'  => 'Patenli Ayakkabılar',
                 'logo'  => [
-                    '@type' => 'ImageObject',
-                    'url'   => url('/images/logo.png'),
+                    '@type'  => 'ImageObject',
+                    'url'    => $coverImageUrl,
+                    'width'  => 1200,
+                    'height' => 630,
                 ],
             ],
-            'datePublished' => '2024-01-01T08:00:00+03:00',
-            'dateModified'  => now()->toW3cString(),
+            'datePublished'      => '2024-01-01T08:00:00+03:00',
+            'dateModified'       => now()->toW3cString(),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     @endphp
     

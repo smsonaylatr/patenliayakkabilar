@@ -177,7 +177,7 @@ class SitemapController extends Controller
             ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         // Sabit (hardcoded) rotalar
         $staticRoutes = [
@@ -194,6 +194,12 @@ class SitemapController extends Controller
             $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>' . $data['freq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $data['priority'] . '</priority>' . "\n";
+            if ($route === '/') {
+                $xml .= '    <image:image>' . "\n";
+                $xml .= '      <image:loc>' . url('/whatsapp-cover.png') . '</image:loc>' . "\n";
+                $xml .= '      <image:title>Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar</image:title>' . "\n";
+                $xml .= '    </image:image>' . "\n";
+            }
             $xml .= '  </url>' . "\n";
         }
 
