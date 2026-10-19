@@ -1,5 +1,5 @@
 <?php
-$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v3', 86400, function () {
+$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v4', 86400, function () {
     $current = \App\Models\Setting::whereIn('key', [
         'banner_pill_text', 'banner_title_1', 'banner_title_2', 'banner_title_3',
         'banner_desc', 'banner_btn1_text', 'banner_btn1_link', 'banner_btn2_text', 'banner_btn2_link',
@@ -19,13 +19,29 @@ $settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v3', 8640
         $current['banner_title_3'] = 'Modelleri';
     }
 
+    $currentDescAscii = strtolower(\App\Services\SchemaService::turkishToAscii(trim((string) ($current['banner_desc'] ?? ''))));
+    if (
+        $currentDescAscii === '' ||
+        str_contains($currentDescAscii, 'onlarca model') ||
+        str_contains($currentDescAscii, 'larcivert') ||
+        str_contains($currentDescAscii, '500')
+    ) {
+        $newHeroDesc = "Çocuk ve yetişkinler için ışıklı, gizli tekerlek mekanizmalı patenli ayakkabı modelleri.\nTek tuşla spor ayakkabıya dönüşen güvenli tasarım ve aynı gün kargo fırsatı.";
+        \App\Models\Setting::updateOrCreate(['key' => 'banner_desc'], ['value' => $newHeroDesc]);
+        $current['banner_desc'] = $newHeroDesc;
+    }
+
     return $current;
 });
 
 $bgColor1 = $settings['banner_bg_color_1'] ?? '#ffffff';
 $bgColor2 = $settings['banner_bg_color_2'] ?? '#f8fafc';
 
-$pillText = $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon';
+$rawPillText = trim((string) ($settings['banner_pill_text'] ?? ''));
+$pillText = ($rawPillText === '' || str_contains(strtolower($rawPillText), 'koleksiyon'))
+    ? 'Her Adımda Premium Bir Deneyim'
+    : $rawPillText;
+
 $rawTitle1 = trim((string) ($settings['banner_title_1'] ?? ''));
 $rawTitle2 = trim((string) ($settings['banner_title_2'] ?? ''));
 $rawTitle3 = trim((string) ($settings['banner_title_3'] ?? ''));
@@ -42,8 +58,14 @@ $title3 = $isLegacyDefaultTitle ? 'Modelleri' : $rawTitle3;
 
 $rawDesc = trim((string) ($settings['banner_desc'] ?? ''));
 $rawDescAscii = strtolower(\App\Services\SchemaService::turkishToAscii($rawDesc));
-$desc = ($rawDesc === '' || str_contains($rawDescAscii, 'her adimda premium bir deneyim'))
-    ? "Işıklı ve gizli tekerlekli çocuk & genç patenli ayakkabı modelleri.\nTek tuşla spor ayakkabıya dönüşen güvenli tasarım, hızlı kargo."
+$desc = (
+    $rawDesc === '' ||
+    str_contains($rawDescAscii, 'her adimda premium bir deneyim') ||
+    str_contains($rawDescAscii, 'onlarca model') ||
+    str_contains($rawDescAscii, 'larcivert') ||
+    str_contains($rawDescAscii, '500')
+)
+    ? "Çocuk ve yetişkinler için ışıklı, gizli tekerlek mekanizmalı patenli ayakkabı modelleri.\nTek tuşla spor ayakkabıya dönüşen güvenli tasarım ve aynı gün kargo fırsatı."
     : $rawDesc;
 
 $btn1Text = $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet';

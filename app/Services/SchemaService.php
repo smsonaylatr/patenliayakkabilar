@@ -451,12 +451,17 @@ class SchemaService
         $position = 1;
 
         foreach ($products as $p) {
-            $listItems[] = [
+            $primaryImage = $p->images->first()?->raw_image_url;
+            $itemData = [
                 '@type'    => 'ListItem',
                 'position' => $position++,
                 'name'     => $p->name,
                 'url'      => $appUrl . '/urun/' . $p->slug,
             ];
+            if ($primaryImage) {
+                $itemData['image'] = $primaryImage;
+            }
+            $listItems[] = $itemData;
         }
 
         $data = [
@@ -464,6 +469,7 @@ class SchemaService
             '@type'           => 'ItemList',
             'name'            => 'Öne Çıkan Patenli Ayakkabılar',
             'description'     => 'En popüler ışıklı ve tekerlekli ayakkabı modelleri',
+            'numberOfItems'   => count($listItems),
             'itemListElement' => $listItems,
         ];
 
@@ -471,41 +477,118 @@ class SchemaService
     }
 
     /**
+     * Anasayfa ve Koleksiyon sayfaları için çoklu ürün görselli CollectionPage şeması
+     * Google SERP'te tek görsel yerine çoklu ürün görseli (multi-image snippet) çıkmasını destekler.
+     */
+    public function homePageCollection($products = [], ?string $pageUrl = null, ?string $pageName = null, ?string $pageDesc = null): string
+    {
+        $appUrl = config('app.url');
+        $images = [];
+
+        foreach ($products as $p) {
+            $imgUrl = $p->images->first()?->raw_image_url;
+            if ($imgUrl) {
+                $images[] = [
+                    '@type'      => 'ImageObject',
+                    'url'        => $imgUrl,
+                    'contentUrl' => $imgUrl,
+                    'width'      => 800,
+                    'height'     => 800,
+                    'caption'    => $p->name . ' - Patenli Ayakkabı',
+                ];
+            }
+        }
+
+        $data = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'CollectionPage',
+            '@id'         => ($pageUrl ?: ($appUrl . '/')) . '#collection',
+            'name'        => $pageName ?: 'Patenli Ayakkabılar | Işıklı ve Tekerlekli Çocuk & Genç Paten Ayakkabı Modelleri',
+            'description' => $pageDesc ?: 'Çocuk ve gençler için gizli tekerlekli, USB şarjlı LED ışıklı patenli ayakkabı modelleri ve fiyatları.',
+            'url'         => $pageUrl ?: ($appUrl . '/'),
+            'isPartOf'    => [
+                '@type' => 'WebSite',
+                '@id'   => $appUrl . '/#website',
+                'name'  => 'Patenli Ayakkabılar',
+                'url'   => $appUrl . '/',
+            ],
+        ];
+
+        if (!empty($images)) {
+            $data['primaryImageOfPage'] = $images[0];
+            $data['image'] = $images;
+        }
+
+        return $this->toScript($data);
+    }
+
+    /**
      * ItemList + CollectionPage şeması — Kategori sayfası
      *
-     * Kategori sayfalarında ürün listesini yapısal veri olarak sunar.
-     * Google'ın carousel (karusel) sonuçlarında görünmeyi sağlar.
+     * Kategori sayfalarında ürün listesini ve ürün görsellerini yapısal veri olarak sunar.
+     * Google'ın çoklu görsel (multi-image) ve karusel sonuçlarında görünmeyi sağlar.
      *
      * @param Category $category Kategori modeli
-     * @param \Illuminate\Support\Collection|array $products Ürün koleksiyonu
+     * @param \Illuminate\Support\Collection|array|null $products Ürün koleksiyonu
      */
     public function categoryPage(Category $category, $products = []): string
     {
         $appUrl = config('app.url');
 
+        if (empty($products)) {
+            $products = $category->products()
+                ->where('products.status', true)
+                ->where('products.stock', '>', 0)
+                ->with('images')
+                ->orderByDesc('products.featured')
+                ->orderByDesc('products.best_seller')
+                ->orderByDesc('products.id')
+                ->take(12)
+                ->get();
+        }
+
         $listItems = [];
+        $categoryImages = [];
         $position = 1;
 
         if (!empty($products)) {
             foreach ($products as $product) {
-                $listItems[] = [
+                $imgUrl = $product->images->first()?->raw_image_url;
+                $item = [
                     '@type'    => 'ListItem',
                     'position' => $position++,
                     'url'      => $appUrl . '/urun/' . $product->slug,
                     'name'     => $product->name,
                 ];
+                if ($imgUrl) {
+                    $item['image'] = $imgUrl;
+                    $categoryImages[] = [
+                        '@type'      => 'ImageObject',
+                        'url'        => $imgUrl,
+                        'contentUrl' => $imgUrl,
+                        'width'      => 800,
+                        'height'     => 800,
+                        'caption'    => $product->name . ' - ' . $category->name,
+                    ];
+                }
+                $listItems[] = $item;
             }
         }
 
         $data = [
             '@context' => 'https://schema.org',
             '@type'    => 'CollectionPage',
-            'name'     => $category->name,
+            'name'     => $category->seo_h1 ?: $category->name,
             'url'      => $appUrl . '/kategori/' . $category->slug,
         ];
 
-        if ($category->description) {
-            $data['description'] = strip_tags($category->description);
+        if ($category->meta_description || $category->description) {
+            $data['description'] = strip_tags($category->meta_description ?: $category->description);
+        }
+
+        if (!empty($categoryImages)) {
+            $data['primaryImageOfPage'] = $categoryImages[0];
+            $data['image'] = $categoryImages;
         }
 
         $data['mainEntity'] = [

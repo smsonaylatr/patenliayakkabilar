@@ -18,19 +18,44 @@
     $canonicalUrl = $hasSearch
         ? url('/patenli-ayakkabilar?search=' . urlencode($searchTerm))
         : (isset($category) && $category ? url('/kategori/' . $category->slug) : url('/patenli-ayakkabilar'));
+
+    $catalogProductsQuery = isset($category) && $category
+        ? $category->products()->where('products.status', true)->where('products.stock', '>', 0)
+        : \App\Models\Product::where('status', true)->where('stock', '>', 0);
+
+    $catalogProducts = $catalogProductsQuery
+        ->with('images')
+        ->orderByDesc('featured')
+        ->orderByDesc('best_seller')
+        ->orderByDesc('id')
+        ->take(12)
+        ->get();
+
+    $catalogOgImages = $catalogProducts
+        ->map(fn ($p) => $p->images->first()?->raw_image_url)
+        ->filter()
+        ->take(6)
+        ->values()
+        ->implode(',');
 @endphp
 
 <x-layouts.app>
     <x-slot:title>{{ $pageTitle }}</x-slot:title>
     <x-slot:description>{{ $pageDesc }}</x-slot:description>
     <x-slot:canonical>{{ $canonicalUrl }}</x-slot:canonical>
-    @if(isset($category) && $category)
-        <x-slot:schema>
-            @if(app()->bound(\App\Services\SchemaService::class))
-                {!! app(\App\Services\SchemaService::class)->categoryPage($category, null) !!}
-            @endif
-        </x-slot:schema>
+    @if($catalogOgImages !== '')
+        <x-slot:ogImages>{{ $catalogOgImages }}</x-slot:ogImages>
     @endif
+    <x-slot:schema>
+        @if(app()->bound(\App\Services\SchemaService::class))
+            @if(isset($category) && $category)
+                {!! app(\App\Services\SchemaService::class)->categoryPage($category, $catalogProducts) !!}
+            @elseif(!$hasSearch)
+                {!! app(\App\Services\SchemaService::class)->homePageCollection($catalogProducts, $canonicalUrl, $pageTitle, $pageDesc) !!}
+                {!! app(\App\Services\SchemaService::class)->homePageItemList($catalogProducts) !!}
+            @endif
+        @endif
+    </x-slot:schema>
 
     <div class="bg-gray-50 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

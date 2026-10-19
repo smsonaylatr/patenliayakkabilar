@@ -136,7 +136,7 @@ class SitemapController extends Controller
     }
 
     /**
-     * Kategori Sitemap'i — Aktif kategoriler
+     * Kategori Sitemap'i — Aktif kategoriler (vitrin ürün görselleri dahil)
      *
      * GET /sitemap-categories.xml
      */
@@ -147,14 +147,36 @@ class SitemapController extends Controller
             ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
+        $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         foreach ($categories as $category) {
+            $categoryProducts = $category->products()
+                ->where('products.status', true)
+                ->where('products.stock', '>', 0)
+                ->with('images')
+                ->orderByDesc('products.featured')
+                ->orderByDesc('products.best_seller')
+                ->orderByDesc('products.id')
+                ->take(6)
+                ->get();
+
             $xml .= '  <url>' . "\n";
             $xml .= '    <loc>' . url('/kategori/' . $category->slug) . '</loc>' . "\n";
             $xml .= '    <lastmod>' . $category->updated_at->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
             $xml .= '    <priority>0.7</priority>' . "\n";
+
+            foreach ($categoryProducts as $catProduct) {
+                $firstImg = $catProduct->images->first();
+                if ($firstImg && $firstImg->raw_image_url) {
+                    $xml .= '    <image:image>' . "\n";
+                    $xml .= '      <image:loc>' . htmlspecialchars($firstImg->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
+                    $xml .= '      <image:title>' . htmlspecialchars($catProduct->name . ' - ' . $category->name, ENT_XML1) . '</image:title>' . "\n";
+                    $xml .= '    </image:image>' . "\n";
+                }
+            }
+
             $xml .= '  </url>' . "\n";
         }
 
@@ -166,7 +188,7 @@ class SitemapController extends Controller
     }
 
     /**
-     * Sayfa Sitemap'i — Aktif statik sayfalar ve özel rotalar
+     * Sayfa Sitemap'i — Aktif statik sayfalar ve özel rotalar (anasayfa ürün görselleri dahil)
      *
      * GET /sitemap-pages.xml
      */
@@ -176,16 +198,28 @@ class SitemapController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
+        $featuredProducts = Product::where('status', true)
+            ->where('stock', '>', 0)
+            ->with('images')
+            ->orderByDesc('featured')
+            ->orderByDesc('best_seller')
+            ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+            ->orderBy('homepage_sort', 'asc')
+            ->orderByDesc('id')
+            ->take(8)
+            ->get();
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
+        $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         // Sabit (hardcoded) rotalar
         $staticRoutes = [
-            '/' => ['freq' => 'daily', 'priority' => '1.0'],
-            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8'],
-            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.8'],
-            '/patenli-ayakkabilar' => ['freq' => 'daily', 'priority' => '0.9'],
-            '/blog' => ['freq' => 'weekly', 'priority' => '0.8'],
+            '/' => ['freq' => 'daily', 'priority' => '1.0', 'include_images' => true],
+            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8', 'include_images' => false],
+            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.8', 'include_images' => false],
+            '/patenli-ayakkabilar' => ['freq' => 'daily', 'priority' => '0.9', 'include_images' => true],
+            '/blog' => ['freq' => 'weekly', 'priority' => '0.8', 'include_images' => false],
         ];
 
         foreach ($staticRoutes as $route => $data) {
@@ -194,6 +228,19 @@ class SitemapController extends Controller
             $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>' . $data['freq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $data['priority'] . '</priority>' . "\n";
+
+            if (!empty($data['include_images'])) {
+                foreach ($featuredProducts as $fp) {
+                    $firstImg = $fp->images->first();
+                    if ($firstImg && $firstImg->raw_image_url) {
+                        $xml .= '    <image:image>' . "\n";
+                        $xml .= '      <image:loc>' . htmlspecialchars($firstImg->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
+                        $xml .= '      <image:title>' . htmlspecialchars($fp->name . ' - Işıklı Patenli Ayakkabı', ENT_XML1) . '</image:title>' . "\n";
+                        $xml .= '    </image:image>' . "\n";
+                    }
+                }
+            }
+
             $xml .= '  </url>' . "\n";
         }
 

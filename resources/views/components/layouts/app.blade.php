@@ -35,7 +35,7 @@
                     break;
                 }
             }
-            $resolvedRobots = $robots ?? ($hasFilterOrSortParams ? 'noindex, follow' : 'index, follow');
+            $resolvedRobots = $robots ?? ($hasFilterOrSortParams ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
             $resolvedCanonical = isset($canonical) && !empty(trim((string) $canonical))
                 ? trim((string) $canonical)
                 : url()->current();
@@ -87,26 +87,40 @@
         <meta property="og:locale" content="tr_TR">
         <meta property="og:site_name" content="Patenli Ayakkabılar">
 
-        <!-- Open Graph / Facebook -->
+        <!-- Open Graph / Facebook / Google Multi-Image -->
+        @php
+            $ogImagesList = [];
+            if (isset($ogImages) && !empty(trim((string) $ogImages))) {
+                $ogImagesList = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) $ogImages))));
+            }
+            $primaryOgImage = $ogImage ?? ($ogImagesList[0] ?? asset('whatsapp-cover.png'));
+        @endphp
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
         <meta property="og:url" content="{{ $resolvedCanonical }}">
         <meta property="og:title" content="{{ $title ?? $defaultTitle }}">
         <meta property="og:description" content="{{ $description ?? $defaultDesc }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=2.1') }}">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-
-        <!-- Open Graph / WhatsApp (Kare Önizleme) -->
-        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=2.1') }}">
+        @if(!empty($ogImagesList))
+            @foreach($ogImagesList as $ogImgUrl)
+        <meta property="og:image" content="{{ $ogImgUrl }}">
         <meta property="og:image:width" content="800">
         <meta property="og:image:height" content="800">
+        <meta property="og:image:alt" content="{{ $title ?? $defaultTitle }}">
+            @endforeach
+        @else
+        <meta property="og:image" content="{{ $primaryOgImage }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png') }}">
+        <meta property="og:image:width" content="800">
+        <meta property="og:image:height" content="800">
+        @endif
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:url" content="{{ $resolvedCanonical }}">
         <meta name="twitter:title" content="{{ $title ?? $defaultTitle }}">
         <meta name="twitter:description" content="{{ $description ?? $defaultDesc }}">
-        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=2.1') }}">
+        <meta name="twitter:image" content="{{ $primaryOgImage }}">
 
         <!-- Structured Data -->
         @if(isset($schema))

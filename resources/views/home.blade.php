@@ -32,39 +32,31 @@
         $featuredProducts = \App\Models\Product::where('status', true)
             ->where('stock', '>', 0)
             ->with(['images', 'categories'])
-            ->take(8)
+            ->orderByDesc('featured')
+            ->orderByDesc('best_seller')
+            ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+            ->orderBy('homepage_sort', 'asc')
+            ->orderByDesc('id')
+            ->take(12)
             ->get();
         $itemListSchema = $schemaService->homePageItemList($featuredProducts);
-
-        $articleSchema = json_encode([
-            '@context'      => 'https://schema.org',
-            '@type'         => 'Article',
-            'headline'      => 'Patenli Ayakkabı Modelleri ve Seçim Rehberi',
-            'description'   => 'Çocuk ve gençler için gizli tekerlekli, USB şarjlı LED ışıklı patenli ayakkabı modelleri ve fiyatları.',
-            'url'           => url('/'),
-            'author'        => [
-                '@type' => 'Person',
-                'name'  => 'Patenli Ayakkabılar Uzman Ekibi',
-                'url'   => url('/hakkimizda'),
-            ],
-            'publisher' => [
-                '@type' => 'Organization',
-                'name'  => 'Patenli Ayakkabılar',
-                'logo'  => [
-                    '@type' => 'ImageObject',
-                    'url'   => url('/favicon.png'),
-                ],
-            ],
-            'datePublished' => '2024-01-01T08:00:00+03:00',
-            'dateModified'  => now()->toW3cString(),
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $collectionSchema = $schemaService->homePageCollection($featuredProducts);
+        $homeProductImages = $featuredProducts
+            ->map(fn ($p) => $p->images->first()?->raw_image_url)
+            ->filter()
+            ->take(6)
+            ->values()
+            ->implode(',');
     @endphp
+    @if($homeProductImages !== '')
+        <x-slot:ogImages>{{ $homeProductImages }}</x-slot:ogImages>
+    @endif
     
     <x-slot:schema>
         {!! $breadcrumbs !!}
         {!! $faqs !!}
         {!! $itemListSchema !!}
-        <script type="application/ld+json">{!! $articleSchema !!}</script>
+        {!! $collectionSchema !!}
     </x-slot:schema>
 
     @include('livewire.home.hero-section')
