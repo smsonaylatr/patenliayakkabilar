@@ -50,29 +50,29 @@
         <meta property="og:locale" content="tr_TR">
         <meta property="og:site_name" content="Patenli Ayakkabılar">
 
-        <!-- Open Graph / Facebook / WhatsApp / Google -->
+        <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
         <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
+        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
         <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
-        <meta property="og:image:secure_url" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
-        <meta property="og:image:type" content="image/png">
+        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=' . time()) }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
 
-        <!-- Google Search Thumbnail & Schema Image Hints -->
-        <meta name="thumbnail" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
-        <meta itemprop="image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
-        <link rel="image_src" href="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
+        <!-- Open Graph / WhatsApp (Kare Önizleme) -->
+        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=' . time()) }}">
+        <meta property="og:image:width" content="800">
+        <meta property="og:image:height" content="800">
+
+        <!-- Google Arama Önizleme Görseli -->
+        <meta name="thumbnail" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:url" content="{{ url()->current() }}">
-        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
+        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
         <meta name="twitter:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=3') }}">
+        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
 
         <!-- Structured Data -->
         @if(isset($schema))
