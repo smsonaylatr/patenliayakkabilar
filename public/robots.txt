@@ -31,9 +31,28 @@ Disallow: /auth/*
 Disallow: /livewire/*
 Disallow: /run-migrate
 Disallow: /run-migrations
+Disallow: /clear-cache
 Disallow: /order/success/*
 Disallow: /order/fail/*
 Disallow: /deploy-*
+Disallow: /arama
+Disallow: /ara
+Disallow: /*?search=
+Disallow: /*?q=
+Disallow: /*?sort=
+Disallow: /*?sirala=
+Disallow: /*?order=
+Disallow: /*?fiyat=
+Disallow: /*?min_price=
+Disallow: /*?max_price=
+Disallow: /*?beden=
+Disallow: /*?size=
+Disallow: /*?numara=
+Disallow: /*?renk=
+Disallow: /*?color=
+Disallow: /*?indirim=
+Disallow: /*?category=
+Disallow: /*?filter=
 
 # =====================================================
 # YAPAY ZEKA VE ALIŞVERİŞ TARAYICILARI (AI & SHOPPING BOTS)
@@ -165,7 +184,28 @@ Disallow: /register
 Disallow: /auth/*
 Disallow: /livewire/*
 Disallow: /run-migrate
+Disallow: /run-migrations
+Disallow: /clear-cache
 Disallow: /order/success/*
+Disallow: /order/fail/*
+Disallow: /arama
+Disallow: /ara
+Disallow: /*?search=
+Disallow: /*?q=
+Disallow: /*?sort=
+Disallow: /*?sirala=
+Disallow: /*?order=
+Disallow: /*?fiyat=
+Disallow: /*?min_price=
+Disallow: /*?max_price=
+Disallow: /*?beden=
+Disallow: /*?size=
+Disallow: /*?numara=
+Disallow: /*?renk=
+Disallow: /*?color=
+Disallow: /*?indirim=
+Disallow: /*?category=
+Disallow: /*?filter=
 
 # Google Görsel Tarayıcısı
 User-agent: Googlebot-Image
@@ -198,4 +238,8 @@ Disallow:
 # SİTE HARİTALARI VE LLM BAĞLANTILARI
 # =====================================================
 Sitemap: https://patenliayakkabilar.com/sitemap.xml
+Sitemap: https://patenliayakkabilar.com/sitemap-products.xml
+Sitemap: https://patenliayakkabilar.com/sitemap-categories.xml
+Sitemap: https://patenliayakkabilar.com/sitemap-pages.xml
+Sitemap: https://patenliayakkabilar.com/sitemap-blog.xml
 LLMs-Txt: https://patenliayakkabilar.com/llms.txt

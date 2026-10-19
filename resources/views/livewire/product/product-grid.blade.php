@@ -57,14 +57,45 @@
 
                     <a href="{{ route('products.show', $product->slug) }}" wire:navigate @click="if(window.PaGoogleTag) window.PaGoogleTag.selectItem(@js($gtagCardItem))" title="{{ $product->name }} - Patenli Ayakkabı" class="block w-full h-full active:scale-95 transition-transform duration-200 origin-center">
                         @if($product->images->isNotEmpty())
-                            @if($product->images->count() > 1)
-                                <img src="{{ $product->images->first()->raw_image_url }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" itemprop="image" class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95" loading="{{ $imgLoading }}" fetchpriority="{{ $imgPriority }}" width="600" height="600">
-                                <img src="{{ $product->images->skip(1)->first()->raw_image_url }}" alt="{{ $product->name }} - Alternatif Görünüm" title="{{ $product->name }} - Görünüm 2" class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out" loading="lazy" width="600" height="600">
+                            @php
+                                $firstImg = $product->images->first();
+                                $secondImg = $product->images->skip(1)->first();
+                            @endphp
+                            @if($secondImg)
+                                <img src="{{ $firstImg->getResponsiveUrl(400) }}"
+                                     @if($firstImg->srcset) srcset="{{ $firstImg->srcset }}" sizes="(max-width: 640px) 46vw, (max-width: 1024px) 45vw, 280px" @endif
+                                     alt="{{ $primaryAlt }}"
+                                     title="{{ $product->name }}"
+                                     itemprop="image"
+                                     class="w-full h-full object-center object-cover transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95"
+                                     loading="{{ $imgLoading }}"
+                                     fetchpriority="{{ $imgPriority }}"
+                                     decoding="async"
+                                     width="400"
+                                     height="400">
+                                <img src="{{ $secondImg->getResponsiveUrl(400) }}"
+                                     alt="{{ $secondImg->alt_text ?: ($product->name . ' - Alternatif Görünüm') }}"
+                                     title="{{ $product->name }} - Görünüm 2"
+                                     class="absolute inset-0 w-full h-full object-center object-cover opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500 ease-in-out"
+                                     loading="lazy"
+                                     decoding="async"
+                                     width="400"
+                                     height="400">
                             @else
-                                <img src="{{ $product->images->first()->raw_image_url }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" itemprop="image" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="{{ $imgLoading }}" fetchpriority="{{ $imgPriority }}" width="600" height="600">
+                                <img src="{{ $firstImg->getResponsiveUrl(400) }}"
+                                     @if($firstImg->srcset) srcset="{{ $firstImg->srcset }}" sizes="(max-width: 640px) 46vw, (max-width: 1024px) 45vw, 280px" @endif
+                                     alt="{{ $primaryAlt }}"
+                                     title="{{ $product->name }}"
+                                     itemprop="image"
+                                     class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                     loading="{{ $imgLoading }}"
+                                     fetchpriority="{{ $imgPriority }}"
+                                     decoding="async"
+                                     width="400"
+                                     height="400">
                             @endif
                         @else
-                            <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" width="600" height="600">
+                            <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $primaryAlt }}" title="{{ $product->name }}" class="w-full h-full object-center object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" decoding="async" width="400" height="400">
                         @endif
                         
                         <!-- Dark overlay on hover for better button contrast -->
@@ -98,7 +129,7 @@
                     $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
                     ?>
                     <div aria-hidden="true" class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[55px] h-[55px] sm:w-[75px] sm:h-[75px] lg:w-[95px] lg:h-[95px] drop-shadow-lg pointer-events-none transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
-                        <img src="{{ $badgeUrl }}" alt="" role="presentation" class="w-full h-full object-contain" loading="lazy">
+                        <img src="{{ $badgeUrl }}" alt="En Çok Satan Patenli Ayakkabı" width="95" height="95" decoding="async" class="w-full h-full object-contain" loading="lazy">
                     </div>
                 @endif
 
@@ -150,7 +181,7 @@
                             <!-- Header / Product Info -->
                             <div class="flex items-center border-b border-gray-100" style="background-color: #f9fafb; padding: 24px; padding-right: 56px; gap: 16px;">
                                 <div class="rounded-xl overflow-hidden bg-white border border-gray-100 flex-shrink-0 shadow-sm" style="width: 64px; height: 64px;">
-                                    <img src="{{ $product->images->first() ? $product->images->first()->image_url : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                    <img src="{{ $product->images->first() ? $product->images->first()->getResponsiveUrl(200) : asset('img/placeholder.svg') }}" alt="{{ $product->name }}" width="64" height="64" loading="lazy" decoding="async" class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex flex-col">
                                     <h4 class="text-gray-900 font-bold text-sm leading-snug line-clamp-2" style="margin-bottom: 6px;">{{ $product->name }}</h4>

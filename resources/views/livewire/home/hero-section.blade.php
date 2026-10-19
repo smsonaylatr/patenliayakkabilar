@@ -748,7 +748,7 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
     <!-- Left: Text block -->
     <div class="hero-text" id="hero-text-block"
       :style="`transform: translate(${mx * -8}px, ${my * -5}px); transition: transform ${mx === 0 ? '0.8s ease' : '0.15s ease'}`">
-      <div class="hero-pill" style="visibility: hidden;">
+      <div class="hero-pill">
         <span class="pill-dot"></span>
         {{ $pillText }}
       </div>
@@ -764,14 +764,29 @@ $subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($
       </p>
 
       <div class="hero-actions">
-        <a href="{{ $btn1Link }}" class="btn-hero-primary" wire:navigate>
+        <a href="{{ $btn1Link }}" class="btn-hero-primary" wire:navigate title="Tüm Patenli Ayakkabı Modellerini Keşfet">
           {{ $btn1Text }}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="{{ $btn2Link }}" class="btn-hero-ghost" wire:navigate>
+        <a href="{{ $btn2Link }}" class="btn-hero-ghost" wire:navigate title="İndirimli Patenli Ayakkabı Fiyatları">
           {{ $btn2Text }}
         </a>
       </div>
+
+      <nav aria-label="Patenli Ayakkabı Kategorileri" class="flex flex-wrap items-center gap-2 mb-6">
+        <a href="{{ url('/kategori/kiz-cocuk') }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 hover:bg-slate-900 hover:text-white transition-colors">
+          Kız Çocuk Patenli Ayakkabı
+        </a>
+        <a href="{{ url('/kategori/erkek-cocuk') }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 hover:bg-slate-900 hover:text-white transition-colors">
+          Erkek Çocuk Patenli Ayakkabı
+        </a>
+        <a href="{{ url('/kategori/yetiskin-ve-cocuk') }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 hover:bg-slate-900 hover:text-white transition-colors">
+          Yetişkin & Çocuk Modelleri
+        </a>
+        <a href="{{ url('/kategori/guvenlik-ekipmanlari') }}" wire:navigate class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 hover:bg-slate-900 hover:text-white transition-colors">
+          Koruyucu Ekipmanlar
+        </a>
+      </nav>
 
       <div class="hero-stats">
         <div class="stat-item">

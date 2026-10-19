@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Dinamik XML Sitemap Üreteci
@@ -31,7 +32,7 @@ class SitemapController extends Controller
      */
     public function index(): Response
     {
-        $appUrl = config('app.url');
+        $appUrl = rtrim(config('app.url'), '/');
 
         // Her içerik tipinin son güncelleme tarihi
         $productLastmod  = Product::where('status', true)->whereNull('deleted_at')->max('updated_at');
@@ -78,7 +79,7 @@ class SitemapController extends Controller
 
         foreach ($sitemaps as $sitemap) {
             $xml .= '  <sitemap>' . "\n";
-            $xml .= '    <loc>' . $sitemap['loc'] . '</loc>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars($sitemap['loc'], ENT_XML1) . '</loc>' . "\n";
             $xml .= '    <lastmod>' . $sitemap['lastmod'] . '</lastmod>' . "\n";
             $xml .= '  </sitemap>' . "\n";
         }
@@ -86,12 +87,13 @@ class SitemapController extends Controller
         $xml .= '</sitemapindex>';
 
         return response($xml, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type'  => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 
     /**
-     * Ürün Sitemap'i — Aktif ürünler (görseller dahil)
+     * Ürün Sitemap'i — Aktif ve indekslenebilir ürünler (görseller dahil)
      *
      * image:image namespace kullanarak Google Image aramasında
      * ürün görsellerinin indexlenmesini sağlar.
@@ -100,20 +102,30 @@ class SitemapController extends Controller
      */
     public function products(): Response
     {
-        $products = Product::where('status', true)
+        $query = Product::where('status', true)
             ->whereNull('deleted_at')
             ->with('images')
-            ->orderBy('updated_at', 'desc')
-            ->get();
+            ->orderBy('updated_at', 'desc');
+
+        if (Schema::hasColumn('products', 'is_indexable')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
+            });
+        }
+
+        $products = $query->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
         $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         foreach ($products as $product) {
+            $locUrl = !empty($product->canonical_url) ? $product->canonical_url : url('/urun/' . $product->slug);
+            $lastmod = $product->updated_at ? $product->updated_at->toW3cString() : now()->toW3cString();
+
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url('/urun/' . $product->slug) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $product->updated_at->toW3cString() . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars($locUrl, ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
             $xml .= '    <priority>0.8</priority>' . "\n";
 
@@ -131,123 +143,104 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type'  => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 
     /**
-     * Kategori Sitemap'i — Aktif kategoriler (vitrin ürün görselleri dahil)
+     * Kategori Sitemap'i — Aktif ve indekslenebilir kategoriler + ana katalog
      *
      * GET /sitemap-categories.xml
      */
     public function categories(): Response
     {
-        $categories = Category::where('status', true)
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        $query = Category::where('status', true)
+            ->orderBy('updated_at', 'desc');
+
+        if (Schema::hasColumn('categories', 'is_indexable')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
+            });
+        }
+
+        $categories = $query->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
-        $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+        // Ana katalog sayfası (/patenli-ayakkabilar)
+        $xml .= '  <url>' . "\n";
+        $xml .= '    <loc>' . htmlspecialchars(url('/patenli-ayakkabilar'), ENT_XML1) . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
+        $xml .= '    <changefreq>daily</changefreq>' . "\n";
+        $xml .= '    <priority>0.9</priority>' . "\n";
+        $xml .= '  </url>' . "\n";
 
         foreach ($categories as $category) {
-            $categoryProducts = $category->products()
-                ->where('products.status', true)
-                ->where('products.stock', '>', 0)
-                ->with('images')
-                ->orderByDesc('products.featured')
-                ->orderByDesc('products.best_seller')
-                ->orderByDesc('products.id')
-                ->take(6)
-                ->get();
+            $locUrl = !empty($category->canonical_url) ? $category->canonical_url : url('/kategori/' . $category->slug);
+            $lastmod = $category->updated_at ? $category->updated_at->toW3cString() : now()->toW3cString();
 
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url('/kategori/' . $category->slug) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $category->updated_at->toW3cString() . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars($locUrl, ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
-            $xml .= '    <priority>0.7</priority>' . "\n";
-
-            foreach ($categoryProducts as $catProduct) {
-                $firstImg = $catProduct->images->first();
-                if ($firstImg && $firstImg->raw_image_url) {
-                    $xml .= '    <image:image>' . "\n";
-                    $xml .= '      <image:loc>' . htmlspecialchars($firstImg->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
-                    $xml .= '      <image:title>' . htmlspecialchars($catProduct->name . ' - ' . $category->name, ENT_XML1) . '</image:title>' . "\n";
-                    $xml .= '    </image:image>' . "\n";
-                }
-            }
-
+            $xml .= '    <priority>0.8</priority>' . "\n";
             $xml .= '  </url>' . "\n";
         }
 
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type'  => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 
     /**
-     * Sayfa Sitemap'i — Aktif statik sayfalar ve özel rotalar (anasayfa ürün görselleri dahil)
+     * Sayfa Sitemap'i — Aktif statik sayfalar ve özel rotalar
      *
      * GET /sitemap-pages.xml
      */
     public function pages(): Response
     {
-        $pages = Page::where('is_active', true)
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        $query = Page::where('is_active', true)
+            ->orderBy('updated_at', 'desc');
 
-        $featuredProducts = Product::where('status', true)
-            ->where('stock', '>', 0)
-            ->with('images')
-            ->orderByDesc('featured')
-            ->orderByDesc('best_seller')
-            ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
-            ->orderBy('homepage_sort', 'asc')
-            ->orderByDesc('id')
-            ->take(8)
-            ->get();
+        if (Schema::hasColumn('pages', 'is_indexable')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
+            });
+        }
+
+        $pages = $query->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
-        $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
         // Sabit (hardcoded) rotalar
         $staticRoutes = [
-            '/' => ['freq' => 'daily', 'priority' => '1.0', 'include_images' => true],
-            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8', 'include_images' => false],
-            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.8', 'include_images' => false],
-            '/patenli-ayakkabilar' => ['freq' => 'daily', 'priority' => '0.9', 'include_images' => true],
-            '/blog' => ['freq' => 'weekly', 'priority' => '0.8', 'include_images' => false],
+            '/' => ['freq' => 'daily', 'priority' => '1.0'],
+            '/patenli-ayakkabilar' => ['freq' => 'daily', 'priority' => '0.9'],
+            '/blog' => ['freq' => 'weekly', 'priority' => '0.8'],
+            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8'],
+            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.7'],
         ];
 
         foreach ($staticRoutes as $route => $data) {
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url($route) . '</loc>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars(url($route), ENT_XML1) . '</loc>' . "\n";
             $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>' . $data['freq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $data['priority'] . '</priority>' . "\n";
-
-            if (!empty($data['include_images'])) {
-                foreach ($featuredProducts as $fp) {
-                    $firstImg = $fp->images->first();
-                    if ($firstImg && $firstImg->raw_image_url) {
-                        $xml .= '    <image:image>' . "\n";
-                        $xml .= '      <image:loc>' . htmlspecialchars($firstImg->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
-                        $xml .= '      <image:title>' . htmlspecialchars($fp->name . ' - Işıklı Patenli Ayakkabı', ENT_XML1) . '</image:title>' . "\n";
-                        $xml .= '    </image:image>' . "\n";
-                    }
-                }
-            }
-
             $xml .= '  </url>' . "\n";
         }
 
         foreach ($pages as $page) {
+            $lastmod = $page->updated_at ? $page->updated_at->toW3cString() : now()->toW3cString();
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url('/' . $page->slug) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $page->updated_at->toW3cString() . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars(url('/' . $page->slug), ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
             $xml .= '    <changefreq>monthly</changefreq>' . "\n";
             $xml .= '    <priority>0.5</priority>' . "\n";
             $xml .= '  </url>' . "\n";
@@ -256,7 +249,8 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type'  => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 
@@ -267,17 +261,25 @@ class SitemapController extends Controller
      */
     public function blog(): Response
     {
-        $posts = BlogPost::where('status', true)
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        $query = BlogPost::where('status', true)
+            ->orderBy('updated_at', 'desc');
+
+        if (Schema::hasColumn('blog_posts', 'is_indexable')) {
+            $query->where(function ($q) {
+                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
+            });
+        }
+
+        $posts = $query->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
         foreach ($posts as $post) {
+            $lastmod = $post->updated_at ? $post->updated_at->toW3cString() : now()->toW3cString();
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url('/blog/' . $post->slug) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $post->updated_at->toW3cString() . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars(url('/blog/' . $post->slug), ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
             $xml .= '    <changefreq>monthly</changefreq>' . "\n";
             $xml .= '    <priority>0.6</priority>' . "\n";
             $xml .= '  </url>' . "\n";
@@ -286,7 +288,8 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type'  => 'application/xml; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
         ]);
     }
 }

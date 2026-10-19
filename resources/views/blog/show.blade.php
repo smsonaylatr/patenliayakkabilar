@@ -1,6 +1,6 @@
 <x-layouts.app>
-    <x-slot:title>{{ $post->meta_title ?? $post->title . ' | Patenli Ayakkabılar' }}</x-slot:title>
-    <x-slot:description>{{ $post->meta_description ?? Str::limit(strip_tags($post->excerpt ?? $post->content), 155) }}</x-slot:description>
+    <x-slot:title>{{ $post->seo_title }}</x-slot:title>
+    <x-slot:description>{{ $post->seo_description }}</x-slot:description>
     <x-slot:ogType>article</x-slot:ogType>
     <x-slot:canonical>{{ url('/blog/' . $post->slug) }}</x-slot:canonical>
     @if($post->image_path)
@@ -104,17 +104,12 @@
                 ]" />
             </div>
 
-            {{-- İçerik (ilk başlık hero'da gösterildiği için kaldırılır) --}}
+            {{-- İçerik (doğal iç bağlantılar ile zenginleştirilmiş) --}}
             <article class="blog-content">
-                @php
-                    $content = $post->content;
-                    // İçerikteki ilk h1 veya h2'yi kaldır (hero'da zaten gösteriliyor)
-                    $content = preg_replace('/^\s*<h[12][^>]*>.*?<\/h[12]>\s*/is', '', $content, 1);
-                @endphp
-                {!! $content !!}
+                {!! $post->renderContentWithNaturalLinks() !!}
             </article>
 
-            {{-- Alt bilgi --}}
+            {{-- Alt bilgi ve Doğal İç Bağlantılar (Ana Sayfa, Kategoriler ve Öne Çıkan Modeller) --}}
             <div style="margin-top:3.5rem;padding-top:2rem;border-top:2px solid #f3f4f6;">
                 
                 {{-- Yazar kartı --}}
@@ -128,6 +123,76 @@
                             <p style="font-size:14px;color:#6b7280;margin:4px 0 0;">
                                 {{ ($post->published_at ?? $post->created_at)->translatedFormat('d F Y') }} tarihinde yayınlandı
                             </p>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Doğal Kategori ve Ana Sayfa İç Bağlantı Bloğu --}}
+                <nav aria-label="İlgili Patenli Ayakkabı Kategorileri" class="bg-slate-50 border border-slate-200 rounded-2xl p-5 my-6">
+                    <h2 class="text-base font-extrabold text-slate-900 mb-2">
+                        İlgili Patenli Ayakkabı Kategorileri
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mb-3.5">
+                        Çocuk ve yetişkinler için ışıklı, gizli tekerlek mekanizmalı <a href="{{ route('home') }}" wire:navigate class="text-blue-600 font-semibold hover:underline">patenli ayakkabı</a> koleksiyonlarımızı kategoriye göre inceleyebilirsiniz:
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 hover:border-slate-900 transition-colors">
+                            🏠 Patenli Ayakkabı Ana Sayfa
+                        </a>
+                        <a href="{{ url('/kategori/kiz-cocuk') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 hover:border-slate-900 transition-colors">
+                            ✨ Kız Çocuk Patenli Ayakkabı
+                        </a>
+                        <a href="{{ url('/kategori/erkek-cocuk') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 hover:border-slate-900 transition-colors">
+                            ⚡ Erkek Çocuk Patenli Ayakkabı
+                        </a>
+                        <a href="{{ url('/kategori/yetiskin-ve-cocuk') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 hover:border-slate-900 transition-colors">
+                            👟 Yetişkin & Çocuk Modelleri
+                        </a>
+                        <a href="{{ url('/kategori/guvenlik-ekipmanlari') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-bold text-slate-800 hover:border-slate-900 transition-colors">
+                            🛡️ Güvenlik & Koruyucu Ekipmanlar
+                        </a>
+                        <a href="{{ route('products.index') }}" wire:navigate class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-xs sm:text-sm font-bold text-white hover:bg-black transition-colors">
+                            Tüm Modeller & Fiyatlar →
+                        </a>
+                    </div>
+                </nav>
+
+                {{-- Öne Çıkan Patenli Ayakkabı Modelleri (Gerçek Ürün Teklifleri) --}}
+                @php
+                    $blogFeaturedProducts = \App\Models\Product::where('status', true)
+                        ->where('stock', '>', 0)
+                        ->with('images')
+                        ->orderByDesc('featured')
+                        ->orderByDesc('best_seller')
+                        ->take(4)
+                        ->get();
+                @endphp
+                @if($blogFeaturedProducts->count() > 0)
+                    <div class="my-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-lg font-extrabold text-slate-900">Öne Çıkan Patenli Ayakkabı Modelleri</h2>
+                            <a href="{{ route('products.index') }}" wire:navigate class="text-xs sm:text-sm font-bold text-blue-600 hover:underline">
+                                Tümünü Gör →
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            @foreach($blogFeaturedProducts as $bfp)
+                                @php
+                                    $bfpPrice = $bfp->discount_price && $bfp->discount_price < $bfp->price ? $bfp->discount_price : $bfp->price;
+                                    $bfpImg = $bfp->images->first()?->image_url ?? asset('favicon.png');
+                                @endphp
+                                <a href="{{ url('/urun/' . $bfp->slug) }}" wire:navigate class="group block bg-white border border-slate-200 hover:border-slate-900 rounded-2xl p-3 transition-all">
+                                    <div class="aspect-square rounded-xl bg-slate-50 overflow-hidden mb-2.5 flex items-center justify-center">
+                                        <img src="{{ $bfpImg }}" alt="{{ $bfp->name }}" loading="lazy" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                                    </div>
+                                    <h3 class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 leading-snug mb-1">
+                                        {{ $bfp->name }}
+                                    </h3>
+                                    <p class="text-sm font-extrabold text-blue-600">
+                                        {{ number_format((float) $bfpPrice, 2) }} ₺
+                                    </p>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 @endif

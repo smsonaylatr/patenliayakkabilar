@@ -33,15 +33,27 @@ class LinkInternalContents extends Command
 
         $links = [];
 
-        // 1. Her zaman aktif olan statik rotalar ve genişletilmiş eşanlamlılar
-        $baseKeywords = [
-            'patenli ayakkabı modelleri', 'patenli ayakkabılar', 'patenli ayakkabı', 'tekerlekli ayakkabı', 
-            'ışıklı patenli ayakkabı', 'ışıklı tekerlekli ayakkabı', 'ledli paten', 'çocuk pateni', 
-            'iki tekerlekli ayakkabı', 'tek tekerlekli ayakkabı', 'tekerlekli spor ayakkabı'
-        ];
-        foreach($baseKeywords as $kw) {
-            $links[$kw] = '/patenli-ayakkabilar';
-        }
+        // 1. Ana Sayfa (/) ve Katalog (/patenli-ayakkabilar) doğal bağlantıları
+        $links['patenli ayakkabı'] = '/';
+        $links['patenli ayakkabılar'] = '/';
+        $links['patenli ayakkabı modelleri'] = '/patenli-ayakkabilar';
+        $links['tekerlekli ayakkabı modelleri'] = '/patenli-ayakkabilar';
+        $links['tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['ışıklı patenli ayakkabı'] = '/kategori/kiz-cocuk';
+        $links['ışıklı tekerlekli ayakkabı'] = '/patenli-ayakkabilar';
+        $links['ledli paten'] = '/patenli-ayakkabilar';
+        $links['çocuk pateni'] = '/kategori/erkek-cocuk';
+        $links['iki tekerlekli ayakkabı'] = '/kategori/yetiskin-ve-cocuk';
+        $links['çift tekerlekli'] = '/kategori/yetiskin-ve-cocuk';
+        $links['tek tekerlekli ayakkabı'] = '/kategori/yetiskin-ve-cocuk';
+        $links['tekerlekli spor ayakkabı'] = '/patenli-ayakkabilar';
+        $links['kız çocuk patenli ayakkabı'] = '/kategori/kiz-cocuk';
+        $links['kız çocuk'] = '/kategori/kiz-cocuk';
+        $links['erkek çocuk patenli ayakkabı'] = '/kategori/erkek-cocuk';
+        $links['erkek çocuk'] = '/kategori/erkek-cocuk';
+        $links['çocuk patenli ayakkabı'] = '/kategori/erkek-cocuk';
+        $links['koruyucu ekipman'] = '/kategori/guvenlik-ekipmanlari';
+        $links['güvenlik ekipmanları'] = '/kategori/guvenlik-ekipmanlari';
 
         // 2. Sadece aktif Kategoriler
         $categories = Category::where('status', true)->get();
@@ -49,15 +61,7 @@ class LinkInternalContents extends Command
             if ($cat->slug === 'patenli-ayakkabi-modelleri') continue;
             
             $links[mb_strtolower($cat->name)] = '/kategori/' . $cat->slug;
-            
-            // Kategori varyasyonları
-            if (str_contains($cat->slug, 'cocuk-patenli')) {
-                $links['çocuk patenli ayakkabı modelleri'] = '/kategori/' . $cat->slug;
-                $links['çocuk patenli ayakkabı'] = '/kategori/' . $cat->slug;
-                $links['çocuk tekerlekli ayakkabı'] = '/kategori/' . $cat->slug;
-                $links['kız çocuk paten'] = '/kategori/' . $cat->slug;
-                $links['erkek çocuk paten'] = '/kategori/' . $cat->slug;
-            }
+            $links[mb_strtolower($cat->name) . ' patenli ayakkabı'] = '/kategori/' . $cat->slug;
         }
 
         // 3. Sadece aktif Sayfalar
@@ -75,13 +79,13 @@ class LinkInternalContents extends Command
                 $links['numara seçimi'] = '/' . $page->slug;
             }
             if (str_contains($page->slug, 'guvenlik')) {
-                $links['güvenlik ekipmanları'] = '/' . $page->slug;
-                $links['güvenlik ekipmanı'] = '/' . $page->slug;
-                $links['kask'] = '/' . $page->slug;
-                $links['dizlik'] = '/' . $page->slug;
-                $links['dirseklik'] = '/' . $page->slug;
-                $links['koruyucu set'] = '/' . $page->slug;
-                $links['koruyucu ekipman'] = '/' . $page->slug;
+                $links['güvenlik ekipmanları'] = '/kategori/guvenlik-ekipmanlari';
+                $links['güvenlik ekipmanı'] = '/kategori/guvenlik-ekipmanlari';
+                $links['kask'] = '/kategori/guvenlik-ekipmanlari';
+                $links['dizlik'] = '/kategori/guvenlik-ekipmanlari';
+                $links['dirseklik'] = '/kategori/guvenlik-ekipmanlari';
+                $links['koruyucu set'] = '/kategori/guvenlik-ekipmanlari';
+                $links['koruyucu ekipman'] = '/kategori/guvenlik-ekipmanlari';
             }
             if (str_contains($page->slug, 'iletisim')) {
                 $links['iletişim'] = '/' . $page->slug;
@@ -165,7 +169,7 @@ class LinkInternalContents extends Command
     }
 
     /**
-     * Modeli işler ve regex ile ilk eşleşen kelimelere link verir.
+     * Modeli işler ve regex ile ilk eşleşen kelimelere link verir (her hedef URL için en fazla 1 doğal link).
      */
     private function processModel($modelClass, $links)
     {
@@ -190,28 +194,30 @@ class LinkInternalContents extends Command
                 $modified = true;
             }
 
+            $usedUrls = [];
+
             foreach ($links as $keyword => $url) {
-                // Regex açıklaması:
-                // 1ci grup: (<h[1-6][^>]*>.*?<\/h[1-6]>) -> Başlık etiketlerini komple yakala (dokunmamak için)
-                // 2ci grup: Aranacak kelime
-                // (?!(?:[^<]+>|[^>]+<\/a>)) -> <a> veya HTML tag içinde değilsek
-                
+                if (isset($usedUrls[$url])) {
+                    continue;
+                }
+
                 $escapedKeyword = preg_quote($keyword, '/');
-                $pattern = '/(<h[1-6][^>]*>.*?<\/h[1-6]>)|(?!(?:[^<]+>|[^>]+<\/a>))(?<![\p{L}\p{N}])(' . $escapedKeyword . ')(?![\p{L}\p{N}])/ius';
+                $pattern = '/(<h[1-6][^>]*>.*?<\/h[1-6]>|<a\b[^>]*>.*?<\/a>)|(?!(?:[^<]+>|[^>]+<\/a>))(?<![\p{L}\p{N}])(' . $escapedKeyword . ')(?![\p{L}\p{N}])/ius';
                 
-                $newContent = preg_replace_callback($pattern, function($matches) use ($url) {
-                    if (!empty($matches[1])) {
-                        // Eğer başlık (h1..h6) ile eşleştiyse hiçbir değişiklik yapmadan geri döndür.
+                $linkedThisUrl = false;
+                $newContent = preg_replace_callback($pattern, function($matches) use ($url, &$linkedThisUrl) {
+                    if (!empty($matches[1]) || $linkedThisUrl) {
                         return $matches[0];
                     }
 
+                    $linkedThisUrl = true;
                     $matchedText = $matches[2];
-                    // Link oluştur
                     return '<a href="' . $url . '" class="text-teal-600 font-semibold hover:underline" title="' . e($matchedText) . '">' . $matchedText . '</a>';
-                }, $content, -1); // Tüm eşleşmeleri kontrol et
+                }, $content);
                 
-                if ($newContent !== null && $newContent !== $content) {
+                if ($linkedThisUrl && $newContent !== null && $newContent !== $content) {
                     $content = $newContent;
+                    $usedUrls[$url] = true;
                     $modified = true;
                 }
             }

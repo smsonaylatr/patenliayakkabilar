@@ -581,6 +581,17 @@ class SeoSettings extends FilamentPage implements HasForms
     {
         $data = $this->form->getState();
 
+        foreach (['seo_google_verification', 'seo_yandex_verification', 'seo_bing_verification'] as $verifKey) {
+            if (!empty($data[$verifKey]) && is_string($data[$verifKey])) {
+                $val = trim($data[$verifKey]);
+                if (preg_match('/content=["\']([^"\']+)["\']/i', $val, $m)) {
+                    $val = trim($m[1]);
+                }
+                $val = preg_replace('/^(google-site-verification|yandex-verification|msvalidate\.01)=/i', '', $val);
+                $data[$verifKey] = trim($val, " \"'\t\n\r\0\x0B");
+            }
+        }
+
         foreach ($data as $key => $value) {
             if (is_bool($value)) {
                 $value = $value ? '1' : '0';
@@ -591,6 +602,7 @@ class SeoSettings extends FilamentPage implements HasForms
         // Cache'leri temizle
         \Illuminate\Support\Facades\Cache::forget('hero_settings');
         \Illuminate\Support\Facades\Cache::forget('hero_settings_v2');
+        \Illuminate\Support\Facades\Cache::forget('hero_settings_v3');
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_widget_active');
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_merchant_id');
         \Illuminate\Support\Facades\Cache::forget('setting_gcr_badge_position');
