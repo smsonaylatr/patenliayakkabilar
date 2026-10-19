@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * Dinamik XML Sitemap Üreteci
@@ -32,7 +31,7 @@ class SitemapController extends Controller
      */
     public function index(): Response
     {
-        $appUrl = rtrim(config('app.url'), '/');
+        $appUrl = config('app.url');
 
         // Her içerik tipinin son güncelleme tarihi
         $productLastmod  = Product::where('status', true)->whereNull('deleted_at')->max('updated_at');
@@ -79,7 +78,7 @@ class SitemapController extends Controller
 
         foreach ($sitemaps as $sitemap) {
             $xml .= '  <sitemap>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars($sitemap['loc'], ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <loc>' . $sitemap['loc'] . '</loc>' . "\n";
             $xml .= '    <lastmod>' . $sitemap['lastmod'] . '</lastmod>' . "\n";
             $xml .= '  </sitemap>' . "\n";
         }
@@ -87,13 +86,12 @@ class SitemapController extends Controller
         $xml .= '</sitemapindex>';
 
         return response($xml, 200, [
-            'Content-Type'  => 'application/xml; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=3600',
+            'Content-Type' => 'application/xml',
         ]);
     }
 
     /**
-     * Ürün Sitemap'i — Aktif ve indekslenebilir ürünler (görseller dahil)
+     * Ürün Sitemap'i — Aktif ürünler (görseller dahil)
      *
      * image:image namespace kullanarak Google Image aramasında
      * ürün görsellerinin indexlenmesini sağlar.
@@ -102,30 +100,20 @@ class SitemapController extends Controller
      */
     public function products(): Response
     {
-        $query = Product::where('status', true)
+        $products = Product::where('status', true)
             ->whereNull('deleted_at')
             ->with('images')
-            ->orderBy('updated_at', 'desc');
-
-        if (Schema::hasColumn('products', 'is_indexable')) {
-            $query->where(function ($q) {
-                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
-            });
-        }
-
-        $products = $query->get();
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
         $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         foreach ($products as $product) {
-            $locUrl = !empty($product->canonical_url) ? $product->canonical_url : url('/urun/' . $product->slug);
-            $lastmod = $product->updated_at ? $product->updated_at->toW3cString() : now()->toW3cString();
-
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars($locUrl, ENT_XML1) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . url('/urun/' . $product->slug) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $product->updated_at->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
             $xml .= '    <priority>0.8</priority>' . "\n";
 
@@ -143,57 +131,37 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type'  => 'application/xml; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=3600',
+            'Content-Type' => 'application/xml',
         ]);
     }
 
     /**
-     * Kategori Sitemap'i — Aktif ve indekslenebilir kategoriler + ana katalog
+     * Kategori Sitemap'i — Aktif kategoriler
      *
      * GET /sitemap-categories.xml
      */
     public function categories(): Response
     {
-        $query = Category::where('status', true)
-            ->orderBy('updated_at', 'desc');
-
-        if (Schema::hasColumn('categories', 'is_indexable')) {
-            $query->where(function ($q) {
-                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
-            });
-        }
-
-        $categories = $query->get();
+        $categories = Category::where('status', true)
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
-        // Ana katalog sayfası (/patenli-ayakkabilar)
-        $xml .= '  <url>' . "\n";
-        $xml .= '    <loc>' . htmlspecialchars(url('/patenli-ayakkabilar'), ENT_XML1) . '</loc>' . "\n";
-        $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
-        $xml .= '    <changefreq>daily</changefreq>' . "\n";
-        $xml .= '    <priority>0.9</priority>' . "\n";
-        $xml .= '  </url>' . "\n";
-
         foreach ($categories as $category) {
-            $locUrl = !empty($category->canonical_url) ? $category->canonical_url : url('/kategori/' . $category->slug);
-            $lastmod = $category->updated_at ? $category->updated_at->toW3cString() : now()->toW3cString();
-
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars($locUrl, ENT_XML1) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . url('/kategori/' . $category->slug) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $category->updated_at->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
-            $xml .= '    <priority>0.8</priority>' . "\n";
+            $xml .= '    <priority>0.7</priority>' . "\n";
             $xml .= '  </url>' . "\n";
         }
 
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type'  => 'application/xml; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=3600',
+            'Content-Type' => 'application/xml',
         ]);
     }
 
@@ -204,16 +172,9 @@ class SitemapController extends Controller
      */
     public function pages(): Response
     {
-        $query = Page::where('is_active', true)
-            ->orderBy('updated_at', 'desc');
-
-        if (Schema::hasColumn('pages', 'is_indexable')) {
-            $query->where(function ($q) {
-                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
-            });
-        }
-
-        $pages = $query->get();
+        $pages = Page::where('is_active', true)
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
@@ -221,15 +182,15 @@ class SitemapController extends Controller
         // Sabit (hardcoded) rotalar
         $staticRoutes = [
             '/' => ['freq' => 'daily', 'priority' => '1.0'],
+            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8'],
+            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.8'],
             '/patenli-ayakkabilar' => ['freq' => 'daily', 'priority' => '0.9'],
             '/blog' => ['freq' => 'weekly', 'priority' => '0.8'],
-            '/iletisim' => ['freq' => 'monthly', 'priority' => '0.8'],
-            '/siparis-takip' => ['freq' => 'monthly', 'priority' => '0.7'],
         ];
 
         foreach ($staticRoutes as $route => $data) {
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars(url($route), ENT_XML1) . '</loc>' . "\n";
+            $xml .= '    <loc>' . url($route) . '</loc>' . "\n";
             $xml .= '    <lastmod>' . now()->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>' . $data['freq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $data['priority'] . '</priority>' . "\n";
@@ -237,10 +198,9 @@ class SitemapController extends Controller
         }
 
         foreach ($pages as $page) {
-            $lastmod = $page->updated_at ? $page->updated_at->toW3cString() : now()->toW3cString();
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars(url('/' . $page->slug), ENT_XML1) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . url('/' . $page->slug) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $page->updated_at->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>monthly</changefreq>' . "\n";
             $xml .= '    <priority>0.5</priority>' . "\n";
             $xml .= '  </url>' . "\n";
@@ -249,8 +209,7 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type'  => 'application/xml; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=3600',
+            'Content-Type' => 'application/xml',
         ]);
     }
 
@@ -261,25 +220,17 @@ class SitemapController extends Controller
      */
     public function blog(): Response
     {
-        $query = BlogPost::where('status', true)
-            ->orderBy('updated_at', 'desc');
-
-        if (Schema::hasColumn('blog_posts', 'is_indexable')) {
-            $query->where(function ($q) {
-                $q->whereNull('is_indexable')->orWhere('is_indexable', true);
-            });
-        }
-
-        $posts = $query->get();
+        $posts = BlogPost::where('status', true)
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 
         foreach ($posts as $post) {
-            $lastmod = $post->updated_at ? $post->updated_at->toW3cString() : now()->toW3cString();
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars(url('/blog/' . $post->slug), ENT_XML1) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . url('/blog/' . $post->slug) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $post->updated_at->toW3cString() . '</lastmod>' . "\n";
             $xml .= '    <changefreq>monthly</changefreq>' . "\n";
             $xml .= '    <priority>0.6</priority>' . "\n";
             $xml .= '  </url>' . "\n";
@@ -288,8 +239,7 @@ class SitemapController extends Controller
         $xml .= '</urlset>';
 
         return response($xml, 200, [
-            'Content-Type'  => 'application/xml; charset=UTF-8',
-            'Cache-Control' => 'public, max-age=3600',
+            'Content-Type' => 'application/xml',
         ]);
     }
 }

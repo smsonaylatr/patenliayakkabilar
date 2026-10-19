@@ -502,7 +502,7 @@ class ActiveVisitor extends Model
 
         $clean = trim($clean, " \t\n\r\0\x0B-|–—•");
 
-        if (preg_match('/^(Patenli\s*Ayakkabılar®?|Patenli\s*Ayakkabı\s*Modelleri(\s*ve\s*Fiyatları)?)$/ui', $clean)) {
+        if (preg_match('/^Patenli\s*Ayakkabılar®?$/ui', $clean)) {
             return '';
         }
 

@@ -71,6 +71,8 @@ class StockNotificationModal extends Component
         }
 
         $vId = (!empty($this->variantId) && (int) $this->variantId > 0) ? (int) $this->variantId : null;
+        $cleanPhone = !empty(trim($this->phone)) ? trim($this->phone) : null;
+        $channelText = $cleanPhone ? 'e-posta ve SMS ile' : 'e-posta ile';
 
         // Çift kayıt kontrolü
         $existing = StockNotification::where('product_id', $this->productId)
@@ -80,8 +82,11 @@ class StockNotificationModal extends Component
             ->first();
 
         if ($existing) {
+            if ($cleanPhone && $existing->phone !== $cleanPhone) {
+                $existing->update(['phone' => $cleanPhone]);
+            }
             $this->isSuccess = true;
-            $this->message = 'Bu ürün için stok bildirimi talebiniz zaten alınmıştır. Stoklar yenilendiğinde sizi anında bilgilendireceğiz!';
+            $this->message = "Bu ürün için stok bildirimi talebiniz zaten alınmıştır. Stoklar yenilendiğinde sizi anında {$channelText} bilgilendireceğiz!";
             return;
         }
 
@@ -90,12 +95,12 @@ class StockNotificationModal extends Component
             'product_variant_id' => $vId,
             'user_id' => Auth::id(),
             'email' => trim($this->email),
-            'phone' => !empty($this->phone) ? trim($this->phone) : null,
+            'phone' => $cleanPhone,
             'ip_address' => request()->ip(),
         ]);
 
         $this->isSuccess = true;
-        $this->message = 'Talebiniz başarıyla alındı! Ürün veya beden stoklarımıza girdiğinde size e-posta ve SMS ile haber vereceğiz.';
+        $this->message = "Talebiniz başarıyla alındı! Ürün veya beden stoklarımıza girdiğinde size {$channelText} haber vereceğiz.";
     }
 
     public function render()

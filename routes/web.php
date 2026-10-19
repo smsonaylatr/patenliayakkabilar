@@ -375,13 +375,8 @@ Route::post('/payment/paytr/webhook', [\App\Http\Controllers\Payment\PaytrWebhoo
 // ========================
 // ESKİ URL YÖNLENDİRMELERİ (SEO)
 // ========================
-// Eski "koleksiyon", "urunler", "kategoriler" ve "sayfa" linklerini yeni yapıya kalıcı (301) olarak yönlendir.
+// Eski "koleksiyon" ve "sayfa" linklerini yeni yapıya kalıcı (301) olarak yönlendir.
 Route::redirect('/koleksiyon/{slug}', '/kategori/{slug}', 301);
-Route::redirect('/kategoriler/{slug}', '/kategori/{slug}', 301);
-Route::redirect('/kategoriler', '/patenli-ayakkabilar', 301);
-Route::redirect('/urunler/{slug}', '/urun/{slug}', 301);
-Route::redirect('/product/{slug}', '/urun/{slug}', 301);
-Route::redirect('/products', '/patenli-ayakkabilar', 301);
 Route::redirect('/sayfa/kosullar', '/mesafeli-satis-sozlesmesi', 301);
 Route::redirect('/sayfa/kullanim-kosullari', '/mesafeli-satis-sozlesmesi', 301);
 Route::redirect('/sayfa/{slug}', '/{slug}', 301);
@@ -393,11 +388,7 @@ Route::get('/patenli-ayakkabilar', function (\Illuminate\Http\Request $request) 
         return redirect()->route('category.show', ['slug' => $request->category], 301);
     }
     $category = null;
-    $response = response()->view('products.index', compact('category'));
-    if (!empty($request->query())) {
-        $response->header('X-Robots-Tag', 'noindex, follow');
-    }
-    return $response;
+    return view('products.index', compact('category'));
 })->name('products.index');
 
 Route::get('/arama', function (\Illuminate\Http\Request $request) {
@@ -417,15 +408,11 @@ Route::get('/ara', function (\Illuminate\Http\Request $request) {
 });
 
 // Kategori sayfası (SEO-friendly URL ve Akıllı Yönlendirme Koruması)
-Route::get('/kategori/{slug}', function (\Illuminate\Http\Request $request, string $slug) {
+Route::get('/kategori/{slug}', function (string $slug) {
     // 1. Birebir aktif kategori kontrolü
     $category = \App\Models\Category::where('slug', $slug)->where('status', true)->first();
     if ($category) {
-        $response = response()->view('products.index', compact('category'));
-        if (!empty($request->query()) || (isset($category->is_indexable) && $category->is_indexable === false)) {
-            $response->header('X-Robots-Tag', 'noindex, follow');
-        }
-        return $response;
+        return view('products.index', compact('category'));
     }
 
     // 2. Normalizasyon: Alt tire, URL encode ve Türkçe karakter dönüşümü (örn: kiz_cocuk -> kiz-cocuk)

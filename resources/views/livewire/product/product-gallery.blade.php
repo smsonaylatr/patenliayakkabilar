@@ -52,17 +52,11 @@
                     aria-label="Görsel {{ $index + 1 }}"
                     :class="currentIndex === {{ $index }} ? 'border-b-4 border-black shadow-sm opacity-100' : 'border border-transparent hover:border-gray-200 opacity-70 hover:opacity-100'"
                     class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden transition-all duration-200">
-                <img src="{{ $image->getResponsiveUrl(200) }}"
-                     alt="{{ $image->alt_text ?: ($product->name . ' - Patenli Ayakkabı Görsel ' . ($index + 1)) }}"
-                     width="112"
-                     height="112"
-                     loading="lazy"
-                     decoding="async"
-                     class="h-full w-full object-contain p-0">
+                <img src="{{ $image->image_url }}" alt="{{ $product->name }} - Görsel {{ $index + 1 }}" class="h-full w-full object-contain p-0">
             </button>
         @empty
             <button type="button" aria-label="Ürün Görseli" class="relative flex-shrink-0 w-full aspect-square md:h-24 lg:h-28 cursor-pointer items-center justify-center rounded-xl bg-gray-50 overflow-hidden border-b-4 border-black shadow-sm opacity-100">
-                <img src="{{ asset('img/placeholder.svg') }}" alt="{{ $product->name }} - Görsel" width="112" height="112" loading="lazy" decoding="async" class="h-full w-full object-contain p-0">
+                <img src="{{ asset('img/placeholder.svg') }}" alt="Ürün görseli yok" class="h-full w-full object-contain p-0">
             </button>
         @endforelse
     </div>
@@ -89,11 +83,7 @@
                  
                 @forelse($product->images as $index => $image)
                     <img src="{{ $image->image_url }}" 
-                         @if($image->srcset) srcset="{{ $image->srcset }}" sizes="(max-width: 768px) 96vw, 50vw" @endif
-                         alt="{{ $image->alt_text ?: ($product->name . ($index === 0 ? ' - Işıklı Tekerlekli Patenli Ayakkabı' : ' - Görünüm ' . ($index + 1))) }}"
-                         width="800"
-                         height="800"
-                         decoding="async"
+                         alt="{{ $product->name }}"
                          x-show="currentIndex === {{ $index }}"
                          x-transition.opacity.duration.300ms
                          class="absolute inset-0 h-full w-full object-contain p-0"
@@ -102,10 +92,6 @@
                     >
                 @empty
                     <img src="{{ asset('img/placeholder.svg') }}"
-                         alt="{{ $product->name }}"
-                         width="800"
-                         height="800"
-                         decoding="async"
                          class="absolute inset-0 h-full w-full object-contain p-0">
                 @endforelse
             </div>

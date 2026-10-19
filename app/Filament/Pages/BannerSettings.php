@@ -65,20 +65,12 @@ class BannerSettings extends Page implements HasForms
             'best_seller_badge',
         ])->pluck('value', 'key')->toArray();
 
-        $rawTitle1 = trim((string) ($settings['banner_title_1'] ?? ''));
-        $rawTitle2 = trim((string) ($settings['banner_title_2'] ?? ''));
-        $rawTitle3 = trim((string) ($settings['banner_title_3'] ?? ''));
-        $isLegacyDefaultTitle = (
-            ($rawTitle1 === '' && $rawTitle2 === '' && $rawTitle3 === '') ||
-            (mb_strtolower($rawTitle1) === 'her adımda' && mb_strtolower($rawTitle2) === 'premium' && mb_strtolower($rawTitle3) === 'bir deneyim')
-        );
-
         $this->form->fill([
             'banner_pill_text' => $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon',
-            'banner_title_1' => $isLegacyDefaultTitle ? 'Patenli' : $rawTitle1,
-            'banner_title_2' => $isLegacyDefaultTitle ? 'Ayakkabı' : $rawTitle2,
-            'banner_title_3' => $isLegacyDefaultTitle ? 'Modelleri' : $rawTitle3,
-            'banner_desc' => $settings['banner_desc'] ?? "Her adımda premium bir deneyim.\nOnlarca model, sınırsız kombinasyon.",
+            'banner_title_1' => $settings['banner_title_1'] ?? 'Her Adımda',
+            'banner_title_2' => $settings['banner_title_2'] ?? 'Premium',
+            'banner_title_3' => $settings['banner_title_3'] ?? 'Bir Deneyim',
+            'banner_desc' => $settings['banner_desc'] ?? "500'den fazla model, sınırsız kombinasyon.\nLarcivert ile tarzını keşfet.",
             'banner_btn1_text' => $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet',
             'banner_btn1_link' => $settings['banner_btn1_link'] ?? '/patenli-ayakkabilar',
             'banner_btn2_text' => $settings['banner_btn2_text'] ?? 'İndirimleri Gör',
@@ -171,8 +163,6 @@ class BannerSettings extends Page implements HasForms
         }
 
         \Illuminate\Support\Facades\Cache::forget('hero_settings');
-        \Illuminate\Support\Facades\Cache::forget('hero_settings_v2');
-        \Illuminate\Support\Facades\Cache::forget('hero_settings_v3');
         \Illuminate\Support\Facades\Cache::forget('best_seller_badge_setting');
 
         Notification::make()

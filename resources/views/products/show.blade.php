@@ -1,13 +1,10 @@
 {{-- Product Detail Page --}}
 <x-layouts.app>
-    <x-slot:title>{{ $product->seo_title }}</x-slot:title>
-    <x-slot:description>{{ $product->seo_description }}</x-slot:description>
+    <x-slot:title>{{ $product->meta_title ?? $product->name . ' | Patenli Ayakkabılar' }}</x-slot:title>
+    <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
     <x-slot:ogType>product</x-slot:ogType>
-    <x-slot:ogImage>{{ $product->images->first()?->raw_image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
-    <x-slot:ogImageSquare>{{ $product->images->first()?->raw_image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
-    @if($product->images->isNotEmpty())
-        <x-slot:ogImages>{{ $product->images->map(fn ($img) => $img->raw_image_url)->filter()->values()->implode(',') }}</x-slot:ogImages>
-    @endif
+    <x-slot:ogImage>{{ $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
+    <x-slot:ogImageSquare>{{ $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
     <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
     @if(isset($product->is_indexable) && $product->is_indexable === false)
         <x-slot:robots>noindex, follow</x-slot:robots>
@@ -25,15 +22,14 @@
                 '@context' => 'https://schema.org/',
                 '@type' => 'Product',
                 'name' => $product->name,
-                'image' => [$product->images->first()?->raw_image_url ?? asset('whatsapp-cover.png')],
-                'description' => Str::limit(strip_tags($product->short_description ?: $product->name), 200),
-                'sku' => \App\Services\SchemaService::sanitizeSku($product->sku, 'SKU-' . $product->id),
+                'image' => [$product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png')],
+                'description' => Str::limit(strip_tags($product->short_description), 200),
+                'sku' => !empty($product->sku) ? $product->sku : ('SKU-' . $product->id),
                 'offers' => [
                     '@type' => 'Offer',
-                    'url' => url('/urun/' . $product->slug),
+                    'url' => url()->current(),
                     'priceCurrency' => 'TRY',
                     'price' => number_format((float)($product->discount_price ?? $product->price), 2, '.', ''),
-                    'priceValidUntil' => now()->addYear()->format('Y-m-d'),
                     'itemCondition' => 'https://schema.org/NewCondition',
                     'availability' => $product->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 ],
@@ -77,7 +73,7 @@
 
                 <!-- 2. Product info (Right Column, spans both rows) -->
                 <div class="order-2 lg:col-span-1 lg:row-span-2 mt-6 sm:mt-10 lg:mt-0">
-                    <!-- Semantic Single H1 Title -->
+                    <!-- Desktop Title -->
                     <h1 class="hidden md:block text-3xl md:text-4xl font-bold tracking-tight text-gray-900">{{ $product->name }}</h1>
                     
                     @php
@@ -97,8 +93,8 @@
                     </div>
                     @endif
                     
-                    <!-- Mobile Marquee Title (Decorative, avoids duplicate H1 tags) -->
-                    <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative" aria-hidden="true">
+                    <!-- Mobile Marquee Title -->
+                    <div class="md:hidden w-full overflow-hidden bg-white pb-2 relative">
                         <style>
                             @keyframes marquee-mobile {
                                 0% { transform: translate3d(0, 0, 0); }
@@ -115,17 +111,17 @@
                             <!-- Grup 1 -->
                             <div class="flex shrink-0">
                                 @for($i = 0; $i < 3; $i++)
-                                    <span class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
                                         {{ $product->name }}
-                                    </span>
+                                    </h1>
                                 @endfor
                             </div>
                             <!-- Grup 2 (Grup 1'in birebir kopyası) -->
                             <div class="flex shrink-0" aria-hidden="true">
                                 @for($i = 0; $i < 3; $i++)
-                                    <span class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
+                                    <h1 class="font-bold tracking-tight text-gray-900" style="font-size: 28px; margin-right: 80px;">
                                         {{ $product->name }}
-                                    </span>
+                                    </h1>
                                 @endfor
                             </div>
                         </div>
