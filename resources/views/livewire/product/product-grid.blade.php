@@ -39,34 +39,6 @@
             <div class="relative w-full aspect-square bg-transparent rounded-xl sm:rounded-2xl shadow-sm transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]" style="perspective: 1000px;">
                 
                 <!-- ================= CARD FACE ================= -->
-                
-                @if($product->best_seller)
-                    <?php
-                    $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
-                        return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
-                    });
-                    $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
-                    ?>
-                    <div class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[55px] h-[55px] sm:w-[75px] sm:h-[75px] lg:w-[95px] lg:h-[95px] drop-shadow-lg transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
-                        <img src="{{ $badgeUrl }}" alt="En Çok Satan" class="w-full h-full object-contain">
-                    </div>
-                @endif
-
-
-
-                @php
-                    $sizes = $product->variants->pluck('size')->filter()->sort()->values();
-                @endphp
-                @if($sizes->isNotEmpty())
-                    <div class="absolute top-2 right-2 z-40 bg-white/70 backdrop-blur-md text-gray-500 text-[11px] font-medium tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover:opacity-0">
-                        @if($sizes->first() == $sizes->last())
-                            {{ $sizes->first() }}
-                        @else
-                            {{ $sizes->first() }}-{{ $sizes->last() }}
-                        @endif
-                    </div>
-                @endif
-
                 @php
                     $gtagCardItem = \App\Services\GoogleTagService::formatProductItem(
                         $product,
@@ -76,8 +48,6 @@
                         !empty($search) ? 'Arama Sonuçları' : ($category ? 'Kategori: ' . $category : ($isFeaturedOnly ? 'Öne Çıkan Ürünler' : 'Tüm Modeller')),
                         !empty($search) ? 'search_results' : ($category ?: ($isFeaturedOnly ? 'featured_products' : 'all_products'))
                     );
-                @endphp
-                @php
                     $isAboveFold = $loop->index < 4;
                     $imgLoading = $isAboveFold ? 'eager' : 'lazy';
                     $imgPriority = $isAboveFold ? 'high' : 'auto';
@@ -119,6 +89,31 @@
                         @endif
                     </div>
                 </div>
+
+                @if($product->best_seller)
+                    <?php
+                    $badgeSetting = \Illuminate\Support\Facades\Cache::remember('best_seller_badge_setting', 3600, function () {
+                        return \App\Models\Setting::where('key', 'best_seller_badge')->value('value');
+                    });
+                    $badgeUrl = $badgeSetting ? '/storage/' . $badgeSetting : '/img/en-cok-satan.svg?v=big';
+                    ?>
+                    <div aria-hidden="true" class="absolute top-0 -left-1.5 sm:top-0 sm:-left-2 z-40 w-[55px] h-[55px] sm:w-[75px] sm:h-[75px] lg:w-[95px] lg:h-[95px] drop-shadow-lg pointer-events-none transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-95">
+                        <img src="{{ $badgeUrl }}" alt="" role="presentation" class="w-full h-full object-contain" loading="lazy">
+                    </div>
+                @endif
+
+                @php
+                    $sizes = $product->variants->pluck('size')->filter()->sort()->values();
+                @endphp
+                @if($sizes->isNotEmpty())
+                    <div aria-hidden="true" class="absolute top-2 right-2 z-40 bg-white/70 backdrop-blur-md text-gray-500 text-[11px] font-medium tracking-wide px-2 py-1 rounded-lg shadow-sm border border-white/40 pointer-events-none transition-all duration-300 group-hover:opacity-0">
+                        @if($sizes->first() == $sizes->last())
+                            {{ $sizes->first() }}
+                        @else
+                            {{ $sizes->first() }}-{{ $sizes->last() }}
+                        @endif
+                    </div>
+                @endif
 
                 <!-- ================= SIZE SELECTION MODAL ================= -->
                 @if($hasMultipleChoices)

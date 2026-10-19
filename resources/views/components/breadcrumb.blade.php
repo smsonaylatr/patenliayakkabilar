@@ -1,11 +1,15 @@
 @props(['items' => []])
 
+@php
+    $items = array_values(array_filter($items));
+@endphp
+
 @if(count($items) > 0)
 {{-- Görsel Breadcrumb --}}
 <nav aria-label="Breadcrumb" class="mb-4">
     <ol class="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
         @foreach($items as $i => $item)
-            @if(!$loop->last)
+            @if(!$loop->last && !empty($item['url']))
                 <li>
                     <a href="{{ $item['url'] }}"
                        class="hover:text-gray-900 transition-colors"
@@ -30,20 +34,21 @@
 {!! json_encode([
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
-    'itemListElement' => collect($items)->map(function ($item, $index) use ($items) {
+    'itemListElement' => collect($items)->values()->map(function ($item, $index) use ($items) {
         $element = [
             '@type' => 'ListItem',
             'position' => $index + 1,
             'name' => $item['name'],
         ];
 
-        // Son eleman'da "item" alanı olmasın (Google önerisi)
-        if ($index < count($items) - 1 && isset($item['url'])) {
+        if (!empty($item['url'])) {
             $element['item'] = url($item['url']);
+        } elseif ($index === count($items) - 1) {
+            $element['item'] = url()->current();
         }
 
         return $element;
-    })->values()->all(),
+    })->all(),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
 @endif

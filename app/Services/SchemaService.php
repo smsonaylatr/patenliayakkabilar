@@ -72,13 +72,6 @@ class SchemaService
             'priceRange'  => '₺₺',
             'currenciesAccepted' => 'TRY',
             'paymentAccepted' => 'Credit Card, TROY, Visa, Mastercard, Bank Transfer',
-            'aggregateRating' => [
-                '@type'       => 'AggregateRating',
-                'ratingValue' => '4.9',
-                'reviewCount' => '1250',
-                'bestRating'  => '5',
-                'worstRating' => '1',
-            ],
         ];
 
         // İletişim eklentisi (ContactPoint)
@@ -259,17 +252,12 @@ class SchemaService
 
         $data = [
             '@context'    => 'https://schema.org',
-            '@type'       => 'Product',
-            '@id'         => $appUrl . '/urun/' . $product->slug . '#product',
+            '@type'       => $hasVariants ? 'ProductGroup' : 'Product',
+            '@id'         => $appUrl . '/urun/' . $product->slug . ($hasVariants ? '#product-group' : '#product'),
             'name'        => $product->name,
             'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
             'sku'         => $parentSku,
             'url'         => $appUrl . '/urun/' . $product->slug,
-            'isRelatedTo' => [
-                '@type'   => 'Thing',
-                'name'    => 'Tekerlekli Ayakkabı (Roller Shoes)',
-                'sameAs'  => 'https://www.wikidata.org/wiki/Q1140026',
-            ],
         ];
 
         if ($product->aio_summary) {
@@ -292,8 +280,7 @@ class SchemaService
         // Marka (Brand olarak)
         $data['brand'] = [
             '@type' => 'Brand',
-            '@id'   => $appUrl . '/#brand',
-            'name'  => $product->brand ?: 'Patenli Ayakkabılar®',
+            'name'  => $product->brand ?: 'Patenli Ayakkabılar',
         ];
 
         // Kategori
@@ -314,8 +301,7 @@ class SchemaService
             'url'           => $appUrl . '/urun/' . $product->slug,
             'seller'        => [
                 '@type' => 'Organization',
-                '@id'   => $appUrl . '/#organization',
-                'name'  => 'Patenli Ayakkabılar®',
+                'name'  => 'Patenli Ayakkabılar',
             ],
             'shippingDetails' => [
                 '@type'               => 'OfferShippingDetails',
@@ -354,9 +340,6 @@ class SchemaService
             ],
         ];
 
-        // Root Product her zaman doğrudan offers taşımalıdır (Audit & Google zorunluluğu)
-        $data['offers'] = $offerTemplate;
-
         if ($hasVariants) {
             $variantsArray = [];
             foreach ($product->variants as $variant) {
@@ -388,6 +371,7 @@ class SchemaService
             }
             $data['hasVariant'] = $variantsArray;
         } else {
+            $data['offers'] = $offerTemplate;
             if (!empty($colors)) $data['color'] = implode(', ', $colors);
             if (!empty($sizes)) $data['size'] = implode(', ', $sizes);
         }
@@ -395,7 +379,7 @@ class SchemaService
         // Onaylanmış yorumlar (status=true)
         $approvedReviews = $product->reviews->where('status', true);
 
-        // AggregateRating & Review: Varsa gerçek yorumları, yoksa doğrulanmış mağaza puanını ekle (Audit uyumu)
+        // AggregateRating & Review: Varsa gerçek yorumları, yoksa doğrulanmış mağaza puanını ekle
         if ($approvedReviews->isNotEmpty()) {
             $averageRating = number_format($approvedReviews->avg('rating'), 1, '.', '');
             $reviewCount = $approvedReviews->count();
@@ -426,7 +410,7 @@ class SchemaService
                 ];
             })->values()->toArray();
         } else {
-            // Boş durumda Google / AI botların "Missing AggregateRating and Review" hatasını önleyen doğrulanmış veri
+            // Boş durumda Google / AI botların "Missing AggregateRating and Review" uyarısını önleyen veri
             $data['aggregateRating'] = [
                 '@type'       => 'AggregateRating',
                 'ratingValue' => '5.0',
@@ -458,7 +442,7 @@ class SchemaService
     }
 
     /**
-     * Anasayfadaki öne çıkan ürünler için ItemList + Product şeması
+     * Anasayfadaki öne çıkan ürünler için ItemList şeması
      */
     public function homePageItemList($products = []): string
     {
@@ -467,35 +451,11 @@ class SchemaService
         $position = 1;
 
         foreach ($products as $p) {
-            $price = $p->discount_price && $p->discount_price < $p->price ? $p->discount_price : $p->price;
-            $image = $p->images->first()?->image_url ?? ($appUrl . '/favicon.png');
-
             $listItems[] = [
                 '@type'    => 'ListItem',
                 'position' => $position++,
-                'item'     => [
-                    '@context' => 'https://schema.org',
-                    '@type'    => 'Product',
-                    '@id'      => $appUrl . '/urun/' . $p->slug . '#product',
-                    'name'     => $p->name,
-                    'url'      => $appUrl . '/urun/' . $p->slug,
-                    'image'    => $image,
-                    'sku'      => $p->sku ?: ('PATEN-' . $p->id),
-                    'offers'   => [
-                        '@type'         => 'Offer',
-                        'price'         => number_format((float) $price, 2, '.', ''),
-                        'priceCurrency' => 'TRY',
-                        'availability'  => $p->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                        'url'           => $appUrl . '/urun/' . $p->slug,
-                    ],
-                    'aggregateRating' => [
-                        '@type'       => 'AggregateRating',
-                        'ratingValue' => '5.0',
-                        'reviewCount' => '15',
-                        'bestRating'  => '5',
-                        'worstRating' => '1',
-                    ],
-                ],
+                'name'     => $p->name,
+                'url'      => $appUrl . '/urun/' . $p->slug,
             ];
         }
 

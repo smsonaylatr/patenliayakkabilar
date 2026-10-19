@@ -1,17 +1,16 @@
 <?php
-$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v2', 86400, function () {
+$settings = \Illuminate\Support\Facades\Cache::remember('hero_settings_v3', 86400, function () {
     $current = \App\Models\Setting::whereIn('key', [
         'banner_pill_text', 'banner_title_1', 'banner_title_2', 'banner_title_3',
         'banner_desc', 'banner_btn1_text', 'banner_btn1_link', 'banner_btn2_text', 'banner_btn2_link',
         'banner_image_1', 'banner_image_2', 'banner_image_3', 'banner_bg_color_1', 'banner_bg_color_2',
     ])->pluck('value', 'key')->toArray();
 
-    if (
-        isset($current['banner_title_1'], $current['banner_title_2'], $current['banner_title_3']) &&
-        mb_strtolower(trim((string) $current['banner_title_1'])) === 'her adımda' &&
-        mb_strtolower(trim((string) $current['banner_title_2'])) === 'premium' &&
-        mb_strtolower(trim((string) $current['banner_title_3'])) === 'bir deneyim'
-    ) {
+    $combinedAscii = strtolower(\App\Services\SchemaService::turkishToAscii(
+        trim(($current['banner_title_1'] ?? '') . ' ' . ($current['banner_title_2'] ?? '') . ' ' . ($current['banner_title_3'] ?? ''))
+    ));
+
+    if ($combinedAscii === '' || str_contains($combinedAscii, 'her adimda') || (!str_contains($combinedAscii, 'paten') && !str_contains($combinedAscii, 'ayakkab'))) {
         \App\Models\Setting::updateOrCreate(['key' => 'banner_title_1'], ['value' => 'Patenli']);
         \App\Models\Setting::updateOrCreate(['key' => 'banner_title_2'], ['value' => 'Ayakkabı']);
         \App\Models\Setting::updateOrCreate(['key' => 'banner_title_3'], ['value' => 'Modelleri']);
@@ -30,31 +29,59 @@ $pillText = $settings['banner_pill_text'] ?? '2026 · Yeni Koleksiyon';
 $rawTitle1 = trim((string) ($settings['banner_title_1'] ?? ''));
 $rawTitle2 = trim((string) ($settings['banner_title_2'] ?? ''));
 $rawTitle3 = trim((string) ($settings['banner_title_3'] ?? ''));
+$combinedTitleAscii = strtolower(\App\Services\SchemaService::turkishToAscii(trim($rawTitle1 . ' ' . $rawTitle2 . ' ' . $rawTitle3)));
 $isLegacyDefaultTitle = (
-    ($rawTitle1 === '' && $rawTitle2 === '' && $rawTitle3 === '') ||
-    (mb_strtolower($rawTitle1) === 'her adımda' && mb_strtolower($rawTitle2) === 'premium' && mb_strtolower($rawTitle3) === 'bir deneyim')
+    $combinedTitleAscii === '' ||
+    str_contains($combinedTitleAscii, 'her adimda') ||
+    (!str_contains($combinedTitleAscii, 'paten') && !str_contains($combinedTitleAscii, 'ayakkab'))
 );
 
 $title1 = $isLegacyDefaultTitle ? 'Patenli' : $rawTitle1;
 $title2 = $isLegacyDefaultTitle ? 'Ayakkabı' : $rawTitle2;
 $title3 = $isLegacyDefaultTitle ? 'Modelleri' : $rawTitle3;
-$desc = $settings['banner_desc'] ?? "Her adımda premium bir deneyim.\nOnlarca model, sınırsız kombinasyon.";
+
+$rawDesc = trim((string) ($settings['banner_desc'] ?? ''));
+$rawDescAscii = strtolower(\App\Services\SchemaService::turkishToAscii($rawDesc));
+$desc = ($rawDesc === '' || str_contains($rawDescAscii, 'her adimda premium bir deneyim'))
+    ? "Işıklı ve gizli tekerlekli çocuk & genç patenli ayakkabı modelleri.\nTek tuşla spor ayakkabıya dönüşen güvenli tasarım, hızlı kargo."
+    : $rawDesc;
+
 $btn1Text = $settings['banner_btn1_text'] ?? 'Koleksiyonu Keşfet';
-$btn1Link = $settings['banner_btn1_link'] ?? route('products.index');
+$rawBtn1Link = $settings['banner_btn1_link'] ?? route('products.index');
+$btn1Link = preg_replace('#^/urunler\b#', '/patenli-ayakkabilar', $rawBtn1Link);
+
 $btn2Text = $settings['banner_btn2_text'] ?? 'İndirimleri Gör';
-$btn2Link = $settings['banner_btn2_link'] ?? route('products.index') . '?indirim=true';
+$rawBtn2Link = $settings['banner_btn2_link'] ?? (route('products.index') . '?indirim=true');
+$btn2Link = preg_replace('#^/urunler\b#', '/patenli-ayakkabilar', $rawBtn2Link);
 
 $img1 = $settings['banner_image_1'] ?? null;
 $img2 = $settings['banner_image_2'] ?? null;
 $img3 = $settings['banner_image_3'] ?? null;
 
-$heroProducts = \Illuminate\Support\Facades\Cache::remember('hero_random_products', 3600, function () {
-    return \App\Models\Product::with('images')->where('status', true)->inRandomOrder()->take(3)->get();
+$heroProducts = \Illuminate\Support\Facades\Cache::remember('hero_featured_products_v2', 3600, function () {
+    return \App\Models\Product::with('images')
+        ->where('status', true)
+        ->where('stock', '>', 0)
+        ->orderByDesc('featured')
+        ->orderByDesc('best_seller')
+        ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
+        ->orderBy('homepage_sort', 'asc')
+        ->orderByDesc('id')
+        ->take(3)
+        ->get();
 });
 
-$mainImgUrl = $img1 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img1) : ($heroProducts->get(0) && $heroProducts->get(0)->images->first() ? $heroProducts->get(0)->images->first()->image_url : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=700&q=90');
-$subImgUrl1 = $img2 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img2) : ($heroProducts->get(1) && $heroProducts->get(1)->images->first() ? $heroProducts->get(1)->images->first()->image_url : 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80');
-$subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img3) : ($heroProducts->get(2) && $heroProducts->get(2)->images->first() ? $heroProducts->get(2)->images->first()->image_url : 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80');
+$poster1 = $heroProducts->get(0)?->images->first()?->raw_image_url ?? asset('favicon.png');
+$poster2 = $heroProducts->get(1)?->images->first()?->raw_image_url ?? $poster1;
+$poster3 = $heroProducts->get(2)?->images->first()?->raw_image_url ?? $poster1;
+
+$heroAlt1 = $heroProducts->get(0) ? ($heroProducts->get(0)->name . ' - Işıklı Patenli Ayakkabı') : 'Patenli Ayakkabı Modeli';
+$heroAlt2 = $heroProducts->get(1) ? ($heroProducts->get(1)->name . ' - Tekerlekli Çocuk Ayakkabısı') : 'Işıklı Patenli Ayakkabı';
+$heroAlt3 = $heroProducts->get(2) ? ($heroProducts->get(2)->name . ' - Patenli Spor Ayakkabı') : 'Tekerlekli Spor Ayakkabı';
+
+$mainImgUrl = $img1 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img1) : $poster1;
+$subImgUrl1 = $img2 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img2) : $poster2;
+$subImgUrl2 = $img3 ? \Illuminate\Support\Facades\Storage::disk('public')->url($img3) : $poster3;
 ?>
 <style>
     /* ========================
@@ -754,27 +781,33 @@ $isVideo = function($url) {
       <div class="card-3d card-main" id="hero-main-card"
         :style="`transform: perspective(1000px) translateX(-50%) translateY(-50%) rotateY(${mx * -8}deg) rotateX(${my * 5}deg) translateZ(0); transition: transform ${mx === 0 ? '0.8s ease' : '0.1s ease'}; animation: ${mx === 0 ? 'float-main 7s ease-in-out infinite' : 'none'};`">
         @if($isVideo($mainImgUrl))
-            <video src="{{ $mainImgUrl }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+            <video src="{{ $mainImgUrl }}" poster="{{ $poster1 }}" autoplay loop muted playsinline preload="metadata" width="370" height="290" aria-label="{{ $heroAlt1 }}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="{{ $poster1 }}" alt="{{ $heroAlt1 }}" width="370" height="290" />
+            </video>
         @else
-            <img src="{{ $mainImgUrl }}" alt="Ana Kampanya Görseli" />
+            <img src="{{ $mainImgUrl }}" alt="{{ $heroAlt1 }}" width="370" height="290" fetchpriority="high" decoding="async" />
         @endif
       </div>
 
       <!-- Floating card top-right -->
       <div class="card-3d card-sm card-float-1">
         @if($isVideo($subImgUrl1))
-            <video src="{{ $subImgUrl1 }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+            <video src="{{ $subImgUrl1 }}" poster="{{ $poster2 }}" autoplay loop muted playsinline preload="metadata" width="175" height="148" aria-label="{{ $heroAlt2 }}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="{{ $poster2 }}" alt="{{ $heroAlt2 }}" width="175" height="148" />
+            </video>
         @else
-            <img src="{{ $subImgUrl1 }}" alt="Kampanya Görseli 2" />
+            <img src="{{ $subImgUrl1 }}" alt="{{ $heroAlt2 }}" width="175" height="148" loading="lazy" decoding="async" />
         @endif
       </div>
 
       <!-- Floating card bottom-left -->
       <div class="card-3d card-sm card-float-2">
         @if($isVideo($subImgUrl2))
-            <video src="{{ $subImgUrl2 }}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+            <video src="{{ $subImgUrl2 }}" poster="{{ $poster3 }}" autoplay loop muted playsinline preload="metadata" width="175" height="148" aria-label="{{ $heroAlt3 }}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="{{ $poster3 }}" alt="{{ $heroAlt3 }}" width="175" height="148" />
+            </video>
         @else
-            <img src="{{ $subImgUrl2 }}" alt="Kampanya Görseli 3" />
+            <img src="{{ $subImgUrl2 }}" alt="{{ $heroAlt3 }}" width="175" height="148" loading="lazy" decoding="async" />
         @endif
       </div>
 

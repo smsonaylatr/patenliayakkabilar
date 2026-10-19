@@ -172,6 +172,7 @@ class BannerSettings extends Page implements HasForms
 
         \Illuminate\Support\Facades\Cache::forget('hero_settings');
         \Illuminate\Support\Facades\Cache::forget('hero_settings_v2');
+        \Illuminate\Support\Facades\Cache::forget('hero_settings_v3');
         \Illuminate\Support\Facades\Cache::forget('best_seller_badge_setting');
 
         Notification::make()
