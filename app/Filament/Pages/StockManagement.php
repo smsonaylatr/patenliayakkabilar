@@ -186,7 +186,9 @@ class StockManagement extends Page implements HasTable
         if ($newStock === $oldStock) return;
         if ($newStock < 0) $newStock = 0;
 
+        $variant->skipAutoStockMovement = true;
         $variant->update(['stock' => $newStock]);
+        $variant->skipAutoStockMovement = false;
         $variant->product?->syncFromVariants();
 
         StockMovement::record(
@@ -325,7 +327,9 @@ class StockManagement extends Page implements HasTable
 
                         if ($newStock === $oldStock) return;
 
+                        $record->skipAutoStockMovement = true;
                         $record->update(['stock' => $newStock]);
+                        $record->skipAutoStockMovement = false;
                         $record->product?->syncFromVariants();
 
                         StockMovement::record(
@@ -394,7 +398,9 @@ class StockManagement extends Page implements HasTable
                                 $oldStock = (int) $record->stock;
                                 if ($oldStock === $newStock) continue;
                                 
+                                $record->skipAutoStockMovement = true;
                                 $record->update(['stock' => $newStock]);
+                                $record->skipAutoStockMovement = false;
                                 $record->product?->syncFromVariants();
                                 
                                 StockMovement::record(
@@ -425,7 +431,9 @@ class StockManagement extends Page implements HasTable
                                 $oldStock = (int) $record->stock;
                                 if ($oldStock === 0) continue;
                                 
+                                $record->skipAutoStockMovement = true;
                                 $record->update(['stock' => 0]);
+                                $record->skipAutoStockMovement = false;
                                 $record->product?->syncFromVariants();
                                 
                                 StockMovement::record(

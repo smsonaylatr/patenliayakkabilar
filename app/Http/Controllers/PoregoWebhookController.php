@@ -201,9 +201,19 @@ class PoregoWebhookController extends Controller
                             if ($wasStockDecremented) {
                                 $order->loadMissing(['items.product', 'items.variant']);
                                 foreach ($order->items as $item) {
+                                    $restorableQty = \App\Models\StockMovement::getRestorableQty(
+                                        $order->order_number,
+                                        $item->product_variant_id ? (int) $item->product_variant_id : null,
+                                        $item->product_id ? (int) $item->product_id : null,
+                                        (int) $item->quantity
+                                    );
+                                    if ($restorableQty <= 0) {
+                                        Log::info("Porego Webhook: İptal stok geri yükleme atlandı (zaten geri yüklenmiş): #{$order->order_number}, Varyant #{$item->product_variant_id}");
+                                        continue;
+                                    }
                                     if ($item->variant) {
                                         $item->variant->safeIncrement(
-                                            $item->quantity,
+                                            $restorableQty,
                                             \App\Models\StockMovement::TYPE_CANCEL,
                                             $order->order_number,
                                             "Porego webhook iptali ile stok geri yüklendi"
@@ -211,7 +221,7 @@ class PoregoWebhookController extends Controller
                                         $item->product?->syncFromVariants();
                                     } elseif ($item->product) {
                                         $item->product->safeIncrement(
-                                            $item->quantity,
+                                            $restorableQty,
                                             \App\Models\StockMovement::TYPE_CANCEL,
                                             $order->order_number,
                                             "Porego webhook iptali ile stok geri yüklendi"
@@ -236,9 +246,19 @@ class PoregoWebhookController extends Controller
                             if ($wasStockDecremented) {
                                 $order->loadMissing(['items.product', 'items.variant']);
                                 foreach ($order->items as $item) {
+                                    $restorableQty = \App\Models\StockMovement::getRestorableQty(
+                                        $order->order_number,
+                                        $item->product_variant_id ? (int) $item->product_variant_id : null,
+                                        $item->product_id ? (int) $item->product_id : null,
+                                        (int) $item->quantity
+                                    );
+                                    if ($restorableQty <= 0) {
+                                        Log::info("Porego Webhook: İade stok geri yükleme atlandı (zaten geri yüklenmiş): #{$order->order_number}, Varyant #{$item->product_variant_id}");
+                                        continue;
+                                    }
                                     if ($item->variant) {
                                         $item->variant->safeIncrement(
-                                            $item->quantity,
+                                            $restorableQty,
                                             \App\Models\StockMovement::TYPE_RETURN,
                                             $order->order_number,
                                             "Porego webhook iadesi ile stok geri yüklendi"
@@ -246,7 +266,7 @@ class PoregoWebhookController extends Controller
                                         $item->product?->syncFromVariants();
                                     } elseif ($item->product) {
                                         $item->product->safeIncrement(
-                                            $item->quantity,
+                                            $restorableQty,
                                             \App\Models\StockMovement::TYPE_RETURN,
                                             $order->order_number,
                                             "Porego webhook iadesi ile stok geri yüklendi"
@@ -294,7 +314,9 @@ class PoregoWebhookController extends Controller
                     $variant = \App\Models\ProductVariant::where('sku', $sku)->first();
                     if ($variant) {
                         $oldStock = (int) $variant->stock;
+                        $variant->skipAutoStockMovement = true;
                         $variant->update(['stock' => $newStock]);
+                        $variant->skipAutoStockMovement = false;
                         $variant->product?->syncFromVariants();
                         \App\Models\StockMovement::record(
                             productId: $variant->product_id,

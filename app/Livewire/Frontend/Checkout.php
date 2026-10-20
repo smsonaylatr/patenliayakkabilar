@@ -725,10 +725,25 @@ class Checkout extends Component
 
         foreach ($order->items as $orderItem) {
             if ($orderItem->product_variant_id) {
+                $expectedVariantQty = (int) $order->items
+                    ->where('product_variant_id', $orderItem->product_variant_id)
+                    ->sum('quantity');
+                $alreadyDeducted = \App\Models\StockMovement::getNetDeductedQty(
+                    $order->order_number,
+                    (int) $orderItem->product_variant_id,
+                    (int) $orderItem->product_id
+                );
+                $qtyToDeduct = min((int) $orderItem->quantity, max(0, $expectedVariantQty - $alreadyDeducted));
+
+                if ($qtyToDeduct <= 0) {
+                    \Illuminate\Support\Facades\Log::info("Stok düşürme mükerrerlik koruması (idempotency): Sipariş #{$order->order_number}, Varyant #{$orderItem->product_variant_id} için stok zaten düşülmüş ({$alreadyDeducted}/{$expectedVariantQty}).");
+                    continue;
+                }
+
                 $variant = \App\Models\ProductVariant::find($orderItem->product_variant_id);
                 if ($variant) {
                     $success = $variant->safeDecrement(
-                        $orderItem->quantity,
+                        $qtyToDeduct,
                         $order->order_number,
                         "Ödeme onayı ile stok düşürüldü"
                     );
@@ -736,19 +751,35 @@ class Checkout extends Component
                         $variant->product?->syncFromVariants();
                     } else {
                         $variantLabel = $variant->size ? " (Beden: {$variant->size})" : '';
-                        $failedItems[] = "{$orderItem->product_name}{$variantLabel} — istenen: {$orderItem->quantity}, stok: {$variant->stock}";
+                        $failedItems[] = "{$orderItem->product_name}{$variantLabel} — istenen: {$qtyToDeduct}, stok: {$variant->stock}";
                     }
                 }
             } elseif ($orderItem->product) {
+                $expectedProductQty = (int) $order->items
+                    ->whereNull('product_variant_id')
+                    ->where('product_id', $orderItem->product_id)
+                    ->sum('quantity');
+                $alreadyDeducted = \App\Models\StockMovement::getNetDeductedQty(
+                    $order->order_number,
+                    null,
+                    (int) $orderItem->product_id
+                );
+                $qtyToDeduct = min((int) $orderItem->quantity, max(0, $expectedProductQty - $alreadyDeducted));
+
+                if ($qtyToDeduct <= 0) {
+                    \Illuminate\Support\Facades\Log::info("Stok düşürme mükerrerlik koruması (idempotency): Sipariş #{$order->order_number}, Ürün #{$orderItem->product_id} için stok zaten düşülmüş ({$alreadyDeducted}/{$expectedProductQty}).");
+                    continue;
+                }
+
                 $product = Product::find($orderItem->product_id);
                 if ($product) {
                     $success = $product->safeDecrement(
-                        $orderItem->quantity,
+                        $qtyToDeduct,
                         $order->order_number,
                         "Ödeme onayı ile stok düşürüldü"
                     );
                     if (!$success) {
-                        $failedItems[] = "{$orderItem->product_name} — istenen: {$orderItem->quantity}, stok: {$product->stock}";
+                        $failedItems[] = "{$orderItem->product_name} — istenen: {$qtyToDeduct}, stok: {$product->stock}";
                     }
                 }
             }

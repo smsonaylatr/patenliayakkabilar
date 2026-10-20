@@ -946,9 +946,19 @@ class OrdersTable
                         if ($wasStockDecremented) {
                             $record->loadMissing(['items.product', 'items.variant']);
                             foreach ($record->items as $item) {
+                                $restorableQty = \App\Models\StockMovement::getRestorableQty(
+                                    $record->order_number,
+                                    $item->product_variant_id ? (int) $item->product_variant_id : null,
+                                    $item->product_id ? (int) $item->product_id : null,
+                                    (int) $item->quantity
+                                );
+                                if ($restorableQty <= 0) {
+                                    \Illuminate\Support\Facades\Log::info("OrdersTable: İade stok geri yükleme atlandı (zaten geri yüklenmiş): #{$record->order_number}, Varyant #{$item->product_variant_id}");
+                                    continue;
+                                }
                                 if ($item->variant) {
                                     $item->variant->safeIncrement(
-                                        $item->quantity,
+                                        $restorableQty,
                                         \App\Models\StockMovement::TYPE_RETURN,
                                         $record->order_number,
                                         "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
@@ -956,7 +966,7 @@ class OrdersTable
                                     $item->product?->syncFromVariants();
                                 } elseif ($item->product) {
                                     $item->product->safeIncrement(
-                                        $item->quantity,
+                                        $restorableQty,
                                         \App\Models\StockMovement::TYPE_RETURN,
                                         $record->order_number,
                                         "İade: " . (\App\Models\AccountingEntry::RETURN_REASONS[$data['return_reason']] ?? $data['return_reason'])
@@ -1022,9 +1032,19 @@ class OrdersTable
                         if ($wasStockDecremented) {
                             $record->loadMissing(['items.product', 'items.variant']);
                             foreach ($record->items as $item) {
+                                $restorableQty = \App\Models\StockMovement::getRestorableQty(
+                                    $record->order_number,
+                                    $item->product_variant_id ? (int) $item->product_variant_id : null,
+                                    $item->product_id ? (int) $item->product_id : null,
+                                    (int) $item->quantity
+                                );
+                                if ($restorableQty <= 0) {
+                                    \Illuminate\Support\Facades\Log::info("OrdersTable: İptal stok geri yükleme atlandı (zaten geri yüklenmiş): #{$record->order_number}, Varyant #{$item->product_variant_id}");
+                                    continue;
+                                }
                                 if ($item->variant) {
                                     $item->variant->safeIncrement(
-                                        $item->quantity,
+                                        $restorableQty,
                                         \App\Models\StockMovement::TYPE_CANCEL,
                                         $record->order_number,
                                         "Sipariş iptali ile stok geri yüklendi"
@@ -1032,7 +1052,7 @@ class OrdersTable
                                     $item->product?->syncFromVariants();
                                 } elseif ($item->product) {
                                     $item->product->safeIncrement(
-                                        $item->quantity,
+                                        $restorableQty,
                                         \App\Models\StockMovement::TYPE_CANCEL,
                                         $record->order_number,
                                         "Sipariş iptali ile stok geri yüklendi"

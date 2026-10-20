@@ -8,6 +8,12 @@ class ProductVariant extends Model
 {
     protected $guarded = [];
 
+    /**
+     * safeIncrement / StockManagement gibi kendi StockMovement kaydını oluşturan
+     * metodlarda otomatik model event loglamasını atlamak için kullanılır.
+     */
+    public bool $skipAutoStockMovement = false;
+
     public const COLOR_OPTIONS = [
         'Beyaz'       => 'Beyaz',
         'Siyah'       => 'Siyah',
@@ -74,6 +80,43 @@ class ProductVariant extends Model
                 $temp = $variant->price;
                 $variant->price = $variant->discount_price;
                 $variant->discount_price = $temp;
+            }
+        });
+
+        // Varyant ilk kez oluşturulduğunda (Asorti / İlk Stok Girişi) stok > 0 ise hareket kaydet
+        static::created(function (ProductVariant $variant) {
+            if (!$variant->skipAutoStockMovement && (int) $variant->stock > 0 && $variant->product_id) {
+                StockMovement::record(
+                    productId: (int) $variant->product_id,
+                    variantId: (int) $variant->id,
+                    type: StockMovement::TYPE_RESTOCK,
+                    quantity: (int) $variant->stock,
+                    oldStock: 0,
+                    newStock: (int) $variant->stock,
+                    reference: null,
+                    note: "İlk stok girişi / Asorti (Beden: {$variant->size})",
+                );
+            }
+        });
+
+        // Varyant stoğu ürün düzenleme formundan (+Koli Ekle / Repeater / Varyant sekmesi) güncellendiğinde hareket kaydet
+        static::updated(function (ProductVariant $variant) {
+            if (!$variant->skipAutoStockMovement && $variant->wasChanged('stock') && $variant->product_id) {
+                $oldStock = (int) $variant->getOriginal('stock');
+                $newStock = (int) $variant->stock;
+
+                if ($oldStock !== $newStock) {
+                    StockMovement::record(
+                        productId: (int) $variant->product_id,
+                        variantId: (int) $variant->id,
+                        type: StockMovement::TYPE_ADJUSTMENT,
+                        quantity: abs($newStock - $oldStock),
+                        oldStock: $oldStock,
+                        newStock: $newStock,
+                        reference: null,
+                        note: "Ürün düzenleme ekranından stok güncellendi ({$oldStock} → {$newStock})",
+                    );
+                }
             }
         });
 
@@ -164,8 +207,10 @@ class ProductVariant extends Model
     {
         if ($qty <= 0) return;
 
-        $oldStock = (int) $this->stock;
+        $oldStock = (int) static::where('id', $this->id)->value('stock');
+        $this->skipAutoStockMovement = true;
         $this->increment('stock', $qty);
+        $this->skipAutoStockMovement = false;
         $this->refresh();
 
         StockMovement::record(

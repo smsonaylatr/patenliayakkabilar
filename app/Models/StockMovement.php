@@ -83,6 +83,57 @@ class StockMovement extends Model
     }
 
     /**
+     * Belirli bir sipariş referansı ve varyant/ürün için net düşülmüş stok miktarını hesaplar.
+     * Pozitif değer = şu an sipariş için stoktan düşülmüş (ve henüz iade/iptal ile geri alınmamış) net adet.
+     */
+    public static function getNetDeductedQty(string $reference, ?int $variantId, ?int $productId = null): int
+    {
+        if (empty($reference) || $reference === 'N/A') {
+            return 0;
+        }
+
+        $query = self::where('reference', $reference);
+
+        if ($variantId) {
+            $query->where('variant_id', $variantId);
+        } elseif ($productId) {
+            $query->where('product_id', $productId)->whereNull('variant_id');
+        } else {
+            return 0;
+        }
+
+        return (int) $query->selectRaw('COALESCE(SUM(CAST(old_stock AS SIGNED) - CAST(new_stock AS SIGNED)), 0) as net_deducted')
+            ->value('net_deducted');
+    }
+
+    /**
+     * Siparişin geri yüklenebilir (henüz iade/iptal edilmemiş) stok miktarını döndürür.
+     */
+    public static function getRestorableQty(string $reference, ?int $variantId, ?int $productId, int $requestedQty): int
+    {
+        if ($requestedQty <= 0) {
+            return 0;
+        }
+
+        if (empty($reference) || $reference === 'N/A') {
+            return $requestedQty;
+        }
+
+        // Eğer bu sipariş için tabloda hiç hareket yoksa (eski sipariş), istenen miktarı kabul et
+        $hasAnyForOrder = self::where('reference', $reference)->exists();
+        if (!$hasAnyForOrder) {
+            return $requestedQty;
+        }
+
+        $netDeducted = self::getNetDeductedQty($reference, $variantId, $productId);
+        if ($netDeducted <= 0) {
+            return 0;
+        }
+
+        return min($requestedQty, $netDeducted);
+    }
+
+    /**
      * Hareket tipi Türkçe label
      */
     public function getTypeLabelAttribute(): string

@@ -642,7 +642,11 @@ class PoregoApiService
         }
 
         if ($changed) {
-            $order->save();
+            // KRİTİK: saveQuietly() kullanılmalı!
+            // Çünkü sendOrder() doğrudan OrderObserver::updated() içinden çağrıldığında
+            // Eloquent henüz syncOriginal() yapmamış oluyor; normal save() çağrılırsa
+            // OrderObserver::updated() ikinci kez (recursive) tetiklenir ve stok 2 defa düşer!
+            $order->saveQuietly();
             
             // Gerçek kargo kodu kaydedildiyse ve sipariş henüz shipped değilse, otomatik shipped yap
             $cleanCode = trim((string)$order->cargo_tracking_code);
@@ -653,8 +657,16 @@ class PoregoApiService
                 && $cleanCode !== trim((string)$order->id)
                 && in_array($order->status, ['pending', 'processing'])
             ) {
+                $oldStatus = $order->status;
                 $order->status = 'shipped';
-                $order->save();
+                $order->saveQuietly();
+                \App\Models\OrderStatusHistory::create([
+                    'order_id' => $order->id,
+                    'old_status' => $oldStatus,
+                    'new_status' => 'shipped',
+                    'changed_by' => null,
+                    'note' => "Porego gerçek kargo kodu ({$cleanCode}) ile otomatik kargolandı.",
+                ]);
                 Log::info("Gerçek kargo kodu geldi, sipariş otomatik shipped yapıldı. Sipariş: #{$order->order_number}, Kod: {$cleanCode}");
             }
         }
@@ -695,7 +707,7 @@ class PoregoApiService
                 // Eğer Porego bize bir fatura PDF linki dönüyorsa onu da kaydedelim
                 // $order->invoice_url = $response->json('invoiceUrl'); 
                 
-                $order->save();
+                $order->saveQuietly();
 
                 Log::info("Sipariş (#{$order->order_number}) için başarıyla e-fatura kesildi.");
                 return ['success' => true, 'message' => 'Fatura başarıyla oluşturuldu.'];

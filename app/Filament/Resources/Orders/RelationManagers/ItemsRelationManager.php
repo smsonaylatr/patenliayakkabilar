@@ -292,26 +292,37 @@ class ItemsRelationManager extends RelationManager
                         $oldQty = (int) ($record?->quantity ?? 0);
                         $diff = $newQty - $oldQty;
 
-                        // Miktar artıyorsa stok kontrolü
-                        if ($diff > 0) {
-                            if (!empty($data['product_variant_id'])) {
-                                $variant = ProductVariant::find($data['product_variant_id']);
-                                if ($variant && $variant->stock < $diff) {
+                        $newVariantId = (int) ($data['product_variant_id'] ?? 0);
+                        $oldVariantId = (int) ($record?->product_variant_id ?? 0);
+                        $newProductId = (int) ($data['product_id'] ?? 0);
+                        $oldProductId = (int) ($record?->product_id ?? 0);
+
+                        $variantChanged = $newVariantId !== $oldVariantId;
+                        $productChanged = $newProductId !== $oldProductId;
+
+                        // Varyant veya ürün değiştiyse yeni varyantın/ürünün $newQty kadar stoğu olmalı;
+                        // Değişmediyse ve miktar artıyorsa aradaki fark ($diff) kadar stok olmalı
+                        $requiredStock = ($variantChanged || $productChanged) ? $newQty : ($diff > 0 ? $diff : 0);
+
+                        if ($requiredStock > 0) {
+                            if ($newVariantId > 0) {
+                                $variant = ProductVariant::find($newVariantId);
+                                if ($variant && $variant->stock < $requiredStock) {
                                     Notification::make()
                                         ->title('Stok Yetersiz')
-                                        ->body("Ek {$diff} adet için stok yetersiz. Mevcut stok: {$variant->stock}")
+                                        ->body("Seçilen numara ({$variant->size}) için {$requiredStock} adet stok gerekli, mevcut stok: {$variant->stock}")
                                         ->danger()
                                         ->send();
                                     throw new \Illuminate\Validation\ValidationException(
                                         validator: validator([], []),
                                     );
                                 }
-                            } elseif (!empty($data['product_id'])) {
-                                $product = Product::find($data['product_id']);
-                                if ($product && $product->stock < $diff) {
+                            } elseif ($newProductId > 0) {
+                                $product = Product::find($newProductId);
+                                if ($product && $product->stock < $requiredStock) {
                                     Notification::make()
                                         ->title('Stok Yetersiz')
-                                        ->body("Ek {$diff} adet için stok yetersiz. Mevcut stok: {$product->stock}")
+                                        ->body("Bu ürün için {$requiredStock} adet stok gerekli, mevcut stok: {$product->stock}")
                                         ->danger()
                                         ->send();
                                     throw new \Illuminate\Validation\ValidationException(
@@ -322,9 +333,19 @@ class ItemsRelationManager extends RelationManager
                         }
 
                         $data['total_price'] = round($newQty * $unitPrice, 2);
-                        if (empty($data['product_name']) && !empty($data['product_id'])) {
-                            $data['product_name'] = Product::find($data['product_id'])?->name ?? '';
+
+                        // Ürün veya varyant değiştiyse ya da boşsa isim ve varyant bilgisini senkronize et
+                        if ($newProductId > 0 && ($productChanged || empty($data['product_name']))) {
+                            $data['product_name'] = Product::find($newProductId)?->name ?? '';
                         }
+                        if ($newVariantId > 0 && ($variantChanged || empty($data['variant_info']))) {
+                            $variant = ProductVariant::find($newVariantId);
+                            if ($variant) {
+                                $colors = is_array($variant->color) ? implode('/', $variant->color) : ($variant->color ?? '');
+                                $data['variant_info'] = "Numara: {$variant->size}" . ($colors ? " | Renk: {$colors}" : '');
+                            }
+                        }
+
                         return $data;
                     })
                     ->after(function () {
