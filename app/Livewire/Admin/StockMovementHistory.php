@@ -76,11 +76,14 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                     ->label('Referans')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('note')
-                    ->label('Not')
+                    ->label('Açıklama / Not')
+                    ->limit(50)
+                    ->tooltip(fn ($record) => $record->note)
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('İşlemi Yapan'),
+                    ->label('İşlemi Yapan')
+                    ->placeholder('Sistem'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('product_id')
@@ -158,9 +161,9 @@ class StockMovementHistory extends Component implements HasForms, HasTable, HasA
                         }, 'stok-hareketleri-' . now()->format('Y-m-d') . '.csv');
                     })
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderByDesc('created_at')->orderByDesc('id'))
             ->paginated([10, 25, 50, 100])
-            ->defaultPaginationPageOption(10);
+            ->defaultPaginationPageOption(25);
     }
 
     public function render()
