@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 class GoogleTagService
 {
-    public const CACHE_KEY = 'google_tag_settings_v1';
+    public const CACHE_KEY = 'google_tag_settings_v2';
 
     /**
      * Google Tag Platform (gtag.js, GTM, GA4, Google Ads, Consent Mode v2) ayarlarını döndürür.

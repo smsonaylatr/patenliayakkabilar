@@ -1,12 +1,13 @@
 @php
     $tagConfig = \App\Services\GoogleTagService::getConfig();
-    $primaryTagId = $tagConfig['primary_tag_id'];
-    $gaId = $tagConfig['ga4_id'];
-    $googleTagId = $tagConfig['google_tag_id'];
-    $gtmId = $tagConfig['gtm_id'];
-    $adsId = $tagConfig['ads_id'];
-    $consentModeEnabled = $tagConfig['consent_mode_enabled'];
-    $enhancedConversionsEnabled = $tagConfig['enhanced_conversions_enabled'];
+    $primaryTagId = $tagConfig['primary_tag_id'] ?? null;
+    $gaId = $tagConfig['ga4_id'] ?? null;
+    $googleTagId = $tagConfig['google_tag_id'] ?? null;
+    $gtmId = $tagConfig['gtm_id'] ?? null;
+    $adsId = $tagConfig['ads_id'] ?? null;
+    $consentModeEnabled = $tagConfig['consent_mode_enabled'] ?? true;
+    $enhancedConversionsEnabled = $tagConfig['enhanced_conversions_enabled'] ?? true;
+    $merchantId = $tagConfig['merchant_id'] ?? '5828544730';
 
     $authUser = auth()->user();
     $initialUserData = [];
@@ -139,10 +140,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         ga4Id: @json($gaId),
         gtmId: @json($gtmId),
         adsId: @json($adsId),
-        merchantId: @json($tagConfig['merchant_id']),
-        adsPurchaseLabel: @json($tagConfig['ads_purchase_label']),
-        adsAddToCartLabel: @json($tagConfig['ads_add_to_cart_label']),
-        adsBeginCheckoutLabel: @json($tagConfig['ads_begin_checkout_label']),
+        merchantId: @json($merchantId),
+        adsPurchaseLabel: @json($tagConfig['ads_purchase_label'] ?? ''),
+        adsAddToCartLabel: @json($tagConfig['ads_add_to_cart_label'] ?? ''),
+        adsBeginCheckoutLabel: @json($tagConfig['ads_begin_checkout_label'] ?? ''),
         enhancedConversions: @json($enhancedConversionsEnabled)
     };
 

@@ -601,7 +601,7 @@ class Product extends Model
 
         // En düşük alış maliyeti (COGS)
         $minCost = $variants->whereNotNull('cost_price')->where('cost_price', '>', 0)->min('cost_price');
-        if ($minCost) {
+        if ($minCost && \Illuminate\Support\Facades\Schema::hasColumn('products', 'cost_price')) {
             $this->cost_price = $minCost;
         }
 
