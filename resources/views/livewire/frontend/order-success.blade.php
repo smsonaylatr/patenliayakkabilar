@@ -392,12 +392,19 @@
 <script>
     window.googleAdsConversionData = {
         transaction_id: @json($order->order_number),
+        transaction: @json($order->order_number),
         value: {{ number_format((float) ($order->grand_total ?? $order->subtotal ?? 0), 2, '.', '') }},
         currency: "TRY",
         discount: {{ number_format((float) ($gtagPurchasePayload['discount'] ?? 0), 2, '.', '') }},
         items: @json($gtagPurchasePayload['items'] ?? [], JSON_UNESCAPED_UNICODE),
+        aw_merchant_id: "5828544730",
+        merchant_id: "5828544730",
+        aw_feed_country: "TR",
+        aw_feed_language: "tr",
         user_data: @json($gtagUserData, JSON_UNESCAPED_UNICODE)
     };
+    // Yanlış yazım ve varyasyonlar için takma ad (alias)
+    window.oogleAdsConversionData = window.googleAdsConversionData;
 
     (function() {
         var purchasePayload = @json($gtagPurchasePayload, JSON_UNESCAPED_UNICODE);
