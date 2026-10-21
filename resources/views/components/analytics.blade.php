@@ -142,6 +142,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         adsId: @json($adsId),
         merchantId: @json($merchantId),
         adsPurchaseLabel: @json($tagConfig['ads_purchase_label'] ?? ''),
+        adsCodPurchaseLabel: @json($tagConfig['ads_cod_purchase_label'] ?? ''),
         adsAddToCartLabel: @json($tagConfig['ads_add_to_cart_label'] ?? ''),
         adsBeginCheckoutLabel: @json($tagConfig['ads_begin_checkout_label'] ?? ''),
         enhancedConversions: @json($enhancedConversionsEnabled)
@@ -255,36 +256,46 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             // 3. Google Ads Dönüşüm Tetikleyicileri (Eğer AW-ID ve Label tanımlıysa)
             if (tagConfig.adsId && typeof window.gtag === 'function') {
-                if (eventName === 'purchase' && tagConfig.adsPurchaseLabel) {
-                    var adsPayload = {
-                        'send_to': tagConfig.adsId + '/' + tagConfig.adsPurchaseLabel,
-                        'value': Number(params.value || 0),
-                        'currency': params.currency || 'TRY',
-                        'transaction_id': String(params.transaction_id || '')
-                    };
+                if (eventName === 'purchase') {
+                    var isCod = params.payment_method === 'cash_on_delivery' || params.payment_type === 'Kapıda Ödeme';
+                    var targetPurchaseLabel = (isCod && tagConfig.adsCodPurchaseLabel)
+                        ? tagConfig.adsCodPurchaseLabel
+                        : tagConfig.adsPurchaseLabel;
 
-                    // Google Ads Alışveriş Sepeti Verileri (Conversions with Cart Data / Basket Data)
-                    if (tagConfig.merchantId) {
-                        adsPayload.aw_merchant_id = String(tagConfig.merchantId);
-                        adsPayload.aw_feed_country = 'TR';
-                        adsPayload.aw_feed_language = 'tr';
+                    if (targetPurchaseLabel) {
+                        var adsPayload = {
+                            'send_to': tagConfig.adsId + '/' + targetPurchaseLabel,
+                            'transaction_id': String(params.transaction_id || ''),
+                            'value': Number(params.value || 0),
+                            'currency': params.currency || 'TRY'
+                        };
+
+                        if (params.discount && Number(params.discount) > 0) {
+                            adsPayload.discount = Number(params.discount);
+                        }
+
+                        // Google Ads Alışveriş Sepeti Verileri (Conversions with Cart Data / Basket Data)
+                        if (tagConfig.merchantId) {
+                            adsPayload.aw_merchant_id = String(tagConfig.merchantId);
+                            adsPayload.aw_feed_country = 'TR';
+                            adsPayload.aw_feed_language = 'tr';
+                        }
+
+                        if (params.items && Array.isArray(params.items) && params.items.length > 0) {
+                            adsPayload.items = params.items.map(function(item) {
+                                return {
+                                    'id': String(item.id || item.item_id || ''),
+                                    'price': Number(item.price || 0),
+                                    'quantity': Number(item.quantity || 1)
+                                };
+                            });
+                        }
+
+                        // Google Ads Advisor & gtag standardı (purchase event'i üzerinden send_to)
+                        window.gtag('event', 'purchase', adsPayload);
+                        // Google Ads conversion action standardı
+                        window.gtag('event', 'conversion', adsPayload);
                     }
-
-                    if (params.discount && Number(params.discount) > 0) {
-                        adsPayload.discount = Number(params.discount);
-                    }
-
-                    if (params.items && Array.isArray(params.items) && params.items.length > 0) {
-                        adsPayload.items = params.items.map(function(item) {
-                            return {
-                                'id': String(item.id || item.item_id || ''),
-                                'price': Number(item.price || 0),
-                                'quantity': Number(item.quantity || 1)
-                            };
-                        });
-                    }
-
-                    window.gtag('event', 'conversion', adsPayload);
                 } else if (eventName === 'add_to_cart' && tagConfig.adsAddToCartLabel) {
                     window.gtag('event', 'conversion', {
                         'send_to': tagConfig.adsId + '/' + tagConfig.adsAddToCartLabel,

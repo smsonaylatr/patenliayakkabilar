@@ -77,7 +77,7 @@ class SeoSettings extends FilamentPage implements HasForms
             'seo_google_verification', 'seo_yandex_verification',
             'seo_bing_verification',
             'google_analytics_id', 'google_tag_id', 'gtm_container_id',
-            'google_ads_id', 'google_ads_conversion_label',
+            'google_ads_id', 'google_ads_conversion_label', 'google_ads_cod_conversion_label',
             'google_ads_add_to_cart_label', 'google_ads_begin_checkout_label',
             'google_consent_mode_enabled', 'google_enhanced_conversions',
             'gcr_widget_active', 'gcr_merchant_id', 'gcr_badge_position',
@@ -112,6 +112,7 @@ class SeoSettings extends FilamentPage implements HasForms
             'gtm_container_id' => !empty($settings['gtm_container_id']) ? $settings['gtm_container_id'] : 'GTM-583KKT3Q',
             'google_ads_id' => $settings['google_ads_id'] ?? '',
             'google_ads_conversion_label' => $settings['google_ads_conversion_label'] ?? '',
+            'google_ads_cod_conversion_label' => $settings['google_ads_cod_conversion_label'] ?? '',
             'google_ads_add_to_cart_label' => $settings['google_ads_add_to_cart_label'] ?? '',
             'google_ads_begin_checkout_label' => $settings['google_ads_begin_checkout_label'] ?? '',
             'google_consent_mode_enabled' => filter_var($settings['google_consent_mode_enabled'] ?? true, FILTER_VALIDATE_BOOLEAN),
@@ -341,16 +342,21 @@ class SeoSettings extends FilamentPage implements HasForms
                                 Section::make('Google Ads Dönüşüm & Dinamik Yeniden Pazarlama')
                                     ->description('Google Ads kampanyalarınızın satın alma, sepete ekleme ve ödeme başlatma dönüşümlerini doğrudan gtag.js ile ölçün.')
                                     ->schema([
-                                        Grid::make(2)->schema([
+                                        Grid::make(3)->schema([
                                             TextInput::make('google_ads_id')
                                                 ->label('Google Ads Dönüşüm Kimliği')
-                                                ->placeholder('AW-XXXXXXXXXX')
+                                                ->placeholder('AW-16843618787')
                                                 ->helperText('Google Ads → Hedefler → Dönüşümler → AW- ile başlayan kimlik'),
 
                                             TextInput::make('google_ads_conversion_label')
-                                                ->label('Satın Alma (Purchase) Dönüşüm Etiketi')
-                                                ->placeholder('AbCdEfGhIjKlMnOpQr')
-                                                ->helperText('Sipariş tamamlandığında (order-success) tetiklenen Google Ads Conversion Label'),
+                                                ->label('Kredi Kartı Satın Alma Etiketi')
+                                                ->placeholder('V0CuSOhvgf0ZEKPnpaUE')
+                                                ->helperText('Kredi kartı siparişlerinde (veya genel) tetiklenen Google Ads Conversion Label'),
+
+                                            TextInput::make('google_ads_cod_conversion_label')
+                                                ->label('Kapıda Ödeme Dönüşüm Etiketi (Opsiyonel)')
+                                                ->placeholder('223-VCC5swgfZCEKPnpaUE')
+                                                ->helperText('Kapıda ödeme için ayrı dönüşüm açtıysanız bu etiketi girin. Boşsa genel etiket kullanılır.'),
                                         ]),
 
                                         Grid::make(2)->schema([
