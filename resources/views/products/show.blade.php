@@ -3,8 +3,8 @@
     <x-slot:title>{{ $product->meta_title ?? $product->name . ' | Patenli Ayakkabılar' }}</x-slot:title>
     <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
     <x-slot:ogType>product</x-slot:ogType>
-    <x-slot:ogImage>{{ $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
-    <x-slot:ogImageSquare>{{ $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
+    <x-slot:ogImage>{{ $product->og_image_url ?? $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
+    <x-slot:ogImageSquare>{{ $product->og_image_url ?? $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
     <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
     @if(isset($product->is_indexable) && $product->is_indexable === false)
         <x-slot:robots>noindex, follow</x-slot:robots>
@@ -22,7 +22,7 @@
                 '@context' => 'https://schema.org/',
                 '@type' => 'Product',
                 'name' => $product->name,
-                'image' => [$product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png')],
+                'image' => [$product->og_image_url ?? $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png')],
                 'description' => Str::limit(strip_tags($product->short_description), 200),
                 'sku' => !empty($product->sku) ? $product->sku : ('SKU-' . $product->id),
                 'offers' => [

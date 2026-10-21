@@ -427,6 +427,26 @@ class Product extends Model
     }
 
     /**
+     * Sosyal medya paylaşım görseli URL'si (OG Image)
+     */
+    public function getOgImageUrlAttribute(): ?string
+    {
+        if (!empty($this->og_image)) {
+            if (str_starts_with($this->og_image, 'http://') || str_starts_with($this->og_image, 'https://')) {
+                return $this->og_image;
+            }
+            return asset('storage/' . ltrim($this->og_image, '/'));
+        }
+
+        $firstImage = $this->relationLoaded('images') ? $this->images->first() : $this->images()->first();
+        if ($firstImage && $firstImage->image_path) {
+            return asset('storage/' . ltrim($firstImage->image_path, '/'));
+        }
+
+        return null;
+    }
+
+    /**
      * Güven sinyallerini hesapla (frontend için)
      */
     public function getTrustSignals(): array

@@ -15,7 +15,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ProductForm
 {
@@ -317,8 +319,35 @@ class ProductForm
                                     ->label('Paylaşım Görseli (OG Image)')
                                     ->image()
                                     ->disk('public')
-                                    ->directory('products/og')
-                                    ->helperText('Sosyal medya paylaşımında kullanılır. Boşsa ilk ürün görseli kullanılır.'),
+                                    ->directory('products')
+                                    ->visibility('public')
+                                    ->maxSize(20480)
+                                    ->acceptedFileTypes([
+                                        'image/jpeg',
+                                        'image/pjpeg',
+                                        'image/png',
+                                        'image/webp',
+                                        'image/gif',
+                                        'image/avif',
+                                    ])
+                                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file): string {
+                                        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+                                        $filename = (string) Str::ulid() . '.' . $extension;
+                                        $targetPath = 'products/' . $filename;
+
+                                        // Dosya içeriğini oku ve doğrudan storage'a yaz
+                                        $contents = $file->get();
+                                        Storage::disk('public')->put($targetPath, $contents, 'public');
+
+                                        // Temp dosyayı temizle
+                                        try {
+                                            $file->delete();
+                                        } catch (\Throwable) {}
+
+                                        return $targetPath;
+                                    })
+                                    ->helperText('Sosyal medya paylaşımında (WhatsApp vb.) kullanılır. Boşsa ilk ürün görseli kullanılır.')
+                                    ->columnSpanFull(),
 
                                 Toggle::make('is_indexable')
                                     ->label('Arama motorlarında indekslensin')
