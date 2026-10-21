@@ -9,6 +9,7 @@ use Google\Service\ShoppingContent\Price;
 use Google\Service\ShoppingContent\Product as GoogleProduct;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GoogleMerchantService
 {
@@ -172,16 +173,32 @@ class GoogleMerchantService
     private function buildSeoTitle(Product $product): string
     {
         $title = trim($product->name);
-        $brand = trim($product->brand ?: '');
+        $brand = trim((string) ($product->brand ?: ''));
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
 
+        $normTitle = strtolower(Str::ascii($title));
+        $normBrand = strtolower(Str::ascii($brand));
+
         // Eğer ürün adında marka ismi zaten geçmiyorsa ve marka ismi varsa en başa ekle
-        if (!empty($brand) && mb_stripos($title, $brand) === false) {
+        if (!empty($brand) && $normBrand !== '' && !str_contains($normTitle, $normBrand)) {
             $title = $brand . ' ' . $title;
+            $normTitle = strtolower(Str::ascii($title));
+        }
+
+        // Eğer ürün adında marka art arda iki kez tekrar edilmişse temizle
+        if (!empty($normBrand) && str_starts_with($normTitle, $normBrand)) {
+            $afterBrand = trim(substr($normTitle, strlen($normBrand)));
+            if (str_starts_with($afterBrand, $normBrand)) {
+                $words = preg_split('/\s+/u', $title) ?: [];
+                $brandWords = preg_split('/\s+/u', $brand) ?: [];
+                $title = implode(' ', array_slice($words, count($brandWords)));
+                $normTitle = strtolower(Str::ascii($title));
+            }
         }
 
         // Hedef kitle (Kız Çocuk, Erkek Çocuk vb.) başlıkta yoksa ekle
-        if (!empty($target) && mb_stripos($title, $target) === false) {
+        $normTarget = strtolower(Str::ascii($target));
+        if (!empty($target) && $normTarget !== '' && !str_contains($normTitle, $normTarget)) {
             $title .= ' ' . $target;
         }
 

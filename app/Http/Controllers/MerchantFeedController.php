@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 /**
  * Google Merchant Center XML Feed Üreteci
@@ -109,18 +110,36 @@ class MerchantFeedController extends Controller
         }
 
         // Ürün adı (SEO Odaklı: Marka + Ad + Hedef Kitle + Beden)
-        $brand = $product->brand ?: 'Patenli Ayakkabılar';
+        $brand = trim((string) ($product->brand ?: 'Patenli Ayakkabılar'));
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
         
-        // Marka adı ürün adında zaten geçiyorsa tekrar ekleme
         $title = trim($product->name);
-        if (!empty($brand) && mb_stripos($title, $brand) === false) {
+        $normTitle = strtolower(Str::ascii($title));
+        $normBrand = strtolower(Str::ascii($brand));
+
+        // Marka adı ürün adında henüz geçmiyorsa en başa ekle (Türkçe/İngilizce karakter duyarsız kontrol)
+        if (!empty($brand) && $normBrand !== '' && !str_contains($normTitle, $normBrand)) {
             $title = $brand . ' ' . $title;
+            $normTitle = strtolower(Str::ascii($title));
         }
+
+        // Eğer ürün adında marka art arda iki kez tekrar edilmişse mükerrer olanı temizle (örn: "KICK SPEED Kick Speed...")
+        if (!empty($normBrand) && str_starts_with($normTitle, $normBrand)) {
+            $afterBrand = trim(substr($normTitle, strlen($normBrand)));
+            if (str_starts_with($afterBrand, $normBrand)) {
+                $words = preg_split('/\s+/u', $title) ?: [];
+                $brandWords = preg_split('/\s+/u', $brand) ?: [];
+                $title = implode(' ', array_slice($words, count($brandWords)));
+                $normTitle = strtolower(Str::ascii($title));
+            }
+        }
+
         // Hedef kitle başlıkta yoksa ekle
-        if (!empty($target) && mb_stripos($title, $target) === false) {
+        $normTarget = strtolower(Str::ascii($target));
+        if (!empty($target) && $normTarget !== '' && !str_contains($normTitle, $normTarget)) {
             $title .= ' ' . $target;
         }
+
         $seoTitle = trim($title);
         if ($size) {
             $seoTitle .= ' (' . $size . ' Numara)';
