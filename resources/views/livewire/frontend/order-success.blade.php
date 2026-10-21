@@ -394,6 +394,8 @@
         transaction_id: @json($order->order_number),
         value: {{ number_format((float) ($order->grand_total ?? $order->subtotal ?? 0), 2, '.', '') }},
         currency: "TRY",
+        discount: {{ number_format((float) ($gtagPurchasePayload['discount'] ?? 0), 2, '.', '') }},
+        items: @json($gtagPurchasePayload['items'] ?? [], JSON_UNESCAPED_UNICODE),
         user_data: @json($gtagUserData, JSON_UNESCAPED_UNICODE)
     };
 

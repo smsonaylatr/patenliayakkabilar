@@ -30,6 +30,7 @@ class GoogleTagService
                 'google_ads_begin_checkout_label',
                 'google_consent_mode_enabled',
                 'google_enhanced_conversions',
+                'gcr_merchant_id',
             ];
 
             $settings = [];
@@ -51,6 +52,9 @@ class GoogleTagService
             $adsId = trim((string) ($settings['google_ads_id'] ?? ''))
                 ?: (string) config('services.google.ads_id', '');
 
+            $merchantId = trim((string) ($settings['gcr_merchant_id'] ?? ''))
+                ?: '5828544730';
+
             $primaryTagId = $googleTagId ?: ($gaId ?: $adsId);
 
             return [
@@ -59,6 +63,7 @@ class GoogleTagService
                 'google_tag_id' => $googleTagId,
                 'gtm_id' => $gtmId,
                 'ads_id' => $adsId,
+                'merchant_id' => $merchantId,
                 'ads_purchase_label' => trim((string) ($settings['google_ads_conversion_label'] ?? '')),
                 'ads_add_to_cart_label' => trim((string) ($settings['google_ads_add_to_cart_label'] ?? '')),
                 'ads_begin_checkout_label' => trim((string) ($settings['google_ads_begin_checkout_label'] ?? '')),
@@ -343,6 +348,17 @@ class GoogleTagService
             'ecomm_pagetype' => 'purchase',
             'ecomm_totalvalue' => $grandTotal,
         ];
+
+        $discountAmount = round((float) ($order->discount_total ?? 0), 2);
+        if ($discountAmount <= 0 && $order->subtotal && $grandTotal) {
+            $expectedTotal = (float) $order->subtotal + $shippingPrice;
+            if ($expectedTotal > $grandTotal) {
+                $discountAmount = round($expectedTotal - $grandTotal, 2);
+            }
+        }
+        if ($discountAmount > 0) {
+            $payload['discount'] = $discountAmount;
+        }
 
         if (!empty($order->coupon_code)) {
             $payload['coupon'] = (string) $order->coupon_code;

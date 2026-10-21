@@ -139,6 +139,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         ga4Id: @json($gaId),
         gtmId: @json($gtmId),
         adsId: @json($adsId),
+        merchantId: @json($tagConfig['merchant_id']),
         adsPurchaseLabel: @json($tagConfig['ads_purchase_label']),
         adsAddToCartLabel: @json($tagConfig['ads_add_to_cart_label']),
         adsBeginCheckoutLabel: @json($tagConfig['ads_begin_checkout_label']),
@@ -254,12 +255,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             // 3. Google Ads Dönüşüm Tetikleyicileri (Eğer AW-ID ve Label tanımlıysa)
             if (tagConfig.adsId && typeof window.gtag === 'function') {
                 if (eventName === 'purchase' && tagConfig.adsPurchaseLabel) {
-                    window.gtag('event', 'conversion', {
+                    var adsPayload = {
                         'send_to': tagConfig.adsId + '/' + tagConfig.adsPurchaseLabel,
-                        'value': params.value || 0,
+                        'value': Number(params.value || 0),
                         'currency': params.currency || 'TRY',
-                        'transaction_id': params.transaction_id || ''
-                    });
+                        'transaction_id': String(params.transaction_id || '')
+                    };
+
+                    // Google Ads Alışveriş Sepeti Verileri (Conversions with Cart Data / Basket Data)
+                    if (tagConfig.merchantId) {
+                        adsPayload.aw_merchant_id = String(tagConfig.merchantId);
+                        adsPayload.aw_feed_country = 'TR';
+                        adsPayload.aw_feed_language = 'tr';
+                    }
+
+                    if (params.discount && Number(params.discount) > 0) {
+                        adsPayload.discount = Number(params.discount);
+                    }
+
+                    if (params.items && Array.isArray(params.items) && params.items.length > 0) {
+                        adsPayload.items = params.items.map(function(item) {
+                            return {
+                                'id': String(item.id || item.item_id || ''),
+                                'price': Number(item.price || 0),
+                                'quantity': Number(item.quantity || 1)
+                            };
+                        });
+                    }
+
+                    window.gtag('event', 'conversion', adsPayload);
                 } else if (eventName === 'add_to_cart' && tagConfig.adsAddToCartLabel) {
                     window.gtag('event', 'conversion', {
                         'send_to': tagConfig.adsId + '/' + tagConfig.adsAddToCartLabel,
