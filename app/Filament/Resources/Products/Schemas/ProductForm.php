@@ -107,6 +107,16 @@ class ProductForm
                                     ->maxLength(255)
                                     ->default(null),
 
+                                TextInput::make('cost_price')
+                                    ->label('Alış Maliyeti / COGS (₺)')
+                                    ->numeric()
+                                    ->prefix('₺')
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->helperText('Google Ads brüt kâr (Gross Profit) raporlaması ve kârlılık takibi için kullanılır.')
+                                    ->placeholder('Örn: 450.00')
+                                    ->default(null),
+
                                 Toggle::make('status')
                                     ->label('Aktif')
                                     ->default(true)
@@ -451,6 +461,11 @@ class ProductForm
                                                 ->numeric()
                                                 ->prefix('₺')
                                                 ->default(null);
+                                            $fields[] = TextInput::make('series_cost')
+                                                ->label('Maliyet / COGS (₺)')
+                                                ->numeric()
+                                                ->prefix('₺')
+                                                ->default(null);
                                             $fields[] = TextInput::make('series_koli')
                                                 ->label($requiresSize ? 'Koli Adedi' : 'Stok Adedi')
                                                 ->numeric()
@@ -507,6 +522,7 @@ class ProductForm
                                                         'wheel_type'     => $data['series_wheel'] ?? null,
                                                         'price'          => $data['series_price'],
                                                         'discount_price' => $data['series_discount'] ?: null,
+                                                        'cost_price'     => !empty($data['series_cost']) ? (float) $data['series_cost'] : null,
                                                         'stock'          => (int) ($data['series_koli'] ?? 1),
                                                         'sku'            => $sku,
                                                     ];
@@ -523,6 +539,7 @@ class ProductForm
                                                     'wheel_type'     => $data['series_wheel'] ?? null,
                                                     'price'          => $data['series_price'],
                                                     'discount_price' => $data['series_discount'] ?: null,
+                                                    'cost_price'     => !empty($data['series_cost']) ? (float) $data['series_cost'] : null,
                                                     'stock'          => (int) ($data['series_koli'] ?? 1),
                                                     'sku'            => $sku,
                                                 ];
@@ -631,6 +648,13 @@ class ProductForm
                                             ->step(0.01);
                                         $fields[] = TextInput::make('discount_price')
                                             ->label('İndirimli Fiyat')
+                                            ->numeric()
+                                            ->prefix('₺')
+                                            ->minValue(0)
+                                            ->step(0.01)
+                                            ->default(null);
+                                        $fields[] = TextInput::make('cost_price')
+                                            ->label('Maliyet (COGS)')
                                             ->numeric()
                                             ->prefix('₺')
                                             ->minValue(0)

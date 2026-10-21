@@ -158,6 +158,19 @@ class MerchantFeedController extends Controller
             $xml .= '      <g:sale_price>' . number_format((float) $product->discount_price, 2, '.', '') . ' TRY</g:sale_price>' . "\n";
         }
 
+        // Alış Maliyeti / COGS (Google Ads Gross Profit & conversions with cart data)
+        $costPrice = null;
+        if ($size && $product->relationLoaded('variants')) {
+            $matchingVariant = $product->variants->firstWhere('size', $size);
+            $costPrice = $matchingVariant?->cost_price ?: $product->cost_price;
+        } else {
+            $costPrice = $product->cost_price ?: $product->variants?->first()?->cost_price;
+        }
+
+        if ($costPrice && (float) $costPrice > 0) {
+            $xml .= '      <g:cost_of_goods_sold>' . number_format((float) $costPrice, 2, '.', '') . ' TRY</g:cost_of_goods_sold>' . "\n";
+        }
+
         // Marka
         $xml .= '      <g:brand>' . htmlspecialchars($brand, ENT_XML1, 'UTF-8') . '</g:brand>' . "\n";
         $xml .= '      <g:identifier_exists>no</g:identifier_exists>' . "\n";

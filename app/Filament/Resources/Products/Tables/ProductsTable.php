@@ -66,6 +66,11 @@ class ProductsTable
                     )
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('cost_price')
+                    ->label('Maliyet (COGS)')
+                    ->getStateUsing(fn ($record) => $record->cost_price ? number_format($record->cost_price, 2) . ' ₺' : '-')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('stock')
                     ->label('Stok')
                     ->badge()

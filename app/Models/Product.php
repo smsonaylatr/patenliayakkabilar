@@ -19,6 +19,7 @@ class Product extends Model
             'has_installments' => 'boolean',
             'requires_size' => 'boolean',
             'is_indexable' => 'boolean',
+            'cost_price' => 'decimal:2',
             'aio_target_keywords' => 'array',
             'faq_schema' => 'array',
         ];
@@ -597,6 +598,12 @@ class Product extends Model
         // En düşük indirimli fiyat
         $minDiscount = $variants->whereNotNull('discount_price')->where('discount_price', '>', 0)->min('discount_price');
         $this->discount_price = $minDiscount;
+
+        // En düşük alış maliyeti (COGS)
+        $minCost = $variants->whereNotNull('cost_price')->where('cost_price', '>', 0)->min('cost_price');
+        if ($minCost) {
+            $this->cost_price = $minCost;
+        }
 
         // Toplam stok
         $oldStock = (int) $this->stock;

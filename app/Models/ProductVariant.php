@@ -45,6 +45,9 @@ class ProductVariant extends Model
     {
         return [
             'color' => 'array',
+            'cost_price' => 'decimal:2',
+            'price' => 'decimal:2',
+            'discount_price' => 'decimal:2',
         ];
     }
 
