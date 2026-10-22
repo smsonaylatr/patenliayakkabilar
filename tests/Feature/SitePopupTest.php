@@ -47,6 +47,22 @@ class SitePopupTest extends TestCase
             ->assertDontSee('https://attacker.com/malicious');
     }
 
+    public function test_setting_array_as_link_url_does_not_throw_type_error(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('popups/test.jpg', 'fake-image');
+
+        Setting::create(['key' => 'popup_active', 'value' => '1']);
+        Setting::create(['key' => 'popup_image', 'value' => 'popups/test.jpg']);
+        Setting::create(['key' => 'popup_link', 'value' => 'https://patenliayakkabilar.com/orijinal']);
+
+        Livewire::test(SitePopup::class)
+            ->set('linkUrl', ['unexpected' => 'array_payload'])
+            ->set('imageUrl', ['unexpected' => 'array_payload'])
+            ->assertStatus(200)
+            ->assertSee('https://patenliayakkabilar.com/orijinal');
+    }
+
     public function test_exception_telegram_reporter_ignores_cannot_update_locked_property_exception(): void
     {
         $mockTelegram = $this->createMock(TelegramAlertService::class);

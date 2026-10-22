@@ -9,11 +9,18 @@ use Illuminate\Support\Facades\Storage;
 class SitePopup extends Component
 {
     public bool $isActive = false;
-    public ?string $imageUrl = null;
-    public ?string $linkUrl = null;
+    public mixed $imageUrl = null;
+    public mixed $linkUrl = null;
 
-    public function mount()
+    public function mount(): void
     {
+        $this->loadSettings();
+    }
+
+    public function hydrate(): void
+    {
+        // İstemciden veya hydration snapshot'ından gelebilecek beklenmeyen tipleri temizle
+        $this->sanitizeProperties();
         $this->loadSettings();
     }
 
@@ -36,6 +43,25 @@ class SitePopup extends Component
         // SitePopup durumları yalnızca sunucu tarafı ayarlarından okunur
     }
 
+    protected function sanitizeProperties(): void
+    {
+        if (is_array($this->linkUrl)) {
+            $first = reset($this->linkUrl);
+            $this->linkUrl = is_string($first) ? $first : (is_scalar($first) ? (string)$first : null);
+        } elseif (!is_string($this->linkUrl) && !is_null($this->linkUrl)) {
+            $this->linkUrl = is_scalar($this->linkUrl) ? (string)$this->linkUrl : null;
+        }
+
+        if (is_array($this->imageUrl)) {
+            $first = reset($this->imageUrl);
+            $this->imageUrl = is_string($first) ? $first : (is_scalar($first) ? (string)$first : null);
+        } elseif (!is_string($this->imageUrl) && !is_null($this->imageUrl)) {
+            $this->imageUrl = is_scalar($this->imageUrl) ? (string)$this->imageUrl : null;
+        }
+
+        $this->isActive = (bool) $this->isActive;
+    }
+
     protected function loadSettings(): void
     {
         $settings = Setting::whereIn('key', ['popup_active', 'popup_image', 'popup_link'])
@@ -54,7 +80,7 @@ class SitePopup extends Component
             $rawLink = reset($rawLink);
         }
 
-        if ($this->isActive && !empty($rawImage)) {
+        if ($this->isActive && !empty($rawImage) && is_string($rawImage)) {
             $this->imageUrl = Storage::disk('public')->url($rawImage);
             $this->linkUrl = is_string($rawLink) ? $rawLink : (is_scalar($rawLink) ? (string)$rawLink : null);
         } else {
@@ -62,5 +88,7 @@ class SitePopup extends Component
             $this->imageUrl = null;
             $this->linkUrl = null;
         }
+
+        $this->sanitizeProperties();
     }
 }
