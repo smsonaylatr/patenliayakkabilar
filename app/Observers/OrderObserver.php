@@ -16,6 +16,13 @@ class OrderObserver
         \Illuminate\Support\Facades\Cache::forget('orders_tab_counts');
         \Illuminate\Support\Facades\Cache::forget('orders_pending_count');
 
+        // Kampanya Dönüşüm Takibi (Enhanced Conversion Tracking)
+        try {
+            \App\Services\CampaignConversionService::recordOrderConversion($order);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Campaign conversion tracking error: ' . $e->getMessage());
+        }
+
         // Send a database notification to admins when a new order is placed.
         Notification::make()
             ->title('Yeni Sipariş Geldi')

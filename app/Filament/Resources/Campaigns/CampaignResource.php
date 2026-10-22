@@ -20,103 +20,18 @@ class CampaignResource extends Resource
     protected static ?string $modelLabel = 'Kampanya';
     protected static ?string $pluralModelLabel = 'Kampanyalar';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
     protected static string|\UnitEnum|null $navigationGroup = 'Pazarlama';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
-    public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                \Filament\Schemas\Components\Section::make('Kampanya Bilgileri')
-                    ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
-                            ->label('Kampanya Adı')
-                            ->required()
-                            ->maxLength(255),
-                        \Filament\Forms\Components\Select::make('customer_segment_id')->native(false)
-                            ->label('Hedef Segment')
-                            ->relationship('customerSegment', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->nullable(),
-                        \Filament\Forms\Components\Select::make('channel')->native(false)
-                            ->label('İletişim Kanalı')
-                            ->options([
-                                'email' => 'E-posta',
-                                'sms' => 'SMS',
-                            ])
-                            ->required()
-                            ->default('email')
-                            ->native(false),
-                        \Filament\Forms\Components\TextInput::make('subject')
-                            ->label('Konu (Sadece E-posta)')
-                            ->maxLength(255),
-                        \Filament\Forms\Components\Textarea::make('message_template')
-                            ->label('Mesaj Şablonu')
-                            ->required()
-                            ->columnSpanFull(),
-                    ])->columns(2),
-                \Filament\Schemas\Components\Section::make('Zamanlama ve Durum')
-                    ->schema([
-                        \Filament\Forms\Components\Select::make('status')->native(false)
-                            ->label('Durum')
-                            ->options([
-                                'draft' => 'Taslak',
-                                'scheduled' => 'Zamanlandı',
-                                'running' => 'Çalışıyor',
-                                'completed' => 'Tamamlandı',
-                            ])
-                            ->required()
-                            ->default('draft')
-                            ->native(false),
-                        \Filament\Forms\Components\DateTimePicker::make('scheduled_at')
-                            ->label('Zamanlanmış Tarih')
-                            ->nullable(),
-                    ])->columns(2),
-            ]);
+        return CampaignForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name')
-                    ->label('Kampanya Adı')
-                    ->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('customerSegment.name')
-                    ->label('Segment')
-                    ->badge()
-                    ->color('info'),
-                \Filament\Tables\Columns\TextColumn::make('channel')
-                    ->label('Kanal')
-                    ->badge(),
-                \Filament\Tables\Columns\TextColumn::make('status')
-                    ->label('Durum')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'draft' => 'gray',
-                        'scheduled' => 'warning',
-                        'running' => 'info',
-                        'completed' => 'success',
-                        default => 'gray',
-                    }),
-                \Filament\Tables\Columns\TextColumn::make('scheduled_at')
-                    ->label('Tarih')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                \Filament\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+        return CampaignsTable::configure($table);
     }
 
     public static function getRelations(): array

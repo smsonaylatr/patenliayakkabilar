@@ -32,6 +32,10 @@ class CaptureTrafficSource
         try {
             $data = $this->detector->detect($request);
 
+            if ($request->has('campaign_id')) {
+                session(['active_campaign_id' => $request->query('campaign_id')]);
+            }
+
             // GCLID varsa doğrudan geriye uyumluluk için session'a yaz
             if (!empty($data['gclid'])) {
                 session(['gclid' => $data['gclid']]);
