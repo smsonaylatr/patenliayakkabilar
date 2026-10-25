@@ -57,6 +57,7 @@ class SitePopupTest extends TestCase
         Setting::create(['key' => 'popup_link', 'value' => 'https://patenliayakkabilar.com/orijinal']);
 
         Livewire::test(SitePopup::class)
+            ->set('isActive', ['unexpected' => 'array_payload'])
             ->set('linkUrl', ['unexpected' => 'array_payload'])
             ->set('imageUrl', ['unexpected' => 'array_payload'])
             ->assertStatus(200)

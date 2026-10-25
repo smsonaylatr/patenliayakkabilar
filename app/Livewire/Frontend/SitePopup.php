@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SitePopup extends Component
 {
-    public bool $isActive = false;
+    public mixed $isActive = false;
     public mixed $imageUrl = null;
     public mixed $linkUrl = null;
 
@@ -45,6 +45,12 @@ class SitePopup extends Component
 
     protected function sanitizeProperties(): void
     {
+        if (is_array($this->isActive)) {
+            $this->isActive = false;
+        } else {
+            $this->isActive = (bool) $this->isActive;
+        }
+
         if (is_array($this->linkUrl)) {
             $first = reset($this->linkUrl);
             $this->linkUrl = is_string($first) ? $first : (is_scalar($first) ? (string)$first : null);
@@ -58,8 +64,6 @@ class SitePopup extends Component
         } elseif (!is_string($this->imageUrl) && !is_null($this->imageUrl)) {
             $this->imageUrl = is_scalar($this->imageUrl) ? (string)$this->imageUrl : null;
         }
-
-        $this->isActive = (bool) $this->isActive;
     }
 
     protected function loadSettings(): void
