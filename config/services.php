@@ -67,4 +67,10 @@ return [
         'webhook_secret' => env('POREGO_WEBHOOK_SECRET'),
     ],
 
+    'sonecentral' => [
+        'api_url' => env('SONECENTRAL_API_URL', 'https://pb.sonecentral.com/api/v1'),
+        'api_key' => env('SONECENTRAL_API_KEY', 'sk-sone-v1-veTfj10rXv5zcKWYtLrjXFsG0Y0QfPIvasmk1eB5SA6HcyRO'),
+        'assistant_id' => env('SONECENTRAL_ASSISTANT_ID', '3nco7b3k5th1j2b'),
+    ],
+
 ];

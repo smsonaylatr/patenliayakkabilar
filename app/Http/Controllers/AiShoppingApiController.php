@@ -83,6 +83,114 @@ class AiShoppingApiController extends Controller
     }
 
     /**
+     * Sone Central Canlı Envanter & Stok API'si
+     * GET /api/v1/ai/sonecentral/catalog
+     */
+    public function soneCentralCatalog(): JsonResponse
+    {
+        $data = $this->aiShoppingService->getSoneCentralCatalog();
+
+        return response()->json($data, 200, [
+            'Cache-Control' => 'no-cache, private',
+            'Access-Control-Allow-Origin' => '*',
+        ]);
+    }
+
+    /**
+     * AI Asistan & Canlı Destek Sipariş Sorgulama API'si
+     * POST|GET /api/v1/ai/order-status
+     */
+    public function orderStatus(Request $request): JsonResponse
+    {
+        $query = trim((string) ($request->input('order_number') ?: $request->input('q') ?: $request->input('phone')));
+
+        if (empty($query)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lütfen sipariş numaranızı (örn: #1024) veya telefon numaranızı girin.',
+            ], 400);
+        }
+
+        // Temizleme: # işaretini ve boşlukları at
+        $cleanQuery = ltrim($query, '#');
+        $cleanPhone = preg_replace('/[^0-9]/', '', $query);
+
+        $order = \App\Models\Order::with(['items.product', 'items.variant'])
+            ->where(function ($q) use ($query, $cleanQuery, $cleanPhone) {
+                $q->where('order_number', $query)
+                  ->orWhere('order_number', $cleanQuery)
+                  ->orWhere('order_number', '#' . $cleanQuery);
+
+                if (strlen($cleanPhone) >= 7) {
+                    $phoneEnd = substr($cleanPhone, -10);
+                    $q->orWhere('customer_phone', 'like', "%{$phoneEnd}%");
+                }
+            })
+            ->latest()
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Girilen bilgiye ait aktif bir sipariş kaydı bulunamadı. Lütfen sipariş numaranızı kontrol ediniz veya WhatsApp hattımızdan (+90 850 307 3164) bize ulaşınız.',
+            ], 404);
+        }
+
+        // Durum Türkçeleştirme
+        $statusLabels = [
+            'pending' => 'Sipariş Alındı (Onay Bekliyor)',
+            'processing' => 'Siparişiniz Hazırlanıyor',
+            'shipped' => 'Kargoya Verildi',
+            'delivered' => 'Teslim Edildi',
+            'cancelled' => 'İptal Edildi',
+            'refunded' => 'İade Edildi',
+        ];
+        $statusText = $statusLabels[$order->status] ?? ucfirst((string) $order->status);
+
+        // Müşteri adını maskele (KVKK)
+        $nameParts = explode(' ', trim((string) $order->customer_name));
+        $maskedName = '';
+        foreach ($nameParts as $part) {
+            if (mb_strlen($part) <= 2) {
+                $maskedName .= $part . ' ';
+            } else {
+                $maskedName .= mb_substr($part, 0, 2) . str_repeat('*', max(1, mb_strlen($part) - 2)) . ' ';
+            }
+        }
+        $maskedName = trim($maskedName);
+
+        $itemsSummary = $order->items->map(function ($item) {
+            $size = $item->variant?->size ?: ($item->variant_info ?: '');
+            return [
+                'name' => $item->product_name ?: ($item->product?->name ?? 'Patenli Ayakkabı'),
+                'size' => $size,
+                'quantity' => (int) $item->quantity,
+                'price' => number_format((float) $item->price, 2) . ' ₺',
+            ];
+        })->toArray();
+
+        return response()->json([
+            'success' => true,
+            'order' => [
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'status_label' => $statusText,
+                'customer' => $maskedName,
+                'created_at' => $order->created_at ? $order->created_at->format('d.m.Y H:i') : '',
+                'total' => number_format((float) $order->total_amount, 2) . ' ₺',
+                'shipping_company' => $order->shipping_company ?: 'Anlaşmalı Kargo (Porego / Sürat / Yurtiçi)',
+                'tracking_code' => $order->shipping_tracking_code ?: null,
+                'tracking_url' => $order->shipping_tracking_url ?: ($order->shipping_tracking_code ? "https://kargotakip.porego.com/{$order->shipping_tracking_code}" : null),
+                'items' => $itemsSummary,
+                'help_text' => 'Herhangi bir sorunuzda +90 850 307 3164 WhatsApp destek hattımızdan 7/24 bilgi alabilirsiniz.',
+            ],
+        ], 200, [
+            'Access-Control-Allow-Origin' => '*',
+            'Cache-Control' => 'no-cache, private',
+        ]);
+    }
+
+    /**
      * llms-full.txt Endpoint
      * GET /llms-full.txt
      */

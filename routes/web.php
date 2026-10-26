@@ -1274,6 +1274,8 @@ Route::prefix('api/v1/ai')->group(function () {
     Route::get('/shopping/products', [\App\Http\Controllers\AiShoppingApiController::class, 'products'])->name('api.ai.shopping.products');
     Route::get('/shopping/product/{slug}', [\App\Http\Controllers\AiShoppingApiController::class, 'product'])->name('api.ai.shopping.product');
     Route::get('/embeddings', [\App\Http\Controllers\AiShoppingApiController::class, 'embeddings'])->name('api.ai.embeddings');
+    Route::get('/sonecentral/catalog', [\App\Http\Controllers\AiShoppingApiController::class, 'soneCentralCatalog'])->name('api.ai.sonecentral.catalog');
+    Route::match(['GET', 'POST'], '/order-status', [\App\Http\Controllers\AiShoppingApiController::class, 'orderStatus'])->name('api.ai.order.status');
 });
 
 // ========================
