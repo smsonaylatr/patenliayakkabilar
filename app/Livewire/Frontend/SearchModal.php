@@ -9,12 +9,27 @@ use Livewire\Component;
 
 class SearchModal extends Component
 {
-    public string $search = '';
+    public mixed $search = '';
 
-    public function updatedSearch($value): void
+    public function hydrate(): void
     {
-        if (!is_string($value)) {
-            $this->search = '';
+        $this->normalizeSearch();
+    }
+
+    public function updatedSearch($value = null): void
+    {
+        $this->normalizeSearch();
+    }
+
+    protected function normalizeSearch(): void
+    {
+        if (is_array($this->search)) {
+            $first = reset($this->search);
+            $this->search = is_string($first) || is_numeric($first) ? trim((string) $first) : '';
+        } elseif (!is_string($this->search)) {
+            $this->search = is_scalar($this->search) ? trim((string) $this->search) : '';
+        } else {
+            $this->search = trim($this->search);
         }
     }
 
@@ -25,7 +40,8 @@ class SearchModal extends Component
 
     public function performSearch(): mixed
     {
-        $search = trim($this->search);
+        $this->normalizeSearch();
+        $search = (string) $this->search;
         if (!empty($search)) {
             return $this->redirect('/patenli-ayakkabilar?search=' . urlencode($search), navigate: true);
         }
@@ -34,11 +50,12 @@ class SearchModal extends Component
 
     public function render()
     {
+        $this->normalizeSearch();
         $results = collect();
         $suggestions = [];
         $matchedCategories = collect();
 
-        $search = trim($this->search);
+        $search = (string) $this->search;
 
         if (mb_strlen($search) >= 2) {
             $slugTerm = \Illuminate\Support\Str::slug($search, '-');

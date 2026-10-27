@@ -9,10 +9,10 @@ use App\Models\Product;
 class ProductGrid extends Component
 {
     #[\Livewire\Attributes\Url]
-    public string $category = '';
+    public mixed $category = '';
 
     #[\Livewire\Attributes\Url(as: 'search')]
-    public string $search = '';
+    public mixed $search = '';
 
     #[Locked]
     public bool $isFeaturedOnly = false;
@@ -26,14 +26,56 @@ class ProductGrid extends Component
         $this->limit = (int) $limit;
 
         if (!empty($category)) {
-            $this->category = (string) $category;
+            $this->category = $this->sanitizeString($category);
         }
 
         if (!empty($search)) {
-            $this->search = (string) $search;
+            $this->search = $this->sanitizeString($search);
         } elseif (empty($this->search)) {
-            $this->search = (string) (request()->query('search') ?? request()->query('q') ?? '');
+            $raw = request()->query('search') ?? request()->query('q') ?? '';
+            $this->search = $this->sanitizeString($raw);
         }
+
+        $this->normalizeInputs();
+    }
+
+    public function hydrate(): void
+    {
+        $this->normalizeInputs();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->search = $this->sanitizeString($this->search);
+    }
+
+    public function updatedCategory(): void
+    {
+        $this->category = $this->sanitizeString($this->category);
+    }
+
+    protected function normalizeInputs(): void
+    {
+        $this->category = $this->sanitizeString($this->category);
+        $this->search = $this->sanitizeString($this->search);
+    }
+
+    protected function sanitizeString(mixed $value): string
+    {
+        if (is_string($value)) {
+            return trim($value);
+        }
+
+        if (is_array($value)) {
+            $first = reset($value);
+            return is_string($first) || is_numeric($first) ? trim((string) $first) : '';
+        }
+
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        return '';
     }
 
     public function addToCart(\App\Services\CartService $cartService, $productId, $variantId = null)
@@ -65,6 +107,8 @@ class ProductGrid extends Component
 
     public function render()
     {
+        $this->normalizeInputs();
+
         $query = Product::where('status', true)->with(['categories', 'images', 'variants']);
         
         if ($this->isFeaturedOnly) {

@@ -10,16 +10,27 @@ class BlogIndex extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public mixed $search = '';
 
     public function mount()
     {
-        $this->search = request('q', '');
+        $raw = request('q', '');
+        $this->search = $this->sanitizeString($raw);
+    }
+
+    public function hydrate(): void
+    {
+        $this->search = $this->sanitizeString($this->search);
     }
 
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function updatedSearch($value): void
+    {
+        $this->search = $this->sanitizeString($this->search);
     }
 
     public function clearSearch()
@@ -28,8 +39,28 @@ class BlogIndex extends Component
         $this->resetPage();
     }
 
+    protected function sanitizeString(mixed $value): string
+    {
+        if (is_string($value)) {
+            return trim($value);
+        }
+
+        if (is_array($value)) {
+            $first = reset($value);
+            return is_string($first) || is_numeric($first) ? trim((string) $first) : '';
+        }
+
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        return '';
+    }
+
     public function render()
     {
+        $this->search = $this->sanitizeString($this->search);
+
         $query = BlogPost::where('status', true);
 
         if (strlen(trim($this->search)) > 0) {
