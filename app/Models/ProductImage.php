@@ -34,12 +34,24 @@ class ProductImage extends Model
     }
 
     /**
-     * Görselin doğrudan birinci parti (first-party) URL'sini döndürür.
-     * Google SERP çoklu ürün görseli (multi-image collage) ve Google Images
-     * indekslemesi için tüm görseller kendi alan adımızdan sunulmalıdır.
+     * Görselin CDN optimize edilmiş URL'sini döndürür.
+     * Web sitesi ön yüzündeki template'lerde $image->image_url olarak kullanılır.
      */
     public function getImageUrlAttribute(): string
     {
-        return $this->raw_image_url;
+        $originalUrl = $this->raw_image_url;
+        
+        // Geliştirme ortamında veya çoktan optimize edilmiş CDN url'siyse orijinali döndür
+        if (app()->environment('local') || str_contains($originalUrl, 'wsrv.nl')) {
+            return $originalUrl;
+        }
+
+        // URL'yi temizle (http/https kısmını at)
+        $cleanUrl = preg_replace('#^https?://#', '', $originalUrl);
+        
+        // Ücretsiz ve inanılmaz hızlı görsel CDN'i (wsrv.nl) ile
+        // Boyutu max 800px genişliğe sınırla ve modern WEBP formatına çevir
+        // n=-1 parametresi hareketli GIF'lerin animasyonlarını (tüm kareleri) korumasını sağlar
+        return 'https://wsrv.nl/?url=' . urlencode($cleanUrl) . '&w=800&output=webp&we&n=-1';
     }
 }

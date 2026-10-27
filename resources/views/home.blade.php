@@ -22,31 +22,50 @@
         $featuredProducts = \App\Models\Product::where('status', true)
             ->where('stock', '>', 0)
             ->with(['images', 'categories'])
-            ->orderByDesc('featured')
-            ->orderByDesc('best_seller')
-            ->orderByRaw('CASE WHEN homepage_sort > 0 THEN 0 ELSE 1 END')
-            ->orderBy('homepage_sort', 'asc')
-            ->orderByDesc('id')
-            ->take(12)
+            ->take(8)
             ->get();
         $itemListSchema = $schemaService->homePageItemList($featuredProducts);
-        $collectionSchema = $schemaService->homePageCollection($featuredProducts);
-        $homeProductImages = $featuredProducts
-            ->map(fn ($p) => $p->images->first()?->raw_image_url)
-            ->filter()
-            ->take(6)
-            ->values()
-            ->implode(',');
+
+        $coverImageUrl = asset('whatsapp-cover.png');
+        $articleSchema = json_encode([
+            '@context'           => 'https://schema.org',
+            '@type'              => 'Article',
+            'headline'           => 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            'description'        => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'url'                => url('/'),
+            'image'              => [$coverImageUrl],
+            'thumbnailUrl'       => $coverImageUrl,
+            'primaryImageOfPage' => [
+                '@type'  => 'ImageObject',
+                'url'    => $coverImageUrl,
+                'width'  => 1200,
+                'height' => 630,
+            ],
+            'author'             => [
+                '@type' => 'Person',
+                'name'  => 'Patenli Ayakkabılar Uzman Ekibi',
+                'url'   => url('/hakkimizda'),
+            ],
+            'publisher'          => [
+                '@type' => 'Organization',
+                'name'  => 'Patenli Ayakkabılar',
+                'logo'  => [
+                    '@type'  => 'ImageObject',
+                    'url'    => $coverImageUrl,
+                    'width'  => 1200,
+                    'height' => 630,
+                ],
+            ],
+            'datePublished'      => '2024-01-01T08:00:00+03:00',
+            'dateModified'       => now()->toW3cString(),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     @endphp
-    @if($homeProductImages !== '')
-        <x-slot:ogImages>{{ $homeProductImages }}</x-slot:ogImages>
-    @endif
     
     <x-slot:schema>
         {!! $breadcrumbs !!}
         {!! $faqs !!}
         {!! $itemListSchema !!}
-        {!! $collectionSchema !!}
+        <script type="application/ld+json">{!! $articleSchema !!}</script>
     </x-slot:schema>
 
     @include('livewire.home.hero-section')
