@@ -203,7 +203,7 @@ body {
 }
 
 /* ========================================================
-   LIVEWIRE SPA PROGRESS BAR (MODEL 4: GRİ DÖNEN TEKERLEK & METALİK LAZER)
+   LIVEWIRE SPA PROGRESS BAR (FAVICON PATENLİ AYAKKABI SKATER)
    ======================================================== */
 #nprogress {
     pointer-events: none;
@@ -253,25 +253,21 @@ body {
     transform: none !important;
 }
 
-/* Uçtaki dönen krom/gri paten tekerleği */
+/* Uçtaki Favicon Patenli Ayakkabı - İleri süzülen patenci ikonu */
 #nprogress .peg::after {
     content: '' !important;
     position: absolute !important;
-    right: -7px !important;
-    top: 50% !important;
-    margin-top: -7.5px !important;
-    width: 15px !important;
-    height: 15px !important;
-    border-radius: 50% !important;
-    background-color: #FFFFFF !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Ccircle cx='12' cy='12' r='3.5' fill='%23475569'/%3E%3Cline x1='12' y1='2' x2='12' y2='8.5'/%3E%3Cline x1='12' y1='15.5' x2='12' y2='22'/%3E%3Cline x1='2' y1='12' x2='8.5' y2='12'/%3E%3Cline x1='15.5' y1='12' x2='22' y2='12'/%3E%3C/svg%3E") !important;
-    background-size: 13px 13px !important;
+    right: -18px !important;
+    top: 0px !important;
+    width: 36px !important;
+    height: 25px !important;
+    background-image: url('/images/progress-shoe.png') !important;
+    background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    box-shadow: 0 0 14px 3px rgba(71, 85, 105, 0.75), 0 0 6px 1px rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid rgba(51, 65, 85, 0.5) !important;
-    animation: paWheelSpinGrey 0.45s linear infinite !important;
-    transform-origin: center center !important;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 8px rgba(255, 122, 26, 0.45)) !important;
+    animation: paSkateGlide 0.4s ease-in-out infinite alternate !important;
+    transform-origin: center bottom !important;
     z-index: 1000000 !important;
 }
 
@@ -280,9 +276,9 @@ body {
     display: none !important;
 }
 
-@keyframes paWheelSpinGrey {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes paSkateGlide {
+    0% { transform: translateY(0px) rotate(-1.5deg); }
+    100% { transform: translateY(2px) rotate(2deg); }
 }
 
 @keyframes paLaserShimmerGrey {
