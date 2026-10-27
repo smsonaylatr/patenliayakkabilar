@@ -461,7 +461,7 @@ class SchemaService
     }
 
     /**
-     * Anasayfadaki öne çıkan ürünler için ItemList + Product şeması
+     * Anasayfadaki öne çıkan ürünler için ItemList şeması
      */
     public function homePageItemList($products = []): string
     {
@@ -470,35 +470,11 @@ class SchemaService
         $position = 1;
 
         foreach ($products as $p) {
-            $price = $p->discount_price && $p->discount_price < $p->price ? $p->discount_price : $p->price;
-            $image = $p->images->first()?->image_url ?? ($appUrl . '/whatsapp-cover.png');
-
             $listItems[] = [
                 '@type'    => 'ListItem',
                 'position' => $position++,
-                'item'     => [
-                    '@context' => 'https://schema.org',
-                    '@type'    => 'Product',
-                    '@id'      => $appUrl . '/urun/' . $p->slug . '#product',
-                    'name'     => $p->name,
-                    'url'      => $appUrl . '/urun/' . $p->slug,
-                    'image'    => $image,
-                    'sku'      => $p->sku ?: ('PATEN-' . $p->id),
-                    'offers'   => [
-                        '@type'         => 'Offer',
-                        'price'         => number_format((float) $price, 2, '.', ''),
-                        'priceCurrency' => 'TRY',
-                        'availability'  => $p->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                        'url'           => $appUrl . '/urun/' . $p->slug,
-                    ],
-                    'aggregateRating' => [
-                        '@type'       => 'AggregateRating',
-                        'ratingValue' => '5.0',
-                        'reviewCount' => '15',
-                        'bestRating'  => '5',
-                        'worstRating' => '1',
-                    ],
-                ],
+                'name'     => $p->name,
+                'url'      => $appUrl . '/urun/' . $p->slug,
             ];
         }
 
@@ -586,8 +562,10 @@ class SchemaService
                 '@type' => 'Organization',
                 'name'  => 'Patenli Ayakkabılar',
                 'logo'  => [
-                    '@type' => 'ImageObject',
-                    'url'   => $appUrl . '/whatsapp-cover.png',
+                    '@type'  => 'ImageObject',
+                    'url'    => $appUrl . '/favicon.png',
+                    'width'  => 512,
+                    'height' => 512,
                 ],
             ],
         ];

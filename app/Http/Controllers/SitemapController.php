@@ -57,13 +57,11 @@ class SitemapController extends Controller
             ];
         }
 
-        // Sayfa sitemap'i (veri varsa)
-        if ($pageLastmod) {
-            $sitemaps[] = [
-                'loc'     => $appUrl . '/sitemap-pages.xml',
-                'lastmod' => \Carbon\Carbon::parse($pageLastmod)->toW3cString(),
-            ];
-        }
+        // Sayfa sitemap'i (anasayfa günlük güncellendiği için her zaman dahil)
+        $sitemaps[] = [
+            'loc'     => $appUrl . '/sitemap-pages.xml',
+            'lastmod' => now()->startOfDay()->toW3cString(),
+        ];
 
         // Blog sitemap'i (veri varsa)
         if ($blogLastmod) {
@@ -198,6 +196,7 @@ class SitemapController extends Controller
                 $xml .= '    <image:image>' . "\n";
                 $xml .= '      <image:loc>' . url('/whatsapp-cover.png') . '</image:loc>' . "\n";
                 $xml .= '      <image:title>Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar</image:title>' . "\n";
+                $xml .= '      <image:caption>Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler.</image:caption>' . "\n";
                 $xml .= '    </image:image>' . "\n";
             }
             $xml .= '  </url>' . "\n";

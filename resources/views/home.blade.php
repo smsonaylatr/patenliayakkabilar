@@ -27,6 +27,35 @@
         $itemListSchema = $schemaService->homePageItemList($featuredProducts);
 
         $coverImageUrl = asset('whatsapp-cover.png');
+        $webPageSchema = json_encode([
+            '@context'           => 'https://schema.org',
+            '@type'              => 'WebPage',
+            '@id'                => url('/') . '#webpage',
+            'url'                => url('/'),
+            'name'               => 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            'description'        => 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'inLanguage'         => 'tr-TR',
+            'thumbnailUrl'       => $coverImageUrl,
+            'image'              => [
+                '@type'      => 'ImageObject',
+                '@id'        => url('/') . '#primaryimage',
+                'url'        => $coverImageUrl,
+                'contentUrl' => $coverImageUrl,
+                'width'      => 1200,
+                'height'     => 630,
+                'caption'    => 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            ],
+            'primaryImageOfPage' => [
+                '@type'      => 'ImageObject',
+                '@id'        => url('/') . '#primaryimage',
+                'url'        => $coverImageUrl,
+                'contentUrl' => $coverImageUrl,
+                'width'      => 1200,
+                'height'     => 630,
+                'caption'    => 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+
         $articleSchema = json_encode([
             '@context'           => 'https://schema.org',
             '@type'              => 'Article',
@@ -51,9 +80,9 @@
                 'name'  => 'Patenli Ayakkabılar',
                 'logo'  => [
                     '@type'  => 'ImageObject',
-                    'url'    => $coverImageUrl,
-                    'width'  => 1200,
-                    'height' => 630,
+                    'url'    => asset('favicon.png'),
+                    'width'  => 512,
+                    'height' => 512,
                 ],
             ],
             'datePublished'      => '2024-01-01T08:00:00+03:00',
@@ -62,11 +91,14 @@
     @endphp
     
     <x-slot:schema>
+        <script type="application/ld+json">{!! $webPageSchema !!}</script>
+        <script type="application/ld+json">{!! $articleSchema !!}</script>
         {!! $breadcrumbs !!}
         {!! $faqs !!}
         {!! $itemListSchema !!}
-        <script type="application/ld+json">{!! $articleSchema !!}</script>
     </x-slot:schema>
+
+    <img src="{{ asset('whatsapp-cover.png') }}" alt="Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar" width="1200" height="630" fetchpriority="high" decoding="async" class="sr-only" />
 
     @include('livewire.home.hero-section')
     

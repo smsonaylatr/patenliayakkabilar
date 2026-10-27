@@ -11,10 +11,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1">
         <!-- Tarayıcı ve Ana Ekran (Home Screen) İkonları -->
-        <link rel="icon" type="image/png" href="/favicon.png?v={{ time() }}">
-        <link rel="apple-touch-icon" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v={{ time() }}">
+        <link rel="icon" type="image/png" href="/favicon.png">
+        <link rel="apple-touch-icon" href="/favicon.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
 
         <!-- PWA (Web Uygulaması) Ayarları -->
         <link rel="manifest" href="/manifest.json">
@@ -24,7 +24,7 @@
         <meta name="apple-mobile-web-app-title" content="PatenliAyakkabılar®">
         <title>{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
-        <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
+        <meta name="robots" content="{{ $robots ?? 'index, follow, max-image-preview:large' }}">
         <meta name="google" content="notranslate">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
         <link rel="mcp" href="/mcp.json">
@@ -55,17 +55,24 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
         <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=' . time()) }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta property="og:image:secure_url" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
 
+        @if(isset($ogImageSquare))
         <!-- Open Graph / WhatsApp (Kare Önizleme) -->
-        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=' . time()) }}">
+        <meta property="og:image" content="{{ $ogImageSquare }}">
         <meta property="og:image:width" content="800">
         <meta property="og:image:height" content="800">
+        @endif
 
         <!-- Google Arama Önizleme Görseli -->
         <meta name="thumbnail" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta itemprop="image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <link rel="image_src" href="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
@@ -89,7 +96,7 @@
                 '@type' => 'Organization',
                 'name' => 'Patenli Ayakkabılar',
                 'url' => url('/'),
-                'logo' => asset('favicon.png?v=' . time()),
+                'logo' => asset('favicon.png'),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
             </script>
         @endif
