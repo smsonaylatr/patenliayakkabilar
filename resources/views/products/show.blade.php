@@ -3,8 +3,11 @@
     <x-slot:title>{{ $product->meta_title ?? $product->name . ' | Patenli Ayakkabılar' }}</x-slot:title>
     <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
     <x-slot:ogType>product</x-slot:ogType>
-    <x-slot:ogImage>{{ $product->og_image_url ?? $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
-    <x-slot:ogImageSquare>{{ $product->og_image_url ?? $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
+    <x-slot:ogImage>{{ $product->og_image_url ?? $product->images->first()?->raw_image_url ?? asset('og-square.png') }}</x-slot:ogImage>
+    <x-slot:ogImageSquare>{{ $product->og_image_url ?? $product->images->first()?->raw_image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>
+    @if($product->images->isNotEmpty())
+        <x-slot:ogImages>{{ $product->images->map(fn ($img) => $img->raw_image_url)->filter()->values()->implode(',') }}</x-slot:ogImages>
+    @endif
     <x-slot:canonical>{{ $product->canonical_url ?? url('/urun/' . $product->slug) }}</x-slot:canonical>
     @if(isset($product->is_indexable) && $product->is_indexable === false)
         <x-slot:robots>noindex, follow</x-slot:robots>

@@ -11,10 +11,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=1">
         <!-- Tarayıcı ve Ana Ekran (Home Screen) İkonları -->
-        <link rel="icon" type="image/png" href="/favicon.png?v={{ time() }}">
-        <link rel="apple-touch-icon" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v={{ time() }}">
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v={{ time() }}">
+        <link rel="icon" type="image/png" href="/favicon.png?v=2.1">
+        <link rel="apple-touch-icon" href="/favicon.png?v=2.1">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=2.1">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png?v=2.1">
 
         <!-- PWA (Web Uygulaması) Ayarları -->
         <link rel="manifest" href="/manifest.json">
@@ -24,7 +24,7 @@
         <meta name="apple-mobile-web-app-title" content="PatenliAyakkabılar®">
         <title>{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}</title>
         <meta name="description" content="{{ $description ?? 'Çocuklar için en güvenli ve eğlenceli patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçeneklerle ücretsiz kargo fırsatı.' }}">
-        <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
+        <meta name="robots" content="{{ $robots ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' }}">
         <meta name="google" content="notranslate">
         <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
         <link rel="mcp" href="/mcp.json">
@@ -50,29 +50,37 @@
         <meta property="og:locale" content="tr_TR">
         <meta property="og:site_name" content="Patenli Ayakkabılar">
 
-        <!-- Open Graph / Facebook -->
+        <!-- Open Graph / Facebook / Google Multi-Image -->
+        @php
+            $ogImagesList = [];
+            if (isset($ogImages) && !empty(trim((string) $ogImages))) {
+                $ogImagesList = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', (string) $ogImages))));
+            }
+            $primaryOgImage = $ogImage ?? ($ogImagesList[0] ?? asset('og-square.png'));
+        @endphp
         <meta property="og:type" content="{{ $ogType ?? 'website' }}">
-        <meta property="og:url" content="{{ url()->current() }}">
-        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
+        <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
+        <meta property="og:title" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
         <meta property="og:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta property="og:image" content="{{ $ogImage ?? asset('whatsapp-cover.png?v=' . time()) }}">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-
-        <!-- Open Graph / WhatsApp (Kare Önizleme) -->
-        <meta property="og:image" content="{{ $ogImageSquare ?? asset('og-square.png?v=' . time()) }}">
+        @if(!empty($ogImagesList))
+            @foreach($ogImagesList as $ogImgUrl)
+        <meta property="og:image" content="{{ $ogImgUrl }}">
         <meta property="og:image:width" content="800">
         <meta property="og:image:height" content="800">
-
-        <!-- Google Arama Önizleme Görseli -->
-        <meta name="thumbnail" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta property="og:image:alt" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
+            @endforeach
+        @else
+        <meta property="og:image" content="{{ $primaryOgImage }}">
+        <meta property="og:image:width" content="800">
+        <meta property="og:image:height" content="800">
+        @endif
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:url" content="{{ url()->current() }}">
-        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabılar' }}">
+        <meta name="twitter:url" content="{{ $canonical ?? url()->current() }}">
+        <meta name="twitter:title" content="{{ $title ?? 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar' }}">
         <meta name="twitter:description" content="{{ $description ?? 'Işıklı ve tekerlekli ayakkabı modelleri' }}">
-        <meta name="twitter:image" content="{{ $ogImage ?? asset('whatsapp-cover.png') }}">
+        <meta name="twitter:image" content="{{ $primaryOgImage }}">
 
         <!-- Structured Data -->
         @if(isset($schema))

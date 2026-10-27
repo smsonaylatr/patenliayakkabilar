@@ -62,7 +62,6 @@ class SchemaService
             'name'        => $companyName,
             'legalName'   => $companyName . '®',
             'url'         => config('app.url') . '/',
-            'image'       => config('app.url') . '/whatsapp-cover.png',
             'logo'        => [
                 '@type'  => 'ImageObject',
                 'url'    => config('app.url') . '/favicon.png',
@@ -73,13 +72,6 @@ class SchemaService
             'priceRange'  => '₺₺',
             'currenciesAccepted' => 'TRY',
             'paymentAccepted' => 'Credit Card, TROY, Visa, Mastercard, Bank Transfer',
-            'aggregateRating' => [
-                '@type'       => 'AggregateRating',
-                'ratingValue' => '4.9',
-                'reviewCount' => '1250',
-                'bestRating'  => '5',
-                'worstRating' => '1',
-            ],
         ];
 
         // İletişim eklentisi (ContactPoint)
@@ -161,10 +153,9 @@ class SchemaService
         $data = [
             '@context'        => 'https://schema.org',
             '@type'           => 'WebSite',
+            '@id'             => config('app.url') . '/#website',
             'name'            => 'Patenli Ayakkabılar',
             'url'             => config('app.url'),
-            'image'           => config('app.url') . '/whatsapp-cover.png',
-            'thumbnailUrl'    => config('app.url') . '/whatsapp-cover.png',
             'potentialAction' => [
                 '@type'  => 'SearchAction',
                 'target' => [
@@ -262,17 +253,12 @@ class SchemaService
 
         $data = [
             '@context'    => 'https://schema.org',
-            '@type'       => 'Product',
-            '@id'         => $appUrl . '/urun/' . $product->slug . '#product',
+            '@type'       => $hasVariants ? 'ProductGroup' : 'Product',
+            '@id'         => $appUrl . '/urun/' . $product->slug . ($hasVariants ? '#product-group' : '#product'),
             'name'        => $product->name,
             'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
             'sku'         => $parentSku,
             'url'         => $appUrl . '/urun/' . $product->slug,
-            'isRelatedTo' => [
-                '@type'   => 'Thing',
-                'name'    => 'Tekerlekli Ayakkabı (Roller Shoes)',
-                'sameAs'  => 'https://www.wikidata.org/wiki/Q1140026',
-            ],
         ];
 
         if ($product->aio_summary) {
@@ -357,9 +343,6 @@ class SchemaService
             ],
         ];
 
-        // Root Product her zaman doğrudan offers taşımalıdır (Audit & Google zorunluluğu)
-        $data['offers'] = $offerTemplate;
-
         if ($hasVariants) {
             $variantsArray = [];
             foreach ($product->variants as $variant) {
@@ -391,6 +374,7 @@ class SchemaService
             }
             $data['hasVariant'] = $variantsArray;
         } else {
+            $data['offers'] = $offerTemplate;
             if (!empty($colors)) $data['color'] = implode(', ', $colors);
             if (!empty($sizes)) $data['size'] = implode(', ', $sizes);
         }
@@ -461,7 +445,7 @@ class SchemaService
     }
 
     /**
-     * Anasayfadaki öne çıkan ürünler için ItemList + Product şeması
+     * Anasayfadaki öne çıkan ürünler için ItemList şeması
      */
     public function homePageItemList($products = []): string
     {
@@ -470,36 +454,17 @@ class SchemaService
         $position = 1;
 
         foreach ($products as $p) {
-            $price = $p->discount_price && $p->discount_price < $p->price ? $p->discount_price : $p->price;
-            $image = $p->images->first()?->image_url ?? ($appUrl . '/whatsapp-cover.png');
-
-            $listItems[] = [
+            $primaryImage = $p->images->first()?->raw_image_url;
+            $itemData = [
                 '@type'    => 'ListItem',
                 'position' => $position++,
-                'item'     => [
-                    '@context' => 'https://schema.org',
-                    '@type'    => 'Product',
-                    '@id'      => $appUrl . '/urun/' . $p->slug . '#product',
-                    'name'     => $p->name,
-                    'url'      => $appUrl . '/urun/' . $p->slug,
-                    'image'    => $image,
-                    'sku'      => $p->sku ?: ('PATEN-' . $p->id),
-                    'offers'   => [
-                        '@type'         => 'Offer',
-                        'price'         => number_format((float) $price, 2, '.', ''),
-                        'priceCurrency' => 'TRY',
-                        'availability'  => $p->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                        'url'           => $appUrl . '/urun/' . $p->slug,
-                    ],
-                    'aggregateRating' => [
-                        '@type'       => 'AggregateRating',
-                        'ratingValue' => '5.0',
-                        'reviewCount' => '15',
-                        'bestRating'  => '5',
-                        'worstRating' => '1',
-                    ],
-                ],
+                'name'     => $p->name,
+                'url'      => $appUrl . '/urun/' . $p->slug,
             ];
+            if ($primaryImage) {
+                $itemData['image'] = $primaryImage;
+            }
+            $listItems[] = $itemData;
         }
 
         $data = [
@@ -507,6 +472,7 @@ class SchemaService
             '@type'           => 'ItemList',
             'name'            => 'Öne Çıkan Patenli Ayakkabılar',
             'description'     => 'En popüler ışıklı ve tekerlekli ayakkabı modelleri',
+            'numberOfItems'   => count($listItems),
             'itemListElement' => $listItems,
         ];
 
@@ -514,41 +480,118 @@ class SchemaService
     }
 
     /**
+     * Anasayfa ve Koleksiyon sayfaları için çoklu ürün görselli CollectionPage şeması
+     * Google SERP'te tek görsel yerine çoklu ürün görseli (multi-image snippet) çıkmasını destekler.
+     */
+    public function homePageCollection($products = [], ?string $pageUrl = null, ?string $pageName = null, ?string $pageDesc = null): string
+    {
+        $appUrl = config('app.url');
+        $images = [];
+
+        foreach ($products as $p) {
+            $imgUrl = $p->images->first()?->raw_image_url;
+            if ($imgUrl) {
+                $images[] = [
+                    '@type'      => 'ImageObject',
+                    'url'        => $imgUrl,
+                    'contentUrl' => $imgUrl,
+                    'width'      => 800,
+                    'height'     => 800,
+                    'caption'    => $p->name . ' - Patenli Ayakkabı',
+                ];
+            }
+        }
+
+        $data = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'CollectionPage',
+            '@id'         => ($pageUrl ?: ($appUrl . '/')) . '#collection',
+            'name'        => $pageName ?: 'Patenli Ayakkabı Modelleri ve Fiyatları | Patenli Ayakkabılar',
+            'description' => $pageDesc ?: 'Çocuk ve genç patenli ayakkabı modelleri. Işıklı, tek ve çift tekerlekli seçenekler. Güvenli alışveriş, hızlı kargo ile kapınızda.',
+            'url'         => $pageUrl ?: ($appUrl . '/'),
+            'isPartOf'    => [
+                '@type' => 'WebSite',
+                '@id'   => $appUrl . '/#website',
+                'name'  => 'Patenli Ayakkabılar',
+                'url'   => $appUrl . '/',
+            ],
+        ];
+
+        if (!empty($images)) {
+            $data['primaryImageOfPage'] = $images[0];
+            $data['image'] = $images;
+        }
+
+        return $this->toScript($data);
+    }
+
+    /**
      * ItemList + CollectionPage şeması — Kategori sayfası
      *
-     * Kategori sayfalarında ürün listesini yapısal veri olarak sunar.
-     * Google'ın carousel (karusel) sonuçlarında görünmeyi sağlar.
+     * Kategori sayfalarında ürün listesini ve ürün görsellerini yapısal veri olarak sunar.
+     * Google'ın çoklu görsel (multi-image) ve karusel sonuçlarında görünmeyi sağlar.
      *
      * @param Category $category Kategori modeli
-     * @param \Illuminate\Support\Collection|array $products Ürün koleksiyonu
+     * @param \Illuminate\Support\Collection|array|null $products Ürün koleksiyonu
      */
     public function categoryPage(Category $category, $products = []): string
     {
         $appUrl = config('app.url');
 
+        if (empty($products)) {
+            $products = $category->products()
+                ->where('products.status', true)
+                ->where('products.stock', '>', 0)
+                ->with('images')
+                ->orderByDesc('products.featured')
+                ->orderByDesc('products.best_seller')
+                ->orderByDesc('products.id')
+                ->take(12)
+                ->get();
+        }
+
         $listItems = [];
+        $categoryImages = [];
         $position = 1;
 
         if (!empty($products)) {
             foreach ($products as $product) {
-                $listItems[] = [
+                $imgUrl = $product->images->first()?->raw_image_url;
+                $item = [
                     '@type'    => 'ListItem',
                     'position' => $position++,
                     'url'      => $appUrl . '/urun/' . $product->slug,
                     'name'     => $product->name,
                 ];
+                if ($imgUrl) {
+                    $item['image'] = $imgUrl;
+                    $categoryImages[] = [
+                        '@type'      => 'ImageObject',
+                        'url'        => $imgUrl,
+                        'contentUrl' => $imgUrl,
+                        'width'      => 800,
+                        'height'     => 800,
+                        'caption'    => $product->name . ' - ' . $category->name,
+                    ];
+                }
+                $listItems[] = $item;
             }
         }
 
         $data = [
             '@context' => 'https://schema.org',
             '@type'    => 'CollectionPage',
-            'name'     => $category->name,
+            'name'     => $category->seo_h1 ?: $category->name,
             'url'      => $appUrl . '/kategori/' . $category->slug,
         ];
 
-        if ($category->description) {
-            $data['description'] = strip_tags($category->description);
+        if ($category->meta_description || $category->description) {
+            $data['description'] = strip_tags($category->meta_description ?: $category->description);
+        }
+
+        if (!empty($categoryImages)) {
+            $data['primaryImageOfPage'] = $categoryImages[0];
+            $data['image'] = $categoryImages;
         }
 
         $data['mainEntity'] = [
@@ -587,7 +630,7 @@ class SchemaService
                 'name'  => 'Patenli Ayakkabılar',
                 'logo'  => [
                     '@type' => 'ImageObject',
-                    'url'   => $appUrl . '/whatsapp-cover.png',
+                    'url'   => $appUrl . '/favicon.png',
                 ],
             ],
         ];
