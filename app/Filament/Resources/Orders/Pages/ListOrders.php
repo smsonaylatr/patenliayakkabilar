@@ -14,6 +14,22 @@ class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        // Admin Siparişler sayfasına girdiğinde son 5 dakikadır çalışmadıysa
+        // otomatik senkronizasyon çalıştırılır (Cron aksasa bile daima güncel durum)
+        $cacheKey = 'porego_auto_sync_last_run';
+        if (Cache::add($cacheKey, true, now()->addMinutes(5))) {
+            try {
+                app(\App\Services\PoregoApiService::class)->syncOrderStatuses();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('ListOrders otomatik Porego sync uyarısı: ' . $e->getMessage());
+            }
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [

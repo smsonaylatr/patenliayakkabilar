@@ -62,7 +62,7 @@ Artisan::command('segments:sync', function () {
 // Schedule::command('app:send-abandoned-cart-sms')->hourly(); // DEVRE DIŞI — Manuel mod
 
 // ─── Porego: Sipariş & Kargo Durumlarını Otomatik Senkronize Et (Her 5 dk) ───
-Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping();
+Schedule::command('porego:sync-orders')->everyFiveMinutes()->withoutOverlapping(10)->runInBackground();
 
 // ─── Site Sağlık Kontrolü (Her 5 dakikada bir) ──────────────────────────
 Schedule::command('site:health-check')->everyFiveMinutes()->withoutOverlapping();

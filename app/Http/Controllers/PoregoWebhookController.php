@@ -57,7 +57,7 @@ class PoregoWebhookController extends Controller
             // 1. Sipariş Durumu Değişikliği (ORDER_STATUS_CHANGED, SHIPMENT_STATUS_CHANGED)
             $platformOrderId = $orderData['platformOrderId'] ?? ($orderData['platform_order_id'] ?? ($orderData['order_id'] ?? ($orderData['id'] ?? null)));
             $platformOrderNumber = $orderData['platformOrderNumber'] ?? ($orderData['platform_order_number'] ?? ($orderData['order_number'] ?? ($orderData['orderNumber'] ?? null)));
-            $status = $orderData['currentStatus'] ?? ($orderData['status'] ?? ($orderData['orderStatus'] ?? null));
+            $status = $orderData['shipmentStatus'] ?? ($orderData['shipment_status'] ?? ($orderData['currentStatus'] ?? ($orderData['status'] ?? ($orderData['orderStatus'] ?? null))));
             
             // Porego'nun yeni eklediği alanlar üzerinden gerçek takip kodunu almayı deniyoruz
             $trackingCode = $orderData['carrierTrackingNumber'] ?? ($orderData['platformCargoTrackingNumber'] ?? ($orderData['trackingNumber'] ?? ($orderData['tracking_number'] ?? ($orderData['trackingCode'] ?? null))));
@@ -105,11 +105,12 @@ class PoregoWebhookController extends Controller
                     $isDeliveredFlag = ($orderData['delivered'] ?? ($orderData['isDelivered'] ?? false));
 
                     $newStatus = match ($upperStatus) {
-                        'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE' => 'shipped',
-                        'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
-                        'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
-                        'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                        'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE', 'OUT_FOR_DELIVERY' => 'shipped',
+                        'COMPLETED', 'DELIVERED', 'ARCHIVED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
+                        'RETURNED', 'IN_TRANSIT_RETURN', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED', 'RETURN_TO_SENDER' => 'returned',
+                        'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI', 'LOST' => 'cancelled',
                         'FAILED' => 'cancelled',
+                        'READY', 'PENDING', 'CREATED' => 'processing',
                         default => null
                     };
                     

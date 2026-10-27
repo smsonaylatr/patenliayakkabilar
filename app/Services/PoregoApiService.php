@@ -947,7 +947,7 @@ class PoregoApiService
     /**
      * Sipariş için Porego'dan canlı kargo takip bilgilerini çeker ve veritabanına kaydeder.
      */
-    public function fetchAndSaveOrderTracking(Order $order): ?array
+    public function fetchAndSaveOrderTracking(Order $order, ?array $preloadedPoregoOrder = null): ?array
     {
         // ═══════════════════════════════════════════════════════════════════
         // ÇELİK KORUMA: İade/İptal edilmiş siparişlerin statüsü DEĞİŞTİRİLEMEZ
@@ -984,39 +984,33 @@ class PoregoApiService
         }
 
         try {
-            // ====================================================================
-            // STRATEJİ: Porego'dan siparişi bul
-            // 
-            // Sorun: Paginated GET /orders endpoint'i COMPLETED/DELIVERED durumundaki
-            // siparişleri default listede döndürmez. Bu yüzden teslim edilen
-            // siparişler asla bulunamaz ve durumları güncellenemez.
-            //
-            // Çözüm: Çoklu arama stratejisi kullan:
-            // 1. Doğrudan GET /orders/{orderNumber} (tek sipariş — her durumda döner)
-            // 2. Dashboard API ile JWT token lookup
-            // 3. Paginated liste araması (sadece fallback)
-            // ====================================================================
-            $poregoOrder = null;
+            // Önceden toplu çekilmiş veri varsa doğrudan kullan, API'yi tekrar arama
+            $poregoOrder = $preloadedPoregoOrder;
 
-            // === Strateji 1: Doğrudan Merchant API — GET /orders/{orderNumber} ===
-            try {
-                $directResp = Http::withHeaders([
-                    'X-Api-Key' => $apiKey,
-                    'X-Api-Secret' => $apiSecret,
-                    'Accept' => 'application/json',
-                ])->timeout(10)->get("{$apiUrl}/orders/{$order->order_number}");
+            // ====================================================================
+            // STRATEJİ: Porego'dan siparişi bul (Toplu haritada yoksa)
+            // ====================================================================
+            if (!$poregoOrder) {
+                // === Strateji 1: Doğrudan Merchant API — GET /orders/{orderNumber} ===
+                try {
+                    $directResp = Http::withHeaders([
+                        'X-Api-Key' => $apiKey,
+                        'X-Api-Secret' => $apiSecret,
+                        'Accept' => 'application/json',
+                    ])->timeout(10)->get("{$apiUrl}/orders/{$order->order_number}");
 
-                if ($directResp->successful()) {
-                    $directData = $directResp->json();
-                    if (!empty($directData['id']) || !empty($directData['status'])) {
-                        $poregoOrder = $directData;
-                        Log::info("Porego sipariş bulundu (doğrudan endpoint): #{$order->order_number}, Status: " . ($directData['status'] ?? 'N/A'));
+                    if ($directResp->successful()) {
+                        $directData = $directResp->json();
+                        if (!empty($directData['id']) || !empty($directData['status'])) {
+                            $poregoOrder = $directData;
+                            Log::info("Porego sipariş bulundu (doğrudan endpoint): #{$order->order_number}, Status: " . ($directData['status'] ?? 'N/A'));
+                        }
+                    } else {
+                        Log::info("Porego doğrudan endpoint: Status {$directResp->status()} (Sipariş: #{$order->order_number})");
                     }
-                } else {
-                    Log::info("Porego doğrudan endpoint: Status {$directResp->status()} (Sipariş: #{$order->order_number})");
+                } catch (\Throwable $e) {
+                    Log::info("Porego doğrudan endpoint hatası: " . $e->getMessage());
                 }
-            } catch (\Throwable $e) {
-                Log::info("Porego doğrudan endpoint hatası: " . $e->getMessage());
             }
 
             // === Strateji 2: Dashboard API — JWT token ile arama ===
@@ -1142,22 +1136,14 @@ class PoregoApiService
                     if ($body['last'] ?? true) break;
                     $page++;
                 }
-            }
+            } // end if (!$poregoOrder)
 
             if (!$poregoOrder) {
-                Log::info("Porego'da sipariş bulunamadı (3 strateji denendi): #{$order->order_number}");
+                Log::info("Porego'da sipariş bulunamadı: #{$order->order_number}");
                 return null;
             }
 
             // ===== Porego OrderResponse alanları =====
-            // trackingNumber: Porego'nun atadığı kargo takip numarası (ör: 330459070)
-            // trackingUrl: Porego takip linki (ör: https://app.porego.com/tracking/330459070)
-            // platformCargoTrackingNumber: Platform tarafından atanan kargo takip no (genelde null)
-            // platformCargoCompany: Platform tarafından atanan kargo firması (genelde null)
-            // status: NEW, READY, SHIPPED, IN_TRANSIT, COMPLETED, CANCELLED
-
-            // Porego API'sinin yeni eklenen gerçek kargo alanları (carrierTrackingNumber, carrierName, carrierTrackingUrl)
-            // Eğer bunlar boş gelirse (paket şubede okutulmadıysa), Porego'nun kendi alanlarına (trackingNumber) fallback yap
             $platformTracking = $poregoOrder['carrierTrackingNumber'] ?? ($poregoOrder['platformCargoTrackingNumber'] ?? null);
             $platformCompany = $poregoOrder['carrierName'] ?? ($poregoOrder['carrierCode'] ?? ($poregoOrder['platformCargoCompany'] ?? null));
             
@@ -1166,7 +1152,12 @@ class PoregoApiService
             
             // Eğer gerçek kargo takip linki varsa (carrierTrackingUrl), Porego'nun linkini ez
             $trackingUrl = $poregoOrder['carrierTrackingUrl'] ?? ($poregoOrder['trackingUrl'] ?? null);
-            $status = $poregoOrder['status'] ?? null;
+            
+            // Porego kargo durumunu shipmentStatus, status veya orderStatus alanında tutar (shipmentStatus öncelikli)
+            $status = $poregoOrder['shipmentStatus'] 
+                ?? ($poregoOrder['shipment_status'] 
+                ?? ($poregoOrder['status'] 
+                ?? ($poregoOrder['orderStatus'] ?? null)));
             
             // Porego'nun kargo mesajı alanı — bazen status hâlâ SHIPPED iken cargoMessage "Teslim Edildi" olabiliyor
             $cargoMessage = $poregoOrder['cargoMessage'] ?? ($poregoOrder['cargo_message'] ?? ($poregoOrder['statusMessage'] ?? ($poregoOrder['message'] ?? null)));
@@ -1211,12 +1202,12 @@ class PoregoApiService
             if ($status) {
                 $upperStatus = strtoupper((string)$status);
                 $newStatus = match ($upperStatus) {
-                    'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE' => 'shipped',
-                    'COMPLETED', 'DELIVERED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
-                    'RETURNED', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED' => 'returned',
-                    'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI' => 'cancelled',
+                    'SHIPPED', 'IN_TRANSIT', 'ON_THE_WAY', 'CARGO', 'TRANSFER_STAGE', 'OUT_FOR_DELIVERY' => 'shipped',
+                    'COMPLETED', 'DELIVERED', 'ARCHIVED', 'TESLİM EDİLDİ', 'TESLIM EDILDI', 'DELIVERED_TO_RECEIVER' => 'delivered',
+                    'RETURNED', 'IN_TRANSIT_RETURN', 'REFUNDED', 'RETURN', 'İADE', 'IADE', 'İADE EDİLDİ', 'IADE EDILDI', 'RETURN_COMPLETED', 'RETURN_TO_SENDER' => 'returned',
+                    'CANCELLED', 'CANCELED', 'CANCEL', 'VOID', 'REJECTED', 'FAILED_DELIVERY', 'DELETED', 'İPTAL', 'IPTAL', 'İPTAL EDİLDİ', 'IPTAL EDILDI', 'LOST' => 'cancelled',
                     'FAILED' => 'cancelled',
-                    'READY' => 'processing',
+                    'READY', 'PENDING', 'CREATED' => 'processing',
                     default => null
                 };
                 
@@ -1673,6 +1664,64 @@ class PoregoApiService
     }
 
     /**
+     * Porego'dan son sipariş ve kargo kayıtlarını topluca çeker ve RAM'de aranabilir bir harita oluşturur.
+     * Bu sayede 50-100 sipariş için tek tek HTTP isteği atmak yerine 1-2 istekte tüm durumlar senkronize edilir.
+     */
+    public function fetchRecentPoregoOrdersMap(): array
+    {
+        $apiKey = \App\Models\Setting::where('key', 'porego_api_key')->value('value') ?: $this->apiKey;
+        $apiSecret = \App\Models\Setting::where('key', 'porego_api_secret')->value('value') ?: $this->apiSecret;
+        $apiUrl = \App\Models\Setting::where('key', 'porego_api_url')->value('value') ?: $this->apiUrl;
+
+        if (!$apiKey || !$apiSecret) {
+            return [];
+        }
+
+        $map = [];
+
+        // Son 2 sayfayı çek (toplam 200 sipariş / kargo)
+        for ($page = 0; $page < 2; $page++) {
+            try {
+                $resp = Http::withHeaders([
+                    'X-Api-Key' => $apiKey,
+                    'X-Api-Secret' => $apiSecret,
+                    'Accept' => 'application/json',
+                ])->timeout(10)->get("{$apiUrl}/orders", ['page' => $page, 'size' => 100]);
+
+                if (!$resp->successful()) {
+                    break;
+                }
+
+                $body = $resp->json();
+                $content = $body['content'] ?? ($body['data'] ?? (is_array($body) ? $body : []));
+
+                if (empty($content) || !is_array($content)) {
+                    break;
+                }
+
+                foreach ($content as $item) {
+                    $pNo = trim((string)($item['platformOrderNumber'] ?? ''));
+                    $pId = trim((string)($item['platformOrderId'] ?? ''));
+                    $oNo = trim((string)($item['orderNumber'] ?? ''));
+
+                    if ($pNo !== '') $map[$pNo] = $item;
+                    if ($pId !== '') $map[$pId] = $item;
+                    if ($oNo !== '') $map[$oNo] = $item;
+                }
+
+                if ($body['last'] ?? true) {
+                    break;
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Porego fetchRecentPoregoOrdersMap hatası (page {$page}): " . $e->getMessage());
+                break;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
      * Porego'dan aktif/kargodaki ve ödemesi bekleyen Kapıda Ödeme siparişlerinin güncel durumlarını çeker.
      */
     public function syncOrderStatuses()
@@ -1703,16 +1752,31 @@ class PoregoApiService
                       ->orWhere('porego_sync_locked', false);
                 })
                 ->get();
+
+            if ($activeOrders->isEmpty()) {
+                return [
+                    'success' => true,
+                    'message' => 'Senkronize edilecek aktif sipariş bulunamadı.',
+                    'updated_count' => 0
+                ];
+            }
             
             Log::info("Porego syncOrderStatuses: {$activeOrders->count()} adet sipariş senkronize edilecek.", [
                 'order_numbers' => $activeOrders->pluck('order_number')->toArray(),
                 'statuses' => $activeOrders->pluck('status', 'order_number')->toArray(),
             ]);
             
+            // Porego'dan son 200 siparişi 1-2 toplu HTTP isteğiyle RAM'e al (yüksek performans & timeout koruması)
+            $poregoMap = $this->fetchRecentPoregoOrdersMap();
+
             $updatedCount = 0;
 
             foreach ($activeOrders as $order) {
-                $result = $this->fetchAndSaveOrderTracking($order);
+                $cleanNo = trim((string)$order->order_number);
+                $cleanId = trim((string)$order->id);
+                $preloaded = $poregoMap[$cleanNo] ?? ($poregoMap[$cleanId] ?? null);
+
+                $result = $this->fetchAndSaveOrderTracking($order, $preloaded);
                 if ($result) {
                     $updatedCount++;
                 }
