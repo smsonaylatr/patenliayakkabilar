@@ -59,16 +59,19 @@ class SyncGoogleMerchantCommand extends Command
 
         $success = 0;
         $failed = 0;
+        $failedList = [];
 
         $bar = $this->output->createProgressBar($count);
         $bar->start();
 
         foreach ($products as $product) {
+            usleep(150000); // Google API kota koruması
             $res = $merchantService->syncProduct($product);
             if ($res) {
                 $success++;
             } else {
                 $failed++;
+                $failedList[] = "ID {$product->id} ({$product->name}): " . ($merchantService->getLastError() ?: 'Bilinmeyen hata');
             }
             $bar->advance();
         }
@@ -77,6 +80,12 @@ class SyncGoogleMerchantCommand extends Command
         $this->newLine();
 
         $this->info("Senkronizasyon Tamamlandı! Başarılı: {$success}, Başarısız: {$failed}");
+        if (!empty($failedList)) {
+            $this->warn("Aktarılamayan Ürünler:");
+            foreach ($failedList as $err) {
+                $this->error(" - {$err}");
+            }
+        }
 
         return Command::SUCCESS;
     }

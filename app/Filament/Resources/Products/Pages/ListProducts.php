@@ -35,21 +35,32 @@ class ListProducts extends ListRecords
 
                     $service = app(\App\Services\GoogleMerchantService::class);
                     $success = 0;
-                    $failed = 0;
+                    $failedItems = [];
 
                     foreach ($products as $product) {
+                        usleep(150000); // Google API kota ve hız koruması (150ms)
                         if ($service->syncProduct($product)) {
                             $success++;
                         } else {
-                            $failed++;
+                            $reason = $service->getLastError() ?: 'Görsel veya zorunlu alan eksik';
+                            $failedItems[] = "#{$product->id} {$product->name}: {$reason}";
                         }
                     }
 
-                    \Filament\Notifications\Notification::make()
-                        ->title('Google Merchant Senkronizasyonu Tamamlandı')
-                        ->body("{$success} ürün başarıyla güncellendi, {$failed} ürün aktarılamadı.")
-                        ->success()
-                        ->send();
+                    if (empty($failedItems)) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Google Merchant Senkronizasyonu Başarılı')
+                            ->body("Tüm aktif ve stoklu {$success} ürün başarıyla Google Merchant Center'a aktarıldı.")
+                            ->success()
+                            ->send();
+                    } else {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Google Merchant: ' . count($failedItems) . ' Ürün Aktarılamadı')
+                            ->body("{$success} ürün güncellendi.\n\nAktarılamayan Ürünler:\n" . implode("\n", array_slice($failedItems, 0, 10)))
+                            ->warning()
+                            ->persistent()
+                            ->send();
+                    }
                 }),
             Action::make('aiExportCatalog')
                 ->label('AI Katalog İndir (Tüm Ürünler)')

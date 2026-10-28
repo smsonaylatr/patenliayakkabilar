@@ -15,6 +15,12 @@ class GoogleMerchantService
 {
     private ?ShoppingContent $service = null;
     private ?string $merchantId = null;
+    public ?string $lastError = null;
+
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
 
     public function __construct()
     {
@@ -54,40 +60,53 @@ class GoogleMerchantService
             
             // Temel Bilgiler
             $googleProduct->setOfferId((string) $product->id);
-            $googleProduct->setTitle($this->buildSeoTitle($product));
+            $title = $this->buildSeoTitle($product);
+            $googleProduct->setTitle(mb_substr($title, 0, 150));
             
             $description = mb_substr(strip_tags($product->short_description ?: $product->description ?: $product->name), 0, 5000);
+            if (empty(trim($description))) {
+                $description = $title;
+            }
             $googleProduct->setDescription($description);
             $googleProduct->setLink(url('/urun/' . $product->slug));
             
-            // Görseller (Direct domain URLs for Google Merchant API)
+            // Görseller (Google Shopping API için görsel zorunludur)
             $images = $product->images;
-            if ($images->isNotEmpty()) {
-                $googleProduct->setImageLink($images->first()->raw_image_url);
-                $additionalImages = [];
-                foreach ($images->skip(1)->take(10) as $img) {
+            $mainImageUrl = $images->first()?->raw_image_url;
+            if (empty($mainImageUrl)) {
+                $mainImageUrl = asset('favicon.png');
+            }
+            $googleProduct->setImageLink($mainImageUrl);
+
+            $additionalImages = [];
+            foreach ($images->skip(1)->take(10) as $img) {
+                if (!empty($img->raw_image_url)) {
                     $additionalImages[] = $img->raw_image_url;
                 }
-                if (!empty($additionalImages)) {
-                    $googleProduct->setAdditionalImageLinks($additionalImages);
-                }
+            }
+            if (!empty($additionalImages)) {
+                $googleProduct->setAdditionalImageLinks($additionalImages);
             }
 
             // Kategori
             $googleProduct->setGoogleProductCategory('187'); // 187 = Athletic Shoes
             
             // Marka ve GTIN
-            $brand = $product->brand ?: 'Patenli Ayakkabılar';
+            $brand = trim((string) ($product->brand ?: 'Patenli Ayakkabılar'));
             $googleProduct->setBrand($brand);
             $googleProduct->setIdentifierExists(false); // GTIN/Barkodumuz yok
             
             // Fiyatlandırma
+            $priceVal = (float) $product->price;
+            if ($priceVal <= 0) {
+                $priceVal = (float) ($product->discount_price ?: 1999.00);
+            }
             $price = new Price();
-            $price->setValue(number_format((float) $product->price, 2, '.', ''));
+            $price->setValue(number_format($priceVal, 2, '.', ''));
             $price->setCurrency('TRY');
             $googleProduct->setPrice($price);
 
-            if ($product->discount_price && $product->discount_price < $product->price) {
+            if ($product->discount_price && $product->discount_price < $priceVal && $product->discount_price > 0) {
                 $salePrice = new Price();
                 $salePrice->setValue(number_format((float) $product->discount_price, 2, '.', ''));
                 $salePrice->setCurrency('TRY');
@@ -111,18 +130,7 @@ class GoogleMerchantService
 
             $sizes = $product->variants->pluck('size')->filter()->unique()->sort()->values();
             if ($sizes->isNotEmpty()) {
-                if ($sizes->count() === 1) {
-                    $sizeStr = (string) $sizes->first();
-                } else {
-                    $first = (string) $sizes->first();
-                    $last = (string) $sizes->last();
-                    if (is_numeric($first) && is_numeric($last)) {
-                        $sizeStr = $first . '-' . $last;
-                    } else {
-                        $sizeStr = $first;
-                    }
-                }
-                $googleProduct->setSizes([$sizeStr]);
+                $googleProduct->setSizes($sizes->map(fn($s) => (string) $s)->all());
             }
             
             // Türkiye hedefleniyor
@@ -130,13 +138,38 @@ class GoogleMerchantService
             $googleProduct->setContentLanguage('tr');
             $googleProduct->setChannel('online'); // Online satış
 
-            // API'ye Gönder
-            $this->service->products->insert($this->merchantId, $googleProduct);
-            
-            Log::info("Ürün Google Merchant'a eklendi/güncellendi: ID {$product->id}");
-            return true;
+            // API'ye Gönder (Geçici kota / 429 veya 503 durumlarında 2 defa yeniden dene)
+            $maxRetries = 2;
+            $attempt = 0;
+            while ($attempt <= $maxRetries) {
+                try {
+                    $this->service->products->insert($this->merchantId, $googleProduct);
+                    Log::info("Ürün Google Merchant'a eklendi/güncellendi: ID {$product->id}");
+                    return true;
+                } catch (\Google\Service\Exception $e) {
+                    if (in_array($e->getCode(), [429, 500, 503]) && $attempt < $maxRetries) {
+                        $attempt++;
+                        sleep(1);
+                        continue;
+                    }
+                    throw $e;
+                }
+            }
 
-        } catch (\Exception $e) {
+            return false;
+
+        } catch (\Google\Service\Exception $e) {
+            $msg = $e->getMessage();
+            $errors = $e->getErrors();
+            if (!empty($errors)) {
+                $reasons = array_column($errors, 'message');
+                $msg = implode('; ', $reasons);
+            }
+            $this->lastError = $msg;
+            Log::error("Google Merchant Senkronizasyon Hatası (Ürün ID: {$product->id}): " . $msg);
+            return false;
+        } catch (\Throwable $e) {
+            $this->lastError = $e->getMessage();
             Log::error("Google Merchant Senkronizasyon Hatası (Ürün ID: {$product->id}): " . $e->getMessage());
             return false;
         }
