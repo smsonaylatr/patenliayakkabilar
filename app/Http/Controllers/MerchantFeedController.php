@@ -114,25 +114,21 @@ class MerchantFeedController extends Controller
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
         
         $title = trim($product->name);
+
+        // 1. Başlangıçtaki olası mükerrer kelimeleri temizle (örn: "KICK SPEED Kick Speed ...", "TWINGERS Twingers ...")
+        $title = $this->cleanDuplicateLeadingWords($title);
+
         $normTitle = strtolower(Str::ascii($title));
         $normBrand = strtolower(Str::ascii($brand));
 
         // Marka adı ürün adında henüz geçmiyorsa en başa ekle (Türkçe/İngilizce karakter duyarsız kontrol)
         if (!empty($brand) && $normBrand !== '' && !str_contains($normTitle, $normBrand)) {
             $title = $brand . ' ' . $title;
-            $normTitle = strtolower(Str::ascii($title));
         }
 
-        // Eğer ürün adında marka art arda iki kez tekrar edilmişse mükerrer olanı temizle (örn: "KICK SPEED Kick Speed...")
-        if (!empty($normBrand) && str_starts_with($normTitle, $normBrand)) {
-            $afterBrand = trim(substr($normTitle, strlen($normBrand)));
-            if (str_starts_with($afterBrand, $normBrand)) {
-                $words = preg_split('/\s+/u', $title) ?: [];
-                $brandWords = preg_split('/\s+/u', $brand) ?: [];
-                $title = implode(' ', array_slice($words, count($brandWords)));
-                $normTitle = strtolower(Str::ascii($title));
-            }
-        }
+        // Tekrar mükerrer kontrolü yap
+        $title = $this->cleanDuplicateLeadingWords($title);
+        $normTitle = strtolower(Str::ascii($title));
 
         // Hedef kitle başlıkta yoksa ekle
         $normTarget = strtolower(Str::ascii($target));
@@ -274,5 +270,23 @@ class MerchantFeedController extends Controller
             'kiz_cocuk'   => 'Kız Çocuk',
             default       => '',
         };
+    }
+
+    /**
+     * Başlıkta baştaki tekrarlanan marka veya kelimeleri temizler
+     */
+    private function cleanDuplicateLeadingWords(string $title): string
+    {
+        for ($wordCount = 4; $wordCount >= 1; $wordCount--) {
+            $words = preg_split('/\s+/u', trim($title)) ?: [];
+            if (count($words) >= $wordCount * 2) {
+                $first = strtolower(Str::ascii(implode(' ', array_slice($words, 0, $wordCount))));
+                $second = strtolower(Str::ascii(implode(' ', array_slice($words, $wordCount, $wordCount))));
+                if ($first === $second) {
+                    $title = implode(' ', array_slice($words, $wordCount));
+                }
+            }
+        }
+        return trim($title);
     }
 }

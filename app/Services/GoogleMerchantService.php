@@ -170,11 +170,14 @@ class GoogleMerchantService
         }
     }
 
-    private function buildSeoTitle(Product $product): string
+    public function buildSeoTitle(Product $product): string
     {
         $title = trim($product->name);
         $brand = trim((string) ($product->brand ?: ''));
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
+
+        // 1. Başlangıçtaki olası mükerrer kelimeleri temizle (örn: "KICK SPEED Kick Speed ...", "TWINGERS Twingers ...")
+        $title = $this->cleanDuplicateLeadingWords($title);
 
         $normTitle = strtolower(Str::ascii($title));
         $normBrand = strtolower(Str::ascii($brand));
@@ -182,19 +185,11 @@ class GoogleMerchantService
         // Eğer ürün adında marka ismi zaten geçmiyorsa ve marka ismi varsa en başa ekle
         if (!empty($brand) && $normBrand !== '' && !str_contains($normTitle, $normBrand)) {
             $title = $brand . ' ' . $title;
-            $normTitle = strtolower(Str::ascii($title));
         }
 
-        // Eğer ürün adında marka art arda iki kez tekrar edilmişse temizle
-        if (!empty($normBrand) && str_starts_with($normTitle, $normBrand)) {
-            $afterBrand = trim(substr($normTitle, strlen($normBrand)));
-            if (str_starts_with($afterBrand, $normBrand)) {
-                $words = preg_split('/\s+/u', $title) ?: [];
-                $brandWords = preg_split('/\s+/u', $brand) ?: [];
-                $title = implode(' ', array_slice($words, count($brandWords)));
-                $normTitle = strtolower(Str::ascii($title));
-            }
-        }
+        // Tekrar mükerrer kontrolü yap
+        $title = $this->cleanDuplicateLeadingWords($title);
+        $normTitle = strtolower(Str::ascii($title));
 
         // Hedef kitle (Kız Çocuk, Erkek Çocuk vb.) başlıkta yoksa ekle
         $normTarget = strtolower(Str::ascii($target));
@@ -202,6 +197,21 @@ class GoogleMerchantService
             $title .= ' ' . $target;
         }
 
+        return trim($title);
+    }
+
+    public function cleanDuplicateLeadingWords(string $title): string
+    {
+        for ($wordCount = 4; $wordCount >= 1; $wordCount--) {
+            $words = preg_split('/\s+/u', trim($title)) ?: [];
+            if (count($words) >= $wordCount * 2) {
+                $first = strtolower(Str::ascii(implode(' ', array_slice($words, 0, $wordCount))));
+                $second = strtolower(Str::ascii(implode(' ', array_slice($words, $wordCount, $wordCount))));
+                if ($first === $second) {
+                    $title = implode(' ', array_slice($words, $wordCount));
+                }
+            }
+        }
         return trim($title);
     }
 

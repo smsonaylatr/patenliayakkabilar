@@ -188,5 +188,10 @@ foreach ($storageDirs as $dir) {
 }
 echo "✅ İzinler düzeltildi\n";
 
+// 8. Google Merchant Center Senkronizasyonu
+echo "🛒 Google Merchant Center senkronizasyonu başlatılıyor...\n";
+exec('cd ' . escapeshellarg($basePath) . ' && php artisan merchant:sync 2>&1', $merchantOutput);
+echo implode("\n", (array)$merchantOutput) . "\n";
+
 echo "\n✅ Deploy tamamlandı! " . date('Y-m-d H:i:s') . "\n";
 

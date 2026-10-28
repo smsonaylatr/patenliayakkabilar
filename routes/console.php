@@ -70,3 +70,6 @@ Schedule::command('site:health-check')->everyFiveMinutes()->withoutOverlapping()
 // ─── Gelince Haber Ver: Stoğu Gelen Ürünlerin Bekleyen Bildirimlerini Gönder (Her 15 dk) ───
 Schedule::command('stock:process-notifications')->everyFifteenMinutes()->withoutOverlapping();
 
+// ─── Google Merchant Center: Aktif Ürünleri Otomatik Senkronize Et (Her gece 04:00) ───
+Schedule::command('merchant:sync')->dailyAt('04:00')->runInBackground();
+

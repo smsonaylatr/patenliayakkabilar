@@ -18,6 +18,39 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('syncGoogleMerchant')
+                ->label("Google Merchant ile Eşitle")
+                ->icon('heroicon-o-cloud-arrow-up')
+                ->color('info')
+                ->requiresConfirmation()
+                ->modalHeading("Google Merchant Center Senkronizasyonu")
+                ->modalDescription("Tüm aktif ve stoklu ürünler Google Content API üzerinden Google Merchant Center'a aktarılacaktır. Ürün başlıklarındaki mükerrer marka isimleri otomatik temizlenir.")
+                ->modalSubmitActionLabel("Şimdi Senkronize Et")
+                ->action(function (): void {
+                    $products = Product::where('status', true)
+                        ->where('stock', '>', 0)
+                        ->whereNull('deleted_at')
+                        ->with(['images', 'variants', 'categories'])
+                        ->get();
+
+                    $service = app(\App\Services\GoogleMerchantService::class);
+                    $success = 0;
+                    $failed = 0;
+
+                    foreach ($products as $product) {
+                        if ($service->syncProduct($product)) {
+                            $success++;
+                        } else {
+                            $failed++;
+                        }
+                    }
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Google Merchant Senkronizasyonu Tamamlandı')
+                        ->body("{$success} ürün başarıyla güncellendi, {$failed} ürün aktarılamadı.")
+                        ->success()
+                        ->send();
+                }),
             Action::make('aiExportCatalog')
                 ->label('AI Katalog İndir (Tüm Ürünler)')
                 ->icon('heroicon-o-sparkles')
