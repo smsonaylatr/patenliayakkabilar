@@ -15,6 +15,9 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'status' => 'boolean',
+            'featured' => 'boolean',
+            'best_seller' => 'boolean',
             'is_cod_active' => 'boolean',
             'has_installments' => 'boolean',
             'requires_size' => 'boolean',

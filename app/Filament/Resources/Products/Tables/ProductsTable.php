@@ -91,9 +91,9 @@ class ProductsTable
                     ->badge()
                     ->color('gray')
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('status')
+                \Filament\Tables\Columns\ToggleColumn::make('status')
                     ->label('Aktif')
-                    ->boolean(),
+                    ->sortable(),
                 \Filament\Tables\Columns\ToggleColumn::make('featured')
                     ->label('Öne Çıkan')
                     ->sortable(),

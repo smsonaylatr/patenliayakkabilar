@@ -31,10 +31,10 @@ class ProductObserver
     {
         $this->clearProductCache();
 
-        // Kural: Kritik stok 0 adet -> Ürün otomatik pasif
-        if ($product->isDirty('stock') && $product->stock <= 0 && $product->status === true) {
+        // Kural: Stok tükendiyse (stok <= 0) ve ürün daha önce aktif idiyse -> Otomatik pasife al
+        if ($product->wasChanged('stock') && (int) $product->stock <= 0 && (bool) $product->status) {
             $product->updateQuietly(['status' => false]);
-            
+
             \Filament\Notifications\Notification::make()
                 ->title('Ürün Pasife Alındı')
                 ->body("{$product->name} isimli ürünün stoku tükendiği için otomatik olarak pasife alındı.")
@@ -43,12 +43,13 @@ class ProductObserver
                 ->sendToDatabase(\App\Models\User::where('role', 'admin')->get());
         }
 
-        // Stok yenilendiyse: pasif durumdaysa aktife al ve bekleyen bildirimleri gönder
-        if ($product->stock > 0 && ($product->isDirty('stock') || $product->isDirty('status'))) {
-            if (!$product->status && $product->isDirty('stock')) {
-                $product->updateQuietly(['status' => true]);
+        // Stok 0'dan yukarı çıktıysa ve ürün aktifse bekleyen bildirimleri gönder
+        // (Yönetici tarafından elle pasife alınan ürünler zorla aktife ALINMAZ)
+        $oldStock = (int) $product->getOriginal('stock');
+        if ($product->wasChanged('stock') && (int) $product->stock > 0 && $oldStock <= 0) {
+            if ($product->status) {
+                \App\Services\StockNotificationService::processNotifications($product);
             }
-            \App\Services\StockNotificationService::processNotifications($product);
         }
     }
 

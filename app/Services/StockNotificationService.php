@@ -97,9 +97,9 @@ class StockNotificationService
                 }
             }
 
-            // Ürün pasif kalmışsa aktifleştir
+            // Ürün pasife alınmışsa bildirim gönderilmez ve ürün zorla aktifleştirilmez
             if (!$product->status) {
-                $product->updateQuietly(['status' => true]);
+                return 0;
             }
 
             $query = StockNotification::where('product_id', $product->id)
