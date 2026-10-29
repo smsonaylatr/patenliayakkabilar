@@ -259,15 +259,17 @@ class SchemaService
 
         $rawParentSku = !empty($product->sku) ? $product->sku : ('SKU-' . $product->id);
         $parentSku = self::sanitizeSku($rawParentSku, 'SKU-' . $product->id);
+        $cleanProductName = Product::stripSporFromTitle($product->name);
+        $cleanProductSlug = Product::stripSporFromSlug($product->slug);
 
         $data = [
             '@context'    => 'https://schema.org',
             '@type'       => 'Product',
-            '@id'         => $appUrl . '/urun/' . $product->slug . '#product',
-            'name'        => $product->name,
-            'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
+            '@id'         => $appUrl . '/urun/' . $cleanProductSlug . '#product',
+            'name'        => $cleanProductName,
+            'description' => strip_tags($product->short_description ?: ($product->description ?: $cleanProductName)),
             'sku'         => $parentSku,
-            'url'         => $appUrl . '/urun/' . $product->slug,
+            'url'         => $appUrl . '/urun/' . $cleanProductSlug,
             'isRelatedTo' => [
                 '@type'   => 'Thing',
                 'name'    => 'Tekerlekli Ayakkabı (Roller Shoes)',
@@ -314,7 +316,7 @@ class SchemaService
             'validFrom'     => now()->format('Y-m-d'),
             'availability'  => $availability,
             'itemCondition' => 'https://schema.org/NewCondition',
-            'url'           => $appUrl . '/urun/' . $product->slug,
+            'url'           => $appUrl . '/urun/' . $cleanProductSlug,
             'seller'        => [
                 '@type' => 'Organization',
                 '@id'   => $appUrl . '/#organization',
@@ -377,9 +379,9 @@ class SchemaService
 
                 $variantData = [
                     '@type' => 'Product',
-                    'name' => $product->name . ($vColor ? ' - ' . $vColor : '') . ($vSize ? ' (' . $vSize . ')' : ''),
+                    'name' => $cleanProductName . ($vColor ? ' - ' . $vColor : '') . ($vSize ? ' (' . $vSize . ')' : ''),
                     'sku' => $variantSku,
-                    'description' => strip_tags($product->short_description ?: ($product->description ?: $product->name)),
+                    'description' => strip_tags($product->short_description ?: ($product->description ?: $cleanProductName)),
                     'offers' => $variantOffer,
                 ];
 

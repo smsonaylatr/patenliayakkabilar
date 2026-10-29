@@ -31,7 +31,7 @@ class SitemapController extends Controller
      */
     public function index(): Response
     {
-        $appUrl = config('app.url');
+        $appUrl = rtrim((string) config('app.url'), '/');
 
         // Her içerik tipinin son güncelleme tarihi
         $productLastmod  = Product::where('status', true)->whereNull('deleted_at')->max('updated_at');
@@ -109,17 +109,20 @@ class SitemapController extends Controller
         $xml .= ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
 
         foreach ($products as $product) {
+            $cleanSlug = Product::stripSporFromSlug($product->slug);
+            $cleanProductName = Product::stripSporFromTitle($product->name);
             $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . url('/urun/' . $product->slug) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $product->updated_at->toW3cString() . '</lastmod>' . "\n";
+            $xml .= '    <loc>' . url('/urun/' . $cleanSlug) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . ($product->updated_at ? $product->updated_at->toW3cString() : now()->toW3cString()) . '</lastmod>' . "\n";
             $xml .= '    <changefreq>weekly</changefreq>' . "\n";
             $xml .= '    <priority>0.8</priority>' . "\n";
 
             // Ürün görselleri (Google Image indexleme - Orijinal domain URL'leri)
             foreach ($product->images as $image) {
+                $imgTitle = Product::stripSporFromTitle($image->alt_text ?: $cleanProductName);
                 $xml .= '    <image:image>' . "\n";
                 $xml .= '      <image:loc>' . htmlspecialchars($image->raw_image_url, ENT_XML1) . '</image:loc>' . "\n";
-                $xml .= '      <image:title>' . htmlspecialchars($image->alt_text ?: $product->name, ENT_XML1) . '</image:title>' . "\n";
+                $xml .= '      <image:title>' . htmlspecialchars($imgTitle, ENT_XML1) . '</image:title>' . "\n";
                 $xml .= '    </image:image>' . "\n";
             }
 

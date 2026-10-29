@@ -113,7 +113,7 @@ class MerchantFeedController extends Controller
         $brand = trim((string) ($product->brand ?: 'Patenli Ayakkabılar'));
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
         
-        $title = trim($product->name);
+        $title = Product::stripSporFromTitle(trim($product->name));
 
         // 1. Başlangıçtaki olası mükerrer kelimeleri temizle (örn: "KICK SPEED Kick Speed ...", "TWINGERS Twingers ...")
         $title = $this->cleanDuplicateLeadingWords($title);
@@ -151,7 +151,8 @@ class MerchantFeedController extends Controller
         $xml .= '      <description>' . htmlspecialchars($description, ENT_XML1, 'UTF-8') . '</description>' . "\n";
 
         // Ürün linki
-        $xml .= '      <link>' . $appUrl . '/urun/' . $product->slug . '</link>' . "\n";
+        $cleanSlug = Product::stripSporFromSlug($product->slug);
+        $xml .= '      <link>' . rtrim($appUrl, '/') . '/urun/' . $cleanSlug . '</link>' . "\n";
 
         // Görseller (Google Merchant doğrudan domain URL'lerini ister)
         $images = $product->images;

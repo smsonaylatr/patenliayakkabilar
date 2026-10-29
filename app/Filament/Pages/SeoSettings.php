@@ -50,6 +50,31 @@ class SeoSettings extends FilamentPage implements HasForms
         return 'SEO & Şirket Ayarları';
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('syncSearchConsole')
+                ->label('Search Console & Sitemap Eşitle')
+                ->icon('heroicon-o-globe-alt')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Google Search Console & Sitemap Güncellemesi')
+                ->modalDescription('Tüm ürünlerin başlık/slug ve SEO verilerini kontrol eder, Sitemap <lastmod> zaman damgalarını yeniler, iç bağlantıları günceller, Sitemap\'leri Google Search Console API\'ye gönderir ve Google Merchant Center senkronizasyonunu başlatır.')
+                ->modalSubmitActionLabel('Şimdi Eşitle')
+                ->action(function (): void {
+                    $result = app(\App\Services\GoogleSearchConsoleService::class)->syncAll(true);
+                    $this->calculateSeoHealth();
+                    $sitemapCount = count($result['sitemaps_submitted']);
+
+                    Notification::make()
+                        ->title('Search Console & Sitemap Eşitlendi')
+                        ->body("{$result['touched_products']} ürün için Sitemap yenilendi, {$sitemapCount} Sitemap Search Console API'ye gönderildi ve Merchant Center eşitlendi.")
+                        ->success()
+                        ->send();
+                }),
+        ];
+    }
+
     protected string $view = 'filament.pages.seo-settings';
 
     public ?array $data = [];

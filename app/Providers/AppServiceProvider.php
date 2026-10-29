@@ -46,19 +46,19 @@ class AppServiceProvider extends ServiceProvider
         // Mail event subscriber — gönderilen tüm e-postaları loglar
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\MailEventSubscriber::class);
 
-        // Ürün başlıklarından ve slug'lardan "Spor" kelimesini temizle + SEO/açıklama verilerini senkronize et
+        // Ürün başlıklarından ve slug'lardan "Spor" kelimesini temizle + Search Console / Sitemap / SEO senkronize et
         if (!$this->app->runningInConsole()) {
             try {
-                if (!\Illuminate\Support\Facades\Cache::get('shoe_remove_spor_and_seo_v3_applied')) {
-                    $applied = \App\Models\Setting::where('key', 'shoe_remove_spor_and_seo_v3_applied')->value('value');
+                if (!\Illuminate\Support\Facades\Cache::get('shoe_remove_spor_and_gsc_v4_applied')) {
+                    $applied = \App\Models\Setting::where('key', 'shoe_remove_spor_and_gsc_v4_applied')->value('value');
                     if ($applied !== '1') {
-                        \App\Models\Product::cleanAllSlugsAndTitles(true);
+                        app(\App\Services\GoogleSearchConsoleService::class)->syncAll(false);
                         \App\Models\Setting::updateOrCreate(
-                            ['key' => 'shoe_remove_spor_and_seo_v3_applied'],
+                            ['key' => 'shoe_remove_spor_and_gsc_v4_applied'],
                             ['value' => '1']
                         );
                     }
-                    \Illuminate\Support\Facades\Cache::forever('shoe_remove_spor_and_seo_v3_applied', true);
+                    \Illuminate\Support\Facades\Cache::forever('shoe_remove_spor_and_gsc_v4_applied', true);
                 }
             } catch (\Throwable) {
                 // Veritabanı henüz hazır değilse sessizce geç

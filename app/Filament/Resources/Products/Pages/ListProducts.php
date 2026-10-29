@@ -19,19 +19,20 @@ class ListProducts extends ListRecords
     {
         return [
             Action::make('updateAllShoeSeoAndDescriptions')
-                ->label('Patenli Ayakkabı SEO & Açıklama Güncelle')
+                ->label('Search Console & SEO Güncelle')
                 ->icon('heroicon-o-sparkles')
                 ->color('primary')
                 ->requiresConfirmation()
-                ->modalHeading('Tüm Ayakkabı Modellerinin Başlık, Slug, Açıklama ve SEO Verilerini Güncelle')
-                ->modalDescription('Tüm ürün başlıklarından ve URL (slug) yollarından "Spor" kelimesi çıkarılacak; ayakkabı modellerinin kısa açıklama, detaylı tanıtım, meta başlık, meta açıklama ve yapay zeka (AIO) alanları "Patenli Ayakkabı" odaklı olarak güncellenecektir.')
-                ->modalSubmitActionLabel('Tümünü Güncelle')
+                ->modalHeading('Tüm Ürün Başlık, Slug, Sitemap ve Search Console Verilerini Güncelle')
+                ->modalDescription('Tüm ürün başlıklarından ve URL (slug) yollarından "Spor" kelimesi çıkarılacak; Sitemap <lastmod> tarihleri yenilenecek; Google Search Console Sitemap API, Indexing API, iç linkleme ve Google Merchant Center senkronizasyonu çalıştırılacaktır.')
+                ->modalSubmitActionLabel('Tümünü Güncelle ve Gönder')
                 ->action(function (): void {
-                    $updatedCount = Product::cleanAllSlugsAndTitles(true);
+                    $result = app(\App\Services\GoogleSearchConsoleService::class)->syncAll(true);
+                    $sitemapCount = count($result['sitemaps_submitted']);
 
                     \Filament\Notifications\Notification::make()
-                        ->title('Ürün Başlıkları, Slug\'lar ve SEO Güncellendi')
-                        ->body("Toplam {$updatedCount} adet ürünün başlık, slug, ürün açıklaması ve SEO verileri güncellendi.")
+                        ->title('Search Console, Sitemap ve SEO Güncellendi')
+                        ->body("{$result['touched_products']} aktif ürünün Sitemap ve SEO verisi yenilendi, {$sitemapCount} adet Sitemap Search Console'a iletildi ve Google Merchant kuyruğu başlatıldı.")
                         ->success()
                         ->send();
                 }),
