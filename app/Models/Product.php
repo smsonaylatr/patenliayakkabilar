@@ -54,9 +54,13 @@ class Product extends Model
         });
 
         static::updating(function (Product $product) {
+            $oldSlug = $product->getOriginal('slug');
             $product->name = static::stripSporFromTitle($product->name);
             if (!empty($product->slug)) {
                 $product->slug = static::stripSporFromSlug($product->slug);
+            }
+            if (!empty($oldSlug) && !empty($product->slug) && $oldSlug !== $product->slug && $product->id) {
+                static::recordSlugRedirect($oldSlug, (int) $product->id);
             }
 
             if (empty($product->short_description) || empty($product->description) || $product->isDirty('name')) {
@@ -157,16 +161,109 @@ class Product extends Model
     }
 
     /**
+     * Eski slug -> ürün ID eşleşmesini kalıcı olarak kaydeder (301 yönlendirmeleri için).
+     */
+    public static function recordSlugRedirect(string $oldSlug, int $productId): void
+    {
+        $oldSlug = trim($oldSlug);
+        if ($oldSlug === '' || $productId <= 0) {
+            return;
+        }
+
+        try {
+            $existingJson = \App\Models\Setting::where('key', 'product_slug_redirects')->value('value');
+            $map = $existingJson ? (json_decode($existingJson, true) ?: []) : [];
+            $map[$oldSlug] = $productId;
+            \App\Models\Setting::updateOrCreate(
+                ['key' => 'product_slug_redirects'],
+                ['value' => json_encode($map, JSON_UNESCAPED_UNICODE)]
+            );
+        } catch (\Throwable) {
+        }
+    }
+
+    /**
+     * Eski bir ürün slug'ından (örn. içinde "spor" geçen veya daha önce değiştirilmiş slug)
+     * güncel ürünü bulur.
+     */
+    public static function resolveByOldSlug(string $rawSlug): ?self
+    {
+        $slug = trim(urldecode($rawSlug), '/ ');
+        if ($slug === '') {
+            return null;
+        }
+
+        // 1. Doğrudan eşleşme
+        $direct = static::where('slug', $slug)->first();
+        if ($direct) {
+            return $direct;
+        }
+
+        // 2. Kayıtlı eski slug -> product_id haritasından kontrol et
+        try {
+            $mapJson = \App\Models\Setting::where('key', 'product_slug_redirects')->value('value');
+            if ($mapJson) {
+                $map = json_decode($mapJson, true) ?: [];
+                $normalizedSlug = Str::slug(str_replace('_', '-', $slug));
+                $targetId = $map[$slug] ?? $map[$normalizedSlug] ?? null;
+                if ($targetId) {
+                    $mappedProduct = static::find($targetId);
+                    if ($mappedProduct) {
+                        return $mappedProduct;
+                    }
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        // 3. "spor" kelimesi çıkarılmış slug ile kontrol et
+        $cleanSporSlug = static::stripSporFromSlug(Str::slug(str_replace('_', '-', $slug)));
+        if ($cleanSporSlug !== '') {
+            $bySporRemoved = static::where('slug', $cleanSporSlug)->first();
+            if ($bySporRemoved) {
+                return $bySporRemoved;
+            }
+        }
+
+        // 4. Ürün adlarının Str::slug karşılığı ile eşleştir (ör. sonek/tire farkı varsa)
+        if ($cleanSporSlug !== '') {
+            $allProducts = static::all(['id', 'name', 'slug']);
+            foreach ($allProducts as $candidate) {
+                $candidateNameSlug = static::stripSporFromSlug(Str::slug($candidate->name));
+                if (
+                    $candidateNameSlug !== '' &&
+                    ($candidateNameSlug === $cleanSporSlug ||
+                     str_starts_with($cleanSporSlug, $candidateNameSlug . '-') ||
+                     str_starts_with($candidateNameSlug, $cleanSporSlug . '-'))
+                ) {
+                    return static::find($candidate->id);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Tüm ürün başlıklarından ve sistemdeki tüm slug'lardan "Spor" kelimesini temizler,
      * ayakkabı modellerinin açıklama ve SEO alanlarını yeni başlığa göre günceller.
      */
     public static function cleanAllSlugsAndTitles(bool $refreshSeo = true): int
     {
         $updatedCount = 0;
+        $redirectMap = [];
+        try {
+            $existingJson = \App\Models\Setting::where('key', 'product_slug_redirects')->value('value');
+            if ($existingJson) {
+                $redirectMap = json_decode($existingJson, true) ?: [];
+            }
+        } catch (\Throwable) {
+        }
 
         $products = static::withTrashed()->with(['categories', 'features', 'variants'])->get();
         foreach ($products as $product) {
             $changed = false;
+            $oldSlug = (string) $product->slug;
 
             $newName = static::stripSporFromTitle($product->name);
             if ($newName !== '' && $newName !== $product->name) {
@@ -187,7 +284,21 @@ class Product extends Model
                     $newSlug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
+                if ($oldSlug !== '') {
+                    $redirectMap[$oldSlug] = (int) $product->id;
+                }
                 $product->slug = $newSlug;
+                $changed = true;
+            }
+
+            // Eski "-patenli-spor-ayakkabi" varyasyonunu da her zaman yönlendirme haritasına kaydet
+            if (str_contains($product->slug, 'patenli-ayakkabi')) {
+                $legacySporSlug = str_replace('patenli-ayakkabi', 'patenli-spor-ayakkabi', $product->slug);
+                $redirectMap[$legacySporSlug] = (int) $product->id;
+            }
+
+            if (!empty($product->canonical_url) && str_contains(mb_strtolower($product->canonical_url), 'spor')) {
+                $product->canonical_url = url('/urun/' . $product->slug);
                 $changed = true;
             }
 
@@ -220,6 +331,16 @@ class Product extends Model
                 $product->saveQuietly();
                 $updatedCount++;
             }
+        }
+
+        try {
+            if (!empty($redirectMap)) {
+                \App\Models\Setting::updateOrCreate(
+                    ['key' => 'product_slug_redirects'],
+                    ['value' => json_encode($redirectMap, JSON_UNESCAPED_UNICODE)]
+                );
+            }
+        } catch (\Throwable) {
         }
 
         // Kategori, Blog, Sayfa ve Müşteri Segmenti slug'larında "spor" varsa temizle

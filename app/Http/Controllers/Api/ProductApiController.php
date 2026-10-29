@@ -55,6 +55,13 @@ class ProductApiController extends Controller
             ->first();
 
         if (!$product) {
+            $resolved = Product::resolveByOldSlug((string) $identifier);
+            if ($resolved && $resolved->status) {
+                $product = $resolved->load(['categories', 'images', 'variants']);
+            }
+        }
+
+        if (!$product) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ürün bulunamadı.'

@@ -51,6 +51,13 @@ class AiShoppingApiController extends Controller
             ->first();
 
         if (!$product) {
+            $resolved = Product::resolveByOldSlug($slug);
+            if ($resolved && $resolved->status) {
+                $product = $resolved;
+            }
+        }
+
+        if (!$product) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ürün bulunamadı veya satışta değil.',
@@ -209,9 +216,16 @@ class AiShoppingApiController extends Controller
      * Ürün ham LLM Context çıktısı
      * GET /urun/{slug}/context
      */
-    public function productContext(string $slug): Response
+    public function productContext(string $slug)
     {
-        $product = Product::where('slug', $slug)->where('status', true)->firstOrFail();
+        $product = Product::where('slug', $slug)->where('status', true)->first();
+        if (!$product) {
+            $resolved = Product::resolveByOldSlug($slug);
+            if ($resolved && $resolved->status) {
+                return redirect()->route('product.context', ['slug' => $resolved->slug], 301);
+            }
+            abort(404);
+        }
         $details = $this->aiShoppingService->getProductAiDetails($product);
 
         $md = "# {$product->name}\n\n";

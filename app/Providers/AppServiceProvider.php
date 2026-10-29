@@ -49,16 +49,16 @@ class AppServiceProvider extends ServiceProvider
         // Ürün başlıklarından ve slug'lardan "Spor" kelimesini temizle + SEO/açıklama verilerini senkronize et
         if (!$this->app->runningInConsole()) {
             try {
-                if (!\Illuminate\Support\Facades\Cache::get('shoe_remove_spor_and_seo_v2_applied')) {
-                    $applied = \App\Models\Setting::where('key', 'shoe_remove_spor_and_seo_v2_applied')->value('value');
+                if (!\Illuminate\Support\Facades\Cache::get('shoe_remove_spor_and_seo_v3_applied')) {
+                    $applied = \App\Models\Setting::where('key', 'shoe_remove_spor_and_seo_v3_applied')->value('value');
                     if ($applied !== '1') {
                         \App\Models\Product::cleanAllSlugsAndTitles(true);
                         \App\Models\Setting::updateOrCreate(
-                            ['key' => 'shoe_remove_spor_and_seo_v2_applied'],
+                            ['key' => 'shoe_remove_spor_and_seo_v3_applied'],
                             ['value' => '1']
                         );
                     }
-                    \Illuminate\Support\Facades\Cache::forever('shoe_remove_spor_and_seo_v2_applied', true);
+                    \Illuminate\Support\Facades\Cache::forever('shoe_remove_spor_and_seo_v3_applied', true);
                 }
             } catch (\Throwable) {
                 // Veritabanı henüz hazır değilse sessizce geç

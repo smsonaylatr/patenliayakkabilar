@@ -467,10 +467,12 @@ Route::get('/kategori/{slug}', function (string $slug) {
         }
     }
 
-    // 4. Yanlışlıkla /kategori/ altına yazılmış bir ürün slug'ı ise doğrudan ürüne yönlendir
-    $product = \App\Models\Product::where('slug', $slug)->orWhere('slug', $cleanSlug)->first();
+    // 4. Yanlışlıkla /kategori/ altına yazılmış bir ürün slug'ı (veya eski ürün slug'ı) ise doğrudan ürüne yönlendir
+    $product = \App\Models\Product::resolveByOldSlug($slug) ?: \App\Models\Product::resolveByOldSlug($cleanSlug);
     if ($product) {
-        return redirect()->route('products.show', ['slug' => $product->slug], 301);
+        $qs = request()->getQueryString();
+        $target = route('products.show', ['slug' => $product->slug]) . ($qs ? '?' . $qs : '');
+        return redirect()->to($target, 301);
     }
 
     // 5. Hiçbir kategori bulunamazsa 404 vermek yerine ana ürünler kataloğuna 301 yönlendir
@@ -480,22 +482,22 @@ Route::get('/kategori/{slug}', function (string $slug) {
 Route::redirect('/urunler', '/patenli-ayakkabilar', 301);
 
 // Ürün detay
-Route::get('/urun/{slug}', function ($slug) {
+Route::get('/urun/{slug}', function (\Illuminate\Http\Request $request, $slug) {
     $product = \App\Models\Product::where('slug', $slug)
         ->with(['variants', 'images', 'categories', 'reviews' => function ($q) { $q->where('status', true); }, 'features'])
         ->first();
 
     if (!$product) {
-        // Eski "spor" içeren ürün URL'lerini yeni "spor"suz URL'ye 301 olarak yönlendir
-        $cleanSporSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
-        if ($cleanSporSlug !== '' && $cleanSporSlug !== $slug) {
-            $sporRemovedProduct = \App\Models\Product::where('slug', $cleanSporSlug)->first();
-            if ($sporRemovedProduct) {
-                return redirect()->route('products.show', ['slug' => $sporRemovedProduct->slug], 301);
-            }
+        // Eski "spor" içeren veya değiştirilmiş ürün URL'lerini güncel URL'ye 301 olarak yönlendir (UTM/gclid parametrelerini koruyarak)
+        $resolvedProduct = \App\Models\Product::resolveByOldSlug((string) $slug);
+        if ($resolvedProduct) {
+            $qs = $request->getQueryString();
+            $targetUrl = route('products.show', ['slug' => $resolvedProduct->slug]) . ($qs ? '?' . $qs : '');
+            return redirect()->to($targetUrl, 301);
         }
 
         // Bulunamayan ürün isteğini akıllıca ilgili kategoriye veya ana ürünler sayfasına 301 yönlendir
+        $cleanSporSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
         $category = \App\Models\Category::where('slug', $slug)->orWhere('slug', $cleanSporSlug)->first();
         if (!$category) {
             if (str_contains($slug, 'erkek-cocuk')) {
@@ -506,7 +508,9 @@ Route::get('/urun/{slug}', function ($slug) {
         }
 
         if ($category) {
-            return redirect()->route('category.show', ['slug' => $category->slug], 301);
+            $qs = $request->getQueryString();
+            $targetUrl = route('category.show', ['slug' => $category->slug]) . ($qs ? '?' . $qs : '');
+            return redirect()->to($targetUrl, 301);
         }
 
         return redirect()->route('products.index', [], 301);
@@ -516,15 +520,14 @@ Route::get('/urun/{slug}', function ($slug) {
 })->name('products.show');
 
 // Ürün Yorumları (Tümünü Gör)
-Route::get('/urun/{slug}/yorumlar', function ($slug) {
+Route::get('/urun/{slug}/yorumlar', function (\Illuminate\Http\Request $request, $slug) {
     $product = \App\Models\Product::where('slug', $slug)->first();
     if (!$product) {
-        $cleanSporSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
-        if ($cleanSporSlug !== '' && $cleanSporSlug !== $slug) {
-            $sporRemovedProduct = \App\Models\Product::where('slug', $cleanSporSlug)->first();
-            if ($sporRemovedProduct) {
-                return redirect()->route('products.reviews', ['slug' => $sporRemovedProduct->slug], 301);
-            }
+        $resolvedProduct = \App\Models\Product::resolveByOldSlug((string) $slug);
+        if ($resolvedProduct) {
+            $qs = $request->getQueryString();
+            $targetUrl = route('products.reviews', ['slug' => $resolvedProduct->slug]) . ($qs ? '?' . $qs : '');
+            return redirect()->to($targetUrl, 301);
         }
         abort(404);
     }
@@ -1310,7 +1313,26 @@ Route::prefix('api/v1/ai')->group(function () {
 // ========================
 // DİNAMİK KURUMSAL SAYFALAR (Catch-all)
 // ========================
-Route::get('/{slug}', function ($slug) {
-    $page = \App\Models\Page::where('slug', $slug)->where('is_active', true)->firstOrFail();
+Route::get('/{slug}', function (\Illuminate\Http\Request $request, $slug) {
+    $page = \App\Models\Page::where('slug', $slug)->where('is_active', true)->first();
+    if (!$page) {
+        $cleanSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
+        if ($cleanSlug !== '' && $cleanSlug !== $slug) {
+            $page = \App\Models\Page::where('slug', $cleanSlug)->where('is_active', true)->first();
+            if ($page) {
+                $qs = $request->getQueryString();
+                return redirect()->to(route('pages.show', ['slug' => $page->slug]) . ($qs ? '?' . $qs : ''), 301);
+            }
+        }
+
+        // Eğer kök dizine eski veya güncel bir ürün slug'ı ile gelindiyse ürün sayfasına 301 yönlendir
+        $product = \App\Models\Product::resolveByOldSlug((string) $slug);
+        if ($product) {
+            $qs = $request->getQueryString();
+            return redirect()->to(route('products.show', ['slug' => $product->slug]) . ($qs ? '?' . $qs : ''), 301);
+        }
+
+        abort(404);
+    }
     return view('pages.show', ['page' => $page]);
 })->name('pages.show');
