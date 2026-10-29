@@ -230,6 +230,12 @@ class GoogleMerchantService
             $title .= ' ' . $target;
         }
 
+        // Ayakkabı modellerinde başlıkta "Patenli Ayakkabı" yoksa ekle
+        $normTitle = strtolower(Str::ascii($title));
+        if ($product->isShoeModel() && !str_contains($normTitle, 'patenli ayakkabi')) {
+            $title .= ' Patenli Ayakkabı';
+        }
+
         return trim($title);
     }
 

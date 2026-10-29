@@ -233,12 +233,13 @@ class AiShoppingService
             return $product->aio_summary;
         }
 
-        $category = $product->categories->first()?->name ?? 'Çocuk';
+        $modelTitle = $product->isShoeModel() ? $product->getModelTitleWithKeyword() : $product->name;
+        $category = $product->categories->first()?->name ?? 'Çocuk ve Genç';
         $sizes = $product->variants->pluck('size')->filter()->sort()->values();
         $sizeRange = $sizes->isNotEmpty() ? ($sizes->first() . '-' . $sizes->last() . ' numara aralığında') : 'tüm bedenlerde';
-        $wheelDesc = 'arka butona basılarak normal spor ayakkabıya veya patene dönüştürülebilen gizli tekerlek mekanizmasına';
+        $wheelDesc = 'arka butona basılarak normal spor ayakkabıya veya patene dönüştürülebilen gizli tekerlek mekanizmasına sahip bir Patenli Ayakkabı modelidir';
 
-        return "{$product->name}, {$category} için tasarlanmış, {$wheelDesc} sahiptir. {$sizeRange} sunulur. Kalıbı tamdır, rahat kullanım için 1 numara büyük tavsiye edilir. 1-3 iş gününde adrese teslim edilir ve 14 gün ücretsiz değişim/iade garantilidir.";
+        return "{$modelTitle}, {$category} için tasarlanmış, {$wheelDesc}. {$sizeRange} sunulur. Kalıbı tamdır, rahat kullanım için 1 numara büyük tavsiye edilir. 1-3 iş gününde adrese teslim edilir ve 14 gün ücretsiz değişim/iade garantilidir.";
     }
 
     /**

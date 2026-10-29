@@ -103,10 +103,386 @@ class Product extends Model
     }
 
     /**
+     * Ürünün bir ayakkabı modeli olup olmadığını (aksesuar/kask/dizlik hariç) belirler.
+     */
+    public function isShoeModel(): bool
+    {
+        $lowerName = mb_strtolower($this->name ?? '');
+
+        if (str_contains($lowerName, 'ayakkabı') || str_contains($lowerName, 'ayakkabi') || str_contains($lowerName, 'sneaker')) {
+            return true;
+        }
+
+        if ($this->requires_size === false) {
+            return false;
+        }
+
+        $accessoryKeywords = [
+            'kask', 'dizlik', 'dirseklik', 'bileklik', 'koruyucu set',
+            'koruyucu ekipman', 'çanta', 'canta', 'yedek teker',
+            'şarj kablosu', 'sarj kablosu', 'çorap', 'corap',
+        ];
+
+        foreach ($accessoryKeywords as $kw) {
+            if (str_contains($lowerName, $kw)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Ürün adını mükerrerlik oluşturmadan "Patenli Ayakkabı" anahtar kelimesiyle döndürür.
+     */
+    public function getModelTitleWithKeyword(): string
+    {
+        $name = trim($this->name ?? '');
+        if ($name === '') {
+            return 'Patenli Ayakkabı';
+        }
+
+        $lower = mb_strtolower($name);
+        if (str_contains($lower, 'patenli ayakkabı') || str_contains($lower, 'patenli ayakkabi')) {
+            return $name;
+        }
+
+        if (preg_match('/paten\s+ayakkab[ıi](s[ıi])?$/iu', $name)) {
+            return (string) preg_replace('/paten\s+ayakkab[ıi](s[ıi])?$/iu', 'Patenli Ayakkabı', $name);
+        }
+
+        if (preg_match('/\bayakkab[ıi](s[ıi])?$/iu', $name)) {
+            return $name . ' - Patenli Ayakkabı';
+        }
+
+        return trim($name . ' Patenli Ayakkabı');
+    }
+
+    /**
+     * Ayakkabı modelleri için "Patenli Ayakkabı" odaklı kısa açıklama üretir (max 500 karakter).
+     */
+    public static function buildShoeShortDescription(Product $product): string
+    {
+        $name = trim($product->name ?: 'Bu model');
+        $brand = trim((string) $product->brand);
+        $genderLabel = match ($product->gender) {
+            'erkek'       => 'erkek',
+            'kadin'       => 'kadın',
+            'erkek_cocuk' => 'erkek çocuk',
+            'kiz_cocuk'   => 'kız çocuk',
+            'unisex'      => 'unisex',
+            default       => 'çocuk ve genç',
+        };
+
+        $modelTitle = $product->getModelTitleWithKeyword();
+        $brandPrefix = ($brand && !str_contains(mb_strtolower($modelTitle), mb_strtolower($brand))) ? "{$brand} " : '';
+
+        $text = "{$brandPrefix}{$modelTitle} modeli ile ışıklı tasarım, sportif stil ve paten keyfi bir arada! "
+              . "Gizlenebilir tekerlek mekanizmasına sahip bu {$genderLabel} patenli ayakkabı, tek tuşla günlük spor ayakkabıya dönüşür; "
+              . "ergonomik ve kaymaz taban yapısıyla her adımı güvenli, konforlu ve eğlenceli hale getirir.";
+
+        return mb_substr($text, 0, 500);
+    }
+
+    /**
+     * Ayakkabı modelleri için "Patenli Ayakkabı" odaklı zengin HTML açıklama üretir.
+     * Mevcut açıklamada yer alan <img>, <video>, <figure>, <iframe> medya etiketlerini korur.
+     */
+    public static function buildShoeDescriptionHtml(Product $product, ?string $existingHtml = null): string
+    {
+        $name = trim($product->name ?: 'Patenli Ayakkabı');
+        $modelTitle = $product->getModelTitleWithKeyword();
+        $category = $product->relationLoaded('categories')
+            ? $product->categories->first()?->name
+            : ($product->exists ? $product->categories()->first()?->name : null);
+        $brand = trim((string) $product->brand);
+
+        $genderLabel = match ($product->gender) {
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
+        };
+
+        $ageLabel = match ($product->age_group) {
+            'cocuk'    => 'Çocuk',
+            'genc'     => 'Genç',
+            'yetiskin' => 'Yetişkin',
+            default    => null,
+        };
+
+        $hedefKitle = collect([$genderLabel, $ageLabel])->filter()->unique()->implode(' ');
+        $deliveryTime = $product->delivery_time ?: '1-3 iş günü';
+
+        // Mevcut HTML içerisindeki görsel/video bloklarını koru
+        $preservedMedia = '';
+        if (!empty($existingHtml)) {
+            if (preg_match_all('/<(figure\b[^>]*>.*?<\/figure>|video\b[^>]*>.*?<\/video>|iframe\b[^>]*>.*?<\/iframe>|img\b[^>]*>)/is', $existingHtml, $matches)) {
+                $uniqueMedia = array_unique($matches[0]);
+                $filteredMedia = [];
+                foreach ($uniqueMedia as $mediaItem) {
+                    // Eğer img zaten bir figure içinde yakalandıysa mükerrer ekleme
+                    if (str_starts_with(strtolower($mediaItem), '<img')) {
+                        $alreadyInsideFigure = false;
+                        foreach ($uniqueMedia as $other) {
+                            if ($other !== $mediaItem && str_contains($other, $mediaItem)) {
+                                $alreadyInsideFigure = true;
+                                break;
+                            }
+                        }
+                        if ($alreadyInsideFigure) {
+                            continue;
+                        }
+                    }
+                    $filteredMedia[] = $mediaItem;
+                }
+                if (!empty($filteredMedia)) {
+                    $preservedMedia = "\n" . implode("\n", $filteredMedia);
+                }
+            }
+        }
+
+        $html = '<h2>' . e($modelTitle) . '</h2>';
+
+        // 1. Giriş ve Model Tanıtımı
+        $intro = '<p><strong>' . e($modelTitle) . '</strong>';
+        if ($hedefKitle) {
+            $intro .= ', ' . e($hedefKitle) . ' kullanıcılar için özel olarak tasarlanmış';
+        } else {
+            $intro .= ', çocuk ve genç kullanıcılar için özel olarak tasarlanmış';
+        }
+        if ($brand) {
+            $intro .= ' <strong>' . e($brand) . '</strong> marka';
+        }
+        $intro .= ' yeni nesil bir <strong>Patenli Ayakkabı</strong> modelidir.';
+        if ($category) {
+            $intro .= ' ' . e($category) . ' koleksiyonunda yer alan bu patenli ayakkabı,';
+        } else {
+            $intro .= ' Bu özel tasarım patenli ayakkabı modeli,';
+        }
+        $intro .= ' hem günlük spor ayakkabı konforunu hem de paten sürüş heyecanını tek bir üründe birleştirir.</p>';
+        $html .= $intro;
+
+        // 2. 2'si 1 Arada Mekanizma Açıklaması
+        $html .= '<h3>2\'si 1 Arada Tasarım: Hem Patenli Ayakkabı Hem Günlük Spor Ayakkabı</h3>';
+        $html .= '<p>Topuk kısmında yer alan emniyet kilitli gizli mekanizma sayesinde <strong>patenli ayakkabı</strong> tekerleklerini saniyeler içinde açabilir veya taban yuvasına gizleyebilirsiniz. Tekerlekler kapatıldığında okulda, alışveriş merkezinde ve günlük yürüyüşlerde standart bir sneaker spor ayakkabı olarak rahatça kullanılır; düz zeminlerde ise tek hamlede eğlenceli bir patene dönüşür.</p>';
+
+        // 3. Özellikler Listesi (Dinamik)
+        $featureKeys = $product->relationLoaded('features')
+            ? $product->features->pluck('feature_key')->toArray()
+            : ($product->exists ? $product->features()->pluck('feature_key')->toArray() : []);
+        if (empty($featureKeys)) {
+            $featureKeys = static::guessFeatures($product);
+        }
+
+        if (!empty($featureKeys)) {
+            $html .= '<h3>Öne Çıkan Patenli Ayakkabı Özellikleri</h3>';
+            $html .= '<ul>';
+            foreach ($featureKeys as $key) {
+                $label = ProductFeature::getLabel($key);
+                $desc = ProductFeature::getDescription($key);
+                $html .= '<li>' . e($label) . ($desc ? ' — ' . e($desc) : '') . '</li>';
+            }
+            if ($genderLabel) {
+                $html .= '<li>👤 ' . e($genderLabel) . ' Patenli Ayakkabı modeli</li>';
+            }
+            if ($brand) {
+                $html .= '<li>🏷️ ' . e($brand) . ' marka güvencesi ve dayanıklı dış yüzey</li>';
+            }
+            $html .= '</ul>';
+        }
+
+        // 4. Numara Seçimi ve Kullanım Önerisi
+        $html .= '<h3>Patenli Ayakkabı Numara Seçimi &amp; Kullanım Önerisi</h3>';
+        $html .= '<p><strong>Patenli Ayakkabı</strong> modellerinde iç tabandaki gizli tekerlek mekanizması ve kalın çorapla kullanım konforu göz önünde bulundurularak günlük giyilen spor ayakkabı numarasından <strong>1 numara büyük</strong> tercih edilmesi tavsiye edilir.</p>';
+
+        // 5. Kargo & Teslimat
+        $html .= '<h3>Kargo, Teslimat &amp; Değişim Güvencesi</h3>';
+        $html .= '<p>✅ <strong>Hızlı ve Güvenli Kargo</strong> ile özel kutusunda kapınıza kadar teslim edilir. ';
+        $html .= 'Siparişleriniz ortalama <strong>' . e($deliveryTime) . '</strong> içinde kargoya verilir. ';
+        $html .= '14 gün içerisinde ücretsiz numara değişimi, kolay iade ve güvenli ödeme seçenekleri ile <strong>' . e($modelTitle) . '</strong> siparişinizi gönül rahatlığıyla oluşturabilirsiniz.</p>';
+
+        if ($preservedMedia !== '') {
+            $html .= $preservedMedia;
+        }
+
+        return $html;
+    }
+
+    /**
+     * Ayakkabı modelleri için "Patenli Ayakkabı" içeren SEO Meta Başlığı üretir (max 70 karakter).
+     */
+    public static function buildShoeMetaTitle(Product $product): string
+    {
+        $name = trim($product->name ?: 'Patenli Ayakkabı');
+        $genderLabel = match ($product->gender) {
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
+        };
+
+        $lowerName = mb_strtolower($name);
+        $hasKeyword = str_contains($lowerName, 'patenli ayakkabı') || str_contains($lowerName, 'patenli ayakkabi');
+        $baseTitle = $product->getModelTitleWithKeyword();
+
+        $candidates = [];
+        if ($genderLabel && !str_contains(mb_strtolower($baseTitle), mb_strtolower($genderLabel))) {
+            $candidates[] = "{$baseTitle} | {$genderLabel} - Patenli Ayakkabılar";
+        }
+        $candidates[] = "{$baseTitle} | Patenli Ayakkabılar";
+        if ($genderLabel && !str_contains(mb_strtolower($baseTitle), mb_strtolower($genderLabel))) {
+            $candidates[] = "{$baseTitle} | {$genderLabel}";
+        }
+        $candidates[] = $baseTitle;
+
+        foreach ($candidates as $candidate) {
+            if (mb_strlen($candidate) <= 70) {
+                return $candidate;
+            }
+        }
+
+        if (!$hasKeyword) {
+            $suffix = ' - Patenli Ayakkabı';
+            $maxLen = 70 - mb_strlen($suffix);
+            return trim(mb_substr($name, 0, $maxLen)) . $suffix;
+        }
+
+        return mb_substr($baseTitle, 0, 70);
+    }
+
+    /**
+     * Ayakkabı modelleri için "Patenli Ayakkabı" içeren SEO Meta Açıklaması üretir (max 160 karakter).
+     */
+    public static function buildShoeMetaDescription(Product $product): string
+    {
+        $brand = trim((string) $product->brand);
+        $price = $product->discount_price ?: $product->price;
+
+        $genderLabel = match ($product->gender) {
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => null,
+        };
+
+        $baseTitle = $product->getModelTitleWithKeyword();
+        $intro = $baseTitle;
+        if ($genderLabel && !str_contains(mb_strtolower($intro), mb_strtolower($genderLabel))) {
+            $intro .= " ({$genderLabel})";
+        }
+        if ($brand && !str_contains(mb_strtolower($intro), mb_strtolower($brand))) {
+            $intro .= " {$brand}";
+        }
+        $intro .= ' modeli.';
+
+        $parts = [$intro];
+
+        if ($price && $price > 0) {
+            if ($product->discount_price && $product->price > $product->discount_price) {
+                $parts[] = 'İndirimli: ' . number_format((float) $price, 0, ',', '.') . ' ₺.';
+            } else {
+                $parts[] = 'Fiyat: ' . number_format((float) $price, 0, ',', '.') . ' ₺.';
+            }
+        }
+
+        $parts[] = 'Gizli tekerlekli, ışıklı patenli ayakkabı.';
+        $parts[] = '✅ Hızlı kargo ve 14 gün değişim!';
+
+        $description = '';
+        foreach ($parts as $part) {
+            $candidate = $description ? $description . ' ' . $part : $part;
+            if (mb_strlen($candidate) <= 160) {
+                $description = $candidate;
+            }
+        }
+
+        if (empty($description) || mb_strlen($description) > 160) {
+            $fallback = "{$baseTitle} en uygun fiyat, hızlı kargo ve 14 gün değişim güvencesiyle Patenli Ayakkabılar'da!";
+            $description = mb_substr($fallback, 0, 160);
+        }
+
+        return $description;
+    }
+
+    /**
+     * Ayakkabı modelleri için AIO / GEO özetini ve anahtar kelimelerini "Patenli Ayakkabı" ile günceller.
+     */
+    public function applyShoeDescriptionAndSeo(bool $forceDescriptions = true, bool $forceSeo = true): bool
+    {
+        if (!$this->isShoeModel()) {
+            return false;
+        }
+
+        $modelTitle = $this->getModelTitleWithKeyword();
+        $brand = trim((string) ($this->brand ?: 'Patenli Ayakkabılar'));
+        $genderLabel = match ($this->gender) {
+            'erkek'       => 'Erkek',
+            'kadin'       => 'Kadın',
+            'erkek_cocuk' => 'Erkek Çocuk',
+            'kiz_cocuk'   => 'Kız Çocuk',
+            'unisex'      => 'Unisex',
+            default       => 'Çocuk ve Genç',
+        };
+
+        if ($forceDescriptions || empty($this->short_description) || !str_contains(mb_strtolower($this->short_description), 'patenli ayakkabı')) {
+            $this->short_description = static::buildShoeShortDescription($this);
+        }
+
+        if ($forceDescriptions || empty($this->description) || !str_contains(mb_strtolower($this->description), 'patenli ayakkabı')) {
+            $this->description = static::buildShoeDescriptionHtml($this, $this->description);
+        }
+
+        if ($forceSeo || empty($this->meta_title) || !str_contains(mb_strtolower($this->meta_title), 'patenli ayakkabı')) {
+            $this->meta_title = static::buildShoeMetaTitle($this);
+        }
+
+        if ($forceSeo || empty($this->meta_description) || !str_contains(mb_strtolower($this->meta_description), 'patenli ayakkabı')) {
+            $this->meta_description = static::buildShoeMetaDescription($this);
+        }
+
+        // AIO Summary güncellemesi
+        if ($forceSeo || empty($this->aio_summary) || !str_contains(mb_strtolower((string) $this->aio_summary), 'patenli ayakkabı')) {
+            $this->aio_summary = "{$modelTitle}, {$genderLabel} kullanıcılar için özel olarak tasarlanmış, bas-çek gizlenebilir tekerlek mekanizmasına sahip şık ve güvenli bir Patenli Ayakkabı modelidir. {$brand} kalitesiyle hem günlük spor ayakkabı konforunu hem de paten eğlencesini bir arada sunar.";
+        }
+
+        // AIO Target Keywords güncellemesi
+        $existingKeywords = is_array($this->aio_target_keywords) ? $this->aio_target_keywords : [];
+        $shoeKeywords = [
+            'patenli ayakkabı',
+            mb_strtolower($modelTitle),
+            mb_strtolower(trim($this->name) . ' patenli ayakkabı'),
+            mb_strtolower($genderLabel . ' patenli ayakkabı'),
+            'ışıklı patenli ayakkabı modelleri',
+            'gizlenebilir tekerlekli patenli ayakkabı',
+        ];
+        $mergedKeywords = array_values(array_unique(array_filter(array_merge($shoeKeywords, $existingKeywords))));
+        $this->aio_target_keywords = array_slice($mergedKeywords, 0, 10);
+
+        return true;
+    }
+
+    /**
      * Kısa açıklama ve açıklamayı otomatik üret
      */
     protected static function autoFillContent(Product $product): void
     {
+        if ($product->isShoeModel()) {
+            if (empty($product->short_description)) {
+                $product->short_description = static::buildShoeShortDescription($product);
+            }
+            if (empty($product->description)) {
+                $product->description = static::buildShoeDescriptionHtml($product);
+            }
+            return;
+        }
+
         $name = $product->name;
         $category = $product->categories()->first()?->name;
         $brand = $product->brand;
@@ -154,7 +530,7 @@ class Product extends Model
             if ($brand) {
                 $intro .= ' ' . e($brand) . ' marka';
             }
-            $intro .= ' patenli ayakkabıdır.';
+            $intro .= ' patenli ayakkabı aksesuarıdır.';
             if ($category) {
                 $intro .= ' ' . e($category) . ' kategorisindeki bu model,';
             }
@@ -199,6 +575,16 @@ class Product extends Model
      */
     protected static function autoFillSeo(Product $product): void
     {
+        if ($product->isShoeModel()) {
+            if (empty($product->meta_title)) {
+                $product->meta_title = static::buildShoeMetaTitle($product);
+            }
+            if (empty($product->meta_description)) {
+                $product->meta_description = static::buildShoeMetaDescription($product);
+            }
+            return;
+        }
+
         $name = $product->name;
         $category = $product->categories()->first()?->name;
         $brand = $product->brand;
@@ -364,7 +750,10 @@ class Product extends Model
     {
         $features = [];
         $name = mb_strtolower($product->name ?? '');
-        $category = mb_strtolower($product->categories()->first()?->name ?? '');
+        $catName = $product->relationLoaded('categories')
+            ? $product->categories->first()?->name
+            : ($product->exists ? $product->categories()->first()?->name : '');
+        $category = mb_strtolower($catName ?? '');
 
         // LED anahtar kelimeleri
         if (str_contains($name, 'led') || str_contains($name, 'ışık') || str_contains($category, 'led')) {
@@ -378,7 +767,10 @@ class Product extends Model
         }
 
         // Tekerlek tipi
-        $wheelTypes = $product->variants?->pluck('wheel_type')->filter()->unique()->toArray() ?? [];
+        $variants = $product->relationLoaded('variants')
+            ? $product->variants
+            : ($product->exists ? $product->variants : collect());
+        $wheelTypes = $variants?->pluck('wheel_type')->filter()->unique()->toArray() ?? [];
         if (in_array('double', $wheelTypes)) {
             $features[] = 'double_wheel';
         } elseif (in_array('single', $wheelTypes)) {

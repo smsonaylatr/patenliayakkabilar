@@ -18,6 +18,33 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('updateAllShoeSeoAndDescriptions')
+                ->label('Patenli Ayakkabı SEO & Açıklama Güncelle')
+                ->icon('heroicon-o-sparkles')
+                ->color('primary')
+                ->requiresConfirmation()
+                ->modalHeading('Tüm Ayakkabı Modellerinin Açıklama ve SEO Verilerini Güncelle')
+                ->modalDescription('Tüm ayakkabı modellerinin kısa açıklama, detaylı tanıtım, meta başlık, meta açıklama ve yapay zeka (AIO) alanlarına "Patenli Ayakkabı" anahtar kelimesi eklenecek ve açıklamaları güncellenecektir. (Mevcut açıklama içi görseller korunur.)')
+                ->modalSubmitActionLabel('Tümünü Güncelle')
+                ->action(function (): void {
+                    $products = Product::with(['categories', 'features', 'variants'])->get();
+                    $updatedCount = 0;
+
+                    foreach ($products as $product) {
+                        if ($product->applyShoeDescriptionAndSeo(true, true)) {
+                            $product->saveQuietly();
+                            $updatedCount++;
+                        }
+                    }
+
+                    Product::clearProductCaches();
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Ürün Açıklamaları ve SEO Güncellendi')
+                        ->body("Toplam {$updatedCount} adet ayakkabı modelinin ürün açıklaması ve SEO verileri 'Patenli Ayakkabı' odaklı olarak güncellendi.")
+                        ->success()
+                        ->send();
+                }),
             Action::make('syncGoogleMerchant')
                 ->label("Google Merchant ile Eşitle")
                 ->icon('heroicon-o-cloud-arrow-up')

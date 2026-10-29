@@ -45,5 +45,30 @@ class AppServiceProvider extends ServiceProvider
 
         // Mail event subscriber — gönderilen tüm e-postaları loglar
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\MailEventSubscriber::class);
+
+        // Ayakkabı modellerinin açıklama ve SEO verilerini tek seferlik otomatik senkronize et
+        if (!$this->app->runningInConsole()) {
+            try {
+                if (!\Illuminate\Support\Facades\Cache::get('shoe_seo_descriptions_v1_applied')) {
+                    $applied = \App\Models\Setting::where('key', 'shoe_seo_descriptions_v1_applied')->value('value');
+                    if ($applied !== '1') {
+                        $products = \App\Models\Product::with(['categories', 'features', 'variants'])->get();
+                        foreach ($products as $product) {
+                            if ($product->applyShoeDescriptionAndSeo(true, true)) {
+                                $product->saveQuietly();
+                            }
+                        }
+                        \App\Models\Product::clearProductCaches();
+                        \App\Models\Setting::updateOrCreate(
+                            ['key' => 'shoe_seo_descriptions_v1_applied'],
+                            ['value' => '1']
+                        );
+                    }
+                    \Illuminate\Support\Facades\Cache::forever('shoe_seo_descriptions_v1_applied', true);
+                }
+            } catch (\Throwable) {
+                // Veritabanı henüz hazır değilse sessizce geç
+            }
+        }
     }
 }

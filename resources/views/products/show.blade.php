@@ -1,7 +1,7 @@
 {{-- Product Detail Page --}}
 <x-layouts.app>
-    <x-slot:title>{{ $product->meta_title ?? $product->name . ' | Patenli Ayakkabılar' }}</x-slot:title>
-    <x-slot:description>{{ $product->meta_description ?? Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155) }}</x-slot:description>
+    <x-slot:title>{{ $product->meta_title ?: ($product->isShoeModel() ? \App\Models\Product::buildShoeMetaTitle($product) : $product->name . ' | Patenli Ayakkabılar') }}</x-slot:title>
+    <x-slot:description>{{ $product->meta_description ?: ($product->isShoeModel() ? \App\Models\Product::buildShoeMetaDescription($product) : Str::limit($product->short_description ?? 'Çocuklar için güvenli ve eğlenceli patenli ayakkabılar.', 155)) }}</x-slot:description>
     <x-slot:ogType>product</x-slot:ogType>
     <x-slot:ogImage>{{ $product->og_image_url ?? $product->images->skip(1)->first()?->image_url ?? $product->images->first()?->image_url ?? asset('whatsapp-cover.png') }}</x-slot:ogImage>
     <x-slot:ogImageSquare>{{ $product->og_image_url ?? $product->images->first()?->image_url ?? asset('og-square.png') }}</x-slot:ogImageSquare>

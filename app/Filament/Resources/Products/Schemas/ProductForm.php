@@ -54,6 +54,41 @@ class ProductForm
                                     ->unique(ignoreRecord: true)
                                     ->dehydrated(),
 
+                                \Filament\Schemas\Components\Actions::make([
+                                    \Filament\Actions\Action::make('generate_descriptions')
+                                        ->label('✨ Patenli Ayakkabı Açıklaması Üret')
+                                        ->icon('heroicon-o-sparkles')
+                                        ->color('success')
+                                        ->size('sm')
+                                        ->action(function (\Filament\Schemas\Components\Utilities\Set $set, \Filament\Schemas\Components\Utilities\Get $get, ?\Illuminate\Database\Eloquent\Model $record = null) {
+                                            $name = trim((string) $get('name'));
+                                            if (empty($name)) {
+                                                \Filament\Notifications\Notification::make()
+                                                    ->title('Önce ürün adını giriniz')
+                                                    ->warning()
+                                                    ->send();
+                                                return;
+                                            }
+
+                                            $tempProduct = $record instanceof \App\Models\Product ? clone $record : new \App\Models\Product();
+                                            $tempProduct->name = $name;
+                                            $tempProduct->brand = $get('brand');
+                                            $tempProduct->gender = $get('gender');
+                                            $tempProduct->age_group = $get('age_group');
+                                            $tempProduct->delivery_time = $get('delivery_time');
+                                            $tempProduct->requires_size = (bool) ($get('requires_size') ?? true);
+
+                                            $set('short_description', \App\Models\Product::buildShoeShortDescription($tempProduct));
+                                            $set('description', \App\Models\Product::buildShoeDescriptionHtml($tempProduct, (string) $get('description')));
+
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Açıklamalar Güncellendi')
+                                                ->body('Kısa açıklama ve tanıtım metni "Patenli Ayakkabı" odaklı olarak güncellendi.')
+                                                ->success()
+                                                ->send();
+                                        }),
+                                ])->columnSpanFull(),
+
                                 Textarea::make('short_description')
                                     ->label('Kısa Açıklama')
                                     ->rows(3)
@@ -211,6 +246,21 @@ class ProductForm
                                                 if ($firstImage && $firstImage->image_path) {
                                                     $set('og_image', $firstImage->image_path);
                                                 }
+                                            }
+
+                                            $tempProduct = $record instanceof \App\Models\Product ? clone $record : new \App\Models\Product();
+                                            $tempProduct->name = (string) $name;
+                                            $tempProduct->brand = $get('brand');
+                                            $tempProduct->gender = $get('gender');
+                                            $tempProduct->age_group = $get('age_group');
+                                            $tempProduct->price = $get('price');
+                                            $tempProduct->discount_price = $get('discount_price');
+                                            $tempProduct->requires_size = (bool) ($get('requires_size') ?? true);
+
+                                            if ($tempProduct->isShoeModel()) {
+                                                $set('meta_title', \App\Models\Product::buildShoeMetaTitle($tempProduct));
+                                                $set('meta_description', \App\Models\Product::buildShoeMetaDescription($tempProduct));
+                                                return;
                                             }
 
                                             $categoryIds = (array) $get('categories');
