@@ -23,25 +23,15 @@ class ListProducts extends ListRecords
                 ->icon('heroicon-o-sparkles')
                 ->color('primary')
                 ->requiresConfirmation()
-                ->modalHeading('Tüm Ayakkabı Modellerinin Açıklama ve SEO Verilerini Güncelle')
-                ->modalDescription('Tüm ayakkabı modellerinin kısa açıklama, detaylı tanıtım, meta başlık, meta açıklama ve yapay zeka (AIO) alanlarına "Patenli Ayakkabı" anahtar kelimesi eklenecek ve açıklamaları güncellenecektir. (Mevcut açıklama içi görseller korunur.)')
+                ->modalHeading('Tüm Ayakkabı Modellerinin Başlık, Slug, Açıklama ve SEO Verilerini Güncelle')
+                ->modalDescription('Tüm ürün başlıklarından ve URL (slug) yollarından "Spor" kelimesi çıkarılacak; ayakkabı modellerinin kısa açıklama, detaylı tanıtım, meta başlık, meta açıklama ve yapay zeka (AIO) alanları "Patenli Ayakkabı" odaklı olarak güncellenecektir.')
                 ->modalSubmitActionLabel('Tümünü Güncelle')
                 ->action(function (): void {
-                    $products = Product::with(['categories', 'features', 'variants'])->get();
-                    $updatedCount = 0;
-
-                    foreach ($products as $product) {
-                        if ($product->applyShoeDescriptionAndSeo(true, true)) {
-                            $product->saveQuietly();
-                            $updatedCount++;
-                        }
-                    }
-
-                    Product::clearProductCaches();
+                    $updatedCount = Product::cleanAllSlugsAndTitles(true);
 
                     \Filament\Notifications\Notification::make()
-                        ->title('Ürün Açıklamaları ve SEO Güncellendi')
-                        ->body("Toplam {$updatedCount} adet ayakkabı modelinin ürün açıklaması ve SEO verileri 'Patenli Ayakkabı' odaklı olarak güncellendi.")
+                        ->title('Ürün Başlıkları, Slug\'lar ve SEO Güncellendi')
+                        ->body("Toplam {$updatedCount} adet ürünün başlık, slug, ürün açıklaması ve SEO verileri güncellendi.")
                         ->success()
                         ->send();
                 }),

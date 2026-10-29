@@ -23,11 +23,15 @@ class Category extends Model
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
             }
+            $category->slug = Product::stripSporFromSlug($category->slug);
             // SEO alanlarını otomatik doldur
             static::autoFillSeo($category);
         });
 
         static::updating(function (Category $category) {
+            if (!empty($category->slug)) {
+                $category->slug = Product::stripSporFromSlug($category->slug);
+            }
             if (empty($category->meta_title) || $category->isDirty('name')) {
                 static::autoFillSeo($category);
             }

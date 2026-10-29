@@ -415,8 +415,8 @@ Route::get('/kategori/{slug}', function (string $slug) {
         return view('products.index', compact('category'));
     }
 
-    // 2. Normalizasyon: Alt tire, URL encode ve Türkçe karakter dönüşümü (örn: kiz_cocuk -> kiz-cocuk)
-    $cleanSlug = \Illuminate\Support\Str::slug(str_replace('_', '-', urldecode($slug)));
+    // 2. Normalizasyon: Alt tire, URL encode, Türkçe karakter dönüşümü ve "spor" kelimesi temizliği
+    $cleanSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(str_replace('_', '-', urldecode($slug))));
     $category = \App\Models\Category::where('slug', $cleanSlug)->where('status', true)->first();
     if ($category) {
         return redirect()->route('category.show', ['slug' => $category->slug], 301);
@@ -486,8 +486,17 @@ Route::get('/urun/{slug}', function ($slug) {
         ->first();
 
     if (!$product) {
+        // Eski "spor" içeren ürün URL'lerini yeni "spor"suz URL'ye 301 olarak yönlendir
+        $cleanSporSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
+        if ($cleanSporSlug !== '' && $cleanSporSlug !== $slug) {
+            $sporRemovedProduct = \App\Models\Product::where('slug', $cleanSporSlug)->first();
+            if ($sporRemovedProduct) {
+                return redirect()->route('products.show', ['slug' => $sporRemovedProduct->slug], 301);
+            }
+        }
+
         // Bulunamayan ürün isteğini akıllıca ilgili kategoriye veya ana ürünler sayfasına 301 yönlendir
-        $category = \App\Models\Category::where('slug', $slug)->first();
+        $category = \App\Models\Category::where('slug', $slug)->orWhere('slug', $cleanSporSlug)->first();
         if (!$category) {
             if (str_contains($slug, 'erkek-cocuk')) {
                 $category = \App\Models\Category::where('slug', 'like', '%erkek-cocuk%')->first();
@@ -508,7 +517,17 @@ Route::get('/urun/{slug}', function ($slug) {
 
 // Ürün Yorumları (Tümünü Gör)
 Route::get('/urun/{slug}/yorumlar', function ($slug) {
-    $product = \App\Models\Product::where('slug', $slug)->firstOrFail();
+    $product = \App\Models\Product::where('slug', $slug)->first();
+    if (!$product) {
+        $cleanSporSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
+        if ($cleanSporSlug !== '' && $cleanSporSlug !== $slug) {
+            $sporRemovedProduct = \App\Models\Product::where('slug', $cleanSporSlug)->first();
+            if ($sporRemovedProduct) {
+                return redirect()->route('products.reviews', ['slug' => $sporRemovedProduct->slug], 301);
+            }
+        }
+        abort(404);
+    }
     $reviews = $product->reviews()->where('status', true)
         ->orderByRaw("CASE WHEN comment IS NOT NULL AND comment != '' THEN 0 ELSE 1 END")
         ->latest('id')
@@ -558,7 +577,17 @@ Route::get('/siparis-takip', function (\Illuminate\Http\Request $request) {
 Route::get('/blog', \App\Livewire\Frontend\BlogIndex::class)->name('blog.index');
 
 Route::get('/blog/{slug}', function ($slug) {
-    $post = \App\Models\BlogPost::where('slug', $slug)->where('status', true)->firstOrFail();
+    $post = \App\Models\BlogPost::where('slug', $slug)->where('status', true)->first();
+    if (!$post) {
+        $cleanSlug = \App\Models\Product::stripSporFromSlug(\Illuminate\Support\Str::slug(urldecode((string) $slug)));
+        if ($cleanSlug !== '' && $cleanSlug !== $slug) {
+            $post = \App\Models\BlogPost::where('slug', $cleanSlug)->where('status', true)->first();
+            if ($post) {
+                return redirect()->route('blog.show', ['slug' => $post->slug], 301);
+            }
+        }
+        abort(404);
+    }
     return view('blog.show', compact('post'));
 })->name('blog.show');
 

@@ -205,7 +205,7 @@ class GoogleMerchantService
 
     public function buildSeoTitle(Product $product): string
     {
-        $title = trim($product->name);
+        $title = Product::stripSporFromTitle(trim($product->name));
         $brand = trim((string) ($product->brand ?: ''));
         $target = $product->gender ? $this->mapGenderToTR($product->gender) : '';
 

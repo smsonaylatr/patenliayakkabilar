@@ -44,7 +44,11 @@ class ProductForm
                                     ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function (?string $state, Set $set) {
-                                        $set('slug', Str::slug($state));
+                                        $cleanName = \App\Models\Product::stripSporFromTitle($state);
+                                        if ($cleanName !== (string) $state) {
+                                            $set('name', $cleanName);
+                                        }
+                                        $set('slug', \App\Models\Product::stripSporFromSlug(Str::slug($cleanName)));
                                     }),
 
                                 TextInput::make('slug')
@@ -52,6 +56,13 @@ class ProductForm
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (?string $state, Set $set) {
+                                        $cleanSlug = \App\Models\Product::stripSporFromSlug(Str::slug((string) $state));
+                                        if ($cleanSlug !== (string) $state) {
+                                            $set('slug', $cleanSlug);
+                                        }
+                                    })
                                     ->dehydrated(),
 
                                 \Filament\Schemas\Components\Actions::make([

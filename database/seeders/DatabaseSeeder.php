@@ -80,13 +80,13 @@ class DatabaseSeeder extends Seeder
                 'short_description' => 'Konforlu taban, gizlenebilir tekerlek.',
             ],
             [
-                'name' => 'Kız Çocuk Patenli Spor Ayakkabı',
-                'slug' => 'kiz-cocuk-patenli-spor-ayakkabi',
+                'name' => 'Kız Çocuk Patenli Ayakkabı',
+                'slug' => 'kiz-cocuk-patenli-ayakkabi',
                 'price' => 1349.99,
                 'discount_price' => 1149.99,
                 'stock' => 40,
                 'category_id' => $cat1->id,
-                'short_description' => 'Kız çocuklarına özel pembe ve mor detaylı spor ayakkabı.',
+                'short_description' => 'Kız çocuklarına özel pembe ve mor detaylı patenli ayakkabı.',
             ],
         ];
 

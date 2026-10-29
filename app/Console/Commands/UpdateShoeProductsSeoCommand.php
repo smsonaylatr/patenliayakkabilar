@@ -27,30 +27,20 @@ class UpdateShoeProductsSeoCommand extends Command
      */
     public function handle(): int
     {
-        $this->info('Ayakkabı modellerinin açıklama ve SEO verileri güncelleniyor...');
+        $this->info('Ürün başlıklarından ve slug\'lardan "Spor" kelimesi temizleniyor ve SEO verileri güncelleniyor...');
 
         $force = !$this->option('only-missing');
-        $products = Product::with(['categories', 'features', 'variants'])->get();
-        $updatedCount = 0;
-
-        foreach ($products as $product) {
-            if ($product->applyShoeDescriptionAndSeo($force, $force)) {
-                $product->saveQuietly();
-                $updatedCount++;
-            }
-        }
-
-        Product::clearProductCaches();
+        $updatedCount = Product::cleanAllSlugsAndTitles($force);
 
         try {
             Setting::updateOrCreate(
-                ['key' => 'shoe_seo_descriptions_v1_applied'],
+                ['key' => 'shoe_remove_spor_and_seo_v2_applied'],
                 ['value' => '1']
             );
         } catch (\Throwable) {
         }
 
-        $this->info("Tamamlandı: {$updatedCount} adet ayakkabı modelinin açıklama ve SEO verileri güncellendi.");
+        $this->info("Tamamlandı: {$updatedCount} adet ürünün başlık, slug, açıklama ve SEO verileri güncellendi.");
 
         return self::SUCCESS;
     }

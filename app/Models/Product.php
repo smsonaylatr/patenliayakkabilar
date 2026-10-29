@@ -36,6 +36,11 @@ class Product extends Model
         parent::boot();
 
         static::creating(function (Product $product) {
+            $product->name = static::stripSporFromTitle($product->name);
+            if (!empty($product->slug)) {
+                $product->slug = static::stripSporFromSlug($product->slug);
+            }
+
             // Fiyat/stok artık varyantlardan geliyor, varsayılan değerler
             $product->price = $product->price ?: 0;
             $product->stock = $product->stock ?: 0;
@@ -49,6 +54,11 @@ class Product extends Model
         });
 
         static::updating(function (Product $product) {
+            $product->name = static::stripSporFromTitle($product->name);
+            if (!empty($product->slug)) {
+                $product->slug = static::stripSporFromSlug($product->slug);
+            }
+
             if (empty($product->short_description) || empty($product->description) || $product->isDirty('name')) {
                 static::autoFillContent($product);
             }
@@ -58,6 +68,12 @@ class Product extends Model
         });
 
         static::saving(function (Product $product) {
+            $product->name = static::stripSporFromTitle($product->name);
+            $product->slug = static::stripSporFromSlug($product->slug ?: Str::slug($product->name));
+            if (!empty($product->meta_title)) {
+                $product->meta_title = static::stripSporFromTitle($product->meta_title);
+            }
+
             if (empty($product->sku)) {
                 $cleanSlug = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', Str::slug(\App\Services\SchemaService::turkishToAscii($product->name ?: 'PRODUCT'))));
                 if (strlen($cleanSlug) > 15) {
@@ -92,14 +108,167 @@ class Product extends Model
 
     public static function clearProductCaches()
     {
+        \Illuminate\Support\Facades\Cache::forget('home_product_grid');
+        \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2');
         \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_feat_0');
         \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_feat_1');
+        \Illuminate\Support\Facades\Cache::forget('best_seller_carousel_products');
+        \Illuminate\Support\Facades\Cache::forget('hero_random_products');
+        \Illuminate\Support\Facades\Cache::forget('header_root_categories_v1');
+        \Illuminate\Support\Facades\Cache::forget('mobile_catalog_categories_v3');
+        \Illuminate\Support\Facades\Cache::forget('ai_vector_embeddings_dataset_v1');
+        \Illuminate\Support\Facades\Cache::forget('llms_full_markdown_v2');
         
         $categories = \App\Models\Category::pluck('slug');
         foreach ($categories as $slug) {
             \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug . '_feat_0');
             \Illuminate\Support\Facades\Cache::forget('home_product_grid_v2_cat_' . $slug . '_feat_1');
         }
+    }
+
+    /**
+     * Başlık ve metinlerden tekil "Spor" kelimesini temizler ("sportif" gibi türev kelimelere dokunmaz).
+     */
+    public static function stripSporFromTitle(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+
+        $cleaned = preg_replace('/(?<![\p{L}\p{N}])spor(?![\p{L}\p{N}])/iu', '', $text);
+        $cleaned = preg_replace('/\s{2,}/u', ' ', (string) $cleaned);
+
+        return trim((string) $cleaned);
+    }
+
+    /**
+     * Slug (URL yolu) içindeki "spor" kelimesini temizler.
+     */
+    public static function stripSporFromSlug(?string $slug): string
+    {
+        if ($slug === null || $slug === '') {
+            return '';
+        }
+
+        $cleaned = preg_replace('/(?<=-|^)spor(?=-|$)/i', '', $slug);
+        $cleaned = preg_replace('/-+/', '-', (string) $cleaned);
+
+        return trim((string) $cleaned, '-');
+    }
+
+    /**
+     * Tüm ürün başlıklarından ve sistemdeki tüm slug'lardan "Spor" kelimesini temizler,
+     * ayakkabı modellerinin açıklama ve SEO alanlarını yeni başlığa göre günceller.
+     */
+    public static function cleanAllSlugsAndTitles(bool $refreshSeo = true): int
+    {
+        $updatedCount = 0;
+
+        $products = static::withTrashed()->with(['categories', 'features', 'variants'])->get();
+        foreach ($products as $product) {
+            $changed = false;
+
+            $newName = static::stripSporFromTitle($product->name);
+            if ($newName !== '' && $newName !== $product->name) {
+                $product->name = $newName;
+                $changed = true;
+            }
+
+            $rawSlug = $product->slug ?: Str::slug($product->name);
+            $newSlug = static::stripSporFromSlug($rawSlug);
+            if ($newSlug === '') {
+                $newSlug = static::stripSporFromSlug(Str::slug($product->name)) ?: ('urun-' . $product->id);
+            }
+
+            if ($newSlug !== $product->slug) {
+                $baseSlug = $newSlug;
+                $counter = 2;
+                while (static::withTrashed()->where('slug', $newSlug)->where('id', '!=', $product->id)->exists()) {
+                    $newSlug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                $product->slug = $newSlug;
+                $changed = true;
+            }
+
+            if (!empty($product->meta_title)) {
+                $newMetaTitle = static::stripSporFromTitle($product->meta_title);
+                if ($newMetaTitle !== $product->meta_title) {
+                    $product->meta_title = $newMetaTitle;
+                    $changed = true;
+                }
+            }
+
+            if (is_array($product->aio_target_keywords) && !empty($product->aio_target_keywords)) {
+                $cleanedKeywords = array_values(array_unique(array_filter(array_map(
+                    fn ($kw) => static::stripSporFromTitle((string) $kw),
+                    $product->aio_target_keywords
+                ))));
+                if ($cleanedKeywords !== $product->aio_target_keywords) {
+                    $product->aio_target_keywords = $cleanedKeywords;
+                    $changed = true;
+                }
+            }
+
+            if ($refreshSeo && $product->isShoeModel()) {
+                if ($product->applyShoeDescriptionAndSeo(true, true)) {
+                    $changed = true;
+                }
+            }
+
+            if ($changed) {
+                $product->saveQuietly();
+                $updatedCount++;
+            }
+        }
+
+        // Kategori, Blog, Sayfa ve Müşteri Segmenti slug'larında "spor" varsa temizle
+        $slugModels = [
+            \App\Models\Category::class,
+            \App\Models\BlogPost::class,
+            \App\Models\Page::class,
+            \App\Models\CustomerSegment::class,
+        ];
+
+        foreach ($slugModels as $modelClass) {
+            try {
+                if (!class_exists($modelClass)) {
+                    continue;
+                }
+                $records = $modelClass::all();
+                foreach ($records as $record) {
+                    $recordChanged = false;
+                    if (!empty($record->slug)) {
+                        $cleanSlug = static::stripSporFromSlug($record->slug);
+                        if ($cleanSlug !== '' && $cleanSlug !== $record->slug) {
+                            $baseSlug = $cleanSlug;
+                            $counter = 2;
+                            while ($modelClass::where('slug', $cleanSlug)->where('id', '!=', $record->id)->exists()) {
+                                $cleanSlug = $baseSlug . '-' . $counter;
+                                $counter++;
+                            }
+                            $record->slug = $cleanSlug;
+                            $recordChanged = true;
+                        }
+                    }
+                    if ($modelClass === \App\Models\Category::class && !empty($record->name)) {
+                        $cleanCatName = static::stripSporFromTitle($record->name);
+                        if ($cleanCatName !== '' && $cleanCatName !== $record->name) {
+                            $record->name = $cleanCatName;
+                            $recordChanged = true;
+                        }
+                    }
+                    if ($recordChanged) {
+                        $record->saveQuietly();
+                    }
+                }
+            } catch (\Throwable) {
+            }
+        }
+
+        static::clearProductCaches();
+
+        return $updatedCount;
     }
 
     /**
@@ -137,7 +306,7 @@ class Product extends Model
      */
     public function getModelTitleWithKeyword(): string
     {
-        $name = trim($this->name ?? '');
+        $name = static::stripSporFromTitle(trim($this->name ?? ''));
         if ($name === '') {
             return 'Patenli Ayakkabı';
         }
@@ -453,11 +622,12 @@ class Product extends Model
         }
 
         // AIO Target Keywords güncellemesi
-        $existingKeywords = is_array($this->aio_target_keywords) ? $this->aio_target_keywords : [];
+        $existingKeywords = is_array($this->aio_target_keywords)
+            ? array_map(fn ($kw) => static::stripSporFromTitle((string) $kw), $this->aio_target_keywords)
+            : [];
         $shoeKeywords = [
             'patenli ayakkabı',
             mb_strtolower($modelTitle),
-            mb_strtolower(trim($this->name) . ' patenli ayakkabı'),
             mb_strtolower($genderLabel . ' patenli ayakkabı'),
             'ışıklı patenli ayakkabı modelleri',
             'gizlenebilir tekerlekli patenli ayakkabı',
