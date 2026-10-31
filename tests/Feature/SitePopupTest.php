@@ -74,4 +74,43 @@ class SitePopupTest extends TestCase
 
         $reporter->report($exception);
     }
+
+    public function test_header_cart_count_array_payload_is_sanitized_without_type_error(): void
+    {
+        Livewire::test(\App\Livewire\Frontend\Header::class)
+            ->set('cartCount', ['bot' => 'payload'])
+            ->assertStatus(200)
+            ->assertSet('cartCount', 0);
+    }
+
+    public function test_typed_scalar_properties_on_components_ignore_array_payloads_globally(): void
+    {
+        Livewire::test(\App\Livewire\Frontend\Contact::class)
+            ->set('name', ['malicious' => 'array'])
+            ->set('isSuccess', ['malicious' => 'array'])
+            ->assertStatus(200)
+            ->assertSet('name', 'array')
+            ->assertSet('isSuccess', false);
+    }
+
+    public function test_exception_telegram_reporter_ignores_livewire_handle_components_type_error(): void
+    {
+        $mockTelegram = $this->createMock(TelegramAlertService::class);
+        $mockTelegram->expects($this->never())->method('sendAlert');
+
+        $reporter = new ExceptionTelegramReporter($mockTelegram);
+
+        try {
+            $header = new \App\Livewire\Frontend\Header();
+            $fn = function ($comp, $prop, $val) {
+                $comp->$prop = $val;
+            };
+            $fn($header, 'cartCount', ['invalid']);
+        } catch (\TypeError $e) {
+            // Simulate exception originating from HandleComponents.php
+            $ref = new \ReflectionProperty(\Error::class, 'file');
+            $ref->setValue($e, '/var/www/vhosts/patenliayakkabilar.com/httpdocs/vendor/livewire/livewire/src/Mechanisms/HandleComponents/HandleComponents.php');
+            $reporter->report($e);
+        }
+    }
 }

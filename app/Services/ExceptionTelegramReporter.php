@@ -33,12 +33,25 @@ class ExceptionTelegramReporter
             TokenMismatchException::class,
             ThrottleRequestsException::class,
             CannotUpdateLockedPropertyException::class,
+            \Livewire\Exceptions\PublicPropertyNotFoundException::class,
+            \Livewire\Exceptions\MethodNotFoundException::class,
+            \Livewire\Exceptions\MissingRulesException::class,
+            \Livewire\Exceptions\PayloadTooLargeException::class,
+            \Livewire\Exceptions\TooManyComponentsException::class,
+            \Livewire\Exceptions\TooManyCallsException::class,
+            \Livewire\Exceptions\MaxNestingDepthExceededException::class,
+            \Livewire\Mechanisms\HandleComponents\CorruptComponentPayloadException::class,
         ];
 
         foreach ($ignoredExceptions as $ignoredClass) {
             if ($e instanceof $ignoredClass) {
                 return;
             }
+        }
+
+        // Ignore bot/scanner payload tampering TypeErrors in Livewire update hydration
+        if ($e instanceof \TypeError && str_contains($e->getFile(), 'HandleComponents.php') && str_contains($e->getMessage(), 'Cannot assign')) {
+            return;
         }
 
         // Check if error was reported in the last 15 minutes (Atomic lock with Cache::add)

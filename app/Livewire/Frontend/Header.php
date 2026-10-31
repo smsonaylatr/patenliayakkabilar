@@ -5,10 +5,12 @@ namespace App\Livewire\Frontend;
 use Livewire\Component;
 use App\Services\CartService;
 use App\Models\Category;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 
 class Header extends Component
 {
+    #[Locked]
     public int $cartCount = 0;
 
     public function mount(CartService $cartService)
